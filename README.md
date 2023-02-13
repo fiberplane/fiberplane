@@ -1,4 +1,4 @@
-# `fiberplane-rs`
+# `fiberplane`
 
 This repository is a monorepo for Rust code that is used throughout Fiberplane's
 product.
@@ -31,11 +31,11 @@ Please see [COMMUNITY.md](COMMUNITY.md) for ways to reach out to us.
 ## Contributing
 
 Please be advised that even though many of our repositories are open for outside
-contributions, `fiberplane-rs` is primarily a **read-only** repository for our
+contributions, `fiberplane` is primarily a **read-only** repository for our
 community. Fiberplane uses this repository to develop new features out in the
 open, and you are encouraged to build custom solutions on top of the source code
-we provide here. Our [issue tracker](https://github.com/fiberplane/fiberplane-rs/issues)
-and [discussions forum](https://github.com/fiberplane/fiberplane-rs/discussions)
+we provide here. Our [issue tracker](https://github.com/fiberplane/fiberplane/issues)
+and [discussions forum](https://github.com/fiberplane/fiberplane/discussions)
 are open to all in case you have issues or questions/suggestions.
 
 For more information, please see [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -46,7 +46,7 @@ See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## License
 
-All code within the `fiberplane-rs` repository is distributed under the terms of
+All code within the `fiberplane` repository is distributed under the terms of
 both the MIT license and the Apache License (Version 2.0).
 
 See [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT).
