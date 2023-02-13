@@ -1986,6 +1986,7 @@ components:
       required:
         - name
         - description
+        - color
         - labels
       properties:
         name:
@@ -1995,24 +1996,53 @@ components:
           type: string
         description:
           type: string
+        color:
+          type: number
+          format: int16
         labels:
           type: array
           items:
             $ref: "#/components/schemas/label"
+        relativeTime:
+          $ref: "#/components/schemas/relativeTime"
+        sortBy:
+          type: string
+          enum:
+            - title
+            - created_at
+            - updated_at
+        sortDirection:
+          type: string
+          enum:
+            - ascending
+            - descending
     update_view:
       type: object
       properties:
-        name:
-          type: string
-          format: name
         displayName:
           type: string
         description:
           type: string
+        color:
+          type: number
+          format: int16
         labels:
           type: array
           items:
             $ref: "#/components/schemas/label"
+        relativeTime:
+          $ref: "#/components/schemas/relativeTime"
+        sortBy:
+          type: string
+          enum:
+            - title
+            - created_at
+            - updated_at
+        sortDirection:
+          type: string
+          enum:
+            - ascending
+            - descending
     pinned_view:
       type: object
       properties:
