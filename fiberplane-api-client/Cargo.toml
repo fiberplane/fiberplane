@@ -31,6 +31,7 @@ version = "0.3"
 crate-type = ["rlib"]
 edition = "2021"
 name = "fiberplane_api_client"
+description = "Generated API client for Fiberplane API"
 path = "src/lib.rs"
 required-features = []
 
