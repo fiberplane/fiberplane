@@ -48,3 +48,9 @@ vergen = { version = "7.4.2", default-features = false, features = [
     "build",
     "git",
 ] }
+
+[patch.crates-io]
+#fp-bindgen = { git = "ssh://git@github.com/fiberplane/fp-bindgen.git", branch = "main" }
+#fp-bindgen-support = { git = "ssh://git@github.com/fiberplane/fp-bindgen.git", branch = "main" }
+#fp-bindgen = { path = "../fp-bindgen/fp-bindgen" }
+#fp-bindgen-support = { path = "../fp-bindgen/fp-bindgen-support" }
