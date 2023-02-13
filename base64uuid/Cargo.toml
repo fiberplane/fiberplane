@@ -1,7 +1,7 @@
 [package]
 name = "base64uuid"
 description = "Type for representing base64url-encoded UUIDs"
-version = "1.0.0-alpha.2"
+version = "1.0.0"
 authors = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }

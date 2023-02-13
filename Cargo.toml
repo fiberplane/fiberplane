@@ -20,7 +20,7 @@ repository = "https://github.com/fiberplane/fiberplane"
 rust-version = "1.64"
 
 [workspace.dependencies]
-base64uuid = { version = "1.0.0-alpha.3", path = "base64uuid", default-features = false }
+base64uuid = { version = "1.0.0", path = "base64uuid", default-features = false }
 bytes = { version = "1", features = ["serde"] }
 fp-bindgen = { version = "3.0.0-alpha.1" }
 fp-bindgen-support = { version = "3.0.0-alpha.1" }
