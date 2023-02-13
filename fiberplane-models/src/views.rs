@@ -98,6 +98,9 @@ pub struct UpdateView {
     pub labels: Option<Vec<Label>>,
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub relative_time: Option<RelativeTime>,
+    #[builder(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sort_by: Option<NotebookSortFields>,
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -117,6 +120,7 @@ pub struct PinnedView {
 }
 
 #[derive(Debug, Deserialize, PartialEq, Eq, Serialize, Copy, Clone)]
+#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
