@@ -19,7 +19,7 @@ fp-bindgen = ["base64uuid/fp-bindgen", "dep:fp-bindgen"]
 base64 = "0.13"
 base64uuid = { workspace = true, default-features = false }
 bytes = { workspace = true }
-clap = { version = "*", default-features = false, optional = true, features = [
+clap = { version = "4.1", default-features = false, optional = true, features = [
     "derive",
     "std",
 ] }

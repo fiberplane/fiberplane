@@ -12,25 +12,25 @@ members = [
 ]
 
 [workspace.package]
-version = "1.0.0-alpha.2"
+version = "1.0.0-alpha.3"
 authors = ["Fiberplane <info@fiberplane.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/fiberplane/fiberplane-rs"
+repository = "https://github.com/fiberplane/fiberplane"
 rust-version = "1.64"
 
 [workspace.dependencies]
-base64uuid = { version = "1.0.0-alpha.2", path = "base64uuid", default-features = false }
+base64uuid = { version = "1.0.0-alpha.3", path = "base64uuid", default-features = false }
 bytes = { version = "1", features = ["serde"] }
 fp-bindgen = { version = "3.0.0-alpha.1" }
 fp-bindgen-support = { version = "3.0.0-alpha.1" }
-fiberplane = { version = "1.0.0-alpha.2", path = "fiberplane" }
-fiberplane-api-client = { version = "1.0.0-alpha.2", path = "fiberplane-api-client" }
-fiberplane-markdown = { version = "1.0.0-alpha.2", path = "fiberplane-markdown" }
-fiberplane-models = { version = "1.0.0-alpha.2", path = "fiberplane-models" }
+fiberplane = { version = "1.0.0-alpha.3", path = "fiberplane" }
+fiberplane-api-client = { version = "1.0.0-alpha.3", path = "fiberplane-api-client" }
+fiberplane-markdown = { version = "1.0.0-alpha.3", path = "fiberplane-markdown" }
+fiberplane-models = { version = "1.0.0-alpha.3", path = "fiberplane-models" }
 fiberplane-provider-bindings = { version = "2.0.0-alpha.1", path = "fiberplane-provider-protocol/fiberplane-provider-bindings" }
 fiberplane-provider-runtime = { version = "2.0.0-alpha.1", path = "fiberplane-provider-protocol/fiberplane-provider-runtime" }
-fiberplane-templates = { version = "1.0.0-alpha.2", path = "fiberplane-templates" }
+fiberplane-templates = { version = "1.0.0-alpha.3", path = "fiberplane-templates" }
 once_cell = { version = "1.8" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -48,9 +48,3 @@ vergen = { version = "7.4.2", default-features = false, features = [
     "build",
     "git",
 ] }
-
-[patch.crates-io]
-#fp-bindgen = { git = "ssh://git@github.com/fiberplane/fp-bindgen.git", branch = "main" }
-#fp-bindgen-support = { git = "ssh://git@github.com/fiberplane/fp-bindgen.git", branch = "main" }
-#fp-bindgen = { path = "../fp-bindgen/fp-bindgen" }
-#fp-bindgen-support = { path = "../fp-bindgen/fp-bindgen-support" }
