@@ -1,4 +1,4 @@
-use crate::timestamps::Timestamp;
+use crate::{events::Event as CoreEvent, timestamps::Timestamp};
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
@@ -152,4 +152,19 @@ pub struct Timeseries {
     /// Whether the series should be rendered. Can be toggled by the user.
     #[serde(default)]
     pub visible: bool,
+}
+
+/// A timeline of events.
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::providers")
+)]
+#[serde(rename_all = "camelCase")]
+pub struct Timeline {
+    pub days: Vec<String>,
+    pub events_by_day: BTreeMap<String, Vec<CoreEvent>>,
+    #[serde(flatten)]
+    pub otel: OtelMetadata,
 }

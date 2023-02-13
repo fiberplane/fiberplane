@@ -29,6 +29,7 @@ pub use fiberplane_models::notebooks::TableCell;
 pub use fiberplane_models::notebooks::TableCellValue;
 pub use fiberplane_models::notebooks::TableColumnDefinition;
 pub use fiberplane_models::notebooks::TextCell;
+pub use fiberplane_models::notebooks::TimelineCell;
 pub use fiberplane_models::providers::CheckboxField;
 pub use fiberplane_models::providers::ConfigField;
 pub use fiberplane_models::providers::DateTimeRangeField;

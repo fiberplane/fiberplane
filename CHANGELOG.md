@@ -15,5 +15,6 @@ changes if the major version hasn't changed.
 
 ### Added
 
+- Add support for timeline cell (#5)
 - Add support for pinned views (#336)
 - Initial open-source release of `fiberplane`.

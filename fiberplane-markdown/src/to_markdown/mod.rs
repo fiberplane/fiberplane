@@ -143,6 +143,9 @@ impl<'a> NotebookConverter<'a> {
                 Cell::Graph(_) => warn!("Ignoring Graph cell because they are not yet supported"),
                 Cell::Log(_) => warn!("Ignoring Log cell because they are not yet supported"),
                 Cell::Table(_) => warn!("Ignoring Table cell because they are not yet supported"),
+                Cell::Timeline(_) => {
+                    warn!("Ignoring Timeline cell because they are not yet supported")
+                }
                 Cell::Discussion(_) => {
                     warn!("Ignoring Discussion cell because they are not yet supported")
                 }

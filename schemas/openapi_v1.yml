@@ -72,6 +72,7 @@ components:
         - $ref: "#/components/schemas/providerCell"
         - $ref: "#/components/schemas/tableCell"
         - $ref: "#/components/schemas/textCell"
+        - $ref: "#/components/schemas/timelineCell"
       discriminator:
         propertyName: type
         mapping:
@@ -87,6 +88,7 @@ components:
           provider: "#/components/schemas/providerCell"
           table: "#/components/schemas/tableCell"
           text: "#/components/schemas/textCell"
+          timeline: "#/components/schemas/timelineCell"
     cellType:
       type: string
       enum:
@@ -102,6 +104,7 @@ components:
         - provider
         - table
         - text
+        - timeline
     checkboxCell:
       type: object
       required:
@@ -456,6 +459,23 @@ components:
           format: int32
         preview:
           type: string
+    timelineCell:
+      type: object
+      required:
+        - type
+        - id
+        - dataLinks
+      properties:
+        type:
+          $ref: "#/components/schemas/cellType"
+        id:
+          type: string
+        dataLinks:
+          type: array
+          items:
+            type: string
+        readOnly:
+          type: boolean
     cellAppendText:
       type: object
       required:
@@ -2289,7 +2309,7 @@ paths:
       operationId: notebook_delete
       summary: "Deletes a notebook"
       description: "Deletes a notebook"
-      tags: 
+      tags:
         - Notebooks
       responses:
         "200":
@@ -2298,7 +2318,7 @@ paths:
       operationId: notebook_update
       summary: "Modifies individual properties of a single notebook"
       description: "Modifies individual properties of a single notebook"
-      tags: 
+      tags:
         - Notebooks
       requestBody:
         description: updated properties
@@ -2317,7 +2337,7 @@ paths:
       operationId: notebook_duplicate
       summary: "Create a copy of the notebook"
       description: "Creates a copy of the specified notebook"
-      tags: 
+      tags:
         - Notebooks
       requestBody:
         description: copy destination
