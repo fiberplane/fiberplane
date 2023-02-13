@@ -30,7 +30,7 @@ impl<T: SortField> Default for Sorting<T> {
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
-    fp(rust_module = "fiberplane_models::comments")
+    fp(rust_module = "fiberplane_models::sorting")
 )]
 #[cfg_attr(
     feature = "sqlx",
@@ -433,7 +433,7 @@ impl SortField for ViewSortFields {
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
-    fp(rust_module = "fiberplane_models::notebooks")
+    fp(rust_module = "fiberplane_models::sorting")
 )]
 #[cfg_attr(
     feature = "sqlx",
