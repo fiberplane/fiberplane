@@ -136,7 +136,7 @@ pub enum TimeUnit {
     Days,
 }
 
-#[derive(Debug, Deserialize, PartialEq, Eq, Serialize, Copy, Clone)]
+#[derive(Debug, Deserialize, PartialEq, Eq, Serialize, Copy, Clone, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
