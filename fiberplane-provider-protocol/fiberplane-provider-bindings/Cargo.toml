@@ -1,7 +1,7 @@
 [package]
 name = "fiberplane-provider-bindings"
 description = "Fiberplane Provider protocol bindings"
-documentation = "https://docs.rs/fiberplane-provider-bindings/latest/fiberplane-provider-bindings/"
+documentation = "https://docs.rs/fiberplane-provider-bindings/latest/fiberplane_provider_bindings/"
 readme = "README.md"
 version = "2.0.0-alpha.1"
 authors = ["Fiberplane <info@fiberplane.com>"]

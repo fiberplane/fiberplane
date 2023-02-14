@@ -1,7 +1,7 @@
 [package]
 name = "fiberplane-markdown"
 description = "Utilities to convert Fiberplane Notebooks to and from Markdown"
-documentation = "https://docs.rs/fiberplane-markdown/latest/fiberplane-markdown/"
+documentation = "https://docs.rs/fiberplane-markdown/latest/fiberplane_markdown/"
 readme = "README.md"
 authors = { workspace = true }
 edition = { workspace = true }
