@@ -1,7 +1,6 @@
 [package]
 name = "fiberplane-templates"
 description = "Programmatically generate Fiberplane Notebooks for repeatable workflows"
-documentation = "https://docs.rs/fiberplane-templates/latest/fiberplane_templates/"
 readme = "README.md"
 authors = { workspace = true }
 edition = { workspace = true }
