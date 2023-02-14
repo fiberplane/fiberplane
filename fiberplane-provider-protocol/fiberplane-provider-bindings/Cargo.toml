@@ -1,6 +1,7 @@
 [package]
 name = "fiberplane-provider-bindings"
 description = "Fiberplane Provider protocol bindings"
+readme = "README.md"
 version = "2.0.0-alpha.1"
 authors = ["Fiberplane <info@fiberplane.com>"]
 edition = "2018"
@@ -9,7 +10,10 @@ license = { workspace = true }
 [dependencies]
 bytes = { version = "1", features = ["serde"] }
 fiberplane-models = { workspace = true }
-fp-bindgen-support = { version = "3.0.0-alpha.1", features = ["async", "guest"] }
+fp-bindgen-support = { version = "3.0.0-alpha.1", features = [
+    "async",
+    "guest",
+] }
 once_cell = { workspace = true }
 rmp-serde = { version = "1.0" }
 rmpv = { version = "1.0.0", features = ["with-serde"] }

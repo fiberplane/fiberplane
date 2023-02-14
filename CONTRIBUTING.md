@@ -35,3 +35,21 @@ token = "Bearer <TOKEN>"
    your full email address, and the password is the same token you used above.
    - If you receive a 500 error when trying to access the Artifactory registry,
      you probably used the correct token, but not the right username.
+
+## Documentation
+
+### Updating READMEs
+
+Be careful editing any of the `README.md` files directly. Many contain
+`<!-- cargo-rdme start/end -->` directives, in which case you should follow
+these instructions to update those blocks:
+
+- Make modifications to `<crate>/src/lib.rs`
+- Make sure `cargo-rdme` is installed: `cargo install cargo-rdme`
+- Run `cargo-rdme` in the crate folder where you wish to update the README.
+
+### Template reference
+
+If you update the Template API in `fiberplane-templates`, please make sure to
+update the documentation. For instructions, see the
+[templates README](fiberplane-templates/README.md#generating-documentation).
