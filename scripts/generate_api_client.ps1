@@ -44,7 +44,7 @@ if (Test-Path (Join-Path $api_generator_dir ".git")) {
     Write-Host "using local checkout -- pulling latest main"
 
     pushd "${root_dir}\..\fp-openapi-rust-gen"
-      #git switch main
+      git switch main
       git pull --rebase --autostash
       cargo run -- `
         --output $api_client_dir `
