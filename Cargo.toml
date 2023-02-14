@@ -12,7 +12,7 @@ members = [
 ]
 
 [workspace.package]
-version = "1.0.0-alpha.3"
+version = "1.0.0-beta.1"
 authors = ["Fiberplane <info@fiberplane.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
@@ -22,15 +22,15 @@ rust-version = "1.64"
 [workspace.dependencies]
 base64uuid = { version = "1.0.0", path = "base64uuid", default-features = false }
 bytes = { version = "1", features = ["serde"] }
-fp-bindgen = { version = "3.0.0-alpha.1" }
-fp-bindgen-support = { version = "3.0.0-alpha.1" }
-fiberplane = { version = "1.0.0-alpha.3", path = "fiberplane" }
-fiberplane-api-client = { version = "1.0.0-alpha.3", path = "fiberplane-api-client" }
-fiberplane-markdown = { version = "1.0.0-alpha.3", path = "fiberplane-markdown" }
-fiberplane-models = { version = "1.0.0-alpha.3", path = "fiberplane-models" }
-fiberplane-provider-bindings = { version = "2.0.0-alpha.1", path = "fiberplane-provider-protocol/fiberplane-provider-bindings" }
-fiberplane-provider-runtime = { version = "2.0.0-alpha.1", path = "fiberplane-provider-protocol/fiberplane-provider-runtime" }
-fiberplane-templates = { version = "1.0.0-alpha.3", path = "fiberplane-templates" }
+fp-bindgen = { version = "3.0.0-beta.1" }
+fp-bindgen-support = { version = "3.0.0-beta.1" }
+fiberplane = { version = "1.0.0-beta.1", path = "fiberplane" }
+fiberplane-api-client = { version = "1.0.0-beta.1", path = "fiberplane-api-client" }
+fiberplane-markdown = { version = "1.0.0-beta.1", path = "fiberplane-markdown" }
+fiberplane-models = { version = "1.0.0-beta.1", path = "fiberplane-models" }
+fiberplane-provider-bindings = { version = "2.0.0-beta.1", path = "fiberplane-provider-protocol/fiberplane-provider-bindings" }
+fiberplane-provider-runtime = { version = "2.0.0-beta.1", path = "fiberplane-provider-protocol/fiberplane-provider-runtime" }
+fiberplane-templates = { version = "1.0.0-beta.1", path = "fiberplane-templates" }
 once_cell = { version = "1.8" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
