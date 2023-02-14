@@ -38,6 +38,7 @@ required-features = []
 description = "Generated API client for Fiberplane API"
 edition = "2021"
 name = "fiberplane-api-client"
+readme = "README.md"
 
 [package.license]
 workspace = true

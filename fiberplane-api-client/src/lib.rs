@@ -12,27 +12,27 @@ pub mod builder;
 pub mod clients;
 
 pub(crate) mod models {
-    pub use fiberplane_models::blobs::*;
-    pub use fiberplane_models::comments::*;
-    pub use fiberplane_models::data_sources::*;
-    pub use fiberplane_models::events::*;
-    pub use fiberplane_models::files::*;
-    pub use fiberplane_models::formatting::*;
-    pub use fiberplane_models::labels::*;
-    pub use fiberplane_models::names::*;
-    pub use fiberplane_models::notebooks::operations::*;
-    pub use fiberplane_models::notebooks::*;
-    pub use fiberplane_models::proxies::*;
-    pub use fiberplane_models::query_data::*;
-    pub use fiberplane_models::realtime::*;
-    pub use fiberplane_models::snippets::*;
-    pub use fiberplane_models::sorting::*;
-    pub use fiberplane_models::templates::*;
-    pub use fiberplane_models::timestamps::*;
-    pub use fiberplane_models::tokens::*;
-    pub use fiberplane_models::users::*;
-    pub use fiberplane_models::views::*;
-    pub use fiberplane_models::workspaces::*;
+    pub(crate) use fiberplane_models::blobs::*;
+    pub(crate) use fiberplane_models::comments::*;
+    pub(crate) use fiberplane_models::data_sources::*;
+    pub(crate) use fiberplane_models::events::*;
+    pub(crate) use fiberplane_models::files::*;
+    pub(crate) use fiberplane_models::formatting::*;
+    pub(crate) use fiberplane_models::labels::*;
+    pub(crate) use fiberplane_models::names::*;
+    pub(crate) use fiberplane_models::notebooks::operations::*;
+    pub(crate) use fiberplane_models::notebooks::*;
+    pub(crate) use fiberplane_models::proxies::*;
+    pub(crate) use fiberplane_models::query_data::*;
+    pub(crate) use fiberplane_models::realtime::*;
+    pub(crate) use fiberplane_models::snippets::*;
+    pub(crate) use fiberplane_models::sorting::*;
+    pub(crate) use fiberplane_models::templates::*;
+    pub(crate) use fiberplane_models::timestamps::*;
+    pub(crate) use fiberplane_models::tokens::*;
+    pub(crate) use fiberplane_models::users::*;
+    pub(crate) use fiberplane_models::views::*;
+    pub(crate) use fiberplane_models::workspaces::*;
 }
 
 /// Retrieves a comment from a discussion thread by comment ID
