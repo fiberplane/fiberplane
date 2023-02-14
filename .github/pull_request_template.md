@@ -16,7 +16,7 @@ indicate they don't apply.
 - [ ] PR for API is ready and reviewed: (please link)
 - [ ] PR for Studio is ready and reviewed: (please link)
 - [ ] PR for CLI is ready and reviewed: (please link)
-- [ ] PR for Proxy is ready and reviewed: (please link)
+- [ ] PR for FPD is ready and reviewed: (please link)
 - [ ] The CHANGELOG(s) are updated.
 
 When adding new `fiberplane-models` module:
