@@ -1,1 +1,1 @@
-scripts/fiberplane-api-client-template/README.md
+../scripts/fiberplane-api-client-template/README.md
