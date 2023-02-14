@@ -1,9 +1,12 @@
 # Windows version of the `generate_api_client.sh` script
 
 $LICENSE="MIT OR Apache-2.0"
+$DESCRIPTION="Generated API client for Fiberplane API"
+$REPO="https://github.com/fiberplane/fiberplane"
 
 $start_dir = Get-Location;
 $script_path = ($PSScriptRoot);
+$script_dir = (Get-Item $script_path).FullName;
 $root_dir = (Get-Item $script_path).parent.FullName;
 $api_client_dir = Join-Path $root_dir "fiberplane-api-client";
 
@@ -24,6 +27,8 @@ if (Test-Path (Join-Path $api_generator_dir ".git")) {
         --output $api_client_dir `
         "${root_dir}\schemas\openapi_v1.yml" `
         --license $LICENSE `
+        --description $DESCRIPTION `
+        --repository $REPO `
         --workspace
     popd
 }
@@ -39,6 +44,8 @@ elseif ($null -eq (Get-Command "fp-openapi-rust-gen.exe" -ErrorAction SilentlyCo
             --output /local/fiberplane-api-client `
             /local/schemas/openapi_v1.yml `
             --license $LICENSE `
+            --description $DESCRIPTION `
+            --repository $REPO `
             --workspace
 }
 else
@@ -48,11 +55,16 @@ else
       --output $api_client_dir `
       .\schemas\openapi_v1.yml `
       --license $LICENSE `
+      --description $DESCRIPTION `
+      --repository $REPO `
       --workspace
 }
 
 Set-Location $api_client_dir
 cargo fmt -p fiberplane-api-client
+
+$template_path = Join-Path $script_dir "fiberplane-api-client-template"
+cmd /c mklink "$api_client_dir\README.md" "$template_path\README.md"
 
 # go back to the beginning so our user doesn't get confused as they're in a different directory now
 Set-Location $start_dir

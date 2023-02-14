@@ -4,6 +4,8 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+DESCRIPTION="Generated API client for Fiberplane API"
+REPO="https://github.com/fiberplane/fiberplane"
 LICENSE="MIT OR Apache-2.0"
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
@@ -20,13 +22,12 @@ if [[ -d "$SCRIPT_DIR/../../fp-openapi-rust-gen/.git" ]]; then
       --output "$SCRIPT_DIR/../fiberplane-api-client" \
       "$SCRIPT_DIR/../schemas/openapi_v1.yml" \
       --license $LICENSE \
+      --description "$DESCRIPTION" \
+      --repository $REPO \
       --workspace
   popd
 elif ! command -v fp-openapi-rust-gen &>/dev/null; then
   # not in path; use docker image
-  echo "pulling newest docker image for our openapi generator and running it"
-  echo "if this fails, please ensure you have executed 'docker login' with the 'fiberplane' account (creds in 1password)"
-
   docker run --rm --pull=always \
     -v "$(dirname $SCRIPT_DIR):/local" \
     -u "$(id -u ${USER}):$(id -g ${USER})" \
@@ -34,6 +35,7 @@ elif ! command -v fp-openapi-rust-gen &>/dev/null; then
     --output /local/fiberplane-api-client \
     /local/schemas/openapi_v1.yml \
     --license $LICENSE \
+    --description "$DESCRIPTION" \
     --workspace
 else
   # use the one from PATH if its already there
@@ -41,6 +43,7 @@ else
     --output fiberplane-api-client
     "$SCRIPT_DIR/../schemas/openapi_v1.yml"
     --license $LICENSE \
+    --description "$DESCRIPTION" \
     --workspace
 fi
 
