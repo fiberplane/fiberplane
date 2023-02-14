@@ -1,6 +1,8 @@
 [package]
 name = "fiberplane-models"
 description = "Core models used across Fiberplane"
+documentation = "https://docs.rs/fiberplane-models/latest/fiberplane-models/"
+readme = "README.md"
 authors = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }

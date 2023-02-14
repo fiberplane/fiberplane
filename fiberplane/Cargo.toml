@@ -1,6 +1,8 @@
 [package]
 name = "fiberplane"
 description = "All the Fiberplane crates in one place"
+documentation = "https://docs.rs/fiberplane/latest/fiberplane/"
+readme = "README.md"
 authors = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }

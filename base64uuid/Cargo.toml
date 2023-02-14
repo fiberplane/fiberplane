@@ -1,6 +1,8 @@
 [package]
 name = "base64uuid"
 description = "Type for representing base64url-encoded UUIDs"
+documentation = "https://docs.rs/base64uuid/latest/base64uuid/"
+readme = "README.md"
 version = "1.0.0"
 authors = { workspace = true }
 edition = { workspace = true }
