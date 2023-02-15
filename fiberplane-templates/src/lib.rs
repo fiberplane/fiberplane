@@ -20,7 +20,8 @@ This crate includes:
 
 The [Fiberplane CLI](https://github.com/fiberplane/fp) is the recommended way to
 interact with Templates (see the
-[docs](https://github.com/fiberplane/fp#templates) or run `fp help templates`).
+[docs](https://docs.fiberplane.com/docs/working-with-templates) or run
+`fp help templates`).
 
 ## Structure of a Template
 
@@ -48,9 +49,8 @@ function(incidentName='API Outage')
     ])
 ```
 
-See the
-[examples](https://github.com/fiberplane/fiberplane/tree/main/fiberplane-templates/examples)
-for more detailed, use-case-specific templates.
+See the [templates repository](https://github.com/fiberplane/templates) for more
+detailed, use-case-specific templates.
 
 ## Snippets
 

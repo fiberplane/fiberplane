@@ -19,3 +19,9 @@ You can also follow us on Twitter for updates:
 Did you write a custom provider that you would like to share, or are you
 curious what providers others have contributed? Have a look at our
 [providers repository](https://github.com/fiberplane/providers)!
+
+## Templates
+
+Did you write a custom template that you would like to share, or are you
+curious what templates others have contributed? Have a look at our
+[templates repository](https://github.com/fiberplane/templates)!
