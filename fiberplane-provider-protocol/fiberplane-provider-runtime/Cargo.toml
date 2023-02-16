@@ -1,7 +1,8 @@
 [package]
 name = "fiberplane-provider-runtime"
 description = "Wasmer runtime for Fiberplane Providers"
-version = "2.0.0-alpha.1"
+readme = "README.md"
+version = "2.0.0-beta.1"
 authors = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }

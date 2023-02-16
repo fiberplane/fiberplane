@@ -35,11 +35,15 @@ path = "src/lib.rs"
 required-features = []
 
 [package]
+description = "Generated API client for Fiberplane API"
 edition = "2021"
 name = "fiberplane-api-client"
-description = "Generated API client for Fiberplane API"
+readme = "README.md"
 
 [package.license]
+workspace = true
+
+[package.repository]
 workspace = true
 
 [package.version]

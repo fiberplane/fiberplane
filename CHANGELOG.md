@@ -11,9 +11,10 @@ means that individual crates do not strictly follow _SemVer_ although their
 versioning remains _compatible with_ SemVer, i.e. they will not contain breaking
 changes if the major version hasn't changed.
 
-## [Unreleased]
+## [v1.0.0-beta.1] - 2023-02-14
 
 ### Added
 
+- Add support for timeline cell (#5)
 - Add support for pinned views (#336)
 - Initial open-source release of `fiberplane`.

@@ -81,7 +81,8 @@ export type Cell =
     | { type: "log" } & LogCell
     | { type: "provider" } & ProviderCell
     | { type: "table" } & TableCell
-    | { type: "text" } & TextCell;
+    | { type: "text" } & TextCell
+    | { type: "timeline" } & TimelineCell;
 
 export type CheckboxCell = {
     id: string;
@@ -894,6 +895,15 @@ export type TextField = {
      * Whether the provider supports auto-suggestions for this field.
      */
     supportsSuggestions: boolean;
+};
+
+export type TimelineCell = {
+    id: string;
+
+    /**
+     * Links to the data to render in the timeline.
+     */
+    dataLinks?: Array<string>;
 };
 
 export type Timestamp = string;

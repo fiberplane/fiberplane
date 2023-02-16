@@ -102,7 +102,7 @@ fn main() {
             bindings_type: BindingsType::RustPlugin(RustPluginConfig {
                 name: "fiberplane-provider-bindings",
                 authors: r#"["Fiberplane <info@fiberplane.com>"]"#,
-                version: "2.0.0-alpha.1",
+                version: "2.0.0-beta.1",
                 dependencies,
             }),
             path,
