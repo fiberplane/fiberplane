@@ -222,7 +222,7 @@ def reset_cargo_manifests():
         sys.exit(1)
 
 
-def is_version_published_on_crates_io(crate: str, version: str) -> bool:
+def version_published_on_crates_io(crate: str, version: str) -> bool:
     """
     Return true if VERSION of CRATE is already on crates-io.
     """
@@ -252,23 +252,46 @@ def current_version(crate: str) -> str:
         sys.exit(1)
 
 
-def handle_single_crate_with_crates_io(crate: str):
+def main_crates_io(crate: str):
+    """
+    Check whether CRATE needs a publish on crates-io, and does the publish if needed.
+    """
+    if crate == ALL_CRATES:
+        for crate in ALL_CRATES_PATHS_IN_ORDER:
+            crate_version = current_version(crate)
+            if not version_published_on_crates_io(crate, crate_version):
+                publish(crate, crate_version, CRATES_IO)
+        sys.exit(0)
+
     crate_version = current_version(crate)
-    if not is_version_published_on_crates_io(crate, crate_version):
+    if not version_published_on_crates_io(crate, crate_version):
         publish(crate, crate_version, CRATES_IO)
 
 
-def main(crate: str, registry: str):
-    if registry != CRATES_IO:
-        print("Only crates-io registry is supported now")
-        sys.exit(1)
+def main_alt_registry(crate: str, registry: str):
+    """
+    Set the version of all crates to a git-based one on alternate registry REGISTRY,
+    and publish crate to the registry (or all crates if crate is 'all')
+    """
+    try:
+        set_cargo_manifests_git_version(registry)
+        git_version = git_based_crate_version()
+        if crate == ALL_CRATES:
+            for crate in ALL_CRATES_PATHS_IN_ORDER:
+                publish(crate[0], git_version, registry)
+            sys.exit(0)
 
-    if crate == ALL_CRATES:
-        for crate in ALL_CRATES_PATHS_IN_ORDER:
-            handle_single_crate_with_crates_io(crate[0])
+        publish(crate, git_version, registry)
+    finally:
+        reset_cargo_manifests()
+
+
+def main(crate: str, registry: str):
+    if registry == CRATES_IO:
+        main_crates_io(crate)
         sys.exit(0)
 
-    handle_single_crate_with_crates_io(crate)
+    main_alt_registry(crate, registry)
     sys.exit(0)
 
 
@@ -292,5 +315,4 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    set_cargo_manifests_git_version("artifactory")
-    # main(args.package, args.registry)
+    main(args.package, args.registry)
