@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          # Fetching all tags to get a nice Crate version from git describe
+          fetch-depth: 0
 
       - id: branch
         name: Export branch
