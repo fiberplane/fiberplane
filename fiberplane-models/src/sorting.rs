@@ -6,11 +6,6 @@ use strum_macros::IntoStaticStr;
 use typed_builder::TypedBuilder;
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, TypedBuilder)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "fiberplane_models::sorting")
-)]
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 pub struct Sorting<T: SortField> {
