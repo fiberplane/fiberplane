@@ -64,7 +64,7 @@ def install_dependencies():
             )
             with urllib.request.urlopen(request) as response:
                 dasel_path = Path.home() / ".local" / "bin" / "dasel"
-                with open(dasel_path, "w") as f:
+                with open(dasel_path, "wb") as f:
                     f.write(response.read())
             subprocess.check_output(
                 f"chmod a+x {dasel_path}",
