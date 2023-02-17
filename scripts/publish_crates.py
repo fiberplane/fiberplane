@@ -53,6 +53,9 @@ def install_dependencies():
 
     check_dasel = subprocess.run("which dasel", shell=True)
     if check_dasel.returncode != 0:
+        if not sys.platform.startswith("linux"):
+            print("Automatic dependency installation only works on linux for CI purposes, install dasel manually please")
+            sys.exit(1)
         print(f"Installing dasel...", end=" ")
         try:
             dasel_url = "https://github.com/TomWright/dasel/releases/download/v2.1.1/dasel_linux_amd64"
