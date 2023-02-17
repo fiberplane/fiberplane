@@ -287,6 +287,7 @@ def main_alt_registry(crate: str, registry: str):
 
 
 def main(crate: str, registry: str):
+    install_dependencies()
     if registry == CRATES_IO:
         main_crates_io(crate)
         sys.exit(0)
