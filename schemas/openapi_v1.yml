@@ -2582,7 +2582,8 @@ paths:
       operationId: front_matter_delete
       summary: Delete all front matter data for a notebook
       description: |
-        Deletes *all* front matter data for notebook. If you wish to delete a single key instead of the whole object, use the `patch` endpoint with value: `null`
+        Deletes *all* front matter data for notebook. 
+        If you wish to delete a single key instead of the whole object, use the `patch` endpoint with value: `null`
       tags:
         - Notebooks
       responses:

@@ -35,7 +35,7 @@ pub(crate) mod models {
     pub(crate) use fiberplane_models::workspaces::*;
 }
 
-/// Retrieves a comment from a discussion thread by comment ID
+#[doc = r#"Retrieves a comment from a discussion thread by comment ID"#]
 pub async fn comment_get(
     client: &ApiClient,
     comment_id: base64uuid::Base64Uuid,
@@ -49,7 +49,7 @@ pub async fn comment_get(
     Ok(response)
 }
 
-/// Deletes a comment in a discussion thread by comment ID
+#[doc = r#"Deletes a comment in a discussion thread by comment ID"#]
 pub async fn comment_delete(client: &ApiClient, comment_id: base64uuid::Base64Uuid) -> Result<()> {
     let mut builder = client.request(
         Method::DELETE,
@@ -60,7 +60,7 @@ pub async fn comment_delete(client: &ApiClient, comment_id: base64uuid::Base64Uu
     Ok(())
 }
 
-/// Updates a comment in a discussion thread by comment ID
+#[doc = r#"Updates a comment in a discussion thread by comment ID"#]
 pub async fn comment_update(
     client: &ApiClient,
     comment_id: base64uuid::Base64Uuid,
@@ -76,7 +76,7 @@ pub async fn comment_update(
     Ok(response)
 }
 
-/// Deletes a event
+#[doc = r#"Deletes a event"#]
 pub async fn event_delete(client: &ApiClient, event_id: base64uuid::Base64Uuid) -> Result<()> {
     let mut builder = client.request(
         Method::DELETE,
@@ -87,7 +87,7 @@ pub async fn event_delete(client: &ApiClient, event_id: base64uuid::Base64Uuid) 
     Ok(())
 }
 
-/// Deletes a pending workspace invitation
+#[doc = r#"Deletes a pending workspace invitation"#]
 pub async fn workspace_invite_delete(
     client: &ApiClient,
     invitation_id: base64uuid::Base64Uuid,
@@ -104,7 +104,7 @@ pub async fn workspace_invite_delete(
     Ok(())
 }
 
-/// Accepts the workspace invitation
+#[doc = r#"Accepts the workspace invitation"#]
 pub async fn workspace_invite_accept(
     client: &ApiClient,
     invitation_id: base64uuid::Base64Uuid,
@@ -123,7 +123,7 @@ pub async fn workspace_invite_accept(
     Ok(response)
 }
 
-/// Declines the workspace invitation
+#[doc = r#"Declines the workspace invitation"#]
 pub async fn workspace_invite_decline(
     client: &ApiClient,
     invitation_id: base64uuid::Base64Uuid,
@@ -142,7 +142,7 @@ pub async fn workspace_invite_decline(
     Ok(())
 }
 
-/// Log out of Fiberplane
+#[doc = r#"Log out of Fiberplane"#]
 pub async fn logout(client: &ApiClient) -> Result<()> {
     let mut builder = client.request(Method::POST, "/api/logout")?;
     let response = builder.send().await?.error_for_status()?;
@@ -150,7 +150,7 @@ pub async fn logout(client: &ApiClient) -> Result<()> {
     Ok(())
 }
 
-/// Retrieves a single notebook (both its metadata and content)
+#[doc = r#"Retrieves a single notebook (both its metadata and content)"#]
 pub async fn notebook_get(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -164,7 +164,7 @@ pub async fn notebook_get(
     Ok(response)
 }
 
-/// Deletes a notebook
+#[doc = r#"Deletes a notebook"#]
 pub async fn notebook_delete(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -178,7 +178,7 @@ pub async fn notebook_delete(
     Ok(())
 }
 
-/// Modifies individual properties of a single notebook
+#[doc = r#"Modifies individual properties of a single notebook"#]
 pub async fn notebook_update(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -194,7 +194,7 @@ pub async fn notebook_update(
     Ok(())
 }
 
-/// Append the given cells to the notebook. Any cells that have their ID missing will be set on the server.
+#[doc = r#"Append the given cells to the notebook. Any cells that have their ID missing will be set on the server."#]
 pub async fn notebook_cells_append(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -221,7 +221,7 @@ pub async fn notebook_cells_append(
     Ok(response)
 }
 
-/// Append the given text and optional formatting to the specified cell
+#[doc = r#"Append the given text and optional formatting to the specified cell"#]
 pub async fn notebook_cell_append_text(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -242,7 +242,7 @@ pub async fn notebook_cell_append_text(
     Ok(response)
 }
 
-/// Replace some text and formatting in the specified cell
+#[doc = r#"Replace some text and formatting in the specified cell"#]
 pub async fn notebook_cell_replace_text(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -263,7 +263,7 @@ pub async fn notebook_cell_replace_text(
     Ok(response)
 }
 
-/// Creates a copy of the specified notebook
+#[doc = r#"Creates a copy of the specified notebook"#]
 pub async fn notebook_duplicate(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -282,7 +282,7 @@ pub async fn notebook_duplicate(
     Ok(response)
 }
 
-/// upload a file
+#[doc = r#"upload a file"#]
 pub async fn file_upload(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -301,7 +301,7 @@ pub async fn file_upload(
     Ok(response)
 }
 
-/// Get a file from a notebook
+#[doc = r#"Get a file from a notebook"#]
 pub async fn file_get(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -320,7 +320,7 @@ pub async fn file_get(
     Ok(response)
 }
 
-/// Delete a file from a notebook
+#[doc = r#"Delete a file from a notebook"#]
 pub async fn file_delete(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -339,8 +339,9 @@ pub async fn file_delete(
     Ok(())
 }
 
-/// Deletes *all* front matter data for notebook. If you wish to delete a single key instead of the whole object, use the `patch` endpoint with value: `null`
-
+#[doc = r#"Deletes *all* front matter data for notebook. 
+If you wish to delete a single key instead of the whole object, use the `patch` endpoint with value: `null`
+"#]
 pub async fn front_matter_delete(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -357,7 +358,7 @@ pub async fn front_matter_delete(
     Ok(())
 }
 
-/// Updates front matter for a given notebook
+#[doc = r#"Updates front matter for a given notebook"#]
 pub async fn front_matter_update(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -376,7 +377,7 @@ pub async fn front_matter_update(
     Ok(())
 }
 
-/// Expand the snippet and insert the cells into the notebook
+#[doc = r#"Expand the snippet and insert the cells into the notebook"#]
 pub async fn notebook_snippet_insert(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -399,7 +400,7 @@ pub async fn notebook_snippet_insert(
     Ok(response)
 }
 
-/// Convert the notebook cells to a snippet
+#[doc = r#"Convert the notebook cells to a snippet"#]
 pub async fn notebook_convert_to_snippet(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -424,7 +425,7 @@ pub async fn notebook_convert_to_snippet(
     Ok(response)
 }
 
-/// Downloads the specified notebooks as a Jsonnet template.
+#[doc = r#"Downloads the specified notebooks as a Jsonnet template."#]
 pub async fn notebook_convert_to_template(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -441,7 +442,7 @@ pub async fn notebook_convert_to_template(
     Ok(response)
 }
 
-/// List the threads in the given notebook
+#[doc = r#"List the threads in the given notebook"#]
 pub async fn threads_list(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -462,7 +463,7 @@ pub async fn threads_list(
     Ok(response)
 }
 
-/// Creates a new comment thread in a notebook
+#[doc = r#"Creates a new comment thread in a notebook"#]
 pub async fn thread_create(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -481,7 +482,7 @@ pub async fn thread_create(
     Ok(response)
 }
 
-/// Start the Google OAuth flow to authenticate a user (used only with the Studio) for authenticating with the API see the Authentication section in the docs
+#[doc = r#"Start the Google OAuth flow to authenticate a user (used only with the Studio) for authenticating with the API see the Authentication section in the docs"#]
 pub async fn oidc_authorize_google(
     client: &ApiClient,
     cli_redirect_port: Option<i32>,
@@ -493,7 +494,7 @@ pub async fn oidc_authorize_google(
     Ok(())
 }
 
-/// Pins a notebook
+#[doc = r#"Pins a notebook"#]
 pub async fn pinned_notebook_create(
     client: &ApiClient,
     payload: models::NewPinnedNotebook,
@@ -505,7 +506,7 @@ pub async fn pinned_notebook_create(
     Ok(())
 }
 
-/// Unpins a notebook
+#[doc = r#"Unpins a notebook"#]
 pub async fn pinned_notebook_delete(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
@@ -522,7 +523,7 @@ pub async fn pinned_notebook_delete(
     Ok(())
 }
 
-/// Fetch the profile of the authenticated user
+#[doc = r#"Fetch the profile of the authenticated user"#]
 pub async fn profile_get(client: &ApiClient) -> Result<models::Profile> {
     let mut builder = client.request(Method::GET, "/api/profile")?;
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -530,7 +531,7 @@ pub async fn profile_get(client: &ApiClient) -> Result<models::Profile> {
     Ok(response)
 }
 
-/// Retrieve profile image
+#[doc = r#"Retrieve profile image"#]
 pub async fn profile_picture_get(client: &ApiClient) -> Result<bytes::Bytes> {
     let mut builder = client.request(Method::GET, "/api/profile/picture")?;
     let response = builder.send().await?.error_for_status()?.bytes().await?;
@@ -538,7 +539,7 @@ pub async fn profile_picture_get(client: &ApiClient) -> Result<bytes::Bytes> {
     Ok(response)
 }
 
-/// Upload profile image
+#[doc = r#"Upload profile image"#]
 pub async fn profile_picture_update(
     client: &ApiClient,
     payload: models::ProfileUploadData,
@@ -550,7 +551,7 @@ pub async fn profile_picture_update(
     Ok(())
 }
 
-/// Retrieves a discussion thread by ID
+#[doc = r#"Retrieves a discussion thread by ID"#]
 pub async fn thread_get(
     client: &ApiClient,
     thread_id: base64uuid::Base64Uuid,
@@ -564,7 +565,7 @@ pub async fn thread_get(
     Ok(response)
 }
 
-/// Deletes a discussion thread by ID
+#[doc = r#"Deletes a discussion thread by ID"#]
 pub async fn thread_delete(client: &ApiClient, thread_id: base64uuid::Base64Uuid) -> Result<()> {
     let mut builder = client.request(
         Method::DELETE,
@@ -575,7 +576,7 @@ pub async fn thread_delete(client: &ApiClient, thread_id: base64uuid::Base64Uuid
     Ok(())
 }
 
-/// Creates a comment in a discussion thread by ID
+#[doc = r#"Creates a comment in a discussion thread by ID"#]
 pub async fn comment_create(
     client: &ApiClient,
     thread_id: base64uuid::Base64Uuid,
@@ -591,7 +592,7 @@ pub async fn comment_create(
     Ok(response)
 }
 
-/// Reopens a discussion thread by ID
+#[doc = r#"Reopens a discussion thread by ID"#]
 pub async fn thread_reopen(
     client: &ApiClient,
     thread_id: base64uuid::Base64Uuid,
@@ -605,7 +606,7 @@ pub async fn thread_reopen(
     Ok(response)
 }
 
-/// Resolves a discussion thread by ID
+#[doc = r#"Resolves a discussion thread by ID"#]
 pub async fn thread_resolve(
     client: &ApiClient,
     thread_id: base64uuid::Base64Uuid,
@@ -619,7 +620,7 @@ pub async fn thread_resolve(
     Ok(response)
 }
 
-/// Retrieves a list of all API tokens
+#[doc = r#"Retrieves a list of all API tokens"#]
 pub async fn token_list(
     client: &ApiClient,
     sort_by: Option<&str>,
@@ -645,7 +646,7 @@ pub async fn token_list(
     Ok(response)
 }
 
-/// Creates a new token
+#[doc = r#"Creates a new token"#]
 pub async fn token_create(client: &ApiClient, payload: models::NewToken) -> Result<models::Token> {
     let mut builder = client.request(Method::POST, "/api/tokens")?;
     builder = builder.json(&payload);
@@ -654,7 +655,7 @@ pub async fn token_create(client: &ApiClient, payload: models::NewToken) -> Resu
     Ok(response)
 }
 
-/// Deletes a token
+#[doc = r#"Deletes a token"#]
 pub async fn token_delete(client: &ApiClient, id: base64uuid::Base64Uuid) -> Result<()> {
     let mut builder = client.request(Method::DELETE, &format!("/api/tokens/{id}", id = id,))?;
     let response = builder.send().await?.error_for_status()?;
@@ -662,7 +663,7 @@ pub async fn token_delete(client: &ApiClient, id: base64uuid::Base64Uuid) -> Res
     Ok(())
 }
 
-/// Retrieves a trigger from a workspace by its ID
+#[doc = r#"Retrieves a trigger from a workspace by its ID"#]
 pub async fn trigger_get(
     client: &ApiClient,
     trigger_id: base64uuid::Base64Uuid,
@@ -676,7 +677,7 @@ pub async fn trigger_get(
     Ok(response)
 }
 
-/// Deletes a trigger from a workspace by its ID
+#[doc = r#"Deletes a trigger from a workspace by its ID"#]
 pub async fn trigger_delete(client: &ApiClient, trigger_id: base64uuid::Base64Uuid) -> Result<()> {
     let mut builder = client.request(
         Method::DELETE,
@@ -687,7 +688,7 @@ pub async fn trigger_delete(client: &ApiClient, trigger_id: base64uuid::Base64Uu
     Ok(())
 }
 
-/// Invoke a trigger to create a notebook from the associated template
+#[doc = r#"Invoke a trigger to create a notebook from the associated template"#]
 pub async fn trigger_invoke(
     client: &ApiClient,
     trigger_id: base64uuid::Base64Uuid,
@@ -708,7 +709,7 @@ pub async fn trigger_invoke(
     Ok(response)
 }
 
-/// List all workspaces authenticated user has access to
+#[doc = r#"List all workspaces authenticated user has access to"#]
 pub async fn workspace_list(
     client: &ApiClient,
     sort_by: Option<&str>,
@@ -726,7 +727,7 @@ pub async fn workspace_list(
     Ok(response)
 }
 
-/// Creates a new workspace
+#[doc = r#"Creates a new workspace"#]
 pub async fn workspace_create(
     client: &ApiClient,
     payload: models::NewWorkspace,
@@ -738,7 +739,7 @@ pub async fn workspace_create(
     Ok(response)
 }
 
-/// Get the workspace details
+#[doc = r#"Get the workspace details"#]
 pub async fn workspace_get(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -755,7 +756,7 @@ pub async fn workspace_get(
     Ok(response)
 }
 
-/// Permanently deletes a specified workspace
+#[doc = r#"Permanently deletes a specified workspace"#]
 pub async fn workspace_delete(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -772,7 +773,7 @@ pub async fn workspace_delete(
     Ok(())
 }
 
-/// Update workspace settings
+#[doc = r#"Update workspace settings"#]
 pub async fn workspace_update(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -791,7 +792,7 @@ pub async fn workspace_update(
     Ok(response)
 }
 
-/// Get all workspace data sources
+#[doc = r#"Get all workspace data sources"#]
 pub async fn data_source_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -808,7 +809,7 @@ pub async fn data_source_list(
     Ok(response)
 }
 
-/// Creates a workspace data source
+#[doc = r#"Creates a workspace data source"#]
 pub async fn data_source_create(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -827,7 +828,7 @@ pub async fn data_source_create(
     Ok(response)
 }
 
-/// Get the data source's details
+#[doc = r#"Get the data source's details"#]
 pub async fn data_source_get(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -846,7 +847,7 @@ pub async fn data_source_get(
     Ok(response)
 }
 
-/// Delete a data source
+#[doc = r#"Delete a data source"#]
 pub async fn data_source_delete(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -865,7 +866,7 @@ pub async fn data_source_delete(
     Ok(())
 }
 
-/// Update a data source
+#[doc = r#"Update a data source"#]
 pub async fn data_source_update(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -886,7 +887,7 @@ pub async fn data_source_update(
     Ok(response)
 }
 
-/// Get a list of all events matching the query
+#[doc = r#"Get a list of all events matching the query"#]
 pub async fn event_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -930,7 +931,7 @@ pub async fn event_list(
     Ok(response)
 }
 
-/// Creates a new event
+#[doc = r#"Creates a new event"#]
 pub async fn event_create(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -949,7 +950,7 @@ pub async fn event_create(
     Ok(response)
 }
 
-/// Retrieves a list of pending workspace invitations
+#[doc = r#"Retrieves a list of pending workspace invitations"#]
 pub async fn workspace_invite_get(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -982,7 +983,7 @@ pub async fn workspace_invite_get(
     Ok(response)
 }
 
-/// Invites a user to a workspace
+#[doc = r#"Invites a user to a workspace"#]
 pub async fn workspace_invite(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1001,7 +1002,7 @@ pub async fn workspace_invite(
     Ok(response)
 }
 
-/// Retrieve all label keys
+#[doc = r#"Retrieve all label keys"#]
 pub async fn label_keys_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1022,7 +1023,7 @@ pub async fn label_keys_list(
     Ok(response)
 }
 
-/// Retrieve all label values
+#[doc = r#"Retrieve all label values"#]
 pub async fn label_values_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1045,7 +1046,7 @@ pub async fn label_values_list(
     Ok(response)
 }
 
-/// Leaves a workspace
+#[doc = r#"Leaves a workspace"#]
 pub async fn workspace_leave(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1062,7 +1063,7 @@ pub async fn workspace_leave(
     Ok(())
 }
 
-/// Retrieves all Notebooks available to the workspace
+#[doc = r#"Retrieves all Notebooks available to the workspace"#]
 pub async fn notebook_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1079,7 +1080,7 @@ pub async fn notebook_list(
     Ok(response)
 }
 
-/// Create a new notebook
+#[doc = r#"Create a new notebook"#]
 pub async fn notebook_create(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1098,7 +1099,7 @@ pub async fn notebook_create(
     Ok(response)
 }
 
-/// Retrieves a workspace image
+#[doc = r#"Retrieves a workspace image"#]
 pub async fn workspace_picture_get(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1115,7 +1116,7 @@ pub async fn workspace_picture_get(
     Ok(response)
 }
 
-/// Uploads a workspace image
+#[doc = r#"Uploads a workspace image"#]
 pub async fn workspace_picture_update(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1134,7 +1135,7 @@ pub async fn workspace_picture_update(
     Ok(())
 }
 
-/// Get all pinned views for the current user
+#[doc = r#"Get all pinned views for the current user"#]
 pub async fn pinned_views_get(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1151,7 +1152,7 @@ pub async fn pinned_views_get(
     Ok(response)
 }
 
-/// Add an existing view to the pinned views list
+#[doc = r#"Add an existing view to the pinned views list"#]
 pub async fn pinned_view_add(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1170,7 +1171,7 @@ pub async fn pinned_view_add(
     Ok(())
 }
 
-/// Remove view from the pinned views list
+#[doc = r#"Remove view from the pinned views list"#]
 pub async fn pinned_view_remove(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1189,7 +1190,7 @@ pub async fn pinned_view_remove(
     Ok(())
 }
 
-/// List all pinned notebooks for a specific workspace
+#[doc = r#"List all pinned notebooks for a specific workspace"#]
 pub async fn pinned_notebook_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1206,7 +1207,7 @@ pub async fn pinned_notebook_list(
     Ok(response)
 }
 
-/// List all proxies
+#[doc = r#"List all proxies"#]
 pub async fn proxy_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1223,7 +1224,7 @@ pub async fn proxy_list(
     Ok(response)
 }
 
-/// Create a new proxy
+#[doc = r#"Create a new proxy"#]
 pub async fn proxy_create(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1242,7 +1243,7 @@ pub async fn proxy_create(
     Ok(response)
 }
 
-/// Retrieve a single proxy
+#[doc = r#"Retrieve a single proxy"#]
 pub async fn proxy_get(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1261,7 +1262,7 @@ pub async fn proxy_get(
     Ok(response)
 }
 
-/// Deletes a single proxy
+#[doc = r#"Deletes a single proxy"#]
 pub async fn proxy_delete(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1280,7 +1281,7 @@ pub async fn proxy_delete(
     Ok(())
 }
 
-/// Relays a query to invoke a provider on a remote proxy
+#[doc = r#"Relays a query to invoke a provider on a remote proxy"#]
 pub async fn proxy_relay(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1299,7 +1300,7 @@ pub async fn proxy_relay(
     Ok(response)
 }
 
-/// Relay a query to call 'get_config_schema' from a provider on a remote proxy
+#[doc = r#"Relay a query to call 'get_config_schema' from a provider on a remote proxy"#]
 pub async fn proxy_config_schema(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1315,7 +1316,7 @@ pub async fn proxy_config_schema(
     Ok(response)
 }
 
-/// Relay a query to call 'create_cells' from a provider on a remote proxy
+#[doc = r#"Relay a query to call 'create_cells' from a provider on a remote proxy"#]
 pub async fn proxy_create_cells(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1333,7 +1334,7 @@ pub async fn proxy_create_cells(
     Ok(response)
 }
 
-/// Relay a query to call 'extract_data' from a provider on a remote proxy
+#[doc = r#"Relay a query to call 'extract_data' from a provider on a remote proxy"#]
 pub async fn proxy_extract_data(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1351,7 +1352,7 @@ pub async fn proxy_extract_data(
     Ok(response)
 }
 
-/// Relays a query to invoke a provider on a remote proxy
+#[doc = r#"Relays a query to invoke a provider on a remote proxy"#]
 pub async fn proxy_invoke(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1369,7 +1370,7 @@ pub async fn proxy_invoke(
     Ok(response)
 }
 
-/// Relay a query to call 'get_supported_query_types' from a provider on a remote proxy
+#[doc = r#"Relay a query to call 'get_supported_query_types' from a provider on a remote proxy"#]
 pub async fn proxy_supported_query_types(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1385,7 +1386,7 @@ pub async fn proxy_supported_query_types(
     Ok(response)
 }
 
-/// Search for notebooks
+#[doc = r#"Search for notebooks"#]
 pub async fn notebook_search(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1404,7 +1405,7 @@ pub async fn notebook_search(
     Ok(response)
 }
 
-/// List the snippets that have been uploaded
+#[doc = r#"List the snippets that have been uploaded"#]
 pub async fn snippet_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1429,7 +1430,7 @@ pub async fn snippet_list(
     Ok(response)
 }
 
-/// Create a new snippet
+#[doc = r#"Create a new snippet"#]
 pub async fn snippet_create(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1448,7 +1449,7 @@ pub async fn snippet_create(
     Ok(response)
 }
 
-/// Retrieves a specified snippet from a workspace
+#[doc = r#"Retrieves a specified snippet from a workspace"#]
 pub async fn snippet_get(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1467,7 +1468,7 @@ pub async fn snippet_get(
     Ok(response)
 }
 
-/// Deletes a specified snippet from a workspace
+#[doc = r#"Deletes a specified snippet from a workspace"#]
 pub async fn snippet_delete(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1486,7 +1487,7 @@ pub async fn snippet_delete(
     Ok(())
 }
 
-/// Updates a specified snippet from a workspace
+#[doc = r#"Updates a specified snippet from a workspace"#]
 pub async fn snippet_update(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1507,7 +1508,7 @@ pub async fn snippet_update(
     Ok(response)
 }
 
-/// Expand the snippet and return the array of cells (without inserting them into a specific notebook)
+#[doc = r#"Expand the snippet and return the array of cells (without inserting them into a specific notebook)"#]
 pub async fn snippet_expand(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1526,7 +1527,7 @@ pub async fn snippet_expand(
     Ok(response)
 }
 
-/// Retrieve all the templates that have been uploaded
+#[doc = r#"Retrieve all the templates that have been uploaded"#]
 pub async fn template_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1551,7 +1552,7 @@ pub async fn template_list(
     Ok(response)
 }
 
-/// Create a new template
+#[doc = r#"Create a new template"#]
 pub async fn template_create(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1570,7 +1571,7 @@ pub async fn template_create(
     Ok(response)
 }
 
-/// Retrieves a specified template
+#[doc = r#"Retrieves a specified template"#]
 pub async fn template_get(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1589,7 +1590,7 @@ pub async fn template_get(
     Ok(response)
 }
 
-/// Deletes a specified template
+#[doc = r#"Deletes a specified template"#]
 pub async fn template_delete(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1608,7 +1609,7 @@ pub async fn template_delete(
     Ok(())
 }
 
-/// Updates a specified template
+#[doc = r#"Updates a specified template"#]
 pub async fn template_update(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1629,7 +1630,7 @@ pub async fn template_update(
     Ok(response)
 }
 
-/// Expand the template into a notebook
+#[doc = r#"Expand the template into a notebook"#]
 pub async fn template_expand(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1650,7 +1651,7 @@ pub async fn template_expand(
     Ok(response)
 }
 
-/// List all created triggers in the workspace
+#[doc = r#"List all created triggers in the workspace"#]
 pub async fn trigger_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1667,7 +1668,7 @@ pub async fn trigger_list(
     Ok(response)
 }
 
-/// Creates a new trigger for a template
+#[doc = r#"Creates a new trigger for a template"#]
 pub async fn trigger_create(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1686,7 +1687,7 @@ pub async fn trigger_create(
     Ok(response)
 }
 
-/// List all users for a workspace
+#[doc = r#"List all users for a workspace"#]
 pub async fn workspace_users_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1711,7 +1712,7 @@ pub async fn workspace_users_list(
     Ok(response)
 }
 
-/// Removes a user from the workspace
+#[doc = r#"Removes a user from the workspace"#]
 pub async fn workspace_user_remove(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1730,7 +1731,7 @@ pub async fn workspace_user_remove(
     Ok(())
 }
 
-/// Updates the user within a workspace
+#[doc = r#"Updates the user within a workspace"#]
 pub async fn workspace_user_update(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1751,7 +1752,7 @@ pub async fn workspace_user_update(
     Ok(response)
 }
 
-/// Retrieves all views
+#[doc = r#"Retrieves all views"#]
 pub async fn views_get(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1784,7 +1785,7 @@ pub async fn views_get(
     Ok(response)
 }
 
-/// Creates a new view
+#[doc = r#"Creates a new view"#]
 pub async fn views_create(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1803,7 +1804,7 @@ pub async fn views_create(
     Ok(response)
 }
 
-/// Retrieves a single view
+#[doc = r#"Retrieves a single view"#]
 pub async fn view_get(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1822,7 +1823,7 @@ pub async fn view_get(
     Ok(response)
 }
 
-/// Deletes an existing view
+#[doc = r#"Deletes an existing view"#]
 pub async fn view_delete(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1841,7 +1842,7 @@ pub async fn view_delete(
     Ok(())
 }
 
-/// Updates an existing view
+#[doc = r#"Updates an existing view"#]
 pub async fn view_update(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
