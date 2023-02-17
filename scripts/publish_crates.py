@@ -41,20 +41,22 @@ def install_dependencies():
     if check_cargo_edit.returncode != 0:
         print(f"Installing cargo-edit...", end=" ")
         try:
-            subprocess.check_output(
+            subprocess.run(
                 f"cargo install --locked cargo-edit",
-                stderr=subprocess.STDOUT,
                 shell=True,
+                check=True,
             )
         except subprocess.CalledProcessError as e:
-            print(f"Error during installation:\n{e.output}")
+            print(f"Error during installation:\n{e.output.decode()}")
             sys.exit(1)
         print("OK!")
 
     check_dasel = subprocess.run("which dasel", shell=True)
     if check_dasel.returncode != 0:
         if not sys.platform.startswith("linux"):
-            print("Automatic dependency installation only works on linux for CI purposes, install dasel manually please")
+            print(
+                "Automatic dependency installation only works on linux for CI purposes, install dasel manually please"
+            )
             sys.exit(1)
         print(f"Installing dasel...", end=" ")
         try:
@@ -64,16 +66,16 @@ def install_dependencies():
             )
             with urllib.request.urlopen(request) as response:
                 dasel_path = Path.home() / ".local" / "bin" / "dasel"
-                subprocess.check_output(
+                subprocess.run(
                     f"mkdir -p ~/.local/bin/",
-                    stderr=subprocess.STDOUT,
+                    check=True,
                     shell=True,
                 )
                 with open(dasel_path, "wb") as f:
                     f.write(response.read())
-            subprocess.check_output(
+            subprocess.run(
                 f"chmod a+x {dasel_path}",
-                stderr=subprocess.STDOUT,
+                check=True,
                 shell=True,
             )
         except Exception as e:
@@ -123,13 +125,13 @@ def publish(crate: str, version: str, registry: str):
     print(f"Publishing {crate} crate on {registry} in version {version}...", end=" ")
     try:
         allow_dirty = "--allow-dirty" if registry != CRATES_IO else ""
-        subprocess.check_output(
+        subprocess.run(
             f"cargo publish --registry {registry} -p {crate} {allow_dirty}",
-            stderr=subprocess.STDOUT,
+            check=True,
             shell=True,
         )
     except subprocess.CalledProcessError as e:
-        print(f"Error during publication:\n{e.output}")
+        print(f"Error during publication:\n{e.output.decode()}")
         sys.exit(1)
     print("OK!")
 
@@ -160,7 +162,7 @@ def git_based_crate_version() -> str:
         tail = elements[1].replace("-", ".")
         return f"{header}-{tail}"
     except subprocess.CalledProcessError as e:
-        print(f"Error fetching git version:\n{e.output}")
+        print(f"Error fetching git version:\n{e.output.decode()}")
         sys.exit(1)
 
 
@@ -175,14 +177,14 @@ def set_cargo_manifests_git_version(registry: str):
             # We can't use 'cargo set-version' from cargo-edit crate because
             # it refuses to downgrade packages (the version numbers don't really match anything
             # between crates-io and the artifactory)
-            subprocess.check_output(
+            subprocess.run(
                 f'dasel put -f Cargo.toml -s ".package.version" -v "={version}"',
                 cwd=crate_dir,
-                stderr=subprocess.STDOUT,
+                check=True,
                 shell=True,
             )
         except subprocess.CalledProcessError as e:
-            print(f"Error setting version:\n{e.output}")
+            print(f"Error setting version:\n{e.output.decode()}")
             sys.exit(1)
         print("OK!")
 
@@ -194,18 +196,18 @@ def set_cargo_manifests_git_version(registry: str):
         try:
             for pair in ALL_CRATES_PATHS_IN_ORDER:
                 crate = pair[0]
-                subprocess.check_output(
+                subprocess.run(
                     f'dasel put -f Cargo.toml -s ".workspace.dependencies.{crate}.version" -v "={version}"',
-                    stderr=subprocess.STDOUT,
+                    check=True,
                     shell=True,
                 )
-                subprocess.check_output(
+                subprocess.run(
                     f'dasel put -f Cargo.toml -s ".workspace.dependencies.{crate}.registry" -v "{registry}"',
-                    stderr=subprocess.STDOUT,
+                    check=True,
                     shell=True,
                 )
         except subprocess.CalledProcessError as e:
-            print(f"Error setting version:\n{e.output}")
+            print(f"Error setting version:\n{e.output.decode()}")
             sys.exit(1)
         print("OK!")
 
@@ -220,13 +222,11 @@ def reset_cargo_manifests():
     Reset all the manifests to their checked-out state.
     """
     try:
-        subprocess.check_output(
-            f"git restore `git ls-files **/Cargo.toml`",
-            stderr=subprocess.STDOUT,
-            shell=True,
+        subprocess.run(
+            f"git restore `git ls-files **/Cargo.toml`", shell=True, check=True
         )
     except subprocess.CalledProcessError as e:
-        print(f"Error resetting Cargo manifests:\n{e.output}")
+        print(f"Error resetting Cargo manifests:\n{e.output.decode()}")
         sys.exit(1)
 
 
@@ -256,7 +256,7 @@ def current_version(crate: str) -> str:
         )
         return current_crate_meta["version"]
     except subprocess.CalledProcessError as e:
-        print(f"Cargo error while fetching the current version:\n{e.output}")
+        print(f"Cargo error while fetching the current version:\n{e.output.decode()}")
         sys.exit(1)
 
 
