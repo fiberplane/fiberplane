@@ -64,6 +64,11 @@ def install_dependencies():
             )
             with urllib.request.urlopen(request) as response:
                 dasel_path = Path.home() / ".local" / "bin" / "dasel"
+                subprocess.check_output(
+                    f"mkdir -p ~/.local/bin/",
+                    stderr=subprocess.STDOUT,
+                    shell=True,
+                )
                 with open(dasel_path, "wb") as f:
                     f.write(response.read())
             subprocess.check_output(
