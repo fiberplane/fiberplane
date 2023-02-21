@@ -13,15 +13,12 @@ indicate they don't apply.
 
 - [ ] The changes have been tested to be backwards compatible.
 - [ ] The OpenAPI schema and generated client have been updated.
+- [ ] New models module has been added to API generator script
 - [ ] PR for API is ready and reviewed: (please link)
 - [ ] PR for Studio is ready and reviewed: (please link)
 - [ ] PR for CLI is ready and reviewed: (please link)
 - [ ] PR for FPD is ready and reviewed: (please link)
 - [ ] The CHANGELOG(s) are updated.
-
-When adding new `fiberplane-models` module:
-
-- [ ] PR for fp-openapi-rust-gen is ready and reviewed: (please link)
 
 When adding new operation types:
 

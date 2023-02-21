@@ -1,5 +1,4 @@
 use crate::comments::{Thread, ThreadItem, UserSummary};
-use crate::events::Event;
 use crate::labels::LabelValidationError;
 use crate::notebooks::operations::Operation;
 use base64uuid::Base64Uuid;
@@ -93,15 +92,6 @@ pub enum ServerRealtimeMessage {
     /// Response from a DebugRequest. Contains some useful data regarding the
     /// connection.
     DebugResponse(DebugResponseMessage),
-
-    /// New event was added to the workspace
-    EventAdded(EventAddedMessage),
-
-    /// Event was updated in the workspace
-    EventUpdated(EventUpdatedMessage),
-
-    /// Event was deleted from the workspace
-    EventDeleted(EventDeletedMessage),
 
     /// Notifies a mentioned user of the fact they've been mentioned by someone
     /// else.
@@ -997,46 +987,4 @@ mod tests {
             panic!("Unexpected error occurred: {err:?}");
         }
     }
-}
-
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "fiberplane_models::realtime")
-)]
-#[serde(rename_all = "camelCase")]
-pub struct EventAddedMessage {
-    /// ID of workspace in which the event was added.
-    pub workspace_id: Base64Uuid,
-    /// The event that was added.
-    pub event: Event,
-}
-
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "fiberplane_models::realtime")
-)]
-#[serde(rename_all = "camelCase")]
-pub struct EventUpdatedMessage {
-    /// ID of workspace in which the event was updated.
-    pub workspace_id: Base64Uuid,
-    /// The event that was updated.
-    pub event: Event,
-}
-
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "fiberplane_models::realtime")
-)]
-#[serde(rename_all = "camelCase")]
-pub struct EventDeletedMessage {
-    /// ID of workspace in which the event was deleted.
-    pub workspace_id: Base64Uuid,
-    /// ID of the event that was deleted.
-    pub event_id: String,
 }

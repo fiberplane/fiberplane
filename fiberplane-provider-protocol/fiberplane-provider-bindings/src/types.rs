@@ -45,7 +45,6 @@ pub use fiberplane_models::notebooks::TableCellValue;
 pub use fiberplane_models::notebooks::TableColumnDefinition;
 pub use fiberplane_models::notebooks::TextCell;
 pub use fiberplane_models::providers::TextField;
-pub use fiberplane_models::notebooks::TimelineCell;
 pub use fiberplane_models::timestamps::Timestamp;
 pub use fiberplane_models::providers::ValidationError;
 
