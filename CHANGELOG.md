@@ -11,9 +11,15 @@ means that individual crates do not strictly follow _SemVer_ although their
 versioning remains _compatible with_ SemVer, i.e. they will not contain breaking
 changes if the major version hasn't changed.
 
+## [Unreleased]
+
+### Removed
+
+- Support for the legacy provider protocol has been removed.
+
 ## [v1.0.0-beta.1] - 2023-02-14
 
 ### Added
 
-- Add support for pinned views (#336)
+- Add support for pinned views
 - Initial open-source release of `fiberplane`.
