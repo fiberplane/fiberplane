@@ -12,24 +12,23 @@ from pathlib import Path
 import urllib.request
 
 
-ALL_CRATES_PATHS_IN_ORDER = [
-    ("base64uuid", "base64uuid"),
-    ("fiberplane-models", "fiberplane-models"),
-    ("fiberplane-api-client", "fiberplane-api-client"),
-    ("fiberplane-markdown", "fiberplane-markdown"),
-    (
-        "fiberplane-provider-bindings",
-        "fiberplane-provider-protocol/fiberplane-provider-bindings",
-    ),
-    (
-        "fiberplane-provider-runtime",
-        "fiberplane-provider-protocol/fiberplane-provider-runtime",
-    ),
-    ("fiberplane-templates", "fiberplane-templates"),
-    ("fiberplane", "fiberplane"),
+ROOT: Path = Path.resolve(Path(__file__)).parent.parent
+
+
+# This variable assumes that all crates have the name
+# of their directory
+ALL_CRATE_PATHS_IN_ORDER: List[Path] = [
+    ROOT / "base64uuid",
+    ROOT / "fiberplane-models",
+    ROOT / "fiberplane-api-client",
+    ROOT / "fiberplane-markdown",
+    ROOT / "fiberplane-provider-protocol" / "fiberplane-provider-bindings",
+    ROOT / "fiberplane-provider-protocol" / "fiberplane-provider-runtime",
+    ROOT / "fiberplane-templates",
+    ROOT / "fiberplane",
 ]
-ALL_CRATES = "all"
-CRATES_IO = "crates-io"
+ALL_CRATES: str = "all"
+CRATES_IO: str = "crates-io"
 
 
 def install_dependencies():
@@ -194,8 +193,8 @@ def set_cargo_manifests_git_version(registry: str):
             end=" ",
         )
         try:
-            for pair in ALL_CRATES_PATHS_IN_ORDER:
-                crate = pair[0]
+            for crate_path in ALL_CRATE_PATHS_IN_ORDER:
+                crate = crate_path.name
                 subprocess.run(
                     f'dasel put -f Cargo.toml -s ".workspace.dependencies.{crate}.version" -v "={version}"',
                     check=True,
@@ -213,8 +212,8 @@ def set_cargo_manifests_git_version(registry: str):
 
     git_version = git_based_crate_version()
     edit_root_dependencies(git_version, registry)
-    for pair in ALL_CRATES_PATHS_IN_ORDER:
-        set_version(pair[0], pair[1], git_version)
+    for crate_path in ALL_CRATE_PATHS_IN_ORDER:
+        set_version(crate_path.name, crate_path, git_version)
 
 
 def reset_cargo_manifests():
@@ -265,7 +264,8 @@ def main_crates_io(crate: str):
     Check whether CRATE needs a publish on crates-io, and does the publish if needed.
     """
     if crate == ALL_CRATES:
-        for crate in ALL_CRATES_PATHS_IN_ORDER:
+        for crate_path in ALL_CRATE_PATHS_IN_ORDER:
+            crate = crate_path.name
             crate_version = current_version(crate)
             if not version_published_on_crates_io(crate, crate_version):
                 publish(crate, crate_version, CRATES_IO)
@@ -285,8 +285,8 @@ def main_alt_registry(crate: str, registry: str):
         set_cargo_manifests_git_version(registry)
         git_version = git_based_crate_version()
         if crate == ALL_CRATES:
-            for crate in ALL_CRATES_PATHS_IN_ORDER:
-                publish(crate[0], git_version, registry)
+            for crate_path in ALL_CRATE_PATHS_IN_ORDER:
+                publish(crate_path.name, git_version, registry)
             sys.exit(0)
 
         publish(crate, git_version, registry)
