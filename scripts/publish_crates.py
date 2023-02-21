@@ -3,7 +3,7 @@
 import argparse
 import subprocess
 import sys
-from typing import List
+from typing import List, Union
 import json
 from pathlib import Path
 
@@ -29,6 +29,8 @@ ALL_CRATE_PATHS_IN_ORDER: List[Path] = [
 ]
 ALL_CRATES: str = "all"
 CRATES_IO: str = "crates-io"
+CRATES_IO_INDEX_URL = "https://index.crates.io"
+USER_AGENT = "Fiberplane/Release worker/1.0"
 
 
 def install_dependencies():
@@ -100,19 +102,24 @@ def crates_io_published_versions(crate: str) -> List[str]:
 
     Notably, this _includes_ the yanked versions
     """
-    index_url = f"https://index.crates.io/{index_url_path(crate)}"
-    print(f"Requesting {index_url}")
-    request = urllib.request.Request(
-        index_url, headers={"User-Agent": "Fiberplane/Release worker/1.0"}
-    )
-    with urllib.request.urlopen(request) as response:
-        # We ignore anything that comes after the first newline
-        data = json.loads(response.read().decode("utf-8").split("\n", 1)[0])
-        # The response can be either a single json object or an array of json object
+
+    def extract_versions(data: Union[dict, List]) -> List[str]:
         if isinstance(data, dict):
             return [data["vers"]]
         else:
             return [published["vers"] for published in data]
+
+    index_url = f"{CRATES_IO_INDEX_URL}/{index_url_path(crate)}"
+    print(f"Requesting {index_url}")
+    request = urllib.request.Request(index_url, headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(request) as response:
+        # We ignore anything that comes after the first newline
+        data = [json.loads(line) for line in response.read().decode("utf-8").splitlines()]
+        # The response can be either a single json object or an array of json object
+        result = []
+        for entry in data:
+            result.extend(extract_versions(entry))
+        return result
 
 
 def publish(crate: str, version: str, registry: str):
@@ -177,7 +184,7 @@ def set_cargo_manifests_git_version(registry: str):
             # it refuses to downgrade packages (the version numbers don't really match anything
             # between crates-io and the artifactory)
             subprocess.run(
-                f'dasel put -f Cargo.toml -s ".package.version" -v "={version}"',
+                f'dasel put -f Cargo.toml -s ".package.version" -v "{version}"',
                 cwd=crate_dir,
                 check=True,
                 shell=True,
