@@ -13,6 +13,13 @@ changes if the major version hasn't changed.
 
 ## [Unreleased]
 
+**Breaking changes!** Some breaking changes occurred between beta versions.
+
+### Changed
+
+- `fiberplane_models`: Replaced `AutoSuggestRequest::from_query_data()` with
+  `AutoSuggestRequest::parse()` for consistency with the PDK.
+
 ### Removed
 
 - Support for the legacy provider protocol has been removed.
