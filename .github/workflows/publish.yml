@@ -2,7 +2,7 @@ name: Publish
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "fix-artifactory-publishing"]
 
 env:
   CARGO_TERM_COLOR: always
@@ -45,6 +45,8 @@ jobs:
       - name: Configure Artifactory access token
         run: |
           echo -e "[registries.artifactory]\ntoken = \"Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}\"" > ~/.cargo/credentials.toml
+          echo -e "[credential]\nhelper = store\n" > ~/.gitconfig
+          echo -e "https://fiberplanebot%40fiberplane.com:${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}@fiberplane.jfrog.io\n" > ~/.git-credentials
 
       - name: Publish changed crates
         run: scripts/publish_crates.py --registry artifactory
