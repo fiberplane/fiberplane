@@ -1,4 +1,4 @@
-name: Publish to Artifactory
+name: Publish
 
 on:
   push:
@@ -8,10 +8,13 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  artifactory:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          # Fetching all tags to get a nice Crate version from git describe
+          fetch-depth: 0
 
       - id: branch
         name: Export branch
@@ -44,4 +47,36 @@ jobs:
           echo -e "[registries.artifactory]\ntoken = \"Bearer ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}\"" > ~/.cargo/credentials.toml
 
       - name: Publish changed crates
-        run: scripts/publish_crates.sh --registry=artifactory --all
+        run: scripts/publish_crates.py --registry artifactory
+
+  crates-io:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Install latest stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+
+      - name: Cargo login
+        uses: actions-rs/cargo@v1
+        with:
+          command: login
+          args: ${{ secrets.CRATES_TOKEN }}
+
+      - name: Publish PDK on crates-io
+        run: ./scripts/publish_crates.py --registry crates-io
+
