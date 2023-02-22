@@ -15,10 +15,10 @@ jobs:
 
       - id: branch
         name: Export branch
-        run: echo "::set-output name=branch::${GITHUB_HEAD_REF:-${GITHUB_REF##refs/heads/}}"
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF##refs/heads/}}" >> $GITHUB_OUTPUT
 
       - name: setup-git-credentials
-        uses: fusion-engineering/setup-git-credentials@v2.0.6
+        uses: de-vri-es/setup-git-credentials@v2
         with:
           credentials: "https://fiberplanebot:${{ secrets.PRIVATE_GITHUB_TOKEN }}@github.com/"
 
