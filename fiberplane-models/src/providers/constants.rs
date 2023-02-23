@@ -2,6 +2,7 @@ pub const EVENTS_QUERY_TYPE: &str = "events";
 pub const STATUS_QUERY_TYPE: &str = "status";
 pub const SUGGESTIONS_QUERY_TYPE: &str = "suggestions";
 pub const TIMESERIES_QUERY_TYPE: &str = "timeseries";
+pub const NODE_GRAPH_QUERY_TYPE: &str = "node-graph";
 
 pub const CELLS_MIME_TYPE: &str = "application/vnd.fiberplane.cells";
 pub const EVENTS_MIME_TYPE: &str = "application/vnd.fiberplane.events";
