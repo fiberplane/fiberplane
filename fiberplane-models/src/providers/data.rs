@@ -164,7 +164,7 @@ pub struct Timeseries {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct Node {
-    pub id: u32,
+    pub id: String,
     pub name: String,
     pub module: String,
     pub children: Vec<String>,
