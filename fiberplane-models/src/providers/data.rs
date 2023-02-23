@@ -165,7 +165,7 @@ pub struct Timeseries {
 #[serde(rename_all = "camelCase")]
 pub struct Node {
     pub id: String,
-    pub name: String,
+    pub function_name: String,
     pub module: String,
     pub children: Vec<String>,
 }
