@@ -9,3 +9,4 @@ pub const FORM_ENCODED_MIME_TYPE: &str = "application/x-www-form-urlencoded";
 pub const STATUS_MIME_TYPE: &str = "application/vnd.fiberplane.provider-status";
 pub const SUGGESTIONS_MIME_TYPE: &str = "application/vnd.fiberplane.suggestions";
 pub const TIMESERIES_MIME_TYPE: &str = "application/vnd.fiberplane.timeseries";
+pub const NODE_GRAPH_MIME_TYPE: &str = "application/vnd.fiberplane.node-graph";
