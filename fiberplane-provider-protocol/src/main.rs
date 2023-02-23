@@ -1,10 +1,7 @@
-mod legacy;
-
 use fiberplane_models::notebooks::Cell;
 use fiberplane_models::timestamps::Timestamp;
 use fiberplane_models::{blobs::Blob, providers::*};
 use fp_bindgen::{prelude::*, types::CargoDependency};
-use legacy::*;
 use std::collections::{BTreeMap, BTreeSet};
 
 fp_import! {
@@ -24,7 +21,6 @@ fp_import! {
 fp_export! {
     type ConfigSchema = Vec<ConfigField>;
     type Formatting = Vec<AnnotationWithOffset>;
-    type LegacyTimestamp = f64;
     type ProviderConfig = Value;
     type QuerySchema = Vec<QueryField>;
     type TableRowData = BTreeMap<String, TableCellValue>;
@@ -46,9 +42,6 @@ fp_export! {
     /// supported, and which providers (and their query types) are eligible to
     /// be selected for certain use cases.
     async fn get_supported_query_types(config: ProviderConfig) -> Vec<SupportedQueryType>;
-
-    /// Legacy invoke function.
-    async fn invoke(request: LegacyProviderRequest, config: ProviderConfig) -> LegacyProviderResponse;
 
     /// Invokes the provider to perform a data request.
     async fn invoke2(request: ProviderRequest) -> Result<Blob, Error>;
@@ -90,6 +83,10 @@ fn main() {
         let dependencies = BTreeMap::from([
             ("bytes", CargoDependency::with_version("1")),
             ("fiberplane-models", CargoDependency::from_workspace()),
+            (
+                "fp-bindgen-support",
+                CargoDependency::from_workspace_with_features(BTreeSet::from(["async", "guest"])),
+            ),
             ("once_cell", CargoDependency::from_workspace()),
             (
                 "rmpv",

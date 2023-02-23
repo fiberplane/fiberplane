@@ -465,44 +465,6 @@ export type LabelField = {
     required: boolean;
 };
 
-/**
- * An individual log record
- */
-export type LegacyLogRecord = {
-    timestamp: LegacyTimestamp;
-    body: string;
-    attributes: Record<string, string>;
-    resource: Record<string, string>;
-    traceId?: Uint8Array;
-    spanId?: Uint8Array;
-};
-
-/**
- * Legacy `ProviderRequest` from the Provider 1.0 protocol.
- */
-export type LegacyProviderRequest =
-    | { type: "proxy" } & ProxyRequest
-    | { type: "logs" } & QueryLogs
-    /**
-     * Check data source status, any issue will be returned as `Error`
-     */
-    | { type: "status" };
-
-/**
- * Legacy `ProviderResponse` from the 1.0 protocol.
- */
-export type LegacyProviderResponse =
-    | { type: "error"; error: Error }
-    | { type: "log_records"; logRecords: Array<LegacyLogRecord> }
-    | { type: "status_ok" };
-
-export type LegacyTimeRange = {
-    from: LegacyTimestamp;
-    to: LegacyTimestamp;
-};
-
-export type LegacyTimestamp = number;
-
 export type ListItemCell = {
     id: string;
     content: string;
@@ -648,26 +610,6 @@ export type ProviderRequest = {
     previousResponse?: Blob;
 };
 
-/**
- * Relays requests for a data-source to a proxy server registered with the API.
- */
-export type ProxyRequest = {
-    /**
-     * ID of the proxy as known by the API.
-     */
-    proxyId: string;
-
-    /**
-     * Name of the data source exposed by the proxy.
-     */
-    dataSourceName: string;
-
-    /**
-     * Request data to send to the proxy
-     */
-    request: Uint8Array;
-};
-
 export type QueryField =
     | { type: "checkbox" } & CheckboxField
     | { type: "date_time_range" } & DateTimeRangeField
@@ -676,12 +618,6 @@ export type QueryField =
     | { type: "integer" } & IntegerField
     | { type: "select" } & SelectField
     | { type: "text" } & TextField;
-
-export type QueryLogs = {
-    query: string;
-    limit?: number;
-    timeRange: LegacyTimeRange;
-};
 
 export type QuerySchema = Array<QueryField>;
 

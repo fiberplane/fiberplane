@@ -1,4 +1,4 @@
-use super::{Error, FORM_ENCODED_MIME_TYPE};
+use super::{Error, QuerySchema, ValidationError, FORM_ENCODED_MIME_TYPE};
 use crate::blobs::Blob;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
@@ -25,15 +25,15 @@ pub struct AutoSuggestRequest {
 }
 
 impl AutoSuggestRequest {
-    pub fn from_query_data(blob: &Blob) -> Result<Self, Error> {
-        if blob.mime_type != FORM_ENCODED_MIME_TYPE {
+    pub fn parse(query_data: Blob) -> Result<Self, Error> {
+        if query_data.mime_type != FORM_ENCODED_MIME_TYPE {
             return Err(Error::UnsupportedRequest);
         }
 
         let mut query = String::new();
         let mut query_type = String::new();
         let mut field = String::new();
-        for (key, value) in form_urlencoded::parse(&blob.data) {
+        for (key, value) in form_urlencoded::parse(&query_data.data) {
             match key.as_ref() {
                 "query" => query = value.to_string(),
                 "query_type" => query_type = value.to_string(),
@@ -42,11 +42,38 @@ impl AutoSuggestRequest {
             }
         }
 
-        Ok(AutoSuggestRequest {
-            query,
-            query_type,
-            field,
-        })
+        let mut errors = Vec::new();
+        if field.is_empty() {
+            errors.push(
+                ValidationError::builder()
+                    .field_name("field".to_owned())
+                    .message("Missing field".to_owned())
+                    .build(),
+            );
+        }
+        if query_type.is_empty() {
+            errors.push(
+                ValidationError::builder()
+                    .field_name("query_type".to_owned())
+                    .message("Missing query_type".to_owned())
+                    .build(),
+            );
+        }
+
+        match errors.is_empty() {
+            true => Ok(Self {
+                query,
+                query_type,
+                field,
+            }),
+            false => Err(Error::ValidationError { errors }),
+        }
+    }
+
+    pub fn schema() -> QuerySchema {
+        // This returns an empty schema, because Studio doesn't use a schema
+        // for auto-suggest requests anyway.
+        QuerySchema::default()
     }
 }
 

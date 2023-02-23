@@ -197,36 +197,6 @@ impl Runtime {
         Ok(result)
     }
 
-    /// Legacy invoke function.
-    pub async fn invoke(
-        &self,
-        request: LegacyProviderRequest,
-        config: ProviderConfig,
-    ) -> Result<LegacyProviderResponse, InvocationError> {
-        let request = serialize_to_vec(&request);
-        let config = serialize_to_vec(&config);
-        let result = self.invoke_raw(request, config);
-        let result = result.await;
-        let result = result.map(|ref data| deserialize_from_slice(data));
-        result
-    }
-    pub async fn invoke_raw(
-        &self,
-        request: Vec<u8>,
-        config: Vec<u8>,
-    ) -> Result<Vec<u8>, InvocationError> {
-        let request = export_to_guest_raw(&self.env, request);
-        let config = export_to_guest_raw(&self.env, config);
-        let function = self
-            .instance
-            .exports
-            .get_native_function::<(FatPtr, FatPtr), FatPtr>("__fp_gen_invoke")
-            .map_err(|_| InvocationError::FunctionNotExported("__fp_gen_invoke".to_owned()))?;
-        let result = function.call(request.to_abi(), config.to_abi())?;
-        let result = ModuleRawFuture::new(self.env.clone(), result).await;
-        Ok(result)
-    }
-
     /// Invokes the provider to perform a data request.
     pub async fn invoke2(
         &self,

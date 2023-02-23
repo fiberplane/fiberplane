@@ -52,77 +52,7 @@ pub type ConfigSchema = Vec<ConfigField>;
 
 pub type Formatting = Vec<AnnotationWithOffset>;
 
-/// An individual log record
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct LegacyLogRecord {
-    pub timestamp: LegacyTimestamp,
-    pub body: String,
-    pub attributes: HashMap<String, String>,
-    pub resource: HashMap<String, String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub trace_id: Option<bytes::Bytes>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub span_id: Option<bytes::Bytes>,
-}
-
-/// Legacy `ProviderRequest` from the Provider 1.0 protocol.
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
-pub enum LegacyProviderRequest {
-    Proxy(ProxyRequest),
-    Logs(QueryLogs),
-    /// Check data source status, any issue will be returned as `Error`
-    Status,
-}
-
-/// Legacy `ProviderResponse` from the 1.0 protocol.
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
-pub enum LegacyProviderResponse {
-    #[serde(rename_all = "camelCase")]
-    Error {
-        error: Error,
-    },
-    #[serde(rename_all = "camelCase")]
-    LogRecords {
-        log_records: Vec<LegacyLogRecord>,
-    },
-    StatusOk,
-}
-
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-pub struct LegacyTimeRange {
-    pub from: LegacyTimestamp,
-    pub to: LegacyTimestamp,
-}
-
-pub type LegacyTimestamp = f64;
-
 pub type ProviderConfig = serde_json::Value;
-
-/// Relays requests for a data-source to a proxy server registered with the API.
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ProxyRequest {
-    /// ID of the proxy as known by the API.
-    pub proxy_id: String,
-
-    /// Name of the data source exposed by the proxy.
-    pub data_source_name: String,
-
-    /// Request data to send to the proxy
-    pub request: bytes::Bytes,
-}
-
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct QueryLogs {
-    pub query: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub limit: Option<u32>,
-    pub time_range: LegacyTimeRange,
-}
 
 pub type QuerySchema = Vec<QueryField>;
 

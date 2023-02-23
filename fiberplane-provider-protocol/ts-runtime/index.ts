@@ -23,13 +23,11 @@ export type Exports = {
     extractData?: (response: types.Blob, mimeType: string, query: string | null) => types.Result<types.Blob, types.Error>;
     getConfigSchema?: () => types.ConfigSchema;
     getSupportedQueryTypes?: (config: types.ProviderConfig) => Promise<Array<types.SupportedQueryType>>;
-    invoke?: (request: types.LegacyProviderRequest, config: types.ProviderConfig) => Promise<types.LegacyProviderResponse>;
     invoke2?: (request: types.ProviderRequest) => Promise<types.Result<types.Blob, types.Error>>;
     createCellsRaw?: (queryType: Uint8Array, response: Uint8Array) => Uint8Array;
     extractDataRaw?: (response: Uint8Array, mimeType: Uint8Array, query: Uint8Array) => Uint8Array;
     getConfigSchemaRaw?: () => Uint8Array;
     getSupportedQueryTypesRaw?: (config: Uint8Array) => Promise<Uint8Array>;
-    invokeRaw?: (request: Uint8Array, config: Uint8Array) => Promise<Uint8Array>;
     invoke2Raw?: (request: Uint8Array) => Promise<Uint8Array>;
 };
 
@@ -227,16 +225,6 @@ export async function createRuntime(
                 return promiseFromPtr(export_fn(config_ptr)).then((ptr) => parseObject<Array<types.SupportedQueryType>>(ptr));
             };
         })(),
-        invoke: (() => {
-            const export_fn = instance.exports.__fp_gen_invoke as any;
-            if (!export_fn) return;
-
-            return (request: types.LegacyProviderRequest, config: types.ProviderConfig) => {
-                const request_ptr = serializeObject(request);
-                const config_ptr = serializeObject(config);
-                return promiseFromPtr(export_fn(request_ptr, config_ptr)).then((ptr) => parseObject<types.LegacyProviderResponse>(ptr));
-            };
-        })(),
         invoke2: (() => {
             const export_fn = instance.exports.__fp_gen_invoke2 as any;
             if (!export_fn) return;
@@ -280,16 +268,6 @@ export async function createRuntime(
             return (config: Uint8Array) => {
                 const config_ptr = exportToMemory(config);
                 return promiseFromPtr(export_fn(config_ptr)).then(importFromMemory);
-            };
-        })(),
-        invokeRaw: (() => {
-            const export_fn = instance.exports.__fp_gen_invoke as any;
-            if (!export_fn) return;
-
-            return (request: Uint8Array, config: Uint8Array) => {
-                const request_ptr = exportToMemory(request);
-                const config_ptr = exportToMemory(config);
-                return promiseFromPtr(export_fn(request_ptr, config_ptr)).then(importFromMemory);
             };
         })(),
         invoke2Raw: (() => {
