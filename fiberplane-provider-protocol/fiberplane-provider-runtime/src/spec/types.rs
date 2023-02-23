@@ -17,6 +17,7 @@ pub use fiberplane_models::notebooks::GraphCell;
 pub use fiberplane_models::notebooks::GraphType;
 pub use fiberplane_models::notebooks::HeadingCell;
 pub use fiberplane_models::notebooks::HeadingType;
+pub use fiberplane_models::notebooks::HierarchyCell;
 pub use fiberplane_models::notebooks::ImageCell;
 pub use fiberplane_models::notebooks::ListItemCell;
 pub use fiberplane_models::notebooks::ListType;

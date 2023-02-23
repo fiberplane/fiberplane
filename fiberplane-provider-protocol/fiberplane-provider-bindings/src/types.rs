@@ -20,6 +20,7 @@ pub use fiberplane_models::notebooks::GraphCell;
 pub use fiberplane_models::notebooks::GraphType;
 pub use fiberplane_models::notebooks::HeadingCell;
 pub use fiberplane_models::notebooks::HeadingType;
+pub use fiberplane_models::notebooks::HierarchyCell;
 pub use fiberplane_models::providers::HttpRequest;
 pub use fiberplane_models::providers::HttpRequestError;
 pub use fiberplane_models::providers::HttpRequestMethod;

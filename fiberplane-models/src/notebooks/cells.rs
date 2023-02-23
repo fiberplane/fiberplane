@@ -23,6 +23,7 @@ pub enum Cell {
     Discussion(DiscussionCell),
     Divider(DividerCell),
     Graph(GraphCell),
+    Hierarchy(HierarchyCell),
     Heading(HeadingCell),
     Image(ImageCell),
     ListItem(ListItemCell),
@@ -41,6 +42,7 @@ impl Cell {
             Cell::Discussion(_) => None,
             Cell::Divider(_) => None,
             Cell::Graph(_) => None,
+            Cell::Hierarchy(_) => None,
             Cell::Heading(cell) => Some(&cell.content),
             Cell::Image(_) => None,
             Cell::ListItem(cell) => Some(&cell.content),
@@ -58,6 +60,7 @@ impl Cell {
             | Cell::Discussion(_)
             | Cell::Divider(_)
             | Cell::Graph(_)
+            | Cell::Hierarchy(_)
             | Cell::Image(_)
             | Cell::Log(_)
             | Cell::Table(_) => None,
@@ -75,6 +78,7 @@ impl Cell {
             | Cell::Discussion(_)
             | Cell::Divider(_)
             | Cell::Graph(_)
+            | Cell::Hierarchy(_)
             | Cell::Image(_)
             | Cell::Log(_)
             | Cell::Table(_) => false,
@@ -94,6 +98,7 @@ impl Cell {
             Cell::Discussion(cell) => &cell.id,
             Cell::Divider(cell) => &cell.id,
             Cell::Graph(cell) => &cell.id,
+            Cell::Hierarchy(cell) => &cell.id,
             Cell::Heading(cell) => &cell.id,
             Cell::Image(cell) => &cell.id,
             Cell::ListItem(cell) => &cell.id,
@@ -133,6 +138,10 @@ impl Cell {
                 ..cell.clone()
             }),
             Cell::Graph(cell) => Cell::Graph(GraphCell {
+                id: id.to_owned(),
+                ..cell.clone()
+            }),
+            Cell::Hierarchy(cell) => Cell::Hierarchy(HierarchyCell {
                 id: id.to_owned(),
                 ..cell.clone()
             }),
@@ -187,6 +196,7 @@ impl Cell {
             Cell::Discussion(cell) => Cell::Discussion(cell.clone()),
             Cell::Divider(cell) => Cell::Divider(cell.clone()),
             Cell::Graph(cell) => Cell::Graph(cell.clone()),
+            Cell::Hierarchy(cell) => Cell::Hierarchy(cell.clone()),
             Cell::Heading(cell) => Cell::Heading(HeadingCell {
                 id: cell.id.clone(),
                 content: text.to_owned(),
@@ -277,6 +287,7 @@ impl Cell {
             | Cell::Discussion(_)
             | Cell::Divider(_)
             | Cell::Graph(_)
+            | Cell::Hierarchy(_)
             | Cell::Image(_)
             | Cell::Table(_) => self.with_text(text),
         }
@@ -319,6 +330,7 @@ impl Cell {
             Cell::Discussion(cell) => &mut cell.id,
             Cell::Divider(cell) => &mut cell.id,
             Cell::Graph(cell) => &mut cell.id,
+            Cell::Hierarchy(cell) => &mut cell.id,
             Cell::Heading(cell) => &mut cell.id,
             Cell::Image(cell) => &mut cell.id,
             Cell::ListItem(cell) => &mut cell.id,
@@ -342,6 +354,7 @@ impl Cell {
             | Cell::Discussion(_)
             | Cell::Divider(_)
             | Cell::Graph(_)
+            | Cell::Hierarchy(_)
             | Cell::Image(_)
             | Cell::Log(_)
             | Cell::Table(_) => None,
@@ -357,6 +370,7 @@ impl Cell {
             Cell::Divider(_) => None,
             Cell::Image(_) => None,
             Cell::Graph(_) => None,
+            Cell::Hierarchy(_) => None,
             Cell::Heading(cell) => Some(&mut cell.content),
             Cell::ListItem(cell) => Some(&mut cell.content),
             Cell::Log(_) => None,
@@ -374,6 +388,7 @@ impl Cell {
             Cell::Discussion(_) => "discussion",
             Cell::Divider(_) => "divider",
             Cell::Graph(_) => "graph",
+            Cell::Hierarchy(_) => "hierarchy",
             Cell::Heading(_) => "heading",
             Cell::Image(_) => "image",
             Cell::ListItem(_) => "list item",
@@ -469,6 +484,31 @@ pub struct GraphCell {
     pub data_links: Vec<String>,
 
     pub graph_type: GraphType,
+
+    #[builder(default, setter(strip_option))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub read_only: Option<bool>,
+
+    #[builder(default)]
+    pub stacking_type: StackingType,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct HierarchyCell {
+    #[builder(setter(into))]
+    pub id: String,
+
+    /// Links to the data to render in the graph.
+    #[builder(default)]
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub data_links: Vec<String>,
 
     #[builder(default, setter(strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]

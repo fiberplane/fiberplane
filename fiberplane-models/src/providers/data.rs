@@ -153,3 +153,19 @@ pub struct Timeseries {
     #[serde(default)]
     pub visible: bool,
 }
+
+// Should use better `PartialEq` and `Hash` implementation (id based only)
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::providers")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct Node {
+    pub id: u32,
+    pub name: String,
+    pub module: String,
+    pub children: Vec<String>,
+}

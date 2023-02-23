@@ -75,6 +75,7 @@ export type Cell =
     | { type: "discussion" } & DiscussionCell
     | { type: "divider" } & DividerCell
     | { type: "graph" } & GraphCell
+    | { type: "hierarchy" } & HierarchyCell
     | { type: "heading" } & HeadingCell
     | { type: "image" } & ImageCell
     | { type: "list_item" } & ListItemCell
@@ -301,6 +302,17 @@ export type HeadingType =
     | "h1"
     | "h2"
     | "h3";
+
+export type HierarchyCell = {
+    id: string;
+
+    /**
+     * Links to the data to render in the graph.
+     */
+    dataLinks?: Array<string>;
+    readOnly?: boolean;
+    stackingType: StackingType;
+};
 
 /**
  * HTTP request options.
