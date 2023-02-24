@@ -99,12 +99,16 @@ fn main() {
 
         let path = "./fiberplane-provider-bindings";
         fp_bindgen!(BindingConfig {
-            bindings_type: BindingsType::RustPlugin(RustPluginConfig {
-                name: "fiberplane-provider-bindings",
-                authors: r#"["Fiberplane <info@fiberplane.com>"]"#,
-                version: "2.0.0-beta.1",
-                dependencies,
-            }),
+            bindings_type: BindingsType::RustPlugin(
+                RustPluginConfig::builder()
+                    .name("fiberplane-provider-bindings")
+                    .author("Fiberplane <info@fiberplane.com>")
+                    .version("2.0.0-beta.1")
+                    .description("Fiberplane Provider protocol bindings")
+                    .license(RustPluginConfigValue::Workspace)
+                    .dependencies(dependencies)
+                    .build()
+            ),
             path,
         });
         println!("Rust plugin bindings written to `{path}/`.");
