@@ -1,0 +1,41 @@
+name: 🐛 Bug Report
+description: Report a possible bug or regression
+title: "🐛 <TITLE>"
+labels: ["S-To triage"]
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for submitting the bug! We'll try to triage it ASAP!
+  - type: markdown
+    attributes:
+      value: |
+        Bug reports that don't follow this template will be closed.
+        Please provide a clear and concise description of what the bug is.
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment information
+      description: Is your issue specific to some server setup, or a browser that you use? Please describe your setup here.
+      render: plain text
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: What happened?
+      description: |
+        Please provide a detailed list of steps that reproduce the issue.
+        The more information and included steps, the quicker we can address your report.
+      placeholder: |
+        1.
+        2.
+    validations:
+      required: true
+  - type: textarea
+    id: expected-result
+    attributes:
+      label: Expected result
+      description: Describe what you expected to happen.
+      placeholder: It should not throw an error.
+    validations:
+      required: true

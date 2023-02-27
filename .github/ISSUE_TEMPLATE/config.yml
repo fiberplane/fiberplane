@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💡 Feature requests
+    url: https://github.com/fiberplane/fiberplane/discussions/new
+    about: "Please use a new Github discussion to propose feature request ideas"
+  - name: 🤔 Support
+    url: https://discord.gg/MJr7pYzZQ4
+    about: "This issue tracker is not for support questions. Visit our community Discord and use the #help channel for assistance!"
+  - name: 🗣️ Chat
+    url: https://discord.gg/MJr7pYzZQ4
+    about: "Our Discord server is active and is used for real-time discussions including contribution collaboration, questions, and more!"
+  - name: 🆘 Code of Conduct Reports
+    url: https://github.com/fiberplane/fiberplane/blob/main/CODE_OF_CONDUCT.md
+    about: "Please use the contact information in our Code of Conduct instead in order to maintain confidentiality."
