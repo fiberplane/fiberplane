@@ -64,6 +64,11 @@ pub trait SortField {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::sorting")
+)]
 #[non_exhaustive]
 pub struct Pagination {
     #[serde(default = "Pagination::default_page")]
@@ -123,6 +128,11 @@ pub struct PaginatedSearch<T: SortField> {
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, IntoStaticStr)]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::sorting")
+)]
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
@@ -152,6 +162,11 @@ impl SortField for TemplateListSortFields {
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, IntoStaticStr)]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::sorting")
+)]
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
@@ -181,6 +196,11 @@ impl SortField for SnippetListSortFields {
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, IntoStaticStr)]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::sorting")
+)]
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
@@ -212,6 +232,11 @@ impl SortField for EventSortFields {
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, IntoStaticStr)]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::sorting")
+)]
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
@@ -241,6 +266,11 @@ impl SortField for TokenListSortFields {
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, IntoStaticStr)]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::sorting")
+)]
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
@@ -269,6 +299,11 @@ impl SortField for WorkspaceMembershipSortFields {
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, IntoStaticStr)]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::sorting")
+)]
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
@@ -297,6 +332,11 @@ impl SortField for WorkspaceListingSortFields {
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, IntoStaticStr)]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::sorting")
+)]
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
@@ -329,6 +369,11 @@ impl SortField for WorkspaceInviteListingSortFields {
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, IntoStaticStr)]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::sorting")
+)]
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
@@ -361,6 +406,11 @@ impl SortField for ProxyListingSortFields {
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, IntoStaticStr)]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::sorting")
+)]
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
@@ -395,6 +445,11 @@ impl SortField for DataSourceListingSortFields {
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, IntoStaticStr)]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::sorting")
+)]
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
