@@ -1,21 +1,23 @@
-name: 🐛 Bug Report
-description: Report a possible bug or regression
+name: 🐛 Report issue
+description: Report a possible bug or other issue
 title: "🐛 <TITLE>"
 labels: ["triage"]
 body:
   - type: markdown
     attributes:
-      value: Thank you for submitting the bug! We'll try to triage it ASAP!
+      value: Thank you for submitting an issue! We'll try to triage it ASAP!
   - type: markdown
     attributes:
       value: |
-        Bug reports that don't follow this template will be closed.
+        Issue reports that don't follow this template will be closed.
         Please provide a clear and concise description of what the bug is.
   - type: textarea
     id: environment
     attributes:
       label: Environment information
-      description: Is your issue specific to some server setup, or a browser that you use? Please describe your setup here.
+      description: |
+        Is your issue specific to some server setup, or a browser that you use?
+        Please describe your setup here.
       render: plain text
     validations:
       required: true
