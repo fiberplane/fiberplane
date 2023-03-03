@@ -3,6 +3,7 @@ members = [
     "base64uuid",
     "fiberplane",
     "fiberplane-api-client",
+    "fiberplane-ci",
     "fiberplane-markdown",
     "fiberplane-models",
     "fiberplane-provider-protocol",
