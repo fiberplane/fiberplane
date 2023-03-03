@@ -1,7 +1,10 @@
+use crate::toml_patcher::TomlPatcher;
 use crate::TaskResult;
 use anyhow::Context;
 use clap::Parser;
 use std::{fs, path::Path};
+use taplo::dom::KeyOrIndex;
+use thiserror::Error;
 
 #[derive(Parser)]
 pub struct BumpVersionArguments {
@@ -9,18 +12,90 @@ pub struct BumpVersionArguments {
     #[clap(long, short)]
     dependency: String,
 
+    /// Use this flag if you want the workspace version to be patched as well.
+    #[clap(long, short = 'w')]
+    patch_workspace: bool,
+
     /// The new version of the dependency.
     #[clap(long, short)]
     version: String,
 }
 
 pub fn bump_version<P: AsRef<Path>>(cargo_path: P, args: &BumpVersionArguments) -> TaskResult {
-    let cargo_toml = fs::read_to_string(cargo_path).with_context(|| "Cannot read Cargo file")?;
+    let cargo_toml =
+        fs::read_to_string(cargo_path.as_ref()).with_context(|| "Cannot read Cargo file")?;
     let output = bump_version_in_toml(&cargo_toml, args)?;
     fs::write(cargo_path, output).with_context(|| "Cannot write Cargo file")
 }
 
-fn bump_version_in_toml(cargo_toml: &str, args: &BumpVersionArguments) -> anyhow::Result<String> {}
+fn bump_version_in_toml(cargo_toml: &str, args: &BumpVersionArguments) -> anyhow::Result<String> {
+    let parse_result = taplo::parser::parse(cargo_toml);
+    if let Some(error) = parse_result.errors.first() {
+        return Err(error.clone()).with_context(|| "Parse error");
+    }
+
+    let root = parse_result.into_dom();
+    let mut patcher = TomlPatcher::new(root).unwrap();
+
+    match (
+        patcher.get_string("package.name"),
+        patcher.get_bool("package.version.workspace"),
+    ) {
+        (Some(package_name), None | Some(false)) if package_name == args.dependency => {
+            patcher
+                .set_string("package.version", &args.version)
+                .map_err(|err| VersionError::PatchError(err.to_string()))?;
+        }
+        _ => {}
+    }
+
+    if args.patch_workspace {
+        patcher
+            .set_string("workspace.package.version", &args.version)
+            .map_err(|err| VersionError::PatchError(err.to_string()))?;
+    }
+
+    patcher
+        .set_string(
+            format!("dependencies.{}.version", args.dependency),
+            &args.version,
+        )
+        .map_err(|err| VersionError::PatchError(err.to_string()))?;
+
+    patcher
+        .set_string(
+            format!("workspace.dependencies.{}.version", args.dependency),
+            &args.version,
+        )
+        .map_err(|err| VersionError::PatchError(err.to_string()))?;
+
+    if let Some((path, _)) = patcher.get_patch(&args.dependency) {
+        let maybe_branch = patcher.get_string(&format!("patch.*.{}.branch", args.dependency));
+        let table_path = path
+            .iter()
+            .take(path.len() - 1)
+            .map(KeyOrIndex::to_string)
+            .collect::<Vec<_>>()
+            .join(".");
+        patcher
+            .comment_out_table_key_and_replace_value(&table_path, &args.dependency, |value| {
+                match &maybe_branch {
+                    Some(branch) => value.replace(branch, "main"),
+                    None => value,
+                }
+            })
+            .map_err(|err| VersionError::PatchError(err.to_string()))?;
+    }
+
+    let output = patcher.to_string();
+    Ok(output)
+}
+
+#[derive(Debug, Error)]
+pub enum VersionError {
+    #[error("Patch error: {0}")]
+    PatchError(String),
+}
 
 #[cfg(test)]
 mod tests {
@@ -34,6 +109,7 @@ members = [
     "base64uuid",
     "fiberplane",
     "fiberplane-api-client",
+    "fiberplane-provider-protocol/fiberplane-provider-bindings",
 ]
 
 [workspace.package]
@@ -66,6 +142,7 @@ members = [
     "base64uuid",
     "fiberplane",
     "fiberplane-api-client",
+    "fiberplane-provider-protocol/fiberplane-provider-bindings",
 ]
 
 [workspace.package]
@@ -98,6 +175,7 @@ vergen = { version = "7.4.2", default-features = false, features = [
             &BumpVersionArguments {
                 dependency: "fiberplane".to_owned(),
                 version: "1.0.0-beta.1".to_owned(),
+                patch_workspace: true,
             },
         )
         .unwrap();
@@ -135,6 +213,7 @@ fiberplane-api-client = { workspace = true, optional = true }
             &BumpVersionArguments {
                 dependency: "fiberplane".to_owned(),
                 version: "1.0.0-beta.1".to_owned(),
+                patch_workspace: false,
             },
         )
         .unwrap();
@@ -172,6 +251,51 @@ fiberplane-api-client = { version = "1.0.0-beta.1", optional = true }
             &BumpVersionArguments {
                 dependency: "fiberplane-api-client".to_owned(),
                 version: "1.0.0-beta.1".to_owned(),
+                patch_workspace: false,
+            },
+        )
+        .unwrap();
+        assert_eq!(&output, expected_toml);
+    }
+
+    #[test]
+    fn test_bump_patched_dependency_version_in_crate_toml() {
+        let crate_toml = r#"[package]
+name = "fiberplane"
+version = "1.0.0-alpha.1"
+
+[features]
+clap = ["fiberplane-models?/clap"]
+
+[dependencies]
+base64uuid = { workspace = true, default-features = false, optional = true }
+fiberplane-api-client = { version = "1.0.0-alpha.1", optional = true }
+
+[patch.'crates-io']
+fiberplane-api-client = { git = "ssh://git@github.com/fiberplane/fiberplane.git", branch = "custom" }
+"#;
+
+        let expected_toml = r#"[package]
+name = "fiberplane"
+version = "1.0.0-alpha.1"
+
+[features]
+clap = ["fiberplane-models?/clap"]
+
+[dependencies]
+base64uuid = { workspace = true, default-features = false, optional = true }
+fiberplane-api-client = { version = "1.0.0-beta.1", optional = true }
+
+[patch.'crates-io']
+#fiberplane-api-client = { git = "ssh://git@github.com/fiberplane/fiberplane.git", branch = "main" }
+"#;
+
+        let output = bump_version_in_toml(
+            crate_toml,
+            &BumpVersionArguments {
+                dependency: "fiberplane-api-client".to_owned(),
+                version: "1.0.0-beta.1".to_owned(),
+                patch_workspace: false,
             },
         )
         .unwrap();
@@ -197,6 +321,7 @@ fiberplane-api-client = { workspace = true, optional = true }
             &BumpVersionArguments {
                 dependency: "fiberplane".to_owned(),
                 version: "1.0.0-beta.1".to_owned(),
+                patch_workspace: false,
             },
         )
         .unwrap();

@@ -13,7 +13,7 @@ the core data structures in this repository also need to be reflected in our
 closed-source components. As such, _the following instructions are intended for
 Fiberplane employees only._
 
-# Set up Artifactory
+## Set up Artifactory
 
 Crates from this repository are automatically pushed to Artifactory upon merging
 to main.
@@ -35,6 +35,12 @@ token = "Bearer <TOKEN>"
    your full email address, and the password is the same token you used above.
    - If you receive a 500 error when trying to access the Artifactory registry,
      you probably used the correct token, but not the right username.
+
+## TOML formatting
+
+We use the "Even Better TOML" VS Code extension for formatting `Cargo.toml`
+files. We also use the crate used by this extension when Cargo files need to be
+manipulated through automation.
 
 ## Documentation
 
