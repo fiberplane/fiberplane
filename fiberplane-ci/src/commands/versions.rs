@@ -50,9 +50,11 @@ fn set_version_in_toml(
 
     match root.get_string("package.name") {
         Some(package_name) if package_name == args.dependency => {
-            patcher
-                .set_string("package.version", &args.version)
-                .map_err(|err| VersionError::PatchError(err.to_string()))?;
+            if root.get_bool("package.version.workspace") != Some(true) || patch_workspace {
+                patcher
+                    .set_string("package.version", &args.version)
+                    .map_err(|err| VersionError::PatchError(err.to_string()))?;
+            }
         }
         _ => {}
     }
