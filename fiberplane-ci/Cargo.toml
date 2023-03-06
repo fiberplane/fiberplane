@@ -12,8 +12,6 @@ rust-version = { workspace = true }
 [dependencies]
 anyhow = "1"
 clap = { version = "4", features = ["derive"] }
-console = "0.15"
-duct = "0.13"
 taplo = "0.12"
 thiserror = "1"
 

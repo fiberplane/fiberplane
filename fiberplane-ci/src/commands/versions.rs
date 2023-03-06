@@ -6,29 +6,45 @@ use std::{fs, path::Path};
 use taplo::dom::KeyOrIndex;
 use thiserror::Error;
 
-#[derive(Parser)]
-pub struct BumpVersionArguments {
-    /// Name of the dependency to bump.
-    #[clap(long, short)]
-    dependency: String,
+/// Parameters intended to be set by the xtask implementation, rather than the
+/// CLI user.
+pub struct SetVersionParams<P>
+where
+    P: AsRef<Path>,
+{
+    /// Path of the Cargo file in which to update the version numbers.
+    pub cargo_path: P,
 
     /// Use this flag if you want the workspace version to be patched as well.
-    #[clap(long, short = 'w')]
-    patch_workspace: bool,
+    pub patch_workspace: bool,
+}
+
+#[derive(Parser)]
+pub struct SetVersionArgs {
+    /// Name of the dependency to bump.
+    #[clap(long, short)]
+    pub dependency: String,
 
     /// The new version of the dependency.
     #[clap(long, short)]
-    version: String,
+    pub version: String,
 }
 
-pub fn bump_version<P: AsRef<Path>>(cargo_path: P, args: &BumpVersionArguments) -> TaskResult {
+pub fn set_version<P>(params: &SetVersionParams<P>, args: &SetVersionArgs) -> TaskResult
+where
+    P: AsRef<Path>,
+{
     let cargo_toml =
-        fs::read_to_string(cargo_path.as_ref()).with_context(|| "Cannot read Cargo file")?;
-    let output = bump_version_in_toml(&cargo_toml, args)?;
-    fs::write(cargo_path, output).with_context(|| "Cannot write Cargo file")
+        fs::read_to_string(params.cargo_path.as_ref()).with_context(|| "Cannot read Cargo file")?;
+    let output = set_version_in_toml(&cargo_toml, params.patch_workspace, args)?;
+    fs::write(&params.cargo_path, output).with_context(|| "Cannot write Cargo file")
 }
 
-fn bump_version_in_toml(cargo_toml: &str, args: &BumpVersionArguments) -> anyhow::Result<String> {
+fn set_version_in_toml(
+    cargo_toml: &str,
+    patch_workspace: bool,
+    args: &SetVersionArgs,
+) -> anyhow::Result<String> {
     let parse_result = taplo::parser::parse(cargo_toml);
     if let Some(error) = parse_result.errors.first() {
         return Err(error.clone()).with_context(|| "Parse error");
@@ -49,7 +65,7 @@ fn bump_version_in_toml(cargo_toml: &str, args: &BumpVersionArguments) -> anyhow
         _ => {}
     }
 
-    if args.patch_workspace {
+    if patch_workspace {
         patcher
             .set_string("workspace.package.version", &args.version)
             .map_err(|err| VersionError::PatchError(err.to_string()))?;
@@ -99,11 +115,11 @@ pub enum VersionError {
 
 #[cfg(test)]
 mod tests {
-    use super::{bump_version_in_toml, BumpVersionArguments};
+    use super::{set_version_in_toml, SetVersionArgs};
     use pretty_assertions::assert_eq;
 
     #[test]
-    fn test_bump_version_in_workspace_toml() {
+    fn test_set_version_in_workspace_toml() {
         let workspace_toml = r#"[workspace]
 members = [
     "base64uuid",
@@ -170,12 +186,12 @@ vergen = { version = "7.4.2", default-features = false, features = [
 #fp-bindgen = { path = "../fp-bindgen/fp-bindgen" }
 "#;
 
-        let output = bump_version_in_toml(
+        let output = set_version_in_toml(
             workspace_toml,
-            &BumpVersionArguments {
+            true,
+            &SetVersionArgs {
                 dependency: "fiberplane".to_owned(),
                 version: "1.0.0-beta.1".to_owned(),
-                patch_workspace: true,
             },
         )
         .unwrap();
@@ -183,7 +199,7 @@ vergen = { version = "7.4.2", default-features = false, features = [
     }
 
     #[test]
-    fn test_bump_version_in_crate_toml() {
+    fn test_set_version_in_crate_toml() {
         let crate_toml = r#"[package]
 name = "fiberplane"
 version = "1.0.0-alpha.1"
@@ -208,12 +224,12 @@ base64uuid = { workspace = true, default-features = false, optional = true }
 fiberplane-api-client = { workspace = true, optional = true }
 "#;
 
-        let output = bump_version_in_toml(
+        let output = set_version_in_toml(
             crate_toml,
-            &BumpVersionArguments {
+            false,
+            &SetVersionArgs {
                 dependency: "fiberplane".to_owned(),
                 version: "1.0.0-beta.1".to_owned(),
-                patch_workspace: false,
             },
         )
         .unwrap();
@@ -221,7 +237,7 @@ fiberplane-api-client = { workspace = true, optional = true }
     }
 
     #[test]
-    fn test_bump_dependency_version_in_crate_toml() {
+    fn test_set_dependency_version_in_crate_toml() {
         let crate_toml = r#"[package]
 name = "fiberplane"
 version = "1.0.0-alpha.1"
@@ -246,12 +262,12 @@ base64uuid = { workspace = true, default-features = false, optional = true }
 fiberplane-api-client = { version = "1.0.0-beta.1", optional = true }
 "#;
 
-        let output = bump_version_in_toml(
+        let output = set_version_in_toml(
             crate_toml,
-            &BumpVersionArguments {
+            false,
+            &SetVersionArgs {
                 dependency: "fiberplane-api-client".to_owned(),
                 version: "1.0.0-beta.1".to_owned(),
-                patch_workspace: false,
             },
         )
         .unwrap();
@@ -259,7 +275,7 @@ fiberplane-api-client = { version = "1.0.0-beta.1", optional = true }
     }
 
     #[test]
-    fn test_bump_patched_dependency_version_in_crate_toml() {
+    fn test_set_patched_dependency_version_in_crate_toml() {
         let crate_toml = r#"[package]
 name = "fiberplane"
 version = "1.0.0-alpha.1"
@@ -290,12 +306,12 @@ fiberplane-api-client = { version = "1.0.0-beta.1", optional = true }
 #fiberplane-api-client = { git = "ssh://git@github.com/fiberplane/fiberplane.git", branch = "main" }
 "#;
 
-        let output = bump_version_in_toml(
+        let output = set_version_in_toml(
             crate_toml,
-            &BumpVersionArguments {
+            false,
+            &SetVersionArgs {
                 dependency: "fiberplane-api-client".to_owned(),
                 version: "1.0.0-beta.1".to_owned(),
-                patch_workspace: false,
             },
         )
         .unwrap();
@@ -303,7 +319,7 @@ fiberplane-api-client = { version = "1.0.0-beta.1", optional = true }
     }
 
     #[test]
-    fn test_bump_version_in_crate_toml_with_workspace_version() {
+    fn test_set_version_in_crate_toml_with_workspace_version() {
         let crate_toml = r#"[package]
 name = "fiberplane"
 version = { workspace = true }
@@ -316,12 +332,12 @@ base64uuid = { workspace = true, default-features = false, optional = true }
 fiberplane-api-client = { workspace = true, optional = true }
 "#;
 
-        let output = bump_version_in_toml(
+        let output = set_version_in_toml(
             crate_toml,
-            &BumpVersionArguments {
+            false,
+            &SetVersionArgs {
                 dependency: "fiberplane".to_owned(),
                 version: "1.0.0-beta.1".to_owned(),
-                patch_workspace: false,
             },
         )
         .unwrap();

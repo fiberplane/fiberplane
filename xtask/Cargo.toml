@@ -1,0 +1,13 @@
+[package]
+name = "xtask"
+authors = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+version = "0.1.0"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+console = "0.15"
+fiberplane-ci = { workspace = true }
+thiserror = "1"
