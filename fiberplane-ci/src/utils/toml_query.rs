@@ -16,7 +16,7 @@ impl TomlNode {
     where
         P: AsRef<Path>,
     {
-        let toml = fs::read_to_string(path.as_ref()).with_context(|| "Cannot read Cargo file")?;
+        let toml = fs::read_to_string(path.as_ref()).context("Cannot read Cargo file")?;
         Self::parse(&toml)
     }
 
@@ -24,7 +24,7 @@ impl TomlNode {
     pub fn parse(toml: &str) -> anyhow::Result<Self> {
         let parse_result = taplo::parser::parse(toml);
         if let Some(error) = parse_result.errors.first() {
-            return Err(error.clone()).with_context(|| format!("Parse error"));
+            return Err(error.clone()).context("Parse error");
         }
 
         let root = parse_result.into_dom();

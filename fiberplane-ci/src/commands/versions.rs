@@ -35,9 +35,9 @@ where
     P: AsRef<Path>,
 {
     let cargo_toml =
-        fs::read_to_string(params.cargo_path.as_ref()).with_context(|| "Cannot read Cargo file")?;
+        fs::read_to_string(params.cargo_path.as_ref()).context("Cannot read Cargo file")?;
     let output = set_version_in_toml(&cargo_toml, params.patch_workspace, args)?;
-    fs::write(&params.cargo_path, output).with_context(|| "Cannot write Cargo file")
+    fs::write(&params.cargo_path, output).context("Cannot write Cargo file")
 }
 
 fn set_version_in_toml(

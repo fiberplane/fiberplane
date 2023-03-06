@@ -30,7 +30,7 @@ fn handle_set_version(args: &SetVersionArgs) -> TaskResult {
     let crates_using_workspace_version: Vec<_> = all_crates
         .into_iter()
         .filter(|crate_name| {
-            TomlNode::from_file(&format!("{crate_name}/Cargo.toml"))
+            TomlNode::from_file(format!("{crate_name}/Cargo.toml"))
                 .ok()
                 .and_then(|node| node.get_bool("package.version.workspace"))
                 == Some(true)
