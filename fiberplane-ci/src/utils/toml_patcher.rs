@@ -2,22 +2,23 @@
 // Copyright (c) 2020 Ferenc Tamás
 // MIT License
 
+use super::toml_query::TomlNode;
 use std::ops::Range;
-use taplo::dom::node::{DomNode, Table};
+use taplo::dom::node::DomNode;
 use taplo::dom::rewrite::{Error, PendingPatch, PendingPatchKind};
-use taplo::dom::{Keys, Node};
+use taplo::dom::Keys;
 use taplo::rowan::TextRange;
 use taplo::syntax::SyntaxKind;
 
 #[derive(Debug)]
-pub struct TomlPatcher {
-    root: Node,
+pub(crate) struct TomlPatcher {
+    root: TomlNode,
     patches: Vec<PendingPatch>,
 }
 
 impl TomlPatcher {
-    pub fn new(root: Node) -> Result<Self, Error> {
-        if !matches!(root.syntax().map(|s| s.kind()), Some(SyntaxKind::ROOT)) {
+    pub fn new(root: TomlNode) -> Result<Self, Error> {
+        if !matches!(root.node.syntax().map(|s| s.kind()), Some(SyntaxKind::ROOT)) {
             return Err(Error::RootNodeExpected);
         }
 
@@ -32,7 +33,7 @@ impl TomlPatcher {
         match patch {
             Patch::Replace { path, value } => {
                 let keys = path.parse::<Keys>()?;
-                let nodes = self.root.find_all_matches(keys, false)?;
+                let nodes = self.root.node.find_all_matches(keys, false)?;
 
                 for (_, node) in nodes {
                     let Some(mut range) = node.syntax().map(|s| s.text_range()) else {
@@ -101,7 +102,7 @@ impl TomlPatcher {
         let keys = path.parse::<Keys>()?;
         let header = keys.to_string();
 
-        let table = self.get_table(path).ok_or(Error::ExpectedTable)?;
+        let table = self.root.get_table(path).ok_or(Error::ExpectedTable)?;
         let entries = table
             .entries()
             .get()
@@ -119,38 +120,6 @@ impl TomlPatcher {
             .join("\n");
 
         self.set_raw(path, format!("[{header}]\n{entries}"))
-    }
-
-    /// Returns the boolean value at the given path, if any.
-    pub fn get_bool(&self, path: &str) -> Option<bool> {
-        let keys = path.parse::<Keys>().ok()?;
-        let mut matches = self.root.find_all_matches(keys, false).ok()?;
-        let (_, node) = matches.next()?;
-        node.as_bool().map(|bool| bool.value())
-    }
-
-    /// Returns the node that is used for configuring a patch version of the
-    /// given dependency.
-    pub fn get_patch(&self, dependency_name: &str) -> Option<(Keys, Node)> {
-        let keys = format!("patch.*.{dependency_name}").parse::<Keys>().ok()?;
-        let mut matches = self.root.find_all_matches(keys, false).ok()?;
-        matches.next()
-    }
-
-    /// Returns the string value at the given path, if any.
-    pub fn get_string(&self, path: &str) -> Option<String> {
-        let keys = path.parse::<Keys>().ok()?;
-        let mut matches = self.root.find_all_matches(keys, false).ok()?;
-        let (_, node) = matches.next()?;
-        node.as_str().map(|str| str.value().into())
-    }
-
-    /// Returns the table at the given path, if any.
-    pub fn get_table(&self, path: &str) -> Option<Table> {
-        let keys = path.parse::<Keys>().ok()?;
-        let mut matches = self.root.find_all_matches(keys, false).ok()?;
-        let (_, node) = matches.next()?;
-        node.as_table().cloned()
     }
 
     /// Replaces the node at the given path with a raw, TOML-formatted, string.
@@ -183,7 +152,7 @@ impl TomlPatcher {
 
 impl core::fmt::Display for TomlPatcher {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut string = self.root.syntax().unwrap().to_string();
+        let mut string = self.root.node.syntax().unwrap().to_string();
 
         for patch in &self.patches {
             match &patch.kind {
@@ -199,7 +168,7 @@ impl core::fmt::Display for TomlPatcher {
 }
 
 #[derive(Debug)]
-pub enum Patch {
+pub(crate) enum Patch {
     Replace { path: String, value: String },
 }
 

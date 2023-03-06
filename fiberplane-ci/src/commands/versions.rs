@@ -1,4 +1,4 @@
-use crate::toml_patcher::TomlPatcher;
+use crate::utils::{toml_patcher::TomlPatcher, toml_query::TomlNode};
 use crate::TaskResult;
 use anyhow::Context;
 use clap::Parser;
@@ -45,19 +45,11 @@ fn set_version_in_toml(
     patch_workspace: bool,
     args: &SetVersionArgs,
 ) -> anyhow::Result<String> {
-    let parse_result = taplo::parser::parse(cargo_toml);
-    if let Some(error) = parse_result.errors.first() {
-        return Err(error.clone()).with_context(|| "Parse error");
-    }
+    let root = TomlNode::parse(cargo_toml)?;
+    let mut patcher = TomlPatcher::new(root.clone()).unwrap();
 
-    let root = parse_result.into_dom();
-    let mut patcher = TomlPatcher::new(root).unwrap();
-
-    match (
-        patcher.get_string("package.name"),
-        patcher.get_bool("package.version.workspace"),
-    ) {
-        (Some(package_name), None | Some(false)) if package_name == args.dependency => {
+    match root.get_string("package.name") {
+        Some(package_name) if package_name == args.dependency => {
             patcher
                 .set_string("package.version", &args.version)
                 .map_err(|err| VersionError::PatchError(err.to_string()))?;
@@ -85,8 +77,8 @@ fn set_version_in_toml(
         )
         .map_err(|err| VersionError::PatchError(err.to_string()))?;
 
-    if let Some((path, _)) = patcher.get_patch(&args.dependency) {
-        let maybe_branch = patcher.get_string(&format!("patch.*.{}.branch", args.dependency));
+    if let Some((path, _)) = root.get_patch(&args.dependency) {
+        let maybe_branch = root.get_string(&format!("patch.*.{}.branch", args.dependency));
         let table_path = path
             .iter()
             .take(path.len() - 1)

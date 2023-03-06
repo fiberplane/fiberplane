@@ -1,6 +1,6 @@
 # Fiberplane CI
 
-> Reusable commands for CI/CD automation.
+> Reusable commands and utils for CI/CD automation.
 
 We do not publish this to `crates.io`, since it's not intended as a
 general-purpose library. Our other libraries can depend on this using a direct
