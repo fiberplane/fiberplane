@@ -116,16 +116,6 @@ impl Default for Pagination {
     }
 }
 
-/// Simple struct which includes both `sort` and `pagination`, to be used with `#[serde(flatten)]`
-// Debug will automatically put a bound on the generic param = `T: Debug`: https://stackoverflow.com/a/50322720/11494565
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-pub struct PaginatedSearch<T: SortField> {
-    #[serde(flatten)]
-    pub sort: Sorting<T>,
-    #[serde(flatten)]
-    pub pagination: Pagination,
-}
-
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, IntoStaticStr)]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 #[cfg_attr(

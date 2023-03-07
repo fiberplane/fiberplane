@@ -1,6 +1,6 @@
 use crate::labels::Label;
 use crate::names::Name;
-use crate::sorting::{NotebookSortFields, PaginatedSearch, SortDirection, ViewSortFields};
+use crate::sorting::{NotebookSortFields, Pagination, SortDirection, Sorting, ViewSortFields};
 use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
@@ -43,7 +43,9 @@ pub struct View {
 #[serde(rename_all = "camelCase")]
 pub struct ViewQuery {
     #[serde(flatten)]
-    pub search: PaginatedSearch<ViewSortFields>,
+    pub sort: Sorting<ViewSortFields>,
+    #[serde(flatten)]
+    pub pagination: Pagination,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
