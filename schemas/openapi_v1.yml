@@ -4162,7 +4162,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/pinned_view"
+                  $ref: "#/components/schemas/view"
     post:
       operationId: pinned_view_add
       description: Add an existing view to the pinned views list

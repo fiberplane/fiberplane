@@ -92,7 +92,8 @@ pub struct UpdateView {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     #[builder(default)]
-    pub color: i16,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub color: Option<i16>,
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub labels: Option<Vec<Label>>,

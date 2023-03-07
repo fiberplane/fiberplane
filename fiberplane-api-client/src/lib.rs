@@ -1139,7 +1139,7 @@ pub async fn workspace_picture_update(
 pub async fn pinned_views_get(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
-) -> Result<Vec<models::PinnedView>> {
+) -> Result<Vec<models::View>> {
     let mut builder = client.request(
         Method::GET,
         &format!(
