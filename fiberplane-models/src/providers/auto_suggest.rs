@@ -14,7 +14,7 @@ use typed_builder::TypedBuilder;
 )]
 #[non_exhaustive]
 pub struct AutoSuggestRequest {
-    /// The query being typed by the user, up to the focus offset.
+    /// The field being typed by the user, up to the focus offset.
     pub query: String,
 
     /// The query type of the provider we're requesting suggestions for.
@@ -22,6 +22,11 @@ pub struct AutoSuggestRequest {
 
     /// The field in the query form we're requesting suggestions for.
     pub field: String,
+
+    /// The current serialized request in its entirety.
+    /// It is not guaranteed to be valid, but each provider can use this to
+    /// provide context-aware suggestions.
+    pub full_query: String,
 }
 
 impl AutoSuggestRequest {
@@ -33,11 +38,13 @@ impl AutoSuggestRequest {
         let mut query = String::new();
         let mut query_type = String::new();
         let mut field = String::new();
+        let mut full_query = String::new();
         for (key, value) in form_urlencoded::parse(&query_data.data) {
             match key.as_ref() {
                 "query" => query = value.to_string(),
                 "query_type" => query_type = value.to_string(),
                 "field" => field = value.to_string(),
+                "full_query" => full_query = value.to_string(),
                 _ => {}
             }
         }
@@ -65,6 +72,7 @@ impl AutoSuggestRequest {
                 query,
                 query_type,
                 field,
+                full_query,
             }),
             false => Err(Error::ValidationError { errors }),
         }
