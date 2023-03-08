@@ -39,10 +39,10 @@ fn handle_set_version(args: &SetVersionArgs) -> TaskResult {
 
     if let Some(crate_name) = args.crate_name.as_ref() {
         if crates_using_workspace_version.contains(crate_name) {
-            return Err(anyhow!(
+           bail!(
                 "Crates that use the workspace version cannot have their version set independently. \
                 Please set the workspace version to bump them (omit --crate-name).",
-            ));
+            );
         }
     }
 
