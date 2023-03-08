@@ -1,5 +1,5 @@
 use crate::constants::*;
-use anyhow::anyhow;
+use anyhow::{anyhow, bail};
 use clap::Parser;
 use fiberplane_ci::utils::toml_query::TomlNode;
 use fiberplane_ci::{commands::versions::*, TaskResult};
@@ -39,7 +39,7 @@ fn handle_set_version(args: &SetVersionArgs) -> TaskResult {
 
     if let Some(crate_name) = args.crate_name.as_ref() {
         if crates_using_workspace_version.contains(crate_name) {
-           bail!(
+            bail!(
                 "Crates that use the workspace version cannot have their version set independently. \
                 Please set the workspace version to bump them (omit --crate-name).",
             );
