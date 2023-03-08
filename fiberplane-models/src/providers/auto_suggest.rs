@@ -14,7 +14,7 @@ use typed_builder::TypedBuilder;
 )]
 #[non_exhaustive]
 pub struct AutoSuggestRequest {
-    /// The field being typed by the user, up to the focus offset.
+    /// The value of the field being typed by the user, up to the focus offset.
     pub query: String,
 
     /// The query type of the provider we're requesting suggestions for.
@@ -23,11 +23,14 @@ pub struct AutoSuggestRequest {
     /// The field in the query form we're requesting suggestions for.
     pub field: String,
 
-    /// The current query of the cell being filled by the user.
-    /// The string is a URL encoding of the current query (the
-    /// `application/x-www-form-urlencoded` MIME Type is implied.)
-    /// Each provider can use this to provide context-aware suggestions.
-    pub current_query: Option<String>,
+    /// Some other fields of the cell data.
+    /// The choice of which other fields are sent in the request is
+    /// left to the caller.
+    /// The encoding of the other fields is left to the implementation
+    /// in Studio, and follows the format of
+    /// cells [Query Data](crate::ProviderCell::query_data).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub other_field_data: Option<String>,
 }
 
 impl AutoSuggestRequest {
@@ -39,13 +42,13 @@ impl AutoSuggestRequest {
         let mut query = String::new();
         let mut query_type = String::new();
         let mut field = String::new();
-        let mut current_query = None;
+        let mut other_field_data = None;
         for (key, value) in form_urlencoded::parse(&query_data.data) {
             match key.as_ref() {
                 "query" => query = value.to_string(),
                 "query_type" => query_type = value.to_string(),
                 "field" => field = value.to_string(),
-                "current_query" => current_query = Some(value.to_string()),
+                "other_field_data" => other_field_data = Some(value.to_string()),
                 _ => {}
             }
         }
@@ -73,7 +76,7 @@ impl AutoSuggestRequest {
                 query,
                 query_type,
                 field,
-                current_query,
+                other_field_data,
             }),
             false => Err(Error::ValidationError { errors }),
         }
