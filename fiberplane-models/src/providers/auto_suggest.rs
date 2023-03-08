@@ -23,10 +23,11 @@ pub struct AutoSuggestRequest {
     /// The field in the query form we're requesting suggestions for.
     pub field: String,
 
-    /// The current serialized request in its entirety.
-    /// It is not guaranteed to be valid, but each provider can use this to
-    /// provide context-aware suggestions.
-    pub full_query: String,
+    /// The current query of the cell being filled by the user.
+    /// The string is a URL encoding of the current query (the
+    /// `application/x-www-form-urlencoded` MIME Type is implied.)
+    /// Each provider can use this to provide context-aware suggestions.
+    pub current_query: Option<String>,
 }
 
 impl AutoSuggestRequest {
@@ -38,13 +39,13 @@ impl AutoSuggestRequest {
         let mut query = String::new();
         let mut query_type = String::new();
         let mut field = String::new();
-        let mut full_query = String::new();
+        let mut current_query = None;
         for (key, value) in form_urlencoded::parse(&query_data.data) {
             match key.as_ref() {
                 "query" => query = value.to_string(),
                 "query_type" => query_type = value.to_string(),
                 "field" => field = value.to_string(),
-                "full_query" => full_query = value.to_string(),
+                "current_query" => current_query = Some(value.to_string()),
                 _ => {}
             }
         }
@@ -72,7 +73,7 @@ impl AutoSuggestRequest {
                 query,
                 query_type,
                 field,
-                full_query,
+                current_query,
             }),
             false => Err(Error::ValidationError { errors }),
         }
