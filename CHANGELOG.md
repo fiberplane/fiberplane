@@ -30,8 +30,9 @@ changes if the major version hasn't changed.
 
 - `fiberplane-models`: Replaced `AutoSuggestRequest::from_query_data()` with
   `AutoSuggestRequest::parse()` for consistency with the PDK.
+- Rename Event in the providers module to ProviderEvent (#26)
 - `fiberplane-models`: `UpdateView` field `color` is now optional (#27)
-- `fiberplane-models`: All `u32` fields declared within `Pagination` no longer use 
+- `fiberplane-models`: All `u32` fields declared within `Pagination` no longer use
   serde's built-in deserialization but a custom visitor. This is a workaround for a
   bug inside axum `Query` <-> serde impl: https://github.com/tokio-rs/axum/discussions/1359 (#27)
 

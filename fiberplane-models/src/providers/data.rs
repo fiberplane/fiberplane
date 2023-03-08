@@ -6,7 +6,7 @@ use serde_json::Value;
 use std::collections::BTreeMap;
 use typed_builder::TypedBuilder;
 
-/// A single event.
+/// A single event that is used within providers.
 ///
 /// Events occur at a given time and optionally last until a given end time.
 /// They may contain both event-specific metadata as well as OpenTelemetry
@@ -19,7 +19,7 @@ use typed_builder::TypedBuilder;
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct Event {
+pub struct ProviderEvent {
     pub time: Timestamp,
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Option::is_none")]
