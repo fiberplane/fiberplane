@@ -17,10 +17,10 @@ changes if the major version hasn't changed.
 
 ### Added
 
-- `fiberplane_models`: Added `full_query` field to `AutoSuggestRequest`. The
-  field contains the current state of the Provider Cell request data, URL
-  encoded. It is meant to be used in providers to provide more refined
-  suggestions by examining the context.
+- `fiberplane_models`: Added `other_field_data` field to `AutoSuggestRequest`.
+  The field contains arbitrary other parts of the Provider Cell request data. It
+  is meant to be used in providers to provide more refined suggestions by
+  examining the context.
 
 ### Changed
 
