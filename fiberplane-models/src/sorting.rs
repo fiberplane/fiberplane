@@ -1,9 +1,7 @@
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
-use serde::de::{Error, Unexpected, Visitor};
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
-use std::fmt::Formatter;
 use strum_macros::IntoStaticStr;
 use typed_builder::TypedBuilder;
 
@@ -75,13 +73,13 @@ pub trait SortField {
 pub struct Pagination {
     #[serde(
         default = "Pagination::default_page",
-        deserialize_with = "deserialize_u32"
+        deserialize_with = "crate::deserialize_u32"
     )]
     pub page: u32,
 
     #[serde(
         default = "Pagination::default_limit",
-        deserialize_with = "deserialize_u32"
+        deserialize_with = "crate::deserialize_u32"
     )]
     pub limit: u32,
 }
@@ -121,51 +119,6 @@ impl Default for Pagination {
             page: Pagination::default_page(),
             limit: Pagination::default_limit(),
         }
-    }
-}
-
-pub fn deserialize_u32<'de, D: Deserializer<'de>>(deserializer: D) -> Result<u32, D::Error> {
-    deserializer.deserialize_str(U32Visitor)
-}
-
-struct U32Visitor;
-
-impl<'de> Visitor<'de> for U32Visitor {
-    type Value = u32;
-
-    fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
-        formatter.write_str("an u32")
-    }
-
-    fn visit_u32<E>(self, v: u32) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        Ok(v)
-    }
-
-    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        v.parse()
-            .map_err(|_| Error::invalid_type(Unexpected::Str(v), &self))
-    }
-
-    fn visit_borrowed_str<E>(self, v: &'de str) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        v.parse()
-            .map_err(|_| Error::invalid_type(Unexpected::Str(v), &self))
-    }
-
-    fn visit_string<E>(self, v: String) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        v.parse()
-            .map_err(|_| Error::invalid_type(Unexpected::Str(&v), &self))
     }
 }
 
