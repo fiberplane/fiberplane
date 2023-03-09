@@ -17,19 +17,28 @@ changes if the major version hasn't changed.
 
 ### Added
 
-- `fiberplane_models`: Added `other_field_data` field to `AutoSuggestRequest`.
+- `fiberplane-models`: Added `other_field_data` field to `AutoSuggestRequest`.
   The field contains arbitrary other parts of the Provider Cell request data. It
   is meant to be used in providers to provide more refined suggestions by
   examining the context.
+- `fiberplane-api-client`: Added new query parameters `sort_by` and `sort_direction`
+  to the `notebook_search` endpoint (#27)
+- `fiberplane-api-client`: Existing endpoint `pinned_views_get` now returns `Vec<View>`
+  instead of `Vec<PinnedView>` (#27)
 
 ### Changed
 
-- `fiberplane_models`: Replaced `AutoSuggestRequest::from_query_data()` with
+- `fiberplane-models`: Replaced `AutoSuggestRequest::from_query_data()` with
   `AutoSuggestRequest::parse()` for consistency with the PDK.
+- `fiberplane-models`: `UpdateView` field `color` is now optional (#27)
+- `fiberplane-models`: All `u32` fields declared within `Pagination` no longer use 
+  serde's built-in deserialization but a custom visitor. This is a workaround for a
+  bug inside axum `Query` <-> serde impl: https://github.com/tokio-rs/axum/discussions/1359 (#27)
 
 ### Removed
 
 - Support for the legacy provider protocol has been removed.
+- `fiberplane-models`: The `PaginatedSearch` struct has been removed (#27)
 
 ## [v1.0.0-beta.1] - 2023-02-14
 
