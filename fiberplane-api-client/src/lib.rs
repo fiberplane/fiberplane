@@ -1390,6 +1390,8 @@ pub async fn proxy_supported_query_types(
 pub async fn notebook_search(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
+    sort_by: Option<&str>,
+    sort_direction: Option<&str>,
     payload: models::NotebookSearch,
 ) -> Result<Vec<models::NotebookSummary>> {
     let mut builder = client.request(
@@ -1399,6 +1401,12 @@ pub async fn notebook_search(
             workspace_id = workspace_id,
         ),
     )?;
+    if let Some(sort_by) = sort_by {
+        builder = builder.query(&[("sort_by", sort_by)]);
+    }
+    if let Some(sort_direction) = sort_direction {
+        builder = builder.query(&[("sort_direction", sort_direction)]);
+    }
     builder = builder.json(&payload);
     let response = builder.send().await?.error_for_status()?.json().await?;
 

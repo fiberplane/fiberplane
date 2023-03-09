@@ -3471,6 +3471,18 @@ paths:
       description: Search for notebooks
       tags:
         - Notebooks
+      parameters:
+        - in: query
+          name: sort_by
+          description: Sort the resulting list by the following field (defaults to created_at)
+          schema:
+            type: string
+            enum:
+              - "title"
+              - "created_at"
+              - "updated_at"
+          required: false
+        - $ref: "#/components/parameters/sortDirection"
       requestBody:
         required: true
         description: Notebook search payload
