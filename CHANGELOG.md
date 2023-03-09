@@ -15,6 +15,13 @@ changes if the major version hasn't changed.
 
 **Breaking changes!** Some breaking changes occurred between beta versions.
 
+### Added
+
+- `fiberplane_models`: Added `other_field_data` field to `AutoSuggestRequest`.
+  The field contains arbitrary other parts of the Provider Cell request data. It
+  is meant to be used in providers to provide more refined suggestions by
+  examining the context.
+
 ### Changed
 
 - `fiberplane_models`: Replaced `AutoSuggestRequest::from_query_data()` with
