@@ -1,4 +1,4 @@
-use crate::utils::{toml_patcher::TomlPatcher, toml_query::TomlNode};
+use crate::utils::{toml_node::TomlNode, toml_patcher::TomlPatcher};
 use crate::TaskResult;
 use anyhow::Context;
 use clap::Parser;

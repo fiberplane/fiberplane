@@ -22,6 +22,7 @@ fn main() {
 fn handle_cli() -> TaskResult {
     let args = Args::parse();
     match args.command {
+        Command::Publish(args) => handle_publish_command(&args),
         Command::Version(args) => handle_version_command(&args),
     }
 }

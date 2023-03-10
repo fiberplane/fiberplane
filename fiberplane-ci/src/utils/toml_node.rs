@@ -31,6 +31,14 @@ impl TomlNode {
         Ok(Self { node: root })
     }
 
+    /// Returns whether this node contains a dependency for the given crate.
+    pub fn depends_on(&self, crate_name: &str) -> bool {
+        match self.get_dependencies() {
+            Some(dependencies) => dependencies.get(crate_name).is_some(),
+            None => false,
+        }
+    }
+
     /// Returns all the nodes and their keys that match the given path.
     pub fn find_all_matches(
         &self,
@@ -51,6 +59,12 @@ impl TomlNode {
     pub fn get_bool(&self, path: &str) -> Option<bool> {
         let node = self.find_first_match(path)?;
         node.as_bool().map(|bool| bool.value())
+    }
+
+    /// Returns the table with all dependencies.
+    pub fn get_dependencies(&self) -> Option<Table> {
+        self.get_table("dependencies")
+            .or_else(|| self.get_table("workspace.dependencies"))
     }
 
     /// Returns the node that is used for configuring a patch version of the
@@ -84,5 +98,50 @@ impl TomlNode {
     pub fn get_table(&self, path: &str) -> Option<Table> {
         let node = self.find_first_match(path)?;
         node.as_table().cloned()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::TomlNode;
+
+    #[test]
+    fn test_depends_on() {
+        let workspace_toml = r#"[workspace]
+members = [
+    "base64uuid",
+    "fiberplane",
+    "fiberplane-api-client",
+    "fiberplane-provider-protocol/fiberplane-provider-bindings",
+]
+
+[workspace.package]
+version = "1.0.0-alpha.1"
+authors = ["Fiberplane <info@fiberplane.com>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/fiberplane/fiberplane"
+rust-version = "1.64"
+
+[workspace.dependencies]
+base64uuid = { version = "1.0.0", path = "base64uuid", default-features = false }
+bytes = "1"
+fp-bindgen = { version = "3.0.0-alpha.1" }
+fiberplane = { version = "1.0.0-alpha.1", path = "fiberplane" }
+fiberplane-api-client = { version = "1.0.0-alpha.1", path = "fiberplane-api-client" }
+once_cell = { version = "1.8" }
+vergen = { version = "7.4.2", default-features = false, features = [
+    "build",
+    "git",
+] }
+
+[patch.crates-io]
+#fp-bindgen = { git = "ssh://git@github.com/fiberplane/fp-bindgen.git", branch = "main" }
+#fp-bindgen = { path = "../fp-bindgen/fp-bindgen" }
+"#;
+
+        let node = TomlNode::parse(workspace_toml).unwrap();
+        assert!(node.depends_on("fp-bindgen"));
+        assert!(!node.depends_on("fiberplane-models"));
     }
 }

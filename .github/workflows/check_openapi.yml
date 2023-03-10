@@ -2,14 +2,14 @@ name: Check OpenAPI client
 
 on:
   push:
-    branches: [ '*' ]
-    paths: [ 'schemas' ]
+    branches: ["**"]
+    paths: ["schemas"]
 
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Verify generated API client
       run: |
