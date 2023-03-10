@@ -29,6 +29,7 @@ pub enum Cell {
     Log(LogCell),
     Provider(ProviderCell),
     Table(TableCell),
+    Timeline(TimelineCell),
     Text(TextCell),
 }
 
@@ -48,6 +49,7 @@ impl Cell {
             Cell::Provider(_) => None,
             Cell::Table(_) => None,
             Cell::Text(cell) => Some(&cell.content),
+            Cell::Timeline(_) => None,
         }
     }
 
@@ -60,7 +62,8 @@ impl Cell {
             | Cell::Graph(_)
             | Cell::Image(_)
             | Cell::Log(_)
-            | Cell::Table(_) => None,
+            | Cell::Table(_)
+            | Cell::Timeline(_) => None,
             Cell::Checkbox(cell) => Some(&cell.formatting),
             Cell::Heading(cell) => Some(&cell.formatting),
             Cell::ListItem(cell) => Some(&cell.formatting),
@@ -77,7 +80,8 @@ impl Cell {
             | Cell::Graph(_)
             | Cell::Image(_)
             | Cell::Log(_)
-            | Cell::Table(_) => false,
+            | Cell::Table(_)
+            | Cell::Timeline(_) => false,
             Cell::Checkbox(_)
             | Cell::Heading(_)
             | Cell::ListItem(_)
@@ -101,6 +105,7 @@ impl Cell {
             Cell::Provider(cell) => &cell.id,
             Cell::Table(cell) => &cell.id,
             Cell::Text(cell) => &cell.id,
+            Cell::Timeline(cell) => &cell.id,
         }
     }
 
@@ -164,6 +169,10 @@ impl Cell {
                 id: id.to_owned(),
                 ..cell.clone()
             }),
+            Cell::Timeline(cell) => Cell::Timeline(TimelineCell {
+                id: id.to_owned(),
+                ..cell.clone()
+            }),
         }
     }
 
@@ -218,6 +227,7 @@ impl Cell {
                 formatting: Formatting::default(),
                 ..*cell
             }),
+            Cell::Timeline(cell) => Cell::Timeline(cell.clone()),
         }
     }
 
@@ -278,7 +288,8 @@ impl Cell {
             | Cell::Divider(_)
             | Cell::Graph(_)
             | Cell::Image(_)
-            | Cell::Table(_) => self.with_text(text),
+            | Cell::Table(_)
+            | Cell::Timeline(_) => self.with_text(text),
         }
     }
 
@@ -326,6 +337,7 @@ impl Cell {
             Cell::Provider(cell) => &mut cell.id,
             Cell::Table(cell) => &mut cell.id,
             Cell::Text(cell) => &mut cell.id,
+            Cell::Timeline(cell) => &mut cell.id,
         }
     }
 
@@ -344,7 +356,8 @@ impl Cell {
             | Cell::Graph(_)
             | Cell::Image(_)
             | Cell::Log(_)
-            | Cell::Table(_) => None,
+            | Cell::Table(_)
+            | Cell::Timeline(_) => None,
         }
     }
 
@@ -363,6 +376,7 @@ impl Cell {
             Cell::Provider(cell) => Some(&mut cell.title),
             Cell::Table(_) => None,
             Cell::Text(cell) => Some(&mut cell.content),
+            Cell::Timeline(_) => None,
         }
     }
 
@@ -381,6 +395,7 @@ impl Cell {
             Cell::Provider(cell) => &cell.intent,
             Cell::Table(_) => "table",
             Cell::Text(_) => "text",
+            Cell::Timeline(_) => "timeline",
         }
     }
 }
@@ -762,6 +777,26 @@ pub struct TextCell {
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Formatting::is_empty")]
     pub formatting: Formatting,
+    #[builder(default, setter(strip_option))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub read_only: Option<bool>,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks")
+)]
+#[serde(rename_all = "camelCase")]
+pub struct TimelineCell {
+    pub id: String,
+
+    /// Links to the data to render in the timeline.
+    #[builder(default)]
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub data_links: Vec<String>,
+
     #[builder(default, setter(strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub read_only: Option<bool>,
