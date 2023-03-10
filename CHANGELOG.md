@@ -26,6 +26,10 @@ changes if the major version hasn't changed.
 - `fiberplane-api-client`: Existing endpoint `pinned_views_get` now returns `Vec<View>`
   instead of `Vec<PinnedView>` (#27)
 - `fiberplane-models`: Added optional field `relative_time` to NotebookSearch (#32)
+- `fiberplane-models`: Added `TimelineCell` and `Timeline`, these types refer
+  to a new cell type and the data it expects. (#28)
+- `fiberplane-models`: Added `EventAddedMessage`, `EventUpdatedMessage`, `EventDeletedMessage`
+  messages that can be sent to studio. (#28)
 
 ### Changed
 

@@ -1,4 +1,4 @@
-use crate::timestamps::Timestamp;
+use crate::{events::Event, timestamps::Timestamp};
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
@@ -131,6 +131,24 @@ impl OtelTraceId {
     pub fn new(data: [u8; 16]) -> Self {
         Self(data)
     }
+}
+
+/// A timeline of events. It is shown split by days, so we store
+/// events days as an array of day strings in the format "YYYY-MM-DD"
+/// and a map of day strings to  all events that happen that day.
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::providers")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct Timeline {
+    pub days: Vec<String>,
+    pub events_by_day: BTreeMap<String, Vec<Event>>,
+    #[serde(flatten)]
+    pub otel: OtelMetadata,
 }
 
 /// A series of metrics over time, with metadata.
