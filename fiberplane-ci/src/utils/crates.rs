@@ -50,7 +50,7 @@ pub async fn get_previous_alpha_version(
     Ok(versions
         .into_iter()
         .rev()
-        .find(|version| match parse_version(&version) {
+        .find(|version| match parse_version(version) {
             Ok((_, _, _, Some(suffix))) => suffix.starts_with("alpha-"),
             _ => false,
         }))
@@ -73,9 +73,14 @@ async fn get_published_versions(index_url: &str, crate_name: &str) -> Result<Vec
 
     response_text
         .split('\n')
-        .map(|line| {
-            let PublishedVersion { version } = serde_json::from_str(line.trim())?;
-            Ok(version)
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+        .map(|line| match serde_json::from_str(line) {
+            Ok(PublishedVersion { version }) => Ok(version),
+            Err(error) => {
+                eprintln!("Failed to parse published version line for crate {crate_name}: {line}");
+                Err(error.into())
+            }
         })
         .collect()
 }

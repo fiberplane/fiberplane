@@ -27,7 +27,7 @@ fn handle_set_version(args: &SetVersionArgs) -> TaskResult {
     let all_crate_dirs = get_workspace_crate_dirs()?;
     let crates_using_workspace_version = get_crates_using_workspace_version(&all_crate_dirs);
 
-    if let Some(crate_name) = args.crate_name.as_ref().map(String::as_str) {
+    if let Some(crate_name) = args.crate_name.as_deref() {
         if crates_using_workspace_version.contains(&crate_name) {
             bail!(
                 "Crates that use the workspace version cannot have their version set independently. \

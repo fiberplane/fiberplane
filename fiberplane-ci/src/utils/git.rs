@@ -17,7 +17,7 @@ pub fn did_change(path: &str, since_commit: &str) -> Result<bool> {
 
 /// Returns a list of commits, from newest to oldest.
 pub fn get_commits() -> Result<Vec<String>> {
-    let output = cmd!("git", "log", "--pretty=%t")
+    let output = cmd!("git", "log", "--pretty=%h")
         .stdout_capture()
         .run()?
         .stdout;

@@ -1,10 +1,12 @@
 use anyhow::{bail, Result};
 
 /// Formats a version number based on its components.
+///
+/// Note: This does not insert a leading 'v'.
 pub fn format_version(major: u32, minor: u32, patch: u32, suffix: Option<&str>) -> String {
     match suffix {
-        Some(suffix) => format!("v{major}.{minor}.{patch}-{suffix}"),
-        None => format!("v{major}.{minor}.{patch}"),
+        Some(suffix) => format!("{major}.{minor}.{patch}-{suffix}"),
+        None => format!("{major}.{minor}.{patch}"),
     }
 }
 
@@ -13,11 +15,11 @@ pub fn format_version(major: u32, minor: u32, patch: u32, suffix: Option<&str>) 
 /// ```rust
 /// use fiberplane_ci::utils::get_alpha_count;
 ///
-/// assert_eq!(get_alpha_count("v1.0.0-alpha.3").unwrap(), 3);
+/// assert_eq!(get_alpha_count("1.0.0-alpha.3").unwrap(), 3);
 /// assert_eq!(get_alpha_count("v2.1.0-beta.2-alpha.1").unwrap(), 1);
 /// ```
 pub fn get_alpha_count(version: &str) -> Result<u16> {
-    let Ok((_, _, _, Some(suffix))) = parse_version(&version) else {
+    let Ok((_, _, _, Some(suffix))) = parse_version(version) else {
         bail!("Cannot parse alpha version");
     };
     let Ok((_, alpha_count)) = parse_alpha_suffix(suffix) else {
@@ -36,10 +38,9 @@ pub fn get_alpha_count(version: &str) -> Result<u16> {
 pub fn get_base_version(version: &str) -> Result<(u32, u32, u32, Option<&str>)> {
     let (major, minor, patch, suffix) = parse_version(version)?;
 
-    let new_suffix = match suffix.and_then(|suffix| suffix.split_once('-')) {
-        Some((base_suffix, _extra_suffix)) => Some(base_suffix),
-        None => None,
-    };
+    let new_suffix = suffix
+        .and_then(|suffix| suffix.split_once('-'))
+        .map(|(base_suffix, _)| base_suffix);
 
     Ok((major, minor, patch, new_suffix))
 }
@@ -83,9 +84,7 @@ pub fn parse_alpha_suffix(suffix: &str) -> Result<(&str, u16)> {
 /// Parses a version string into its major, minor and patch components, with an
 /// optional suffix.
 pub fn parse_version(version: &str) -> Result<(u32, u32, u32, Option<&str>)> {
-    let Some(version) = version.strip_prefix("v") else {
-        bail!("Invalid version");
-    };
+    let version = version.strip_prefix('v').unwrap_or(version);
 
     let (version, suffix) = match version.split_once('-') {
         Some((version, suffix)) => (version, Some(suffix)),

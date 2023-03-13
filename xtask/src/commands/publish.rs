@@ -1,5 +1,5 @@
 use crate::constants::*;
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use clap::Parser;
 use console::style;
 use duct::cmd;
@@ -9,6 +9,11 @@ use fiberplane_ci::{commands::versions::*, TaskResult};
 #[derive(Parser)]
 pub struct PublishArgs {
     /// Do not actually publish the release(s).
+    ///
+    /// Note that publication will fail if you try to dry-run publication for
+    /// multiple crates that depend on one another. This is because later crates
+    /// need their updated dependencies to be really published to be publishable
+    /// themselves.
     #[clap(long)]
     pub dry_run: bool,
 
@@ -39,25 +44,25 @@ async fn handle_publish_alphas(args: &PublishArgs) -> TaskResult {
         .get(1)
         .context("Could not determine previous commit")?;
 
-    let all_crate_dirs = get_workspace_crate_dirs()?;
+    let all_crate_dirs = get_publishable_workspace_crate_dirs()?;
     let crates_using_workspace_version = get_crates_using_workspace_version(&all_crate_dirs);
-    let changed_crates: Vec<&str> = all_crate_dirs
+    let changed_crate_dirs: Vec<&str> = all_crate_dirs
         .iter()
+        .map(String::as_str)
         .filter_map(|crate_dir| match did_change(crate_dir, previous_commit) {
             Ok(true) => Some(Ok(crate_dir)),
             Ok(false) => None,
             Err(err) => Some(Err(err)),
         })
-        .map(|result| result.map(String::as_str).map(get_crate_name_from_dir))
         .collect::<Result<Vec<_>>>()?;
 
-    if changed_crates.is_empty() {
+    if changed_crate_dirs.is_empty() {
         eprintln!("{SUCCESS}No crates need publishing.");
         return Ok(());
     }
 
-    let changed_crates = sort_by_dependencies(&changed_crates)?;
-    let changed_crates_using_workspace_version: Vec<&str> = changed_crates
+    let changed_crate_dirs = sort_by_dependencies(&changed_crate_dirs)?;
+    let changed_crates_using_workspace_version: Vec<&str> = changed_crate_dirs
         .iter()
         .cloned()
         .filter(|crate_name| crates_using_workspace_version.contains(crate_name))
@@ -86,15 +91,18 @@ async fn handle_publish_alphas(args: &PublishArgs) -> TaskResult {
             },
         )?;
 
-        eprintln!("- Workspace => {workspace_version}.");
+        eprintln!(
+            " - Workspace => {version}.",
+            version = style(&workspace_version).bold()
+        );
     }
 
-    for crate_name in changed_crates.iter().cloned() {
+    for crate_dir in changed_crate_dirs.iter().cloned() {
+        let crate_name = get_crate_name_from_dir(crate_dir);
+
         let version = if changed_crates_using_workspace_version.contains(&crate_name) {
             workspace_version.clone()
         } else {
-            let crate_dir = get_crate_dir_from_name(&all_crate_dirs, crate_name)
-                .context("Cannot find crate dir")?;
             let crate_cargo_path = format!("{crate_dir}/Cargo.toml");
             let crate_cargo_toml = TomlNode::from_file(&crate_cargo_path)?;
             let version = crate_cargo_toml
@@ -122,14 +130,14 @@ async fn handle_publish_alphas(args: &PublishArgs) -> TaskResult {
         )?;
 
         eprintln!(
-            "- {crate_name} => {version}.",
+            " - {crate_name} => {version}.",
             version = style(&version).bold()
         );
     }
 
     eprintln!("{CHECK}Cargo files patched. Starting publication...");
 
-    publish_crates(&changed_crates, &all_crate_dirs, args)?;
+    publish_crates(&changed_crate_dirs, args)?;
 
     eprintln!("{SUCCESS}All changed crates published.");
 
@@ -143,8 +151,8 @@ async fn handle_publish_betas(args: &PublishArgs) -> TaskResult {
         .get_string("workspace.package.version")
         .context("Cannot determine workspace version")?;
 
-    let mut changed_crates = Vec::new();
-    let all_crate_dirs = get_workspace_crate_dirs()?;
+    let mut changed_crate_dirs = Vec::new();
+    let all_crate_dirs = get_publishable_workspace_crate_dirs()?;
     for crate_dir in all_crate_dirs.iter() {
         let cargo_toml_path = format!("{crate_dir}/Cargo.toml");
         let crate_cargo_toml = TomlNode::from_file(&cargo_toml_path)?;
@@ -169,22 +177,22 @@ async fn handle_publish_betas(args: &PublishArgs) -> TaskResult {
         }
 
         eprintln!(
-            "- {crate_name} => {version}.",
+            " - {crate_name} => {version}.",
             version = style(&version).bold()
         );
 
-        changed_crates.push(crate_name);
+        changed_crate_dirs.push(crate_dir.as_str());
     }
 
-    if changed_crates.is_empty() {
+    if changed_crate_dirs.is_empty() {
         eprintln!("{SUCCESS}No crates need publishing.");
         return Ok(());
     }
 
     eprintln!("{CHECK}Unpublished crates detected. Starting publication...");
 
-    let changed_crates = sort_by_dependencies(&changed_crates)?;
-    publish_crates(&changed_crates, &all_crate_dirs, args)?;
+    let changed_crate_dirs = sort_by_dependencies(&changed_crate_dirs)?;
+    publish_crates(&changed_crate_dirs, args)?;
 
     eprintln!("{SUCCESS}All changed crates published.");
 
@@ -203,7 +211,7 @@ async fn add_next_alpha_suffix(crate_name: &str, version: &str) -> Result<String
     let previous_alpha_version =
         get_previous_alpha_version(CRATES_IO_INDEX_URL, crate_name).await?;
     Ok(match previous_alpha_version.as_ref() {
-        Some(alpha_version) if matches_base_version(&alpha_version, version) => {
+        Some(alpha_version) if matches_base_version(alpha_version, version) => {
             let alpha_count = get_alpha_count(alpha_version)?;
             format!("{version}-alpha.{count}", count = alpha_count + 1)
         }
@@ -211,25 +219,34 @@ async fn add_next_alpha_suffix(crate_name: &str, version: &str) -> Result<String
     })
 }
 
-fn publish_crates(crates: &[&str], all_crate_dirs: &[String], args: &PublishArgs) -> TaskResult {
-    for crate_name in crates {
-        let crate_dir = get_crate_dir_from_name(&all_crate_dirs, crate_name)
-            .context("Cannot find crate dir")?;
-
+fn publish_crates(crate_dirs: &[&str], args: &PublishArgs) -> TaskResult {
+    for crate_dir in crate_dirs {
         let mut cargo_args = vec!["publish", "--allow-dirty"];
         if args.dry_run {
             cargo_args.push("--dry-run");
         }
 
-        cmd("cargo", cargo_args)
+        let output = cmd("cargo", &cargo_args)
             .stderr_to_stdout()
             .stdout_capture()
             .dir(crate_dir)
+            .unchecked()
             .run()?;
+
+        if output.status.code() != Some(0) {
+            eprintln!(
+                "{WARN}cargo {args} failed with exit code {code:?}.\n\
+                Output:\n{output}",
+                args = cargo_args.join(" "),
+                code = output.status.code().unwrap_or(-1),
+                output = String::from_utf8(output.stdout)?
+            );
+            bail!("Cargo publication failed in {crate_dir}")
+        }
 
         eprintln!(
             "{CHECK}{crate_name} published.",
-            crate_name = style(&crate_name).bold()
+            crate_name = style(get_crate_name_from_dir(crate_dir)).bold()
         );
     }
 

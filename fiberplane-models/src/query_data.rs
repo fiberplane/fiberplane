@@ -5,7 +5,7 @@ const MIME_TYPE_PREFIX: &str = "application/x-www-form-urlencoded,";
 /// Returns the value of a field in the query data.
 ///
 /// Returns an empty string if the field has no value.
-pub fn get_query_field<'a, 'b>(query_data: &'a str, field_name: &'b str) -> Cow<'a, str> {
+pub fn get_query_field<'a>(query_data: &'a str, field_name: &str) -> Cow<'a, str> {
     if let Some(data) = query_data.strip_prefix(MIME_TYPE_PREFIX) {
         for (key, value) in form_urlencoded::parse(data.as_bytes()) {
             if key == field_name {

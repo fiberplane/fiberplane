@@ -1,5 +1,5 @@
 use super::TomlNode;
-use anyhow::{anyhow, Result};
+use anyhow::{Context, Result};
 use std::{borrow::Borrow, cmp::Ordering, fmt::Display};
 
 pub fn get_crate_dir_from_name<'a>(
@@ -7,7 +7,7 @@ pub fn get_crate_dir_from_name<'a>(
     crate_name: &'_ str,
 ) -> Option<&'a str> {
     all_crate_dirs
-        .into_iter()
+        .iter()
         .find(|crate_dir| get_crate_name_from_dir(crate_dir) == crate_name)
         .map(String::as_str)
 }
@@ -20,7 +20,7 @@ pub fn get_crate_name_from_dir(crate_dir: &str) -> &str {
 /// workspace version.
 pub fn get_crates_using_workspace_version(crate_dirs: &[String]) -> Vec<&str> {
     crate_dirs
-        .into_iter()
+        .iter()
         .filter(|crate_dir| {
             TomlNode::from_file(format!("{crate_dir}/Cargo.toml"))
                 .ok()
@@ -32,10 +32,23 @@ pub fn get_crates_using_workspace_version(crate_dirs: &[String]) -> Vec<&str> {
         .collect()
 }
 
+pub fn get_publishable_workspace_crate_dirs() -> Result<Vec<String>> {
+    let crate_dirs = get_workspace_crate_dirs()?;
+    Ok(crate_dirs
+        .into_iter()
+        .filter(
+            |crate_dir| match TomlNode::from_file(format!("{crate_dir}/Cargo.toml")) {
+                Ok(cargo_toml) => cargo_toml.get_bool("package.publish").unwrap_or(true),
+                Err(_) => false,
+            },
+        )
+        .collect())
+}
+
 pub fn get_workspace_crate_dirs() -> Result<Vec<String>> {
     TomlNode::from_file("Cargo.toml")?
         .get_string_array("workspace.members")
-        .ok_or_else(|| anyhow!("Cannot determine workspace members"))
+        .context("Cannot determine workspace members")
 }
 
 /// Sorts the crate dirs such that none of the crates depend on any others that
@@ -53,7 +66,7 @@ where
     let mut dirs_with_cargo_nodes = crate_dirs
         .iter()
         .map(|crate_dir| {
-            TomlNode::from_file(&format!("{crate_dir}/Cargo.toml"))
+            TomlNode::from_file(format!("{crate_dir}/Cargo.toml"))
                 .map(|node| (crate_dir.borrow(), node))
         })
         .collect::<Result<Vec<(&str, TomlNode)>>>()?;

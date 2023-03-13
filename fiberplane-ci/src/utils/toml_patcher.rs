@@ -144,7 +144,7 @@ impl TomlPatcher {
             path,
             format!(
                 r#""{}""#,
-                value.as_ref().replace("\\", "\\\\").replace('"', "\\\"")
+                value.as_ref().replace('\\', "\\\\").replace('"', "\\\"")
             ),
         )
     }
