@@ -13,15 +13,17 @@ struct Args {
     command: Command,
 }
 
-fn main() {
-    if let Err(err) = handle_cli() {
+#[tokio::main]
+async fn main() {
+    if let Err(err) = handle_cli().await {
         println!("{ERROR}{}", style(format!("Error: {err}")).red());
     }
 }
 
-fn handle_cli() -> TaskResult {
+async fn handle_cli() -> TaskResult {
     let args = Args::parse();
     match args.command {
+        Command::Publish(args) => handle_publish_command(&args).await,
         Command::Version(args) => handle_version_command(&args),
     }
 }

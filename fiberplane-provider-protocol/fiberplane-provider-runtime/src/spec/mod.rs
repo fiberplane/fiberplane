@@ -31,7 +31,7 @@ pub async fn make_http_request(req: HttpRequest) -> Result<HttpResponse, HttpReq
     match url.scheme() {
         "http" | "https" => Ok(()),
         scheme => Err(HttpRequestError::Other {
-            reason: format!("Only http and https schemes are supported, got {}", scheme),
+            reason: format!("Only http and https schemes are supported, got {scheme}"),
         }),
     }?;
 
@@ -111,7 +111,7 @@ fn now() -> Timestamp {
 }
 
 fn log(message: String) {
-    eprintln!("Provider log: {}", message);
+    eprintln!("Provider log: {message}");
 }
 
 fn random(len: u32) -> Vec<u8> {

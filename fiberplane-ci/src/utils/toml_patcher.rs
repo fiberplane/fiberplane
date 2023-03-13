@@ -2,7 +2,7 @@
 // Copyright (c) 2020 Ferenc Tamás
 // MIT License
 
-use super::toml_query::TomlNode;
+use super::toml_node::TomlNode;
 use std::ops::Range;
 use taplo::dom::node::DomNode;
 use taplo::dom::rewrite::{Error, PendingPatch, PendingPatchKind};
@@ -144,7 +144,7 @@ impl TomlPatcher {
             path,
             format!(
                 r#""{}""#,
-                value.as_ref().replace("\\", "\\\\").replace('"', "\\\"")
+                value.as_ref().replace('\\', "\\\\").replace('"', "\\\"")
             ),
         )
     }

@@ -1,14 +1,14 @@
-name: Build
+name: Publish
 
 on:
   push:
-    branches: ["**"]
+    branches: ["main"]
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  publish_alphas:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -35,19 +35,11 @@ jobs:
           override: true
           components: rustfmt, clippy
 
-      - name: Check format
-        run: cargo fmt -- --check
-
-      - name: Lint code
-        uses: actions-rs/clippy-check@v1
+      - name: Cargo login
+        uses: actions-rs/cargo@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: >
-            --all-features
-            --workspace
-            --exclude fiberplane-api-client
-            --exclude fiberplane-provider-bindings
-            --exclude fiberplane-provider-runtime
+          command: login
+          args: ${{ secrets.CRATES_TOKEN }}
 
-      - name: Run tests
-        run: cargo test --verbose
+      - name: Publish changed crates
+        run: cargo xtask publish alphas

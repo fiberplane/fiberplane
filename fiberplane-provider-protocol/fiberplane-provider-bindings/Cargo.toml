@@ -2,7 +2,7 @@
 name = "fiberplane-provider-bindings"
 description = "Fiberplane Provider protocol bindings"
 readme = "README.md"
-version = "2.0.0-beta.1"
+version = "2.0.0-beta.2"
 authors = ["Fiberplane <info@fiberplane.com>"]
 edition = "2018"
 license = { workspace = true }

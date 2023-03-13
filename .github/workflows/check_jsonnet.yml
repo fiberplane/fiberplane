@@ -2,14 +2,14 @@ name: Check Jsonnet
 
 on:
   push:
-    branches: [ '*' ]
-    paths: [ '**/*.libsonnet' ]
+    branches: ["**"]
+    paths: ["**/*.libsonnet"]
 
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Setup Go (for Jsonnet tools)
       uses: actions/setup-go@v2

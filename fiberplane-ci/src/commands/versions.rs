@@ -1,4 +1,4 @@
-use crate::utils::{toml_patcher::TomlPatcher, toml_query::TomlNode};
+use crate::utils::{toml_node::TomlNode, toml_patcher::TomlPatcher};
 use crate::TaskResult;
 use anyhow::Context;
 use clap::Parser;
@@ -59,7 +59,7 @@ fn set_version_in_toml(cargo_toml: &str, args: &SetVersionArgs) -> anyhow::Resul
             .as_ref()
             .and_then(|crate_name| root.get_patch(crate_name))
         {
-            let maybe_branch = root.get_string(&format!("patch.*.{}.branch", crate_name));
+            let maybe_branch = root.get_string(&format!("patch.*.{crate_name}.branch"));
             let table_path = path
                 .iter()
                 .take(path.len() - 1)
@@ -67,7 +67,7 @@ fn set_version_in_toml(cargo_toml: &str, args: &SetVersionArgs) -> anyhow::Resul
                 .collect::<Vec<_>>()
                 .join(".");
             patcher
-                .comment_out_table_key_and_replace_value(&table_path, &crate_name, |value| {
+                .comment_out_table_key_and_replace_value(&table_path, crate_name, |value| {
                     match &maybe_branch {
                         Some(branch) => value.replace(branch, "main"),
                         None => value,

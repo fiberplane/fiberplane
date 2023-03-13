@@ -1,9 +1,3 @@
-[registry]
-default = "artifactory"
-
-[registries.artifactory]
-index = "https://fiberplane.jfrog.io/artifactory/git/internal-cargo-local.git"
-
 [net]
 git-fetch-with-cli = true
 
