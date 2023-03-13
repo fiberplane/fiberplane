@@ -8,6 +8,24 @@ pub fn format_version(major: u32, minor: u32, patch: u32, suffix: Option<&str>) 
     }
 }
 
+/// Parses an alpha version and returns its count.
+///
+/// ```rust
+/// use fiberplane_ci::utils::get_alpha_count;
+///
+/// assert_eq!(get_alpha_count("v1.0.0-alpha.3").unwrap(), 3);
+/// assert_eq!(get_alpha_count("v2.1.0-beta.2-alpha.1").unwrap(), 1);
+/// ```
+pub fn get_alpha_count(version: &str) -> Result<u16> {
+    let Ok((_, _, _, Some(suffix))) = parse_version(&version) else {
+        bail!("Cannot parse alpha version");
+    };
+    let Ok((_, alpha_count)) = parse_alpha_suffix(suffix) else {
+        bail!("Cannot parse alpha suffix");
+    };
+    Ok(alpha_count)
+}
+
 /// Parses a version and strips the suffix.
 ///
 /// This includes support for versions that have a double suffix, so only the
@@ -42,6 +60,24 @@ pub fn matches_base_version(version: &str, base_version: &str) -> bool {
         }
         _ => false,
     }
+}
+
+/// Parses a version's alpha suffix into its count and the remainder of the
+/// suffix.
+///
+/// ```rust
+/// use fiberplane_ci::utils::parse_alpha_suffix;
+///
+/// assert_eq!(parse_alpha_suffix("alpha.3").unwrap(), ("alpha.", 3));
+/// assert_eq!(parse_alpha_suffix("beta.2-alpha.1").unwrap(), ("beta.2-alpha.", 1));
+/// ```
+pub fn parse_alpha_suffix(suffix: &str) -> Result<(&str, u16)> {
+    let Some(last_dot_position) = suffix.chars().rev().position(|char| char == '.') else {
+        bail!("Suffix does not contain a dot");
+    };
+    let count_index = suffix.len() - last_dot_position;
+    let count: u16 = suffix[count_index..].parse()?;
+    Ok((&suffix[..count_index], count))
 }
 
 /// Parses a version string into its major, minor and patch components, with an

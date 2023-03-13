@@ -1,4 +1,4 @@
-use super::parse_version;
+use super::{get_alpha_count, matches_base_version, parse_version};
 use anyhow::Result;
 use reqwest::Client;
 use serde::Deserialize;
@@ -11,6 +11,34 @@ const USER_AGENT: &str = "Fiberplane/Release worker/1.0";
 struct PublishedVersion {
     #[serde(rename = "vers")]
     version: String,
+}
+
+/// Determines the next applicable alpha version for a crate that uses the
+/// workspace version.
+///
+/// When publishing a new alpha version for a crate that relies on the workspace
+/// version, we cannot simply look at the next alpha version for that crate
+/// alone, because that version could have been already used by another
+/// workspace-version-using-crate that also needs to be updated. So we need to
+/// determine an alpha version that all those crates can be bumped to.
+pub async fn determine_next_workspace_alpha(
+    index_url: &str,
+    base_version: &str,
+    workspace_version_using_crates_to_publish: &[&str],
+) -> Result<String> {
+    let mut next_alpha_count = 1;
+    for crate_name in workspace_version_using_crates_to_publish {
+        let Some(previous_alpha_version) = get_previous_alpha_version(index_url, crate_name).await? else {
+            continue;
+        };
+        if matches_base_version(&previous_alpha_version, base_version) {
+            let alpha_count = get_alpha_count(&previous_alpha_version)?;
+            if alpha_count >= next_alpha_count {
+                next_alpha_count = alpha_count + 1;
+            }
+        }
+    }
+    Ok(format!("{base_version}-alpha.{next_alpha_count}"))
 }
 
 /// Returns the most-recently published alpha version for the given crate.

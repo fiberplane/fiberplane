@@ -1,12 +1,17 @@
 use crate::constants::*;
-use anyhow::{anyhow, bail, Result};
+use anyhow::{Context, Result};
 use clap::Parser;
 use console::style;
+use duct::cmd;
 use fiberplane_ci::utils::*;
 use fiberplane_ci::{commands::versions::*, TaskResult};
 
 #[derive(Parser)]
 pub struct PublishArgs {
+    /// Do not actually publish the release(s).
+    #[clap(long)]
+    pub dry_run: bool,
+
     #[clap(subcommand)]
     sub_command: PublishCommand,
 }
@@ -21,18 +26,18 @@ pub enum PublishCommand {
     Betas,
 }
 
-pub fn handle_publish_command(args: &PublishArgs) -> TaskResult {
+pub async fn handle_publish_command(args: &PublishArgs) -> TaskResult {
     match &args.sub_command {
-        PublishCommand::Alphas => handle_publish_alphas(),
-        PublishCommand::Betas => handle_publish_betas(),
+        PublishCommand::Alphas => handle_publish_alphas(args).await,
+        PublishCommand::Betas => handle_publish_betas(args).await,
     }
 }
 
-fn handle_publish_alphas() -> TaskResult {
+async fn handle_publish_alphas(args: &PublishArgs) -> TaskResult {
     let commits = get_commits()?;
     let previous_commit = commits
         .get(1)
-        .ok_or_else(|| anyhow!("Could not determine previous commit"))?;
+        .context("Could not determine previous commit")?;
 
     let all_crate_dirs = get_workspace_crate_dirs()?;
     let crates_using_workspace_version = get_crates_using_workspace_version(&all_crate_dirs);
@@ -44,32 +49,146 @@ fn handle_publish_alphas() -> TaskResult {
             Err(err) => Some(Err(err)),
         })
         .map(|result| result.map(String::as_str).map(get_crate_name_from_dir))
-        .collect()?;
+        .collect::<Result<Vec<_>>>()?;
 
-    if crates_using_workspace_version
+    if changed_crates.is_empty() {
+        eprintln!("{SUCCESS}No crates need publishing.");
+        return Ok(());
+    }
+
+    let changed_crates = sort_by_dependencies(&changed_crates)?;
+    let changed_crates_using_workspace_version: Vec<&str> = changed_crates
         .iter()
-        .any(|crate_name| changed_crates.contains(crate_name))
-    {
-        let workspace_version = determine_next_workspace_version();
+        .cloned()
+        .filter(|crate_name| crates_using_workspace_version.contains(crate_name))
+        .collect();
+
+    eprintln!("{WORKING}Updating necessary Cargo files...");
+
+    let workspace_cargo_toml = TomlNode::from_file("Cargo.toml")?;
+    let mut workspace_version = workspace_cargo_toml
+        .get_string("workspace.package.version")
+        .context("Cannot determine workspace version")?;
+
+    if !changed_crates_using_workspace_version.is_empty() {
+        workspace_version = determine_next_workspace_alpha(
+            CRATES_IO_INDEX_URL,
+            &workspace_version,
+            &changed_crates_using_workspace_version,
+        )
+        .await?;
+
         set_version(
             "Cargo.toml",
             &SetVersionArgs {
                 crate_name: None,
-                version: workspace_version,
+                version: workspace_version.clone(),
             },
         )?;
+
+        eprintln!("- Workspace => {workspace_version}.");
     }
 
-    for crate_name in changed_crates {
-        
+    for crate_name in changed_crates.iter().cloned() {
+        let version = if changed_crates_using_workspace_version.contains(&crate_name) {
+            workspace_version.clone()
+        } else {
+            let crate_dir = get_crate_dir_from_name(&all_crate_dirs, crate_name)
+                .context("Cannot find crate dir")?;
+            let crate_cargo_path = format!("{crate_dir}/Cargo.toml");
+            let crate_cargo_toml = TomlNode::from_file(&crate_cargo_path)?;
+            let version = crate_cargo_toml
+                .get_string("package.version")
+                .context("Cannot determine package version")?;
+            let new_version = add_next_alpha_suffix(crate_name, &version).await?;
+
+            set_version(
+                crate_cargo_path,
+                &SetVersionArgs {
+                    crate_name: Some(crate_name.to_owned()),
+                    version: new_version.clone(),
+                },
+            )?;
+
+            new_version
+        };
+
+        set_version(
+            "Cargo.toml",
+            &SetVersionArgs {
+                crate_name: Some(crate_name.to_owned()),
+                version: version.clone(),
+            },
+        )?;
 
         eprintln!(
-            "{CHECK}{crate_name} {version} published.",
-            version = style(version).bold()
+            "- {crate_name} => {version}.",
+            version = style(&version).bold()
         );
     }
 
+    eprintln!("{CHECK}Cargo files patched. Starting publication...");
+
+    publish_crates(&changed_crates, &all_crate_dirs, args)?;
+
     eprintln!("{SUCCESS}All changed crates published.");
+
+    Ok(())
+}
+
+async fn handle_publish_betas(args: &PublishArgs) -> TaskResult {
+    eprintln!("{WORKING}Detecting crates that need publication...");
+
+    let workspace_version = TomlNode::from_file("Cargo.toml")?
+        .get_string("workspace.package.version")
+        .context("Cannot determine workspace version")?;
+
+    let mut changed_crates = Vec::new();
+    let all_crate_dirs = get_workspace_crate_dirs()?;
+    for crate_dir in all_crate_dirs.iter() {
+        let cargo_toml_path = format!("{crate_dir}/Cargo.toml");
+        let crate_cargo_toml = TomlNode::from_file(&cargo_toml_path)?;
+        let version = if crate_cargo_toml
+            .get_bool("package.version.workspace")
+            .unwrap_or_default()
+        {
+            workspace_version.clone()
+        } else {
+            match crate_cargo_toml.get_string("package.version") {
+                Some(package_version) => package_version,
+                None => {
+                    eprintln!("{WARN}Cannot determine package version in {cargo_toml_path}.");
+                    continue;
+                }
+            }
+        };
+
+        let crate_name = get_crate_name_from_dir(crate_dir);
+        if is_published(CRATES_IO_INDEX_URL, crate_name, &version).await? {
+            continue;
+        }
+
+        eprintln!(
+            "- {crate_name} => {version}.",
+            version = style(&version).bold()
+        );
+
+        changed_crates.push(crate_name);
+    }
+
+    if changed_crates.is_empty() {
+        eprintln!("{SUCCESS}No crates need publishing.");
+        return Ok(());
+    }
+
+    eprintln!("{CHECK}Unpublished crates detected. Starting publication...");
+
+    let changed_crates = sort_by_dependencies(&changed_crates)?;
+    publish_crates(&changed_crates, &all_crate_dirs, args)?;
+
+    eprintln!("{SUCCESS}All changed crates published.");
+
+    Ok(())
 }
 
 /// Finds the first available alpha suffix for the crate and adds it to the
@@ -80,25 +199,39 @@ fn handle_publish_alphas() -> TaskResult {
 /// such as `v1.0.0-beta.2-alpha.1`. This looks awful, but we will accept this
 /// because it would be even weirder to publish an alpha for a version that
 /// already has a beta out.
-async fn add_alpha_suffix(crate_name: &str, version: &str) -> Result<String> {
+async fn add_next_alpha_suffix(crate_name: &str, version: &str) -> Result<String> {
     let previous_alpha_version =
         get_previous_alpha_version(CRATES_IO_INDEX_URL, crate_name).await?;
     Ok(match previous_alpha_version.as_ref() {
         Some(alpha_version) if matches_base_version(&alpha_version, version) => {
-            let Ok((major, minor, patch, Some(suffix))) = parse_version(&alpha_version) else {
-                bail!("Cannot parse release version");
-            };
-            let Some(last_dash_position) = suffix.chars().rev().position(|char| char == '-') else {
-                bail!("Cannot bump alpha version");
-            };
-            let count_index = suffix.len() - last_dash_position - 1;
-            let count = suffix[count_index..].parse::<u32>()? + 1;
-            format!(
-                "v{major}.{minor}.{patch}-{}{}",
-                &suffix[..count_index],
-                count
-            )
+            let alpha_count = get_alpha_count(alpha_version)?;
+            format!("{version}-alpha.{count}", count = alpha_count + 1)
         }
         _ => format!("{version}-alpha.1"),
     })
+}
+
+fn publish_crates(crates: &[&str], all_crate_dirs: &[String], args: &PublishArgs) -> TaskResult {
+    for crate_name in crates {
+        let crate_dir = get_crate_dir_from_name(&all_crate_dirs, crate_name)
+            .context("Cannot find crate dir")?;
+
+        let mut cargo_args = vec!["publish", "--allow-dirty"];
+        if args.dry_run {
+            cargo_args.push("--dry-run");
+        }
+
+        cmd("cargo", cargo_args)
+            .stderr_to_stdout()
+            .stdout_capture()
+            .dir(crate_dir)
+            .run()?;
+
+        eprintln!(
+            "{CHECK}{crate_name} published.",
+            crate_name = style(&crate_name).bold()
+        );
+    }
+
+    Ok(())
 }
