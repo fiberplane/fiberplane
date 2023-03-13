@@ -212,7 +212,7 @@ async fn add_next_alpha_suffix(crate_name: &str, version: &str) -> Result<String
         get_previous_alpha_version(CRATES_IO_INDEX_URL, crate_name).await?;
     Ok(match previous_alpha_version.as_ref() {
         Some(alpha_version) if matches_base_version(alpha_version, version) => {
-            let alpha_count = get_alpha_count(alpha_version)?;
+            let alpha_count = get_suffix_count(alpha_version)?;
             format!("{version}-alpha.{count}", count = alpha_count + 1)
         }
         _ => format!("{version}-alpha.1"),

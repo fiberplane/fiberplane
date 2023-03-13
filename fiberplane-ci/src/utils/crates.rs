@@ -1,4 +1,4 @@
-use super::{get_alpha_count, matches_base_version, parse_version};
+use super::{get_suffix_count, matches_base_version, parse_version};
 use anyhow::Result;
 use reqwest::Client;
 use serde::Deserialize;
@@ -32,7 +32,7 @@ pub async fn determine_next_workspace_alpha(
             continue;
         };
         if matches_base_version(&previous_alpha_version, base_version) {
-            let alpha_count = get_alpha_count(&previous_alpha_version)?;
+            let alpha_count = get_suffix_count(&previous_alpha_version)?;
             if alpha_count >= next_alpha_count {
                 next_alpha_count = alpha_count + 1;
             }

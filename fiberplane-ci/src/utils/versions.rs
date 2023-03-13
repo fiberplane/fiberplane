@@ -10,22 +10,20 @@ pub fn format_version(major: u32, minor: u32, patch: u32, suffix: Option<&str>) 
     }
 }
 
-/// Parses an alpha version and returns its count.
+/// Parses a version and returns the count at the end of the suffix.
 ///
 /// ```rust
-/// use fiberplane_ci::utils::get_alpha_count;
+/// use fiberplane_ci::utils::get_suffix_count;
 ///
-/// assert_eq!(get_alpha_count("1.0.0-alpha.3").unwrap(), 3);
-/// assert_eq!(get_alpha_count("v2.1.0-beta.2-alpha.1").unwrap(), 1);
+/// assert_eq!(get_suffix_count("1.0.0-alpha.3").unwrap(), 3);
+/// assert_eq!(get_suffix_count("v2.1.0-beta.2-alpha.1").unwrap(), 1);
 /// ```
-pub fn get_alpha_count(version: &str) -> Result<u16> {
-    let Ok((_, _, _, Some(suffix))) = parse_version(version) else {
-        bail!("Cannot parse alpha version");
+pub fn get_suffix_count(version: &str) -> Result<u16> {
+    let (_, _, _, Some(suffix)) = parse_version(version)? else {
+        bail!("Version has no suffix");
     };
-    let Ok((_, alpha_count)) = parse_alpha_suffix(suffix) else {
-        bail!("Cannot parse alpha suffix");
-    };
-    Ok(alpha_count)
+    let (_, count) = parse_suffix(suffix)?;
+    Ok(count)
 }
 
 /// Parses a version and strips the suffix.
@@ -47,7 +45,17 @@ pub fn get_base_version(version: &str) -> Result<(u32, u32, u32, Option<&str>)> 
 
 /// Checks whether the base of one version matches the other.
 ///
-/// See: [get_base_version]
+/// ```rust
+/// use fiberplane_ci::utils::matches_base_version;
+///
+/// assert!(matches_base_version("1.0.0-alpha.3", "1.0.0"));
+/// assert!(matches_base_version("v2.1.0-beta.2-alpha.1", "2.1.0-beta.2"));
+/// assert!(!matches_base_version("1.0.0-alpha.3", "1.0.0-alpha.3"));
+/// assert!(!matches_base_version("v2.2.0-beta.2-alpha.1", "2.1.0-beta.2"));
+/// assert!(!matches_base_version("v2.1.0-beta.3-alpha.1", "2.1.0-beta.2"));
+/// ```
+///
+/// See also: [get_base_version]
 pub fn matches_base_version(version: &str, base_version: &str) -> bool {
     match (get_base_version(version), parse_version(base_version)) {
         (
@@ -67,14 +75,14 @@ pub fn matches_base_version(version: &str, base_version: &str) -> bool {
 /// suffix.
 ///
 /// ```rust
-/// use fiberplane_ci::utils::parse_alpha_suffix;
+/// use fiberplane_ci::utils::parse_suffix;
 ///
-/// assert_eq!(parse_alpha_suffix("alpha.3").unwrap(), ("alpha.", 3));
-/// assert_eq!(parse_alpha_suffix("beta.2-alpha.1").unwrap(), ("beta.2-alpha.", 1));
+/// assert_eq!(parse_suffix("alpha.3").unwrap(), ("alpha.", 3));
+/// assert_eq!(parse_suffix("beta.2-alpha.1").unwrap(), ("beta.2-alpha.", 1));
 /// ```
-pub fn parse_alpha_suffix(suffix: &str) -> Result<(&str, u16)> {
+pub fn parse_suffix(suffix: &str) -> Result<(&str, u16)> {
     let Some(last_dot_position) = suffix.chars().rev().position(|char| char == '.') else {
-        bail!("Suffix does not contain a dot");
+        bail!("Suffix contains no dot to mark its count");
     };
     let count_index = suffix.len() - last_dot_position;
     let count: u16 = suffix[count_index..].parse()?;
