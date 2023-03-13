@@ -20,7 +20,7 @@ products, including but not limited to:
 */
 
 use serde::de::{Error, Unexpected, Visitor};
-use serde::Deserializer;
+use serde::{Deserialize, Deserializer};
 use std::fmt;
 
 pub mod blobs;
@@ -53,6 +53,16 @@ fn debug_print_bytes(bytes: impl AsRef<[u8]>) -> String {
     } else {
         String::from_utf8_lossy(bytes).to_string()
     }
+}
+
+/// Any value that is present is considered Some value, including null
+// https://github.com/serde-rs/serde/issues/984#issuecomment-314143738
+pub(crate) fn deserialize_some<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
+where
+    T: Deserialize<'de>,
+    D: Deserializer<'de>,
+{
+    Deserialize::deserialize(deserializer).map(Some)
 }
 
 // workaround for "invalid type: string "1", expected u32" bug in query string:

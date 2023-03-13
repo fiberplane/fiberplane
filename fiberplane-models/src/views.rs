@@ -91,8 +91,12 @@ pub struct UpdateView {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub display_name: Option<String>,
     #[builder(default, setter(into))]
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
+    #[serde(
+        default,
+        deserialize_with = "crate::deserialize_some",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub description: Option<Option<String>>,
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub color: Option<i16>,
@@ -100,14 +104,26 @@ pub struct UpdateView {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub labels: Option<Vec<Label>>,
     #[builder(default)]
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub relative_time: Option<RelativeTime>,
+    #[serde(
+        default,
+        deserialize_with = "crate::deserialize_some",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub relative_time: Option<Option<RelativeTime>>,
     #[builder(default)]
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub sort_by: Option<NotebookSortFields>,
+    #[serde(
+        default,
+        deserialize_with = "crate::deserialize_some",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub sort_by: Option<Option<NotebookSortFields>>,
     #[builder(default)]
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub sort_direction: Option<SortDirection>,
+    #[serde(
+        default,
+        deserialize_with = "crate::deserialize_some",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub sort_direction: Option<Option<SortDirection>>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
