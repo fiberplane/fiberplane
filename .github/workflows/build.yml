@@ -3,6 +3,8 @@ name: Build
 on:
   push:
     branches: ["**"]
+  release:
+    type: [published]
 
 env:
   CARGO_TERM_COLOR: always
@@ -36,9 +38,15 @@ jobs:
           components: rustfmt, clippy
 
       - name: Check format
+        # Skip formatting on main, since it's not critical and should've already
+        # been checked before merging
+        if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
         run: cargo fmt -- --check
 
       - name: Lint code
+        # Skip linting on main, since it's not critical and should've already
+        # been checked before merging
+        if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
         uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -51,3 +59,11 @@ jobs:
 
       - name: Run tests
         run: cargo test --verbose
+
+      - name: Publish alpha crates
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        run: cargo xtask publish alphas
+
+      - name: Publish beta crates
+        if: ${{ github.event_name == 'release' && contains(github.event.release.tag_name, "-beta.") }}
+        run: cargo xtask publish betas

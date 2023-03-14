@@ -1,15 +1,19 @@
 name: Publish
 
 on:
-  release:
-    type: [published]
+  workflow_dispatch:
+    inputs:
+      target:
+        required: true
+        options:
+        - alphas
+        - betas
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  publish_betas:
-    if: ${{ contains(github.event.release.tag_name, "-beta.") }}
+  publish_alphas:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -42,5 +46,5 @@ jobs:
           command: login
           args: ${{ secrets.CRATES_TOKEN }}
 
-      - name: Publish changed crates
-        run: cargo xtask publish betas
+      - name: Publish crates
+        run: cargo xtask publish ${{ github.events.input.target }}
