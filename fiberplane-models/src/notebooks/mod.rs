@@ -16,6 +16,7 @@ use url::Url;
 mod cells;
 use crate::names::Name;
 pub use cells::*;
+use crate::views::RelativeTime;
 
 pub mod operations;
 
@@ -270,6 +271,9 @@ pub struct NotebookSearch {
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub labels: Option<HashMap<String, Option<String>>>,
+    #[builder(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub relative_time: Option<RelativeTime>,
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub view: Option<Name>,
