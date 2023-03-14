@@ -39,7 +39,7 @@ pub async fn handle_publish_command(args: &PublishArgs) -> TaskResult {
 }
 
 async fn handle_publish_alphas(args: &PublishArgs) -> TaskResult {
-    let commits = get_commits()?;
+    let commits = get_commits(".")?;
     let previous_commit = commits
         .get(1)
         .context("Could not determine previous commit")?;
