@@ -44,8 +44,8 @@ async fn handle_publish_alphas(args: &PublishArgs) -> TaskResult {
         .get(1)
         .context("Could not determine previous commit")?;
 
-    let all_crate_dirs = get_publishable_workspace_crate_dirs()?;
-    let crates_using_workspace_version = get_crates_using_workspace_version(&all_crate_dirs);
+    let all_crate_dirs = get_publishable_workspace_crate_dirs(".")?;
+    let crates_using_workspace_version = get_crates_using_workspace_version(".", &all_crate_dirs);
     let changed_crate_dirs: Vec<&str> = all_crate_dirs
         .iter()
         .map(String::as_str)
@@ -61,7 +61,7 @@ async fn handle_publish_alphas(args: &PublishArgs) -> TaskResult {
         return Ok(());
     }
 
-    let changed_crate_dirs = sort_by_dependencies(&changed_crate_dirs)?;
+    let changed_crate_dirs = sort_by_dependencies(".", &changed_crate_dirs)?;
     let changed_crates_using_workspace_version: Vec<&str> = changed_crate_dirs
         .iter()
         .cloned()
@@ -152,7 +152,7 @@ async fn handle_publish_betas(args: &PublishArgs) -> TaskResult {
         .context("Cannot determine workspace version")?;
 
     let mut changed_crate_dirs = Vec::new();
-    let all_crate_dirs = get_publishable_workspace_crate_dirs()?;
+    let all_crate_dirs = get_publishable_workspace_crate_dirs(".")?;
     for crate_dir in all_crate_dirs.iter() {
         let cargo_toml_path = format!("{crate_dir}/Cargo.toml");
         let crate_cargo_toml = TomlNode::from_file(&cargo_toml_path)?;
@@ -191,7 +191,7 @@ async fn handle_publish_betas(args: &PublishArgs) -> TaskResult {
 
     eprintln!("{CHECK}Unpublished crates detected. Starting publication...");
 
-    let changed_crate_dirs = sort_by_dependencies(&changed_crate_dirs)?;
+    let changed_crate_dirs = sort_by_dependencies(".", &changed_crate_dirs)?;
     publish_crates(&changed_crate_dirs, args)?;
 
     eprintln!("{SUCCESS}All changed crates published.");

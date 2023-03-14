@@ -18,11 +18,14 @@ pub fn get_crate_name_from_dir(crate_dir: &str) -> &str {
 
 /// Returns the names of all the crates whose version numbers are tied to the
 /// workspace version.
-pub fn get_crates_using_workspace_version(crate_dirs: &[String]) -> Vec<&str> {
+pub fn get_crates_using_workspace_version<'a>(
+    workspace_dir: &str,
+    crate_dirs: &'a [String],
+) -> Vec<&'a str> {
     crate_dirs
         .iter()
         .filter(|crate_dir| {
-            TomlNode::from_file(format!("{crate_dir}/Cargo.toml"))
+            TomlNode::from_file(format!("{workspace_dir}/{crate_dir}/Cargo.toml"))
                 .ok()
                 .and_then(|node| node.get_bool("package.version.workspace"))
                 .unwrap_or_default()
@@ -32,21 +35,21 @@ pub fn get_crates_using_workspace_version(crate_dirs: &[String]) -> Vec<&str> {
         .collect()
 }
 
-pub fn get_publishable_workspace_crate_dirs() -> Result<Vec<String>> {
-    let crate_dirs = get_workspace_crate_dirs()?;
+pub fn get_publishable_workspace_crate_dirs(workspace_dir: &str) -> Result<Vec<String>> {
+    let crate_dirs = get_workspace_crate_dirs(workspace_dir)?;
     Ok(crate_dirs
         .into_iter()
-        .filter(
-            |crate_dir| match TomlNode::from_file(format!("{crate_dir}/Cargo.toml")) {
+        .filter(|crate_dir| {
+            match TomlNode::from_file(format!("{workspace_dir}/{crate_dir}/Cargo.toml")) {
                 Ok(cargo_toml) => cargo_toml.get_bool("package.publish").unwrap_or(true),
                 Err(_) => false,
-            },
-        )
+            }
+        })
         .collect())
 }
 
-pub fn get_workspace_crate_dirs() -> Result<Vec<String>> {
-    TomlNode::from_file("Cargo.toml")?
+pub fn get_workspace_crate_dirs(workspace_dir: &str) -> Result<Vec<String>> {
+    TomlNode::from_file(format!("{workspace_dir}/Cargo.toml"))?
         .get_string_array("workspace.members")
         .context("Cannot determine workspace members")
 }
@@ -54,7 +57,7 @@ pub fn get_workspace_crate_dirs() -> Result<Vec<String>> {
 /// Sorts the crate dirs such that none of the crates depend on any others that
 /// come after it. I.e. the first crate will have no dependencies, the second
 /// may only depend on the first, etc..
-pub fn sort_by_dependencies<T>(crate_dirs: &[T]) -> Result<Vec<&str>>
+pub fn sort_by_dependencies<'a, T>(workspace_dir: &str, crate_dirs: &'a [T]) -> Result<Vec<&'a str>>
 where
     T: Borrow<str> + Display,
 {
@@ -66,7 +69,7 @@ where
     let mut dirs_with_cargo_nodes = crate_dirs
         .iter()
         .map(|crate_dir| {
-            TomlNode::from_file(format!("{crate_dir}/Cargo.toml"))
+            TomlNode::from_file(format!("{workspace_dir}/{crate_dir}/Cargo.toml"))
                 .map(|node| (crate_dir.borrow(), node))
         })
         .collect::<Result<Vec<(&str, TomlNode)>>>()?;
@@ -95,20 +98,20 @@ where
 mod tests {
     use super::sort_by_dependencies;
     use super::TomlNode;
-    use std::env;
 
     #[test]
     fn test_sort_by_dependencies() {
-        // This test reads the actual Cargo files, so we need to be in the
-        // project root for it to pass. This way, it will also pass if we start
-        // in the `fiberplane-ci` directory.
-        if TomlNode::from_file("Cargo.toml")
+        // This test reads the actual Cargo files, so we need to be careful to
+        // pass the right workspace dir for it to pass.
+        let workspace_dir = if TomlNode::from_file("Cargo.toml")
             .expect("Test must be executed from project root or crate dir")
             .get_string("package.name")
             .is_some()
         {
-            env::set_current_dir("..").expect("Could not change working directory");
-        }
+            ".."
+        } else {
+            "."
+        };
 
         let dependencies = [
             "fiberplane".to_owned(),
@@ -116,7 +119,7 @@ mod tests {
             "fiberplane-models".to_owned(),
         ];
         assert_eq!(
-            sort_by_dependencies(&dependencies).unwrap(),
+            sort_by_dependencies(workspace_dir, &dependencies).unwrap(),
             vec!["fiberplane-models", "fiberplane-templates", "fiberplane"]
         )
     }
