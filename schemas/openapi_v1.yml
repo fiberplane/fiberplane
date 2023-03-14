@@ -2023,6 +2023,7 @@ components:
           type: string
         description:
           type: string
+          nullable: true
         color:
           type: number
           format: int16
@@ -2034,12 +2035,14 @@ components:
           $ref: "#/components/schemas/relativeTime"
         sortBy:
           type: string
+          nullable: true
           enum:
             - title
             - created_at
             - updated_at
         sortDirection:
           type: string
+          nullable: true
           enum:
             - ascending
             - descending
@@ -2098,6 +2101,7 @@ components:
       properties:
         unit:
           type: string
+          nullable: true
           enum:
             - "seconds"
             - "minutes"
@@ -2105,6 +2109,7 @@ components:
             - "days"
         value:
           type: number
+          nullable: true
           format: int64
   parameters:
     sortDirection:
