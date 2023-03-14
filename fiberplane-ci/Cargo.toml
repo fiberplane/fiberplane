@@ -12,6 +12,7 @@ publish = false
 
 [dependencies]
 anyhow = "1"
+async-trait = "0.1"
 clap = { version = "4", features = ["derive"] }
 duct = "0.13"
 octocrab = { version = "0.18", default-features = false, features = ["rustls"] }
@@ -20,6 +21,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 taplo = "0.12"
 thiserror = "1"
+time = { workspace = true }
 
 [dev-dependencies]
 pretty_assertions = "1.3"
