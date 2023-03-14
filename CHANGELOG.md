@@ -25,6 +25,7 @@ changes if the major version hasn't changed.
   to the `notebook_search` endpoint (#27)
 - `fiberplane-api-client`: Existing endpoint `pinned_views_get` now returns `Vec<View>`
   instead of `Vec<PinnedView>` (#27)
+- `fiberplane-models`: Added optional field `relative_time` to NotebookSearch (#32)
 
 ### Changed
 
