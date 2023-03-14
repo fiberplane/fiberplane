@@ -15,8 +15,8 @@ use url::Url;
 
 mod cells;
 use crate::names::Name;
-pub use cells::*;
 use crate::views::RelativeTime;
+pub use cells::*;
 
 pub mod operations;
 

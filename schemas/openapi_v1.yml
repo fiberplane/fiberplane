@@ -1532,7 +1532,9 @@ components:
           nullable: true
           additionalProperties:
             type: string
-            nullable: true # this does not seem to have any effect on the generated rust client
+            nullable: true
+        relativeTime:
+          $ref: "#/components/schemas/relativeTime"
         view:
           description: Searches for notebooks using a pre-defined view
           type: string
