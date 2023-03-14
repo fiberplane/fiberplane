@@ -35,6 +35,8 @@ changes if the major version hasn't changed.
 - `fiberplane-models`: All `u32` fields declared within `Pagination` no longer use
   serde's built-in deserialization but a custom visitor. This is a workaround for a
   bug inside axum `Query` <-> serde impl: https://github.com/tokio-rs/axum/discussions/1359 (#27)
+- `fiberplane-models`: `UpdateView` fields `description`, `relative_time`, `sort_by`
+  and `sort_direction` now take an `Option<Option<T>>` instead of previously an `Option<T>`. (#31)
 
 ### Removed
 
