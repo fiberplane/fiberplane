@@ -1,14 +1,15 @@
 name: Publish
 
 on:
-  push:
-    branches: ["release-*"]
+  release:
+    type: [published]
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   publish_betas:
+    if: ${{ contains(github.event.release.tag_name, "-beta.") }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
