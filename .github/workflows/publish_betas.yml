@@ -1,0 +1,15 @@
+name: Publish betas
+
+on:
+  release:
+    type: [published]
+
+jobs:
+  publish-betas:
+    if: ${{ github.event_name == 'release' && contains(github.event.release.tag_name, "-beta.") }}
+    uses: fiberplane/fiberplane/.github/workflows/publish.yml@main
+    with:
+      target: "betas"
+    secrets:
+      CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
+      PRIVATE_GITHUB_TOKEN: ${{ secrets.PRIVATE_GITHUB_TOKEN }}

@@ -65,5 +65,5 @@ jobs:
         run: cargo xtask publish alphas
 
       - name: Publish beta crates
-        if: ${{ github.event_name == 'release' && contains(github.event.release.tag_name, "-beta.") }}
+        if: ${{ github.event_name == 'release' && contains(github.event.release.tag_name, '-beta.') }}
         run: cargo xtask publish betas
