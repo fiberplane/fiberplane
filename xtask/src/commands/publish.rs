@@ -8,6 +8,10 @@ use fiberplane_ci::{commands::versions::*, TaskResult};
 
 #[derive(Parser)]
 pub struct PublishArgs {
+    /// Publish all crates that can be published, instead of only changed ones.
+    #[clap(long)]
+    pub all: bool,
+
     /// Do not actually publish the release(s).
     ///
     /// Note that publication will fail if you try to dry-run publication for
@@ -49,10 +53,16 @@ async fn handle_publish_alphas(args: &PublishArgs) -> TaskResult {
     let changed_crate_dirs: Vec<&str> = all_crate_dirs
         .iter()
         .map(String::as_str)
-        .filter_map(|crate_dir| match did_change(crate_dir, previous_commit) {
-            Ok(true) => Some(Ok(crate_dir)),
-            Ok(false) => None,
-            Err(err) => Some(Err(err)),
+        .filter_map(|crate_dir| {
+            if args.all {
+                Some(Ok(crate_dir))
+            } else {
+                match did_change(crate_dir, previous_commit) {
+                    Ok(true) => Some(Ok(crate_dir)),
+                    Ok(false) => None,
+                    Err(err) => Some(Err(err)),
+                }
+            }
         })
         .collect::<Result<Vec<_>>>()?;
 
