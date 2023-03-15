@@ -1,9 +1,10 @@
-name: Publish
+name: Manual publish
 
 on:
   workflow_dispatch:
     inputs:
       target:
+        description: "What do we want to publish?"
         required: true
         options:
         - alphas
@@ -13,7 +14,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  publish_alphas:
+  manual-publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -47,4 +48,4 @@ jobs:
           args: ${{ secrets.CRATES_TOKEN }}
 
       - name: Publish crates
-        run: cargo xtask publish ${{ github.events.input.target }}
+        run: cargo xtask publish ${{ inputs.target }}
