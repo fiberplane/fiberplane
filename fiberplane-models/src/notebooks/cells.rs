@@ -846,7 +846,7 @@ pub enum GraphType {
     Line,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -855,18 +855,13 @@ pub enum GraphType {
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 pub enum StackingType {
+    #[default]
     None,
     Stacked,
     Percentage,
 }
 
-impl Default for StackingType {
-    fn default() -> Self {
-        Self::None
-    }
-}
-
-#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -875,18 +870,13 @@ impl Default for StackingType {
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 pub enum HeadingType {
+    #[default]
     H1,
     H2,
     H3,
 }
 
-impl Default for HeadingType {
-    fn default() -> Self {
-        HeadingType::H1
-    }
-}
-
-#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -896,11 +886,6 @@ impl Default for HeadingType {
 #[serde(rename_all = "snake_case")]
 pub enum ListType {
     Ordered,
+    #[default]
     Unordered,
-}
-
-impl Default for ListType {
-    fn default() -> Self {
-        ListType::Unordered
-    }
 }
