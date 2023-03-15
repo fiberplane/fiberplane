@@ -48,6 +48,14 @@ async fn handle_publish_alphas(args: &PublishArgs) -> TaskResult {
         .get(1)
         .context("Could not determine previous commit")?;
 
+    if args.all {
+        eprintln!("{NOTE}Will publish alpha versions for all publishable crates.");
+    } else {
+        eprintln!(
+            "{NOTE}Will publish alpha versions for all crates changed since {previous_commit}."
+        );
+    }
+
     let all_crate_dirs = get_publishable_workspace_crate_dirs(".")?;
     let crates_using_workspace_version = get_crates_using_workspace_version(".", &all_crate_dirs);
     let changed_crate_dirs: Vec<&str> = all_crate_dirs

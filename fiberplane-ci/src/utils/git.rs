@@ -25,6 +25,7 @@ pub fn get_commits(repo_dir: &str) -> Result<Vec<String>> {
 
     output
         .split(|byte| byte == &b'\n')
+        .filter(|slice| !slice.is_empty())
         .map(|slice| {
             std::str::from_utf8(slice)
                 .map(str::to_owned)
