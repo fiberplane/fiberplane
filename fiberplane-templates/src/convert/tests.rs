@@ -164,7 +164,7 @@ fn print_cell_handles_formatted_unicode() {
 }
 
 #[test]
-fn decodes_provider_cell_data() {
+fn decodes_well_known_provider_cell_data() {
     let mut writer = CodeWriter::new();
     let cell = Cell::Provider(ProviderCell::builder()
                               .title("".to_string())
@@ -180,6 +180,32 @@ fn decodes_provider_cell_data() {
         "c.prometheus(
   title='',
   content='apiserver_audit_event_total{job=\"test\"}',
+),
+"
+    );
+}
+
+#[test]
+fn decodes_arbitrary_provider_cell_data() {
+    let mut writer = CodeWriter::new();
+    let cell = Cell::Provider(ProviderCell::builder()
+                              .title("".to_string())
+        .intent("cloudwatch,x-list-metrics".to_string())
+        .query_data("application/x-www-form-urlencoded,query=CPUUtil&tag_name=Environment&tag_values=prod+production".to_string())
+                              .id("c1")
+                              .build()
+    );
+
+    print_cell(&mut writer, &cell);
+    assert_eq!(
+        writer.to_string(),
+        "c.provider(
+  title='',
+  intent='cloudwatch,x-list-metrics',
+  queryData='application/x-www-form-urlencoded,query=CPUUtil&tag_name=Environment&tag_values=prod+production',
+  content='CPUUtil',
+  tag_name='Environment',
+  tag_values='prod production',
 ),
 "
     );

@@ -260,14 +260,17 @@ fn print_cell(writer: &mut CodeWriter, cell: &Cell) {
                 }
                 _ => {
                     args.push(("intent".to_string(), escape_string(&cell.intent)));
+                    if let Some(query_data) = &cell.query_data {
+                        args.push(("queryData".to_string(), escape_string(query_data)));
+                    }
+                    // NOTE: All the names are added here as human-friendly way to show data. The
+                    // template function in jsonnet only cares about queryData.
                     if let Some(query_data) = decode_provider_cell_query_data(&cell.query_data) {
                         args.extend(
                             query_data
                                 .into_iter()
                                 .map(|(key, value)| (key, escape_string(value))),
                         );
-                    } else if let Some(query_data) = &cell.query_data {
-                        args.push(("queryData".to_string(), escape_string(query_data)));
                     }
                     "provider"
                 }
