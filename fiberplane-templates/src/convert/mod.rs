@@ -6,6 +6,7 @@ use fiberplane_models::notebooks::{Cell, HeadingType, ListType, NewNotebook};
 use fiberplane_models::timestamps::TimeRange;
 use fiberplane_models::utils::{char_count, char_slice, char_slice_from};
 use once_cell::sync::Lazy;
+use percent_encoding::percent_decode_str;
 use regex::Regex;
 use std::{collections::BTreeSet, fmt::Write};
 use time::{format_description::well_known::Rfc3339, Duration};
@@ -16,6 +17,7 @@ mod escape_string;
 mod tests;
 
 static MUSTACHE_SUBSTITUTION: Lazy<Regex> = Lazy::new(|| Regex::new(r"\{\{(\w+)\}\}").unwrap());
+const FORM_ENCODED_QUERY_PREFIX: &str = "application/x-www-form-urlencoded,";
 
 // Note: we use the NewNotebook struct because it contains
 // the subset of the Notebook fields that we need to
@@ -160,18 +162,21 @@ fn print_cell(writer: &mut CodeWriter, cell: &Cell) {
     // (read_only is handled separately because every cell has it)
     let (function_name, read_only) = match cell {
         Cell::Checkbox(cell) => {
-            args.push(("content", format_content(&cell.content, &cell.formatting)));
-            args.push(("checked", cell.checked.to_string()));
+            args.push((
+                "content".to_string(),
+                format_content(&cell.content, &cell.formatting),
+            ));
+            args.push(("checked".to_string(), cell.checked.to_string()));
             if let Some(level) = cell.level {
-                args.push(("level", level.to_string()));
+                args.push(("level".to_string(), level.to_string()));
             }
 
             ("checkbox", cell.read_only)
         }
         Cell::Code(cell) => {
-            args.push(("content", escape_string(&cell.content)));
+            args.push(("content".to_string(), escape_string(&cell.content)));
             if let Some(syntax) = &cell.syntax {
-                args.push(("syntax", escape_string(syntax)));
+                args.push(("syntax".to_string(), escape_string(syntax)));
             }
             ("code", cell.read_only)
         }
@@ -183,12 +188,15 @@ fn print_cell(writer: &mut CodeWriter, cell: &Cell) {
                 HeadingType::H3 => "h3",
                 _ => panic!("Unknown HeadingType"),
             };
-            args.push(("content", format_content(&cell.content, &cell.formatting)));
+            args.push((
+                "content".to_string(),
+                format_content(&cell.content, &cell.formatting),
+            ));
             (heading_type, cell.read_only)
         }
         Cell::Image(cell) => {
             if let Some(url) = &cell.url {
-                args.push(("url", escape_string(url)));
+                args.push(("url".to_string(), escape_string(url)));
             }
             ("image", cell.read_only)
         }
@@ -198,26 +206,67 @@ fn print_cell(writer: &mut CodeWriter, cell: &Cell) {
                 ListType::Unordered => "listItem.unordered",
                 _ => panic!("Unknown ListType"),
             };
-            args.push(("content", format_content(&cell.content, &cell.formatting)));
+            args.push((
+                "content".to_string(),
+                format_content(&cell.content, &cell.formatting),
+            ));
             if let Some(level) = cell.level {
-                args.push(("level", level.to_string()));
+                args.push(("level".to_string(), level.to_string()));
             }
             if let Some(start_number) = cell.start_number {
-                args.push(("startNumber", start_number.to_string()));
+                args.push(("startNumber".to_string(), start_number.to_string()));
             }
             (function_name, cell.read_only)
         }
         Cell::Text(cell) => {
-            args.push(("content", format_content(&cell.content, &cell.formatting)));
+            args.push((
+                "content".to_string(),
+                format_content(&cell.content, &cell.formatting),
+            ));
             ("text", cell.read_only)
         }
         Cell::Provider(cell) => {
-            args.push(("title", escape_string(&cell.title)));
-            args.push(("intent", escape_string(&cell.intent)));
-            if let Some(query_data) = &cell.query_data {
-                args.push(("queryData", escape_string(query_data)));
-            }
-            ("provider", cell.read_only)
+            args.push(("title".to_string(), escape_string(&cell.title)));
+            let cell_type =
+                match cell.intent.as_str() {
+                    "prometheus,timeseries" => {
+                        if let Some(query) = decode_provider_cell_query_data(&cell.query_data) {
+                            args.extend(query.into_iter().map(|(key, value)| {
+                                (key.as_ref().to_string(), escape_string(value))
+                            }));
+                        }
+                        "prometheus"
+                    }
+                    "elasticsearch,events" => {
+                        if let Some(query) = decode_provider_cell_query_data(&cell.query_data) {
+                            args.extend(query.into_iter().map(|(key, value)| {
+                                (key.as_ref().to_string(), escape_string(value))
+                            }));
+                        }
+                        "elasticsearch"
+                    }
+                    "loki,events" => {
+                        if let Some(query) = decode_provider_cell_query_data(&cell.query_data) {
+                            args.extend(query.into_iter().map(|(key, value)| {
+                                (key.as_ref().to_string(), escape_string(value))
+                            }));
+                        }
+                        "loki"
+                    }
+                    _ => {
+                        args.push(("intent".to_string(), escape_string(&cell.intent)));
+                        if let Some(query_data) = decode_provider_cell_query_data(&cell.query_data)
+                        {
+                            args.extend(query_data.into_iter().map(|(key, value)| {
+                                (key.as_ref().to_string(), escape_string(value))
+                            }));
+                        } else if let Some(query_data) = &cell.query_data {
+                            args.push(("queryData".to_string(), escape_string(query_data)));
+                        }
+                        "provider"
+                    }
+                };
+            (cell_type, cell.read_only)
         }
         // Ignored cell types:
         Cell::Discussion(_) | Cell::Graph(_) | Cell::Log(_) | Cell::Table(_) => return,
@@ -229,16 +278,18 @@ fn print_cell(writer: &mut CodeWriter, cell: &Cell) {
 
     // Only print the read only property if it's true
     if read_only == Some(true) {
-        args.push(("readOnly", "true".to_string()));
+        args.push(("readOnly".to_string(), "true".to_string()));
     }
 
     // Print the cell on one line or multiple depending on how many properties it has
-    let first_param = args.first().map(|(name, _)| *name);
+    let first_param = args.first().map(|(name, _)| name);
     match (args.len(), first_param) {
         (0, _) => writer.println(format!("c.{function_name}(),")),
-        (1, Some("content")) => writer.println(format!("c.{}({}),", function_name, args[0].1)),
+        (1, Some(content)) if content == "content" => {
+            writer.println(format!("c.{}({}),", function_name, args[0].1))
+        }
         (1, _) => writer.println(format!("c.{}({}={}),", function_name, args[0].0, args[0].1)),
-        (2, Some("content")) => writer.println(format!(
+        (2, Some(content)) if content == "content" => writer.println(format!(
             "c.{}({}, {}={}),",
             function_name, args[0].1, args[1].0, args[1].1
         )),
@@ -421,4 +472,28 @@ fn parse_template_function_parameters<'a>(
             }
         })
         .collect()
+}
+
+fn decode_provider_cell_query_data<'a>(
+    query_data: &'a Option<impl AsRef<str> + 'a>,
+) -> Option<Vec<(impl AsRef<str> + 'a, impl AsRef<str> + 'a)>> {
+    if let Some(query_data) = &query_data {
+        if let Some(encoded_query) = query_data.as_ref().strip_prefix(FORM_ENCODED_QUERY_PREFIX) {
+            return Some(
+                encoded_query
+                    .split(',')
+                    .filter_map(|kv| {
+                        kv.split_once('=').map(|(key, value)| {
+                            (
+                                percent_decode_str(if key == "query" { "content" } else { key })
+                                    .decode_utf8_lossy(),
+                                percent_decode_str(value).decode_utf8_lossy(),
+                            )
+                        })
+                    })
+                    .collect(),
+            );
+        }
+    }
+    None
 }

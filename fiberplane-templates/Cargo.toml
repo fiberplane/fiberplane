@@ -11,7 +11,7 @@ version = { workspace = true }
 
 [features]
 default = ["convert", "expand", "examples"]
-convert = ["once_cell", "regex", "time"]
+convert = ["once_cell", "percent-encoding", "regex", "time"]
 expand = ["jrsonnet-evaluator", "jrsonnet-types", "thiserror", "time", "types"]
 types = ["serde", "serde_json"]
 examples = []
@@ -22,6 +22,8 @@ fiberplane-models = { workspace = true }
 once_cell = { workspace = true, optional = true }
 jrsonnet-evaluator = { version = "0.4.2", optional = true }
 jrsonnet-types = { version = "0.4.2", optional = true }
+# Cannot use 2.2 because of octocrab dependency in xtask
+percent-encoding = { version = "2.1.0", optional = true }
 regex = { version = "1.5.5", optional = true }
 serde = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }

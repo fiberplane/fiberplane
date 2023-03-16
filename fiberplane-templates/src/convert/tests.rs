@@ -1,5 +1,5 @@
 use fiberplane_models::formatting::Mention;
-use fiberplane_models::notebooks::{DividerCell, Label, TextCell};
+use fiberplane_models::notebooks::{DividerCell, Label, ProviderCell, TextCell};
 use time::OffsetDateTime;
 
 use super::*;
@@ -161,4 +161,26 @@ fn print_cell_handles_formatted_unicode() {
     );
     print_cell(&mut writer, &cell);
     assert_eq!(writer.to_string(), "c.text([fmt.highlight(['👀'])]),\n");
+}
+
+#[test]
+fn decodes_provider_cell_data() {
+    let mut writer = CodeWriter::new();
+    let cell = Cell::Provider(ProviderCell::builder()
+                              .title("".to_string())
+        .intent("prometheus,timeseries".to_string())
+        .query_data("application/x-www-form-urlencoded,query=apiserver_audit_event_total%7Bjob%3D%22test%22%7D".to_string())
+                              .id("c1")
+                              .build()
+    );
+
+    print_cell(&mut writer, &cell);
+    assert_eq!(
+        writer.to_string(),
+        "c.prometheus(
+  title='',
+  content='apiserver_audit_event_total{job=\"test\"}',
+),
+"
+    );
 }
