@@ -4193,6 +4193,9 @@ paths:
     get:
       operationId: pinned_views_get
       description: Get all pinned views for the current user
+      summary: Get all pinned views for the current user
+      tags:
+        - Views
       responses:
         "200":
           description: OK
@@ -4205,6 +4208,9 @@ paths:
     post:
       operationId: pinned_view_add
       description: Add an existing view to the pinned views list
+      summary: Add an existing view to the pinned views list
+      tags:
+        - Views
       requestBody:
         description: Existing view to pin
         required: true
@@ -4222,6 +4228,9 @@ paths:
     delete:
       operationId: pinned_view_remove
       description: Remove view from the pinned views list
+      summary: Remove view from the pinned views list
+      tags:
+        - Views
       responses:
         "200":
           description: OK
