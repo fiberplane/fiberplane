@@ -42,6 +42,9 @@ changes if the major version hasn't changed.
   bug inside axum `Query` <-> serde impl: https://github.com/tokio-rs/axum/discussions/1359 (#27)
 - `fiberplane-models`: `UpdateView` fields `description`, `relative_time`, `sort_by`
   and `sort_direction` now take an `Option<Option<T>>` instead of previously an `Option<T>`. (#31)
+- `fiberplane-templates`: Well-known provider cells (`prometheus`, `loki`, `elasticsearch`)
+  have their payloads converted to human-readable form when transformed into templates or
+  snippets. (#34)
 
 ### Removed
 
