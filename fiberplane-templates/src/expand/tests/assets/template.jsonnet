@@ -31,6 +31,10 @@ let b = "c";'),
     c.prometheus(content='http_requests', title='sample title'),
     c.prometheus(),
     c.text(['Prefix: ', fmt.timestamp("2022-10-24T10:42:10.977Z"), ' - error triggered']),
+    c.provider(
+      intent='fiberplane,unknown',
+      queryData='application/x-www-form-urlencoded,query=arbitrary+query&live=false&exclamation=234',
+   )
   ])
   .addLabel('key1')
   .addLabel('key2', 'value2')

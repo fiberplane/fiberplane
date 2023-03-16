@@ -203,9 +203,6 @@ fn decodes_arbitrary_provider_cell_data() {
   title='',
   intent='cloudwatch,x-list-metrics',
   queryData='application/x-www-form-urlencoded,query=CPUUtil&tag_name=Environment&tag_values=prod+production',
-  content='CPUUtil',
-  tag_name='Environment',
-  tag_values='prod production',
 ),
 "
     );

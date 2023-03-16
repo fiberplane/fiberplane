@@ -142,6 +142,13 @@ let b = \"c\";",
                 )])
                 .build(),
         ),
+        Cell::Provider(
+            ProviderCell::builder()
+                .id("18")
+                .intent("fiberplane,unknown")
+                .query_data("application/x-www-form-urlencoded,query=arbitrary+query&live=false&exclamation=234")
+                .build(),
+        ),
     ]
 });
 const NOTEBOOK: Lazy<NewNotebook> = Lazy::new(|| {
