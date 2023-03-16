@@ -227,45 +227,51 @@ fn print_cell(writer: &mut CodeWriter, cell: &Cell) {
         }
         Cell::Provider(cell) => {
             args.push(("title".to_string(), escape_string(&cell.title)));
-            let cell_type =
-                match cell.intent.as_str() {
-                    "prometheus,timeseries" => {
-                        if let Some(query) = decode_provider_cell_query_data(&cell.query_data) {
-                            args.extend(query.into_iter().map(|(key, value)| {
-                                (key.as_ref().to_string(), escape_string(value))
-                            }));
-                        }
-                        "prometheus"
+            let cell_type = match cell.intent.as_str() {
+                "prometheus,timeseries" => {
+                    if let Some(query) = decode_provider_cell_query_data(&cell.query_data) {
+                        args.extend(
+                            query
+                                .into_iter()
+                                .map(|(key, value)| (key, escape_string(value))),
+                        );
                     }
-                    "elasticsearch,events" => {
-                        if let Some(query) = decode_provider_cell_query_data(&cell.query_data) {
-                            args.extend(query.into_iter().map(|(key, value)| {
-                                (key.as_ref().to_string(), escape_string(value))
-                            }));
-                        }
-                        "elasticsearch"
+                    "prometheus"
+                }
+                "elasticsearch,events" => {
+                    if let Some(query) = decode_provider_cell_query_data(&cell.query_data) {
+                        args.extend(
+                            query
+                                .into_iter()
+                                .map(|(key, value)| (key, escape_string(value))),
+                        );
                     }
-                    "loki,events" => {
-                        if let Some(query) = decode_provider_cell_query_data(&cell.query_data) {
-                            args.extend(query.into_iter().map(|(key, value)| {
-                                (key.as_ref().to_string(), escape_string(value))
-                            }));
-                        }
-                        "loki"
+                    "elasticsearch"
+                }
+                "loki,events" => {
+                    if let Some(query) = decode_provider_cell_query_data(&cell.query_data) {
+                        args.extend(
+                            query
+                                .into_iter()
+                                .map(|(key, value)| (key, escape_string(value))),
+                        );
                     }
-                    _ => {
-                        args.push(("intent".to_string(), escape_string(&cell.intent)));
-                        if let Some(query_data) = decode_provider_cell_query_data(&cell.query_data)
-                        {
-                            args.extend(query_data.into_iter().map(|(key, value)| {
-                                (key.as_ref().to_string(), escape_string(value))
-                            }));
-                        } else if let Some(query_data) = &cell.query_data {
-                            args.push(("queryData".to_string(), escape_string(query_data)));
-                        }
-                        "provider"
+                    "loki"
+                }
+                _ => {
+                    args.push(("intent".to_string(), escape_string(&cell.intent)));
+                    if let Some(query_data) = decode_provider_cell_query_data(&cell.query_data) {
+                        args.extend(
+                            query_data
+                                .into_iter()
+                                .map(|(key, value)| (key, escape_string(value))),
+                        );
+                    } else if let Some(query_data) = &cell.query_data {
+                        args.push(("queryData".to_string(), escape_string(query_data)));
                     }
-                };
+                    "provider"
+                }
+            };
             (cell_type, cell.read_only)
         }
         // Ignored cell types:
@@ -476,24 +482,28 @@ fn parse_template_function_parameters<'a>(
 
 fn decode_provider_cell_query_data<'a>(
     query_data: &'a Option<impl AsRef<str> + 'a>,
-) -> Option<Vec<(impl AsRef<str> + 'a, impl AsRef<str> + 'a)>> {
-    if let Some(query_data) = &query_data {
-        if let Some(encoded_query) = query_data.as_ref().strip_prefix(FORM_ENCODED_QUERY_PREFIX) {
-            return Some(
+) -> Option<Vec<(String, String)>> {
+    query_data.as_ref().and_then(|query_data| {
+        query_data
+            .as_ref()
+            .strip_prefix(FORM_ENCODED_QUERY_PREFIX)
+            .map(|encoded_query| {
                 encoded_query
-                    .split(',')
-                    .filter_map(|kv| {
-                        kv.split_once('=').map(|(key, value)| {
+                    .split('&')
+                    .map(|kv| {
+                        if let Some((key, value)) = kv.split_once('=') {
+                            let value = value.replace('+', " ");
                             (
                                 percent_decode_str(if key == "query" { "content" } else { key })
-                                    .decode_utf8_lossy(),
-                                percent_decode_str(value).decode_utf8_lossy(),
+                                    .decode_utf8_lossy()
+                                    .to_string(),
+                                percent_decode_str(&value).decode_utf8_lossy().to_string(),
                             )
-                        })
+                        } else {
+                            (kv.to_string(), String::new())
+                        }
                     })
-                    .collect(),
-            );
-        }
-    }
-    None
+                    .collect()
+            })
+    })
 }
