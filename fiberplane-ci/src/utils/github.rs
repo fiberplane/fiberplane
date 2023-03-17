@@ -55,13 +55,13 @@ impl WorkflowsExt for Octocrab {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 struct ListWorkflowRunsParams {
     event: String,
 }
 
 /// (Incomplete) representation of a Github Actions workflow run.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct WorkflowRun {
     /// The ID of the workflow run.
     pub id: JobId,
@@ -111,7 +111,7 @@ pub struct WorkflowRun {
     pub run_started_at: Option<OffsetDateTime>,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum WorkflowStatus {
