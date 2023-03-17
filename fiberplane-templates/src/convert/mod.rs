@@ -163,21 +163,18 @@ fn print_cell(writer: &mut CodeWriter, cell: &Cell) {
     // (read_only is handled separately because every cell has it)
     let (function_name, read_only) = match cell {
         Cell::Checkbox(cell) => {
-            args.push((
-                "content".to_string(),
-                format_content(&cell.content, &cell.formatting),
-            ));
-            args.push(("checked".to_string(), cell.checked.to_string()));
+            args.push(("content", format_content(&cell.content, &cell.formatting)));
+            args.push(("checked", cell.checked.to_string()));
             if let Some(level) = cell.level {
-                args.push(("level".to_string(), level.to_string()));
+                args.push(("level", level.to_string()));
             }
 
             ("checkbox", cell.read_only)
         }
         Cell::Code(cell) => {
-            args.push(("content".to_string(), escape_string(&cell.content)));
+            args.push(("content", escape_string(&cell.content)));
             if let Some(syntax) = &cell.syntax {
-                args.push(("syntax".to_string(), escape_string(syntax)));
+                args.push(("syntax", escape_string(syntax)));
             }
             ("code", cell.read_only)
         }
@@ -189,15 +186,12 @@ fn print_cell(writer: &mut CodeWriter, cell: &Cell) {
                 HeadingType::H3 => "h3",
                 _ => panic!("Unknown HeadingType"),
             };
-            args.push((
-                "content".to_string(),
-                format_content(&cell.content, &cell.formatting),
-            ));
+            args.push(("content", format_content(&cell.content, &cell.formatting)));
             (heading_type, cell.read_only)
         }
         Cell::Image(cell) => {
             if let Some(url) = &cell.url {
-                args.push(("url".to_string(), escape_string(url)));
+                args.push(("url", escape_string(url)));
             }
             ("image", cell.read_only)
         }
@@ -207,39 +201,33 @@ fn print_cell(writer: &mut CodeWriter, cell: &Cell) {
                 ListType::Unordered => "listItem.unordered",
                 _ => panic!("Unknown ListType"),
             };
-            args.push((
-                "content".to_string(),
-                format_content(&cell.content, &cell.formatting),
-            ));
+            args.push(("content", format_content(&cell.content, &cell.formatting)));
             if let Some(level) = cell.level {
-                args.push(("level".to_string(), level.to_string()));
+                args.push(("level", level.to_string()));
             }
             if let Some(start_number) = cell.start_number {
-                args.push(("startNumber".to_string(), start_number.to_string()));
+                args.push(("startNumber", start_number.to_string()));
             }
             (function_name, cell.read_only)
         }
         Cell::Text(cell) => {
-            args.push((
-                "content".to_string(),
-                format_content(&cell.content, &cell.formatting),
-            ));
+            args.push(("content", format_content(&cell.content, &cell.formatting)));
             ("text", cell.read_only)
         }
         Cell::Provider(cell) => {
-            const INTENTS_WITH_STDLIB_IMPL: [&str; 3] = [
+            const INTENTS_WITH_TEMPLATES_HELPERS: [&str; 3] = [
                 "prometheus,timeseries",
                 "elasticsearch,events",
                 "loki,events",
             ];
 
-            args.push(("title".to_string(), escape_string(&cell.title)));
+            args.push(("title", escape_string(&cell.title)));
             let cell_type = match cell.intent.as_str() {
-                intent if INTENTS_WITH_STDLIB_IMPL.contains(&intent) => {
+                intent if INTENTS_WITH_TEMPLATES_HELPERS.contains(&intent) => {
                     if let Some(query) = decode_provider_cell_query_data(&cell.query_data) {
                         args.extend(query.into_iter().filter_map(|(key, value)| {
                             if key == "query" {
-                                Some(("content".to_string(), escape_string(value)))
+                                Some(("content", escape_string(value)))
                             } else {
                                 warn!("Unexpected argument: {key}");
                                 None
@@ -250,15 +238,15 @@ fn print_cell(writer: &mut CodeWriter, cell: &Cell) {
                     }
                     intent
                         .split_once(',')
-                        .expect("All Stdlib intents have ',' inside.")
+                        .expect("All intents in INTENTS_WITH_TEMPLATE_HELPERS have ',' inside.")
                         .0
                 }
                 _ => {
                     // No specific treatment is done for libjsonnet.provider function call,
                     // we just pass the raw queryData and the raw intent
-                    args.push(("intent".to_string(), escape_string(&cell.intent)));
+                    args.push(("intent", escape_string(&cell.intent)));
                     if let Some(query_data) = &cell.query_data {
-                        args.push(("queryData".to_string(), escape_string(query_data)));
+                        args.push(("queryData", escape_string(query_data)));
                     }
                     "provider"
                 }
@@ -275,18 +263,18 @@ fn print_cell(writer: &mut CodeWriter, cell: &Cell) {
 
     // Only print the read only property if it's true
     if read_only == Some(true) {
-        args.push(("readOnly".to_string(), "true".to_string()));
+        args.push(("readOnly", "true".to_string()));
     }
 
     // Print the cell on one line or multiple depending on how many properties it has
     let first_param = args.first().map(|(name, _)| name);
     match (args.len(), first_param) {
         (0, _) => writer.println(format!("c.{function_name}(),")),
-        (1, Some(content)) if content == "content" => {
+        (1, Some(content)) if *content == "content" => {
             writer.println(format!("c.{}({}),", function_name, args[0].1))
         }
         (1, _) => writer.println(format!("c.{}({}={}),", function_name, args[0].0, args[0].1)),
-        (2, Some(content)) if content == "content" => writer.println(format!(
+        (2, Some(content)) if *content == "content" => writer.println(format!(
             "c.{}({}, {}={}),",
             function_name, args[0].1, args[1].0, args[1].1
         )),
