@@ -71,8 +71,7 @@ pub fn matches_base_version(version: &str, base_version: &str) -> bool {
     }
 }
 
-/// Parses a version's alpha suffix into its count and the remainder of the
-/// suffix.
+/// Parses a version's suffix into its count and the remainder of the suffix.
 ///
 /// ```rust
 /// use fiberplane_ci::utils::parse_suffix;

@@ -1,3 +1,4 @@
+pub mod artifactory;
 pub mod crates;
 pub mod git;
 pub mod github;
@@ -6,6 +7,7 @@ pub(crate) mod toml_patcher;
 pub mod versions;
 pub mod workspaces;
 
+pub use artifactory::*;
 pub use crates::*;
 pub use git::*;
 pub use github::*;
