@@ -10,6 +10,7 @@ use percent_encoding::percent_decode_str;
 use regex::Regex;
 use std::{collections::BTreeSet, fmt::Write};
 use time::{format_description::well_known::Rfc3339, Duration};
+use tracing::warn;
 
 mod code_writer;
 mod escape_string;
@@ -226,37 +227,31 @@ fn print_cell(writer: &mut CodeWriter, cell: &Cell) {
             ("text", cell.read_only)
         }
         Cell::Provider(cell) => {
+            const INTENTS_WITH_STDLIB_IMPL: [&str; 3] = [
+                "prometheus,timeseries",
+                "elasticsearch,events",
+                "loki,events",
+            ];
+
             args.push(("title".to_string(), escape_string(&cell.title)));
             let cell_type = match cell.intent.as_str() {
-                "prometheus,timeseries" => {
+                intent if INTENTS_WITH_STDLIB_IMPL.contains(&intent) => {
                     if let Some(query) = decode_provider_cell_query_data(&cell.query_data) {
-                        args.extend(
-                            query
-                                .into_iter()
-                                .map(|(key, value)| (key, escape_string(value))),
-                        );
+                        args.extend(query.into_iter().filter_map(|(key, value)| {
+                            if key == "query" {
+                                Some(("content".to_string(), escape_string(value)))
+                            } else {
+                                warn!("Unexpected argument: {key}");
+                                None
+                            }
+                        }))
+                    } else {
+                        warn!(?cell, "Could not parse the query data from the cell");
                     }
-                    "prometheus"
-                }
-                "elasticsearch,events" => {
-                    if let Some(query) = decode_provider_cell_query_data(&cell.query_data) {
-                        args.extend(
-                            query
-                                .into_iter()
-                                .map(|(key, value)| (key, escape_string(value))),
-                        );
-                    }
-                    "elasticsearch"
-                }
-                "loki,events" => {
-                    if let Some(query) = decode_provider_cell_query_data(&cell.query_data) {
-                        args.extend(
-                            query
-                                .into_iter()
-                                .map(|(key, value)| (key, escape_string(value))),
-                        );
-                    }
-                    "loki"
+                    intent
+                        .split_once(',')
+                        .expect("All Stdlib intents have ',' inside.")
+                        .0
                 }
                 _ => {
                     // No specific treatment is done for libjsonnet.provider function call,
@@ -490,9 +485,7 @@ fn decode_provider_cell_query_data<'a>(
                         if let Some((key, value)) = kv.split_once('=') {
                             let value = value.replace('+', " ");
                             (
-                                percent_decode_str(if key == "query" { "content" } else { key })
-                                    .decode_utf8_lossy()
-                                    .to_string(),
+                                percent_decode_str(key).decode_utf8_lossy().to_string(),
                                 percent_decode_str(&value).decode_utf8_lossy().to_string(),
                             )
                         } else {
