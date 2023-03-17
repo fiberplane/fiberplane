@@ -62,6 +62,13 @@ jobs:
       - name: Run tests
         run: cargo test --verbose
 
+      - name: Cargo login
+        if: ${{ github.event_name != 'push' || github.ref == 'refs/heads/main' }}
+        uses: actions-rs/cargo@v1
+        with:
+          command: login
+          args: ${{ secrets.CRATES_TOKEN }}
+
       - name: Publish alpha crates
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         run: cargo xtask publish alphas

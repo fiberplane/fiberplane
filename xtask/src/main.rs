@@ -17,6 +17,7 @@ struct Args {
 async fn main() {
     if let Err(err) = handle_cli().await {
         println!("{ERROR}{}", style(format!("Error: {err}")).red());
+        std::process::exit(1);
     }
 }
 
