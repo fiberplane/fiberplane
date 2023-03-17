@@ -267,14 +267,14 @@ fn print_cell(writer: &mut CodeWriter, cell: &Cell) {
     }
 
     // Print the cell on one line or multiple depending on how many properties it has
-    let first_param = args.first().map(|(name, _)| name);
+    let first_param = args.first().map(|(name, _)| *name);
     match (args.len(), first_param) {
         (0, _) => writer.println(format!("c.{function_name}(),")),
-        (1, Some(content)) if *content == "content" => {
+        (1, Some(content)) if content == "content" => {
             writer.println(format!("c.{}({}),", function_name, args[0].1))
         }
         (1, _) => writer.println(format!("c.{}({}={}),", function_name, args[0].0, args[0].1)),
-        (2, Some(content)) if *content == "content" => writer.println(format!(
+        (2, Some(content)) if content == "content" => writer.println(format!(
             "c.{}({}, {}={}),",
             function_name, args[0].1, args[1].0, args[1].1
         )),
