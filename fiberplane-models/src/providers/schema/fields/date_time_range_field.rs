@@ -10,7 +10,7 @@ use typed_builder::TypedBuilder;
 /// `from` and `to` fields. In the case of "application/x-www-form-urlencoded",
 /// it will be represented as a single string and the "from" and "to" parts will
 /// be separated by a space.
-#[derive(Debug, Default, Deserialize, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, TypedBuilder, PartialEq)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),

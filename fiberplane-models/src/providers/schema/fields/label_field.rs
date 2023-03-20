@@ -9,7 +9,7 @@ use typed_builder::TypedBuilder;
 /// array of strings, depending on the value of the `multiple` field. In the
 /// case of "application/x-www-form-urlencoded", the value is always a single
 /// string and multiple labels will be space-separated.
-#[derive(Debug, Default, Deserialize, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, TypedBuilder, PartialEq)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),

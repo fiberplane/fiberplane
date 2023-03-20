@@ -7,7 +7,7 @@ use typed_builder::TypedBuilder;
 ///
 /// Values to be selected from can be either hard-coded in the schema, or
 /// (only for query forms) fetched on-demand the same way as auto-suggestions.
-#[derive(Debug, Default, Deserialize, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, TypedBuilder, PartialEq)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),

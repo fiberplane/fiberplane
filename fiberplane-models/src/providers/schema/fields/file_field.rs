@@ -6,7 +6,7 @@ use typed_builder::TypedBuilder;
 /// Defines a field that allows files to be uploaded as part of the query data.
 ///
 /// Query data that includes files will be encoded using "multipart/form-data".
-#[derive(Debug, Default, Deserialize, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, TypedBuilder, PartialEq)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),

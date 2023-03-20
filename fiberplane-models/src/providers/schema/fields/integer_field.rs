@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use typed_builder::TypedBuilder;
 
 /// Defines a field that allows integer numbers to be entered.
-#[derive(Debug, Default, Deserialize, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, TypedBuilder, PartialEq)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),

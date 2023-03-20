@@ -11,7 +11,7 @@ use super::fields::*;
 /// may be used.
 pub type QuerySchema = Vec<QueryField>;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -27,6 +27,7 @@ pub enum QueryField {
     Integer(IntegerField),
     Select(SelectField),
     Text(TextField),
+    Array(ArrayField),
 }
 
 impl From<CheckboxField> for QueryField {
@@ -68,5 +69,11 @@ impl From<SelectField> for QueryField {
 impl From<TextField> for QueryField {
     fn from(field: TextField) -> Self {
         Self::Text(field)
+    }
+}
+
+impl From<ArrayField> for QueryField {
+    fn from(field: ArrayField) -> Self {
+        Self::Array(field)
     }
 }

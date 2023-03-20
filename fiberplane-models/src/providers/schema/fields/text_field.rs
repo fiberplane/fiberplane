@@ -6,7 +6,7 @@ use typed_builder::TypedBuilder;
 /// Defines a free-form text entry field.
 ///
 /// This is commonly used for filter text and query entry.
-#[derive(Debug, Default, Deserialize, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, TypedBuilder, PartialEq)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
