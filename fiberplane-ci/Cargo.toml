@@ -13,7 +13,7 @@ publish = false
 [dependencies]
 anyhow = "1"
 async-trait = "0.1"
-clap = { version = "4", features = ["derive"] }
+clap = { version = "4", features = ["derive", "env"] }
 duct = "0.13"
 octocrab = { version = "0.18", default-features = false, features = ["rustls"] }
 reqwest = { version = "0.11", default-features = false, features = [
@@ -22,6 +22,7 @@ reqwest = { version = "0.11", default-features = false, features = [
     "multipart",
     "rustls-tls",
 ] }
+secrecy = { version = "0.8.0", features = ["serde", "bytes"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 taplo = "0.12"
