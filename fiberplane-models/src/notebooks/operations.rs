@@ -111,7 +111,7 @@ pub struct ReplaceCellsOperation {
     /// is replaced with the text given in the first of the `new_cells`.
     ///
     /// If `None`, no cell is split.
-    #[builder(default)]
+    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub split_offset: Option<u32>,
 
@@ -123,7 +123,7 @@ pub struct ReplaceCellsOperation {
     /// merge offset.
     ///
     /// If `None`, no cells are merged.
-    #[builder(default)]
+    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub merge_offset: Option<u32>,
 
@@ -235,7 +235,7 @@ pub struct ReplaceTextOperation {
     pub cell_id: String,
 
     /// Field to update the text of.
-    #[builder(default, setter(into))]
+    #[builder(default, setter(into, strip_option))]
     pub field: Option<String>,
 
     /// Starting offset where we will be replacing the text.
@@ -251,7 +251,7 @@ pub struct ReplaceTextOperation {
     /// Optional formatting that we wish to apply to the new text.
     ///
     /// Offsets in the formatting are relative to the start of the new text.
-    #[builder(default)]
+    #[builder(default, setter(strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub new_formatting: Option<Formatting>,
 
@@ -265,7 +265,7 @@ pub struct ReplaceTextOperation {
     /// old text's boundaries.
     ///
     /// Offsets in the formatting are relative to the start of the old text.
-    #[builder(default)]
+    #[builder(default, setter(strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub old_formatting: Option<Formatting>,
 }
