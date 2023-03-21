@@ -1,13 +1,12 @@
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
-use typed_builder::TypedBuilder;
 
 /// Defines a field that allows selection from a predefined list of options.
 ///
 /// Values to be selected from can be either hard-coded in the schema, or
 /// (only for query forms) fetched on-demand the same way as auto-suggestions.
-#[derive(Debug, Default, Deserialize, Serialize, TypedBuilder)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),

@@ -1,8 +1,7 @@
 use super::*;
-use fiberplane_models::formatting::Annotation::Timestamp;
 use fiberplane_models::formatting::{Annotation, AnnotationWithOffset, Formatting, Mention};
 use fiberplane_models::notebooks::*;
-use time::OffsetDateTime;
+use fiberplane_models::timestamps::Timestamp;
 
 #[test]
 fn title() {
@@ -94,8 +93,8 @@ fn timestamps() {
         "Some 2020-01-01T00:00:00Z timestamp".to_string(),
         vec![AnnotationWithOffset::new(
             5,
-            Timestamp {
-                timestamp: OffsetDateTime::parse("2020-01-01T00:00:00Z", &Rfc3339).unwrap(),
+            Annotation::Timestamp {
+                timestamp: Timestamp::parse("2020-01-01T00:00:00Z").unwrap(),
             },
         )],
     );

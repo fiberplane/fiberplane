@@ -20,8 +20,10 @@ use typed_builder::TypedBuilder;
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct ProviderEvent {
+    #[builder(setter(into))]
     pub time: Timestamp,
-    #[builder(default)]
+
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub end_time: Option<Timestamp>,
 
@@ -29,13 +31,14 @@ pub struct ProviderEvent {
     #[serde(flatten)]
     pub otel: OtelMetadata,
 
+    #[builder(setter(into))]
     pub title: String,
 
-    #[builder(default)]
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 
-    #[builder(default)]
+    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub severity: Option<OtelSeverityNumber>,
 
@@ -78,9 +81,11 @@ pub struct OtelMetadata {
 
     pub resource: BTreeMap<String, Value>,
 
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub trace_id: Option<OtelTraceId>,
 
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub span_id: Option<OtelSpanId>,
 }
@@ -107,11 +112,23 @@ pub struct OtelSeverityNumber(pub u8);
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct OtelSpanId(pub [u8; 8]);
+pub struct OtelSpanId([u8; 8]);
 
 impl OtelSpanId {
+    /// Creates a new span ID from the raw data.
     pub fn new(data: [u8; 8]) -> Self {
         Self(data)
+    }
+
+    /// Returns the raw bytes of the span ID.
+    pub fn raw(&self) -> &[u8; 8] {
+        &self.0
+    }
+}
+
+impl From<[u8; 8]> for OtelSpanId {
+    fn from(value: [u8; 8]) -> Self {
+        Self::new(value)
     }
 }
 
@@ -125,11 +142,23 @@ impl OtelSpanId {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct OtelTraceId(pub [u8; 16]);
+pub struct OtelTraceId([u8; 16]);
 
 impl OtelTraceId {
+    /// Creates a new trace ID from the raw data.
     pub fn new(data: [u8; 16]) -> Self {
         Self(data)
+    }
+
+    /// Returns the raw bytes of the trace ID.
+    pub fn raw(&self) -> &[u8; 16] {
+        &self.0
+    }
+}
+
+impl From<[u8; 16]> for OtelTraceId {
+    fn from(value: [u8; 16]) -> Self {
+        Self::new(value)
     }
 }
 
@@ -161,9 +190,15 @@ pub struct Timeline {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct Timeseries {
+    #[builder(setter(into))]
     pub name: String,
+
+    #[builder(default, setter(into))]
     pub labels: BTreeMap<String, String>,
+
+    #[builder(default)]
     pub metrics: Vec<Metric>,
+
     #[serde(flatten)]
     pub otel: OtelMetadata,
 

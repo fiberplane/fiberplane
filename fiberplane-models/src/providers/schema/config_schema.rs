@@ -1,8 +1,7 @@
+use super::fields::*;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
-
-use super::fields::*;
 
 /// Defines the fields that should be included in a provider's config.
 ///

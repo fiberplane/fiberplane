@@ -3,12 +3,12 @@ use bytes::Bytes;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::fmt::{self, Debug, Formatter};
 use typed_builder::TypedBuilder;
 
 /// HTTP request options.
-#[derive(Clone, Debug, Deserialize, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -18,11 +18,72 @@ use typed_builder::TypedBuilder;
 #[serde(rename_all = "camelCase")]
 pub struct HttpRequest {
     pub url: String,
+
     pub method: HttpRequestMethod,
+
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub headers: Option<HashMap<String, String>>,
+    pub headers: Option<BTreeMap<String, String>>,
+
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub body: Option<Bytes>,
+}
+
+impl HttpRequest {
+    /// Returns a new DELETE request to the given URL.
+    pub fn delete(url: impl Into<String>) -> Self {
+        Self {
+            url: url.into(),
+            method: HttpRequestMethod::Delete,
+            ..Default::default()
+        }
+    }
+
+    /// Returns a new GET request to the given URL.
+    pub fn get(url: impl Into<String>) -> Self {
+        Self {
+            url: url.into(),
+            method: HttpRequestMethod::Get,
+            ..Default::default()
+        }
+    }
+
+    /// Returns a new POST request to the given URL with the given body.
+    pub fn post(url: impl Into<String>, body: impl Into<Bytes>) -> Self {
+        Self {
+            url: url.into(),
+            method: HttpRequestMethod::Post,
+            body: Some(body.into()),
+            ..Default::default()
+        }
+    }
+
+    /// Returns a new PATCH request to the given URL with the given body.
+    pub fn patch(url: impl Into<String>, body: impl Into<Bytes>) -> Self {
+        Self {
+            url: url.into(),
+            method: HttpRequestMethod::Patch,
+            body: Some(body.into()),
+            ..Default::default()
+        }
+    }
+
+    /// Returns a new PUT request to the given URL with the given body.
+    pub fn put(url: impl Into<String>, body: impl Into<Bytes>) -> Self {
+        Self {
+            url: url.into(),
+            method: HttpRequestMethod::Put,
+            body: Some(body.into()),
+            ..Default::default()
+        }
+    }
+
+    /// Adds the given headers to the request.
+    pub fn with_headers(self, headers: impl Into<BTreeMap<String, String>>) -> Self {
+        Self {
+            headers: Some(headers.into()),
+            ..self
+        }
+    }
 }
 
 /// Possible errors that may happen during an HTTP request.
@@ -76,7 +137,7 @@ impl Debug for HttpRequestError {
 /// HTTP request method.
 // Note: we use SCREAMING_SNAKE_CASE here because this is
 // effectively a constant
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -86,9 +147,13 @@ impl Debug for HttpRequestError {
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum HttpRequestMethod {
     Delete,
+    #[default]
     Get,
     Head,
+    Options,
+    Patch,
     Post,
+    Put,
 }
 
 /// Response to an HTTP request.
@@ -101,8 +166,12 @@ pub enum HttpRequestMethod {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct HttpResponse {
+    #[builder(setter(into))]
     pub body: Bytes,
-    pub headers: HashMap<String, String>,
+
+    #[builder(setter(into))]
+    pub headers: BTreeMap<String, String>,
+
     pub status_code: u16,
 }
 

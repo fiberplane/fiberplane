@@ -18,10 +18,7 @@ fn mustache_substitution_with_formatting() {
                 ])
                 .build(),
         )])
-        .selected_data_sources(Default::default())
-        .time_range(NewTimeRange::Relative(
-            RelativeTimeRange::builder().minutes(-60).build(),
-        ))
+        .time_range(NewTimeRange::Relative(RelativeTimeRange::from_minutes(-60)))
         .build();
     let template = notebook_to_template(notebook);
     assert!(template.contains("fmt.bold([personName, ', great to have you'])"),);

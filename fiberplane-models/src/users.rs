@@ -16,31 +16,20 @@ use typed_builder::TypedBuilder;
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct Profile {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
-    pub email: String,
-    pub name: String,
-    pub default_workspace_id: Base64Uuid,
-    pub default_workspace_name: Name,
-    pub roles: HashMap<Base64Uuid, AuthRole>,
-}
 
-impl Profile {
-    pub fn new(
-        id: Base64Uuid,
-        email: String,
-        name: String,
-        default_workspace_id: Base64Uuid,
-        default_workspace_name: Name,
-        roles: Option<HashMap<Base64Uuid, AuthRole>>,
-    ) -> Self {
-        let roles = roles.unwrap_or_default();
-        Self {
-            id,
-            email,
-            name,
-            default_workspace_id,
-            default_workspace_name,
-            roles,
-        }
-    }
+    #[builder(setter(into))]
+    pub email: String,
+
+    #[builder(setter(into))]
+    pub name: String,
+
+    #[builder(setter(into))]
+    pub default_workspace_id: Base64Uuid,
+
+    pub default_workspace_name: Name,
+
+    #[builder(default, setter(into))]
+    pub roles: HashMap<Base64Uuid, AuthRole>,
 }

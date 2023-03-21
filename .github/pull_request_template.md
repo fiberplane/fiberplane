@@ -13,15 +13,17 @@ indicate they don't apply.
 
 - [ ] The changes have been tested to be backwards compatible.
 - [ ] The OpenAPI schema and generated client have been updated.
-- [ ] New models module has been added to API generator script
-- [ ] PR for API is ready and reviewed: (please link)
-- [ ] PR for Studio is ready and reviewed: (please link)
-- [ ] PR for CLI is ready and reviewed: (please link)
-- [ ] PR for FPD is ready and reviewed: (please link)
-- [ ] The CHANGELOG(s) are updated.
+- [ ] New models module has been added to API generator script.
+- [ ] New types/fields are well-documented and annotated.
+- [ ] The CHANGELOG is updated.
 
-When adding new operation types:
+> Please link any related PRs in other repositories that depend on this:
 
-- [ ] PR for fiberplane-ot is ready and reviewed: (please link)
+<!-- * API: https://github.com/fiberplane/api/pull/XXX -->
+<!-- * Studio: https://github.com/fiberplane/studio/pull/XXX  -->
+<!-- * Providers: https://github.com/fiberplane/providers/pull/XXX -->
+<!-- * Daemon: https://github.com/fiberplane/fpd/pull/XXX -->
+<!-- * FP: https://github.com/fiberplane/fp/pull/XXX -->
+<!-- * OT: https://github.com/fiberplane/fiberplane-ot/pull/XXX -->
 
 After merging, please merge related PRs ASAP, so others don't get blocked.

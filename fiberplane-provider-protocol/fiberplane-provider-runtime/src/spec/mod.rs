@@ -1,6 +1,6 @@
 use rand::Rng;
 use reqwest::{Client, Url};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::time::{Duration, SystemTime};
 use tracing::{debug, error, instrument, trace};
 
@@ -72,7 +72,7 @@ pub async fn make_http_request(req: HttpRequest) -> Result<HttpResponse, HttpReq
     );
 
     let status_code = response.status().as_u16();
-    let mut headers = HashMap::new();
+    let mut headers = BTreeMap::new();
     for (key, value) in response.headers().iter() {
         if let Ok(value) = value.to_str() {
             headers.insert(key.to_string(), value.to_owned());
@@ -95,7 +95,7 @@ pub async fn make_http_request(req: HttpRequest) -> Result<HttpResponse, HttpReq
     match status_code {
         _ if body.len() > MAX_HTTP_RESPONSE_SIZE => Err(HttpRequestError::ResponseTooBig),
         200..=299 => Ok(HttpResponse::builder()
-            .body(body.into())
+            .body(body)
             .headers(headers)
             .status_code(status_code)
             .build()),

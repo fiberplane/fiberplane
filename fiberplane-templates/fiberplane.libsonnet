@@ -650,7 +650,6 @@ local cell = {
   local provider = function(intent='', title='', queryData=null, readOnly=null) {
     type: 'provider',
     output: [],
-    title: validate.string('title', title),
     intent: validate.string('intent', intent),
     queryData: validate.nullOr.string('queryData', queryData),
     readOnly: validate.nullOr.boolean('readOnly', readOnly),
@@ -661,7 +660,7 @@ local cell = {
     *
     * @function cell.provider
     * @param {string} intent - The intent of the new provider cell
-    * @param {string} title - Title for the new provider cell
+    * @param {string} title - Title for the new provider cell (deprecated)
     * @param {string} queryData - Query data that the provider will understand
     * @param {boolean} readOnly=false - Whether the cell is locked
    */

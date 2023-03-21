@@ -1,4 +1,4 @@
-use crate::formatting::Formatting;
+use crate::{formatting::Formatting, timestamps::Timestamp};
 use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
@@ -15,15 +15,19 @@ use typed_builder::TypedBuilder;
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct Thread {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
     #[builder(default)]
     pub items: Vec<ThreadItem>,
     pub status: ThreadStatus,
     pub created_by: UserSummary,
-    #[serde(with = "time::serde::rfc3339")]
-    pub created_at: OffsetDateTime,
-    #[serde(with = "time::serde::rfc3339")]
-    pub updated_at: OffsetDateTime,
+
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+
+    #[builder(setter(into))]
+    pub updated_at: Timestamp,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize)]
@@ -48,18 +52,28 @@ pub enum ThreadStatus {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct ThreadSummary {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
     pub item_count: u32,
+
+    #[builder(default, setter(strip_option))]
     pub first_item: Option<ThreadItem>,
+
     /// These are sorted in chronological order so the last one is the most recent.
+    #[builder(default)]
     #[serde(default)]
     pub recent_items: Vec<ThreadItem>,
+
     pub status: ThreadStatus,
+
     pub created_by: UserSummary,
-    #[serde(with = "time::serde::rfc3339")]
-    pub created_at: OffsetDateTime,
-    #[serde(with = "time::serde::rfc3339")]
-    pub updated_at: OffsetDateTime,
+
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+
+    #[builder(setter(into))]
+    pub updated_at: Timestamp,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
@@ -103,11 +117,15 @@ impl ThreadItem {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct ThreadStatusChange {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
     pub status: ThreadStatus,
+
     pub created_by: UserSummary,
-    #[serde(with = "time::serde::rfc3339")]
-    pub created_at: OffsetDateTime,
+
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -119,13 +137,17 @@ pub struct ThreadStatusChange {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct CommentDelete {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
     pub created_by: UserSummary,
-    /// Timestamp when the original comment was created
-    #[serde(with = "time::serde::rfc3339")]
-    pub created_at: OffsetDateTime,
-    #[serde(with = "time::serde::rfc3339")]
-    pub deleted_at: OffsetDateTime,
+
+    /// Timestamp when the original comment was created.
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+
+    #[builder(setter(into))]
+    pub deleted_at: Timestamp,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -137,18 +159,22 @@ pub struct CommentDelete {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct Comment {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
     pub created_by: UserSummary,
+
     #[builder(setter(into))]
     pub content: String, // limit of 2048 characters
+
     #[builder(default)]
     pub formatting: Formatting,
+
     #[builder(setter(into))]
-    #[serde(with = "time::serde::rfc3339")]
-    pub created_at: OffsetDateTime,
+    pub created_at: Timestamp,
+
     #[builder(setter(into))]
-    #[serde(with = "time::serde::rfc3339")]
-    pub updated_at: OffsetDateTime,
+    pub updated_at: Timestamp,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -162,6 +188,7 @@ pub struct Comment {
 pub struct UserSummary {
     #[builder(setter(into))]
     pub id: String,
+
     #[builder(setter(into))]
     pub name: String,
 }
@@ -177,8 +204,10 @@ pub struct UserSummary {
 pub struct NewComment {
     #[builder(default, setter(into, strip_option))]
     pub id: Option<Base64Uuid>,
+
     #[builder(setter(into))]
     pub content: String,
+
     #[builder(default)]
     #[serde(default)]
     pub formatting: Formatting,
@@ -195,6 +224,7 @@ pub struct NewComment {
 pub struct UpdateComment {
     #[builder(setter(into))]
     pub content: String,
+
     #[builder(default)]
     #[serde(default)]
     pub formatting: Formatting,
@@ -209,10 +239,12 @@ pub struct UpdateComment {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct NewThread {
-    #[builder(default, setter(strip_option))]
+    #[builder(default, setter(into, strip_option))]
     pub id: Option<Base64Uuid>,
-    #[builder(default, setter(strip_option))]
+
+    #[builder(default, setter(into, strip_option))]
     pub referenced_cell_id: Option<Base64Uuid>,
+
     #[builder(default, setter(strip_option))]
     pub comment: Option<NewComment>,
 }

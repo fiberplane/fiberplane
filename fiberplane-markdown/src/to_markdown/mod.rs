@@ -125,12 +125,6 @@ impl<'a> NotebookConverter<'a> {
                     self.end_all_lists();
                 }
                 Cell::Provider(cell) => {
-                    if !cell.title.is_empty() {
-                        self.events.push(Start(Tag::Paragraph));
-                        self.convert_formatted_text(cell.title, cell.formatting);
-                        self.events.push(End(Tag::Paragraph));
-                    }
-
                     if let Some(output) = cell.output {
                         self.convert_cells(output);
                     }

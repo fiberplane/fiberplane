@@ -10,9 +10,9 @@ use std::{
 use time::{
     ext::NumericalDuration, format_description::well_known::Rfc3339, Duration, OffsetDateTime,
 };
-use typed_builder::TypedBuilder;
 
-/// A range in time from a given timestamp (inclusive) up to another timestamp (exclusive).
+/// A range in time from a given timestamp (inclusive) up to another timestamp
+/// (exclusive).
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
@@ -22,6 +22,17 @@ use typed_builder::TypedBuilder;
 pub struct TimeRange {
     pub from: Timestamp,
     pub to: Timestamp,
+}
+
+impl TimeRange {
+    /// Creates a new time range from a start timestamp (inclusive) to an end
+    /// timestamp (exclusive).
+    pub fn new(start: Timestamp, end: Timestamp) -> Self {
+        Self {
+            from: start,
+            to: end,
+        }
+    }
 }
 
 impl From<NewTimeRange> for TimeRange {
@@ -54,11 +65,18 @@ impl From<NewTimeRange> for TimeRange {
 )]
 pub struct Timestamp(#[serde(with = "time::serde::rfc3339")] pub OffsetDateTime);
 
+impl Timestamp {
+    /// Parses an RFC 3339-formatted string into a timestamp.
+    pub fn parse(string: &str) -> Result<Self, time::Error> {
+        Ok(Self(OffsetDateTime::parse(string, &Rfc3339)?))
+    }
+}
+
 impl FromStr for Timestamp {
     type Err = time::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(OffsetDateTime::parse(s, &Rfc3339)?))
+        Self::parse(s)
     }
 }
 
@@ -129,7 +147,7 @@ impl From<TimeRange> for NewTimeRange {
 ///
 /// Relative time ranges are expanded to absolute time ranges upon instantiation
 /// of a notebook.
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize, TypedBuilder)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),

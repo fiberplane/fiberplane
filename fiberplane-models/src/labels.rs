@@ -3,14 +3,13 @@ use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display, Formatter};
 use thiserror::Error;
-use typed_builder::TypedBuilder;
 
 const MAX_LABEL_VALUE_LENGTH: usize = 63;
 const MAX_LABEL_NAME_LENGTH: usize = 63;
 const MAX_LABEL_PREFIX_LENGTH: usize = 253;
 
 /// Labels that are associated with a Notebook.
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),

@@ -77,8 +77,10 @@ pub struct Notebook {
 pub struct NewNotebook {
     #[builder(setter(into))]
     pub title: String,
+
     #[builder(default)]
     pub cells: Vec<Cell>,
+
     #[builder(setter(into))]
     pub time_range: NewTimeRange,
 
@@ -150,7 +152,7 @@ pub struct TriggerSummary {
     pub updated_at: Timestamp,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize, Display)]
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Deserialize, Serialize, Display)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -159,14 +161,9 @@ pub struct TriggerSummary {
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 pub enum NotebookVisibility {
+    #[default]
     Private,
     Public,
-}
-
-impl Default for NotebookVisibility {
-    fn default() -> Self {
-        Self::Private
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize, TypedBuilder)]

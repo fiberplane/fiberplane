@@ -43,7 +43,7 @@ pub fn notebook_to_template(notebook: impl Into<NewNotebook>) -> String {
     // Add all of the variables from the title and content of the notebook
     let template_function_parameters = parse_template_function_parameters(
         &notebook.title,
-        notebook.cells.iter().flat_map(|cell| cell.content()),
+        notebook.cells.iter().flat_map(Cell::content),
     );
     // If there aren't any parameters, add the title as an example of how to use template parameters
     let include_title_as_parameter = template_function_parameters.is_empty();
@@ -221,7 +221,6 @@ fn print_cell(writer: &mut CodeWriter, cell: &Cell) {
                 "loki,events",
             ];
 
-            args.push(("title", escape_string(&cell.title)));
             let cell_type = match cell.intent.as_str() {
                 intent if INTENTS_WITH_TEMPLATES_HELPERS.contains(&intent) => {
                     if let Some(query) = decode_provider_cell_query_data(&cell.query_data) {

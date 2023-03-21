@@ -62,12 +62,12 @@ impl Cell {
             | Cell::Graph(_)
             | Cell::Image(_)
             | Cell::Log(_)
+            | Cell::Provider(_)
             | Cell::Table(_)
             | Cell::Timeline(_) => None,
             Cell::Checkbox(cell) => Some(&cell.formatting),
             Cell::Heading(cell) => Some(&cell.formatting),
             Cell::ListItem(cell) => Some(&cell.formatting),
-            Cell::Provider(cell) => Some(&cell.formatting),
             Cell::Text(cell) => Some(&cell.formatting),
         }
     }
@@ -111,10 +111,7 @@ impl Cell {
 
     /// Returns the cell's text, if any.
     pub fn text(&self) -> Option<&str> {
-        match self {
-            Cell::Provider(cell) => Some(&cell.title),
-            cell => cell.content(),
-        }
+        self.content()
     }
 
     /// Returns a copy of the cell with a new ID.
@@ -210,16 +207,7 @@ impl Cell {
                 ..*cell
             }),
             Cell::Log(cell) => Cell::Log(cell.clone()),
-            Cell::Provider(cell) => Cell::Provider(ProviderCell {
-                id: cell.id.clone(),
-                formatting: Formatting::default(),
-                intent: cell.intent.clone(),
-                output: cell.output.clone(),
-                query_data: cell.query_data.clone(),
-                read_only: cell.read_only,
-                response: cell.response.clone(),
-                title: text.to_owned(),
-            }),
+            Cell::Provider(cell) => Cell::Provider(cell.clone()),
             Cell::Table(cell) => Cell::Table(cell.clone()),
             Cell::Text(cell) => Cell::Text(TextCell {
                 id: cell.id.clone(),
@@ -267,16 +255,6 @@ impl Cell {
                 formatting,
                 ..*cell
             }),
-            Cell::Provider(cell) => Cell::Provider(ProviderCell {
-                id: cell.id.clone(),
-                formatting,
-                intent: cell.intent.clone(),
-                output: cell.output.clone(),
-                query_data: cell.query_data.clone(),
-                read_only: cell.read_only,
-                response: cell.response.clone(),
-                title: text.to_owned(),
-            }),
             Cell::Text(cell) => Cell::Text(TextCell {
                 id: cell.id.clone(),
                 content: text.to_owned(),
@@ -288,6 +266,7 @@ impl Cell {
             | Cell::Divider(_)
             | Cell::Graph(_)
             | Cell::Image(_)
+            | Cell::Provider(_)
             | Cell::Table(_)
             | Cell::Timeline(_) => self.with_text(text),
         }
@@ -348,7 +327,6 @@ impl Cell {
             Cell::Checkbox(cell) => Some(&mut cell.formatting),
             Cell::Heading(cell) => Some(&mut cell.formatting),
             Cell::ListItem(cell) => Some(&mut cell.formatting),
-            Cell::Provider(cell) => Some(&mut cell.formatting),
             Cell::Text(cell) => Some(&mut cell.formatting),
             Cell::Code(_)
             | Cell::Discussion(_)
@@ -356,6 +334,7 @@ impl Cell {
             | Cell::Graph(_)
             | Cell::Image(_)
             | Cell::Log(_)
+            | Cell::Provider(_)
             | Cell::Table(_)
             | Cell::Timeline(_) => None,
         }
@@ -373,7 +352,7 @@ impl Cell {
             Cell::Heading(cell) => Some(&mut cell.content),
             Cell::ListItem(cell) => Some(&mut cell.content),
             Cell::Log(_) => None,
-            Cell::Provider(cell) => Some(&mut cell.title),
+            Cell::Provider(_) => None,
             Cell::Table(_) => None,
             Cell::Text(cell) => Some(&mut cell.content),
             Cell::Timeline(_) => None,
@@ -411,19 +390,24 @@ impl Cell {
 pub struct CheckboxCell {
     #[builder(default, setter(into))]
     pub id: String,
+
     #[builder(default)]
     pub checked: bool,
+
     #[builder(default, setter(into))]
     pub content: String,
+
     /// Optional formatting to be applied to the cell's content.
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Formatting::is_empty")]
     pub formatting: Formatting,
+
     #[builder(default, setter(strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub level: Option<u8>,
+
     #[builder(default, setter(strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub read_only: Option<bool>,
 }
 
@@ -438,14 +422,17 @@ pub struct CheckboxCell {
 pub struct CodeCell {
     #[builder(default, setter(into))]
     pub id: String,
-    #[builder(setter(into))]
+
+    #[builder(default, setter(into))]
     pub content: String,
+
     #[builder(default, setter(strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub read_only: Option<bool>,
+
     /// Optional MIME type to use for syntax highlighting.
-    #[builder(default, setter(strip_option, into))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[builder(default, setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub syntax: Option<String>,
 }
 
@@ -458,11 +445,11 @@ pub struct CodeCell {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct DividerCell {
-    #[builder(setter(into))]
+    #[builder(default, setter(into))]
     pub id: String,
 
     #[builder(default, setter(strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub read_only: Option<bool>,
 }
 
@@ -475,7 +462,7 @@ pub struct DividerCell {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct GraphCell {
-    #[builder(setter(into))]
+    #[builder(default, setter(into))]
     pub id: String,
 
     /// Links to the data to render in the graph.
@@ -486,7 +473,7 @@ pub struct GraphCell {
     pub graph_type: GraphType,
 
     #[builder(default, setter(strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub read_only: Option<bool>,
 
     #[builder(default)]
@@ -504,13 +491,17 @@ pub struct GraphCell {
 pub struct HeadingCell {
     #[builder(default, setter(into))]
     pub id: String,
+
     pub heading_type: HeadingType,
+
     #[builder(default, setter(into))]
     pub content: String,
+
     /// Optional formatting to be applied to the cell's content.
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Formatting::is_empty")]
     pub formatting: Formatting,
+
     #[builder(default, setter(strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub read_only: Option<bool>,
@@ -525,7 +516,7 @@ pub struct HeadingCell {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct LogCell {
-    #[builder(setter(into))]
+    #[builder(default, setter(into))]
     pub id: String,
 
     /// Links to the data to render in the log.
@@ -605,20 +596,26 @@ pub struct LogRecordIndex {
 pub struct ListItemCell {
     #[builder(default, setter(into))]
     pub id: String,
+
     #[builder(default, setter(into))]
     pub content: String,
+
     /// Optional formatting to be applied to the cell's content.
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Formatting::is_empty")]
     pub formatting: Formatting,
+
     #[builder(default)]
     pub list_type: ListType,
+
     #[builder(default, setter(strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub level: Option<u8>,
+
     #[builder(default, setter(strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub read_only: Option<bool>,
+
     #[builder(default, setter(strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub start_number: Option<u16>,
@@ -633,7 +630,7 @@ pub struct ListItemCell {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct ProviderCell {
-    #[builder(setter(into))]
+    #[builder(default, setter(into))]
     pub id: String,
 
     /// The intent served by this provider cell.
@@ -648,7 +645,7 @@ pub struct ProviderCell {
     ///
     /// Note: The format follows the specification for data URLs, without the
     ///       `data:` prefix. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URLs
-    #[builder(default, setter(strip_option, into))]
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub query_data: Option<String>,
 
@@ -661,16 +658,6 @@ pub struct ProviderCell {
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub output: Option<Vec<Cell>>,
-
-    /// Optional title to assign the cell.
-    #[builder(default, setter(into))]
-    #[serde(default)]
-    pub title: String,
-
-    /// Optional formatting to apply to the title.
-    #[builder(default)]
-    #[serde(default, skip_serializing_if = "Formatting::is_empty")]
-    pub formatting: Formatting,
 
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -771,12 +758,15 @@ pub enum TableCellValue {
 pub struct TextCell {
     #[builder(default, setter(into))]
     pub id: String,
+
     #[builder(default, setter(into))]
     pub content: String,
+
     /// Optional formatting to be applied to the cell's content.
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Formatting::is_empty")]
     pub formatting: Formatting,
+
     #[builder(default, setter(strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub read_only: Option<bool>,
@@ -790,6 +780,7 @@ pub struct TextCell {
 )]
 #[serde(rename_all = "camelCase")]
 pub struct TimelineCell {
+    #[builder(default, setter(into))]
     pub id: String,
 
     /// Links to the data to render in the timeline.
@@ -815,7 +806,7 @@ pub struct ImageCell {
     pub id: String,
 
     // Refers to the id for a file (used to retrieve the file)
-    #[builder(default, setter(strip_option, into))]
+    #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub file_id: Option<String>,
 
@@ -826,6 +817,7 @@ pub struct ImageCell {
     #[builder(default, setter(strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub progress: Option<f64>,
+
     #[builder(default, setter(strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub read_only: Option<bool>,
@@ -833,19 +825,20 @@ pub struct ImageCell {
     #[builder(default, setter(strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub width: Option<i32>,
+
     #[builder(default, setter(strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub height: Option<i32>,
 
     /// Will contain a hash to show as a preview for the image
-    #[builder(default, setter(strip_option, into))]
+    #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preview: Option<String>,
 
     /// URL of the image if it was originally hosted on a remote server.
     /// This will not be set if the image was uploaded through the
     /// Fiberplane Studio.
-    #[builder(default, setter(strip_option, into))]
+    #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
@@ -861,8 +854,10 @@ pub struct ImageCell {
 pub struct DiscussionCell {
     #[builder(default, setter(into))]
     pub id: String,
+
     #[builder(default, setter(into))]
     pub thread_id: String,
+
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub read_only: Option<bool>,
