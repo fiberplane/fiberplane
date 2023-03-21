@@ -309,7 +309,7 @@ impl AckMessage {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -319,16 +319,29 @@ impl AckMessage {
 #[serde(rename_all = "camelCase")]
 pub struct ErrMessage {
     /// Error message.
-    #[builder(setter(into))]
     pub error_message: String,
 
     /// Operation ID.
     ///
-    /// Only messages with an operation ID will receive an `Ack` from the
-    /// server.
-    #[builder(default, setter(into, strip_option))]
+    /// This will match the operation ID of the client message that triggered
+    /// the error.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
+}
+
+impl ErrMessage {
+    /// Creates a new error with the given message.
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            error_message: message.into(),
+            op_id: None,
+        }
+    }
+
+    /// Assigns the optional operation ID to the message.
+    pub fn with_optional_op_id(self, op_id: Option<String>) -> Self {
+        Self { op_id, ..self }
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
