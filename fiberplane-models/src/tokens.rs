@@ -24,7 +24,7 @@ pub struct TokenSummary {
     #[builder(setter(into))]
     pub created_at: Timestamp,
 
-    #[builder(setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub expires_at: Option<Timestamp>,
 }
@@ -70,7 +70,7 @@ pub struct Token {
     #[builder(setter(into))]
     pub created_at: Timestamp,
 
-    #[builder(setter(into, strip_option))]
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub expires_at: Option<Timestamp>,
 }
