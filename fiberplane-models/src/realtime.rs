@@ -251,22 +251,6 @@ pub struct ApplyOperationMessage {
     pub op_id: Option<String>,
 }
 
-impl ApplyOperationMessage {
-    pub fn new(
-        notebook_id: String,
-        operation: Operation,
-        revision: u32,
-        op_id: Option<String>,
-    ) -> Self {
-        Self {
-            notebook_id,
-            operation,
-            revision,
-            op_id,
-        }
-    }
-}
-
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
@@ -299,22 +283,6 @@ pub struct ApplyOperationBatchMessage {
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
-}
-
-impl ApplyOperationBatchMessage {
-    pub fn new(
-        notebook_id: String,
-        operations: Vec<Operation>,
-        revision: u32,
-        op_id: Option<String>,
-    ) -> Self {
-        Self {
-            notebook_id,
-            operations,
-            revision,
-            op_id,
-        }
-    }
 }
 
 /// Acknowledgement that the server has received and successfully processed an
