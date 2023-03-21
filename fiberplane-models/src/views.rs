@@ -78,7 +78,7 @@ pub struct NewView {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub display_name: Option<String>,
 
-    #[builder(setter(into))]
+    #[builder(default, setter(into))]
     pub description: String,
 
     #[builder(default)]
@@ -87,13 +87,15 @@ pub struct NewView {
     #[builder(default)]
     pub labels: Vec<Label>,
 
-    #[builder(default)]
+    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub relative_time: Option<RelativeTime>,
-    #[builder(default)]
+
+    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sort_by: Option<NotebookSortFields>,
-    #[builder(default)]
+
+    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sort_direction: Option<SortDirection>,
 }
