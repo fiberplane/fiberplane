@@ -47,16 +47,16 @@ pub struct ArrayField {
     /// ### Serialization
     ///
     /// For example if an array field has this `element_schema`:
-    /// ```rust,no_compile
-    /// ArrayField {
-    ///   name: "table".to_string(),
-    ///   element_schema: vec![
-    ///     TextField::new().with_name("key"),
-    ///     SelectField::new().with_name("operator").with_options(&["<", ">", "<=", ">=", "=="]),
-    ///     IntegerField::new().with_name("value"),
-    ///   ],
-    /// ..Default::default()
-    /// }
+    /// ```rust,no_run
+    /// # use fiberplane_models::providers::{ArrayField, TextField, SelectField, IntegerField};
+    /// ArrayField::builder()
+    ///   .name("table".to_string())
+    ///   .label("example".to_string())
+    ///   .element_schema(vec![
+    ///     TextField::new().with_name("key").into(),
+    ///     SelectField::new().with_name("operator").with_options(&["<", ">", "<=", ">=", "=="]).into(),
+    ///     IntegerField::new().with_name("value").into(),
+    ///   ]).build();
     /// ```
     ///
     /// Then the URL-encoded serialization for the fields is expected to look like this
@@ -72,7 +72,10 @@ pub struct ArrayField {
     ///
     /// Note that we are allowed to skip indices, this serialization is expected to
     /// be read as:
-    /// ```rust,no_compile
+    /// ```rust,no_run
+    /// # #[derive(Debug, PartialEq)]
+    /// # struct Row { key: String, operator: String, value: u32 }
+    /// # let table: Vec<Row> = vec![];
     /// assert_eq!(table, vec![
     ///   Row {
     ///     key: "less than".to_string(),
@@ -84,7 +87,7 @@ pub struct ArrayField {
     ///     operator: ">".to_string(),
     ///     value: 10,
     ///   },
-    /// ])
+    /// ]);
     /// ```
     ///
     /// ### Required row fields
