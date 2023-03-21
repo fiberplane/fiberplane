@@ -63,7 +63,7 @@ impl From<NewTimeRange> for TimeRange {
     derive(Serializable),
     fp(rust_module = "fiberplane_models::timestamps")
 )]
-pub struct Timestamp(#[serde(with = "time::serde::rfc3339")] pub OffsetDateTime);
+pub struct Timestamp(#[serde(with = "time::serde::rfc3339")] OffsetDateTime);
 
 impl Timestamp {
     /// Parses an RFC 3339-formatted string into a timestamp.
