@@ -294,7 +294,10 @@ pub struct UpdateNotebookTimeRangeOperation {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateNotebookTitleOperation {
+    #[builder(default, setter(into))]
     pub old_title: String,
+
+    #[builder(default, setter(into))]
     pub title: String,
 }
 
@@ -309,9 +312,11 @@ pub struct UpdateNotebookTitleOperation {
 pub struct SetSelectedDataSourceOperation {
     #[builder(setter(into))]
     pub provider_type: String,
+
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub old_selected_data_source: Option<SelectedDataSource>,
+
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub new_selected_data_source: Option<SelectedDataSource>,
@@ -430,6 +435,7 @@ pub struct ClearFrontMatterOperation {
 pub struct CellAppendText {
     #[builder(setter(into))]
     pub content: String,
+
     #[builder(default)]
     #[serde(default)]
     pub formatting: Formatting,
@@ -451,18 +457,18 @@ pub struct CellReplaceText {
     pub offset: u32,
 
     /// The new text value we're inserting.
-    #[builder(setter(into))]
+    #[builder(default, setter(into))]
     pub new_text: String,
 
     /// Optional formatting that we wish to apply to the new text.
     ///
     /// Offsets in the formatting are relative to the start of the new text.
-    #[builder(default, setter(into))]
+    #[builder(default)]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub new_formatting: Option<Formatting>,
 
     /// The old text that we're replacing.
-    #[builder(setter(into))]
+    #[builder(default, setter(into))]
     pub old_text: String,
 
     /// Optional formatting that was applied to the old text. This should be **all** the formatting
@@ -471,7 +477,7 @@ pub struct CellReplaceText {
     /// old text's boundaries.
     ///
     /// Offsets in the formatting are relative to the start of the old text.
-    #[builder(default, setter(into))]
+    #[builder(default)]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub old_formatting: Option<Formatting>,
 }

@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use std::collections::HashMap;
 use strum_macros::Display;
-use time::OffsetDateTime;
 use typed_builder::TypedBuilder;
 use url::Url;
 
@@ -36,21 +35,32 @@ pub type FrontMatter = Map<String, Value>;
 pub struct Notebook {
     #[builder(default, setter(into))]
     pub id: String,
-    #[builder(default)]
+
+    #[builder(default, setter(into))]
     pub workspace_id: Base64Uuid,
+
     #[builder(setter(into))]
     pub created_at: Timestamp,
+
     #[builder(setter(into))]
     pub updated_at: Timestamp,
+
     pub time_range: TimeRange,
+
     #[builder(default, setter(into))]
     pub title: String,
+
     #[builder(default)]
     pub cells: Vec<Cell>,
+
     pub revision: u32,
+
+    #[builder(default)]
     pub visibility: NotebookVisibility,
+
     #[builder(default)]
     pub read_only: bool,
+
     pub created_by: CreatedBy,
 
     #[builder(default)]
@@ -145,10 +155,19 @@ impl CreatedBy {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct TriggerSummary {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
+    #[builder(setter(into))]
     pub title: String,
+
+    #[builder(setter(into))]
     pub template_id: Base64Uuid,
+
+    #[builder(setter(into))]
     pub created_at: Timestamp,
+
+    #[builder(setter(into))]
     pub updated_at: Timestamp,
 }
 
@@ -189,6 +208,8 @@ pub struct NotebookPatch {
 pub struct NotebookCopyDestination {
     #[builder(setter(into))]
     pub title: String,
+
+    #[builder(setter(into))]
     pub workspace_id: Base64Uuid,
 }
 
@@ -202,6 +223,7 @@ pub struct NotebookCopyDestination {
 #[serde(rename_all = "camelCase")]
 pub struct NewPinnedNotebook {
     /// The ID of the notebook that is being pinned.
+    #[builder(setter(into))]
     pub notebook_id: Base64Uuid,
 }
 
@@ -209,18 +231,26 @@ pub struct NewPinnedNotebook {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct Trigger {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
     #[builder(setter(into))]
     pub title: String,
+
+    #[builder(setter(into))]
     pub template_id: Base64Uuid,
+
     #[builder(default, setter(into, strip_option))]
     pub secret_key: Option<String>,
-    #[builder(default, setter(strip_option))]
+
+    #[builder(default, setter(into, strip_option))]
     pub default_arguments: Option<Map<String, Value>>,
-    #[serde(with = "time::serde::rfc3339")]
-    pub created_at: OffsetDateTime,
-    #[serde(with = "time::serde::rfc3339")]
-    pub updated_at: OffsetDateTime,
+
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+
+    #[builder(setter(into))]
+    pub updated_at: Timestamp,
 }
 
 pub type TemplateExpandPayload = Map<String, Value>;
@@ -229,8 +259,12 @@ pub type TemplateExpandPayload = Map<String, Value>;
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct TriggerInvokeResponse {
+    #[builder(setter(into))]
     pub notebook_title: String,
+
+    #[builder(setter(into))]
     pub notebook_id: Base64Uuid,
+
     pub notebook_url: Url,
 }
 
@@ -243,15 +277,26 @@ pub struct TriggerInvokeResponse {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookSummary {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
+    #[builder(setter(into))]
     pub workspace_id: Base64Uuid,
-    #[serde(with = "time::serde::rfc3339")]
-    pub created_at: OffsetDateTime,
-    #[serde(with = "time::serde::rfc3339")]
-    pub updated_at: OffsetDateTime,
+
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+
+    #[builder(setter(into))]
+    pub updated_at: Timestamp,
+
+    #[builder(setter(into))]
     pub title: String,
+
     pub visibility: NotebookVisibility,
+
     pub created_by: CreatedBy,
+
+    #[builder(default)]
     pub labels: Vec<Label>,
 }
 
@@ -265,13 +310,15 @@ pub struct NotebookSummary {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookSearch {
-    #[builder(default)]
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub labels: Option<HashMap<String, Option<String>>>,
-    #[builder(default)]
+
+    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub relative_time: Option<RelativeTime>,
-    #[builder(default)]
+
+    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub view: Option<Name>,
 }
@@ -285,13 +332,19 @@ pub struct NotebookSearch {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct TemplateSummary {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
     pub name: Name,
+
+    #[builder(default, setter(into))]
     pub description: String,
-    #[serde(with = "time::serde::rfc3339")]
-    pub created_at: OffsetDateTime,
-    #[serde(with = "time::serde::rfc3339")]
-    pub updated_at: OffsetDateTime,
+
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+
+    #[builder(setter(into))]
+    pub updated_at: Timestamp,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, TypedBuilder)]
@@ -304,8 +357,10 @@ pub struct TemplateSummary {
 #[serde(rename_all = "camelCase")]
 pub struct NewTemplate {
     pub name: Name,
-    #[builder(setter(into))]
+
+    #[builder(default, setter(into))]
     pub description: String,
+
     #[builder(setter(into))]
     pub body: String,
 }
@@ -329,9 +384,10 @@ impl NewTemplate {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateTemplate {
-    #[builder(default, setter(into))]
+    #[builder(default, setter(into, strip_option))]
     pub description: Option<String>,
-    #[builder(default, setter(into))]
+
+    #[builder(default, setter(into, strip_option))]
     pub body: Option<String>,
 }
 
@@ -341,7 +397,9 @@ pub struct UpdateTemplate {
 pub struct NewTrigger {
     #[builder(setter(into))]
     pub title: String,
+
     pub template_name: Name,
+
     #[builder(default, setter(into, strip_option))]
     pub default_arguments: Option<Map<String, Value>>,
 }
@@ -360,10 +418,12 @@ pub struct NotebookCellsAppendQuery {
     /// Append the provided cells before this cell.
     /// If the cell is not found it will return a 400. This parameter cannot
     /// be used together with `after`.
+    #[builder(default, setter(into, strip_option))]
     pub before: Option<String>,
 
     /// Append the provided cells after this cell.
     /// If the cell is not found it will return a 400. This parameter cannot
     /// be used together with `before`.
+    #[builder(default, setter(into, strip_option))]
     pub after: Option<String>,
 }
