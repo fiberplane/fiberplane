@@ -4,6 +4,7 @@ use super::providers::Error;
 use crate::blobs::Blob;
 use crate::notebooks::Cell;
 use crate::providers::{ConfigSchema, ProviderConfig, SupportedQueryType};
+use crate::timestamps::Timestamp;
 use base64uuid::{Base64Uuid, InvalidId};
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
@@ -11,7 +12,6 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{self, Debug, Formatter};
 use std::{convert::TryFrom, str::FromStr};
 use strum_macros::Display;
-use time::OffsetDateTime;
 use typed_builder::TypedBuilder;
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, TypedBuilder)]
@@ -37,10 +37,10 @@ pub struct Proxy {
     pub description: Option<String>,
 
     #[builder(setter(into))]
-    pub created_at: OffsetDateTime,
+    pub created_at: Timestamp,
 
     #[builder(setter(into))]
-    pub updated_at: OffsetDateTime,
+    pub updated_at: Timestamp,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, TypedBuilder)]

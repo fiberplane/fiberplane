@@ -9,7 +9,7 @@ use once_cell::sync::Lazy;
 use percent_encoding::percent_decode_str;
 use regex::Regex;
 use std::{collections::BTreeSet, fmt::Write};
-use time::{format_description::well_known::Rfc3339, Duration};
+use time::Duration;
 use tracing::warn;
 
 mod code_writer;
@@ -370,9 +370,7 @@ fn format_content(content: &str, formatting: &Formatting) -> String {
                 index += char_count(&mention.name) + 1;
             }
             Annotation::Timestamp { timestamp } => {
-                let formatted = timestamp
-                    .format(&Rfc3339)
-                    .expect("Invalid timestamp format");
+                let formatted = timestamp.to_string();
                 write!(output, "fmt.timestamp('{formatted}'), ")
                     .expect("Cannot write timestamp instruction");
                 index += char_count(&formatted);
