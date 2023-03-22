@@ -116,7 +116,7 @@ impl ArrayField {
         Default::default()
     }
 
-    pub fn with_label<T: Into<String>>(self, label: T) -> Self {
+    pub fn with_label(self, label: impl Into<String>) -> Self {
         Self {
             label: label.into(),
             ..self
@@ -130,7 +130,7 @@ impl ArrayField {
         }
     }
 
-    pub fn with_name<T: Into<String>>(self, name: T) -> Self {
+    pub fn with_name(self, name: impl Into<String>) -> Self {
         Self {
             name: name.into(),
             ..self
