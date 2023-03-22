@@ -30,6 +30,8 @@ changes if the major version hasn't changed.
   to a new cell type and the data it expects. (#28)
 - `fiberplane-models`: Added `EventAddedMessage`, `EventUpdatedMessage`, `EventDeletedMessage`
   messages that can be sent to studio. (#28)
+- `fiberplane-models`: Added `ArrayField` variant of `QueryField` to specify provider
+  query schemas that include rows/records of arbitrary data. (#39)
 
 ### Changed
 
