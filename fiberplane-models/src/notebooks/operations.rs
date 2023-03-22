@@ -463,7 +463,7 @@ pub struct CellReplaceText {
     /// Optional formatting that we wish to apply to the new text.
     ///
     /// Offsets in the formatting are relative to the start of the new text.
-    #[builder(default)]
+    #[builder(default, setter(strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub new_formatting: Option<Formatting>,
 
@@ -477,7 +477,7 @@ pub struct CellReplaceText {
     /// old text's boundaries.
     ///
     /// Offsets in the formatting are relative to the start of the old text.
-    #[builder(default)]
+    #[builder(default, setter(strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub old_formatting: Option<Formatting>,
 }

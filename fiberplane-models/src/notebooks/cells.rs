@@ -176,17 +176,17 @@ impl Cell {
     /// Returns a copy of the cell with its text replaced by the given text,
     /// without any formatting.
     #[must_use]
-    pub fn with_text(&self, text: &str) -> Self {
+    pub fn with_text(&self, text: impl Into<String>) -> Self {
         match self {
             Cell::Checkbox(cell) => Cell::Checkbox(CheckboxCell {
                 id: cell.id.clone(),
-                content: text.to_owned(),
+                content: text.into(),
                 formatting: Formatting::default(),
                 ..*cell
             }),
             Cell::Code(cell) => Cell::Code(CodeCell {
                 id: cell.id.clone(),
-                content: text.to_owned(),
+                content: text.into(),
                 syntax: cell.syntax.clone(),
                 ..*cell
             }),
@@ -195,14 +195,14 @@ impl Cell {
             Cell::Graph(cell) => Cell::Graph(cell.clone()),
             Cell::Heading(cell) => Cell::Heading(HeadingCell {
                 id: cell.id.clone(),
-                content: text.to_owned(),
+                content: text.into(),
                 formatting: Formatting::default(),
                 ..*cell
             }),
             Cell::Image(cell) => Cell::Image(cell.clone()),
             Cell::ListItem(cell) => Cell::ListItem(ListItemCell {
                 id: cell.id.clone(),
-                content: text.to_owned(),
+                content: text.into(),
                 formatting: Formatting::default(),
                 ..*cell
             }),
@@ -211,7 +211,7 @@ impl Cell {
             Cell::Table(cell) => Cell::Table(cell.clone()),
             Cell::Text(cell) => Cell::Text(TextCell {
                 id: cell.id.clone(),
-                content: text.to_owned(),
+                content: text.into(),
                 formatting: Formatting::default(),
                 ..*cell
             }),
@@ -225,39 +225,29 @@ impl Cell {
     /// **Warning:** For cell types that have text, but which do not support
     ///              rich-text, the formatting will be dropped silently.
     #[must_use]
-    pub fn with_rich_text(&self, text: &str, formatting: Formatting) -> Self {
+    pub fn with_rich_text(&self, text: impl Into<String>, formatting: Formatting) -> Self {
         match self {
             Cell::Checkbox(cell) => Cell::Checkbox(CheckboxCell {
                 id: cell.id.clone(),
-                content: text.to_owned(),
+                content: text.into(),
                 formatting,
-                ..*cell
-            }),
-            Cell::Log(cell) => Cell::Log(LogCell {
-                id: cell.id.clone(),
-                data_links: cell.data_links.clone(),
-                display_fields: cell.display_fields.clone(),
-                expanded_indices: cell.expanded_indices.clone(),
-                selected_indices: cell.selected_indices.clone(),
-                highlighted_indices: cell.highlighted_indices.clone(),
-                visibility_filter: cell.visibility_filter.clone(),
                 ..*cell
             }),
             Cell::Heading(cell) => Cell::Heading(HeadingCell {
                 id: cell.id.clone(),
-                content: text.to_owned(),
+                content: text.into(),
                 formatting,
                 ..*cell
             }),
             Cell::ListItem(cell) => Cell::ListItem(ListItemCell {
                 id: cell.id.clone(),
-                content: text.to_owned(),
+                content: text.into(),
                 formatting,
                 ..*cell
             }),
             Cell::Text(cell) => Cell::Text(TextCell {
                 id: cell.id.clone(),
-                content: text.to_owned(),
+                content: text.into(),
                 formatting,
                 ..*cell
             }),
@@ -266,6 +256,7 @@ impl Cell {
             | Cell::Divider(_)
             | Cell::Graph(_)
             | Cell::Image(_)
+            | Cell::Log(_)
             | Cell::Provider(_)
             | Cell::Table(_)
             | Cell::Timeline(_) => self.with_text(text),
@@ -282,15 +273,18 @@ impl Cell {
     /// **Warning:** For cell types that have text, but which do not support
     ///              rich-text, any given formatting will be dropped silently.
     #[must_use]
-    pub fn with_text_for_field(
+    pub fn with_text_for_field<T>(
         &self,
-        text: &str,
+        text: T,
         formatting: Option<Formatting>,
-        field: Option<&str>,
-    ) -> Self {
+        field: Option<impl AsRef<str>>,
+    ) -> Self
+    where
+        T: Into<String> + AsRef<str>,
+    {
         match (self, field) {
             (Cell::Provider(cell), Some(field)) => {
-                Cell::Provider(cell.with_query_field(field, text))
+                Cell::Provider(cell.with_query_field(field.as_ref(), text))
             }
             (cell, _) => {
                 if let Some(formatting) = formatting {
@@ -669,9 +663,9 @@ impl ProviderCell {
     /// the given query field.
     ///
     /// Unsets the query field if the value is empty.
-    pub fn with_query_field(&self, field_name: &str, value: &str) -> Self {
+    pub fn with_query_field(&self, field_name: impl AsRef<str>, value: impl AsRef<str>) -> Self {
         let query_data = self.query_data.as_deref().unwrap_or_default();
-        let query_data = if value.is_empty() {
+        let query_data = if value.as_ref().is_empty() {
             unset_query_field(query_data, field_name)
         } else {
             set_query_field(query_data, field_name, value)

@@ -46,23 +46,23 @@ impl DateTimeRangeField {
         }
     }
 
-    pub fn with_label(self, label: &str) -> Self {
+    pub fn with_label(self, label: impl Into<String>) -> Self {
         Self {
-            label: label.to_owned(),
+            label: label.into(),
             ..self
         }
     }
 
-    pub fn with_name(self, name: &str) -> Self {
+    pub fn with_name(self, name: impl Into<String>) -> Self {
         Self {
-            name: name.to_owned(),
+            name: name.into(),
             ..self
         }
     }
 
-    pub fn with_placeholder(self, placeholder: &str) -> Self {
+    pub fn with_placeholder(self, placeholder: impl Into<String>) -> Self {
         Self {
-            placeholder: placeholder.to_owned(),
+            placeholder: placeholder.into(),
             ..self
         }
     }

@@ -50,16 +50,16 @@ impl FileField {
         }
     }
 
-    pub fn with_label(self, label: &str) -> Self {
+    pub fn with_label(self, label: impl Into<String>) -> Self {
         Self {
-            label: label.to_owned(),
+            label: label.into(),
             ..self
         }
     }
 
-    pub fn with_name(self, name: &str) -> Self {
+    pub fn with_name(self, name: impl Into<String>) -> Self {
         Self {
-            name: name.to_owned(),
+            name: name.into(),
             ..self
         }
     }
