@@ -153,7 +153,7 @@ pub struct AuthenticateMessage {
     /// Only messages with an operation ID will receive an `Ack` from the
     /// server.
     #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -191,7 +191,7 @@ pub struct SubscribeMessage {
     /// Only messages with an operation ID will receive an `Ack` from the
     /// server.
     #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -213,7 +213,7 @@ pub struct UnsubscribeMessage {
     /// Only messages with an operation ID will receive an `Ack` from the
     /// server.
     #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -247,7 +247,7 @@ pub struct ApplyOperationMessage {
     /// Only messages with an operation ID will receive an `Ack` from the
     /// server.
     #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -281,7 +281,7 @@ pub struct ApplyOperationBatchMessage {
     /// Only messages with an operation ID will receive an `Ack` from the
     /// server.
     #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -325,7 +325,7 @@ pub struct ErrMessage {
     ///
     /// This will match the operation ID of the client message that triggered
     /// the error.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -358,7 +358,7 @@ pub struct DebugRequestMessage {
     /// Only messages with an operation ID will receive an `Ack` from the
     /// server.
     #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -384,7 +384,7 @@ pub struct DebugResponseMessage {
     /// Only messages with an operation ID will receive an `Ack` from the
     /// server.
     #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -685,7 +685,7 @@ pub struct FocusInfoMessage {
     /// Only messages with an operation ID will receive an `Ack` from the
     /// server.
     #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 

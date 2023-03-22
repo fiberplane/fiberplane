@@ -236,6 +236,7 @@ pub struct ReplaceTextOperation {
 
     /// Field to update the text of.
     #[builder(default, setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub field: Option<String>,
 
     /// Starting offset where we will be replacing the text.
@@ -252,7 +253,7 @@ pub struct ReplaceTextOperation {
     ///
     /// Offsets in the formatting are relative to the start of the new text.
     #[builder(default, setter(strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub new_formatting: Option<Formatting>,
 
     /// The old text that we're replacing.
@@ -266,7 +267,7 @@ pub struct ReplaceTextOperation {
     ///
     /// Offsets in the formatting are relative to the start of the old text.
     #[builder(default, setter(strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub old_formatting: Option<Formatting>,
 }
 
@@ -464,7 +465,7 @@ pub struct CellReplaceText {
     ///
     /// Offsets in the formatting are relative to the start of the new text.
     #[builder(default, setter(strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub new_formatting: Option<Formatting>,
 
     /// The old text that we're replacing.
@@ -478,6 +479,6 @@ pub struct CellReplaceText {
     ///
     /// Offsets in the formatting are relative to the start of the old text.
     #[builder(default, setter(strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub old_formatting: Option<Formatting>,
 }

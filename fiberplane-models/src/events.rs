@@ -55,5 +55,6 @@ pub struct NewEvent {
     pub labels: Option<HashMap<String, Option<String>>>,
 
     #[builder(default, setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub time: Option<Timestamp>,
 }
