@@ -47,11 +47,16 @@ changes if the major version hasn't changed.
 - `fiberplane-templates`: Well-known provider cells (`prometheus`, `loki`, `elasticsearch`)
   have their payloads converted to human-readable form when transformed into templates or
   snippets. (#34)
+- `fiberplane-models`: Changed many function signatures to be more consistent in
+  their usage of builders and how string arguments are accepted.
 
 ### Removed
 
 - Support for the legacy provider protocol has been removed.
 - `fiberplane-models`: The `PaginatedSearch` struct has been removed (#27)
+- Removed the `title` and associated `formatting` fields from `ProviderCell`.
+  The `title` argument for provider cells is still accepted in templates so as
+  not to break any existing templates.
 
 ## [v1.0.0-beta.1] - 2023-02-14
 
