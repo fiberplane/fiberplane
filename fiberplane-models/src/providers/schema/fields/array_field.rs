@@ -22,15 +22,18 @@ pub struct ArrayField {
     /// Name of the field as it will be included in the encoded query or config
     /// object.
     pub name: String,
+
     /// The minimum number of entries the array must have to be valid.
     ///
     /// Leaving the minimum_length to 0 makes the whole field optional.
     pub minimum_length: u32,
+
     /// The maximum number of entries the array can have and still be valid.
     ///
     /// It is None when there is no maximum number
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub maximum_length: Option<u32>,
+
     /// The schema of the elements inside a row of the array.
     ///
     /// ### Accessing row fields
