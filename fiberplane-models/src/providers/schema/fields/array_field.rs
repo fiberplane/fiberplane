@@ -77,9 +77,9 @@ pub struct ArrayField {
     ///  "table[0][key]=less+than&
     ///  table[0][operator]=%3C&
     ///  table[0][value]=12&
-    ///  table[2][key]=greater+than&
-    ///  table[2][operator]=%3E&
-    ///  table[2][value]=10"
+    ///  table[1][key]=greater+than&
+    ///  table[1][operator]=%3E&
+    ///  table[1][value]=10"
     /// ```
     ///
     /// Note that we are allowed to skip indices.
