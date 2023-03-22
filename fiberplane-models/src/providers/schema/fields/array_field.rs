@@ -2,13 +2,12 @@ use crate::providers::QuerySchema;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
-use typed_builder::TypedBuilder;
 
 /// Defines an array of composite fields.
 ///
 /// This is commonly used for arbitrarily long list of (key, value) pairs,
 /// or lists of (key, operator, value) filters.
-#[derive(Clone, Debug, Default, Deserialize, Serialize, TypedBuilder, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -26,12 +25,10 @@ pub struct ArrayField {
     /// The minimum number of entries the array must have to be valid.
     ///
     /// Leaving the minimum_length to 0 makes the whole field optional.
-    #[builder(default = 0)]
     pub minimum_length: u32,
     /// The maximum number of entries the array can have and still be valid.
     ///
     /// It is None when there is no maximum number
-    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub maximum_length: Option<u32>,
     /// The schema of the elements inside a row of the array.
@@ -49,17 +46,19 @@ pub struct ArrayField {
     /// For example if an array field has this `element_schema`:
     /// ```rust,no_run
     /// # use fiberplane_models::providers::{ArrayField, TextField, SelectField, IntegerField};
-    /// ArrayField::builder()
-    ///   .name("table".to_string())
-    ///   .label("example".to_string())
-    ///   .element_schema(vec![
+    /// ArrayField::new()
+    ///   .with_name("table")
+    ///   .with_label("example".to_string())
+    ///   .with_element_schema(vec![
     ///     TextField::new().with_name("key").into(),
     ///     SelectField::new().with_name("operator").with_options(&["<", ">", "<=", ">=", "=="]).into(),
     ///     IntegerField::new().with_name("value").into(),
-    ///   ]).build();
+    ///   ]);
     /// ```
     ///
-    /// Then the URL-encoded serialization for the fields is expected to look like this
+    /// Then the URL-encoded serialization for the fields is expected to use
+    /// the bracketed-notation. This means you _can_ encode all the
+    /// keys in the array in any order you want. It can look like this
     /// (line breaks are only kept for legibility):
     /// ```txt
     ///  "table[0][key]=less+than&
@@ -70,7 +69,18 @@ pub struct ArrayField {
     ///  table[0][value]=12"
     /// ```
     ///
-    /// Note that we are allowed to skip indices, this serialization is expected to
+    /// or you can do the "logic" ordering too:
+    /// ```txt
+    ///  "table[0][key]=less+than&
+    ///  table[0][operator]=%3C&
+    ///  table[0][value]=12&
+    ///  table[2][key]=greater+than&
+    ///  table[2][operator]=%3E&
+    ///  table[2][value]=10"
+    /// ```
+    ///
+    /// Note that we are allowed to skip indices.
+    /// Any of those 2 examples above will
     /// be read as:
     /// ```rust,no_run
     /// # #[derive(Debug, PartialEq)]
@@ -103,9 +113,9 @@ impl ArrayField {
         Default::default()
     }
 
-    pub fn with_label(self, label: &str) -> Self {
+    pub fn with_label<T: Into<String>>(self, label: T) -> Self {
         Self {
-            label: label.to_owned(),
+            label: label.into(),
             ..self
         }
     }
@@ -117,9 +127,9 @@ impl ArrayField {
         }
     }
 
-    pub fn with_name(self, name: &str) -> Self {
+    pub fn with_name<T: Into<String>>(self, name: T) -> Self {
         Self {
-            name: name.to_owned(),
+            name: name.into(),
             ..self
         }
     }
@@ -131,9 +141,9 @@ impl ArrayField {
         }
     }
 
-    pub fn with_maximum_length(self, maximum_length: Option<u32>) -> Self {
+    pub fn with_maximum_length(self, maximum_length: u32) -> Self {
         Self {
-            maximum_length,
+            maximum_length: Some(maximum_length),
             ..self
         }
     }

@@ -1,7 +1,6 @@
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
-use typed_builder::TypedBuilder;
 
 /// Defines a field that allows labels to be selected.
 ///
@@ -9,7 +8,7 @@ use typed_builder::TypedBuilder;
 /// array of strings, depending on the value of the `multiple` field. In the
 /// case of "application/x-www-form-urlencoded", the value is always a single
 /// string and multiple labels will be space-separated.
-#[derive(Clone, Debug, Default, Deserialize, Serialize, TypedBuilder, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),

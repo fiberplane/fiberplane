@@ -1,12 +1,11 @@
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
-use typed_builder::TypedBuilder;
 
 /// Defines a field that allows files to be uploaded as part of the query data.
 ///
 /// Query data that includes files will be encoded using "multipart/form-data".
-#[derive(Clone, Debug, Default, Deserialize, Serialize, TypedBuilder, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),

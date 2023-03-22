@@ -1,10 +1,9 @@
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
-use typed_builder::TypedBuilder;
 
 /// Defines a field that allows integer numbers to be entered.
-#[derive(Clone, Debug, Default, Deserialize, Serialize, TypedBuilder, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
