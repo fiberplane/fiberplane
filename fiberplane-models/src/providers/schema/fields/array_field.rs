@@ -54,7 +54,13 @@ pub struct ArrayField {
     ///   .with_label("example".to_string())
     ///   .with_element_schema(vec![
     ///     TextField::new().with_name("key").into(),
-    ///     SelectField::new().with_name("operator").with_options(&["<", ">", "<=", ">=", "=="]).into(),
+    ///     SelectField::new().with_name("operator").with_options([
+    ///       "<".into(),
+    ///       ">".into(),
+    ///       "<=".into(),
+    ///       ">=".into(),
+    ///       "==".into()
+    ///     ]).into(),
     ///     IntegerField::new().with_name("value").into(),
     ///   ]);
     /// ```
