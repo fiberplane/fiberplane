@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 /// Defines a free-form text entry field.
 ///
 /// This is commonly used for filter text and query entry.
-#[derive(Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),

@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 /// may be used.
 pub type QuerySchema = Vec<QueryField>;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -19,6 +19,7 @@ pub type QuerySchema = Vec<QueryField>;
 #[non_exhaustive]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum QueryField {
+    Array(ArrayField),
     Checkbox(CheckboxField),
     DateTimeRange(DateTimeRangeField),
     File(FileField),
@@ -67,5 +68,11 @@ impl From<SelectField> for QueryField {
 impl From<TextField> for QueryField {
     fn from(field: TextField) -> Self {
         Self::Text(field)
+    }
+}
+
+impl From<ArrayField> for QueryField {
+    fn from(field: ArrayField) -> Self {
+        Self::Array(field)
     }
 }

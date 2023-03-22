@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 /// Defines a field that allows files to be uploaded as part of the query data.
 ///
 /// Query data that includes files will be encoded using "multipart/form-data".
-#[derive(Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),

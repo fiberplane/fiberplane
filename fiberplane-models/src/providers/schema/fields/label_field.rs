@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 /// array of strings, depending on the value of the `multiple` field. In the
 /// case of "application/x-www-form-urlencoded", the value is always a single
 /// string and multiple labels will be space-separated.
-#[derive(Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),

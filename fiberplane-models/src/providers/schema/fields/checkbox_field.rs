@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 /// In the case of "application/x-www-form-urlencoded", it will be represented
 /// by the value defined in the `value` field, which will be either present or
 /// not, similar to the encoding of HTML forms.
-#[derive(Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
