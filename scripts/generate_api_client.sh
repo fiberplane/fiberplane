@@ -9,9 +9,7 @@ REPO="https://github.com/fiberplane/fiberplane"
 LICENSE="MIT OR Apache-2.0"
 README="README.md"
 
-# https://stackoverflow.com/a/23930212/11494565
-read -r -d '' MODELS << EOM
-fiberplane_models::notebooks::*;
+MODELS="fiberplane_models::notebooks::*;
 fiberplane_models::notebooks::operations::*;
 fiberplane_models::blobs::*;
 fiberplane_models::comments::*;
@@ -31,8 +29,7 @@ fiberplane_models::timestamps::*;
 fiberplane_models::tokens::*;
 fiberplane_models::users::*;
 fiberplane_models::views::*;
-fiberplane_models::workspaces::*
-EOM
+fiberplane_models::workspaces::*"
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
@@ -84,4 +81,4 @@ fi
 cd "$SCRIPT_DIR/../fiberplane-api-client"
 cargo fmt -p fiberplane-api-client
 
-ln ../scripts/fiberplane-api-client-template/* .
+ln -s ../scripts/fiberplane-api-client-template/* .

@@ -22,11 +22,6 @@ default-features = false
 features = ["derive"]
 version = "1"
 
-[dependencies.time]
-default-features = false
-features = ["formatting", "parsing", "serde-human-readable", "serde-well-known"]
-version = "0.3"
-
 [lib]
 crate-type = ["rlib"]
 edition = "2021"

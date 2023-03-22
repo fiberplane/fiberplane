@@ -95,7 +95,7 @@ pub struct NewDataSource {
     pub config: Map<String, Value>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, TypedBuilder)]
+#[derive(Debug, Default, Deserialize, Serialize, Clone, TypedBuilder)]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateDataSource {

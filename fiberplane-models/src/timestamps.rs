@@ -1,15 +1,13 @@
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
-use std::{
-    fmt,
-    ops::{Deref, Sub},
-    str::FromStr,
-    time::SystemTime,
-};
-use time::{
-    ext::NumericalDuration, format_description::well_known::Rfc3339, Duration, OffsetDateTime,
-};
+use std::fmt;
+use std::ops::{Add, Deref, Sub};
+use std::str::FromStr;
+use std::time::SystemTime;
+use time::ext::NumericalDuration;
+use time::format_description::well_known::Rfc3339;
+use time::{Duration, OffsetDateTime};
 
 /// A range in time from a given timestamp (inclusive) up to another timestamp
 /// (exclusive).
@@ -40,16 +38,16 @@ impl From<NewTimeRange> for TimeRange {
         match new_time_range {
             NewTimeRange::Absolute(time_range) => time_range,
             NewTimeRange::Relative(RelativeTimeRange { minutes }) => {
-                let now = OffsetDateTime::now_utc();
+                let now = Timestamp::now_utc();
                 if minutes < 0 {
                     TimeRange {
-                        from: (now + (minutes as i64).minutes()).into(),
-                        to: now.into(),
+                        from: now + (minutes as i64).minutes(),
+                        to: now,
                     }
                 } else {
                     TimeRange {
-                        from: now.into(),
-                        to: (now + (minutes as i64).minutes()).into(),
+                        from: now,
+                        to: now + (minutes as i64).minutes(),
                     }
                 }
             }
@@ -66,7 +64,13 @@ impl From<NewTimeRange> for TimeRange {
 pub struct Timestamp(#[serde(with = "time::serde::rfc3339")] OffsetDateTime);
 
 impl Timestamp {
-    /// Parses an RFC 3339-formatted string into a timestamp.
+    /// Same as [now_utc()](time::OffsetDateTime::now_utc), except it returns a
+    /// [Timestamp].
+    pub fn now_utc() -> Self {
+        OffsetDateTime::now_utc().into()
+    }
+
+    /// Parses an RFC 3339-formatted string into a [Timestamp].
     pub fn parse(string: &str) -> Result<Self, time::Error> {
         Ok(Self(OffsetDateTime::parse(string, &Rfc3339)?))
     }
@@ -95,6 +99,22 @@ impl From<OffsetDateTime> for Timestamp {
 impl From<SystemTime> for Timestamp {
     fn from(time: SystemTime) -> Self {
         Self(OffsetDateTime::from(time))
+    }
+}
+
+impl Add<Duration> for Timestamp {
+    type Output = Timestamp;
+
+    fn add(self, rhs: Duration) -> Self::Output {
+        (self.0 + rhs).into()
+    }
+}
+
+impl Sub<Duration> for Timestamp {
+    type Output = Timestamp;
+
+    fn sub(self, rhs: Duration) -> Self::Output {
+        (self.0 - rhs).into()
     }
 }
 

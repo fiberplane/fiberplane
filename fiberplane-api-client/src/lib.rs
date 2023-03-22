@@ -6,8 +6,6 @@
 use crate::clients::ApiClient;
 use anyhow::{Context as _, Result};
 use reqwest::Method;
-use time::format_description::well_known::Rfc3339;
-
 pub mod builder;
 pub mod clients;
 
@@ -891,8 +889,8 @@ pub async fn data_source_update(
 pub async fn event_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
-    occurrence_time_start: time::OffsetDateTime,
-    occurrence_time_end: time::OffsetDateTime,
+    occurrence_time_start: fiberplane_models::timestamps::Timestamp,
+    occurrence_time_end: fiberplane_models::timestamps::Timestamp,
     labels: Option<std::collections::HashMap<String, String>>,
     sort_by: Option<&str>,
     sort_direction: Option<&str>,
@@ -906,11 +904,8 @@ pub async fn event_list(
             workspace_id = workspace_id,
         ),
     )?;
-    builder = builder.query(&[(
-        "occurrence_time_start",
-        occurrence_time_start.format(&Rfc3339)?,
-    )]);
-    builder = builder.query(&[("occurrence_time_end", occurrence_time_end.format(&Rfc3339)?)]);
+    builder = builder.query(&[("occurrence_time_start", occurrence_time_start.to_string())]);
+    builder = builder.query(&[("occurrence_time_end", occurrence_time_end.to_string())]);
     if let Some(labels) = labels {
         builder = builder.query(&[("labels", serde_json::to_string(&labels)?)]);
     }
