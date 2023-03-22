@@ -14,7 +14,7 @@ indicate they don't apply.
 - [ ] The changes have been tested to be backwards compatible.
 - [ ] The OpenAPI schema and generated client have been updated.
 - [ ] New models module has been added to API generator script.
-- [ ] New types/fields are well-documented and annotated.
+- [ ] New types/fields are [well-documented and annotated](/CONTRIBUTING.md#adding-types-and-their-annotations).
 - [ ] The CHANGELOG is updated.
 
 > Please link any related PRs in other repositories that depend on this:
