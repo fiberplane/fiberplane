@@ -375,7 +375,7 @@ impl NewTemplate {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Deserialize, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),

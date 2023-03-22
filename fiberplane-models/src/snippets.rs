@@ -76,7 +76,7 @@ pub struct NewSnippet {
     pub body: String,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, TypedBuilder)]
+#[derive(Debug, Default, Deserialize, Serialize, Clone, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
