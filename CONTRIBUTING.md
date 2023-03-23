@@ -47,8 +47,8 @@ Whenever adding types to this repository, please keep the following in mind:
   following two methods:
 
   - We use an explicit, custom constructor by the name `new()` if such a
-    constructor would need few arguments who meaning would be immediately clear
-    from context.
+    constructor would need few arguments whose meaning would be immediately
+    clear from context.
   - For other situations, we derive from `TypedBuilder` so that users can
     conveniently call the setters they require, while the named setters will
     help to document the meaning of each field being set. When using
@@ -58,8 +58,8 @@ Whenever adding types to this repository, please keep the following in mind:
       `#[builder(default)]`. These are usually fields wrapped in `Option`, but
       they can be other types too if they have a sensible default. However, even
       an `Option` field can be left without a default if it makes strong sense
-      for the type. For instance, if you want make sure users of the type don't
-      accidentally omit it.
+      for the type. For instance, if you want to make sure users of the type
+      don't accidentally omit it.
     - `Option` fields that marked as `#[builder(default)]` should have the
       `#[builder(setter(strip_option))]` annotation too. This makes sure users
       don't have to specify unnecessary `Some` wrappers.
@@ -68,7 +68,7 @@ Whenever adding types to this repository, please keep the following in mind:
       `String`, `Base64Uuid` and `Timestamp`.
 
   - Finally, structs with all optional fields may additionally derive `Default`.
-    This also allows users to create instances uses `Default::default()`, but
+    This also allows users to create instances using `Default::default()`, but
     they will need to imperatively assign any fields they want to set.
 
 - For serialization, we consistently use the following annotation on `Option`
@@ -81,8 +81,8 @@ Whenever adding types to this repository, please keep the following in mind:
     sense for a given use case.
 
 - When adding a new field to an existing type, it must use both the
-  `#[builder(default)]` and `#[serde(default)]` annotations to avoid breaking
-  changes.
+  `#[builder(default)]` and `#[serde(default, skip_serialization_if = "...")]`
+  annotations to avoid breaking changes.
 
 - Removing a field or changing the type of an existing field is always a
   breaking change. The same goes for removing a type.
@@ -113,8 +113,8 @@ Whenever adding types to this repository, please keep the following in mind:
   ```
 
 - Please add descriptive documentation to types and fields. What purpose does a
-  type serve? What is impact of setting a given field? Answering such questions
-  in the comments can provide valuable context.
+  type serve? What is the impact of setting a given field? Answering such
+  questions in the documentation can provide valuable context.
 
   - Note that Rust documentation comments start with a triple slash and support
     limited Markdown. Double slashes are used for ordinary comments.
