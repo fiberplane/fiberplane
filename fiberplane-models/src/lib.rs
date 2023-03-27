@@ -44,6 +44,7 @@ pub mod tokens;
 pub mod users;
 pub mod utils;
 pub mod views;
+pub mod webhooks;
 pub mod workspaces;
 
 fn debug_print_bytes(bytes: impl AsRef<[u8]>) -> String {

@@ -6,8 +6,6 @@
 use crate::clients::ApiClient;
 use anyhow::{Context as _, Result};
 use reqwest::Method;
-use time::format_description::well_known::Rfc3339;
-
 pub mod builder;
 pub mod clients;
 
@@ -32,6 +30,7 @@ pub(crate) mod models {
     pub(crate) use fiberplane_models::tokens::*;
     pub(crate) use fiberplane_models::users::*;
     pub(crate) use fiberplane_models::views::*;
+    pub(crate) use fiberplane_models::webhooks::*;
     pub(crate) use fiberplane_models::workspaces::*;
 }
 
@@ -891,8 +890,8 @@ pub async fn data_source_update(
 pub async fn event_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
-    occurrence_time_start: time::OffsetDateTime,
-    occurrence_time_end: time::OffsetDateTime,
+    occurrence_time_start: fiberplane_models::timestamps::Timestamp,
+    occurrence_time_end: fiberplane_models::timestamps::Timestamp,
     labels: Option<std::collections::HashMap<String, String>>,
     sort_by: Option<&str>,
     sort_direction: Option<&str>,
@@ -906,11 +905,8 @@ pub async fn event_list(
             workspace_id = workspace_id,
         ),
     )?;
-    builder = builder.query(&[(
-        "occurrence_time_start",
-        occurrence_time_start.format(&Rfc3339)?,
-    )]);
-    builder = builder.query(&[("occurrence_time_end", occurrence_time_end.format(&Rfc3339)?)]);
+    builder = builder.query(&[("occurrence_time_start", occurrence_time_start.to_string())]);
+    builder = builder.query(&[("occurrence_time_end", occurrence_time_end.to_string())]);
     if let Some(labels) = labels {
         builder = builder.query(&[("labels", serde_json::to_string(&labels)?)]);
     }
@@ -1863,6 +1859,84 @@ pub async fn view_update(
             "/api/workspaces/{workspace_id}/views/{view_name}",
             workspace_id = workspace_id,
             view_name = view_name,
+        ),
+    )?;
+    builder = builder.json(&payload);
+    let response = builder.send().await?.error_for_status()?.json().await?;
+
+    Ok(response)
+}
+
+#[doc = r#"Create a new webhook"#]
+pub async fn webhook_create(
+    client: &ApiClient,
+    workspace_id: base64uuid::Base64Uuid,
+    payload: models::NewWebhook,
+) -> Result<models::Webhook> {
+    let mut builder = client.request(
+        Method::POST,
+        &format!(
+            "/api/workspaces/{workspace_id}/webhooks",
+            workspace_id = workspace_id,
+        ),
+    )?;
+    builder = builder.json(&payload);
+    let response = builder.send().await?.error_for_status()?.json().await?;
+
+    Ok(response)
+}
+
+#[doc = r#"Retrieve a webhook"#]
+pub async fn webhook_get(
+    client: &ApiClient,
+    workspace_id: base64uuid::Base64Uuid,
+    webhook_id: base64uuid::Base64Uuid,
+) -> Result<models::Webhook> {
+    let mut builder = client.request(
+        Method::GET,
+        &format!(
+            "/api/workspaces/{workspace_id}/webhooks/{webhook_id}",
+            workspace_id = workspace_id,
+            webhook_id = webhook_id,
+        ),
+    )?;
+    let response = builder.send().await?.error_for_status()?.json().await?;
+
+    Ok(response)
+}
+
+#[doc = r#"Deletes an existing webhook"#]
+pub async fn webhook_delete(
+    client: &ApiClient,
+    workspace_id: base64uuid::Base64Uuid,
+    webhook_id: base64uuid::Base64Uuid,
+) -> Result<()> {
+    let mut builder = client.request(
+        Method::DELETE,
+        &format!(
+            "/api/workspaces/{workspace_id}/webhooks/{webhook_id}",
+            workspace_id = workspace_id,
+            webhook_id = webhook_id,
+        ),
+    )?;
+    let response = builder.send().await?.error_for_status()?;
+
+    Ok(())
+}
+
+#[doc = r#"Updates an existing webhook"#]
+pub async fn webhook_update(
+    client: &ApiClient,
+    workspace_id: base64uuid::Base64Uuid,
+    webhook_id: base64uuid::Base64Uuid,
+    payload: models::UpdateWebhook,
+) -> Result<models::Webhook> {
+    let mut builder = client.request(
+        Method::PATCH,
+        &format!(
+            "/api/workspaces/{workspace_id}/webhooks/{webhook_id}",
+            workspace_id = workspace_id,
+            webhook_id = webhook_id,
         ),
     )?;
     builder = builder.json(&payload);

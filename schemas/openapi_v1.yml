@@ -2133,6 +2133,73 @@ components:
           type: number
           nullable: true
           format: int64
+    webhook:
+      type: object
+      required:
+        - id
+        - workspaceId
+        - endpoint
+        - events
+        - enabled
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: base64uuid
+        workspaceId:
+          type: string
+          format: base64uuid
+        endpoint:
+          type: string
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/webhook_events"
+        sharedSecret:
+          type: string
+          format: password
+        enabled:
+          type: boolean
+        createdBy:
+          type: string
+          format: base64uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    webhook_events:
+      type: string
+      enum:
+        - ping
+        - frontmatter
+    new_webhook:
+      type: object
+      required:
+        - endpoint
+        - events
+      properties:
+        endpoint:
+          type: string
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/webhook_events"
+    update_webhook:
+      type: object
+      properties:
+        endpoint:
+          type: string
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/webhook_events"
+        regenerate_shared_secret:
+          type: boolean
+        enabled:
+          type: boolean
   parameters:
     sortDirection:
       in: query
@@ -2240,6 +2307,14 @@ components:
       schema:
         type: string
         format: name
+    webhook_id:
+      in: path
+      name: webhook_id
+      description: ID of the Webhook
+      required: true
+      schema:
+        type: string
+        format: base64uuid
   responses:
     thread:
       description: OK
@@ -4231,6 +4306,75 @@ paths:
       summary: Remove view from the pinned views list
       tags:
         - Views
+      responses:
+        "200":
+          description: OK
+  /api/workspaces/{workspace_id}/webhooks:
+    parameters:
+      - $ref: "#/components/parameters/workspace_id"
+    post:
+      operationId: webhook_create
+      description: Create a new webhook
+      summary: Create a new webhook
+      tags:
+        - Webhooks
+      requestBody:
+        description: Webhook creation payload
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/new_webhook"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/webhook"
+  /api/workspaces/{workspace_id}/webhooks/{webhook_id}:
+    parameters:
+      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/webhook_id"
+    get:
+      operationId: webhook_get
+      summary: Retrieve a webhook
+      description: Retrieve a webhook
+      tags:
+        - Webhooks
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/webhook"
+    patch:
+      operationId: webhook_update
+      summary: Update an existing webhook
+      description: Updates an existing webhook
+      tags:
+        - Webhooks
+      requestBody:
+        description: Webhook update payload
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/update_webhook"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/webhook"
+    delete:
+      operationId: webhook_delete
+      summary: Delete an existing webhook
+      description: Deletes an existing webhook
+      tags:
+        - Webhooks
       responses:
         "200":
           description: OK

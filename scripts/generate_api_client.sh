@@ -9,32 +9,9 @@ REPO="https://github.com/fiberplane/fiberplane"
 LICENSE="MIT OR Apache-2.0"
 README="README.md"
 
-# https://stackoverflow.com/a/23930212/11494565
-read -r -d '' MODELS << EOM
-fiberplane_models::notebooks::*;
-fiberplane_models::notebooks::operations::*;
-fiberplane_models::blobs::*;
-fiberplane_models::comments::*;
-fiberplane_models::data_sources::*;
-fiberplane_models::events::*;
-fiberplane_models::files::*;
-fiberplane_models::formatting::*;
-fiberplane_models::labels::*;
-fiberplane_models::names::*;
-fiberplane_models::proxies::*;
-fiberplane_models::query_data::*;
-fiberplane_models::realtime::*;
-fiberplane_models::snippets::*;
-fiberplane_models::sorting::*;
-fiberplane_models::templates::*;
-fiberplane_models::timestamps::*;
-fiberplane_models::tokens::*;
-fiberplane_models::users::*;
-fiberplane_models::views::*;
-fiberplane_models::workspaces::*
-EOM
-
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
+MODELS=$(cat $SCRIPT_DIR/fiberplane-api-client-templates/models.txt)
 
 rm -rf "$SCRIPT_DIR/../fiberplane-api-client" || true
 

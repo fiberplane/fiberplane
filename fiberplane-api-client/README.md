@@ -1,1 +1,1 @@
-../scripts/fiberplane-api-client-template/README.md
+C:/Users/Mari/Programming/fiberplane/fiberplane/scripts/fiberplane-api-client-template/README.md

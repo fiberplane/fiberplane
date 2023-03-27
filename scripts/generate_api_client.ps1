@@ -1,37 +1,18 @@
 # Windows version of the `generate_api_client.sh` script
+$ErrorActionPreference = "Stop"
 
 $LICENSE="MIT OR Apache-2.0"
 $DESCRIPTION="Generated API client for Fiberplane API"
 $REPO="https://github.com/fiberplane/fiberplane"
 $README="README.md"
 
-$MODELS=("fiberplane_models::notebooks::*;
-fiberplane_models::notebooks::operations::*;
-fiberplane_models::blobs::*;
-fiberplane_models::comments::*;
-fiberplane_models::data_sources::*;
-fiberplane_models::events::*;
-fiberplane_models::files::*;
-fiberplane_models::formatting::*;
-fiberplane_models::labels::*;
-fiberplane_models::names::*;
-fiberplane_models::proxies::*;
-fiberplane_models::query_data::*;
-fiberplane_models::realtime::*;
-fiberplane_models::snippets::*;
-fiberplane_models::sorting::*;
-fiberplane_models::templates::*;
-fiberplane_models::timestamps::*;
-fiberplane_models::tokens::*;
-fiberplane_models::users::*;
-fiberplane_models::views::*;
-fiberplane_models::workspaces::*")
-
 $start_dir = Get-Location;
 $script_path = ($PSScriptRoot);
 $script_dir = (Get-Item $script_path).FullName;
 $root_dir = (Get-Item $script_path).parent.FullName;
 $api_client_dir = Join-Path $root_dir "fiberplane-api-client";
+
+$MODELS = Get-Content "$script_path\fiberplane-api-client-template\models.txt" -Raw
 
 if (Test-Path $api_client_dir)
 {
@@ -55,6 +36,7 @@ if (Test-Path (Join-Path $api_generator_dir ".git")) {
         --readme $README `
         --models $MODELS `
         --workspace
+      if(!$?) { Exit $LASTEXITCODE }
     popd
 }
 elseif ($null -eq (Get-Command "fp-openapi-rust-gen.exe" -ErrorAction SilentlyContinue))
@@ -74,6 +56,7 @@ elseif ($null -eq (Get-Command "fp-openapi-rust-gen.exe" -ErrorAction SilentlyCo
             --readme $README `
             --models $MODELS `
             --workspace
+    if(!$?) { Exit $LASTEXITCODE }
 }
 else
 {
@@ -87,13 +70,16 @@ else
       --readme $README `
       --models $MODELS `
       --workspace
+    if(!$?) { Exit $LASTEXITCODE }
 }
 
 Set-Location $api_client_dir
 cargo fmt -p fiberplane-api-client
+if(!$?) { Exit $LASTEXITCODE }
 
 $template_path = Join-Path $script_dir "fiberplane-api-client-template"
 cmd /c mklink "$api_client_dir\README.md" "$template_path\README.md"
+if(!$?) { Exit $LASTEXITCODE }
 
 # go back to the beginning so our user doesn't get confused as they're in a different directory now
 Set-Location $start_dir
