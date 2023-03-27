@@ -2,8 +2,9 @@ use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
-use time::OffsetDateTime;
 use typed_builder::TypedBuilder;
+
+use crate::timestamps::Timestamp;
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
 #[cfg_attr(
@@ -14,15 +15,21 @@ use typed_builder::TypedBuilder;
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct TokenSummary {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
+    #[builder(setter(into))]
     pub title: String,
-    #[serde(with = "time::serde::rfc3339")]
-    pub created_at: OffsetDateTime,
-    #[serde(default, with = "time::serde::rfc3339::option")]
-    pub expires_at: Option<OffsetDateTime>,
+
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+
+    #[builder(default, setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expires_at: Option<Timestamp>,
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -51,11 +58,19 @@ impl NewToken {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct Token {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
+    #[builder(setter(into))]
     pub title: String,
+
+    #[builder(setter(into))]
     pub token: String,
-    #[serde(with = "time::serde::rfc3339")]
-    pub created_at: OffsetDateTime,
-    #[serde(default, with = "time::serde::rfc3339::option")]
-    pub expires_at: Option<OffsetDateTime>,
+
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+
+    #[builder(default, setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expires_at: Option<Timestamp>,
 }

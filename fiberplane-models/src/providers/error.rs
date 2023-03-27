@@ -116,7 +116,10 @@ impl From<time::error::Parse> for Error {
 #[serde(rename_all = "camelCase")]
 pub struct ValidationError {
     /// Refers to a field from the query schema.
+    #[builder(setter(into))]
     pub field_name: String,
+
     /// Description of why the validation failed.
+    #[builder(setter(into))]
     pub message: String,
 }

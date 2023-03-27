@@ -2,11 +2,10 @@ use super::*;
 use crate::types::{TemplateParameter, TemplateParameterType};
 use crate::*;
 use fiberplane_models::data_sources::SelectedDataSource;
-use fiberplane_models::formatting::Annotation::{self, Timestamp};
-use fiberplane_models::formatting::{AnnotationWithOffset, Formatting, Mention};
+use fiberplane_models::formatting::{Annotation, AnnotationWithOffset, Formatting, Mention};
 use fiberplane_models::names::Name;
 use fiberplane_models::notebooks::*;
-use fiberplane_models::timestamps::{NewTimeRange, RelativeTimeRange};
+use fiberplane_models::timestamps::{NewTimeRange, RelativeTimeRange, Timestamp};
 use once_cell::unsync::Lazy;
 use pretty_assertions::assert_eq;
 use serde_json::{json, Map, Value};
@@ -14,9 +13,7 @@ use std::collections::{BTreeMap, HashMap};
 use std::fs;
 use std::iter::FromIterator;
 use std::path::PathBuf;
-use time::format_description::well_known::Rfc3339;
 use time::macros::datetime;
-use time::OffsetDateTime;
 
 const CELLS: Lazy<Vec<Cell>> = Lazy::new(|| {
     vec![
@@ -121,7 +118,6 @@ let b = \"c\";",
                 .id("15")
                 .intent("prometheus,timeseries")
                 .query_data("application/x-www-form-urlencoded,query=http_requests")
-                .title("sample title")
                 .build(),
         ),
         Cell::Provider(
@@ -137,7 +133,7 @@ let b = \"c\";",
                 .formatting(vec![AnnotationWithOffset::new(
                     8,
                     Annotation::Timestamp {
-                        timestamp: datetime!(2022-10-24 10:42:10.977 UTC),
+                        timestamp: datetime!(2022-10-24 10:42:10.977 UTC).into(),
                     },
                 )])
                 .build(),
@@ -154,9 +150,7 @@ let b = \"c\";",
 const NOTEBOOK: Lazy<NewNotebook> = Lazy::new(|| {
     NewNotebook::builder()
         .title("Incident: 'API Outage'")
-        .time_range(NewTimeRange::Relative(
-            RelativeTimeRange::builder().minutes(-60).build(),
-        ))
+        .time_range(NewTimeRange::Relative(RelativeTimeRange::from_minutes(-60)))
         .selected_data_sources(BTreeMap::from_iter([(
             "prometheus".to_string(),
             SelectedDataSource::builder()
@@ -588,9 +582,9 @@ fn formatting_basic() {
         &cells[8].formatting,
         &[AnnotationWithOffset::new(
             0,
-            Timestamp {
-                timestamp: OffsetDateTime::parse("2020-01-01T00:00:00Z", &Rfc3339).unwrap()
-            },
+            Annotation::Timestamp {
+                timestamp: Timestamp::parse("2020-01-01T00:00:00Z").unwrap()
+            }
         )]
     );
 
@@ -743,9 +737,7 @@ fn export_notebook_to_template_and_back() {
 fn mustache_substitution_in_title() {
     let notebook = NewNotebook::builder()
         .title(r#"Hello {{personName}}, this is a {{notebookCategory}}"#.to_string())
-        .time_range(NewTimeRange::Relative(
-            RelativeTimeRange::builder().minutes(-60).build(),
-        ))
+        .time_range(NewTimeRange::Relative(RelativeTimeRange::from_minutes(-60)))
         .build();
     let template = notebook_to_template(notebook);
     let notebook = expand_template(
@@ -769,9 +761,7 @@ fn mustache_substitution_to_function_parameters() {
                 .content(r#"{{greeting}} {{personName}}, great to have you"#)
                 .build(),
         )])
-        .time_range(NewTimeRange::Relative(
-            RelativeTimeRange::builder().minutes(-60).build(),
-        ))
+        .time_range(NewTimeRange::Relative(RelativeTimeRange::from_minutes(-60)))
         .build();
     let template = notebook_to_template(notebook);
     let params = extract_template_parameters(template).unwrap();

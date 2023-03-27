@@ -7,7 +7,6 @@ use base64uuid::Base64Uuid;
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
 use strum_macros::Display;
-use time::OffsetDateTime;
 use typed_builder::TypedBuilder;
 
 /// Workspace representation.
@@ -20,14 +19,27 @@ use typed_builder::TypedBuilder;
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct Workspace {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
     pub name: Name,
+
+    #[builder(setter(into))]
     pub display_name: String,
+
     #[serde(rename = "type")]
     pub ty: WorkspaceType,
+
+    #[builder(setter(into))]
     pub owner_id: Base64Uuid,
+
+    #[builder(default)]
     pub default_data_sources: SelectedDataSources,
+
+    #[builder(setter(into))]
     pub created_at: Timestamp,
+
+    #[builder(setter(into))]
     pub updated_at: Timestamp,
 }
 
@@ -45,7 +57,7 @@ pub enum WorkspaceType {
 }
 
 /// Payload to be able to invite someone to a workspace.
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -55,6 +67,7 @@ pub enum WorkspaceType {
 #[serde(rename_all = "camelCase")]
 pub struct NewWorkspaceInvite {
     pub email: String,
+
     #[serde(default)]
     pub role: AuthRole,
 }
@@ -93,9 +106,12 @@ pub struct WorkspaceInviteResponse {
 #[serde(rename_all = "camelCase")]
 pub struct NewWorkspace {
     pub name: Name,
-    /// The display name of the workspace. The `name` will be used if none is provided
+
+    /// The display name of the workspace. The `name` will be used if none is provided.
     #[builder(default, setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub display_name: Option<String>,
+
     #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub default_data_sources: Option<SelectedDataSources>,
@@ -124,9 +140,11 @@ pub struct UpdateWorkspace {
     #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub display_name: Option<String>,
-    #[builder(default, setter(strip_option))]
+
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub owner: Option<Base64Uuid>,
+
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub default_data_sources: Option<SelectedDataSources>,
@@ -179,13 +197,25 @@ impl Default for AuthRole {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceInvite {
+    /// ID of the invitation.
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
+    /// ID of the user who sent the invitation.
+    #[builder(setter(into))]
     pub sender: Base64Uuid,
+
+    /// Email address of the invitee.
+    #[builder(setter(into))]
     pub receiver: String,
-    #[serde(with = "time::serde::rfc3339")]
-    pub created_at: OffsetDateTime,
-    #[serde(with = "time::serde::rfc3339")]
-    pub expires_at: OffsetDateTime,
+
+    /// Timestamp at which the invitation was created.
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+
+    /// Timestamp at which the invitation expires.
+    #[builder(setter(into))]
+    pub expires_at: Timestamp,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -197,8 +227,14 @@ pub struct WorkspaceInvite {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct Membership {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
+    #[builder(setter(into))]
     pub email: String,
+
+    #[builder(setter(into))]
     pub name: String,
+
     pub role: AuthRole,
 }

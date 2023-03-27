@@ -19,8 +19,8 @@ pub fn get_query_field<'a>(query_data: &'a str, field_name: &str) -> Cow<'a, str
 
 /// Returns whether the query data string contains any query data that we
 /// understand.
-pub fn has_query_data(query_data: &str) -> bool {
-    if let Some(data) = query_data.strip_prefix(MIME_TYPE_PREFIX) {
+pub fn has_query_data(query_data: impl AsRef<str>) -> bool {
+    if let Some(data) = query_data.as_ref().strip_prefix(MIME_TYPE_PREFIX) {
         !data.is_empty()
     } else {
         false
@@ -34,21 +34,27 @@ pub fn has_query_data(query_data: &str) -> bool {
 /// This functions maintains an alphabetical ordering of the keys in order to
 /// guarantee a consistent result when separate fields are set out of order.
 /// This is to maintain convergence for our OT algorithm.
-pub fn set_query_field(query_data: &str, field_name: &str, value: &str) -> String {
+pub fn set_query_field(
+    query_data: impl AsRef<str>,
+    field_name: impl AsRef<str>,
+    value: impl AsRef<str>,
+) -> String {
     let mut new_query_data = MIME_TYPE_PREFIX.to_owned();
-    let mut inserted = false;
-    if let Some(data) = query_data.strip_prefix(MIME_TYPE_PREFIX) {
-        for (key, existing_value) in form_urlencoded::parse(data.as_bytes()) {
-            if !inserted && key.as_ref() >= field_name {
-                append_query_field(&mut new_query_data, field_name, value);
-                inserted = true;
-            }
-            if key != field_name {
-                append_query_field(&mut new_query_data, &key, &existing_value);
-            }
+    if let Some(data) = query_data.as_ref().strip_prefix(MIME_TYPE_PREFIX) {
+        let (before, after): (Vec<_>, Vec<_>) = form_urlencoded::parse(data.as_bytes())
+            .filter(|(key, _)| key.as_ref() != field_name.as_ref())
+            .partition(|(key, _)| key.as_ref() < field_name.as_ref());
+        for (key, value) in before
+            .iter()
+            .chain(&[(
+                Cow::Borrowed(field_name.as_ref()),
+                Cow::Borrowed(value.as_ref()),
+            )])
+            .chain(after.iter())
+        {
+            append_query_field(&mut new_query_data, key, value);
         }
-    }
-    if !inserted {
+    } else {
         append_query_field(&mut new_query_data, field_name, value);
     }
     new_query_data
@@ -57,11 +63,11 @@ pub fn set_query_field(query_data: &str, field_name: &str, value: &str) -> Strin
 /// Removes a field from the query data.
 ///
 /// Returns the new query data.
-pub fn unset_query_field(query_data: &str, field_name: &str) -> String {
+pub fn unset_query_field(query_data: impl AsRef<str>, field_name: impl AsRef<str>) -> String {
     let mut new_query_data = MIME_TYPE_PREFIX.to_owned();
-    if let Some(data) = query_data.strip_prefix(MIME_TYPE_PREFIX) {
+    if let Some(data) = query_data.as_ref().strip_prefix(MIME_TYPE_PREFIX) {
         for (key, value) in form_urlencoded::parse(data.as_bytes()) {
-            if key != field_name {
+            if key != field_name.as_ref() {
                 append_query_field(&mut new_query_data, &key, &value);
             }
         }
@@ -69,14 +75,20 @@ pub fn unset_query_field(query_data: &str, field_name: &str) -> String {
     new_query_data
 }
 
-fn append_query_field(query_data: &mut String, field_name: &str, value: &str) {
+fn append_query_field(
+    query_data: &mut String,
+    field_name: impl AsRef<str>,
+    value: impl AsRef<str>,
+) {
     if query_data.len() > MIME_TYPE_PREFIX.len() {
         query_data.push('&');
     }
 
-    query_data.extend(form_urlencoded::byte_serialize(field_name.as_bytes()));
+    query_data.extend(form_urlencoded::byte_serialize(
+        field_name.as_ref().as_bytes(),
+    ));
     query_data.push('=');
-    query_data.extend(form_urlencoded::byte_serialize(value.as_bytes()));
+    query_data.extend(form_urlencoded::byte_serialize(value.as_ref().as_bytes()));
 }
 
 #[cfg(test)]

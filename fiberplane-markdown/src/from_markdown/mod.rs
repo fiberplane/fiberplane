@@ -60,9 +60,7 @@ impl<'a> MarkdownConverter<'a> {
         NewNotebook::builder()
             .title(self.parse_title())
             .cells(self.parse_cells())
-            .time_range(NewTimeRange::Relative(
-                RelativeTimeRange::builder().minutes(-60).build(),
-            ))
+            .time_range(NewTimeRange::Relative(RelativeTimeRange::from_minutes(-60)))
             .build()
     }
 

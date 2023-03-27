@@ -4,6 +4,7 @@ use super::providers::Error;
 use crate::blobs::Blob;
 use crate::notebooks::Cell;
 use crate::providers::{ConfigSchema, ProviderConfig, SupportedQueryType};
+use crate::timestamps::Timestamp;
 use base64uuid::{Base64Uuid, InvalidId};
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
@@ -11,27 +12,35 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{self, Debug, Formatter};
 use std::{convert::TryFrom, str::FromStr};
 use strum_macros::Display;
-use time::OffsetDateTime;
 use typed_builder::TypedBuilder;
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, TypedBuilder)]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct Proxy {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
     pub name: Name,
+
     pub status: ProxyStatus,
+
     #[builder(default)]
     pub data_sources: Vec<DataSource>,
+
     #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub token: Option<ProxyToken>,
-    #[builder(default, setter(into))]
+
+    #[builder(default, setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+
     #[builder(setter(into))]
-    pub created_at: OffsetDateTime,
+    pub created_at: Timestamp,
+
     #[builder(setter(into))]
-    pub updated_at: OffsetDateTime,
+    pub updated_at: Timestamp,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, TypedBuilder)]
@@ -43,8 +52,11 @@ pub struct Proxy {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct ProxySummary {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
     pub name: Name,
+
     pub status: ProxyStatus,
 }
 
@@ -81,7 +93,8 @@ pub enum ProxyStatus {
 #[serde(rename_all = "camelCase")]
 pub struct NewProxy {
     pub name: Name,
-    #[builder(default, setter(into))]
+
+    #[builder(default, setter(into, strip_option))]
     pub description: Option<String>,
 }
 
@@ -114,8 +127,10 @@ pub enum InvalidProxyToken {
 pub struct ProxyToken {
     #[builder(setter(into))]
     pub workspace_id: Base64Uuid,
+
     pub proxy_name: Name,
-    #[builder(setter(into))]
+
+    #[builder(default, setter(into))]
     pub token: String,
 }
 
@@ -177,6 +192,8 @@ impl TryFrom<&str> for ProxyToken {
 #[serde(rename_all = "camelCase")]
 pub struct CreateCellsApiRequest {
     pub response: Blob,
+
+    #[builder(setter(into))]
     pub query_type: String,
 }
 
@@ -190,7 +207,11 @@ pub struct CreateCellsApiRequest {
 #[serde(rename_all = "camelCase")]
 pub struct ExtractDataApiRequest {
     pub response: Blob,
+
+    #[builder(setter(into))]
     pub mime_type: String,
+
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub query: Option<String>,
 }
@@ -205,9 +226,13 @@ pub struct ExtractDataApiRequest {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct ServerMessage {
+    #[builder(setter(into))]
     pub op_id: Base64Uuid,
+
     pub data_source_name: Name,
+
     pub protocol_version: u8,
+
     #[serde(flatten)]
     pub payload: ServerMessagePayload,
 }
@@ -254,6 +279,7 @@ impl ServerMessage {
             op_id,
         )
     }
+
     pub fn new_create_cells_request(
         data: Blob,
         query_type: String,
@@ -271,6 +297,7 @@ impl ServerMessage {
             op_id,
         )
     }
+
     pub fn new_extract_data_request(
         data: Blob,
         mime_type: String,
@@ -290,6 +317,7 @@ impl ServerMessage {
             op_id,
         )
     }
+
     pub fn new_get_config_schema_request(
         data_source_name: Name,
         protocol_version: u8,
@@ -302,6 +330,7 @@ impl ServerMessage {
             op_id,
         )
     }
+
     pub fn new_get_supported_query_types_request(
         config: ProviderConfig,
         data_source_name: Name,
@@ -371,6 +400,8 @@ impl Debug for InvokeRequest {
 #[serde(rename_all = "camelCase")]
 pub struct CreateCellsRequest {
     pub response: Blob,
+
+    #[builder(setter(into))]
     pub query_type: String,
 }
 
@@ -393,7 +424,11 @@ impl Debug for CreateCellsRequest {
 #[serde(rename_all = "camelCase")]
 pub struct ExtractDataRequest {
     pub response: Blob,
+
+    #[builder(setter(into))]
     pub mime_type: String,
+
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub query: Option<String>,
 }
@@ -446,7 +481,9 @@ pub struct GetSupportedQueryTypesRequest {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct ProxyMessage {
+    #[builder(default, setter(into, strip_option))]
     pub op_id: Option<Base64Uuid>,
+
     #[serde(flatten)]
     pub payload: ProxyMessagePayload,
 }
@@ -655,13 +692,17 @@ pub struct SetDataSourcesMessage {
 #[serde(tag = "type", rename_all = "camelCase")]
 pub struct UpsertProxyDataSource {
     pub name: Name,
-    #[builder(default, setter(into))]
+
+    #[builder(default, setter(into, strip_option))]
     pub description: Option<String>,
+
     #[builder(setter(into))]
     pub provider_type: String,
+
     #[builder(default)]
     #[serde(default)]
     pub protocol_version: u8,
+
     #[serde(flatten)]
     pub status: DataSourceStatus,
 }

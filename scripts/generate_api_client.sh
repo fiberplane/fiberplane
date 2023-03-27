@@ -61,4 +61,4 @@ fi
 cd "$SCRIPT_DIR/../fiberplane-api-client"
 cargo fmt -p fiberplane-api-client
 
-ln ../scripts/fiberplane-api-client-template/* .
+ln -s ../scripts/fiberplane-api-client-template/* .

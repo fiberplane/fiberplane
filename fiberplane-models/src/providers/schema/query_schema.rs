@@ -1,8 +1,7 @@
+use super::fields::*;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
-
-use super::fields::*;
 
 /// Defines the fields that should be included in the query data.
 ///
@@ -20,6 +19,7 @@ pub type QuerySchema = Vec<QueryField>;
 #[non_exhaustive]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum QueryField {
+    Array(ArrayField),
     Checkbox(CheckboxField),
     DateTimeRange(DateTimeRangeField),
     File(FileField),
@@ -27,7 +27,6 @@ pub enum QueryField {
     Integer(IntegerField),
     Select(SelectField),
     Text(TextField),
-    Array(ArrayField),
 }
 
 impl From<CheckboxField> for QueryField {

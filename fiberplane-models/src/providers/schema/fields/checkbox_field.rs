@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 /// In the case of "application/x-www-form-urlencoded", it will be represented
 /// by the value defined in the `value` field, which will be either present or
 /// not, similar to the encoding of HTML forms.
-#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -64,23 +64,23 @@ impl CheckboxField {
         }
     }
 
-    pub fn with_label(self, label: &str) -> Self {
+    pub fn with_label(self, label: impl Into<String>) -> Self {
         Self {
-            label: label.to_owned(),
+            label: label.into(),
             ..self
         }
     }
 
-    pub fn with_name(self, name: &str) -> Self {
+    pub fn with_name(self, name: impl Into<String>) -> Self {
         Self {
-            name: name.to_owned(),
+            name: name.into(),
             ..self
         }
     }
 
-    pub fn with_value(self, value: &str) -> Self {
+    pub fn with_value(self, value: impl Into<String>) -> Self {
         Self {
-            value: value.to_owned(),
+            value: value.into(),
             ..self
         }
     }

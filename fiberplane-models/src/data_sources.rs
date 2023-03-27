@@ -1,4 +1,4 @@
-use crate::{names::Name, providers::Error};
+use crate::{names::Name, providers::Error, timestamps::Timestamp};
 use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
@@ -6,36 +6,61 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use std::collections::BTreeMap;
 use strum_macros::Display;
-use time::{serde::rfc3339, OffsetDateTime};
 use typed_builder::TypedBuilder;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, TypedBuilder)]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct DataSource {
-    pub name: Name,
-    #[builder(default)]
-    pub proxy_name: Option<Name>,
+    /// Data source ID.
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
+    /// Name of the data source.
+    ///
+    /// Data source names do not need to be unique per workspace, but they are
+    /// unique per proxy.
+    pub name: Name,
+
+    /// Optional name of the FPD instance through which requests to the data
+    /// source should be proxied. This is `None` for direct data sources.
+    #[builder(default, setter(strip_option))]
+    pub proxy_name: Option<Name>,
+
+    /// The type of provider used for querying the data source.
+    #[builder(setter(into))]
     pub provider_type: String,
+
+    /// Protocol version supported by the provider.
     #[builder(default)]
     #[serde(default)]
     pub protocol_version: u8,
-    #[builder(default)]
+
+    /// Optional human-friendly description of the data source.
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    #[builder(default)]
+
+    /// Optional configuration for the data source. If the data source is
+    /// proxied through an FPD instance, the config will not be exposed to
+    /// outside clients.
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub config: Option<Map<String, Value>>,
-    #[builder(default)]
+
+    /// The data source status as reported by the FPD instance. Will be `None`
+    /// for direct data sources.
+    #[builder(default, setter(strip_option))]
     #[serde(flatten, default, skip_serializing_if = "Option::is_none")]
     pub status: Option<DataSourceStatus>,
+
+    /// Timestamp at which the data source was created.
     #[builder(setter(into))]
-    #[serde(with = "rfc3339")]
-    pub created_at: OffsetDateTime,
+    pub created_at: Timestamp,
+
+    /// Timestamp at which the data source or its config was last updated.
     #[builder(setter(into))]
-    #[serde(with = "rfc3339")]
-    pub updated_at: OffsetDateTime,
+    pub updated_at: Timestamp,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Display)]
@@ -56,22 +81,28 @@ pub enum DataSourceStatus {
 #[serde(rename_all = "camelCase")]
 pub struct NewDataSource {
     pub name: Name,
+
     #[builder(setter(into))]
     pub provider_type: String,
-    #[builder(default)]
+
     #[serde(default)]
     pub protocol_version: u8,
-    #[builder(default, setter(into))]
+
+    #[builder(default, setter(into, strip_option))]
     pub description: Option<String>,
+
     #[builder(default, setter(into))]
     pub config: Map<String, Value>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, TypedBuilder)]
+#[derive(Debug, Default, Deserialize, Serialize, Clone, TypedBuilder)]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateDataSource {
+    #[builder(default, setter(into, strip_option))]
     pub description: Option<String>,
+
+    #[builder(default, setter(into, strip_option))]
     pub config: Option<Map<String, Value>>,
 }
 

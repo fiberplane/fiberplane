@@ -1,11 +1,11 @@
 use crate::labels::Label;
 use crate::names::Name;
 use crate::sorting::{NotebookSortFields, Pagination, SortDirection, Sorting, ViewSortFields};
+use crate::timestamps::Timestamp;
 use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
-use time::OffsetDateTime;
 use typed_builder::TypedBuilder;
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -17,25 +17,40 @@ use typed_builder::TypedBuilder;
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct View {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
 
     pub name: Name,
+
+    #[builder(default, setter(into))]
     pub display_name: String,
+
+    #[builder(default, setter(into))]
     pub description: String,
+
+    #[builder(default)]
     pub color: i16,
 
+    #[builder(default)]
     pub labels: Vec<Label>,
+
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub relative_time: Option<RelativeTime>,
+
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sort_by: Option<NotebookSortFields>,
+
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sort_direction: Option<SortDirection>,
 
-    #[serde(with = "time::serde::rfc3339")]
-    pub created_at: OffsetDateTime,
-    #[serde(with = "time::serde::rfc3339")]
-    pub updated_at: OffsetDateTime,
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+
+    #[builder(setter(into))]
+    pub updated_at: Timestamp,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -58,27 +73,34 @@ pub struct ViewQuery {
 #[serde(rename_all = "camelCase")]
 pub struct NewView {
     pub name: Name,
-    #[builder(default, setter(into))]
+
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub display_name: Option<String>,
-    #[builder(setter(into))]
+
+    #[builder(default, setter(into))]
     pub description: String,
+
     #[builder(default)]
     pub color: i16,
+
     #[builder(default)]
     pub labels: Vec<Label>,
-    #[builder(default)]
+
+    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub relative_time: Option<RelativeTime>,
-    #[builder(default)]
+
+    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sort_by: Option<NotebookSortFields>,
-    #[builder(default)]
+
+    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sort_direction: Option<SortDirection>,
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -87,37 +109,43 @@ pub struct NewView {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateView {
-    #[builder(default, setter(into))]
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub display_name: Option<String>,
-    #[builder(default, setter(into))]
+
+    #[builder(default, setter(strip_option))]
     #[serde(
         default,
         deserialize_with = "crate::deserialize_some",
         skip_serializing_if = "Option::is_none"
     )]
     pub description: Option<Option<String>>,
-    #[builder(default)]
+
+    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub color: Option<i16>,
-    #[builder(default)]
+
+    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub labels: Option<Vec<Label>>,
-    #[builder(default)]
+
+    #[builder(default, setter(strip_option))]
     #[serde(
         default,
         deserialize_with = "crate::deserialize_some",
         skip_serializing_if = "Option::is_none"
     )]
     pub relative_time: Option<Option<RelativeTime>>,
-    #[builder(default)]
+
+    #[builder(default, setter(strip_option))]
     #[serde(
         default,
         deserialize_with = "crate::deserialize_some",
         skip_serializing_if = "Option::is_none"
     )]
     pub sort_by: Option<Option<NotebookSortFields>>,
-    #[builder(default)]
+
+    #[builder(default, setter(strip_option))]
     #[serde(
         default,
         deserialize_with = "crate::deserialize_some",
@@ -155,7 +183,7 @@ pub enum TimeUnit {
     Days,
 }
 
-#[derive(Debug, Deserialize, PartialEq, Eq, Serialize, Copy, Clone, TypedBuilder)]
+#[derive(Debug, Deserialize, PartialEq, Eq, Serialize, Copy, Clone)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -171,4 +199,11 @@ pub enum TimeUnit {
 pub struct RelativeTime {
     pub unit: TimeUnit,
     pub value: i64,
+}
+
+impl RelativeTime {
+    /// Constructs a new relative time with the given `value` and `unit`.
+    pub fn new(value: i64, unit: TimeUnit) -> Self {
+        Self { unit, value }
+    }
 }

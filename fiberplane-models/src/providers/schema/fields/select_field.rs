@@ -70,37 +70,37 @@ impl SelectField {
         }
     }
 
-    pub fn with_label(self, label: &str) -> Self {
+    pub fn with_label(self, label: impl Into<String>) -> Self {
         Self {
-            label: label.to_owned(),
+            label: label.into(),
             ..self
         }
     }
 
-    pub fn with_name(self, name: &str) -> Self {
+    pub fn with_name(self, name: impl Into<String>) -> Self {
         Self {
-            name: name.to_owned(),
+            name: name.into(),
             ..self
         }
     }
 
-    pub fn with_options(self, options: &[&str]) -> Self {
+    pub fn with_options(self, options: impl Into<Vec<String>>) -> Self {
         Self {
-            options: options.iter().map(|&s| s.to_owned()).collect(),
+            options: options.into(),
             ..self
         }
     }
 
-    pub fn with_placeholder(self, placeholder: &str) -> Self {
+    pub fn with_placeholder(self, placeholder: impl Into<String>) -> Self {
         Self {
-            placeholder: placeholder.to_owned(),
+            placeholder: placeholder.into(),
             ..self
         }
     }
 
-    pub fn with_prerequisites(self, prerequisites: &[&str]) -> Self {
+    pub fn with_prerequisites(self, prerequisites: impl Into<Vec<String>>) -> Self {
         Self {
-            prerequisites: prerequisites.iter().map(|&s| s.to_owned()).collect(),
+            prerequisites: prerequisites.into(),
             ..self
         }
     }

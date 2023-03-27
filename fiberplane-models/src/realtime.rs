@@ -2,13 +2,13 @@ use crate::comments::{Thread, ThreadItem, UserSummary};
 use crate::events::Event;
 use crate::labels::LabelValidationError;
 use crate::notebooks::operations::Operation;
+use crate::timestamps::Timestamp;
 use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::fmt::Debug;
-use time::OffsetDateTime;
 use typed_builder::TypedBuilder;
 
 /// Real-time message sent by the client over a WebSocket connection.
@@ -144,13 +144,16 @@ pub enum ServerRealtimeMessage {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct AuthenticateMessage {
-    /// Bearer token
+    /// Bearer token.
     #[builder(setter(into))]
     pub token: String,
 
-    /// Operation ID
+    /// Operation ID.
+    ///
+    /// Only messages with an operation ID will receive an `Ack` from the
+    /// server.
     #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -172,20 +175,23 @@ impl Debug for AuthenticateMessage {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct SubscribeMessage {
-    /// ID of the notebook
+    /// ID of the notebook.
     #[builder(setter(into))]
     pub notebook_id: String,
 
     /// The current revision that the client knows about. If this is not the
     /// current revision according to the server, than the server will sent
     /// all operations starting from this revision.
-    #[builder(default, setter(into))]
+    #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub revision: Option<u32>,
 
-    /// Operation ID
+    /// Operation ID.
+    ///
+    /// Only messages with an operation ID will receive an `Ack` from the
+    /// server.
     #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -198,13 +204,16 @@ pub struct SubscribeMessage {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct UnsubscribeMessage {
-    /// ID of the notebook
+    /// ID of the notebook.
     #[builder(setter(into))]
     pub notebook_id: String,
 
-    /// Operation ID
+    /// Operation ID.
+    ///
+    /// Only messages with an operation ID will receive an `Ack` from the
+    /// server.
     #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -217,37 +226,29 @@ pub struct UnsubscribeMessage {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct ApplyOperationMessage {
-    /// ID of the notebook
+    /// ID of the notebook.
     #[builder(setter(into))]
     pub notebook_id: String,
 
-    /// Operation
+    /// The operation to apply.
     pub operation: Operation,
 
-    /// Revision, for a client sending this message it means the desired new
-    /// revision. When it is sent from a server it is the actual revision.
+    /// The revision assigned to the operation.
+    ///
+    /// If a client sends this message, it *requests* this revision to be
+    /// assigned and the operation may be rejected if the revision is already
+    /// assigned.
+    ///
+    /// When a client receives this message, it is the actual revision.
     pub revision: u32,
 
-    /// Operation ID
-    #[builder(default, setter(into))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Operation ID.
+    ///
+    /// Only messages with an operation ID will receive an `Ack` from the
+    /// server.
+    #[builder(default, setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
-}
-
-impl ApplyOperationMessage {
-    pub fn new(
-        notebook_id: String,
-        operation: Operation,
-        revision: u32,
-        op_id: Option<String>,
-    ) -> Self {
-        Self {
-            notebook_id,
-            operation,
-            revision,
-            op_id,
-        }
-    }
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
@@ -259,41 +260,36 @@ impl ApplyOperationMessage {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct ApplyOperationBatchMessage {
-    /// ID of the notebook
+    /// ID of the notebook.
     #[builder(setter(into))]
     pub notebook_id: String,
 
-    /// Operation
-    #[builder(default)]
+    /// The operations to apply.
     pub operations: Vec<Operation>,
 
-    /// Revision, this will be the revision of the first operation. The other
-    /// operations will keep bumping the revision.
+    /// The revision assigned to the operation.
+    ///
+    /// If a client sends this message, it *requests* this revision to be
+    /// assigned and the operations may be rejected if the revision is already
+    /// assigned.
+    ///
+    /// When a client receives this message, it is the actual revision.
     pub revision: u32,
 
-    /// Operation ID
+    /// Operation ID.
+    ///
+    /// Only messages with an operation ID will receive an `Ack` from the
+    /// server.
     #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
-impl ApplyOperationBatchMessage {
-    pub fn new(
-        notebook_id: String,
-        operations: Vec<Operation>,
-        revision: u32,
-        op_id: Option<String>,
-    ) -> Self {
-        Self {
-            notebook_id,
-            operations,
-            revision,
-            op_id,
-        }
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+/// Acknowledgement that the server has received and successfully processed an
+/// operation sent by the client.
+///
+/// Acknowledgement are only sent for client message that include some `op_id`.
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -302,7 +298,8 @@ impl ApplyOperationBatchMessage {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct AckMessage {
-    /// Operation ID.
+    /// ID of the operation being acknowledged. This matches the `op_id` sent by
+    /// the client.
     pub op_id: String,
 }
 
@@ -312,7 +309,7 @@ impl AckMessage {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -322,13 +319,29 @@ impl AckMessage {
 #[serde(rename_all = "camelCase")]
 pub struct ErrMessage {
     /// Error message.
-    #[builder(setter(into))]
     pub error_message: String,
 
-    /// Operation ID. Empty if the user has not provided a op_id.
-    #[builder(default, setter(into))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Operation ID.
+    ///
+    /// This will match the operation ID of the client message that triggered
+    /// the error.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
+}
+
+impl ErrMessage {
+    /// Creates a new error with the given message.
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            error_message: message.into(),
+            op_id: None,
+        }
+    }
+
+    /// Assigns the optional operation ID to the message.
+    pub fn with_optional_op_id(self, op_id: Option<String>) -> Self {
+        Self { op_id, ..self }
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -341,7 +354,11 @@ pub struct ErrMessage {
 #[serde(rename_all = "camelCase")]
 pub struct DebugRequestMessage {
     /// Operation ID.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    ///
+    /// Only messages with an operation ID will receive an `Ack` from the
+    /// server.
+    #[builder(default, setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -355,15 +372,19 @@ pub struct DebugRequestMessage {
 #[serde(rename_all = "camelCase")]
 pub struct DebugResponseMessage {
     /// Session ID.
+    #[builder(setter(into))]
     pub sid: String,
 
     /// Notebooks that the user is subscribed to.
     #[builder(default)]
     pub subscribed_notebooks: Vec<String>,
 
-    /// Operation ID. Empty if the user has not provided a op_id.
-    #[builder(default, setter(into))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Operation ID.
+    ///
+    /// Only messages with an operation ID will receive an `Ack` from the
+    /// server.
+    #[builder(default, setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -377,6 +398,7 @@ pub struct DebugResponseMessage {
 #[serde(rename_all = "camelCase")]
 pub struct EventAddedMessage {
     /// ID of workspace in which the event was added.
+    #[builder(setter(into))]
     pub workspace_id: Base64Uuid,
 
     /// The event that was added.
@@ -393,6 +415,7 @@ pub struct EventAddedMessage {
 #[serde(rename_all = "camelCase")]
 pub struct EventUpdatedMessage {
     /// ID of workspace in which the event was updated.
+    #[builder(setter(into))]
     pub workspace_id: Base64Uuid,
 
     /// The event that was updated.
@@ -409,6 +432,7 @@ pub struct EventUpdatedMessage {
 #[serde(rename_all = "camelCase")]
 pub struct EventDeletedMessage {
     /// ID of workspace in which the event was deleted.
+    #[builder(setter(into))]
     pub workspace_id: Base64Uuid,
 
     /// ID of the event that was deleted.
@@ -425,9 +449,11 @@ pub struct EventDeletedMessage {
 #[serde(rename_all = "camelCase")]
 pub struct MentionMessage {
     /// ID of the notebook in which the user was mentioned.
+    #[builder(setter(into))]
     pub notebook_id: String,
 
     /// ID of the cell in which the user was mentioned.
+    #[builder(setter(into))]
     pub cell_id: String,
 
     /// Who mentioned the user?
@@ -443,11 +469,12 @@ pub struct MentionMessage {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct MentionedBy {
+    #[builder(setter(into))]
     pub name: String,
 }
 
 /// Message sent when an apply operation was rejected by the server.
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -456,11 +483,14 @@ pub struct MentionedBy {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct RejectedMessage {
-    /// The reason why the apply operation was rejected.
+    /// The reason why the operation was rejected.
     pub reason: Box<RejectReason>,
 
-    /// Operation ID. Empty if the user has not provided a op_id.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Operation ID.
+    ///
+    /// Only messages with an operation ID will receive an `Ack` from the
+    /// server.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -580,13 +610,11 @@ pub struct SubscriberAddedMessage {
 
     /// The moment the session was created.
     #[builder(setter(into))]
-    #[serde(with = "time::serde::rfc3339")]
-    pub created_at: OffsetDateTime,
+    pub created_at: Timestamp,
 
     /// The last time the user was active in this session.
     #[builder(setter(into))]
-    #[serde(with = "time::serde::rfc3339")]
-    pub updated_at: OffsetDateTime,
+    pub updated_at: Timestamp,
 
     /// User details associated with the session.
     pub user: User,
@@ -607,9 +635,11 @@ pub struct SubscriberAddedMessage {
 #[serde(rename_all = "camelCase")]
 pub struct SubscriberRemovedMessage {
     /// The ID of the notebook that the user unsubscribed from.
+    #[builder(setter(into))]
     pub notebook_id: String,
 
     /// ID of the session that was removed.
+    #[builder(setter(into))]
     pub session_id: String,
 }
 
@@ -650,9 +680,12 @@ pub struct FocusInfoMessage {
     #[serde(default)]
     pub focus: NotebookFocus,
 
-    /// Operation ID. Empty if the user has not provided a op_id.
+    /// Operation ID.
+    ///
+    /// Only messages with an operation ID will receive an `Ack` from the
+    /// server.
     #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -667,12 +700,16 @@ pub struct FocusInfoMessage {
 pub struct UserTypingCommentClientMessage {
     #[builder(setter(into))]
     pub notebook_id: Base64Uuid,
+
     #[builder(setter(into))]
     pub thread_id: Base64Uuid,
 
-    /// Operation ID. Empty if the user has not provided a op_id.
+    /// Operation ID.
+    ///
+    /// Only messages with an operation ID will receive an `Ack` from the
+    /// server.
     #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -685,12 +722,16 @@ pub struct UserTypingCommentClientMessage {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct SubscribeWorkspaceMessage {
-    /// ID of the workspace
+    /// ID of the workspace.
+    #[builder(setter(into))]
     pub workspace_id: Base64Uuid,
 
-    /// Operation ID
+    /// Operation ID.
+    ///
+    /// Only messages with an operation ID will receive an `Ack` from the
+    /// server.
     #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -703,11 +744,16 @@ pub struct SubscribeWorkspaceMessage {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct UnsubscribeWorkspaceMessage {
-    /// ID of the workspace
+    /// ID of the workspace.
+    #[builder(setter(into))]
     pub workspace_id: Base64Uuid,
 
-    /// Operation ID
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Operation ID.
+    ///
+    /// Only messages with an operation ID will receive an `Ack` from the
+    /// server.
+    #[builder(default, setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub op_id: Option<String>,
 }
 
@@ -721,9 +767,11 @@ pub struct UnsubscribeWorkspaceMessage {
 #[serde(rename_all = "camelCase")]
 pub struct SubscriberChangedFocusMessage {
     /// ID of the session.
+    #[builder(setter(into))]
     pub session_id: String,
 
     /// ID of the notebook.
+    #[builder(setter(into))]
     pub notebook_id: String,
 
     /// User's focus within the notebook.
@@ -759,17 +807,17 @@ pub struct FocusPosition {
     /// Note that fields do not necessarily have to be text fields. For example,
     /// we could also use this to indicate the user has focused a button for
     /// graph navigation.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub field: Option<String>,
 
     /// Offset within the text field.
     /// May be `None` if the focus is not inside a text field.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub offset: Option<u32>,
 }
 
 /// Specifies the user's focus and optional selection within the notebook.
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -779,6 +827,7 @@ pub struct FocusPosition {
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum NotebookFocus {
     /// The user has no focus within the notebook.
+    #[default]
     None,
     /// The user focus is within the notebook and the focus is on a single
     /// position. I.e. there is no selection.
@@ -954,12 +1003,6 @@ impl NotebookFocus {
     }
 }
 
-impl Default for NotebookFocus {
-    fn default() -> Self {
-        Self::None
-    }
-}
-
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
@@ -969,7 +1012,9 @@ impl Default for NotebookFocus {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct ThreadAddedMessage {
+    #[builder(setter(into))]
     pub notebook_id: String,
+
     pub thread: Thread,
 }
 
@@ -982,8 +1027,12 @@ pub struct ThreadAddedMessage {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct ThreadItemAddedMessage {
+    #[builder(setter(into))]
     pub notebook_id: String,
+
+    #[builder(setter(into))]
     pub thread_id: String,
+
     pub thread_item: ThreadItem,
 }
 
@@ -996,8 +1045,12 @@ pub struct ThreadItemAddedMessage {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct ThreadItemUpdatedMessage {
+    #[builder(setter(into))]
     pub notebook_id: String,
+
+    #[builder(setter(into))]
     pub thread_id: String,
+
     pub thread_item: ThreadItem,
 }
 
@@ -1010,7 +1063,10 @@ pub struct ThreadItemUpdatedMessage {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct ThreadDeletedMessage {
+    #[builder(setter(into))]
     pub notebook_id: String,
+
+    #[builder(setter(into))]
     pub thread_id: String,
 }
 
@@ -1023,11 +1079,16 @@ pub struct ThreadDeletedMessage {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct UserTypingCommentServerMessage {
+    #[builder(setter(into))]
     pub notebook_id: String,
+
+    #[builder(setter(into))]
     pub thread_id: String,
+
     pub user: UserSummary,
-    #[serde(with = "time::serde::rfc3339")]
-    pub updated_at: OffsetDateTime,
+
+    #[builder(setter(into))]
+    pub updated_at: Timestamp,
 }
 
 #[cfg(test)]

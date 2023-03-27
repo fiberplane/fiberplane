@@ -1,8 +1,7 @@
+use super::*;
 use fiberplane_models::formatting::Mention;
 use fiberplane_models::notebooks::{DividerCell, Label, ProviderCell, TextCell};
-use time::OffsetDateTime;
-
-use super::*;
+use fiberplane_models::timestamps::Timestamp;
 
 #[test]
 fn formatting_basic() {
@@ -86,7 +85,7 @@ fn format_timestamp() {
     let formatting = vec![AnnotationWithOffset::new(
         3,
         Annotation::Timestamp {
-            timestamp: OffsetDateTime::parse("2020-01-01T00:00:00Z", &Rfc3339).unwrap(),
+            timestamp: Timestamp::parse("2020-01-01T00:00:00Z").unwrap(),
         },
     )];
     let actual = format_content(content, &formatting);
@@ -167,7 +166,6 @@ fn print_cell_handles_formatted_unicode() {
 fn decodes_well_known_provider_cell_data() {
     let mut writer = CodeWriter::new();
     let cell = Cell::Provider(ProviderCell::builder()
-                              .title("".to_string())
         .intent("prometheus,timeseries".to_string())
         .query_data("application/x-www-form-urlencoded,query=apiserver_audit_event_total%7Bjob%3D%22test%22%7D".to_string())
                               .id("c1")
@@ -177,10 +175,7 @@ fn decodes_well_known_provider_cell_data() {
     print_cell(&mut writer, &cell);
     assert_eq!(
         writer.to_string(),
-        "c.prometheus(
-  title='',
-  content='apiserver_audit_event_total{job=\"test\"}',
-),
+        "c.prometheus('apiserver_audit_event_total{job=\"test\"}'),
 "
     );
 }
@@ -189,7 +184,6 @@ fn decodes_well_known_provider_cell_data() {
 fn decodes_arbitrary_provider_cell_data() {
     let mut writer = CodeWriter::new();
     let cell = Cell::Provider(ProviderCell::builder()
-                              .title("".to_string())
         .intent("cloudwatch,x-list-metrics".to_string())
         .query_data("application/x-www-form-urlencoded,query=CPUUtil&tag_name=Environment&tag_values=prod+production".to_string())
                               .id("c1")
@@ -200,7 +194,6 @@ fn decodes_arbitrary_provider_cell_data() {
     assert_eq!(
         writer.to_string(),
         "c.provider(
-  title='',
   intent='cloudwatch,x-list-metrics',
   queryData='application/x-www-form-urlencoded,query=CPUUtil&tag_name=Environment&tag_values=prod+production',
 ),

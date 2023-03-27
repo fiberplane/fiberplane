@@ -15,11 +15,21 @@ use typed_builder::TypedBuilder;
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct Snippet {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
     pub name: Name,
+
+    #[builder(setter(into))]
     pub description: String,
+
+    #[builder(setter(into))]
     pub body: String,
+
+    #[builder(setter(into))]
     pub created_at: Timestamp,
+
+    #[builder(setter(into))]
     pub updated_at: Timestamp,
 }
 
@@ -32,10 +42,18 @@ pub struct Snippet {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct SnippetSummary {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
     pub name: Name,
+
+    #[builder(default, setter(into))]
     pub description: String,
+
+    #[builder(setter(into))]
     pub created_at: Timestamp,
+
+    #[builder(setter(into))]
     pub updated_at: Timestamp,
 }
 
@@ -49,14 +67,16 @@ pub struct SnippetSummary {
 #[serde(rename_all = "camelCase")]
 pub struct NewSnippet {
     pub name: Name,
+
     #[builder(default, setter(into))]
     #[serde(default)]
     pub description: String,
+
     #[builder(setter(into))]
     pub body: String,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, TypedBuilder)]
+#[derive(Debug, Default, Deserialize, Serialize, Clone, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -65,10 +85,11 @@ pub struct NewSnippet {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateSnippet {
-    #[builder(default, setter(into))]
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    #[builder(default, setter(into))]
+
+    #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub body: Option<String>,
 }

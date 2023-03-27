@@ -2,7 +2,6 @@ use crate::{notebooks::Label, timestamps::Timestamp};
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
-use time::OffsetDateTime;
 use typed_builder::TypedBuilder;
 
 /// Formatting to be applied in order to turn plain-text into rich-text.
@@ -12,10 +11,11 @@ use typed_builder::TypedBuilder;
 /// the same offset is undefined).
 pub type Formatting = Vec<AnnotationWithOffset>;
 
-/// Newtype representing `(offset, Annotation)` tuples.
+/// An annotation at a specific offset in the text. Offsets are always
+/// calculated by Unicode scalar values rather than byte indices.
 ///
 /// Used inside the `Formatting` vector.
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -63,16 +63,10 @@ pub enum Annotation {
     EndHighlight,
     StartItalics,
     EndItalics,
-    #[serde(rename_all = "camelCase")]
-    StartLink {
-        url: String,
-    },
+    StartLink { url: String },
     EndLink,
     Mention(Mention),
-    Timestamp {
-        #[serde(with = "time::serde::rfc3339")]
-        timestamp: OffsetDateTime,
-    },
+    Timestamp { timestamp: Timestamp },
     StartStrikethrough,
     EndStrikethrough,
     StartUnderline,
@@ -111,7 +105,7 @@ impl Annotation {
 
 /// A struct that represents all the formatting that is active at any given
 /// character offset.
-#[derive(Debug, Default, Deserialize, Serialize, Clone, PartialEq, Eq, TypedBuilder)]
+#[derive(Debug, Default, Deserialize, Serialize, Clone, PartialEq, Eq)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -258,9 +252,7 @@ impl ActiveFormatting {
         }
         if self.timestamp != reference.timestamp {
             if let Some(timestamp) = self.timestamp {
-                annotations.push(Annotation::Timestamp {
-                    timestamp: *timestamp,
-                })
+                annotations.push(Annotation::Timestamp { timestamp })
             }
         }
         annotations
@@ -310,6 +302,7 @@ impl ActiveFormatting {
 pub struct Mention {
     #[builder(setter(into))]
     pub name: String,
+
     #[builder(setter(into))]
     pub user_id: String,
 }

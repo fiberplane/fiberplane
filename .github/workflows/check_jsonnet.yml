@@ -37,11 +37,10 @@ jobs:
         fi
 
     - name: Verify template docs
-      working-directory: fiberplane-templates
       run: |
         scripts/generate_template_docs.sh
-        if ! git diff --quiet docs/template_api.md ; then
-          echo "::error file=docs/template_api.md::Out of date documentation, did you forgot to regenerate it?";
+        if ! git diff --quiet fiberplane-templates/docs/template_api.md ; then
+          echo "::error file=fiberplane-templates/docs/template_api.md::Out of date documentation, did you forgot to regenerate it?";
           git diff;
           exit 1;
         fi

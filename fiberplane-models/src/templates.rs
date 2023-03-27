@@ -1,13 +1,12 @@
-use crate::names::Name;
+use crate::{names::Name, timestamps::Timestamp};
 use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use time::OffsetDateTime;
 use typed_builder::TypedBuilder;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -27,13 +26,8 @@ pub enum TemplateParameterType {
     Array,
     /// We can only extract the parameter type from function parameters
     /// that have default values
+    #[default]
     Unknown,
-}
-
-impl Default for TemplateParameterType {
-    fn default() -> Self {
-        Self::Unknown
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TypedBuilder)]
@@ -47,9 +41,11 @@ impl Default for TemplateParameterType {
 pub struct TemplateParameter {
     #[builder(setter(into))]
     pub name: String,
+
     #[builder(default)]
     #[serde(rename = "type")]
     pub ty: TemplateParameterType,
+
     #[builder(default, setter(into, strip_option))]
     pub default_value: Option<Value>,
 }
@@ -63,13 +59,22 @@ pub struct TemplateParameter {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct Template {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+
     pub name: Name,
+
+    #[builder(default, setter(into))]
     pub description: String,
+
+    #[builder(setter(into))]
     pub body: String,
-    #[serde(with = "time::serde::rfc3339")]
-    pub created_at: OffsetDateTime,
-    #[serde(with = "time::serde::rfc3339")]
-    pub updated_at: OffsetDateTime,
+
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+
+    #[builder(setter(into))]
+    pub updated_at: Timestamp,
+
     pub parameters: Vec<TemplateParameter>,
 }
