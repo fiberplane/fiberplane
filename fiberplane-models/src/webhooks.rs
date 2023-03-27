@@ -31,11 +31,11 @@ pub struct Webhook {
     pub workspace_id: Base64Uuid,
     pub endpoint: String,
     pub events: Vec<WebhookCategories>,
-    #[builder(default)]
+    #[builder(default, setter(strip_option, into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub shared_secret: Option<String>,
     pub enabled: bool,
-    #[builder(default)]
+    #[builder(default, setter(strip_option, into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub created_by: Option<Base64Uuid>,
     pub created_at: Timestamp,
@@ -64,16 +64,16 @@ pub struct NewWebhook {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateWebhook {
-    #[builder(default, setter(into))]
+    #[builder(default, setter(strip_option, into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub endpoint: Option<String>,
-    #[builder(default)]
+    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub events: Option<Vec<WebhookCategories>>,
-    #[builder(default)]
+    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub regenerate_shared_secret: Option<bool>,
-    #[builder(default)]
+    #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub enabled: Option<bool>,
 }
