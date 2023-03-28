@@ -51,7 +51,13 @@ pub async fn get_previous_alpha_version(
         .into_iter()
         .rev()
         .find(|version| match parse_version(version) {
-            Ok((_, _, _, Some(suffix))) => suffix.starts_with("alpha-"),
+            Ok((_, _, _, Some(suffix))) => {
+                // suffix can sometimes be '-beta.12-alpha.10'
+                match suffix.rsplit_once('-') {
+                    Some((_beta_prefix, alpha_suffix)) => alpha_suffix.starts_with("alpha."),
+                    None => suffix.starts_with("alpha."),
+                }
+            }
             _ => false,
         }))
 }
@@ -60,7 +66,9 @@ pub async fn get_previous_alpha_version(
 ///
 /// Notably, this _includes_ the yanked versions.
 ///
-/// Returned versions are ordered from oldest to newest.
+/// There is no guarantee on the order in the resulting list, it is most
+/// likely to be ordered from older publication date to newest publication date.
+/// Note that "yanking" a version is a publication event, and might change the ordering.
 async fn get_published_versions(index_url: &str, crate_name: &str) -> Result<Vec<String>> {
     let index_url = format!("{index_url}/{}", index_url_path(crate_name));
     let client = Client::new();
@@ -85,6 +93,13 @@ async fn get_published_versions(index_url: &str, crate_name: &str) -> Result<Vec
         .collect()
 }
 
+/// Helper for generating index path to crates
+/// ```rust,ignore
+/// assert_eq!(&index_url_path("fiberplane"), "fi/be/fiberplane");
+/// assert_eq!(&index_url_path("fib"), "3/f/fib");
+/// assert_eq!(&index_url_path("fi"), "2/fi");
+/// assert_eq!(&index_url_path("f"), "1/f");
+/// ```
 fn index_url_path(crate_name: &str) -> String {
     match crate_name.len() {
         1 => format!("1/{crate_name}"),
@@ -105,4 +120,17 @@ fn index_url_path(crate_name: &str) -> String {
 pub async fn is_published(index_url: &str, crate_name: &str, version: &str) -> Result<bool> {
     let versions = get_published_versions(index_url, crate_name).await?;
     Ok(versions.iter().any(|published| published == version))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_index_path() {
+        assert_eq!(&index_url_path("fiberplane"), "fi/be/fiberplane");
+        assert_eq!(&index_url_path("fib"), "3/f/fib");
+        assert_eq!(&index_url_path("fi"), "2/fi");
+        assert_eq!(&index_url_path("f"), "1/f");
+    }
 }
