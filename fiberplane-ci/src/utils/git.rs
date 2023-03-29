@@ -87,7 +87,7 @@ pub fn get_common_ancestor(repo_dir: &str, commit_a: &str, commit_b: &str) -> Re
     Ok(common_ancestor.to_owned())
 }
 
-/// Returns a list of commits, from newest to oldest.
+/// Returns the SHA of the most recent commit.
 pub fn get_latest_commit(repo_dir: &str, branch_name: &str) -> Result<String> {
     let output = cmd!("git", "log", "--pretty=%h", "-n", "1", branch_name)
         .stdout_capture()
