@@ -25,31 +25,94 @@ pub fn did_change(repo_dir: &str, path: &str, since_commit: &str) -> Result<bool
     }
 }
 
-/// Returns whether a path in the repo changes since the previous release branch
-/// was created.
+/// Returns whether a path in the repo has changed since the previous release
+/// branch was created.
 ///
 /// If no previous release branch can be found at all, we consider that a new
 /// release is in order, so this function will return `true` in that case.
 pub fn did_change_since_previous_release(repo_dir: &str, path: &str) -> Result<bool> {
-    let output = cmd!("git", "branch", "--list", "release-*")
-        .dir(repo_dir)
-        .stdout_capture()
-        .run()?
-        .stdout;
-    let release_branches = output
-        .split(|byte| byte == &b'\n')
-        .map(|slice| std::str::from_utf8(slice).map(str::trim))
-        .collect::<Result<Vec<&str>, _>>()?;
-    let Some(latest_release_branch) = release_branches.iter().reduce(|latest_release, release_branch| {
-        std::cmp::max(latest_release, release_branch)
-    }) else {
+    let Some(latest_release_branch) = get_latest_release_branch(repo_dir)? else {
         return Ok(true); // No release found? Report as having changes.
     };
 
     let main_tip = get_latest_commit(repo_dir, "main")?;
-    let release_branch_tip = get_latest_commit(repo_dir, latest_release_branch)?;
+    let release_branch_tip = get_latest_commit(repo_dir, &latest_release_branch)?;
     let common_ancestor = get_common_ancestor(repo_dir, &main_tip, &release_branch_tip)?;
     did_change(repo_dir, path, &common_ancestor)
+}
+
+/// Returns whether a crate in the repo has changed since the previous release
+/// branch was created.
+///
+/// If no previous release branch can be found at all, we consider that a new
+/// release is in order, so this function will return `true` in that case.
+///
+/// If only the version number in the crate's `Cargo.toml` has changed, this
+/// still regards the crate as not having any changes.
+pub fn did_crate_change_since_previous_release_in_anything_except_version(
+    repo_dir: &str,
+    path: &str,
+) -> Result<bool> {
+    let Some(latest_release_branch) = get_latest_release_branch(repo_dir)? else {
+        return Ok(true); // No release found? Report as having changes.
+    };
+
+    let main_tip = get_latest_commit(repo_dir, "main")?;
+    let release_branch_tip = get_latest_commit(repo_dir, &latest_release_branch)?;
+    let common_ancestor = get_common_ancestor(repo_dir, &main_tip, &release_branch_tip)?;
+
+    let output = cmd!(
+        "git",
+        "diff",
+        "--exit-code",
+        "--ignore-space-change",
+        "--no-color", // don't get fancy ideas
+        "-U0",        // disable context lines
+        "HEAD",
+        common_ancestor,
+        "--",
+        path
+    )
+    .stdout_capture()
+    .dir(repo_dir)
+    .unchecked()
+    .run()?;
+    match output.status.code() {
+        Some(1) => did_change_anything_except_version(&output.stdout),
+        Some(0) => Ok(false),
+        Some(code) => bail!("Unexpected exit code ({code}) from `git diff`"),
+        None => bail!("`git diff` terminated unexpectedly"),
+    }
+}
+
+fn did_change_anything_except_version(output: &[u8]) -> Result<bool> {
+    for line in output.split(|byte| byte == &b'\n') {
+        if line.is_empty() {
+            continue;
+        }
+
+        if line.starts_with(b"diff ") || line.starts_with(b"index ") || line.starts_with(b"@@ ") {
+            continue; // This is context we don't care about.
+        }
+
+        if line.starts_with(b"--- ") || line.starts_with(b"+++ ") {
+            if !line.ends_with(b"/Cargo.toml") {
+                return Ok(true); // Found changes to a file other than `Cargo.toml`.
+            }
+        } else if line.starts_with(b"-") {
+            if !line.starts_with(b"-version = ") {
+                return Ok(true); // Found changes to something other than the version.
+            }
+        } else if line.starts_with(b"+") {
+            if !line.starts_with(b"+version = ") {
+                return Ok(true); // Found changes to something other than the version.
+            }
+        } else {
+            bail!("Unexpected diff line. Make sure diff output doesn't contain context lines");
+        }
+    }
+
+    Ok(false)
 }
 
 /// Returns a list of commits, from newest to oldest.
@@ -101,4 +164,57 @@ pub fn get_latest_commit(repo_dir: &str, branch_name: &str) -> Result<String> {
     }
 
     Ok(commit.to_owned())
+}
+
+/// Returns the name of most recent release branch.
+pub fn get_latest_release_branch(repo_dir: &str) -> Result<Option<String>> {
+    let output = cmd!("git", "branch", "--list", "release-*")
+        .dir(repo_dir)
+        .stdout_capture()
+        .run()?
+        .stdout;
+    let release_branches = output
+        .split(|byte| byte == &b'\n')
+        .map(|slice| std::str::from_utf8(slice).map(str::trim))
+        .collect::<Result<Vec<&str>, _>>()?;
+    let latest_release_branch = release_branches
+        .iter()
+        .reduce(|latest_release, release_branch| std::cmp::max(latest_release, release_branch))
+        .cloned()
+        .map(str::to_owned);
+    Ok(latest_release_branch)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::did_change_anything_except_version;
+
+    #[test]
+    fn test_did_change_anything_except_version() {
+        let changed_nothing_output = br#""#;
+        assert!(!did_change_anything_except_version(changed_nothing_output).unwrap());
+
+        let only_changed_version_output = br#"diff --git a/fiberplane-provider-protocol/fiberplane-provider-bindings/Cargo.toml b/fiberplane-provider-protocol/fiberplane-provider-bindings/Cargo.toml
+index 74c999b..3e5422a 100644
+--- a/fiberplane-provider-protocol/fiberplane-provider-bindings/Cargo.toml
++++ b/fiberplane-provider-protocol/fiberplane-provider-bindings/Cargo.toml
+@@ -5 +5 @@ readme = "README.md"
+-version = "2.0.0-beta.2"
++version = "2.0.0-beta.3"
+"#;
+        assert!(!did_change_anything_except_version(only_changed_version_output).unwrap());
+
+        let changed_dependency_output = br#"diff --git a/fiberplane-provider-protocol/fiberplane-provider-bindings/Cargo.toml b/fiberplane-provider-protocol/fiberplane-provider-bindings/Cargo.toml
+index 74c999b..bb32cb4 100644
+--- a/fiberplane-provider-protocol/fiberplane-provider-bindings/Cargo.toml
++++ b/fiberplane-provider-protocol/fiberplane-provider-bindings/Cargo.toml
+@@ -5 +5 @@ readme = "README.md"
+-version = "2.0.0-beta.2"
++version = "2.0.0-beta.3"
+@@ -15 +15 @@ once_cell = { workspace = true }
+-rmp-serde = { version = "1.0" }
++rmp-serde = { version = "1.1" }
+"#;
+        assert!(did_change_anything_except_version(changed_dependency_output).unwrap());
+    }
 }
