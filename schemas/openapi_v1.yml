@@ -283,6 +283,8 @@ components:
           $ref: "#/components/schemas/formatting"
         readOnly:
           type: boolean
+        selectedDataSource:
+          $ref: "#/components/schemas/selectedDataSource"
     blob:
       type: object
       required:

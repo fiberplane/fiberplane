@@ -1,7 +1,7 @@
-use crate::blobs::EncodedBlob;
 use crate::formatting::Formatting;
 pub use crate::labels::Label;
 use crate::query_data::{has_query_data, set_query_field, unset_query_field};
+use crate::{blobs::EncodedBlob, data_sources::SelectedDataSource};
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
@@ -656,6 +656,10 @@ pub struct ProviderCell {
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub read_only: Option<bool>,
+
+    #[builder(default, setter(strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub selected_data_source: Option<SelectedDataSource>,
 }
 
 impl ProviderCell {
