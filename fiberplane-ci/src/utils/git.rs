@@ -2,7 +2,7 @@ use anyhow::{bail, Result};
 use duct::cmd;
 use std::str::Utf8Error;
 
-/// Returns whether a path in the repo changed since the given commit.
+/// Returns whether a path in the repo has changed since the given commit.
 pub fn did_change(repo_dir: &str, path: &str, since_commit: &str) -> Result<bool> {
     let output = cmd!(
         "git",
