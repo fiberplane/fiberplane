@@ -6,6 +6,7 @@ members = [
     "fiberplane-ci",
     "fiberplane-markdown",
     "fiberplane-models",
+    "fiberplane-openapi-rust-gen",
     "fiberplane-provider-protocol",
     "fiberplane-provider-protocol/fiberplane-provider-bindings",
     "fiberplane-provider-protocol/fiberplane-provider-runtime",
@@ -31,6 +32,7 @@ fiberplane-api-client = { version = "1.0.0-beta.1", path = "fiberplane-api-clien
 fiberplane-ci = { version = "0.1.0", path = "fiberplane-ci" }
 fiberplane-markdown = { version = "1.0.0-beta.1", path = "fiberplane-markdown" }
 fiberplane-models = { version = "1.0.0-beta.1", path = "fiberplane-models" }
+fiberplane-openapi-rust-gen = { version = "0.1.0", path = "fiberplane-openapi-rust-gen" }
 fiberplane-provider-bindings = { version = "2.0.0-beta.1", path = "fiberplane-provider-protocol/fiberplane-provider-bindings" }
 fiberplane-provider-runtime = { version = "2.0.0-beta.1", path = "fiberplane-provider-protocol/fiberplane-provider-runtime" }
 fiberplane-templates = { version = "1.0.0-beta.1", path = "fiberplane-templates" }
