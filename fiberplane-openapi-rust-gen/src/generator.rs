@@ -19,7 +19,7 @@ pub fn generate_crate_from_schema(args: &GeneratorArgs) -> Result<()> {
     let document: OpenApi =
         serde_yaml::from_str(&contents).context("Failed to parse OpenAPI document")?;
 
-    generate_crate(document, &args)
+    generate_crate(document, args)
 }
 
 fn generate_crate(document: OpenApi, args: &GeneratorArgs) -> Result<()> {

@@ -12,8 +12,7 @@ instead of generating its own models. This allows us to use the same models in
 the generated code as in the rest of our codebases, including our backend,
 frontend and CLI.
 * Support has been added for common Fiberplane-specific types such as
-  `Base64Uuid`.
-* There is first class support for `HashMap` and `time` data types out of the
-  box, including in query parameters.
+  `Base64Uuid` and `Timestamp`.
+* There is first class support for `HashMap`, including in query parameters.
 
 [0]: https://github.com/OpenAPITools/openapi-generator
