@@ -7,9 +7,11 @@ Fixes FP-(issue)
 
 # Checklist
 
+<!--
 Please make sure all of these are checked before merging. Please leave items
 you think are non-applicable in the list, but use strike-through (`~~`) to
 indicate they don't apply.
+-->
 
 - [ ] The changes have been tested to be backwards compatible.
 - [ ] The OpenAPI schema and generated client have been updated.
@@ -27,5 +29,3 @@ indicate they don't apply.
 <!-- * OT: https://github.com/fiberplane/fiberplane-ot/pull/XXX -->
 
 After merging, please merge related PRs ASAP, so others don't get blocked.
-
-[0]: ../blob/main/scripts/fiberplane-api-client-template/models.txt
