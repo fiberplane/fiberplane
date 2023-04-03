@@ -13,7 +13,7 @@ indicate they don't apply.
 
 - [ ] The changes have been tested to be backwards compatible.
 - [ ] The OpenAPI schema and generated client have been updated.
-- [ ] New models module has been added to [models.txt][0]
+- [ ] New models module has been added to api generator xtask
 - [ ] New types/fields are [well-documented and annotated](/CONTRIBUTING.md#adding-types-and-their-annotations).
 - [ ] The CHANGELOG is updated.
 
