@@ -1,0 +1,24 @@
+[package]
+name = "fiberplane-openapi-rust-gen"
+description = "Fiberplane OpenAPI Rust Client Generator"
+readme = "README.md"
+version = "0.1.0"
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+rust-version = { workspace = true }
+publish = false
+
+[dependencies]
+anyhow = "1"
+cargo_toml = "0.14"
+check_keyword = "0.2.0"
+clap = { version = "4", features = ["derive"] }
+convert_case = "0.5.0"                          # Maybe replace with Inflector down the road
+okapi = "0.7.0-rc.1"
+regex = "1.7.0"
+schemars = "0.8.11"                             # Matches what okapi uses
+serde = { workspace = true }
+serde_yaml = "0.9.14"
+toml = "0.5.9"

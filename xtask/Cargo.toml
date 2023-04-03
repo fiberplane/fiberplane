@@ -12,5 +12,6 @@ clap = { version = "4", features = ["derive"] }
 console = "0.15"
 duct = "0.13"
 fiberplane-ci = { workspace = true }
+fiberplane-openapi-rust-gen = { workspace = true }
 thiserror = "1"
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

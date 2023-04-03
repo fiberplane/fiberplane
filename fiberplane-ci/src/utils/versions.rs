@@ -76,16 +76,15 @@ pub fn matches_base_version(version: &str, base_version: &str) -> bool {
 /// ```rust
 /// use fiberplane_ci::utils::parse_suffix;
 ///
-/// assert_eq!(parse_suffix("alpha.3").unwrap(), ("alpha.", 3));
-/// assert_eq!(parse_suffix("beta.2-alpha.1").unwrap(), ("beta.2-alpha.", 1));
+/// assert_eq!(parse_suffix("alpha.3").unwrap(), ("alpha", 3));
+/// assert_eq!(parse_suffix("beta.2-alpha.1").unwrap(), ("beta.2-alpha", 1));
 /// ```
 pub fn parse_suffix(suffix: &str) -> Result<(&str, u16)> {
-    let Some(last_dot_position) = suffix.chars().rev().position(|char| char == '.') else {
+    let Some((prefix, last_count)) = suffix.rsplit_once('.') else {
         bail!("Suffix contains no dot to mark its count");
     };
-    let count_index = suffix.len() - last_dot_position;
-    let count: u16 = suffix[count_index..].parse()?;
-    Ok((&suffix[..count_index], count))
+    let count: u16 = last_count.parse()?;
+    Ok((prefix, count))
 }
 
 /// Parses a version string into its major, minor and patch components, with an

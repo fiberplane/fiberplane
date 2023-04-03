@@ -24,6 +24,7 @@ async fn main() {
 async fn handle_cli() -> TaskResult {
     let args = Args::parse();
     match args.command {
+        Command::GenerateApiClient => handle_generate_api_client_command(),
         Command::Publish(args) => handle_publish_command(&args).await,
         Command::Version(args) => handle_version_command(&args),
     }
