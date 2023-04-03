@@ -33,6 +33,7 @@ pub fn handle_generate_api_client_command() -> TaskResult {
             "fiberplane_models::tokens::*".to_owned(),
             "fiberplane_models::users::*".to_owned(),
             "fiberplane_models::views::*".to_owned(),
+            "fiberplane_models::webhooks::*".to_owned(),
             "fiberplane_models::workspaces::*".to_owned(),
         ],
         force: false,
