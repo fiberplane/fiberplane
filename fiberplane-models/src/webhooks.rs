@@ -18,6 +18,15 @@ pub enum WebhookCategories {
     FrontMatter,
 }
 
+impl From<WebhookCategories> for i16 {
+    fn from(value: WebhookCategories) -> Self {
+        match value {
+            WebhookCategories::Ping => 0,
+            WebhookCategories::FrontMatter => 1,
+        }
+    }
+}
+
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
@@ -27,13 +36,17 @@ pub enum WebhookCategories {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct Webhook {
+    #[builder(setter(into))]
     pub id: Base64Uuid,
+    #[builder(setter(into))]
     pub workspace_id: Base64Uuid,
+    #[builder(setter(into))]
     pub endpoint: String,
     pub events: Vec<WebhookCategories>,
     #[builder(default, setter(strip_option, into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub shared_secret: Option<String>,
+    #[builder(default)]
     pub enabled: bool,
     #[builder(default, setter(strip_option, into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -51,6 +64,7 @@ pub struct Webhook {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct NewWebhook {
+    #[builder(setter(into))]
     pub endpoint: String,
     pub events: Vec<WebhookCategories>,
 }
