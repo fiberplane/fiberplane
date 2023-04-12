@@ -33,6 +33,17 @@ impl From<WebhookCategories> for i16 {
     }
 }
 
+// required to be a specialized `impl` because only 0 and 1 are covered cases
+impl Into<WebhookCategories> for i16 {
+    fn into(self) -> WebhookCategories {
+        match self {
+            0 => WebhookCategories::Ping,
+            1 => WebhookCategories::FrontMatter,
+            value => panic!("unknown value {value}, expected 0 (ping) or 1 (frontmatter)"),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
