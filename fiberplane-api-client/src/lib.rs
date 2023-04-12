@@ -1867,6 +1867,23 @@ pub async fn view_update(
     Ok(response)
 }
 
+#[doc = r#"Retrieve all webhooks for the current workspace"#]
+pub async fn webhooks_list(
+    client: &ApiClient,
+    workspace_id: base64uuid::Base64Uuid,
+) -> Result<Vec<models::Webhook>> {
+    let mut builder = client.request(
+        Method::GET,
+        &format!(
+            "/api/workspaces/{workspace_id}/webhooks",
+            workspace_id = workspace_id,
+        ),
+    )?;
+    let response = builder.send().await?.error_for_status()?.json().await?;
+
+    Ok(response)
+}
+
 #[doc = r#"Create a new webhook"#]
 pub async fn webhook_create(
     client: &ApiClient,
@@ -1881,25 +1898,6 @@ pub async fn webhook_create(
         ),
     )?;
     builder = builder.json(&payload);
-    let response = builder.send().await?.error_for_status()?.json().await?;
-
-    Ok(response)
-}
-
-#[doc = r#"Retrieve a webhook"#]
-pub async fn webhook_get(
-    client: &ApiClient,
-    workspace_id: base64uuid::Base64Uuid,
-    webhook_id: base64uuid::Base64Uuid,
-) -> Result<models::Webhook> {
-    let mut builder = client.request(
-        Method::GET,
-        &format!(
-            "/api/workspaces/{workspace_id}/webhooks/{webhook_id}",
-            workspace_id = workspace_id,
-            webhook_id = webhook_id,
-        ),
-    )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
 
     Ok(response)

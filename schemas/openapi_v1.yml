@@ -4312,6 +4312,21 @@ paths:
   /api/workspaces/{workspace_id}/webhooks:
     parameters:
       - $ref: "#/components/parameters/workspace_id"
+    get:
+      operationId: webhooks_list
+      summary: Retrieve all webhooks for the current workspace
+      description: Retrieve all webhooks for the current workspace
+      tags:
+        - Webhooks
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/webhook"
     post:
       operationId: webhook_create
       description: Create a new webhook
@@ -4336,19 +4351,6 @@ paths:
     parameters:
       - $ref: "#/components/parameters/workspace_id"
       - $ref: "#/components/parameters/webhook_id"
-    get:
-      operationId: webhook_get
-      summary: Retrieve a webhook
-      description: Retrieve a webhook
-      tags:
-        - Webhooks
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/webhook"
     patch:
       operationId: webhook_update
       summary: Update an existing webhook
