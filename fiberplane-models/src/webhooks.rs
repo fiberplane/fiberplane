@@ -18,12 +18,18 @@ pub enum WebhookCategories {
     FrontMatter,
 }
 
-impl From<WebhookCategories> for i16 {
-    fn from(value: WebhookCategories) -> Self {
+impl From<&WebhookCategories> for i16 {
+    fn from(value: &WebhookCategories) -> Self {
         match value {
             WebhookCategories::Ping => 0,
             WebhookCategories::FrontMatter => 1,
         }
+    }
+}
+
+impl From<WebhookCategories> for i16 {
+    fn from(value: WebhookCategories) -> Self {
+        (&value).into()
     }
 }
 
