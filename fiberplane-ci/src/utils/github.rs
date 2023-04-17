@@ -57,10 +57,13 @@ pub struct Artifact {
 
     pub archive_download_url: String,
 
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: OffsetDateTime,
 
+    #[serde(with = "time::serde::rfc3339")]
     pub updated_at: OffsetDateTime,
 
+    #[serde(with = "time::serde::rfc3339::option")]
     pub expires_at: Option<OffsetDateTime>,
 
     pub workflow_run: Option<WorkflowRunSummary>,
@@ -155,11 +158,14 @@ pub struct WorkflowRun {
     /// The URL to the workflow run.
     pub url: String,
 
+    #[serde(with = "time::serde::rfc3339")]
     pub created_at: OffsetDateTime,
 
+    #[serde(with = "time::serde::rfc3339")]
     pub updated_at: OffsetDateTime,
 
     /// The start time of the latest run. Resets on re-run.
+    #[serde(with = "time::serde::rfc3339::option")]
     pub run_started_at: Option<OffsetDateTime>,
 }
 
