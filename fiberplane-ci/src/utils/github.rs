@@ -1,8 +1,18 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use octocrab::models::{JobId, WorkflowId};
 use octocrab::{Octocrab, Page};
+use secrecy::ExposeSecret;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
+
+pub fn build_octocrab(github_token: &secrecy::SecretString) -> Result<Octocrab> {
+    // NOTE: octocrab stores the personal token as secrecy::SecretString
+    // already, so there might be a way of doing this directly.
+    Octocrab::builder()
+        .personal_token(github_token.expose_secret().clone())
+        .build()
+        .context("Unable to create the GitHub client")
+}
 
 #[async_trait::async_trait]
 pub trait WorkflowsExt {
