@@ -1,8 +1,18 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use octocrab::models::{ArtifactId, JobId, RepositoryId, WorkflowId};
 use octocrab::{Octocrab, Page};
+use secrecy::ExposeSecret;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
+
+pub fn build_octocrab(github_token: &secrecy::SecretString) -> Result<Octocrab> {
+    // NOTE: octocrab stores the personal token as secrecy::SecretString
+    // already, so there might be a way of doing this directly.
+    Octocrab::builder()
+        .personal_token(github_token.expose_secret().clone())
+        .build()
+        .context("Unable to create the GitHub client")
+}
 
 #[async_trait::async_trait]
 pub trait ArtifactsExt {
@@ -33,13 +43,13 @@ impl ArtifactsExt for Octocrab {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 struct ArtifactsParams {
     name: Option<String>,
 }
 
 /// (Incomplete) representation of a Github artifact.
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Artifact {
     /// The ID of the artifact.
     pub id: ArtifactId,
@@ -69,7 +79,7 @@ pub struct Artifact {
     pub workflow_run: Option<WorkflowRunSummary>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct WorkflowRunSummary {
     pub id: JobId,
 
@@ -110,13 +120,13 @@ impl WorkflowsExt for Octocrab {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Clone, Debug, Serialize)]
 struct ListWorkflowRunsParams {
     event: String,
 }
 
 /// (Incomplete) representation of a Github Actions workflow run.
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct WorkflowRun {
     /// The ID of the workflow run.
     pub id: JobId,
@@ -169,7 +179,7 @@ pub struct WorkflowRun {
     pub run_started_at: Option<OffsetDateTime>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum WorkflowStatus {
