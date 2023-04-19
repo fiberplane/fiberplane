@@ -68,7 +68,9 @@ pub struct Webhook {
     #[builder(default, setter(strip_option, into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub created_by: Option<Base64Uuid>,
+    #[builder(setter(into))]
     pub created_at: Timestamp,
+    #[builder(setter(into))]
     pub updated_at: Timestamp,
 }
 
@@ -144,6 +146,7 @@ pub struct WebhookDelivery {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub response_body: Option<String>,
 
+    #[builder(setter(into))]
     pub sent_request_at: Timestamp,
     #[builder(default, setter(into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
