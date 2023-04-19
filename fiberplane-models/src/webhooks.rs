@@ -108,3 +108,61 @@ pub struct UpdateWebhook {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub enabled: Option<bool>,
 }
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::webhooks")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct WebhookDelivery {
+    #[builder(setter(into))]
+    pub id: Base64Uuid,
+    #[builder(setter(into))]
+    pub webhook_id: Base64Uuid,
+    #[builder(setter(into))]
+    pub event: String,
+
+    #[builder(default, setter(strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub status_code: Option<i32>,
+    #[builder(default, setter(strip_option, into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub status_text: Option<String>,
+
+    #[builder(default, setter(into))]
+    pub request_headers: String,
+    #[builder(default, setter(into))]
+    pub request_body: String,
+
+    #[builder(default, setter(strip_option, into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub response_headers: Option<String>,
+    #[builder(default, setter(strip_option, into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub response_body: Option<String>,
+
+    pub sent_request_at: Timestamp,
+    #[builder(default, setter(strip_option, into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub received_response_at: Option<Timestamp>,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::webhooks")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct WebhookDeliverySummary {
+    #[builder(setter(into))]
+    pub id: Base64Uuid,
+    #[builder(setter(into))]
+    pub event: String,
+    pub successful: bool,
+    pub timestamp: Timestamp,
+}

@@ -2200,6 +2200,59 @@ components:
           type: boolean
         enabled:
           type: boolean
+    webhook_delivery:
+      type: object
+      required:
+        - id
+        - webhook_id
+        - event
+        - request_headers
+        - request_body
+        - sent_request_at
+      properties:
+        id:
+          type: string
+          format: base64uuid
+        webhook_id:
+          type: string
+          format: base64uuid
+        event:
+          type: string
+        status_code:
+          type: number
+          format: int32
+        request_headers:
+          type: string
+        request_body:
+          type: string
+        response_headers:
+          type: string
+        response_body:
+          type: string
+        sent_request_at:
+          type: string
+          format: date-time
+        received_response_at:
+          type: string
+          format: date-time
+    webhook_delivery_summary:
+      type: object
+      required:
+        - id
+        - event
+        - successful
+        - timestamp
+      properties:
+        id:
+          type: string
+          format: base64uuid
+        event:
+          type: string
+        successful:
+          type: boolean
+        timestamp:
+          type: string
+          format: date-time
   parameters:
     sortDirection:
       in: query
@@ -2311,6 +2364,14 @@ components:
       in: path
       name: webhook_id
       description: ID of the Webhook
+      required: true
+      schema:
+        type: string
+        format: base64uuid
+    delivery_id:
+      in: path
+      name: delivery_id
+      description: ID of the webhook delivery
       required: true
       schema:
         type: string
@@ -4314,10 +4375,13 @@ paths:
       - $ref: "#/components/parameters/workspace_id"
     get:
       operationId: webhooks_list
-      summary: Retrieve all webhooks for the current workspace
-      description: Retrieve all webhooks for the current workspace
+      summary: Retrieve all webhooks for a specific workspace
+      description: Retrieve all webhooks for a specific workspace
       tags:
         - Webhooks
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
       responses:
         "200":
           description: OK
@@ -4380,3 +4444,57 @@ paths:
       responses:
         "200":
           description: OK
+  /api/workspaces/{workspace_id}/webhooks/{webhook_id}/deliveries:
+    parameters:
+      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/webhook_id"
+    get:
+      operationId: webhook_delivery_list
+      summary: Retrieve a list of deliveries for a specific webhook
+      description: Retrieve a list of deliveries for a specific webhook
+      tags:
+        - Webhooks
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/webhook_delivery_summary"
+  /api/workspaces/{workspace_id}/webhooks/{webhook_id}/deliveries/{delivery_id}:
+    parameters:
+      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/webhook_id"
+      - $ref: "#/components/parameters/delivery_id"
+    get:
+      operationId: webhook_delivery_get
+      summary: Retrieve information about a specific delivery for a specific webhook
+      description: Retrieve information about a specific delivery for a specific webhook
+      tags:
+        - Webhooks
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/webhook_delivery"
+  /api/workspaces/{workspace_id}/webhooks/{webhook_id}/deliveries/{delivery_id}/resend:
+    parameters:
+      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/webhook_id"
+      - $ref: "#/components/parameters/delivery_id"
+    post:
+      operationId: webhook_delivery_resend
+      summary: Resend a specific delivery
+      description: Resend a specific delivery
+      tags:
+        - Webhooks
+      responses:
+        "200":
+          description: OK. Resend has been queued.

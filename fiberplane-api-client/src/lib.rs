@@ -1867,10 +1867,12 @@ pub async fn view_update(
     Ok(response)
 }
 
-#[doc = r#"Retrieve all webhooks for the current workspace"#]
+#[doc = r#"Retrieve all webhooks for a specific workspace"#]
 pub async fn webhooks_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
+    page: Option<i32>,
+    limit: Option<i32>,
 ) -> Result<Vec<models::Webhook>> {
     let mut builder = client.request(
         Method::GET,
@@ -1879,6 +1881,12 @@ pub async fn webhooks_list(
             workspace_id = workspace_id,
         ),
     )?;
+    if let Some(page) = page {
+        builder = builder.query(&[("page", page)]);
+    }
+    if let Some(limit) = limit {
+        builder = builder.query(&[("limit", limit)]);
+    }
     let response = builder.send().await?.error_for_status()?.json().await?;
 
     Ok(response)
@@ -1941,4 +1949,73 @@ pub async fn webhook_update(
     let response = builder.send().await?.error_for_status()?.json().await?;
 
     Ok(response)
+}
+
+#[doc = r#"Retrieve a list of deliveries for a specific webhook"#]
+pub async fn webhook_delivery_list(
+    client: &ApiClient,
+    workspace_id: base64uuid::Base64Uuid,
+    webhook_id: base64uuid::Base64Uuid,
+    page: Option<i32>,
+    limit: Option<i32>,
+) -> Result<Vec<models::WebhookDeliverySummary>> {
+    let mut builder = client.request(
+        Method::GET,
+        &format!(
+            "/api/workspaces/{workspace_id}/webhooks/{webhook_id}/deliveries",
+            workspace_id = workspace_id,
+            webhook_id = webhook_id,
+        ),
+    )?;
+    if let Some(page) = page {
+        builder = builder.query(&[("page", page)]);
+    }
+    if let Some(limit) = limit {
+        builder = builder.query(&[("limit", limit)]);
+    }
+    let response = builder.send().await?.error_for_status()?.json().await?;
+
+    Ok(response)
+}
+
+#[doc = r#"Retrieve information about a specific delivery for a specific webhook"#]
+pub async fn webhook_delivery_get(
+    client: &ApiClient,
+    workspace_id: base64uuid::Base64Uuid,
+    webhook_id: base64uuid::Base64Uuid,
+    delivery_id: base64uuid::Base64Uuid,
+) -> Result<models::WebhookDelivery> {
+    let mut builder = client.request(
+        Method::GET,
+        &format!(
+            "/api/workspaces/{workspace_id}/webhooks/{webhook_id}/deliveries/{delivery_id}",
+            workspace_id = workspace_id,
+            webhook_id = webhook_id,
+            delivery_id = delivery_id,
+        ),
+    )?;
+    let response = builder.send().await?.error_for_status()?.json().await?;
+
+    Ok(response)
+}
+
+#[doc = r#"Resend a specific delivery"#]
+pub async fn webhook_delivery_resend(
+    client: &ApiClient,
+    workspace_id: base64uuid::Base64Uuid,
+    webhook_id: base64uuid::Base64Uuid,
+    delivery_id: base64uuid::Base64Uuid,
+) -> Result<()> {
+    let mut builder = client.request(
+        Method::POST,
+        &format!(
+            "/api/workspaces/{workspace_id}/webhooks/{webhook_id}/deliveries/{delivery_id}/resend",
+            workspace_id = workspace_id,
+            webhook_id = webhook_id,
+            delivery_id = delivery_id,
+        ),
+    )?;
+    let response = builder.send().await?.error_for_status()?;
+
+    Ok(())
 }
