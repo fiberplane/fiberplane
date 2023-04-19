@@ -1,7 +1,8 @@
 # `fiberplane`
 
-This repository is a monorepo for Rust code that is used throughout Fiberplane's
-product.
+This repository is a monorepo for code that is used throughout Fiberplane's
+products. Most of the modules below are Rust crates, but some TypeScript
+packages may be found as well.
 
 ## Overview
 
@@ -14,11 +15,16 @@ product.
   the Fiberplane REST API. Is generated from the OpenAPI schema located in
   `schemas/openapi_v1.yaml` and uses the models from `fiberplane-models`, so the
   client is based on the same models we use internally.
+- [fiberplane-charts](fiberplane-charts/) - A React/TypeScript package for
+  rendering metric charts.
 - [fiberplane-markdown](fiberplane-markdown/) - Utilities to convert Fiberplane
   Notebooks to and from Markdown.
 - [fiberplane-models](fiberplane-models/) - Our core data models, ranging from
   notebook and cell definitions, to types used in the provider protocol as well
   as those for our real-time operations.
+- [fiberplane-openapi-rust-gen](fiberplane-openapi-rust-gen/) - Our custom
+  generator for generating the [fiberplane-api-client](fiberplane-api-client/)
+  crate.
 - [fiberplane-provider-protocol](fiberplane-provider-protocol/) - The definition
   for our low-level provider protocol and the bindings that are generated from
   it.
