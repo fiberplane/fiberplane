@@ -13,32 +13,32 @@ use typed_builder::TypedBuilder;
 )]
 #[non_exhaustive]
 #[serde(rename_all = "lowercase")]
-pub enum WebhookCategories {
+pub enum WebhookCategory {
     Ping,
     FrontMatter,
 }
 
-impl From<&WebhookCategories> for i16 {
-    fn from(value: &WebhookCategories) -> Self {
+impl From<&WebhookCategory> for i16 {
+    fn from(value: &WebhookCategory) -> Self {
         match value {
-            WebhookCategories::Ping => 0,
-            WebhookCategories::FrontMatter => 1,
+            WebhookCategory::Ping => 0,
+            WebhookCategory::FrontMatter => 1,
         }
     }
 }
 
-impl From<WebhookCategories> for i16 {
-    fn from(value: WebhookCategories) -> Self {
+impl From<WebhookCategory> for i16 {
+    fn from(value: WebhookCategory) -> Self {
         (&value).into()
     }
 }
 
 // required to be a specialized `impl` because only 0 and 1 are covered cases
-impl Into<WebhookCategories> for i16 {
-    fn into(self) -> WebhookCategories {
+impl Into<WebhookCategory> for i16 {
+    fn into(self) -> WebhookCategory {
         match self {
-            0 => WebhookCategories::Ping,
-            1 => WebhookCategories::FrontMatter,
+            0 => WebhookCategory::Ping,
+            1 => WebhookCategory::FrontMatter,
             value => panic!("unknown value {value}, expected 0 (ping) or 1 (frontmatter)"),
         }
     }
@@ -59,7 +59,7 @@ pub struct Webhook {
     pub workspace_id: Base64Uuid,
     #[builder(setter(into))]
     pub endpoint: String,
-    pub events: Vec<WebhookCategories>,
+    pub events: Vec<WebhookCategory>,
     #[builder(default, setter(strip_option, into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub shared_secret: Option<String>,
@@ -83,7 +83,7 @@ pub struct Webhook {
 pub struct NewWebhook {
     #[builder(setter(into))]
     pub endpoint: String,
-    pub events: Vec<WebhookCategories>,
+    pub events: Vec<WebhookCategory>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -100,7 +100,7 @@ pub struct UpdateWebhook {
     pub endpoint: Option<String>,
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub events: Option<Vec<WebhookCategories>>,
+    pub events: Option<Vec<WebhookCategory>>,
     #[builder(default)]
     #[serde(default)]
     pub regenerate_shared_secret: bool,
