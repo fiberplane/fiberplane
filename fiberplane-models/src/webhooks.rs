@@ -125,10 +125,10 @@ pub struct WebhookDelivery {
     #[builder(setter(into))]
     pub event: String,
 
-    #[builder(default, setter(strip_option))]
+    #[builder(default)]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status_code: Option<i32>,
-    #[builder(default, setter(strip_option, into))]
+    #[builder(default, setter(into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status_text: Option<String>,
 
@@ -137,15 +137,15 @@ pub struct WebhookDelivery {
     #[builder(default, setter(into))]
     pub request_body: String,
 
-    #[builder(default, setter(strip_option, into))]
+    #[builder(default, setter(into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub response_headers: Option<String>,
-    #[builder(default, setter(strip_option, into))]
+    #[builder(default, setter(into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub response_body: Option<String>,
 
     pub sent_request_at: Timestamp,
-    #[builder(default, setter(strip_option, into))]
+    #[builder(default, setter(into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub received_response_at: Option<Timestamp>,
 }
