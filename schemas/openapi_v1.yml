@@ -4393,8 +4393,13 @@ paths:
                   $ref: "#/components/schemas/webhook"
     post:
       operationId: webhook_create
-      description: Create a new webhook
       summary: Create a new webhook
+      description: | 
+        Create a new webhook. Upon execution of this route, a test event ("ping") will be sent to the endpoint.
+        If sending the ping event fails, the webhook will still be created, but it will be disabled.
+        Please check the response of this endpoint to see whenever `enabled` = `false`,
+        and if that is the case, check the latest delivery to see why. Once the endpoint has been fixed, you
+        can re-deliver the ping payload and if that works, manually re-enable the webhook again.
       tags:
         - Webhooks
       requestBody:
@@ -4418,7 +4423,12 @@ paths:
     patch:
       operationId: webhook_update
       summary: Update an existing webhook
-      description: Updates an existing webhook
+      description: | 
+        Updates an existing webhook. Upon execution of this route, a test event ("ping") will be sent to the endpoint.
+        If sending the ping event fails, the webhook will still be updated, but will be disabled.
+        Please check the response of this endpoint to see whenever `enabled` = `false`, and if that is the case
+        (and not manually requested), check the latest delivery to see why. Once the endpoint has been fixed, you
+        can re-deliver the ping payload and if that works, manually re-enable the webhook again.
       tags:
         - Webhooks
       requestBody:

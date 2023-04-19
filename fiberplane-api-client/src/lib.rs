@@ -1892,7 +1892,12 @@ pub async fn webhooks_list(
     Ok(response)
 }
 
-#[doc = r#"Create a new webhook"#]
+#[doc = r#"Create a new webhook. Upon execution of this route, a test event ("ping") will be sent to the endpoint.
+If sending the ping event fails, the webhook will still be created, but it will be disabled.
+Please check the response of this endpoint to see whenever `enabled` = `false`,
+and if that is the case, check the latest delivery to see why. Once the endpoint has been fixed, you
+can re-deliver the ping payload and if that works, manually re-enable the webhook again.
+"#]
 pub async fn webhook_create(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
@@ -1930,7 +1935,12 @@ pub async fn webhook_delete(
     Ok(())
 }
 
-#[doc = r#"Updates an existing webhook"#]
+#[doc = r#"Updates an existing webhook. Upon execution of this route, a test event ("ping") will be sent to the endpoint.
+If sending the ping event fails, the webhook will still be updated, but will be disabled.
+Please check the response of this endpoint to see whenever `enabled` = `false`, and if that is the case
+(and not manually requested), check the latest delivery to see why. Once the endpoint has been fixed, you
+can re-deliver the ping payload and if that works, manually re-enable the webhook again.
+"#]
 pub async fn webhook_update(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
