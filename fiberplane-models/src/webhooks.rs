@@ -167,5 +167,6 @@ pub struct WebhookDeliverySummary {
     #[builder(setter(into))]
     pub event: String,
     pub successful: bool,
+    #[builder(setter(into))]
     pub timestamp: Timestamp,
 }
