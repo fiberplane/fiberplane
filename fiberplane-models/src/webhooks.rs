@@ -101,9 +101,9 @@ pub struct UpdateWebhook {
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub events: Option<Vec<WebhookCategories>>,
-    #[builder(default, setter(strip_option))]
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub regenerate_shared_secret: Option<bool>,
+    #[builder(default)]
+    #[serde(default)]
+    pub regenerate_shared_secret: bool,
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub enabled: Option<bool>,
