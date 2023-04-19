@@ -33,7 +33,7 @@ changes if the major version hasn't changed.
 - `fiberplane-models`: Added `ArrayField` variant of `QueryField` to specify provider
   query schemas that include rows/records of arbitrary data. (#39)
 - `fiberplane-models`: Added various structures for webhooks. (#41)
-- `fiberplane-models`: Added new webhook endpoints. (#41)
+- `fiberplane-api-client`: Added new webhook endpoints. (#41)
 
 ### Changed
 
