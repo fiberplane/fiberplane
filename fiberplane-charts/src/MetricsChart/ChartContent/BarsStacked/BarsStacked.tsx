@@ -6,7 +6,7 @@ import { useTheme } from "styled-components";
 import { calculateBandwidth } from "./utils";
 import {
     ChartSizeContext,
-    TimeseriesFocusValueContext,
+    FocusedTimeseriesStateContext,
 } from "../../../context";
 import {
     dataToPercentages,
@@ -46,7 +46,7 @@ export const BarsStacked = memo(function BarsStacked(props: Props) {
     });
 
     const bandwidth = calculateBandwidth(xMax, dataItems.length);
-    const { focusedTimeseries } = useContext(TimeseriesFocusValueContext);
+    const { focusedTimeseries } = useContext(FocusedTimeseriesStateContext);
 
     return (
         <>

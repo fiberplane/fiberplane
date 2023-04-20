@@ -1,20 +1,11 @@
-import { useReducer } from "react";
+import { useMemo, useReducer } from "react";
 
+import {
+    defaultControlsState,
+    InteractiveControls,
+    InteractiveControlsState,
+} from "../context";
 import { useHandler } from "./useHandler";
-
-export const defaultControlsState: InteractiveControlsState = { type: "none" };
-
-export type InteractiveControls = {
-    startZoom(start: number | null): void;
-    updateEndValue(end: number): void;
-    startDrag(start: number | null): void;
-    reset(): void;
-};
-
-export type InteractiveControlsState =
-    | { type: "none" }
-    | { type: "drag"; start: number; end?: number }
-    | { type: "zoom"; start: number; end?: number };
 
 type ActionZoomStart = {
     type: "ZOOM_START";
@@ -87,12 +78,17 @@ function controlsStateReducer(
  * Returns zoom/drag handlers and state.
  */
 export function useInteractiveControls(): {
+    interactiveControls: InteractiveControls;
     interactiveControlsState: InteractiveControlsState;
-} & InteractiveControls {
+} {
     const [interactiveControlsState, dispatch] = useReducer(
         controlsStateReducer,
         defaultControlsState,
     );
+
+    const reset = useHandler(() => {
+        dispatch({ type: "RESET" });
+    });
 
     const startZoom = useHandler((start: number) => {
         dispatch({ type: "ZOOM_START", payload: { start } });
@@ -106,15 +102,10 @@ export function useInteractiveControls(): {
         dispatch({ type: "UPDATE_END_VALUE", payload: { end } });
     });
 
-    const reset = useHandler(() => {
-        dispatch({ type: "RESET" });
-    });
+    const interactiveControls = useMemo(
+        () => ({ reset, startDrag, startZoom, updateEndValue }),
+        [reset, startDrag, startZoom, updateEndValue],
+    );
 
-    return {
-        interactiveControlsState,
-        startZoom,
-        updateEndValue,
-        startDrag,
-        reset,
-    };
+    return { interactiveControls, interactiveControlsState };
 }

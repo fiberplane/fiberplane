@@ -5,7 +5,7 @@ import { useTheme } from "styled-components";
 
 import {
     ChartSizeContext,
-    TimeseriesFocusValueContext,
+    FocusedTimeseriesStateContext,
 } from "../../../context";
 import { dateKey, formatTimeseries, toDataItems } from "../../../utils";
 import { getChartColor } from "../../../colors";
@@ -37,7 +37,7 @@ export const DefaultBars = memo(function DefaultBars(
     const { xMax, yMax } = useContext(ChartSizeContext);
 
     const bandwidth = groupScale.bandwidth();
-    const { focusedTimeseries } = useContext(TimeseriesFocusValueContext);
+    const { focusedTimeseries } = useContext(FocusedTimeseriesStateContext);
 
     const seriesData = useMemo(() => {
         return timeseriesData.map((timeseries, index) => {

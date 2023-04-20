@@ -7,13 +7,5 @@ export default {
         file: "dist/index.js",
         sourcemap: true,
     },
-    plugins: [
-        svgr(),
-        swc(
-            defineRollupSwcOption({
-                minify: true,
-                sourceMaps: true,
-            }),
-        ),
-    ],
+    plugins: [svgr(), swc(defineRollupSwcOption({ sourceMaps: true }))],
 };

@@ -8,7 +8,7 @@ import { findUniqueKeys } from "../utils";
 import { getChartColor } from "../colors";
 import { ChartLegendItem } from "./ChartLegendItem";
 import type { Timeseries } from "../providerTypes";
-import { TimeseriesFocusApiContext } from "../context";
+import { FocusedTimeseriesApiContext } from "../context";
 import { useExpandable, useForceUpdate, useHandler } from "../hooks";
 
 const DEFAULT_HEIGHT = 293;
@@ -23,7 +23,7 @@ export const Legend = memo(function Legend({
     const { expandButton, gradient, isExpanded, onScroll, ref } =
         useExpandable<HTMLDivElement>({ defaultHeight: DEFAULT_HEIGHT });
 
-    const { setFocusedTimeseries } = useContext(TimeseriesFocusApiContext);
+    const { setFocusedTimeseries } = useContext(FocusedTimeseriesApiContext);
 
     const maxHeight = isExpanded ? EXPANDED_HEIGHT : DEFAULT_HEIGHT;
 

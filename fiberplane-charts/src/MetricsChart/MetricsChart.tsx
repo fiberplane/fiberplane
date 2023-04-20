@@ -1,23 +1,18 @@
-import { memo, useMemo } from "react";
+import { memo } from "react";
 import styled from "styled-components";
 
 import { ChartControls } from "./ChartControls";
+import { ChartSizeContainerProvider } from "./ChartSizeContainerProvider";
 import {
-    ChartSizeContainerProvider,
     CoreControlsContext,
     InteractiveControlsContext,
     InteractiveControlsStateContext,
-    TimeseriesFocusContextProvider,
 } from "../context";
-import {
-    CoreControls,
-    InteractiveControls,
-    useCoreControls,
-    useInteractiveControls,
-} from "../hooks";
+import { FocusedTimeseriesContextProvider } from "./FocusedTimeseriesContextProvider";
 import { Legend } from "../ChartLegend";
-import type { MetricsChartProps } from "./types";
 import { MainChartContent } from "./MainChartContent";
+import type { MetricsChartProps } from "./types";
+import { useCoreControls, useInteractiveControls } from "../hooks";
 
 export function MetricsChart(props: MetricsChartProps) {
     return props.readOnly ? (
@@ -29,26 +24,12 @@ export function MetricsChart(props: MetricsChartProps) {
 
 function InteractiveMetricsChart(props: MetricsChartProps) {
     const coreControls = useCoreControls(props);
-    const { interactiveControlsState, ...interactiveControls } =
+    const { interactiveControls, interactiveControlsState } =
         useInteractiveControls();
 
-    const { reset, startDrag, startZoom, updateEndValue } = interactiveControls;
-
-    const interactiveControlsValue = useMemo<InteractiveControls>(
-        () => ({ reset, startDrag, startZoom, updateEndValue }),
-        [reset, startDrag, startZoom, updateEndValue],
-    );
-
-    const coreControlsValue = useMemo<CoreControls>(
-        () => ({ zoom: coreControls.zoom, move: coreControls.move }),
-        [coreControls.move, coreControls.zoom],
-    );
-
     return (
-        <CoreControlsContext.Provider value={coreControlsValue}>
-            <InteractiveControlsContext.Provider
-                value={interactiveControlsValue}
-            >
+        <CoreControlsContext.Provider value={coreControls}>
+            <InteractiveControlsContext.Provider value={interactiveControls}>
                 <InteractiveControlsStateContext.Provider
                     value={interactiveControlsState}
                 >
@@ -74,7 +55,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
     const hasMultipleTimeseries = props.timeseriesData.length > 1;
 
     return (
-        <TimeseriesFocusContextProvider>
+        <FocusedTimeseriesContextProvider>
             {!props.readOnly && (
                 <ChartControls
                     {...props}
@@ -83,7 +64,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
             )}
             <MainChartContent {...props} />
             {hasMultipleTimeseries && <Legend {...props} />}
-        </TimeseriesFocusContextProvider>
+        </FocusedTimeseriesContextProvider>
     );
 });
 

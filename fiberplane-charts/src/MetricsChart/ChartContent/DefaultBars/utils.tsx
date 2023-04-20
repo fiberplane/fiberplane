@@ -8,7 +8,7 @@ import {
     insideRange,
 } from "../../../utils";
 import { getChartColor } from "../../../colors";
-import { GraphTooltip } from "../../../hooks";
+import type { GraphTooltip } from "../../../context";
 import { MARGINS } from "../../../constants";
 import type { Metric, Timeseries } from "../../../types";
 import { TimeseriesTableCaption, TimeseriesTableTd } from "../TimeseriesTable";

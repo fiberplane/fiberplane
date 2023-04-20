@@ -7,7 +7,7 @@
         ],
         "noEmit": true,
         "moduleResolution": "bundler",
-        "jsx": "react-jsx",
+        "jsx": "react-jsxdev",
         "rootDir": "src",
         "strict": true,
         "noImplicitReturns": true,

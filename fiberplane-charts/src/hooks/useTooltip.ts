@@ -1,16 +1,8 @@
 import { useRef, useState } from "react";
 
 import type { CloseTooltipFn, ShowTooltipFn, VirtualElement } from "../types";
-import type { SupportColors } from "../colors";
+import type { GraphTooltip } from "../context";
 import { useHandler } from "./useHandler";
-
-export type GraphTooltip = {
-    top: number;
-    left: number;
-    element: SVGSVGElement;
-    colorName: SupportColors;
-    metric: JSX.Element;
-};
 
 export function useTooltip(showTooltip: ShowTooltipFn | undefined) {
     const [graphTooltip, setGraphTooltip] = useState<GraphTooltip | null>(null);

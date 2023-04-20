@@ -1,26 +1,10 @@
-import { createContext, useEffect, useMemo, useRef, useState } from "react";
 import { debounce } from "throttle-debounce";
+import { useEffect, useMemo, useRef, useState } from "react";
 
+import { ChartSizeContext, ChartSizeContextValue } from "../context";
 import { HEIGHT, MARGINS } from "../constants";
 import { mergeRefs } from "../utils";
 import { useIntersectionObserver, useMeasure } from "../hooks";
-
-export type ChartSizeContextValue = {
-    width: number;
-    height: number;
-    xMax: number;
-    yMax: number;
-};
-
-/**
- * Context for tracking the size of the chart.
- */
-export const ChartSizeContext = createContext<ChartSizeContextValue>({
-    width: 0,
-    height: 0,
-    xMax: 0,
-    yMax: 0,
-});
 
 const yMax = HEIGHT - MARGINS.top - MARGINS.bottom;
 

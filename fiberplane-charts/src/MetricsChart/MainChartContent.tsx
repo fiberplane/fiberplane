@@ -6,20 +6,16 @@ import { useContext, useMemo, useState } from "react";
 import { ChartContent } from "./ChartContent";
 import {
     ChartSizeContext,
+    InteractiveControlsState,
     InteractiveControlsStateContext,
     TooltipContext,
 } from "../context";
 import { Container } from "../BaseComponents";
 import { getTimeFormatter } from "../utils";
 import { GridWithAxes } from "./GridWithAxes";
-import {
-    InteractiveControlsState,
-    useMouseControls,
-    useScales,
-    useTooltip,
-} from "../hooks";
 import type { MetricsChartProps } from "./types";
 import { MARGINS } from "../constants";
+import { useMouseControls, useScales, useTooltip } from "../hooks";
 import { ZoomBar } from "./ZoomBar";
 
 export function MainChartContent(props: MetricsChartProps): JSX.Element {

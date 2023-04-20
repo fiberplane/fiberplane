@@ -1,13 +1,11 @@
+import { useMemo } from "react";
+
+import type { CoreControls } from "../context";
 import type { MetricsChartProps } from "../MetricsChart/types";
 import { secondsToTimestamp, timestampToSeconds } from "../utils";
 import { useHandler } from "./useHandler";
 
 const MIN_DURATION = 60; // in seconds
-
-export type CoreControls = {
-    zoom(factor: number, focusRatio?: number): void;
-    move(deltaRation: number): void;
-};
 
 /**
  * Hook for creating convenient move/zoom functions
@@ -59,5 +57,5 @@ export function useCoreControls({
         onChangeTimeRange?.({ from, to });
     });
 
-    return { zoom, move };
+    return useMemo(() => ({ move, zoom }), [move, zoom]);
 }

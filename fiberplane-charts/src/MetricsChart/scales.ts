@@ -1,7 +1,7 @@
 import { scaleUtc, scaleLinear, scaleBand } from "@visx/scale";
 
 import { formatTimeseries } from "../utils";
-import { InteractiveControlsState } from "../hooks";
+import type { InteractiveControlsState } from "../context";
 import type { Metric, StackingType, TimeRange, Timeseries } from "../types";
 
 const getTime = (timestamp: string) => new Date(timestamp).getTime();

@@ -1,12 +1,15 @@
 import { useContext, useMemo } from "react";
 
-import { ChartSizeContext, InteractiveControlsStateContext } from "../context";
+import {
+    ChartSizeContext,
+    InteractiveControlsState,
+    InteractiveControlsStateContext,
+} from "../context";
 import {
     getGroupedScales,
     getTimeScale,
     getValueScale,
 } from "../MetricsChart/scales";
-import { InteractiveControlsState } from "./useInteractiveControls";
 import type { MetricsChartProps, XScaleProps } from "../MetricsChart/types";
 import { secondsToTimestamp, timestampToSeconds } from "../utils";
 import type { TimeRange } from "../types";

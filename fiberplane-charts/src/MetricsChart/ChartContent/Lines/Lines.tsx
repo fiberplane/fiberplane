@@ -4,13 +4,13 @@ import { memo, useContext } from "react";
 
 import {
     ChartSizeContext,
-    TimeseriesFocusValueContext,
+    FocusedTimeseriesStateContext,
     TooltipContext,
 } from "../../../context";
 import {
+    ClosestPointArgs,
     formatTimeseries,
     insideRange,
-    ClosestPointArgs,
     toClosestPointArgs,
 } from "../../../utils";
 import { getChartColor } from "../../../colors";
@@ -78,7 +78,7 @@ export const Lines = memo(function Lines({
         },
     );
 
-    const { focusedTimeseries } = useContext(TimeseriesFocusValueContext);
+    const { focusedTimeseries } = useContext(FocusedTimeseriesStateContext);
 
     return (
         <>

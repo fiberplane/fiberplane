@@ -7,7 +7,7 @@ import { useTheme } from "styled-components";
 
 import {
     ChartSizeContext,
-    TimeseriesFocusValueContext,
+    FocusedTimeseriesStateContext,
     TooltipContext,
 } from "../../context";
 import {
@@ -82,7 +82,7 @@ export const Areas = memo(function Areas({
         }
     };
 
-    const { focusedTimeseries } = useContext(TimeseriesFocusValueContext);
+    const { focusedTimeseries } = useContext(FocusedTimeseriesStateContext);
     const focusedKey = focusedTimeseries && formatTimeseries(focusedTimeseries);
     return (
         <>

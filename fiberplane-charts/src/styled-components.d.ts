@@ -1,4 +1,4 @@
-export interface Theme {
+export interface ChartTheme {
     colorBackground: string;
     colorForeground: string;
     colorBase100: string;
@@ -94,5 +94,5 @@ export interface Theme {
 
 declare module "styled-components" {
     // rome-ignore lint/suspicious/noEmptyInterface: <explanation>
-    export interface DefaultTheme extends Theme {}
+    export interface DefaultTheme extends ChartTheme {}
 }
