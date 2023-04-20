@@ -1,54 +1,56 @@
-import { VirtualElement } from "@popperjs/core";
 import { useRef, useState } from "react";
 
-import type { CloseTooltipFn } from "../../../../types";
-import { showTooltip } from "../../../../thunks";
+import type { CloseTooltipFn, ShowTooltipFn, VirtualElement } from "../types";
+import type { SupportColors } from "../colors";
 import { useHandler } from "./useHandler";
-import { SupportColors } from "../colors";
 
 export type GraphTooltip = {
-  top: number;
-  left: number;
-  element: SVGSVGElement;
-  colorName: SupportColors;
-  metric: JSX.Element;
+    top: number;
+    left: number;
+    element: SVGSVGElement;
+    colorName: SupportColors;
+    metric: JSX.Element;
 };
 
-export function useTooltip() {
-  const [graphTooltip, setGraphTooltip] = useState<GraphTooltip | null>(null);
+export function useTooltip(showTooltip: ShowTooltipFn | undefined) {
+    const [graphTooltip, setGraphTooltip] = useState<GraphTooltip | null>(null);
 
-  const closeFnRef = useRef<CloseTooltipFn | null>(null);
+    const closeFnRef = useRef<CloseTooltipFn | null>(null);
 
-  return {
-    graphTooltip,
+    return {
+        graphTooltip,
 
-    showTooltip: useHandler((tip: GraphTooltip) => {
-      setGraphTooltip(tip);
+        showTooltip: useHandler((tip: GraphTooltip) => {
+            if (!showTooltip) {
+                return;
+            }
 
-      const element: VirtualElement = {
-        getBoundingClientRect: (): DOMRect => {
-          const ctm = tip.element.getScreenCTM();
-          const point = tip.element.createSVGPoint();
-          point.x = tip.left;
-          point.y = tip.top;
+            setGraphTooltip(tip);
 
-          const { x = tip.left, y = tip.top } =
-            ctm === null ? {} : point.matrixTransform(ctm);
+            const element: VirtualElement = {
+                getBoundingClientRect: (): DOMRect => {
+                    const ctm = tip.element.getScreenCTM();
+                    const point = tip.element.createSVGPoint();
+                    point.x = tip.left;
+                    point.y = tip.top;
 
-          return new DOMRect(x - 4, y - 4, 8, 8);
-        },
-        contextElement: tip.element,
-      };
+                    const { x = tip.left, y = tip.top } =
+                        ctm === null ? {} : point.matrixTransform(ctm);
 
-      closeFnRef.current = dispatch(showTooltip(element, tip.metric));
-    }),
+                    return new DOMRect(x - 4, y - 4, 8, 8);
+                },
+                contextElement: tip.element,
+            };
 
-    hideTooltip: useHandler(() => {
-      setGraphTooltip(null);
-      if (closeFnRef.current) {
-        closeFnRef.current();
-        closeFnRef.current = null;
-      }
-    }),
-  };
+            closeFnRef.current = showTooltip(element, tip.metric);
+        }),
+
+        hideTooltip: useHandler(() => {
+            setGraphTooltip(null);
+            if (closeFnRef.current) {
+                closeFnRef.current();
+                closeFnRef.current = null;
+            }
+        }),
+    };
 }

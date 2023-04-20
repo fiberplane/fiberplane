@@ -2,9 +2,9 @@ import { useContext, useMemo } from "react";
 
 import { ChartSizeContext, InteractiveControlsStateContext } from "../context";
 import {
-  getGroupedScales,
-  getTimeScale,
-  getValueScale,
+    getGroupedScales,
+    getTimeScale,
+    getValueScale,
 } from "../MetricsChart/scales";
 import { InteractiveControlsState } from "./useInteractiveControls";
 import type { MetricsChartProps, XScaleProps } from "../MetricsChart/types";
@@ -12,61 +12,68 @@ import { secondsToTimestamp, timestampToSeconds } from "../utils";
 import type { TimeRange } from "../types";
 
 export function useScales({
-  graphType,
-  timeseriesData,
-  stackingType,
-  timeRange,
+    graphType,
+    timeseriesData,
+    stackingType,
+    timeRange,
 }: MetricsChartProps) {
-  const { xMax, yMax } = useContext(ChartSizeContext);
-  const controlsState = useContext(InteractiveControlsStateContext);
+    const { xMax, yMax } = useContext(ChartSizeContext);
+    const controlsState = useContext(InteractiveControlsStateContext);
 
-  const xScaleProps = useMemo((): XScaleProps => {
-    if (graphType === "bar" && stackingType === "none") {
-      return {
-        graphType,
-        stackingType,
-        ...getGroupedScales(timeseriesData, controlsState, xMax),
-      };
-    }
+    const xScaleProps = useMemo((): XScaleProps => {
+        if (graphType === "bar" && stackingType === "none") {
+            return {
+                graphType,
+                stackingType,
+                ...getGroupedScales(timeseriesData, controlsState, xMax),
+            };
+        }
 
-    return {
-      graphType,
-      stackingType,
-      xScale: getTimeScale(
-        translateTimeRange(timeRange, controlsState, xMax),
+        return {
+            graphType,
+            stackingType,
+            xScale: getTimeScale(
+                translateTimeRange(timeRange, controlsState, xMax),
+                xMax,
+            ),
+        } as XScaleProps;
+    }, [
+        timeRange,
         xMax,
-      ),
-    } as XScaleProps;
-  }, [timeRange, xMax, controlsState, graphType, timeseriesData, stackingType]);
+        controlsState,
+        graphType,
+        timeseriesData,
+        stackingType,
+    ]);
 
-  const valueScale = useMemo(
-    () => getValueScale({ timeseriesData, stackingType, yMax }),
-    [timeseriesData, stackingType, yMax],
-  );
+    const yScale = useMemo(
+        () => getValueScale({ timeseriesData, stackingType, yMax }),
+        [timeseriesData, stackingType, yMax],
+    );
 
-  return { valueScale, xScaleProps };
+    return { xScaleProps, yScale };
 }
 
 /**
  * Translates a time-range based on the active zoom state.
  */
 function translateTimeRange(
-  timeRange: TimeRange,
-  controlsState: InteractiveControlsState,
-  xMax: number,
+    timeRange: TimeRange,
+    controlsState: InteractiveControlsState,
+    xMax: number,
 ): TimeRange {
-  if (controlsState.type === "drag") {
-    const { start, end } = controlsState;
-    if (end !== undefined && start !== end) {
-      const from = timestampToSeconds(timeRange.from);
-      const to = timestampToSeconds(timeRange.to);
-      const delta = ((start - end) / xMax) * (to - from);
-      return {
-        from: secondsToTimestamp(from + delta),
-        to: secondsToTimestamp(to + delta),
-      };
+    if (controlsState.type === "drag") {
+        const { start, end } = controlsState;
+        if (end !== undefined && start !== end) {
+            const from = timestampToSeconds(timeRange.from);
+            const to = timestampToSeconds(timeRange.to);
+            const delta = ((start - end) / xMax) * (to - from);
+            return {
+                from: secondsToTimestamp(from + delta),
+                to: secondsToTimestamp(to + delta),
+            };
+        }
     }
-  }
 
-  return timeRange;
+    return timeRange;
 }

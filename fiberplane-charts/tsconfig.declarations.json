@@ -5,13 +5,11 @@
             "ES2020",
             "DOM"
         ],
-        "noEmit": true,
+        "declaration": true,
+        "declarationDir": "dist",
+        "emitDeclarationOnly": true,
         "moduleResolution": "bundler",
         "jsx": "react-jsx",
-        "rootDir": "src",
-        "strict": true,
-        "noImplicitReturns": true,
-        "noFallthroughCasesInSwitch": true,
-        "noUnusedParameters": true,
+        "rootDir": "src"
     }
 }

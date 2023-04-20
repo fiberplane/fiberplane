@@ -1,15 +1,19 @@
 import { swc, defineRollupSwcOption } from "rollup-plugin-swc3";
-import svgr from '@svgr/rollup';
+import svgr from "@svgr/rollup";
 
 export default {
-  input: "src/index.ts",
-  output: {},
-  plugins: [
-    svgr(),
-    swc(
-      defineRollupSwcOption({
-        sourceMaps: true
-      }),
-    ),
-  ],
+    input: "src/index.ts",
+    output: {
+        file: "dist/index.js",
+        sourcemap: true,
+    },
+    plugins: [
+        svgr(),
+        swc(
+            defineRollupSwcOption({
+                minify: true,
+                sourceMaps: true,
+            }),
+        ),
+    ],
 };

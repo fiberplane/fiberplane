@@ -6,54 +6,58 @@ import type { Timeseries } from "../../types";
 import type { ValueScale } from "../scales";
 import type { XScaleProps } from "../types";
 
-type Props = XScaleProps & {
-  timeseriesData: Array<Timeseries>;
-  yScale: ValueScale;
+type Props = {
+    timeseriesData: Array<Timeseries>;
+    xScaleProps: XScaleProps;
+    yScale: ValueScale;
 };
 
 export function ChartContent({
-  timeseriesData,
-  yScale,
-  ...scaleProps
+    timeseriesData,
+    xScaleProps,
+    yScale,
 }: Props): JSX.Element {
-  if (scaleProps.graphType === "line" && scaleProps.stackingType === "none") {
-    return (
-      <Lines
-        timeseriesData={timeseriesData}
-        xScale={scaleProps.xScale}
-        yScale={yScale}
-      />
-    );
-  }
+    if (
+        xScaleProps.graphType === "line" &&
+        xScaleProps.stackingType === "none"
+    ) {
+        return (
+            <Lines
+                timeseriesData={timeseriesData}
+                xScale={xScaleProps.xScale}
+                yScale={yScale}
+            />
+        );
+    }
 
-  if (scaleProps.graphType === "line") {
-    return (
-      <Areas
-        timeseriesData={timeseriesData}
-        xScale={scaleProps.xScale}
-        yScale={yScale}
-        asPercentage={scaleProps.stackingType === "percentage"}
-      />
-    );
-  }
+    if (xScaleProps.graphType === "line") {
+        return (
+            <Areas
+                timeseriesData={timeseriesData}
+                xScale={xScaleProps.xScale}
+                yScale={yScale}
+                asPercentage={xScaleProps.stackingType === "percentage"}
+            />
+        );
+    }
 
-  if (scaleProps.stackingType === "none") {
-    return (
-      <DefaultBars
-        groupScale={scaleProps.groupScale}
-        timeseriesData={timeseriesData}
-        xScale={scaleProps.xScale}
-        yScale={yScale}
-      />
-    );
-  }
+    if (xScaleProps.stackingType === "none") {
+        return (
+            <DefaultBars
+                groupScale={xScaleProps.groupScale}
+                timeseriesData={timeseriesData}
+                xScale={xScaleProps.xScale}
+                yScale={yScale}
+            />
+        );
+    }
 
-  return (
-    <BarsStacked
-      timeseriesData={timeseriesData}
-      xScale={scaleProps.xScale}
-      yScale={yScale}
-      asPercentage={scaleProps.stackingType === "percentage"}
-    />
-  );
+    return (
+        <BarsStacked
+            timeseriesData={timeseriesData}
+            xScale={xScaleProps.xScale}
+            yScale={yScale}
+            asPercentage={xScaleProps.stackingType === "percentage"}
+        />
+    );
 }

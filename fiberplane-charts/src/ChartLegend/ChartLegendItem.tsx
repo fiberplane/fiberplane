@@ -7,69 +7,75 @@ import { FormattedTimeseries, isMac, noop, preventDefault } from "../utils";
 import { useMeasure } from "../hooks";
 
 type Props = {
-  color: string;
-  onHover: () => void;
-  onToggleTimeseriesVisibility: ChartLegendProps["onToggleTimeseriesVisibility"];
-  readOnly: boolean;
-  setSize: (value: number) => void;
-  timeseries: Timeseries;
-  uniqueKeys: Array<string>;
+    color: string;
+    onHover: () => void;
+    onToggleTimeseriesVisibility: ChartLegendProps["onToggleTimeseriesVisibility"];
+    readOnly: boolean;
+    setSize: (value: number) => void;
+    timeseries: Timeseries;
+    uniqueKeys: Array<string>;
 };
 
 export function ChartLegendItem({
-  color,
-  onHover,
-  onToggleTimeseriesVisibility,
-  readOnly,
-  setSize,
-  timeseries,
-  uniqueKeys,
+    color,
+    onHover,
+    onToggleTimeseriesVisibility,
+    readOnly,
+    setSize,
+    timeseries,
+    uniqueKeys,
 }: Props): JSX.Element {
-  const [ref, { height }] = useMeasure<HTMLDivElement>();
+    const [ref, { height }] = useMeasure<HTMLDivElement>();
 
-  useEffect(() => {
-    if (height) {
-      setSize(height);
-    }
-  }, [height, setSize]);
-
-  const toggleTimeseriesVisibility =
-    onToggleTimeseriesVisibility && !readOnly
-      ? (event: React.MouseEvent | React.KeyboardEvent) => {
-          preventDefault(event);
-          const toggleSingle = isMac ? event.metaKey : event.ctrlKey;
-          onToggleTimeseriesVisibility({
-            timeseries,
-            toggleOthers: !toggleSingle,
-          });
+    useEffect(() => {
+        if (height) {
+            setSize(height);
         }
-      : noop;
+    }, [height, setSize]);
 
-  const onKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "Space") {
-      toggleTimeseriesVisibility(event);
-    }
-  };
+    const toggleTimeseriesVisibility =
+        onToggleTimeseriesVisibility && !readOnly
+            ? (event: React.MouseEvent | React.KeyboardEvent) => {
+                  preventDefault(event);
+                  const toggleSingle = isMac ? event.metaKey : event.ctrlKey;
+                  onToggleTimeseriesVisibility({
+                      timeseries,
+                      toggleOthers: !toggleSingle,
+                  });
+              }
+            : noop;
 
-  return (
-    <div ref={ref} onClick={toggleTimeseriesVisibility} onKeyDown={onKeyDown}>
-      <LegendItemContainer
-        onMouseOver={timeseries.visible ? onHover : noop}
-        readOnly={readOnly}
-      >
-        <ColorBlock color={color} selected={timeseries.visible}>
-          {timeseries.visible && <Icon type="check" width="12" height="12" />}
-        </ColorBlock>
-        <Text>
-          <FormattedTimeseries
-            metric={timeseries}
-            sortLabels
-            emphasizedKeys={uniqueKeys}
-          />
-        </Text>
-      </LegendItemContainer>
-    </div>
-  );
+    const onKeyDown = (event: React.KeyboardEvent) => {
+        if (event.key === "Space") {
+            toggleTimeseriesVisibility(event);
+        }
+    };
+
+    return (
+        <div
+            ref={ref}
+            onClick={toggleTimeseriesVisibility}
+            onKeyDown={onKeyDown}
+        >
+            <LegendItemContainer
+                onMouseOver={timeseries.visible ? onHover : noop}
+                readOnly={readOnly}
+            >
+                <ColorBlock color={color} selected={timeseries.visible}>
+                    {timeseries.visible && (
+                        <Icon type="check" width="12" height="12" />
+                    )}
+                </ColorBlock>
+                <Text>
+                    <FormattedTimeseries
+                        metric={timeseries}
+                        sortLabels
+                        emphasizedKeys={uniqueKeys}
+                    />
+                </Text>
+            </LegendItemContainer>
+        </div>
+    );
 }
 
 const ColorBlock = styled.div<{ color: string; selected: boolean }>`
