@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use typed_builder::TypedBuilder;
 
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize)]
+#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
