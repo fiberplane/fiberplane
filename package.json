@@ -12,8 +12,6 @@
         "rome": "^12.0.0"
     },
     "scripts": {
-        "build": "rollup -c -f es && tsc -p tsconfig.declarations.json",
-        "lint": "rome ci .",
-        "test": "jest"
+        "lint": "rome ci ."
     }
 }

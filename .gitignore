@@ -1,7 +1,7 @@
 # VS Code
 .vscode
 
-# Rust 
+# Rust / Cargo
 /target
 Cargo.lock
 
@@ -12,7 +12,6 @@ Cargo.lock
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
-.pnp.*
 node_modules
 package-lock.json
 yarn-error.log

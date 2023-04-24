@@ -1,4 +1,4 @@
-import { jsxDEV, Fragment } from 'react/jsx-dev-runtime';
+import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import * as React from 'react';
 import { forwardRef, memo, Fragment as Fragment$1, createContext, useRef, useCallback, useMemo, useState, useEffect, useReducer, useLayoutEffect, useContext } from 'react';
 import styled, { css, useTheme } from 'styled-components';
@@ -169,13 +169,9 @@ const ICON_MAP = {
 
 function Icon({ type , ...svgProps }) {
     const Component = ICON_MAP[type];
-    return /*#__PURE__*/ jsxDEV(Component, {
+    return /*#__PURE__*/ jsx(Component, {
         ...svgProps
-    }, void 0, false, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/BaseComponents/Icon/Icon.tsx",
-        lineNumber: 11,
-        columnNumber: 12
-    }, this);
+    });
 }
 
 const buttonStyling = css`
@@ -300,14 +296,10 @@ const IconButton = /*#__PURE__*/ forwardRef(function IconButton(props, ref) {
         className: active ? `${className} active` : className,
         "aria-pressed": active
     };
-    return /*#__PURE__*/ jsxDEV(StyledButton, {
+    return /*#__PURE__*/ jsx(StyledButton, {
         ...elementProps,
         children: children
-    }, void 0, false, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/BaseComponents/IconButton.tsx",
-        lineNumber: 164,
-        columnNumber: 12
-    }, this);
+    });
 });
 
 // Dimensions.
@@ -485,40 +477,28 @@ const FormattedTimeseries = /*#__PURE__*/ memo(function FormattedTimeseries({ me
     if (sortLabels) {
         labelEntries = sortBy(labelEntries, ([key])=>key);
     }
-    return /*#__PURE__*/ jsxDEV(Fragment, {
+    return /*#__PURE__*/ jsxs(Fragment, {
         children: [
             name && `${name}: `,
-            labelEntries.map(([key, value], index)=>/*#__PURE__*/ jsxDEV(Fragment$1, {
+            labelEntries.map(([key, value], index)=>/*#__PURE__*/ jsxs(Fragment$1, {
                     children: [
                         index > 0 && ", ",
-                        /*#__PURE__*/ jsxDEV("span", {
+                        /*#__PURE__*/ jsxs("span", {
                             className: key in emphasizedKeys ? "emphasize" : "",
                             children: [
                                 key,
                                 value && [
                                     ": ",
-                                    emphasizedKeys.includes(key) ? /*#__PURE__*/ jsxDEV(Emphasis, {
+                                    emphasizedKeys.includes(key) ? /*#__PURE__*/ jsx(Emphasis, {
                                         children: value
-                                    }, key, false, {
-                                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/utils/formatTimeseries.tsx",
-                                        lineNumber: 61,
-                                        columnNumber: 33
-                                    }, this) : value
+                                    }, key) : value
                                 ]
                             ]
-                        }, void 0, true, {
-                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/utils/formatTimeseries.tsx",
-                            lineNumber: 56,
-                            columnNumber: 21
-                        }, this)
+                        })
                     ]
-                }, key, true, {
-                    fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/utils/formatTimeseries.tsx",
-                    lineNumber: 54,
-                    columnNumber: 17
-                }, this))
+                }, key))
         ]
-    }, void 0, true);
+    });
 });
 
 /**
@@ -602,22 +582,18 @@ const isMac = os === "mac";
     if (!onChangeGraphType && !onChangeStackingType) {
         return null;
     }
-    return /*#__PURE__*/ jsxDEV(ControlsContainer, {
+    return /*#__PURE__*/ jsxs(ControlsContainer, {
         children: [
-            /*#__PURE__*/ jsxDEV(ControlsGroup, {
+            /*#__PURE__*/ jsxs(ControlsGroup, {
                 children: [
-                    onChangeGraphType && /*#__PURE__*/ jsxDEV(ControlsSet, {
+                    onChangeGraphType && /*#__PURE__*/ jsxs(ControlsSet, {
                         children: [
-                            /*#__PURE__*/ jsxDEV(ControlsSetLabel, {
+                            /*#__PURE__*/ jsx(ControlsSetLabel, {
                                 children: "Type"
-                            }, void 0, false, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                                lineNumber: 40,
-                                columnNumber: 25
-                            }, this),
-                            /*#__PURE__*/ jsxDEV(ButtonGroup, {
+                            }),
+                            /*#__PURE__*/ jsxs(ButtonGroup, {
                                 children: [
-                                    /*#__PURE__*/ jsxDEV(IconButton, {
+                                    /*#__PURE__*/ jsx(IconButton, {
                                         active: graphType === "line",
                                         "aria-label": "Line chart",
                                         className: "iconButton",
@@ -625,19 +601,11 @@ const isMac = os === "mac";
                                             preventDefault(event);
                                             onChangeGraphType("line");
                                         },
-                                        children: /*#__PURE__*/ jsxDEV(Icon, {
+                                        children: /*#__PURE__*/ jsx(Icon, {
                                             type: "chart_line"
-                                        }, void 0, false, {
-                                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                                            lineNumber: 51,
-                                            columnNumber: 33
-                                        }, this)
-                                    }, void 0, false, {
-                                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                                        lineNumber: 42,
-                                        columnNumber: 29
-                                    }, this),
-                                    /*#__PURE__*/ jsxDEV(IconButton, {
+                                        })
+                                    }),
+                                    /*#__PURE__*/ jsx(IconButton, {
                                         active: graphType === "bar",
                                         "aria-label": "Bar chart",
                                         className: "iconButton",
@@ -645,42 +613,22 @@ const isMac = os === "mac";
                                             preventDefault(event);
                                             onChangeGraphType("bar");
                                         },
-                                        children: /*#__PURE__*/ jsxDEV(Icon, {
+                                        children: /*#__PURE__*/ jsx(Icon, {
                                             type: "chart_bar"
-                                        }, void 0, false, {
-                                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                                            lineNumber: 63,
-                                            columnNumber: 33
-                                        }, this)
-                                    }, void 0, false, {
-                                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                                        lineNumber: 54,
-                                        columnNumber: 29
-                                    }, this)
+                                        })
+                                    })
                                 ]
-                            }, void 0, true, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                                lineNumber: 41,
-                                columnNumber: 25
-                            }, this)
+                            })
                         ]
-                    }, void 0, true, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                        lineNumber: 39,
-                        columnNumber: 21
-                    }, this),
-                    showStackingControls && onChangeStackingType && /*#__PURE__*/ jsxDEV(ControlsSet, {
+                    }),
+                    showStackingControls && onChangeStackingType && /*#__PURE__*/ jsxs(ControlsSet, {
                         children: [
-                            /*#__PURE__*/ jsxDEV(ControlsSetLabel, {
+                            /*#__PURE__*/ jsx(ControlsSetLabel, {
                                 children: "Stacking"
-                            }, void 0, false, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                                lineNumber: 71,
-                                columnNumber: 25
-                            }, this),
-                            /*#__PURE__*/ jsxDEV(ButtonGroup, {
+                            }),
+                            /*#__PURE__*/ jsxs(ButtonGroup, {
                                 children: [
-                                    /*#__PURE__*/ jsxDEV(IconButton, {
+                                    /*#__PURE__*/ jsx(IconButton, {
                                         active: stackingType === "none",
                                         "aria-label": "Combined/default",
                                         className: "iconButton",
@@ -688,19 +636,11 @@ const isMac = os === "mac";
                                             preventDefault(event);
                                             onChangeStackingType("none");
                                         },
-                                        children: /*#__PURE__*/ jsxDEV(Icon, {
+                                        children: /*#__PURE__*/ jsx(Icon, {
                                             type: "combined"
-                                        }, void 0, false, {
-                                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                                            lineNumber: 82,
-                                            columnNumber: 33
-                                        }, this)
-                                    }, void 0, false, {
-                                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                                        lineNumber: 73,
-                                        columnNumber: 29
-                                    }, this),
-                                    /*#__PURE__*/ jsxDEV(IconButton, {
+                                        })
+                                    }),
+                                    /*#__PURE__*/ jsx(IconButton, {
                                         active: stackingType === "stacked",
                                         "aria-label": "Stacked",
                                         className: "iconButton",
@@ -709,19 +649,11 @@ const isMac = os === "mac";
                                             preventDefault(event);
                                             onChangeStackingType("stacked");
                                         },
-                                        children: /*#__PURE__*/ jsxDEV(Icon, {
+                                        children: /*#__PURE__*/ jsx(Icon, {
                                             type: "stacked"
-                                        }, void 0, false, {
-                                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                                            lineNumber: 95,
-                                            columnNumber: 33
-                                        }, this)
-                                    }, void 0, false, {
-                                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                                        lineNumber: 85,
-                                        columnNumber: 29
-                                    }, this),
-                                    /*#__PURE__*/ jsxDEV(IconButton, {
+                                        })
+                                    }),
+                                    /*#__PURE__*/ jsx(IconButton, {
                                         active: stackingType === "percentage",
                                         "aria-label": "Stacked/percentage",
                                         className: "iconButton",
@@ -729,47 +661,19 @@ const isMac = os === "mac";
                                             preventDefault(event);
                                             onChangeStackingType("percentage");
                                         },
-                                        children: /*#__PURE__*/ jsxDEV(Icon, {
+                                        children: /*#__PURE__*/ jsx(Icon, {
                                             type: "percentage"
-                                        }, void 0, false, {
-                                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                                            lineNumber: 107,
-                                            columnNumber: 33
-                                        }, this)
-                                    }, void 0, false, {
-                                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                                        lineNumber: 98,
-                                        columnNumber: 29
-                                    }, this)
+                                        })
+                                    })
                                 ]
-                            }, void 0, true, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                                lineNumber: 72,
-                                columnNumber: 25
-                            }, this)
+                            })
                         ]
-                    }, void 0, true, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                        lineNumber: 70,
-                        columnNumber: 21
-                    }, this)
+                    })
                 ]
-            }, "core", true, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                lineNumber: 37,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV(ControlsGroup, {}, "meta", false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-                lineNumber: 113,
-                columnNumber: 13
-            }, this)
+            }, "core"),
+            /*#__PURE__*/ jsx(ControlsGroup, {}, "meta")
         ]
-    }, void 0, true, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartControls.tsx",
-        lineNumber: 36,
-        columnNumber: 9
-    }, this);
+    });
 }
 
 /**
@@ -936,32 +840,16 @@ const MIN_DURATION = 60; // in seconds
         asyncUpdate(event.currentTarget);
     });
     return {
-        expandButton: showExpandButton ? /*#__PURE__*/ jsxDEV(Expand, {
+        expandButton: showExpandButton ? /*#__PURE__*/ jsx(Expand, {
             onClick: onClickExpand,
             revert: isExpanded,
-            children: /*#__PURE__*/ jsxDEV(Icon, {
+            children: /*#__PURE__*/ jsx(Icon, {
                 type: "triangle_down"
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/hooks/useExpandable.tsx",
-                lineNumber: 116,
-                columnNumber: 17
-            }, this)
-        }, void 0, false, {
-            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/hooks/useExpandable.tsx",
-            lineNumber: 115,
-            columnNumber: 13
-        }, this) : undefined,
-        gradient: showGradient ? /*#__PURE__*/ jsxDEV(GradientContainer, {
-            children: /*#__PURE__*/ jsxDEV(Gradient, {}, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/hooks/useExpandable.tsx",
-                lineNumber: 121,
-                columnNumber: 17
-            }, this)
-        }, void 0, false, {
-            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/hooks/useExpandable.tsx",
-            lineNumber: 120,
-            columnNumber: 13
-        }, this) : undefined,
+            })
+        }) : undefined,
+        gradient: showGradient ? /*#__PURE__*/ jsx(GradientContainer, {
+            children: /*#__PURE__*/ jsx(Gradient, {})
+        }) : undefined,
         isExpanded: isExpanded || !showExpandButton,
         onScroll,
         ref: setRef
@@ -1535,39 +1423,23 @@ function ChartSizeContainerProvider({ children , className  }) {
     if (height) {
         heightRef.current = height;
     }
-    return /*#__PURE__*/ jsxDEV("div", {
+    return /*#__PURE__*/ jsx("div", {
         ref: ref,
         className: className,
-        children: intersections.some((intersection)=>intersection.isIntersecting) ? /*#__PURE__*/ jsxDEV(ChartSizeContext.Provider, {
+        children: intersections.some((intersection)=>intersection.isIntersecting) ? /*#__PURE__*/ jsx(ChartSizeContext.Provider, {
             value: value,
             children: children
-        }, void 0, false, {
-            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartSizeContainerProvider.tsx",
-            lineNumber: 47,
-            columnNumber: 17
-        }, this) : /*#__PURE__*/ jsxDEV(ChartSkeleton, {
+        }) : /*#__PURE__*/ jsx(ChartSkeleton, {
             height: heightRef.current
-        }, void 0, false, {
-            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartSizeContainerProvider.tsx",
-            lineNumber: 51,
-            columnNumber: 17
-        }, this)
-    }, void 0, false, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartSizeContainerProvider.tsx",
-        lineNumber: 43,
-        columnNumber: 9
-    }, this);
+        })
+    });
 }
 function ChartSkeleton({ height  }) {
-    return /*#__PURE__*/ jsxDEV("div", {
+    return /*#__PURE__*/ jsx("div", {
         style: {
             height
         }
-    }, void 0, false, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartSizeContainerProvider.tsx",
-        lineNumber: 58,
-        columnNumber: 12
-    }, this);
+    });
 }
 function getXMax(width) {
     return width - MARGINS.left - MARGINS.right;
@@ -1594,21 +1466,13 @@ function FocusedTimeseriesContextProvider(props) {
         }), [
         setFocusedTimeseries
     ]);
-    return /*#__PURE__*/ jsxDEV(FocusedTimeseriesApiContext.Provider, {
+    return /*#__PURE__*/ jsx(FocusedTimeseriesApiContext.Provider, {
         value: apiValue,
-        children: /*#__PURE__*/ jsxDEV(FocusedTimeseriesStateContext.Provider, {
+        children: /*#__PURE__*/ jsx(FocusedTimeseriesStateContext.Provider, {
             value: value,
             children: children
-        }, void 0, false, {
-            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/FocusedTimeseriesContextProvider.tsx",
-            lineNumber: 25,
-            columnNumber: 13
-        }, this)
-    }, void 0, false, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/FocusedTimeseriesContextProvider.tsx",
-        lineNumber: 24,
-        columnNumber: 9
-    }, this);
+        })
+    });
 }
 
 const colors = [
@@ -1651,57 +1515,33 @@ function ChartLegendItem({ color , onHover , onToggleTimeseriesVisibility , read
             toggleTimeseriesVisibility(event);
         }
     };
-    return /*#__PURE__*/ jsxDEV("div", {
+    return /*#__PURE__*/ jsx("div", {
         ref: ref,
         onClick: toggleTimeseriesVisibility,
         onKeyDown: onKeyDown,
-        children: /*#__PURE__*/ jsxDEV(LegendItemContainer, {
+        children: /*#__PURE__*/ jsxs(LegendItemContainer, {
             onMouseOver: timeseries.visible ? onHover : noop,
             readOnly: readOnly,
             children: [
-                /*#__PURE__*/ jsxDEV(ColorBlock, {
+                /*#__PURE__*/ jsx(ColorBlock, {
                     color: color,
                     selected: timeseries.visible,
-                    children: timeseries.visible && /*#__PURE__*/ jsxDEV(Icon, {
+                    children: timeseries.visible && /*#__PURE__*/ jsx(Icon, {
                         type: "check",
                         width: "12",
                         height: "12"
-                    }, void 0, false, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/ChartLegend/ChartLegendItem.tsx",
-                        lineNumber: 66,
-                        columnNumber: 25
-                    }, this)
-                }, void 0, false, {
-                    fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/ChartLegend/ChartLegendItem.tsx",
-                    lineNumber: 64,
-                    columnNumber: 17
-                }, this),
-                /*#__PURE__*/ jsxDEV(Text, {
-                    children: /*#__PURE__*/ jsxDEV(FormattedTimeseries, {
+                    })
+                }),
+                /*#__PURE__*/ jsx(Text, {
+                    children: /*#__PURE__*/ jsx(FormattedTimeseries, {
                         metric: timeseries,
                         sortLabels: true,
                         emphasizedKeys: uniqueKeys
-                    }, void 0, false, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/ChartLegend/ChartLegendItem.tsx",
-                        lineNumber: 70,
-                        columnNumber: 21
-                    }, this)
-                }, void 0, false, {
-                    fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/ChartLegend/ChartLegendItem.tsx",
-                    lineNumber: 69,
-                    columnNumber: 17
-                }, this)
+                    })
+                })
             ]
-        }, void 0, true, {
-            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/ChartLegend/ChartLegendItem.tsx",
-            lineNumber: 60,
-            columnNumber: 13
-        }, this)
-    }, void 0, false, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/ChartLegend/ChartLegendItem.tsx",
-        lineNumber: 55,
-        columnNumber: 9
-    }, this);
+        })
+    });
 }
 const ColorBlock = styled.div`
   background: ${({ color , selected  })=>selected ? color : "transparent"};
@@ -1776,9 +1616,9 @@ const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility
     const onMouseOut = ()=>setFocusedTimeseries(null);
     const render = useHandler(({ data , index , style  })=>{
         const timeseries = data[index];
-        return /*#__PURE__*/ jsxDEV("div", {
+        return /*#__PURE__*/ jsx("div", {
             style: style,
-            children: timeseries && /*#__PURE__*/ jsxDEV(ChartLegendItem, {
+            children: timeseries && /*#__PURE__*/ jsx(ChartLegendItem, {
                 color: theme[getChartColor(index)],
                 onHover: ()=>setFocusedTimeseries(timeseries),
                 onToggleTimeseriesVisibility: onToggleTimeseriesVisibility,
@@ -1786,26 +1626,18 @@ const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility
                 timeseries: timeseries,
                 uniqueKeys: uniqueKeys,
                 setSize: (height)=>setSize(index, height)
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/ChartLegend/ChartLegend.tsx",
-                lineNumber: 79,
-                columnNumber: 25
-            }, this)
-        }, void 0, false, {
-            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/ChartLegend/ChartLegend.tsx",
-            lineNumber: 77,
-            columnNumber: 17
-        }, this);
+            })
+        });
     });
-    return /*#__PURE__*/ jsxDEV(ChartLegendContainer, {
+    return /*#__PURE__*/ jsxs(ChartLegendContainer, {
         onMouseOut: onMouseOut,
         ref: ref,
         children: [
-            /*#__PURE__*/ jsxDEV(ExpandableContainer, {
+            /*#__PURE__*/ jsxs(ExpandableContainer, {
                 maxHeight: `${maxHeight}px`,
                 onScroll: onScroll,
                 children: [
-                    /*#__PURE__*/ jsxDEV(VariableSizeList, {
+                    /*#__PURE__*/ jsx(VariableSizeList, {
                         height: Math.min(heightRef.current, maxHeight),
                         width: "100%",
                         ref: listRef,
@@ -1813,40 +1645,20 @@ const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility
                         itemData: timeseriesData,
                         itemSize: getSize,
                         children: render
-                    }, void 0, false, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/ChartLegend/ChartLegend.tsx",
-                        lineNumber: 102,
-                        columnNumber: 17
-                    }, this),
+                    }),
                     gradient
                 ]
-            }, void 0, true, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/ChartLegend/ChartLegend.tsx",
-                lineNumber: 98,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV(Footer, {
+            }),
+            /*#__PURE__*/ jsxs(Footer, {
                 children: [
-                    /*#__PURE__*/ jsxDEV(Results, {
+                    /*#__PURE__*/ jsx(Results, {
                         children: resultsText
-                    }, void 0, false, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/ChartLegend/ChartLegend.tsx",
-                        lineNumber: 115,
-                        columnNumber: 17
-                    }, this),
+                    }),
                     expandButton
                 ]
-            }, void 0, true, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/ChartLegend/ChartLegend.tsx",
-                lineNumber: 114,
-                columnNumber: 13
-            }, this)
+            })
         ]
-    }, void 0, true, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/ChartLegend/ChartLegend.tsx",
-        lineNumber: 97,
-        columnNumber: 9
-    }, this);
+    });
 });
 const ExpandableContainer = styled.div`
   max-height: ${({ maxHeight  })=>maxHeight};
@@ -1932,9 +1744,9 @@ const Areas = /*#__PURE__*/ memo(function Areas({ timeseriesData , xScale , ySca
     };
     const { focusedTimeseries  } = useContext(FocusedTimeseriesStateContext);
     const focusedKey = focusedTimeseries && formatTimeseries(focusedTimeseries);
-    return /*#__PURE__*/ jsxDEV(Fragment, {
+    return /*#__PURE__*/ jsxs(Fragment, {
         children: [
-            /*#__PURE__*/ jsxDEV(AreaStack, {
+            /*#__PURE__*/ jsx(AreaStack, {
                 keys: keys,
                 data: dataItems,
                 x: (d)=>xScale(getTimestamp(d.data)) ?? 0,
@@ -1949,58 +1761,38 @@ const Areas = /*#__PURE__*/ memo(function Areas({ timeseriesData , xScale , ySca
                         const realIndex = timeseriesData.findIndex((item)=>formatTimeseries(item) === series.key);
                         const timeseries = timeseriesData[realIndex];
                         const color = theme[getChartColor(realIndex)];
-                        return /*#__PURE__*/ jsxDEV(Group, {
+                        return /*#__PURE__*/ jsxs(Group, {
                             opacity: focusedKey === null || focusedKey === series.key ? 1 : 0.2,
                             children: [
-                                /*#__PURE__*/ jsxDEV(LinearGradient, {
+                                /*#__PURE__*/ jsx(LinearGradient, {
                                     id: `line-${index}`,
                                     from: color,
                                     to: color,
                                     fromOpacity: 0.15,
                                     toOpacity: 0.03,
                                     toOffset: "80%"
-                                }, void 0, false, {
-                                    fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Areas.tsx",
-                                    lineNumber: 122,
-                                    columnNumber: 37
-                                }, this),
-                                /*#__PURE__*/ jsxDEV("path", {
+                                }),
+                                /*#__PURE__*/ jsx("path", {
                                     id: series.key,
                                     d: path(series) || "",
                                     stroke: color,
                                     fill: `url(#line-${index})`
-                                }, `stack-${series.key}`, false, {
-                                    fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Areas.tsx",
-                                    lineNumber: 130,
-                                    columnNumber: 37
-                                }, this)
+                                }, `stack-${series.key}`)
                             ]
                         }, formatTimeseries(timeseries, {
                             sortLabels: false
-                        }), true, {
-                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Areas.tsx",
-                            lineNumber: 111,
-                            columnNumber: 33
-                        }, this);
+                        }));
                     }).reverse()
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Areas.tsx",
-                lineNumber: 89,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV(Bar, {
+            }),
+            /*#__PURE__*/ jsx(Bar, {
                 width: xMax,
                 height: yMax,
                 fill: "transparent",
                 onMouseMove: handleTooltip,
                 onMouseLeave: hideTooltip
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Areas.tsx",
-                lineNumber: 143,
-                columnNumber: 13
-            }, this)
+            })
         ]
-    }, void 0, true);
+    });
 });
 function closestMetric$2({ dataItems , xRange , yRange  }) {
     let metric = null;
@@ -2043,84 +1835,44 @@ function closestMetric$2({ dataItems , xRange , yRange  }) {
 }
 function formatTimeseriesTooltip$2(timeseries, metric, asPercentage = false) {
     const labelEntries = Object.entries(timeseries.labels);
-    return /*#__PURE__*/ jsxDEV("table", {
+    return /*#__PURE__*/ jsxs("table", {
         children: [
-            /*#__PURE__*/ jsxDEV(TimeseriesTableCaption, {
+            /*#__PURE__*/ jsx(TimeseriesTableCaption, {
                 children: metric.time
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Areas.tsx",
-                lineNumber: 218,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV("thead", {
-                children: /*#__PURE__*/ jsxDEV("tr", {
+            }),
+            /*#__PURE__*/ jsx("thead", {
+                children: /*#__PURE__*/ jsxs("tr", {
                     children: [
-                        /*#__PURE__*/ jsxDEV("th", {
+                        /*#__PURE__*/ jsx("th", {
                             children: timeseries.name || "value"
-                        }, void 0, false, {
-                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Areas.tsx",
-                            lineNumber: 221,
-                            columnNumber: 21
-                        }, this),
-                        /*#__PURE__*/ jsxDEV("th", {
+                        }),
+                        /*#__PURE__*/ jsx("th", {
                             children: asPercentage ? `${metric.value.toLocaleString("en-US", {
                                 maximumFractionDigits: 2,
                                 minimumFractionDigits: 2,
                                 useGrouping: false
                             })}%` : metric.value
-                        }, void 0, false, {
-                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Areas.tsx",
-                            lineNumber: 222,
-                            columnNumber: 21
-                        }, this)
+                        })
                     ]
-                }, void 0, true, {
-                    fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Areas.tsx",
-                    lineNumber: 220,
-                    columnNumber: 17
-                }, this)
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Areas.tsx",
-                lineNumber: 219,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV("tbody", {
-                children: labelEntries.map(([key, value])=>/*#__PURE__*/ jsxDEV("tr", {
+                })
+            }),
+            /*#__PURE__*/ jsx("tbody", {
+                children: labelEntries.map(([key, value])=>/*#__PURE__*/ jsxs("tr", {
                         children: [
-                            /*#__PURE__*/ jsxDEV(TimeseriesTableTd, {
+                            /*#__PURE__*/ jsxs(TimeseriesTableTd, {
                                 children: [
                                     key,
                                     ":"
                                 ]
-                            }, void 0, true, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Areas.tsx",
-                                lineNumber: 236,
-                                columnNumber: 25
-                            }, this),
-                            /*#__PURE__*/ jsxDEV(TimeseriesTableTd, {
+                            }),
+                            /*#__PURE__*/ jsx(TimeseriesTableTd, {
                                 children: value
-                            }, void 0, false, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Areas.tsx",
-                                lineNumber: 237,
-                                columnNumber: 25
-                            }, this)
+                            })
                         ]
-                    }, key, true, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Areas.tsx",
-                        lineNumber: 235,
-                        columnNumber: 21
-                    }, this))
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Areas.tsx",
-                lineNumber: 233,
-                columnNumber: 13
-            }, this)
+                    }, key))
+            })
         ]
-    }, void 0, true, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Areas.tsx",
-        lineNumber: 217,
-        columnNumber: 9
-    }, this);
+    });
 }
 
 // This is the space that's always there even if the padding is set to 0.
@@ -2212,84 +1964,44 @@ function closestMetric$1({ dataItems , xRange , yRange  }) {
 }
 function formatMetricTooltip(timeseries, metric, asPercentage = false) {
     const labelEntries = Object.entries(timeseries.labels);
-    return /*#__PURE__*/ jsxDEV("table", {
+    return /*#__PURE__*/ jsxs("table", {
         children: [
-            /*#__PURE__*/ jsxDEV(TimeseriesTableCaption, {
+            /*#__PURE__*/ jsx(TimeseriesTableCaption, {
                 children: metric.time
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/BarsStacked/hooks.tsx",
-                lineNumber: 138,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV("thead", {
-                children: /*#__PURE__*/ jsxDEV("tr", {
+            }),
+            /*#__PURE__*/ jsx("thead", {
+                children: /*#__PURE__*/ jsxs("tr", {
                     children: [
-                        /*#__PURE__*/ jsxDEV("th", {
+                        /*#__PURE__*/ jsx("th", {
                             children: timeseries.name || "value"
-                        }, void 0, false, {
-                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/BarsStacked/hooks.tsx",
-                            lineNumber: 141,
-                            columnNumber: 21
-                        }, this),
-                        /*#__PURE__*/ jsxDEV("th", {
+                        }),
+                        /*#__PURE__*/ jsx("th", {
                             children: asPercentage ? `${metric.value.toLocaleString("en-US", {
                                 maximumFractionDigits: 2,
                                 minimumFractionDigits: 2,
                                 useGrouping: false
                             })}%` : metric.value
-                        }, void 0, false, {
-                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/BarsStacked/hooks.tsx",
-                            lineNumber: 142,
-                            columnNumber: 21
-                        }, this)
+                        })
                     ]
-                }, void 0, true, {
-                    fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/BarsStacked/hooks.tsx",
-                    lineNumber: 140,
-                    columnNumber: 17
-                }, this)
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/BarsStacked/hooks.tsx",
-                lineNumber: 139,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV("tbody", {
-                children: labelEntries.map(([key, value])=>/*#__PURE__*/ jsxDEV("tr", {
+                })
+            }),
+            /*#__PURE__*/ jsx("tbody", {
+                children: labelEntries.map(([key, value])=>/*#__PURE__*/ jsxs("tr", {
                         children: [
-                            /*#__PURE__*/ jsxDEV(TimeseriesTableTd, {
+                            /*#__PURE__*/ jsxs(TimeseriesTableTd, {
                                 children: [
                                     key,
                                     ": "
                                 ]
-                            }, void 0, true, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/BarsStacked/hooks.tsx",
-                                lineNumber: 156,
-                                columnNumber: 25
-                            }, this),
-                            /*#__PURE__*/ jsxDEV(TimeseriesTableTd, {
+                            }),
+                            /*#__PURE__*/ jsx(TimeseriesTableTd, {
                                 children: value
-                            }, void 0, false, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/BarsStacked/hooks.tsx",
-                                lineNumber: 157,
-                                columnNumber: 25
-                            }, this)
+                            })
                         ]
-                    }, key, true, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/BarsStacked/hooks.tsx",
-                        lineNumber: 155,
-                        columnNumber: 21
-                    }, this))
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/BarsStacked/hooks.tsx",
-                lineNumber: 153,
-                columnNumber: 13
-            }, this)
+                    }, key))
+            })
         ]
-    }, void 0, true, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/BarsStacked/hooks.tsx",
-        lineNumber: 137,
-        columnNumber: 9
-    }, this);
+    });
 }
 
 const BarsStacked = /*#__PURE__*/ memo(function BarsStacked(props) {
@@ -2312,7 +2024,7 @@ const BarsStacked = /*#__PURE__*/ memo(function BarsStacked(props) {
     });
     const bandwidth = calculateBandwidth(xMax, dataItems.length);
     const { focusedTimeseries  } = useContext(FocusedTimeseriesStateContext);
-    return /*#__PURE__*/ jsxDEV(Fragment, {
+    return /*#__PURE__*/ jsxs(Fragment, {
         children: [
             dataItems.map((item)=>{
                 let offsetY = 0;
@@ -2327,17 +2039,13 @@ const BarsStacked = /*#__PURE__*/ memo(function BarsStacked(props) {
                     const translatedY = originalY - offsetY;
                     offsetY += height;
                     const color = theme[getChartColor(realIndex)];
-                    bars.push(/*#__PURE__*/ jsxDEV(LinearGradient, {
+                    bars.push(/*#__PURE__*/ jsx(LinearGradient, {
                         id: `fill-${timestamp}-line-${realIndex}`,
                         from: color,
                         to: color,
                         fromOpacity: 0.15,
                         toOpacity: 0.03
-                    }, `fill-${timestamp}-line-${realIndex}-gradient`, false, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/BarsStacked/BarsStacked.tsx",
-                        lineNumber: 71,
-                        columnNumber: 25
-                    }, this), /*#__PURE__*/ jsxDEV(Bar, {
+                    }, `fill-${timestamp}-line-${realIndex}-gradient`), /*#__PURE__*/ jsx(Bar, {
                         id: `stack-${timestamp}-${realIndex}`,
                         x: x,
                         y: translatedY,
@@ -2346,27 +2054,19 @@ const BarsStacked = /*#__PURE__*/ memo(function BarsStacked(props) {
                         stroke: color,
                         fill: `url(#fill-${timestamp}-line-${realIndex})`,
                         opacity: focusedTimeseries === null || focusedTimeseries === timeseries ? 1 : 0.2
-                    }, `stack-${timestamp}-${realIndex}`, false, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/BarsStacked/BarsStacked.tsx",
-                        lineNumber: 79,
-                        columnNumber: 25
-                    }, this));
+                    }, `stack-${timestamp}-${realIndex}`));
                 }
                 return bars;
             }),
-            /*#__PURE__*/ jsxDEV(Bar, {
+            /*#__PURE__*/ jsx(Bar, {
                 width: xMax,
                 height: yMax,
                 fill: "transparent",
                 onMouseMove: onMouseMove,
                 onMouseLeave: onMouseLeave
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/BarsStacked/BarsStacked.tsx",
-                lineNumber: 100,
-                columnNumber: 13
-            }, this)
+            })
         ]
-    }, void 0, true);
+    });
 });
 
 /**
@@ -2464,81 +2164,41 @@ function getTooltipData({ candidate , groupScale , xScale , yScale , element  })
 }
 function formatTimeseriesTooltip$1(timeseries, metric, activeTimestamp) {
     const labelEntries = Object.entries(timeseries.labels);
-    return /*#__PURE__*/ jsxDEV("table", {
+    return /*#__PURE__*/ jsxs("table", {
         children: [
-            /*#__PURE__*/ jsxDEV(TimeseriesTableCaption, {
+            /*#__PURE__*/ jsx(TimeseriesTableCaption, {
                 children: activeTimestamp
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/DefaultBars/utils.tsx",
-                lineNumber: 230,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV("thead", {
-                children: /*#__PURE__*/ jsxDEV("tr", {
+            }),
+            /*#__PURE__*/ jsx("thead", {
+                children: /*#__PURE__*/ jsxs("tr", {
                     children: [
-                        /*#__PURE__*/ jsxDEV("th", {
+                        /*#__PURE__*/ jsx("th", {
                             children: timeseries.name || "value"
-                        }, void 0, false, {
-                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/DefaultBars/utils.tsx",
-                            lineNumber: 233,
-                            columnNumber: 21
-                        }, this),
-                        /*#__PURE__*/ jsxDEV("th", {
+                        }),
+                        /*#__PURE__*/ jsx("th", {
                             children: metric.value
-                        }, void 0, false, {
-                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/DefaultBars/utils.tsx",
-                            lineNumber: 234,
-                            columnNumber: 21
-                        }, this)
+                        })
                     ]
-                }, void 0, true, {
-                    fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/DefaultBars/utils.tsx",
-                    lineNumber: 232,
-                    columnNumber: 17
-                }, this)
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/DefaultBars/utils.tsx",
-                lineNumber: 231,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV("tbody", {
-                children: labelEntries.map(([key, value])=>/*#__PURE__*/ jsxDEV("tr", {
+                })
+            }),
+            /*#__PURE__*/ jsx("tbody", {
+                children: labelEntries.map(([key, value])=>/*#__PURE__*/ jsxs("tr", {
                         children: [
-                            /*#__PURE__*/ jsxDEV(TimeseriesTableTd, {
+                            /*#__PURE__*/ jsxs(TimeseriesTableTd, {
                                 children: [
                                     key,
                                     ":"
                                 ]
-                            }, void 0, true, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/DefaultBars/utils.tsx",
-                                lineNumber: 240,
-                                columnNumber: 25
-                            }, this),
+                            }),
                             " ",
-                            /*#__PURE__*/ jsxDEV(TimeseriesTableTd, {
+                            /*#__PURE__*/ jsx(TimeseriesTableTd, {
                                 children: value
-                            }, void 0, false, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/DefaultBars/utils.tsx",
-                                lineNumber: 241,
-                                columnNumber: 25
-                            }, this)
+                            })
                         ]
-                    }, key, true, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/DefaultBars/utils.tsx",
-                        lineNumber: 239,
-                        columnNumber: 21
-                    }, this))
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/DefaultBars/utils.tsx",
-                lineNumber: 237,
-                columnNumber: 13
-            }, this)
+                    }, key))
+            })
         ]
-    }, void 0, true, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/DefaultBars/utils.tsx",
-        lineNumber: 229,
-        columnNumber: 9
-    }, this);
+    });
 }
 
 /**
@@ -2627,9 +2287,9 @@ const DefaultBars = /*#__PURE__*/ memo(function DefaultBars(props) {
         timeseriesData,
         groupScale
     ]);
-    return /*#__PURE__*/ jsxDEV(Fragment, {
+    return /*#__PURE__*/ jsxs(Fragment, {
         children: [
-            dataItems.map((dataItem, index)=>/*#__PURE__*/ jsxDEV(Group, {
+            dataItems.map((dataItem, index)=>/*#__PURE__*/ jsx(Group, {
                     transform: `translate(${xScale(new Date(dataItem[dateKey]).getTime())}, 0)`,
                     children: seriesData.map(({ timeseries , x , colorName  }, keyIndex)=>{
                         const value = dataItem.data.get(timeseries);
@@ -2637,7 +2297,7 @@ const DefaultBars = /*#__PURE__*/ memo(function DefaultBars(props) {
                             return null;
                         }
                         const color = theme[colorName];
-                        return /*#__PURE__*/ jsxDEV(Bar, {
+                        return /*#__PURE__*/ jsx(Bar, {
                             id: `stack-${index}-${keyIndex}`,
                             x: x,
                             y: yScale(value),
@@ -2649,36 +2309,24 @@ const DefaultBars = /*#__PURE__*/ memo(function DefaultBars(props) {
                             opacity: focusedTimeseries === null || focusedTimeseries === timeseries ? 1 : 0.2
                         }, formatTimeseries(timeseries, {
                             sortLabels: false
-                        }), false, {
-                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/DefaultBars/DefaultBars.tsx",
-                            lineNumber: 73,
-                            columnNumber: 33
-                        }, this);
+                        }));
                     })
-                }, dataItem[dateKey], false, {
-                    fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/DefaultBars/DefaultBars.tsx",
-                    lineNumber: 57,
-                    columnNumber: 17
-                }, this)),
-            /*#__PURE__*/ jsxDEV(Bar, {
+                }, dataItem[dateKey])),
+            /*#__PURE__*/ jsx(Bar, {
                 width: xMax,
                 height: yMax,
                 fill: "transparent",
                 onMouseMove: onMouseMove,
                 onMouseLeave: onMouseLeave
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/DefaultBars/DefaultBars.tsx",
-                lineNumber: 97,
-                columnNumber: 13
-            }, this)
+            })
         ]
-    }, void 0, true);
+    });
 });
 
 const Series = /*#__PURE__*/ memo(function Series({ metrics , xScale , yScale , yMax , strokeColor , fillColor , id , highlight =false  }) {
-    return /*#__PURE__*/ jsxDEV(Fragment, {
+    return /*#__PURE__*/ jsxs(Fragment, {
         children: [
-            /*#__PURE__*/ jsxDEV(Threshold, {
+            /*#__PURE__*/ jsx(Threshold, {
                 id: id,
                 data: metrics,
                 x: (d)=>xScale(x$1(d)) ?? 0,
@@ -2693,45 +2341,33 @@ const Series = /*#__PURE__*/ memo(function Series({ metrics , xScale , yScale , 
                 belowAreaProps: {
                     fill: "violet"
                 }
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Series.tsx",
-                lineNumber: 32,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV(Area, {
+            }),
+            /*#__PURE__*/ jsx(Area, {
                 data: metrics,
                 x: (d)=>xScale(x$1(d)) ?? 0,
                 y: (d)=>yScale(y$1(d)) ?? 0,
                 stroke: strokeColor,
                 strokeWidth: highlight ? 1.5 : 1,
                 fill: fillColor
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Series.tsx",
-                lineNumber: 44,
-                columnNumber: 13
-            }, this)
+            })
         ]
-    }, void 0, true);
+    });
 });
 
 const Line = /*#__PURE__*/ memo(function Line({ xScale , yScale , metrics , index , yMax , highlight =false  }) {
     const theme = useTheme();
     const color = theme[getChartColor(index)];
-    return /*#__PURE__*/ jsxDEV(Fragment, {
+    return /*#__PURE__*/ jsxs(Fragment, {
         children: [
-            /*#__PURE__*/ jsxDEV(LinearGradient, {
+            /*#__PURE__*/ jsx(LinearGradient, {
                 id: `line-${index}`,
                 from: color,
                 to: color,
                 fromOpacity: 0.15,
                 toOpacity: 0.03,
                 toOffset: "23%"
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Line.tsx",
-                lineNumber: 32,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV(Series, {
+            }),
+            /*#__PURE__*/ jsx(Series, {
                 id: index.toString(),
                 metrics: metrics,
                 xScale: xScale,
@@ -2742,13 +2378,9 @@ const Line = /*#__PURE__*/ memo(function Line({ xScale , yScale , metrics , inde
                 strokeColor: color,
                 highlight: highlight,
                 fillColor: `url(#line-${index})`
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Line.tsx",
-                lineNumber: 40,
-                columnNumber: 13
-            }, this)
+            })
         ]
-    }, void 0, true);
+    });
 });
 
 const x = (metric)=>new Date(metric.time).getTime();
@@ -2794,42 +2426,30 @@ const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , ySca
         }
     });
     const { focusedTimeseries  } = useContext(FocusedTimeseriesStateContext);
-    return /*#__PURE__*/ jsxDEV(Fragment, {
+    return /*#__PURE__*/ jsxs(Fragment, {
         children: [
-            timeseriesData.map((timeseries, index)=>timeseries.visible && /*#__PURE__*/ jsxDEV(Group, {
+            timeseriesData.map((timeseries, index)=>timeseries.visible && /*#__PURE__*/ jsx(Group, {
                     opacity: focusedTimeseries === null || focusedTimeseries === timeseries ? 1 : 0.2,
-                    children: /*#__PURE__*/ jsxDEV(Line, {
+                    children: /*#__PURE__*/ jsx(Line, {
                         index: index,
                         xScale: xScale,
                         yScale: yScale,
                         metrics: timeseries.metrics,
                         yMax: yMax,
                         highlight: focusedTimeseries === timeseries
-                    }, void 0, false, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Lines.tsx",
-                        lineNumber: 99,
-                        columnNumber: 29
-                    }, this)
+                    })
                 }, formatTimeseries(timeseries, {
                     sortLabels: false
-                }), false, {
-                    fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Lines.tsx",
-                    lineNumber: 88,
-                    columnNumber: 25
-                }, this)),
-            /*#__PURE__*/ jsxDEV(Bar, {
+                }))),
+            /*#__PURE__*/ jsx(Bar, {
                 width: xMax,
                 height: yMax,
                 fill: "transparent",
                 onMouseMove: handleTooltip,
                 onMouseLeave: hideTooltip
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Lines.tsx",
-                lineNumber: 110,
-                columnNumber: 13
-            }, this)
+            })
         ]
-    }, void 0, true);
+    });
 });
 function closestMetric({ timeseriesData , xRange , yRange  }) {
     let metric = null;
@@ -2859,128 +2479,72 @@ function closestMetric({ timeseriesData , xRange , yRange  }) {
     ];
 }
 function formatTimeseriesTooltip(timeseries, metric) {
-    return /*#__PURE__*/ jsxDEV("table", {
+    return /*#__PURE__*/ jsxs("table", {
         children: [
-            /*#__PURE__*/ jsxDEV(TimeseriesTableCaption, {
+            /*#__PURE__*/ jsx(TimeseriesTableCaption, {
                 children: metric.time
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Lines.tsx",
-                lineNumber: 161,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV("thead", {
-                children: /*#__PURE__*/ jsxDEV("tr", {
+            }),
+            /*#__PURE__*/ jsx("thead", {
+                children: /*#__PURE__*/ jsxs("tr", {
                     children: [
-                        /*#__PURE__*/ jsxDEV("th", {
+                        /*#__PURE__*/ jsx("th", {
                             children: timeseries.name || "value"
-                        }, void 0, false, {
-                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Lines.tsx",
-                            lineNumber: 164,
-                            columnNumber: 21
-                        }, this),
-                        /*#__PURE__*/ jsxDEV("th", {
+                        }),
+                        /*#__PURE__*/ jsx("th", {
                             children: metric.value
-                        }, void 0, false, {
-                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Lines.tsx",
-                            lineNumber: 165,
-                            columnNumber: 21
-                        }, this)
+                        })
                     ]
-                }, void 0, true, {
-                    fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Lines.tsx",
-                    lineNumber: 163,
-                    columnNumber: 17
-                }, this)
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Lines.tsx",
-                lineNumber: 162,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV("tbody", {
-                children: Object.entries(timeseries.labels).map(([key, value])=>/*#__PURE__*/ jsxDEV("tr", {
+                })
+            }),
+            /*#__PURE__*/ jsx("tbody", {
+                children: Object.entries(timeseries.labels).map(([key, value])=>/*#__PURE__*/ jsxs("tr", {
                         children: [
-                            /*#__PURE__*/ jsxDEV(TimeseriesTableTd, {
+                            /*#__PURE__*/ jsxs(TimeseriesTableTd, {
                                 children: [
                                     key,
                                     ":"
                                 ]
-                            }, void 0, true, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Lines.tsx",
-                                lineNumber: 171,
-                                columnNumber: 25
-                            }, this),
-                            /*#__PURE__*/ jsxDEV(TimeseriesTableTd, {
+                            }),
+                            /*#__PURE__*/ jsx(TimeseriesTableTd, {
                                 children: value
-                            }, void 0, false, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Lines.tsx",
-                                lineNumber: 172,
-                                columnNumber: 25
-                            }, this)
+                            })
                         ]
-                    }, key, true, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Lines.tsx",
-                        lineNumber: 170,
-                        columnNumber: 21
-                    }, this))
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Lines.tsx",
-                lineNumber: 168,
-                columnNumber: 13
-            }, this)
+                    }, key))
+            })
         ]
-    }, void 0, true, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/Lines/Lines.tsx",
-        lineNumber: 160,
-        columnNumber: 9
-    }, this);
+    });
 }
 
 function ChartContent({ timeseriesData , xScaleProps , yScale  }) {
     if (xScaleProps.graphType === "line" && xScaleProps.stackingType === "none") {
-        return /*#__PURE__*/ jsxDEV(Lines, {
+        return /*#__PURE__*/ jsx(Lines, {
             timeseriesData: timeseriesData,
             xScale: xScaleProps.xScale,
             yScale: yScale
-        }, void 0, false, {
-            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/ChartContent.tsx",
-            lineNumber: 25,
-            columnNumber: 13
-        }, this);
+        });
     }
     if (xScaleProps.graphType === "line") {
-        return /*#__PURE__*/ jsxDEV(Areas, {
+        return /*#__PURE__*/ jsx(Areas, {
             timeseriesData: timeseriesData,
             xScale: xScaleProps.xScale,
             yScale: yScale,
             asPercentage: xScaleProps.stackingType === "percentage"
-        }, void 0, false, {
-            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/ChartContent.tsx",
-            lineNumber: 35,
-            columnNumber: 13
-        }, this);
+        });
     }
     if (xScaleProps.stackingType === "none") {
-        return /*#__PURE__*/ jsxDEV(DefaultBars, {
+        return /*#__PURE__*/ jsx(DefaultBars, {
             groupScale: xScaleProps.groupScale,
             timeseriesData: timeseriesData,
             xScale: xScaleProps.xScale,
             yScale: yScale
-        }, void 0, false, {
-            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/ChartContent.tsx",
-            lineNumber: 46,
-            columnNumber: 13
-        }, this);
+        });
     }
-    return /*#__PURE__*/ jsxDEV(BarsStacked, {
+    return /*#__PURE__*/ jsx(BarsStacked, {
         timeseriesData: timeseriesData,
         xScale: xScaleProps.xScale,
         yScale: yScale,
         asPercentage: xScaleProps.stackingType === "percentage"
-    }, void 0, false, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ChartContent/ChartContent.tsx",
-        lineNumber: 56,
-        columnNumber: 9
-    }, this);
+    });
 }
 
 function Bottom({ yMax , xScale , xScaleFormatter  }) {
@@ -2995,18 +2559,14 @@ function Bottom({ yMax , xScale , xScaleFormatter  }) {
         lineHeight: fontAxisLineHeight,
         fill: colorBase500
     };
-    return /*#__PURE__*/ jsxDEV(AxisBottom, {
+    return /*#__PURE__*/ jsx(AxisBottom, {
         top: yMax,
         scale: xScale,
         stroke: colorBase300,
         hideTicks: true,
         tickFormat: xScaleFormatter,
         tickLabelProps: ()=>axisBottomTickLabelProps
-    }, void 0, false, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/GridWithAxes/Bottom.tsx",
-        lineNumber: 39,
-        columnNumber: 9
-    }, this);
+    });
 }
 var Bottom$1 = /*#__PURE__*/ memo(Bottom);
 
@@ -3033,51 +2593,35 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xS
         lineHeight: fontAxisLineHeight,
         fill: colorBase500
     };
-    return /*#__PURE__*/ jsxDEV(Fragment, {
+    return /*#__PURE__*/ jsxs(Fragment, {
         children: [
-            /*#__PURE__*/ jsxDEV(GridRows, {
+            /*#__PURE__*/ jsx(GridRows, {
                 scale: temporaryScale,
                 width: xMax,
                 height: yMax,
                 stroke: colorBase300
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/GridWithAxes/GridWithAxes.tsx",
-                lineNumber: 59,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV("line", {
+            }),
+            /*#__PURE__*/ jsx("line", {
                 x1: xMax,
                 x2: xMax,
                 y1: 0,
                 y2: yMax,
                 stroke: colorBase300,
                 strokeWidth: 1
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/GridWithAxes/GridWithAxes.tsx",
-                lineNumber: 65,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV(GridColumns, {
+            }),
+            /*#__PURE__*/ jsx(GridColumns, {
                 scale: xScale,
                 width: xMax,
                 height: yMax,
                 stroke: colorBase300
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/GridWithAxes/GridWithAxes.tsx",
-                lineNumber: 73,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV(Bottom$1, {
+            }),
+            /*#__PURE__*/ jsx(Bottom$1, {
                 xMax: xMax,
                 xScale: xScale,
                 yMax: yMax,
                 xScaleFormatter: xScaleFormatter
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/GridWithAxes/GridWithAxes.tsx",
-                lineNumber: 79,
-                columnNumber: 13
-            }, this),
-            /*#__PURE__*/ jsxDEV(AxisLeft, {
+            }),
+            /*#__PURE__*/ jsx(AxisLeft, {
                 scale: temporaryScale,
                 orientation: Orientation.left,
                 stroke: colorBase300,
@@ -3085,13 +2629,9 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xS
                 tickLabelProps: ()=>axisLeftTickLabelProps,
                 tickFormat: temporaryScale.tickFormat(10, "~s"),
                 tickValues: ticks.slice(1, -1)
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/GridWithAxes/GridWithAxes.tsx",
-                lineNumber: 85,
-                columnNumber: 13
-            }, this)
+            })
         ]
-    }, void 0, true);
+    });
 });
 const spring = {
     type: "tween",
@@ -3129,7 +2669,7 @@ function ZoomBar() {
         return null;
     }
     const reverseZoom = end < start;
-    return /*#__PURE__*/ jsxDEV(Bar, {
+    return /*#__PURE__*/ jsx(Bar, {
         stroke: "#4797ff",
         strokeWidth: 1,
         fill: "#a3cbff",
@@ -3138,11 +2678,7 @@ function ZoomBar() {
         y: 0,
         width: reverseZoom ? start - end : end - start,
         height: yMax
-    }, void 0, false, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/ZoomBar.tsx",
-        lineNumber: 21,
-        columnNumber: 9
-    }, this);
+    });
 }
 
 function MainChartContent(props) {
@@ -3170,91 +2706,59 @@ function MainChartContent(props) {
     // Use a custom formatter when `xScale` is a `ScaleBand<number>`. We want to
     // display the time, not the timestamp (number).
     const xScaleFormatter = xScaleProps.graphType === "bar" && xScaleProps.stackingType === "none" ? getTimeFormatter(xScaleProps.xScale) : undefined;
-    return /*#__PURE__*/ jsxDEV(TooltipContext.Provider, {
+    return /*#__PURE__*/ jsx(TooltipContext.Provider, {
         value: tooltipApiValue,
-        children: /*#__PURE__*/ jsxDEV(StyledContainer, {
+        children: /*#__PURE__*/ jsx(StyledContainer, {
             onKeyDown: onKeyHandler,
             onKeyUp: onKeyHandler,
             onMouseDown: onMouseDown,
             onMouseMove: onMouseMoveWithShiftDetection,
             onMouseUp: onMouseUp,
             onMouseEnter: onMouseEnter,
-            children: /*#__PURE__*/ jsxDEV("svg", {
+            children: /*#__PURE__*/ jsxs("svg", {
                 width: width,
                 height: height,
                 style: {
                     cursor: getCursorFromState(interactiveControlsState, shiftKeyPressed)
                 },
                 children: [
-                    /*#__PURE__*/ jsxDEV("defs", {
-                        children: /*#__PURE__*/ jsxDEV("clipPath", {
+                    /*#__PURE__*/ jsx("defs", {
+                        children: /*#__PURE__*/ jsx("clipPath", {
                             id: "clip-chart",
-                            children: /*#__PURE__*/ jsxDEV("rect", {
+                            children: /*#__PURE__*/ jsx("rect", {
                                 x: 0,
                                 y: 0,
                                 width: xMax,
                                 height: yMax
-                            }, void 0, false, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MainChartContent.tsx",
-                                lineNumber: 88,
-                                columnNumber: 29
-                            }, this)
-                        }, void 0, false, {
-                            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MainChartContent.tsx",
-                            lineNumber: 87,
-                            columnNumber: 25
-                        }, this)
-                    }, void 0, false, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MainChartContent.tsx",
-                        lineNumber: 86,
-                        columnNumber: 21
-                    }, this),
-                    /*#__PURE__*/ jsxDEV(Group, {
+                            })
+                        })
+                    }),
+                    /*#__PURE__*/ jsxs(Group, {
                         left: MARGINS.left,
                         top: MARGINS.top,
                         children: [
-                            /*#__PURE__*/ jsxDEV(GridWithAxes, {
+                            /*#__PURE__*/ jsx(GridWithAxes, {
                                 xMax: xMax,
                                 yMax: yMax,
                                 xScale: xScaleProps.xScale,
                                 yScale: yScale,
                                 xScaleFormatter: xScaleFormatter
-                            }, void 0, false, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MainChartContent.tsx",
-                                lineNumber: 92,
-                                columnNumber: 25
-                            }, this),
-                            /*#__PURE__*/ jsxDEV(Group, {
+                            }),
+                            /*#__PURE__*/ jsx(Group, {
                                 innerRef: graphContentRef,
                                 clipPath: "url(#clip-chart)",
-                                children: /*#__PURE__*/ jsxDEV(ChartContent, {
+                                children: /*#__PURE__*/ jsx(ChartContent, {
                                     timeseriesData: props.timeseriesData,
                                     xScaleProps: xScaleProps,
                                     yScale: yScale
-                                }, void 0, false, {
-                                    fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MainChartContent.tsx",
-                                    lineNumber: 103,
-                                    columnNumber: 29
-                                }, this)
-                            }, void 0, false, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MainChartContent.tsx",
-                                lineNumber: 99,
-                                columnNumber: 25
-                            }, this),
-                            /*#__PURE__*/ jsxDEV(ZoomBar, {}, void 0, false, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MainChartContent.tsx",
-                                lineNumber: 109,
-                                columnNumber: 25
-                            }, this)
+                                })
+                            }),
+                            /*#__PURE__*/ jsx(ZoomBar, {})
                         ]
-                    }, void 0, true, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MainChartContent.tsx",
-                        lineNumber: 91,
-                        columnNumber: 21
-                    }, this),
-                    graphTooltip && /*#__PURE__*/ jsxDEV("g", {
+                    }),
+                    graphTooltip && /*#__PURE__*/ jsxs("g", {
                         children: [
-                            /*#__PURE__*/ jsxDEV(Line$1, {
+                            /*#__PURE__*/ jsx(Line$1, {
                                 from: {
                                     x: graphTooltip.left,
                                     y: 0
@@ -3267,44 +2771,20 @@ function MainChartContent(props) {
                                 strokeWidth: 1,
                                 pointerEvents: "none",
                                 strokeDasharray: "1 1"
-                            }, void 0, false, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MainChartContent.tsx",
-                                lineNumber: 113,
-                                columnNumber: 29
-                            }, this),
-                            /*#__PURE__*/ jsxDEV("circle", {
+                            }),
+                            /*#__PURE__*/ jsx("circle", {
                                 cx: graphTooltip.left,
                                 cy: graphTooltip.top,
                                 r: 4,
                                 fill: theme[graphTooltip.colorName],
                                 pointerEvents: "none"
-                            }, void 0, false, {
-                                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MainChartContent.tsx",
-                                lineNumber: 121,
-                                columnNumber: 29
-                            }, this)
+                            })
                         ]
-                    }, void 0, true, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MainChartContent.tsx",
-                        lineNumber: 112,
-                        columnNumber: 25
-                    }, this)
+                    })
                 ]
-            }, void 0, true, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MainChartContent.tsx",
-                lineNumber: 76,
-                columnNumber: 17
-            }, this)
-        }, void 0, false, {
-            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MainChartContent.tsx",
-            lineNumber: 68,
-            columnNumber: 13
-        }, this)
-    }, void 0, false, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MainChartContent.tsx",
-        lineNumber: 67,
-        columnNumber: 9
-    }, this);
+            })
+        })
+    });
 }
 const StyledContainer = styled(Container)`
   margin-top: 2px;
@@ -3321,105 +2801,53 @@ function getCursorFromState(interactiveControlsState, shiftKey) {
 }
 
 function MetricsChart(props) {
-    return props.readOnly ? /*#__PURE__*/ jsxDEV(ReadOnlyMetricsChart, {
+    return props.readOnly ? /*#__PURE__*/ jsx(ReadOnlyMetricsChart, {
         ...props
-    }, void 0, false, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MetricsChart.tsx",
-        lineNumber: 19,
-        columnNumber: 9
-    }, this) : /*#__PURE__*/ jsxDEV(InteractiveMetricsChart, {
+    }) : /*#__PURE__*/ jsx(InteractiveMetricsChart, {
         ...props
-    }, void 0, false, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MetricsChart.tsx",
-        lineNumber: 21,
-        columnNumber: 9
-    }, this);
+    });
 }
 function InteractiveMetricsChart(props) {
     const coreControls = useCoreControls(props);
     const { interactiveControls , interactiveControlsState  } = useInteractiveControls();
-    return /*#__PURE__*/ jsxDEV(CoreControlsContext.Provider, {
+    return /*#__PURE__*/ jsx(CoreControlsContext.Provider, {
         value: coreControls,
-        children: /*#__PURE__*/ jsxDEV(InteractiveControlsContext.Provider, {
+        children: /*#__PURE__*/ jsx(InteractiveControlsContext.Provider, {
             value: interactiveControls,
-            children: /*#__PURE__*/ jsxDEV(InteractiveControlsStateContext.Provider, {
+            children: /*#__PURE__*/ jsx(InteractiveControlsStateContext.Provider, {
                 value: interactiveControlsState,
-                children: /*#__PURE__*/ jsxDEV(StyledChartSizeContainerProvider, {
-                    children: /*#__PURE__*/ jsxDEV(InnerMetricsChart, {
+                children: /*#__PURE__*/ jsx(StyledChartSizeContainerProvider, {
+                    children: /*#__PURE__*/ jsx(InnerMetricsChart, {
                         ...props
-                    }, void 0, false, {
-                        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MetricsChart.tsx",
-                        lineNumber: 37,
-                        columnNumber: 25
-                    }, this)
-                }, void 0, false, {
-                    fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MetricsChart.tsx",
-                    lineNumber: 36,
-                    columnNumber: 21
-                }, this)
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MetricsChart.tsx",
-                lineNumber: 33,
-                columnNumber: 17
-            }, this)
-        }, void 0, false, {
-            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MetricsChart.tsx",
-            lineNumber: 32,
-            columnNumber: 13
-        }, this)
-    }, void 0, false, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MetricsChart.tsx",
-        lineNumber: 31,
-        columnNumber: 9
-    }, this);
+                    })
+                })
+            })
+        })
+    });
 }
 function ReadOnlyMetricsChart(props) {
-    return /*#__PURE__*/ jsxDEV(ChartSizeContainerProvider, {
-        children: /*#__PURE__*/ jsxDEV(InnerMetricsChart, {
+    return /*#__PURE__*/ jsx(ChartSizeContainerProvider, {
+        children: /*#__PURE__*/ jsx(InnerMetricsChart, {
             ...props
-        }, void 0, false, {
-            fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MetricsChart.tsx",
-            lineNumber: 48,
-            columnNumber: 13
-        }, this)
-    }, void 0, false, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MetricsChart.tsx",
-        lineNumber: 47,
-        columnNumber: 9
-    }, this);
+        })
+    });
 }
 const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
     const hasMultipleTimeseries = props.timeseriesData.length > 1;
-    return /*#__PURE__*/ jsxDEV(FocusedTimeseriesContextProvider, {
+    return /*#__PURE__*/ jsxs(FocusedTimeseriesContextProvider, {
         children: [
-            !props.readOnly && /*#__PURE__*/ jsxDEV(ChartControls, {
+            !props.readOnly && /*#__PURE__*/ jsx(ChartControls, {
                 ...props,
                 showStackingControls: hasMultipleTimeseries
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MetricsChart.tsx",
-                lineNumber: 60,
-                columnNumber: 17
-            }, this),
-            /*#__PURE__*/ jsxDEV(MainChartContent, {
+            }),
+            /*#__PURE__*/ jsx(MainChartContent, {
                 ...props
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MetricsChart.tsx",
-                lineNumber: 65,
-                columnNumber: 13
-            }, this),
-            hasMultipleTimeseries && /*#__PURE__*/ jsxDEV(Legend, {
+            }),
+            hasMultipleTimeseries && /*#__PURE__*/ jsx(Legend, {
                 ...props
-            }, void 0, false, {
-                fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MetricsChart.tsx",
-                lineNumber: 66,
-                columnNumber: 39
-            }, this)
+            })
         ]
-    }, void 0, true, {
-        fileName: "/home/arendjr/Projects/fiberplane/fiberplane-charts/src/MetricsChart/MetricsChart.tsx",
-        lineNumber: 58,
-        columnNumber: 9
-    }, this);
+    });
 });
 const StyledChartSizeContainerProvider = styled(ChartSizeContainerProvider)`
   display: flex;

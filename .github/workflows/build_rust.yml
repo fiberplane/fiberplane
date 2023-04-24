@@ -1,8 +1,10 @@
-name: Build
+name: Build Rust crates
 
 on:
   push:
     branches: ["**"]
+    paths-ignore:
+      - "fiberplane-charts"
   release:
     type: [published]
 
