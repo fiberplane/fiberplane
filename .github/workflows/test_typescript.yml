@@ -22,5 +22,8 @@ jobs:
         if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
         run: yarn lint
 
+      - name: Type-checking
+        run: yarn type-check
+
       - name: Run tests
         run: yarn workspaces foreach run test
