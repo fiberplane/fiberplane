@@ -13,8 +13,9 @@
     },
     "files": {
         "ignore": [
-            "dist/**", "node_modules/**",
-            "fiberplane-charts/src/providerTypes.ts"
+            ".vscode/**", "dist/**", "fiberplane-charts/src/providerTypes.ts",
+            "fiberplane-provider-protocol/ts-runtime/**", "node_modules/**",
+            "target/**"
         ]
     }
 }

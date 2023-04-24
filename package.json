@@ -1,0 +1,19 @@
+{
+    "name": "fiberplane",
+    "description": "Fiberplane Yarn worktree",
+    "repository": "https://github.com/fiberplane/fiberplane",
+    "author": "Fiberplane <info@fiberplane.com>",
+    "license": "MIT OR Apache-2.0",
+    "packageManager": "yarn@3.5.0",
+    "workspaces": [
+        "fiberplane-charts"
+    ],
+    "devDependencies": {
+        "rome": "^12.0.0"
+    },
+    "scripts": {
+        "build": "rollup -c -f es && tsc -p tsconfig.declarations.json",
+        "lint": "rome ci .",
+        "test": "jest"
+    }
+}
