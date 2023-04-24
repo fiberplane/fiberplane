@@ -2,13 +2,15 @@
     "name": "fiberplane-charts",
     "version": "0.1.0",
     "description": "Charts for rendering metrics",
-    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": ["dist/"],
+    "sideEffects": false,
     "repository": "https://github.com/fiberplane/fiberplane",
     "author": "Fiberplane <info@fiberplane.com>",
     "license": "MIT OR Apache-2.0",
     "type": "module",
     "dependencies": {
-        "@types/react-window": "^1.8.5",
         "@visx/axis": "^3.1.0",
         "@visx/event": "^3.0.1",
         "@visx/gradient": "^3.0.0",
@@ -19,10 +21,12 @@
         "@visx/threshold": "^3.0.0",
         "d3-time-format": "^4.1.0",
         "framer-motion": "^10.12.4",
-        "react": "^18.2.0",
         "react-window": "^1.8.9",
-        "styled-components": "^5.3.9",
         "throttle-debounce": "^5.0.0"
+    },
+    "peerDependencies": {
+        "react": "^18.0.0",
+        "styled-components": "^5.3.0"
     },
     "devDependencies": {
         "@svgr/rollup": "^7.0.0",
@@ -32,6 +36,7 @@
         "@types/d3-time-format": "^4.0.0",
         "@types/jest": "^29.5.0",
         "@types/react": "^18.0.37",
+        "@types/react-window": "^1.8.5",
         "@types/styled-components": "^5.1.26",
         "@types/throttle-debounce": "^5.0.0",
         "d3-scale": "^4.0.2",

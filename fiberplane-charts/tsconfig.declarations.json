@@ -6,7 +6,7 @@
             "DOM"
         ],
         "declaration": true,
-        "declarationDir": "dist",
+        "outFile": "dist/index.js",
         "emitDeclarationOnly": true,
         "moduleResolution": "bundler",
         "jsx": "react-jsx",
