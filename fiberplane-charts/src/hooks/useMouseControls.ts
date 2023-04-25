@@ -28,7 +28,7 @@ export function useMouseControls({
     onChangeTimeRange,
 }: {
     timeRange: TimeRange;
-    onChangeTimeRange?: (timeRange: TimeRange | null) => void;
+    onChangeTimeRange?: (timeRange: TimeRange) => void;
 }): {
     onMouseDown: MouseEventHandler<HTMLElement>;
     onMouseMove: MouseEventHandler<HTMLElement>;
