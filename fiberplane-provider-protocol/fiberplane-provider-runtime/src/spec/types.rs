@@ -1,6 +1,6 @@
 #![allow(unused_imports)]
 use serde::{Deserialize, Serialize};
-use std::{collections::BTreeMap, collections::HashMap};
+use std::collections::BTreeMap;
 
 pub use fiberplane_models::blobs::Blob;
 pub use fiberplane_models::blobs::EncodedBlob;
@@ -30,6 +30,8 @@ pub use fiberplane_models::notebooks::TableCellValue;
 pub use fiberplane_models::notebooks::TableColumnDefinition;
 pub use fiberplane_models::notebooks::TextCell;
 pub use fiberplane_models::notebooks::TimelineCell;
+pub use fiberplane_models::providers::ArrayField;
+pub use fiberplane_models::providers::AutoSuggestRequest;
 pub use fiberplane_models::providers::CheckboxField;
 pub use fiberplane_models::providers::ConfigField;
 pub use fiberplane_models::providers::DateTimeRangeField;
@@ -41,11 +43,20 @@ pub use fiberplane_models::providers::HttpRequestMethod;
 pub use fiberplane_models::providers::HttpResponse;
 pub use fiberplane_models::providers::IntegerField;
 pub use fiberplane_models::providers::LabelField;
+pub use fiberplane_models::providers::Metric;
+pub use fiberplane_models::providers::OtelMetadata;
+pub use fiberplane_models::providers::OtelSeverityNumber;
+pub use fiberplane_models::providers::OtelSpanId;
+pub use fiberplane_models::providers::OtelTraceId;
+pub use fiberplane_models::providers::ProviderEvent;
 pub use fiberplane_models::providers::ProviderRequest;
+pub use fiberplane_models::providers::ProviderStatus;
 pub use fiberplane_models::providers::QueryField;
 pub use fiberplane_models::providers::SelectField;
+pub use fiberplane_models::providers::Suggestion;
 pub use fiberplane_models::providers::SupportedQueryType;
 pub use fiberplane_models::providers::TextField;
+pub use fiberplane_models::providers::Timeseries;
 pub use fiberplane_models::providers::ValidationError;
 pub use fiberplane_models::timestamps::Timestamp;
 

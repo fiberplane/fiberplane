@@ -1,5 +1,9 @@
-fiberplane-api-client/** linguist-generated
-fiberplane-provider-protocol/fiberplane-provider-runtime/src/spec/bindings.rs linguist-generated
-fiberplane-provider-protocol/fiberplane-provider-runtime/src/spec/types.rs linguist-generated
-fiberplane-provider-protocol/fiberplane-provider-bindings/** linguist-generated
-fiberplane-provider-protocol/ts-runtime/** linguist-generated
+/.yarn/** linguist-vendored
+/.yarn/plugins/**/* binary
+/.yarn/releases/* binary
+/fiberplane-api-client/** linguist-generated
+/fiberplane-charts/dist/** linguist-generated
+/fiberplane-provider-protocol/fiberplane-provider-runtime/src/spec/bindings.rs linguist-generated
+/fiberplane-provider-protocol/fiberplane-provider-runtime/src/spec/types.rs linguist-generated
+/fiberplane-provider-protocol/fiberplane-provider-bindings/** linguist-generated
+/fiberplane-provider-protocol/ts-runtime/** linguist-generated

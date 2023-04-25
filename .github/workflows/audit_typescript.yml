@@ -1,15 +1,15 @@
-name: Security audit
+name: TypeScript package audit
 
 on:
   push:
     paths:
-      - "**/Cargo.toml"
-      - "**/Cargo.lock"
+      - "**/package.json"
+      - "**/yarn.lock"
   schedule:
     - cron: "0 0 * * *"
 
 jobs:
-  security_audit:
+  security_audit_ts:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -19,6 +19,5 @@ jobs:
         with:
           credentials: "https://fiberplanebot:${{ secrets.PRIVATE_GITHUB_TOKEN }}@github.com/"
 
-      - uses: actions-rs/audit-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run security audit
+        run: yarn workspaces foreach npm audit

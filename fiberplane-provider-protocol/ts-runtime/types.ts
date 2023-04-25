@@ -20,22 +20,169 @@ export type Annotation =
     | { type: "end_italics" }
     | { type: "start_link"; url: string }
     | { type: "end_link" }
-    | { type: "mention" } & Mention
-    | { type: "timestamp"; timestamp: string }
+    | ({ type: "mention" } & Mention)
+    | { type: "timestamp"; timestamp: Timestamp }
     | { type: "start_strikethrough" }
     | { type: "end_strikethrough" }
     | { type: "start_underline" }
     | { type: "end_underline" }
-    | { type: "label" } & Label;
+    | ({ type: "label" } & Label);
 
 /**
- * Newtype representing `(offset, Annotation)` tuples.
+ * An annotation at a specific offset in the text. Offsets are always
+ * calculated by Unicode scalar values rather than byte indices.
  *
  * Used inside the `Formatting` vector.
  */
 export type AnnotationWithOffset = {
     offset: number;
 } & Annotation;
+
+/**
+ * Defines an array of composite fields.
+ *
+ * This is commonly used for arbitrarily long list of (key, value) pairs,
+ * or lists of (key, operator, value) filters.
+ */
+export type ArrayField = {
+    /**
+     * Suggested label to display along the form field.
+     */
+    label: string;
+
+    /**
+     * Name of the field as it will be included in the encoded query or config
+     * object.
+     */
+    name: string;
+
+    /**
+     * The minimum number of entries the array must have to be valid.
+     *
+     * Leaving the minimum_length to 0 makes the whole field optional.
+     */
+    minimumLength: number;
+
+    /**
+     * The maximum number of entries the array can have and still be valid.
+     *
+     * It is None when there is no maximum number
+     */
+    maximumLength?: number;
+
+    /**
+     * The schema of the elements inside a row of the array.
+     *
+     * ### Accessing row fields
+     *
+     * The name of each QueryField inside the element_schema can be used as
+     * an indexing key for a field. That means that if `element_schema` contains
+     * a [TextField](crate::providers::TextField) with the name `parameter_name`,
+     * then you will be able to access the value of that field using
+     * `ArrayField::get(i)::get("parameter_name")` for the i-th element.
+     *
+     * ### Serialization
+     *
+     * For example if an array field has this `element_schema`:
+     * ```rust,no_run
+     * # use fiberplane_models::providers::{ArrayField, TextField, SelectField, IntegerField};
+     * ArrayField::new()
+     *   .with_name("table")
+     *   .with_label("example".to_string())
+     *   .with_element_schema(vec![
+     *     TextField::new().with_name("key").into(),
+     *     SelectField::new().with_name("operator").with_options([
+     *       "<".into(),
+     *       ">".into(),
+     *       "<=".into(),
+     *       ">=".into(),
+     *       "==".into()
+     *     ]).into(),
+     *     IntegerField::new().with_name("value").into(),
+     *   ]);
+     * ```
+     *
+     * Then the URL-encoded serialization for the fields is expected to use
+     * the bracketed-notation. This means you _can_ encode all the
+     * keys in the array in any order you want. It can look like this
+     * (line breaks are only kept for legibility):
+     * ```txt
+     *  "table[0][key]=less+than&
+     *  table[2][operator]=%3E&
+     *  table[0][operator]=%3C&
+     *  table[2][key]=greater+than&
+     *  table[2][value]=10&
+     *  table[0][value]=12"
+     * ```
+     *
+     * or you can do the "logic" ordering too:
+     * ```txt
+     *  "table[0][key]=less+than&
+     *  table[0][operator]=%3C&
+     *  table[0][value]=12&
+     *  table[1][key]=greater+than&
+     *  table[1][operator]=%3E&
+     *  table[1][value]=10"
+     * ```
+     *
+     * Note that we are allowed to skip indices.
+     * Any of those 2 examples above will
+     * be read as:
+     * ```rust,no_run
+     * # #[derive(Debug, PartialEq)]
+     * # struct Row { key: String, operator: String, value: u32 }
+     * # let table: Vec<Row> = vec![];
+     * assert_eq!(table, vec![
+     *   Row {
+     *     key: "less than".to_string(),
+     *     operator: "<".to_string(),
+     *     value: 12,
+     *   },
+     *   Row {
+     *     key: "greater than".to_string(),
+     *     operator: ">".to_string(),
+     *     value: 10,
+     *   },
+     * ]);
+     * ```
+     *
+     * ### Required row fields
+     *
+     * Any field that is marked as `required` inside `element_schema` makes it
+     * mandatory to create a valid row to the Array Field.
+     */
+    elementSchema: QuerySchema;
+};
+
+/**
+ * A request for a provider to provide auto-suggestions.
+ */
+export type AutoSuggestRequest = {
+    /**
+     * The value of the field being typed by the user, up to the focus offset.
+     */
+    query: string;
+
+    /**
+     * The query type of the provider we're requesting suggestions for.
+     */
+    query_type: string;
+
+    /**
+     * The field in the query form we're requesting suggestions for.
+     */
+    field: string;
+
+    /**
+     * Some other fields of the cell data.
+     * The choice of which other fields are sent in the request is
+     * left to the caller.
+     * The encoding of the other fields is left to the implementation
+     * in Studio, and follows the format of
+     * cells [Query Data](crate::ProviderCell::query_data).
+     */
+    other_field_data?: string;
+};
 
 /**
  * Binary blob for passing data in arbitrary encodings.
@@ -70,19 +217,19 @@ export type Blob = {
  * Representation of a single notebook cell.
  */
 export type Cell =
-    | { type: "checkbox" } & CheckboxCell
-    | { type: "code" } & CodeCell
-    | { type: "discussion" } & DiscussionCell
-    | { type: "divider" } & DividerCell
-    | { type: "graph" } & GraphCell
-    | { type: "heading" } & HeadingCell
-    | { type: "image" } & ImageCell
-    | { type: "list_item" } & ListItemCell
-    | { type: "log" } & LogCell
-    | { type: "provider" } & ProviderCell
-    | { type: "table" } & TableCell
-    | { type: "timeline" } & TimelineCell
-    | { type: "text" } & TextCell;
+    | ({ type: "checkbox" } & CheckboxCell)
+    | ({ type: "code" } & CodeCell)
+    | ({ type: "discussion" } & DiscussionCell)
+    | ({ type: "divider" } & DividerCell)
+    | ({ type: "graph" } & GraphCell)
+    | ({ type: "heading" } & HeadingCell)
+    | ({ type: "image" } & ImageCell)
+    | ({ type: "list_item" } & ListItemCell)
+    | ({ type: "log" } & LogCell)
+    | ({ type: "provider" } & ProviderCell)
+    | ({ type: "table" } & TableCell)
+    | ({ type: "timeline" } & TimelineCell)
+    | ({ type: "text" } & TextCell);
 
 export type CheckboxCell = {
     id: string;
@@ -153,10 +300,10 @@ export type CodeCell = {
 };
 
 export type ConfigField =
-    | { type: "checkbox" } & CheckboxField
-    | { type: "integer" } & IntegerField
-    | { type: "select" } & SelectField
-    | { type: "text" } & TextField;
+    | ({ type: "checkbox" } & CheckboxField)
+    | ({ type: "integer" } & IntegerField)
+    | ({ type: "select" } & SelectField)
+    | ({ type: "text" } & TextField);
 
 export type ConfigSchema = Array<ConfigField>;
 
@@ -223,14 +370,14 @@ export type EncodedBlob = {
 export type Error =
     | { type: "unsupported_request" }
     | {
-        type: "validation_error";
+          type: "validation_error";
 
-        /**
-         * List of errors, so all fields that failed validation can
-         * be highlighted at once.
-         */
-        errors: Array<ValidationError>;
-    }
+          /**
+             * List of errors, so all fields that failed validation can
+             * be highlighted at once.
+             */
+          errors: Array<ValidationError>;
+      }
     | { type: "http"; error: HttpRequestError }
     | { type: "data"; message: string }
     | { type: "deserialization"; message: string }
@@ -282,9 +429,7 @@ export type GraphCell = {
     stackingType: StackingType;
 };
 
-export type GraphType =
-    | "bar"
-    | "line";
+export type GraphType = "bar" | "line";
 
 export type HeadingCell = {
     id: string;
@@ -298,10 +443,7 @@ export type HeadingCell = {
     readOnly?: boolean;
 };
 
-export type HeadingType =
-    | "h1"
-    | "h2"
-    | "h3";
+export type HeadingType = "h1" | "h2" | "h3";
 
 /**
  * HTTP request options.
@@ -332,7 +474,10 @@ export type HttpRequestMethod =
     | "DELETE"
     | "GET"
     | "HEAD"
-    | "POST";
+    | "OPTIONS"
+    | "PATCH"
+    | "POST"
+    | "PUT";
 
 /**
  * Response to an HTTP request.
@@ -480,9 +625,7 @@ export type ListItemCell = {
     startNumber?: number;
 };
 
-export type ListType =
-    | "ordered"
-    | "unordered";
+export type ListType = "ordered" | "unordered";
 
 export type LogCell = {
     id: string;
@@ -516,10 +659,7 @@ export type LogRecordIndex = {
     recordIndex: number;
 };
 
-export type LogVisibilityFilter =
-    | "all"
-    | "selected"
-    | "highlighted";
+export type LogVisibilityFilter = "all" | "selected" | "highlighted";
 
 /**
  * Annotation for the mention of a user.
@@ -536,6 +676,45 @@ export type Mention = {
     name: string;
     userId: string;
 };
+
+/**
+ * A single metric value.
+ *
+ * Metric values are taken at a specific timestamp and contain a floating-point
+ * value as well as OpenTelemetry metadata.
+ */
+export type Metric = {
+    time: Timestamp;
+    value: number;
+} & OtelMetadata;
+
+/**
+ * Metadata following the OpenTelemetry metadata spec.
+ */
+export type OtelMetadata = {
+    attributes: Record<string, any>;
+    resource: Record<string, any>;
+    traceId?: OtelTraceId;
+    spanId?: OtelSpanId;
+};
+
+/**
+ * SeverityNumber, as specified by OpenTelemetry:
+ *  https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/logs/data-model.md#field-severitynumber
+ */
+export type OtelSeverityNumber = number;
+
+/**
+ * Span ID, as specified by OpenTelemetry:
+ *  https://opentelemetry.io/docs/reference/specification/overview/#spancontext
+ */
+export type OtelSpanId = Uint8Array;
+
+/**
+ * Trace ID, as specified by OpenTelemetry:
+ *  https://opentelemetry.io/docs/reference/specification/overview/#spancontext
+ */
+export type OtelTraceId = Uint8Array;
 
 export type ProviderCell = {
     id: string;
@@ -566,20 +745,26 @@ export type ProviderCell = {
      * Optional list of generated output cells.
      */
     output?: Array<Cell>;
-
-    /**
-     * Optional title to assign the cell.
-     */
-    title: string;
-
-    /**
-     * Optional formatting to apply to the title.
-     */
-    formatting?: Formatting;
     readOnly?: boolean;
 };
 
 export type ProviderConfig = any;
+
+/**
+ * A single event that is used within providers.
+ *
+ * Events occur at a given time and optionally last until a given end time.
+ * They may contain both event-specific metadata as well as OpenTelemetry
+ * metadata.
+ */
+export type ProviderEvent = {
+    time: Timestamp;
+    endTime?: Timestamp;
+    title: string;
+    description?: string;
+    severity?: OtelSeverityNumber;
+    labels: Record<string, string>;
+} & OtelMetadata;
 
 export type ProviderRequest = {
     /**
@@ -611,14 +796,43 @@ export type ProviderRequest = {
     previousResponse?: Blob;
 };
 
+/**
+ * Response type for status requests.
+ *
+ * To be serialized using the `application/vnd.fiberplane.provider-status`
+ * MIME type.
+ */
+export type ProviderStatus = {
+    /**
+     * Indicates whether the provider is available to be queried.
+     */
+    status: Result<void, Error>;
+
+    /**
+     * Version string of the provider.
+     *
+     * Arbitrary strings may be used, such as commit hashes, but release
+     * versions of providers are expected to report semver versions.
+     */
+    version?: string;
+
+    /**
+     * Human-readable timestamp at which the provider was built.
+     *
+     * Only used for diagnostics.
+     */
+    builtAt?: string;
+};
+
 export type QueryField =
-    | { type: "checkbox" } & CheckboxField
-    | { type: "date_time_range" } & DateTimeRangeField
-    | { type: "file" } & FileField
-    | { type: "label" } & LabelField
-    | { type: "integer" } & IntegerField
-    | { type: "select" } & SelectField
-    | { type: "text" } & TextField;
+    | ({ type: "array" } & ArrayField)
+    | ({ type: "checkbox" } & CheckboxField)
+    | ({ type: "date_time_range" } & DateTimeRangeField)
+    | ({ type: "file" } & FileField)
+    | ({ type: "label" } & LabelField)
+    | ({ type: "integer" } & IntegerField)
+    | ({ type: "select" } & SelectField)
+    | ({ type: "text" } & TextField);
 
 export type QuerySchema = Array<QueryField>;
 
@@ -691,10 +905,24 @@ export type SelectField = {
     supportsSuggestions: boolean;
 };
 
-export type StackingType =
-    | "none"
-    | "stacked"
-    | "percentage";
+export type StackingType = "none" | "stacked" | "percentage";
+
+/**
+ * A suggestion for a provider's auto-suggest functionality.
+ */
+export type Suggestion = {
+    /**
+     * The offset to start applying the suggestion,
+     *
+     * All text should be replaced from that offset up to the end of the
+     * query in AutoSuggestRequest.
+     *
+     * When missing, append the suggestion to the cursor
+     */
+    from?: number;
+    text: string;
+    description?: string;
+};
 
 /**
  * Defines a query type supported by a provider.
@@ -753,9 +981,7 @@ export type TableCell = {
     rows?: Array<TableRowData>;
 };
 
-export type TableCellValue =
-    | { type: "empty" }
-    | { type: "cell"; cell: Cell };
+export type TableCellValue = { type: "empty" } | { type: "cell"; cell: Cell };
 
 export type TableColumnDefinition = {
     /**
@@ -840,7 +1066,22 @@ export type TimelineCell = {
      * Links to the data to render in the timeline.
      */
     dataLinks?: Array<string>;
+    readOnly?: boolean;
 };
+
+/**
+ * A series of metrics over time, with metadata.
+ */
+export type Timeseries = {
+    name: string;
+    labels: Record<string, string>;
+    metrics: Array<Metric>;
+
+    /**
+     * Whether the series should be rendered. Can be toggled by the user.
+     */
+    visible: boolean;
+} & OtelMetadata;
 
 export type Timestamp = string;
 

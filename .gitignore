@@ -1,4 +1,18 @@
-/target
+# VS Code
 .vscode
+
+# Rust / Cargo
+/target
 Cargo.lock
 
+# TypeScript / Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+node_modules
+package-lock.json
+yarn-error.log
+yarn.lock

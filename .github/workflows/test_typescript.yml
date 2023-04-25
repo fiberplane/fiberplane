@@ -1,0 +1,29 @@
+name: Test TypeScript packages
+
+on:
+  push:
+    paths:
+      - "fiberplane-charts"
+      - "package.json"
+      - "rome.json"
+      - "yarn.lock"
+
+jobs:
+  test_ts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Linting and formatting
+        # Skip on main, since it's not critical and should've already been
+        # checked before merging
+        if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
+        run: yarn lint
+
+      - name: Type-checking
+        run: yarn type-check
+
+      - name: Run tests
+        run: yarn workspaces foreach run test

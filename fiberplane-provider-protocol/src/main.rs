@@ -25,6 +25,25 @@ fp_export! {
     type QuerySchema = Vec<QueryField>;
     type TableRowData = BTreeMap<String, TableCellValue>;
 
+    // Standardized types that are used for provider data. These should only
+    // be needed when trying to construct or parse blobs of certain MIME types.
+    //
+    // NOTE: Don't use these within FPD to make sure its proxy functionality
+    //       can treat all data as opaque.
+    use AutoSuggestRequest;
+    use Metric;
+    use OtelMetadata;
+    use OtelSeverityNumber;
+    use OtelSpanId;
+    use OtelTraceId;
+    use ProviderEvent;
+    use ProviderStatus;
+    use Suggestion;
+    // TODO FP-2920: Enable `Timeline` once the `Event` type is unified.
+    // See: https://linear.app/fiberplane/issue/FP-2920/merge-event-structs-from-the-provider-and-api-module
+    //use Timeline;
+    use Timeseries;
+
     /// Returns the schema for the config consumed by this provider.
     ///
     /// Note this schema is only used by Studio to display a configuration form
