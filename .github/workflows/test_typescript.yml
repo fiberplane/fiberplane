@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install dependencies
-        run: yarn --immutable
+        run: yarn
 
       - name: Linting and formatting
         # Skip on main, since it's not critical and should've already been
