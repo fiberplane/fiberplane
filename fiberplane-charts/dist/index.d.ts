@@ -203,15 +203,17 @@ type MetricsChartProps = {
     /**
      * Handler that is invoked when the graph type is changed.
      *
-     * If no handler is specified, no UI for changing the graph type is presented.
+     * If no handler is specified, no UI for changing the graph type is
+     * presented.
      */
     onChangeGraphType?: (graphType: GraphType) => void;
     /**
      * Handler that is invoked when the time range is changed.
      *
-     * If no handler is specified, no UI for changing the time range is presented.
+     * If no handler is specified, no UI for changing the time range is
+     * presented.
      */
-    onChangeTimeRange?: (timeRange: TimeRange | null) => void;
+    onChangeTimeRange?: (timeRange: TimeRange) => void;
     /**
      * Handler that is invoked when the stacking type is changed.
      *
@@ -238,15 +240,15 @@ type MetricsChartProps = {
     /**
      * The time range for which to display the data.
      *
-     * Make sure the timeseries contains data for the given time range, or you may
-     * not see any results.
+     * Make sure the timeseries contains data for the given time range, or you
+     * may not see any results.
      */
     timeRange: TimeRange;
     /**
      * Array of timeseries data to display in the chart.
      *
-     * Make sure the timeseries contains data for the given time range, or you may
-     * not see any results.
+     * Make sure the timeseries contains data for the given time range, or you
+     * may not see any results.
      */
     timeseriesData: Array<Timeseries>;
 };
@@ -268,4 +270,4 @@ type XScaleProps = TotalBarType | LineBarType | StackedBarType;
 
 declare function MetricsChart(props: MetricsChartProps): JSX.Element;
 
-export { ChartTheme, LineBarType, MetricsChart, MetricsChartProps, StackedBarType, TotalBarType, XScaleProps };
+export { ChartTheme, CloseTooltipFn, GraphType, LineBarType, Metric, MetricsChart, MetricsChartProps, OtelMetadata, ShowTooltipFn, StackedBarType, StackingType, TimeRange, Timeseries, Timestamp, TooltipAnchor, TotalBarType, VirtualElement, XScaleProps };
