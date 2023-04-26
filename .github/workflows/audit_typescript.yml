@@ -14,10 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: setup-git-credentials
-        uses: de-vri-es/setup-git-credentials@v2
-        with:
-          credentials: "https://fiberplanebot:${{ secrets.PRIVATE_GITHUB_TOKEN }}@github.com/"
+      - name: Install dependencies
+        run: yarn --immutable
 
       - name: Run security audit
         run: yarn workspaces foreach npm audit
