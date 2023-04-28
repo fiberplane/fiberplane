@@ -20,13 +20,13 @@ export type Annotation =
     | { type: "end_italics" }
     | { type: "start_link"; url: string }
     | { type: "end_link" }
-    | ({ type: "mention" } & Mention)
+    | { type: "mention" } & Mention
     | { type: "timestamp"; timestamp: Timestamp }
     | { type: "start_strikethrough" }
     | { type: "end_strikethrough" }
     | { type: "start_underline" }
     | { type: "end_underline" }
-    | ({ type: "label" } & Label);
+    | { type: "label" } & Label;
 
 /**
  * An annotation at a specific offset in the text. Offsets are always
@@ -217,19 +217,19 @@ export type Blob = {
  * Representation of a single notebook cell.
  */
 export type Cell =
-    | ({ type: "checkbox" } & CheckboxCell)
-    | ({ type: "code" } & CodeCell)
-    | ({ type: "discussion" } & DiscussionCell)
-    | ({ type: "divider" } & DividerCell)
-    | ({ type: "graph" } & GraphCell)
-    | ({ type: "heading" } & HeadingCell)
-    | ({ type: "image" } & ImageCell)
-    | ({ type: "list_item" } & ListItemCell)
-    | ({ type: "log" } & LogCell)
-    | ({ type: "provider" } & ProviderCell)
-    | ({ type: "table" } & TableCell)
-    | ({ type: "timeline" } & TimelineCell)
-    | ({ type: "text" } & TextCell);
+    | { type: "checkbox" } & CheckboxCell
+    | { type: "code" } & CodeCell
+    | { type: "discussion" } & DiscussionCell
+    | { type: "divider" } & DividerCell
+    | { type: "graph" } & GraphCell
+    | { type: "heading" } & HeadingCell
+    | { type: "image" } & ImageCell
+    | { type: "list_item" } & ListItemCell
+    | { type: "log" } & LogCell
+    | { type: "provider" } & ProviderCell
+    | { type: "table" } & TableCell
+    | { type: "timeline" } & TimelineCell
+    | { type: "text" } & TextCell;
 
 export type CheckboxCell = {
     id: string;
@@ -300,10 +300,10 @@ export type CodeCell = {
 };
 
 export type ConfigField =
-    | ({ type: "checkbox" } & CheckboxField)
-    | ({ type: "integer" } & IntegerField)
-    | ({ type: "select" } & SelectField)
-    | ({ type: "text" } & TextField);
+    | { type: "checkbox" } & CheckboxField
+    | { type: "integer" } & IntegerField
+    | { type: "select" } & SelectField
+    | { type: "text" } & TextField;
 
 export type ConfigSchema = Array<ConfigField>;
 
@@ -370,14 +370,14 @@ export type EncodedBlob = {
 export type Error =
     | { type: "unsupported_request" }
     | {
-          type: "validation_error";
+        type: "validation_error";
 
-          /**
-             * List of errors, so all fields that failed validation can
-             * be highlighted at once.
-             */
-          errors: Array<ValidationError>;
-      }
+        /**
+         * List of errors, so all fields that failed validation can
+         * be highlighted at once.
+         */
+        errors: Array<ValidationError>;
+    }
     | { type: "http"; error: HttpRequestError }
     | { type: "data"; message: string }
     | { type: "deserialization"; message: string }
@@ -429,7 +429,9 @@ export type GraphCell = {
     stackingType: StackingType;
 };
 
-export type GraphType = "bar" | "line";
+export type GraphType =
+    | "bar"
+    | "line";
 
 export type HeadingCell = {
     id: string;
@@ -443,7 +445,10 @@ export type HeadingCell = {
     readOnly?: boolean;
 };
 
-export type HeadingType = "h1" | "h2" | "h3";
+export type HeadingType =
+    | "h1"
+    | "h2"
+    | "h3";
 
 /**
  * HTTP request options.
@@ -625,7 +630,9 @@ export type ListItemCell = {
     startNumber?: number;
 };
 
-export type ListType = "ordered" | "unordered";
+export type ListType =
+    | "ordered"
+    | "unordered";
 
 export type LogCell = {
     id: string;
@@ -659,7 +666,10 @@ export type LogRecordIndex = {
     recordIndex: number;
 };
 
-export type LogVisibilityFilter = "all" | "selected" | "highlighted";
+export type LogVisibilityFilter =
+    | "all"
+    | "selected"
+    | "highlighted";
 
 /**
  * Annotation for the mention of a user.
@@ -825,14 +835,14 @@ export type ProviderStatus = {
 };
 
 export type QueryField =
-    | ({ type: "array" } & ArrayField)
-    | ({ type: "checkbox" } & CheckboxField)
-    | ({ type: "date_time_range" } & DateTimeRangeField)
-    | ({ type: "file" } & FileField)
-    | ({ type: "label" } & LabelField)
-    | ({ type: "integer" } & IntegerField)
-    | ({ type: "select" } & SelectField)
-    | ({ type: "text" } & TextField);
+    | { type: "array" } & ArrayField
+    | { type: "checkbox" } & CheckboxField
+    | { type: "date_time_range" } & DateTimeRangeField
+    | { type: "file" } & FileField
+    | { type: "label" } & LabelField
+    | { type: "integer" } & IntegerField
+    | { type: "select" } & SelectField
+    | { type: "text" } & TextField;
 
 export type QuerySchema = Array<QueryField>;
 
@@ -905,7 +915,10 @@ export type SelectField = {
     supportsSuggestions: boolean;
 };
 
-export type StackingType = "none" | "stacked" | "percentage";
+export type StackingType =
+    | "none"
+    | "stacked"
+    | "percentage";
 
 /**
  * A suggestion for a provider's auto-suggest functionality.
@@ -981,7 +994,9 @@ export type TableCell = {
     rows?: Array<TableRowData>;
 };
 
-export type TableCellValue = { type: "empty" } | { type: "cell"; cell: Cell };
+export type TableCellValue =
+    | { type: "empty" }
+    | { type: "cell"; cell: Cell };
 
 export type TableColumnDefinition = {
     /**

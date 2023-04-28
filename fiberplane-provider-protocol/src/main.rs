@@ -115,12 +115,17 @@ fn main() {
 
         let path = "./fiberplane-provider-bindings";
         fp_bindgen!(BindingConfig {
-            bindings_type: BindingsType::RustPlugin(RustPluginConfig {
-                name: "fiberplane-provider-bindings",
-                authors: r#"["Fiberplane <info@fiberplane.com>"]"#,
-                version: "2.0.0-beta.2",
-                dependencies,
-            }),
+            bindings_type: BindingsType::RustPlugin(
+                RustPluginConfig::builder()
+                    .name("fiberplane-provider-bindings")
+                    .description("Fiberplane Provider protocol bindings")
+                    .readme("README.md")
+                    .version("2.0.0-beta.2")
+                    .authors(RustPluginConfigValue::Workspace)
+                    .license(RustPluginConfigValue::Workspace)
+                    .dependencies(dependencies)
+                    .build()
+            ),
             path,
         });
         println!("Rust plugin bindings written to `{path}/`.");
@@ -129,7 +134,7 @@ fn main() {
     {
         let path = "./fiberplane-provider-runtime/src/spec";
         fp_bindgen!(BindingConfig {
-            bindings_type: BindingsType::RustWasmerRuntime,
+            bindings_type: BindingsType::RustWasmer2Runtime,
             path,
         });
         println!("Rust Wasmer runtime bindings written to `{path}/`.");
@@ -138,8 +143,8 @@ fn main() {
     {
         let path = "./ts-runtime";
         fp_bindgen!(BindingConfig {
-            bindings_type: BindingsType::TsRuntimeWithExtendedConfig(
-                TsExtendedRuntimeConfig::new().with_raw_export_wrappers()
+            bindings_type: BindingsType::TsRuntime(
+                TsRuntimeConfig::new().with_raw_export_wrappers()
             ),
             path,
         });

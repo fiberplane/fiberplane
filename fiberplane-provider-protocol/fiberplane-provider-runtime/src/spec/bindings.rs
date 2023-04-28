@@ -1,7 +1,8 @@
+#![allow(unused)]
 use super::types::*;
 use fp_bindgen_support::{
     common::{abi::WasmAbi, mem::FatPtr},
-    host::{
+    wasmer2_host::{
         errors::{InvocationError, RuntimeError},
         mem::{
             deserialize_from_slice, export_to_guest, export_to_guest_raw, import_from_guest,
@@ -235,17 +236,16 @@ fn create_import_object(store: &Store, env: &RuntimeInstanceData) -> ImportObjec
 
 pub fn _log(env: &RuntimeInstanceData, message: FatPtr) {
     let message = import_from_guest::<String>(env, message);
-    let result = super::log(message);
+    super::log(message)
 }
 
 pub fn _make_http_request(env: &RuntimeInstanceData, request: FatPtr) -> FatPtr {
     let request = import_from_guest::<HttpRequest>(env, request);
-    let result = super::make_http_request(request);
     let env = env.clone();
     let async_ptr = create_future_value(&env);
     let handle = tokio::runtime::Handle::current();
     handle.spawn(async move {
-        let result = result.await;
+        let result = super::make_http_request(request).await;
         let result_ptr = export_to_guest(&env, &result);
         env.guest_resolve_async_value(async_ptr, result_ptr);
     });
@@ -253,12 +253,10 @@ pub fn _make_http_request(env: &RuntimeInstanceData, request: FatPtr) -> FatPtr 
 }
 
 pub fn _now(env: &RuntimeInstanceData) -> FatPtr {
-    let result = super::now();
-    export_to_guest(env, &result)
+    export_to_guest(env, &super::now())
 }
 
 pub fn _random(env: &RuntimeInstanceData, len: <u32 as WasmAbi>::AbiType) -> FatPtr {
     let len = WasmAbi::from_abi(len);
-    let result = super::random(len);
-    export_to_guest(env, &result)
+    export_to_guest(env, &super::random(len))
 }
