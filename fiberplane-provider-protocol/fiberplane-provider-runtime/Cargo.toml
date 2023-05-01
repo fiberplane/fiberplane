@@ -11,7 +11,7 @@ rust-version = { workspace = true }
 
 [dependencies]
 bytes = { workspace = true }
-fp-bindgen-support = { workspace = true, features = ["async", "host"] }
+fp-bindgen-support = { workspace = true, features = ["async", "wasmer2_host"] }
 fiberplane-models = { workspace = true }
 rand = "0.8.0"
 reqwest = { version = "0.11.4", default-features = false, features = [

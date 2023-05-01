@@ -1279,9 +1279,9 @@ function getMinMaxDefault(timeseriesData) {
         // If all values are the same, we need to add/subtract a small offset
         // to/from min/max, otherwise the scale will be broken. But we should be
         // also careful not to drop the minimum below 0 if that's not necessary,
-        // because it can give very odd results otherwise. The `-0.001` value makes
-        // sure that we see at least a line with "0" values, or you might not see
-        // whether there are any results at all.
+        // because it can give very odd results otherwise. The `-0.001` value
+        // makes sure that we see at least a line with "0" values, or you might
+        // not see whether there are any results at all.
         return {
             min: min < 0 || min >= 1 ? min - 1 : min - 0.001,
             max: max + 1

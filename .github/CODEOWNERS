@@ -1,4 +1,4 @@
-# By default the code is owned by the API and studio team, as they are
+# By default the code is owned by the API and Studio team, as they are
 # dependent on this crate
 * @fiberplane/api-devs @fiberplane/studio-devs
 
@@ -8,3 +8,6 @@
 
 # Templates are owned by the template team
 /fiberplane-templates/ @fiberplane/template-devs
+
+# Charts is owned by the Studio team
+/fiberplane-charts/ @fiberplane/studio-devs

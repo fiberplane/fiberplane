@@ -25,8 +25,8 @@ rust-version = "1.64"
 [workspace.dependencies]
 base64uuid = { version = "1.0.0", path = "base64uuid", default-features = false }
 bytes = { version = "1", features = ["serde"] }
-fp-bindgen = { version = "3.0.0-beta.1" }
-fp-bindgen-support = { version = "3.0.0-beta.1" }
+fp-bindgen = { version = "3.0.0" }
+fp-bindgen-support = { version = "3.0.0" }
 fiberplane = { version = "1.0.0-beta.1", path = "fiberplane" }
 fiberplane-api-client = { version = "1.0.0-beta.1", path = "fiberplane-api-client" }
 fiberplane-ci = { version = "0.1.0", path = "fiberplane-ci" }
@@ -56,7 +56,7 @@ vergen = { version = "7.4.2", default-features = false, features = [
 ] }
 
 [patch.crates-io]
-#fp-bindgen = { git = "ssh://git@github.com/fiberplane/fp-bindgen.git", branch = "main" }
-#fp-bindgen-support = { git = "ssh://git@github.com/fiberplane/fp-bindgen.git", branch = "main" }
+#fp-bindgen = { git = "ssh://git@github.com/fiberplane/fp-bindgen.git", branch = "release-3.0.0" }
+#fp-bindgen-support = { git = "ssh://git@github.com/fiberplane/fp-bindgen.git", branch = "release-3.0.0" }
 #fp-bindgen = { path = "../fp-bindgen/fp-bindgen" }
 #fp-bindgen-support = { path = "../fp-bindgen/fp-bindgen-support" }
