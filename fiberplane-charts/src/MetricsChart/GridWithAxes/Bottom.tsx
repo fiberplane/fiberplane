@@ -1,5 +1,5 @@
 import { AxisBottom, TickFormatter } from "@visx/axis";
-import { NumberValue } from "d3-scale";
+import type { NumberValue } from "d3-scale";
 import { memo } from "react";
 import { useTheme } from "styled-components";
 

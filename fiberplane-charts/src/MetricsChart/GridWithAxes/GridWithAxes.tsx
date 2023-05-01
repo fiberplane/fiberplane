@@ -1,6 +1,6 @@
 import { AxisLeft, TickFormatter, Orientation } from "@visx/axis";
 import { GridRows, GridColumns } from "@visx/grid";
-import { NumberValue } from "d3-scale";
+import type { NumberValue } from "d3-scale";
 import { animate, Tween, useMotionValue } from "framer-motion";
 import { memo, useEffect, useLayoutEffect, useState } from "react";
 import { useTheme } from "styled-components";

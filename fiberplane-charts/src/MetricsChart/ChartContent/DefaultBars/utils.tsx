@@ -1,5 +1,5 @@
-import { ScaleBand } from "d3-scale";
 import { DefaultTheme } from "styled-components";
+import type { ScaleBand } from "d3-scale";
 
 import {
     compact,
