@@ -44,6 +44,7 @@ thiserror = "1.0"
 time = { workspace = true }
 typed-builder = { workspace = true }
 url = { workspace = true, features = ["serde"] }
+strum = "0.24"
 strum_macros = "0.24"
 
 [dev-dependencies]

@@ -3,10 +3,11 @@ use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
-use strum_macros::Display;
+use strum::IntoEnumIterator;
+use strum_macros::{Display, EnumIter};
 use typed_builder::TypedBuilder;
 
-#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize, Display)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize, Display, EnumIter)]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 #[cfg_attr(
     feature = "fp-bindgen",
