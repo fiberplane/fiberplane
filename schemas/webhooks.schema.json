@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "default": {},
+  "title": "Webhook payload",
+  "required": [
+    "id",
+    "type",
+    "workspace",
+    "webhook",
+    "payload"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "Unique ID of this event. This is shared by every delivery across all webhooks",
+      "format": "base64uuid"
+    },
+    "type": {
+      "type": "string",
+      "title": "Event Type in format `category.event`",
+      "examples": [
+        "ping",
+        "frontmatter.update",
+        "frontmatter.delete"
+      ]
+    },
+    "sender": {
+      "type": "object",
+      "title": "The user that caused this event to be emitted. May be null",
+      "required": [
+        "id",
+        "email",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "ID of the user that caused this payload to be sent",
+          "format": "base64uuid"
+        },
+        "email": {
+          "type": "string",
+          "title": "Email address of the user that caused this payload to be sent",
+          "format": "email"
+        },
+        "name": {
+          "type": "string",
+          "title": "Name of the user that caused this payload to be sent"
+        }
+      }
+    },
+    "workspace": {
+      "type": "object",
+      "title": "The workspace in which this event occurred",
+      "required": [
+        "id",
+        "name",
+        "displayName",
+        "type",
+        "ownerId",
+        "defaultDataSources",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "ID of the workspace in which this event occurred",
+          "format": "base64uuid"
+        },
+        "name": {
+          "type": "string",
+          "title": "Name of the workspace in which this event occurred"
+        },
+        "displayName": {
+          "type": "string",
+          "title": "Display Name of the workspace in which this event occurred"
+        },
+        "type": {
+          "type": "string",
+          "title": "Type of the workspace in which this event occurred",
+          "examples": [
+            "personal",
+            "organization"
+          ]
+        },
+        "ownerId": {
+          "type": "string",
+          "title": "ID of the owner of this workspace"
+        },
+        "defaultDataSources": {
+          "type": "object",
+          "title": "List of default data sources in the workspace"
+        },
+        "createdAt": {
+          "type": "string",
+          "title": "Date and time when this workspace was created",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "title": "Date and time when this workspace was last updated",
+          "format": "date-time"
+        }
+      }
+    },
+    "webhook": {
+      "type": "string",
+      "title": "ID of the webhook which is this very webhook that delivered this payload",
+      "format": "base64uuid"
+    },
+    "payload": {
+      "type": "object",
+      "title": "Event specific payload, see https://docs.fiberplane.com/webhooks"
+    }
+  }
+}
