@@ -3,9 +3,12 @@ use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
-use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter};
 use typed_builder::TypedBuilder;
+
+// this is not unused, it is used in the expansion of the `EnumIter` proc macro
+#[allow(unused_imports)]
+use strum::IntoEnumIterator;
 
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize, Display, EnumIter)]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
@@ -40,13 +43,13 @@ impl From<WebhookCategory> for i16 {
 // because only 0 and 1 are covered cases and std would have no idea how to handle that
 #[allow(clippy::from_over_into)]
 impl TryInto<WebhookCategory> for i16 {
-    type Error = InvalidWebhookIdError;
+    type Error = InvalidWebhookCategoryError;
 
     fn try_into(self) -> Result<WebhookCategory, Self::Error> {
         match self {
             0 => Ok(WebhookCategory::Ping),
             1 => Ok(WebhookCategory::FrontMatter),
-            value => Err(InvalidWebhookIdError(value)),
+            value => Err(InvalidWebhookCategoryError(value)),
         }
     }
 }
@@ -58,7 +61,7 @@ impl TryInto<WebhookCategory> for i16 {
     fp(rust_module = "fiberplane_models::webhooks")
 )]
 #[error("unknown value {0}, expected 0 (ping) or 1 (front_matter)")]
-pub struct InvalidWebhookIdError(i16);
+pub struct InvalidWebhookCategoryError(i16);
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
 #[cfg_attr(
@@ -73,6 +76,7 @@ pub struct Webhook {
     pub id: Base64Uuid,
     #[builder(setter(into))]
     pub workspace_id: Base64Uuid,
+
     #[builder(setter(into))]
     pub endpoint: String,
     pub events: Vec<WebhookCategory>,
@@ -81,6 +85,7 @@ pub struct Webhook {
     pub shared_secret: Option<String>,
     #[builder(default)]
     pub enabled: bool,
+
     #[builder(default, setter(strip_option, into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub created_by: Option<Base64Uuid>,
@@ -116,12 +121,15 @@ pub struct UpdateWebhook {
     #[builder(default, setter(strip_option, into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub endpoint: Option<String>,
+
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub events: Option<Vec<WebhookCategory>>,
+
     #[builder(default)]
     #[serde(default)]
     pub regenerate_shared_secret: bool,
+
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub enabled: Option<bool>,
@@ -180,9 +188,12 @@ pub struct WebhookDelivery {
 pub struct WebhookDeliverySummary {
     #[builder(setter(into))]
     pub id: Base64Uuid,
+
     #[builder(setter(into))]
     pub event: String,
+
     pub successful: bool,
+
     #[builder(setter(into))]
     pub timestamp: Timestamp,
 }
