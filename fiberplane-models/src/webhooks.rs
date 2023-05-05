@@ -86,6 +86,9 @@ pub struct Webhook {
     #[builder(default)]
     pub enabled: bool,
 
+    #[builder(default)]
+    successful: bool,
+
     #[builder(default, setter(strip_option, into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub created_by: Option<Base64Uuid>,
@@ -106,7 +109,11 @@ pub struct Webhook {
 pub struct NewWebhook {
     #[builder(setter(into))]
     pub endpoint: String,
+
     pub events: Vec<WebhookCategory>,
+
+    #[builder(default)]
+    pub enabled: bool,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
