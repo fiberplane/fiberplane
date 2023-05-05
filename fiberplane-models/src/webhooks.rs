@@ -87,7 +87,7 @@ pub struct Webhook {
     pub enabled: bool,
 
     #[builder(default)]
-    successful: bool,
+    pub successful: bool,
 
     #[builder(default, setter(strip_option, into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
