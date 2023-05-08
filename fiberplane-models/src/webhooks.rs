@@ -86,6 +86,7 @@ pub struct Webhook {
     #[builder(default)]
     pub enabled: bool,
 
+    /// Whenever the last delivery was successful
     #[builder(default)]
     pub successful: bool,
 

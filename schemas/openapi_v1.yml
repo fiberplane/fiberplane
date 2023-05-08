@@ -2163,7 +2163,7 @@ components:
         enabled:
           type: boolean
         successful:
-          description: Whenever the last delivery (which upon create or update is the `ping` payload) was successful
+          description: Whenever the last delivery was successful
           type: boolean
         createdBy:
           type: string
