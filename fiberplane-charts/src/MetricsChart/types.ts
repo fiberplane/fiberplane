@@ -71,6 +71,16 @@ export type MetricsChartProps = {
      * may not see any results.
      */
     timeseriesData: Array<Timeseries>;
+
+    /**
+     * Show the legend. (default: true)
+     */
+    showLegend?: boolean;
+
+    /**
+     * Show the stacking controls. (default: true)
+     */
+    showStackingControls?: boolean;
 };
 
 export type TotalBarType = {

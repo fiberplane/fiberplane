@@ -50,26 +50,26 @@ function ReadOnlyMetricsChart(props: MetricsChartProps) {
     );
 }
 const InnerMetricsChart = memo(function InnerMetricsChart(
-    props: MetricsChartProps,
+    props: MetricsChartProps
 ) {
-    const hasMultipleTimeseries = props.timeseriesData.length > 1;
+    const { showLegend = true, showStackingControls = true } = props;
 
     return (
         <FocusedTimeseriesContextProvider>
             {!props.readOnly && (
                 <ChartControls
                     {...props}
-                    showStackingControls={hasMultipleTimeseries}
+                    showStackingControls={showStackingControls}
                 />
             )}
             <MainChartContent {...props} />
-            {hasMultipleTimeseries && <Legend {...props} />}
+            {showLegend && <Legend {...props} />}
         </FocusedTimeseriesContextProvider>
     );
 });
 
 const StyledChartSizeContainerProvider = styled(ChartSizeContainerProvider)`
-  display: flex;
-  gap: 12px;
-  flex-direction: column;
+    display: flex;
+    gap: 12px;
+    flex-direction: column;
 `;
