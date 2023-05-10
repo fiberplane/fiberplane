@@ -251,6 +251,20 @@ type MetricsChartProps = {
      * may not see any results.
      */
     timeseriesData: Array<Timeseries>;
+    /**
+     * Show the legend. (default: true)
+     */
+    showLegend?: boolean;
+    /**
+     * Show the chart controls. (default: true)
+     *
+     * Setting this to false will also hide the stacking controls
+     */
+    showChartControls?: boolean;
+    /**
+     * Show the stacking controls. (default: true)
+     */
+    showStackingControls?: boolean;
 };
 type TotalBarType = {
     graphType: "bar";

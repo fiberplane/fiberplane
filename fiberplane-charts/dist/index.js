@@ -2833,26 +2833,26 @@ function ReadOnlyMetricsChart(props) {
     });
 }
 const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
-    const hasMultipleTimeseries = props.timeseriesData.length > 1;
+    const { showLegend =true , showChartControls =true , showStackingControls =true  } = props;
     return /*#__PURE__*/ jsxs(FocusedTimeseriesContextProvider, {
         children: [
-            !props.readOnly && /*#__PURE__*/ jsx(ChartControls, {
+            !props.readOnly && showChartControls && /*#__PURE__*/ jsx(ChartControls, {
                 ...props,
-                showStackingControls: hasMultipleTimeseries
+                showStackingControls: showStackingControls
             }),
             /*#__PURE__*/ jsx(MainChartContent, {
                 ...props
             }),
-            hasMultipleTimeseries && /*#__PURE__*/ jsx(Legend, {
+            showLegend && /*#__PURE__*/ jsx(Legend, {
                 ...props
             })
         ]
     });
 });
 const StyledChartSizeContainerProvider = styled(ChartSizeContainerProvider)`
-  display: flex;
-  gap: 12px;
-  flex-direction: column;
+    display: flex;
+    gap: 12px;
+    flex-direction: column;
 `;
 
 export { MetricsChart };
