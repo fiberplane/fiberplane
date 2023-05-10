@@ -78,6 +78,13 @@ export type MetricsChartProps = {
     showLegend?: boolean;
 
     /**
+     * Show the chart controls. (default: true)
+     *
+     * Setting this to false will also hide the stacking controls
+     */
+    showChartControls?: boolean;
+
+    /**
      * Show the stacking controls. (default: true)
      */
     showStackingControls?: boolean;

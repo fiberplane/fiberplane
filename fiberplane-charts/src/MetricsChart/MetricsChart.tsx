@@ -52,11 +52,15 @@ function ReadOnlyMetricsChart(props: MetricsChartProps) {
 const InnerMetricsChart = memo(function InnerMetricsChart(
     props: MetricsChartProps
 ) {
-    const { showLegend = true, showStackingControls = true } = props;
+    const {
+        showLegend = true,
+        showChartControls = true,
+        showStackingControls = true,
+    } = props;
 
     return (
         <FocusedTimeseriesContextProvider>
-            {!props.readOnly && (
+            {!props.readOnly && showChartControls && (
                 <ChartControls
                     {...props}
                     showStackingControls={showStackingControls}
