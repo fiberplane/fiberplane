@@ -265,6 +265,10 @@ type MetricsChartProps = {
      * Show the stacking controls. (default: true)
      */
     showStackingControls?: boolean;
+    /**
+     * Show the footer (which can contain the expand button & results text). (default: true)
+     */
+    showFooter?: boolean;
 };
 type TotalBarType = {
     graphType: "bar";

@@ -1580,7 +1580,7 @@ const Text = styled.div`
 const DEFAULT_HEIGHT = 293;
 const DEFAULT_SIZE = 50;
 const EXPANDED_HEIGHT = 592;
-const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility , readOnly =false , timeseriesData  }) {
+const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility , readOnly =false , timeseriesData , showFooter =true  }) {
     const { expandButton , gradient , isExpanded , onScroll , ref  } = useExpandable({
         defaultHeight: DEFAULT_HEIGHT
     });
@@ -1651,7 +1651,7 @@ const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility
                     gradient
                 ]
             }),
-            /*#__PURE__*/ jsxs(Footer, {
+            showFooter && /*#__PURE__*/ jsxs(Footer, {
                 children: [
                     /*#__PURE__*/ jsx(Results, {
                         children: resultsText
