@@ -2556,7 +2556,7 @@ function ChartContent({ timeseriesData , xScaleProps , yScale  }) {
     });
 }
 
-function Bottom({ yMax , xScale , xScaleFormatter , showGridBorders  }) {
+function Bottom({ yMax , xScale , xScaleFormatter  }) {
     const { colorBase300 , colorBase500 , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing , fontAxisLineHeight  } = useTheme();
     const axisBottomTickLabelProps = {
         textAnchor: "middle",
@@ -2572,7 +2572,6 @@ function Bottom({ yMax , xScale , xScaleFormatter , showGridBorders  }) {
         top: yMax,
         scale: xScale,
         stroke: colorBase300,
-        strokeWidth: showGridBorders ? 1 : 0,
         hideTicks: true,
         tickFormat: xScaleFormatter,
         tickLabelProps: ()=>axisBottomTickLabelProps
@@ -2629,8 +2628,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xS
                 xMax: xMax,
                 xScale: xScale,
                 yMax: yMax,
-                xScaleFormatter: xScaleFormatter,
-                showGridBorders: showGridBorders
+                xScaleFormatter: xScaleFormatter
             }),
             /*#__PURE__*/ jsx(AxisLeft, {
                 scale: temporaryScale,

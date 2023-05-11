@@ -85,7 +85,6 @@ export const GridWithAxes = memo(function GridWithAxes({
                 xScale={xScale}
                 yMax={yMax}
                 xScaleFormatter={xScaleFormatter}
-                showGridBorders={showGridBorders}
             />
             <AxisLeft
                 scale={temporaryScale}
