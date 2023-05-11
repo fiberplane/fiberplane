@@ -2579,7 +2579,7 @@ function Bottom({ yMax , xScale , xScaleFormatter  }) {
 }
 var Bottom$1 = /*#__PURE__*/ memo(Bottom);
 
-const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xScale , yScale , xScaleFormatter  }) {
+const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xScale , yScale , xScaleFormatter , showGridColumns =true  }) {
     const [targetLower = 0, targetUpper = 0] = yScale.domain();
     const { colorBase300  } = useTheme();
     const lower = useCustomSpring(targetLower);
@@ -2618,7 +2618,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xS
                 stroke: colorBase300,
                 strokeWidth: 1
             }),
-            /*#__PURE__*/ jsx(GridColumns, {
+            showGridColumns && /*#__PURE__*/ jsx(GridColumns, {
                 scale: xScale,
                 width: xMax,
                 height: yMax,
@@ -2751,7 +2751,8 @@ function MainChartContent(props) {
                                 yMax: yMax,
                                 xScale: xScaleProps.xScale,
                                 yScale: yScale,
-                                xScaleFormatter: xScaleFormatter
+                                xScaleFormatter: xScaleFormatter,
+                                showGridColumns: props.showGridColumns
                             }),
                             /*#__PURE__*/ jsx(Group, {
                                 innerRef: graphContentRef,

@@ -14,6 +14,7 @@ type Props = {
     xScale: XScaleTypes;
     yScale: ValueScale;
     xScaleFormatter?: TickFormatter<Date | NumberValue>;
+    showGridColumns?: boolean;
 };
 
 export const GridWithAxes = memo(function GridWithAxes({
@@ -22,6 +23,7 @@ export const GridWithAxes = memo(function GridWithAxes({
     xScale,
     yScale,
     xScaleFormatter,
+    showGridColumns = true,
 }: Props) {
     const [targetLower = 0, targetUpper = 0] = yScale.domain();
 
@@ -70,12 +72,12 @@ export const GridWithAxes = memo(function GridWithAxes({
                 stroke={colorBase300}
                 strokeWidth={1}
             />
-            <GridColumns
+            {showGridColumns && <GridColumns
                 scale={xScale}
                 width={xMax}
                 height={yMax}
                 stroke={colorBase300}
-            />
+            />}
             <Bottom
                 xMax={xMax}
                 xScale={xScale}

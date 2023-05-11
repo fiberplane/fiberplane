@@ -93,6 +93,11 @@ export type MetricsChartProps = {
      * Show the footer (which can contain the expand button & results text). (default: true)
      */
     showFooter?: boolean;
+
+    /**
+     * Show the grid column (vertical) lines. (default: true)
+     */
+    showGridColumns?: boolean
 };
 
 export type TotalBarType = {
