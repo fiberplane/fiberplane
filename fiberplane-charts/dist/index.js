@@ -2556,7 +2556,7 @@ function ChartContent({ timeseriesData , xScaleProps , yScale  }) {
     });
 }
 
-function Bottom({ yMax , xScale , xScaleFormatter  }) {
+function Bottom({ yMax , xScale , xScaleFormatter , showGridBorders  }) {
     const { colorBase300 , colorBase500 , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing , fontAxisLineHeight  } = useTheme();
     const axisBottomTickLabelProps = {
         textAnchor: "middle",
@@ -2572,6 +2572,7 @@ function Bottom({ yMax , xScale , xScaleFormatter  }) {
         top: yMax,
         scale: xScale,
         stroke: colorBase300,
+        strokeWidth: showGridBorders ? 1 : 0,
         hideTicks: true,
         tickFormat: xScaleFormatter,
         tickLabelProps: ()=>axisBottomTickLabelProps
@@ -2579,7 +2580,7 @@ function Bottom({ yMax , xScale , xScaleFormatter  }) {
 }
 var Bottom$1 = /*#__PURE__*/ memo(Bottom);
 
-const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xScale , yScale , xScaleFormatter , showGridColumns =true  }) {
+const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xScale , yScale , xScaleFormatter , showGridColumns =true , showGridBorders =true  }) {
     const [targetLower = 0, targetUpper = 0] = yScale.domain();
     const { colorBase300  } = useTheme();
     const lower = useCustomSpring(targetLower);
@@ -2610,7 +2611,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xS
                 height: yMax,
                 stroke: colorBase300
             }),
-            /*#__PURE__*/ jsx("line", {
+            showGridBorders && /*#__PURE__*/ jsx("line", {
                 x1: xMax,
                 x2: xMax,
                 y1: 0,
@@ -2628,12 +2629,14 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xS
                 xMax: xMax,
                 xScale: xScale,
                 yMax: yMax,
-                xScaleFormatter: xScaleFormatter
+                xScaleFormatter: xScaleFormatter,
+                showGridBorders: showGridBorders
             }),
             /*#__PURE__*/ jsx(AxisLeft, {
                 scale: temporaryScale,
                 orientation: Orientation.left,
                 stroke: colorBase300,
+                strokeWidth: showGridBorders ? 1 : 0,
                 hideTicks: true,
                 tickLabelProps: ()=>axisLeftTickLabelProps,
                 tickFormat: temporaryScale.tickFormat(10, "~s"),
@@ -2752,7 +2755,8 @@ function MainChartContent(props) {
                                 xScale: xScaleProps.xScale,
                                 yScale: yScale,
                                 xScaleFormatter: xScaleFormatter,
-                                showGridColumns: props.showGridColumns
+                                showGridColumns: props.showGridColumns,
+                                showGridBorders: props.showGridBorders
                             }),
                             /*#__PURE__*/ jsx(Group, {
                                 innerRef: graphContentRef,

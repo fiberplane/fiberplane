@@ -15,6 +15,7 @@ type Props = {
     yScale: ValueScale;
     xScaleFormatter?: TickFormatter<Date | NumberValue>;
     showGridColumns?: boolean;
+    showGridBorders?: boolean;
 };
 
 export const GridWithAxes = memo(function GridWithAxes({
@@ -24,6 +25,7 @@ export const GridWithAxes = memo(function GridWithAxes({
     yScale,
     xScaleFormatter,
     showGridColumns = true,
+    showGridBorders = true,
 }: Props) {
     const [targetLower = 0, targetUpper = 0] = yScale.domain();
 
@@ -64,14 +66,14 @@ export const GridWithAxes = memo(function GridWithAxes({
                 height={yMax}
                 stroke={colorBase300}
             />
-            <line
+            {showGridBorders && <line
                 x1={xMax}
                 x2={xMax}
                 y1={0}
                 y2={yMax}
                 stroke={colorBase300}
                 strokeWidth={1}
-            />
+            />}
             {showGridColumns && <GridColumns
                 scale={xScale}
                 width={xMax}
@@ -83,11 +85,13 @@ export const GridWithAxes = memo(function GridWithAxes({
                 xScale={xScale}
                 yMax={yMax}
                 xScaleFormatter={xScaleFormatter}
+                showGridBorders={showGridBorders}
             />
             <AxisLeft
                 scale={temporaryScale}
                 orientation={Orientation.left}
                 stroke={colorBase300}
+                strokeWidth={showGridBorders ? 1 : 0}
                 hideTicks={true}
                 tickLabelProps={() => axisLeftTickLabelProps}
                 tickFormat={temporaryScale.tickFormat(10, "~s")}

@@ -10,9 +10,10 @@ type Props = {
     yMax: number;
     xScale: XScaleTypes;
     xScaleFormatter?: TickFormatter<Date | NumberValue>;
+    showGridBorders: boolean;
 };
 
-function Bottom({ yMax, xScale, xScaleFormatter }: Props) {
+function Bottom({ yMax, xScale, xScaleFormatter, showGridBorders }: Props) {
     const {
         colorBase300,
         colorBase500,
@@ -40,6 +41,7 @@ function Bottom({ yMax, xScale, xScaleFormatter }: Props) {
             top={yMax}
             scale={xScale}
             stroke={colorBase300}
+            strokeWidth={showGridBorders ? 1 : 0}
             hideTicks={true}
             tickFormat={xScaleFormatter}
             tickLabelProps={() => axisBottomTickLabelProps}

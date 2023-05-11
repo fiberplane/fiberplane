@@ -273,6 +273,10 @@ type MetricsChartProps = {
      * Show the grid column (vertical) lines. (default: true)
      */
     showGridColumns?: boolean;
+    /**
+     * Show the line/border at the outer edge of the chart. (default: true)
+     */
+    showGridBorders?: boolean;
 };
 type TotalBarType = {
     graphType: "bar";
