@@ -8,5 +8,26 @@ export default {
         format: "es",
         sourcemap: true,
     },
-    plugins: [svgr(), swc(defineRollupSwcOption({ sourceMaps: true }))],
+    plugins: [
+        svgr({
+            svgoConfig: {
+                plugins: [
+                    {
+                      name: "preset-default",
+                      params: {
+                        overrides: {
+                          removeViewBox: false,
+                        },
+                      },
+                    },
+                    // Enable prefix ids so that the generated ids
+                    // are less likely to clash (otherwise the generated ids will be a,b,c, etc)
+                    // and not unique, which can cause weird issues when you display multiple
+                    // svg's on a page
+                    "prefixIds",
+                  ],
+            }
+        }),
+        swc(defineRollupSwcOption({ sourceMaps: true })),
+    ],
 };

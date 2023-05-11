@@ -60,7 +60,8 @@ var SvgChartBar = function SvgChartBar(props) {
     xmlns: "http://www.w3.org/2000/svg",
     width: 20,
     height: 20,
-    fill: "none"
+    fill: "none",
+    viewBox: "0 0 20 20"
   }, props), _path$6 || (_path$6 = /*#__PURE__*/React.createElement("path", {
     fill: "currentColor",
     d: "M17.813 15.625h-.625v-12.5a.625.625 0 0 0-.625-.625h-4.375a.625.625 0 0 0-.626.625V6.25h-3.75a.625.625 0 0 0-.625.625V10h-3.75a.625.625 0 0 0-.624.625v5h-.626a.625.625 0 1 0 0 1.25h15.626a.624.624 0 1 0 0-1.25ZM8.438 7.5h3.124v8.125H8.438V7.5Zm-4.376 3.75h3.125v4.375H4.063V11.25Z"
@@ -74,7 +75,8 @@ var SvgChartLine = function SvgChartLine(props) {
     xmlns: "http://www.w3.org/2000/svg",
     width: 20,
     height: 20,
-    fill: "none"
+    fill: "none",
+    viewBox: "0 0 20 20"
   }, props), _path$5 || (_path$5 = /*#__PURE__*/React.createElement("path", {
     fill: "currentColor",
     d: "M17.5 15.625H3.125v-2.844L7.531 8.93l4.594 3.445a.625.625 0 0 0 .79-.031l5-4.375a.625.625 0 0 0-.83-.938l-4.616 4.04-4.594-3.446a.625.625 0 0 0-.79.031l-3.96 3.469V3.75a.625.625 0 0 0-1.25 0v12.5a.625.625 0 0 0 .625.625h15a.624.624 0 1 0 0-1.25Z"
@@ -88,7 +90,8 @@ var SvgCheck = function SvgCheck(props) {
     xmlns: "http://www.w3.org/2000/svg",
     width: 20,
     height: 20,
-    fill: "none"
+    fill: "none",
+    viewBox: "0 0 20 20"
   }, props), _path$4 || (_path$4 = /*#__PURE__*/React.createElement("path", {
     fill: "currentColor",
     d: "M8.125 15a.665.665 0 0 1-.445-.18l-4.375-4.375a.633.633 0 0 1 .89-.89l3.93 3.937L16.43 5.18a.633.633 0 0 1 .89.89l-8.75 8.75a.665.665 0 0 1-.445.18Z"
@@ -102,7 +105,8 @@ var SvgCombined = function SvgCombined(props) {
     xmlns: "http://www.w3.org/2000/svg",
     width: 20,
     height: 20,
-    fill: "none"
+    fill: "none",
+    viewBox: "0 0 20 20"
   }, props), _path$3 || (_path$3 = /*#__PURE__*/React.createElement("path", {
     fill: "currentColor",
     fillRule: "evenodd",
@@ -118,7 +122,8 @@ var SvgPercentage = function SvgPercentage(props) {
     xmlns: "http://www.w3.org/2000/svg",
     width: 20,
     height: 20,
-    fill: "none"
+    fill: "none",
+    viewBox: "0 0 20 20"
   }, props), _path$2 || (_path$2 = /*#__PURE__*/React.createElement("path", {
     fill: "currentColor",
     fillRule: "evenodd",
@@ -134,7 +139,8 @@ var SvgStacked = function SvgStacked(props) {
     xmlns: "http://www.w3.org/2000/svg",
     width: 20,
     height: 20,
-    fill: "none"
+    fill: "none",
+    viewBox: "0 0 20 20"
   }, props), _path$1 || (_path$1 = /*#__PURE__*/React.createElement("path", {
     fill: "currentColor",
     fillRule: "evenodd",
@@ -150,7 +156,8 @@ var SvgTriangleDown = function SvgTriangleDown(props) {
     xmlns: "http://www.w3.org/2000/svg",
     width: 20,
     height: 20,
-    fill: "none"
+    fill: "none",
+    viewBox: "0 0 20 20"
   }, props), _path || (_path = /*#__PURE__*/React.createElement("path", {
     fill: "currentColor",
     d: "m10.143 13 3.344-6h-6.69l3.346 6Z"
