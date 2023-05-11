@@ -1492,15 +1492,16 @@ function getChartColor(i) {
     return colors[i % colors.length];
 }
 
-function ChartLegendItem({ color , onHover , onToggleTimeseriesVisibility , readOnly , setSize , timeseries , uniqueKeys  }) {
+function ChartLegendItem({ color , onHover , onToggleTimeseriesVisibility , readOnly , index , setSize , timeseries , uniqueKeys  }) {
     const [ref, { height  }] = useMeasure();
     useEffect(()=>{
         if (height) {
-            setSize(height);
+            setSize(index, height);
         }
     }, [
         height,
-        setSize
+        setSize,
+        index
     ]);
     const toggleTimeseriesVisibility = onToggleTimeseriesVisibility && !readOnly ? (event)=>{
         preventDefault(event);
@@ -1544,36 +1545,36 @@ function ChartLegendItem({ color , onHover , onToggleTimeseriesVisibility , read
     });
 }
 const ColorBlock = styled.div`
-  background: ${({ color , selected  })=>selected ? color : "transparent"};
-  border: 2px solid ${({ color  })=>color};
-  width: 14px;
-  height: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${({ theme  })=>theme.colorBackground};
-  border-radius: ${({ theme  })=>theme.borderRadius400};
+    background: ${({ color , selected  })=>selected ? color : "transparent"};
+    border: 2px solid ${({ color  })=>color};
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: ${({ theme  })=>theme.colorBackground};
+    border-radius: ${({ theme  })=>theme.borderRadius400};
 `;
 const InteractiveItemStyling = css`
-  cursor: pointer;
+    cursor: pointer;
 
-  &:hover {
-    background: ${({ theme  })=>theme.colorPrimaryAlpha100};
-  }
+    &:hover {
+        background: ${({ theme  })=>theme.colorPrimaryAlpha100};
+    }
 `;
 const LegendItemContainer = styled(Container)`
-  border-radius: ${({ theme  })=>theme.borderRadius500};
-  display: flex;
-  align-items: center;
-  font: ${({ theme  })=>theme.fontAxisShortHand};
-  padding: 8px 8px 8px 14px;
-  gap: 10px;
-  word-wrap: anywhere;
+    border-radius: ${({ theme  })=>theme.borderRadius500};
+    display: flex;
+    align-items: center;
+    font: ${({ theme  })=>theme.fontAxisShortHand};
+    padding: 8px 8px 8px 14px;
+    gap: 10px;
+    word-wrap: anywhere;
 
-  ${({ readOnly  })=>readOnly === false && InteractiveItemStyling}
+    ${({ readOnly  })=>readOnly === false && InteractiveItemStyling}
 `;
 const Text = styled.div`
-  flex: 1;
+    flex: 1;
 `;
 
 const DEFAULT_HEIGHT = 293;
@@ -1604,7 +1605,7 @@ const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility
         update
     ]);
     const getSize = (index)=>sizeMap.current.get(index) ?? DEFAULT_SIZE;
-    const setSize = (index, size)=>{
+    const setSize = useHandler((index, size)=>{
         const oldSize = getSize(index);
         sizeMap.current.set(index, size);
         listRef.current?.resetAfterIndex(index);
@@ -1612,7 +1613,7 @@ const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility
         if (heightRef.current < maxHeight) {
             update();
         }
-    };
+    });
     const onMouseOut = ()=>setFocusedTimeseries(null);
     const render = useHandler(({ data , index , style  })=>{
         const timeseries = data[index];
@@ -1625,7 +1626,8 @@ const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility
                 readOnly: readOnly,
                 timeseries: timeseries,
                 uniqueKeys: uniqueKeys,
-                setSize: (height)=>setSize(index, height)
+                index: index,
+                setSize: setSize
             })
         });
     });
@@ -1661,29 +1663,29 @@ const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility
     });
 });
 const ExpandableContainer = styled.div`
-  max-height: ${({ maxHeight  })=>maxHeight};
-  overflow: auto;
+    max-height: ${({ maxHeight  })=>maxHeight};
+    overflow: auto;
 `;
 const Footer = styled.div`
-  width: 100%;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+    width: 100%;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 `;
 const ChartLegendContainer = styled(Container)`
-  flex-direction: column;
-  font: ${({ theme  })=>theme.fontLegendShortHand};
-  letter-spacing: ${({ theme  })=>theme.fontLegendLetterSpacing};
-  letter-spacing: 0.02em;
-  padding: 10px 0 0;
-  position: relative;
-  word-wrap: break-word;
+    flex-direction: column;
+    font: ${({ theme  })=>theme.fontLegendShortHand};
+    letter-spacing: ${({ theme  })=>theme.fontLegendLetterSpacing};
+    letter-spacing: 0.02em;
+    padding: 10px 0 0;
+    position: relative;
+    word-wrap: break-word;
 `;
 const Results = styled.span`
-  font: ${({ theme  })=>theme.fontResultsSummaryShortHand};
-  letter-spacing: ${({ theme  })=>theme.fontResultsSummaryLetterSpacing};
-  color: ${({ theme  })=>theme.colorBase400};
+    font: ${({ theme  })=>theme.fontResultsSummaryShortHand};
+    letter-spacing: ${({ theme  })=>theme.fontResultsSummaryLetterSpacing};
+    color: ${({ theme  })=>theme.colorBase400};
 `;
 
 const TimeseriesTableCaption = styled.caption`

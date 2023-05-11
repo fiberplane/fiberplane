@@ -11,7 +11,8 @@ type Props = {
     onHover: () => void;
     onToggleTimeseriesVisibility: ChartLegendProps["onToggleTimeseriesVisibility"];
     readOnly: boolean;
-    setSize: (value: number) => void;
+    index: number;
+    setSize: (index: number, value: number) => void;
     timeseries: Timeseries;
     uniqueKeys: Array<string>;
 };
@@ -21,6 +22,7 @@ export function ChartLegendItem({
     onHover,
     onToggleTimeseriesVisibility,
     readOnly,
+    index,
     setSize,
     timeseries,
     uniqueKeys,
@@ -29,9 +31,9 @@ export function ChartLegendItem({
 
     useEffect(() => {
         if (height) {
-            setSize(height);
+            setSize(index, height);
         }
-    }, [height, setSize]);
+    }, [height, setSize, index]);
 
     const toggleTimeseriesVisibility =
         onToggleTimeseriesVisibility && !readOnly
@@ -79,37 +81,37 @@ export function ChartLegendItem({
 }
 
 const ColorBlock = styled.div<{ color: string; selected: boolean }>`
-  background: ${({ color, selected }) => (selected ? color : "transparent")};
-  border: 2px solid ${({ color }) => color};
-  width: 14px;
-  height: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${({ theme }) => theme.colorBackground};
-  border-radius: ${({ theme }) => theme.borderRadius400};
+    background: ${({ color, selected }) => (selected ? color : "transparent")};
+    border: 2px solid ${({ color }) => color};
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: ${({ theme }) => theme.colorBackground};
+    border-radius: ${({ theme }) => theme.borderRadius400};
 `;
 
 const InteractiveItemStyling = css`
-  cursor: pointer;
+    cursor: pointer;
 
-  &:hover {
-    background: ${({ theme }) => theme.colorPrimaryAlpha100};
-  }
+    &:hover {
+        background: ${({ theme }) => theme.colorPrimaryAlpha100};
+    }
 `;
 
 const LegendItemContainer = styled(Container)<{ readOnly: boolean }>`
-  border-radius: ${({ theme }) => theme.borderRadius500};
-  display: flex;
-  align-items: center;
-  font: ${({ theme }) => theme.fontAxisShortHand};
-  padding: 8px 8px 8px 14px;
-  gap: 10px;
-  word-wrap: anywhere;
+    border-radius: ${({ theme }) => theme.borderRadius500};
+    display: flex;
+    align-items: center;
+    font: ${({ theme }) => theme.fontAxisShortHand};
+    padding: 8px 8px 8px 14px;
+    gap: 10px;
+    word-wrap: anywhere;
 
-  ${({ readOnly }) => readOnly === false && InteractiveItemStyling}
+    ${({ readOnly }) => readOnly === false && InteractiveItemStyling}
 `;
 
 const Text = styled.div`
-  flex: 1;
+    flex: 1;
 `;

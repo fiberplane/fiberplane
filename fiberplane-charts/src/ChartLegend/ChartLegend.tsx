@@ -32,7 +32,7 @@ export const Legend = memo(function Legend({
 
     const uniqueKeys = useMemo(
         () => findUniqueKeys(timeseriesData),
-        [timeseriesData],
+        [timeseriesData]
     );
     const theme = useTheme();
     const listRef = useRef<VariableSizeList<Array<Timeseries>>>(null);
@@ -49,7 +49,7 @@ export const Legend = memo(function Legend({
     const getSize = (index: number) =>
         sizeMap.current.get(index) ?? DEFAULT_SIZE;
 
-    const setSize = (index: number, size: number) => {
+    const setSize = useHandler((index: number, size: number) => {
         const oldSize = getSize(index);
         sizeMap.current.set(index, size);
         listRef.current?.resetAfterIndex(index);
@@ -58,7 +58,7 @@ export const Legend = memo(function Legend({
         if (heightRef.current < maxHeight) {
             update();
         }
-    };
+    });
 
     const onMouseOut = () => setFocusedTimeseries(null);
 
@@ -85,12 +85,13 @@ export const Legend = memo(function Legend({
                             readOnly={readOnly}
                             timeseries={timeseries}
                             uniqueKeys={uniqueKeys}
-                            setSize={(height) => setSize(index, height)}
+                            index={index}
+                            setSize={setSize}
                         />
                     )}
                 </div>
             );
-        },
+        }
     );
 
     return (
@@ -122,30 +123,30 @@ export const Legend = memo(function Legend({
 const ExpandableContainer = styled.div<{
     maxHeight: Exclude<React.CSSProperties["height"], undefined>;
 }>`
-  max-height: ${({ maxHeight }) => maxHeight};
-  overflow: auto;
+    max-height: ${({ maxHeight }) => maxHeight};
+    overflow: auto;
 `;
 
 const Footer = styled.div`
-  width: 100%;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+    width: 100%;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 `;
 
 const ChartLegendContainer = styled(Container)`
-  flex-direction: column;
-  font: ${({ theme }) => theme.fontLegendShortHand};
-  letter-spacing: ${({ theme }) => theme.fontLegendLetterSpacing};
-  letter-spacing: 0.02em;
-  padding: 10px 0 0;
-  position: relative;
-  word-wrap: break-word;
+    flex-direction: column;
+    font: ${({ theme }) => theme.fontLegendShortHand};
+    letter-spacing: ${({ theme }) => theme.fontLegendLetterSpacing};
+    letter-spacing: 0.02em;
+    padding: 10px 0 0;
+    position: relative;
+    word-wrap: break-word;
 `;
 
 const Results = styled.span`
-  font: ${({ theme }) => theme.fontResultsSummaryShortHand};
-  letter-spacing: ${({ theme }) => theme.fontResultsSummaryLetterSpacing};
-  color: ${({ theme }) => theme.colorBase400};
+    font: ${({ theme }) => theme.fontResultsSummaryShortHand};
+    letter-spacing: ${({ theme }) => theme.fontResultsSummaryLetterSpacing};
+    color: ${({ theme }) => theme.colorBase400};
 `;
