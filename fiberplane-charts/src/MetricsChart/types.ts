@@ -103,6 +103,11 @@ export type MetricsChartProps = {
      * Show the line/border at the outer edge of the chart. (default: true)
      */
     showGridBorders?: boolean
+
+    /**
+     * Customize the grid line style. (defaults to a solid line)
+     */
+    gridDashArray?: string
 };
 
 export type TotalBarType = {
