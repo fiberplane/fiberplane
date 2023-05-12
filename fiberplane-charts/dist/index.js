@@ -585,7 +585,7 @@ const isMac = os === "mac";
 
 /**
  * Control what kind fo chart you're viewing (and more)
- */ function ChartControls({ graphType , onChangeGraphType , onChangeStackingType , showStackingControls , stackingType  }) {
+ */ function ChartControls({ graphType , onChangeGraphType , onChangeStackingType , stackingControlsShown , stackingType  }) {
     if (!onChangeGraphType && !onChangeStackingType) {
         return null;
     }
@@ -628,7 +628,7 @@ const isMac = os === "mac";
                             })
                         ]
                     }),
-                    showStackingControls && onChangeStackingType && /*#__PURE__*/ jsxs(ControlsSet, {
+                    stackingControlsShown && onChangeStackingType && /*#__PURE__*/ jsxs(ControlsSet, {
                         children: [
                             /*#__PURE__*/ jsx(ControlsSetLabel, {
                                 children: "Stacking"
@@ -1587,7 +1587,7 @@ const Text = styled.div`
 const DEFAULT_HEIGHT = 293;
 const DEFAULT_SIZE = 50;
 const EXPANDED_HEIGHT = 592;
-const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility , readOnly =false , timeseriesData , showFooter =true  }) {
+const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility , readOnly =false , timeseriesData , footerShown =true  }) {
     const { expandButton , gradient , isExpanded , onScroll , ref  } = useExpandable({
         defaultHeight: DEFAULT_HEIGHT
     });
@@ -1658,7 +1658,7 @@ const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility
                     gradient
                 ]
             }),
-            showFooter && /*#__PURE__*/ jsxs(Footer, {
+            footerShown && /*#__PURE__*/ jsxs(Footer, {
                 children: [
                     /*#__PURE__*/ jsx(Results, {
                         children: resultsText
@@ -2580,7 +2580,7 @@ function Bottom({ yMax , xScale , xScaleFormatter , strokeDasharray  }) {
 }
 var Bottom$1 = /*#__PURE__*/ memo(Bottom);
 
-const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xScale , yScale , xScaleFormatter , showGridColumns =true , showGridBorders =true , gridDashArray  }) {
+const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xScale , yScale , xScaleFormatter , gridColumnsShown =true , gridBordersShown =true , gridDashArray  }) {
     const [targetLower = 0, targetUpper = 0] = yScale.domain();
     const { colorBase300  } = useTheme();
     const lower = useCustomSpring(targetLower);
@@ -2612,7 +2612,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xS
                 stroke: colorBase300,
                 strokeDasharray: gridDashArray
             }),
-            showGridBorders && /*#__PURE__*/ jsx("line", {
+            gridBordersShown && /*#__PURE__*/ jsx("line", {
                 x1: xMax,
                 x2: xMax,
                 y1: 0,
@@ -2621,7 +2621,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xS
                 strokeWidth: 1,
                 strokeDasharray: gridDashArray
             }),
-            showGridColumns && /*#__PURE__*/ jsx(GridColumns, {
+            gridColumnsShown && /*#__PURE__*/ jsx(GridColumns, {
                 scale: xScale,
                 width: xMax,
                 height: yMax,
@@ -2639,7 +2639,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xS
                 scale: temporaryScale,
                 orientation: Orientation.left,
                 stroke: colorBase300,
-                strokeWidth: showGridBorders ? 1 : 0,
+                strokeWidth: gridBordersShown ? 1 : 0,
                 strokeDasharray: gridDashArray,
                 hideTicks: true,
                 tickLabelProps: ()=>axisLeftTickLabelProps,
@@ -2759,8 +2759,8 @@ function MainChartContent(props) {
                                 xScale: xScaleProps.xScale,
                                 yScale: yScale,
                                 xScaleFormatter: xScaleFormatter,
-                                showGridColumns: props.showGridColumns,
-                                showGridBorders: props.showGridBorders,
+                                gridColumnsShown: props.gridColumnsShown,
+                                gridBordersShown: props.gridBordersShown,
                                 gridDashArray: props.gridDashArray
                             }),
                             /*#__PURE__*/ jsx(Group, {
@@ -2852,17 +2852,17 @@ function ReadOnlyMetricsChart(props) {
     });
 }
 const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
-    const { showLegend =true , showChartControls =true , showStackingControls =true  } = props;
+    const { readOnly , legendShown =true , chartControlsShown =true , stackingControlsShown =true  } = props;
     return /*#__PURE__*/ jsxs(FocusedTimeseriesContextProvider, {
         children: [
-            !props.readOnly && showChartControls && /*#__PURE__*/ jsx(ChartControls, {
+            !readOnly && chartControlsShown && /*#__PURE__*/ jsx(ChartControls, {
                 ...props,
-                showStackingControls: showStackingControls
+                stackingControlsShown: stackingControlsShown
             }),
             /*#__PURE__*/ jsx(MainChartContent, {
                 ...props
             }),
-            showLegend && /*#__PURE__*/ jsx(Legend, {
+            legendShown && /*#__PURE__*/ jsx(Legend, {
                 ...props
             })
         ]

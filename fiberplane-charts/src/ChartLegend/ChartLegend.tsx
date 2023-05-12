@@ -19,7 +19,7 @@ export const Legend = memo(function Legend({
     onToggleTimeseriesVisibility,
     readOnly = false,
     timeseriesData,
-    showFooter = true,
+    footerShown = true,
 }: ChartLegendProps) {
     const { expandButton, gradient, isExpanded, onScroll, ref } =
         useExpandable<HTMLDivElement>({ defaultHeight: DEFAULT_HEIGHT });
@@ -113,7 +113,7 @@ export const Legend = memo(function Legend({
                 </VariableSizeList>
                 {gradient}
             </ExpandableContainer>
-            {showFooter && (
+            {footerShown && (
                 <Footer>
                     <Results>{resultsText}</Results>
                     {expandButton}

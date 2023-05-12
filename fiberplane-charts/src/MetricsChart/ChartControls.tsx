@@ -14,7 +14,7 @@ type Props = {
     graphType: GraphType;
     onChangeGraphType?: (graphType: GraphType) => void;
     onChangeStackingType?: (stackingType: StackingType) => void;
-    showStackingControls: boolean;
+    stackingControlsShown: boolean;
     stackingType: StackingType;
 };
 
@@ -25,7 +25,7 @@ export function ChartControls({
     graphType,
     onChangeGraphType,
     onChangeStackingType,
-    showStackingControls,
+    stackingControlsShown,
     stackingType,
 }: Props): JSX.Element | null {
     if (!onChangeGraphType && !onChangeStackingType) {
@@ -66,7 +66,7 @@ export function ChartControls({
                     </ControlsSet>
                 )}
 
-                {showStackingControls && onChangeStackingType && (
+                {stackingControlsShown && onChangeStackingType && (
                     <ControlsSet>
                         <ControlsSetLabel>Stacking</ControlsSetLabel>
                         <ButtonGroup>

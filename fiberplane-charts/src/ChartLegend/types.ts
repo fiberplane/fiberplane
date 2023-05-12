@@ -27,7 +27,7 @@ export type ChartLegendProps = {
     /**
      * Show the footer. (default: true)
      */
-    showFooter?: boolean;
+    footerShown?: boolean;
 };
 
 export type ToggleTimeseriesEvent = {

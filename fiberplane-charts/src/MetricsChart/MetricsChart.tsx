@@ -53,21 +53,22 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
     props: MetricsChartProps
 ) {
     const {
-        showLegend = true,
-        showChartControls = true,
-        showStackingControls = true,
+        readOnly,
+        legendShown = true,
+        chartControlsShown = true,
+        stackingControlsShown = true,
     } = props;
 
     return (
         <FocusedTimeseriesContextProvider>
-            {!props.readOnly && showChartControls && (
+            {!readOnly && chartControlsShown && (
                 <ChartControls
                     {...props}
-                    showStackingControls={showStackingControls}
+                    stackingControlsShown={stackingControlsShown}
                 />
             )}
             <MainChartContent {...props} />
-            {showLegend && <Legend {...props} />}
+            {legendShown && <Legend {...props} />}
         </FocusedTimeseriesContextProvider>
     );
 });

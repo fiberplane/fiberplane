@@ -254,31 +254,32 @@ type MetricsChartProps = {
     /**
      * Show the legend. (default: true)
      */
-    showLegend?: boolean;
+    legendShown?: boolean;
     /**
      * Show the chart controls. (default: true)
      *
      * Setting this to false will also hide the stacking controls
      */
-    showChartControls?: boolean;
+    chartControlsShown?: boolean;
     /**
      * Show the stacking controls. (default: true)
      */
-    showStackingControls?: boolean;
+    stackingControlsShown?: boolean;
     /**
      * Show the footer (which can contain the expand button & results text). (default: true)
      */
-    showFooter?: boolean;
+    footerShown?: boolean;
     /**
      * Show the grid column (vertical) lines. (default: true)
      */
-    showGridColumns?: boolean;
+    gridColumnsShown?: boolean;
     /**
      * Show the line/border at the outer edge of the chart. (default: true)
      */
-    showGridBorders?: boolean;
+    gridBordersShown?: boolean;
     /**
-     * Customize the grid line style. (defaults to a solid line)
+     * Customize the grid line style. (defaults to a solid line). This parameter is passed
+     * directly to the svg's stroke-dasharray attribute for several of the lines in the chart.
      */
     gridDashArray?: string;
 };
