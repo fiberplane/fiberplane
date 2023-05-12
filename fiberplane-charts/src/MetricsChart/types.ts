@@ -105,7 +105,8 @@ export type MetricsChartProps = {
     showGridBorders?: boolean
 
     /**
-     * Customize the grid line style. (defaults to a solid line)
+     * Customize the grid line style. (defaults to a solid line). This parameter is passed 
+     * directly to the svg's stroke-dasharray attribute for several of the lines in the chart.
      */
     gridDashArray?: string
 };
