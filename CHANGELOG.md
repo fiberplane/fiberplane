@@ -34,6 +34,7 @@ changes if the major version hasn't changed.
   query schemas that include rows/records of arbitrary data. (#39)
 - `fiberplane-models`: Added various structures for webhooks. (#41)
 - `fiberplane-api-client`: Added new webhook endpoints. (#41)
+- `fiberplane-models`: Added new field `successful` to `Webhook` and added new field `enabled` to `NewWebhook` struct (#54)
 
 ### Changed
 

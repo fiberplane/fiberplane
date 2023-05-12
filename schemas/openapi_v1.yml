@@ -2141,6 +2141,7 @@ components:
         - endpoint
         - events
         - enabled
+        - successful
         - createdAt
         - updatedAt
       properties:
@@ -2161,6 +2162,9 @@ components:
           format: password
         enabled:
           type: boolean
+        successful:
+          description: Whether the last delivery was successful
+          type: boolean
         createdBy:
           type: string
           format: base64uuid
@@ -2180,6 +2184,7 @@ components:
       required:
         - endpoint
         - events
+        - enabled
       properties:
         endpoint:
           type: string
@@ -2187,6 +2192,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/webhook_events"
+        enabled:
+          type: boolean
     update_webhook:
       type: object
       properties:
