@@ -282,6 +282,10 @@ type MetricsChartProps = {
      * directly to the svg's stroke-dasharray attribute for several of the lines in the chart.
      */
     gridDashArray?: string;
+    /**
+     * Override the colors that the charts will use. If not specified several colors of the theme are used
+     */
+    colors?: Array<string>;
 };
 type TotalBarType = {
     graphType: "bar";

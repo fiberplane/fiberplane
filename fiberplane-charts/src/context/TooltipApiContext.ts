@@ -1,12 +1,10 @@
 import { createContext } from "react";
 
-import type { SupportColors } from "../colors";
-
 export type GraphTooltip = {
     top: number;
     left: number;
     element: SVGSVGElement;
-    colorName: SupportColors;
+    color: string;
     metric: JSX.Element;
 };
 

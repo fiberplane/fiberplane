@@ -1,6 +1,5 @@
 import { LinearGradient } from "@visx/gradient";
 import { memo } from "react";
-import { useTheme } from "styled-components";
 
 import { getChartColor } from "../../../colors";
 import type { Metric } from "../../../types";
@@ -14,6 +13,7 @@ type Props = {
     metrics: Array<Metric>;
     yMax: number;
     highlight?: boolean;
+    colors: Array<string>;
 };
 
 export const Line = memo(function Line({
@@ -23,9 +23,9 @@ export const Line = memo(function Line({
     index,
     yMax,
     highlight = false,
+    colors,
 }: Props): JSX.Element {
-    const theme = useTheme();
-    const color = theme[getChartColor(index)];
+    const color = getChartColor(index, colors);
 
     return (
         <>

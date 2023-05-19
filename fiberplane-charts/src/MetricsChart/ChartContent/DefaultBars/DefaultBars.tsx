@@ -1,7 +1,6 @@
 import { Bar } from "@visx/shape";
 import { memo, useContext, useMemo } from "react";
 import { Group } from "@visx/group";
-import { useTheme } from "styled-components";
 
 import {
     ChartSizeContext,
@@ -16,19 +15,20 @@ import { useTooltips } from "./hooks";
 type Props = {
     timeseriesData: Array<Timeseries>;
     yScale: ValueScale;
+    colors: string[];
 } & GroupedScales;
 
 export const DefaultBars = memo(function DefaultBars(
     props: Props,
 ): JSX.Element {
-    const { groupScale, timeseriesData, xScale, yScale } = props;
+    const { groupScale, timeseriesData, xScale, yScale, colors } = props;
     const { onMouseMove, onMouseLeave } = useTooltips({
         groupScale,
         timeseriesData,
         xScale,
         yScale,
+        colors,
     });
-    const theme = useTheme();
 
     const dataItems = useMemo(
         () => toDataItems(timeseriesData),
@@ -41,12 +41,12 @@ export const DefaultBars = memo(function DefaultBars(
 
     const seriesData = useMemo(() => {
         return timeseriesData.map((timeseries, index) => {
-            const colorName = getChartColor(index);
+            const color = getChartColor(index, colors);
             return {
                 timeseries,
                 index,
                 x: groupScale(formatTimeseries(timeseries)),
-                colorName,
+                color,
             };
         });
     }, [timeseriesData, groupScale]);
@@ -61,13 +61,12 @@ export const DefaultBars = memo(function DefaultBars(
                     )}, 0)`}
                 >
                     {seriesData.map(
-                        ({ timeseries, x, colorName }, keyIndex) => {
+                        ({ timeseries, x, color }, keyIndex) => {
                             const value = dataItem.data.get(timeseries);
                             if (value === undefined) {
                                 return null;
                             }
 
-                            const color = theme[colorName];
 
                             return (
                                 <Bar

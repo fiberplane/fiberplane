@@ -1,7 +1,6 @@
 import { localPoint } from "@visx/event";
 import type { ScaleBand } from "d3-scale";
 import { useContext } from "react";
-import { useTheme } from "styled-components";
 
 import {
     getCandidate,
@@ -20,6 +19,7 @@ type Params = {
     timeseriesData: Array<Timeseries>;
     xScale: ScaleBand<number>;
     yScale: ValueScale;
+    colors: string[];
 };
 
 type Handlers = {
@@ -31,10 +31,9 @@ type Handlers = {
  * Hook managing tooltips/mouseevents for BarStacked component
  */
 export function useTooltips(params: Params): Handlers {
-    const { groupScale, timeseriesData, xScale, yScale } = params;
+    const { groupScale, timeseriesData, xScale, yScale, colors } = params;
 
     const { showTooltip, hideTooltip } = useContext(TooltipContext);
-    const theme = useTheme();
 
     const onMouseMove = useHandler(
         (event: React.MouseEvent<SVGRectElement>) => {
@@ -79,7 +78,7 @@ export function useTooltips(params: Params): Handlers {
                     yScale,
                     element: svg,
                     groupScale,
-                    theme,
+                    colors,
                 });
 
             if (!tooltipData) {

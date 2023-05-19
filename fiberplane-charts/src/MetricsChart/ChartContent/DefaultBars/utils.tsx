@@ -187,7 +187,7 @@ type GetTooltipArgs = {
     xScale: ScaleBand<number>;
     yScale: ValueScale;
     element: SVGSVGElement;
-    theme: DefaultTheme;
+    colors: string[];
 };
 
 export function getTooltipData({
@@ -196,6 +196,7 @@ export function getTooltipData({
     xScale,
     yScale,
     element,
+    colors,
 }: GetTooltipArgs): GraphTooltip | null {
     const { metric, timeseries, timeseriesIndex } = candidate;
     const activeTimestamp = metric.time;
@@ -209,11 +210,11 @@ export function getTooltipData({
         0.5 * bandwidth;
     const top = yScale(metric.value).valueOf() + MARGINS.top;
 
-    const colorName = getChartColor(timeseriesIndex);
+    const color = getChartColor(timeseriesIndex, colors);
     return {
         top,
         left,
-        colorName,
+        color,
         element,
         metric: formatTimeseriesTooltip(timeseries, metric, activeTimestamp),
     };

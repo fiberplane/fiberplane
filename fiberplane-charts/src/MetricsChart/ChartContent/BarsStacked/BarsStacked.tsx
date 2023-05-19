@@ -1,7 +1,6 @@
 import { Bar } from "@visx/shape";
 import { LinearGradient } from "@visx/gradient";
 import { memo, ReactNode, useContext, useMemo } from "react";
-import { useTheme } from "styled-components";
 
 import { calculateBandwidth } from "./utils";
 import {
@@ -24,13 +23,13 @@ type Props = {
     xScale: TimeScale;
     yScale: ValueScale;
     asPercentage?: boolean;
+    colors: string[];
 };
 
 export const BarsStacked = memo(function BarsStacked(props: Props) {
-    const { timeseriesData, xScale, yScale, asPercentage = false } = props;
+    const { timeseriesData, xScale, yScale, asPercentage = false, colors } = props;
 
     const { xMax, yMax } = useContext(ChartSizeContext);
-    const theme = useTheme();
 
     const dataItems = useMemo(() => {
         const dataItems = toDataItems(timeseriesData);
@@ -43,6 +42,7 @@ export const BarsStacked = memo(function BarsStacked(props: Props) {
         xScale,
         yScale,
         asPercentage,
+        colors,
     });
 
     const bandwidth = calculateBandwidth(xMax, dataItems.length);
@@ -65,7 +65,7 @@ export const BarsStacked = memo(function BarsStacked(props: Props) {
                     const translatedY = originalY - offsetY;
                     offsetY += height;
 
-                    const color = theme[getChartColor(realIndex)];
+                    const color = getChartColor(realIndex, colors);
 
                     bars.push(
                         <LinearGradient

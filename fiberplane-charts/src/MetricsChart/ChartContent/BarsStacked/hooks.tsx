@@ -21,6 +21,7 @@ type Params = {
     xScale: TimeScale;
     yScale: ValueScale;
     asPercentage: boolean;
+    colors: string[];
 };
 
 type Handlers = {
@@ -32,7 +33,7 @@ type Handlers = {
  * Hook managing tooltips/mouseevents for BarStacked component
  */
 export function useTooltips(params: Params): Handlers {
-    const { dataItems, xScale, yScale, timeseriesData, asPercentage } = params;
+    const { dataItems, xScale, yScale, timeseriesData, asPercentage, colors } = params;
     const { xMax } = useContext(ChartSizeContext);
 
     const { showTooltip, hideTooltip } = useContext(TooltipContext);
@@ -56,7 +57,7 @@ export function useTooltips(params: Params): Handlers {
             showTooltip({
                 top: yScale(cumulativeValue) + MARGINS.top,
                 left: xScale(new Date(time)) + MARGINS.left + 0.5 * bandwidth,
-                colorName: getChartColor(seriesIndex),
+                color: getChartColor(seriesIndex, colors),
                 element: svg,
                 metric: formatMetricTooltip(timeseries, metric, asPercentage),
             });

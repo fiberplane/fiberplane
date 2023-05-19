@@ -1,6 +1,6 @@
 import { Group } from "@visx/group";
 import { Line } from "@visx/shape";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 import { useContext, useMemo, useState } from "react";
 
 import { ChartContent } from "./ChartContent";
@@ -18,7 +18,7 @@ import { MARGINS } from "../constants";
 import { useMouseControls, useScales, useTooltip } from "../hooks";
 import { ZoomBar } from "./ZoomBar";
 
-export function MainChartContent(props: MetricsChartProps): JSX.Element {
+export function MainChartContent(props: MetricsChartProps & { colors: string[]}): JSX.Element {
     const { width, height, xMax, yMax } = useContext(ChartSizeContext);
     const interactiveControlsState = useContext(
         InteractiveControlsStateContext,
@@ -54,7 +54,6 @@ export function MainChartContent(props: MetricsChartProps): JSX.Element {
         () => ({ showTooltip, hideTooltip }),
         [showTooltip, hideTooltip],
     );
-    const theme = useTheme();
 
     // Use a custom formatter when `xScale` is a `ScaleBand<number>`. We want to
     // display the time, not the timestamp (number).
@@ -107,6 +106,7 @@ export function MainChartContent(props: MetricsChartProps): JSX.Element {
                                 timeseriesData={props.timeseriesData}
                                 xScaleProps={xScaleProps}
                                 yScale={yScale}
+                                colors={props.colors}
                             />
                         </Group>
                         <ZoomBar />
@@ -116,7 +116,7 @@ export function MainChartContent(props: MetricsChartProps): JSX.Element {
                             <Line
                                 from={{ x: graphTooltip.left, y: 0 }}
                                 to={{ x: graphTooltip.left, y: yMax }}
-                                stroke={theme[graphTooltip.colorName]}
+                                stroke={graphTooltip.color}
                                 strokeWidth={1}
                                 pointerEvents="none"
                                 strokeDasharray="1 1"
@@ -125,7 +125,7 @@ export function MainChartContent(props: MetricsChartProps): JSX.Element {
                                 cx={graphTooltip.left}
                                 cy={graphTooltip.top}
                                 r={4}
-                                fill={theme[graphTooltip.colorName]}
+                                fill={graphTooltip.color}
                                 pointerEvents="none"
                             />
                         </g>

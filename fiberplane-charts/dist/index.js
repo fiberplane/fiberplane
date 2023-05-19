@@ -1482,20 +1482,7 @@ function FocusedTimeseriesContextProvider(props) {
     });
 }
 
-const colors = [
-    "colorSupport1400",
-    "colorSupport2400",
-    "colorSupport3400",
-    "colorSupport4400",
-    "colorSupport5400",
-    "colorSupport6400",
-    "colorSupport7400",
-    "colorSupport8400",
-    "colorSupport9400",
-    "colorSupport10400",
-    "colorSupport11400"
-];
-function getChartColor(i) {
+function getChartColor(i, colors) {
     return colors[i % colors.length];
 }
 
@@ -1587,7 +1574,7 @@ const Text = styled.div`
 const DEFAULT_HEIGHT = 293;
 const DEFAULT_SIZE = 50;
 const EXPANDED_HEIGHT = 592;
-const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility , readOnly =false , timeseriesData , footerShown =true  }) {
+const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility , readOnly =false , timeseriesData , footerShown =true , colors  }) {
     const { expandButton , gradient , isExpanded , onScroll , ref  } = useExpandable({
         defaultHeight: DEFAULT_HEIGHT
     });
@@ -1598,7 +1585,6 @@ const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility
     const uniqueKeys = useMemo(()=>findUniqueKeys(timeseriesData), [
         timeseriesData
     ]);
-    const theme = useTheme();
     const listRef = useRef(null);
     const sizeMap = useRef(new Map());
     const heightRef = useRef(timeseriesData.length * DEFAULT_SIZE);
@@ -1627,7 +1613,7 @@ const Legend = /*#__PURE__*/ memo(function Legend({ onToggleTimeseriesVisibility
         return /*#__PURE__*/ jsx("div", {
             style: style,
             children: timeseries && /*#__PURE__*/ jsx(ChartLegendItem, {
-                color: theme[getChartColor(index)],
+                color: getChartColor(index, colors),
                 onHover: ()=>setFocusedTimeseries(timeseries),
                 onToggleTimeseriesVisibility: onToggleTimeseriesVisibility,
                 readOnly: readOnly,
@@ -1707,10 +1693,9 @@ const TimeseriesTableTd = styled.td`
 
 const getY0 = (d)=>d[0];
 const getY1 = (d)=>d[1];
-const Areas = /*#__PURE__*/ memo(function Areas({ timeseriesData , xScale , yScale , asPercentage =false  }) {
+const Areas = /*#__PURE__*/ memo(function Areas({ timeseriesData , xScale , yScale , asPercentage =false , colors  }) {
     const { xMax , yMax  } = useContext(ChartSizeContext);
     const { showTooltip , hideTooltip  } = useContext(TooltipContext);
-    const theme = useTheme();
     const dataItems = useMemo(()=>{
         const dataItems = toDataItems(timeseriesData);
         return asPercentage ? dataToPercentages(dataItems) : dataItems;
@@ -1740,7 +1725,7 @@ const Areas = /*#__PURE__*/ memo(function Areas({ timeseriesData , xScale , ySca
             const svg = event.currentTarget.ownerSVGElement;
             if (svg) {
                 showTooltip({
-                    colorName: getChartColor(seriesIndex),
+                    color: getChartColor(seriesIndex, colors),
                     metric: formatTimeseriesTooltip$2(timeseries, metric, asPercentage),
                     element: svg,
                     left,
@@ -1769,7 +1754,7 @@ const Areas = /*#__PURE__*/ memo(function Areas({ timeseriesData , xScale , ySca
                 children: ({ stacks , path  })=>stacks.map((series, index)=>{
                         const realIndex = timeseriesData.findIndex((item)=>formatTimeseries(item) === series.key);
                         const timeseries = timeseriesData[realIndex];
-                        const color = theme[getChartColor(realIndex)];
+                        const color = getChartColor(realIndex, colors);
                         return /*#__PURE__*/ jsxs(Group, {
                             opacity: focusedKey === null || focusedKey === series.key ? 1 : 0.2,
                             children: [
@@ -1895,7 +1880,7 @@ function calculateBandwidth(width, steps) {
 /**
  * Hook managing tooltips/mouseevents for BarStacked component
  */ function useTooltips$1(params) {
-    const { dataItems , xScale , yScale , timeseriesData , asPercentage  } = params;
+    const { dataItems , xScale , yScale , timeseriesData , asPercentage , colors  } = params;
     const { xMax  } = useContext(ChartSizeContext);
     const { showTooltip , hideTooltip  } = useContext(TooltipContext);
     const onMouseMove = (event)=>{
@@ -1921,7 +1906,7 @@ function calculateBandwidth(width, steps) {
             showTooltip({
                 top: yScale(cumulativeValue) + MARGINS.top,
                 left: xScale(new Date(time)) + MARGINS.left + 0.5 * bandwidth,
-                colorName: getChartColor(seriesIndex),
+                color: getChartColor(seriesIndex, colors),
                 element: svg,
                 metric: formatMetricTooltip(timeseries, metric, asPercentage)
             });
@@ -2014,9 +1999,8 @@ function formatMetricTooltip(timeseries, metric, asPercentage = false) {
 }
 
 const BarsStacked = /*#__PURE__*/ memo(function BarsStacked(props) {
-    const { timeseriesData , xScale , yScale , asPercentage =false  } = props;
+    const { timeseriesData , xScale , yScale , asPercentage =false , colors  } = props;
     const { xMax , yMax  } = useContext(ChartSizeContext);
-    const theme = useTheme();
     const dataItems = useMemo(()=>{
         const dataItems = toDataItems(timeseriesData);
         return asPercentage ? dataToPercentages(dataItems) : dataItems;
@@ -2029,7 +2013,8 @@ const BarsStacked = /*#__PURE__*/ memo(function BarsStacked(props) {
         timeseriesData,
         xScale,
         yScale,
-        asPercentage
+        asPercentage,
+        colors
     });
     const bandwidth = calculateBandwidth(xMax, dataItems.length);
     const { focusedTimeseries  } = useContext(FocusedTimeseriesStateContext);
@@ -2047,7 +2032,7 @@ const BarsStacked = /*#__PURE__*/ memo(function BarsStacked(props) {
                     const height = yMax - originalY;
                     const translatedY = originalY - offsetY;
                     offsetY += height;
-                    const color = theme[getChartColor(realIndex)];
+                    const color = getChartColor(realIndex, colors);
                     bars.push(/*#__PURE__*/ jsx(LinearGradient, {
                         id: `fill-${timestamp}-line-${realIndex}`,
                         from: color,
@@ -2155,18 +2140,18 @@ function getCandidate({ x , xScale , y , yScale , timeseriesData , activeTimesta
     const closestIndex = Math.floor(offsetX / itemWidth);
     return domain[clamp(0, closestIndex, domain.length - 1)];
 }
-function getTooltipData({ candidate , groupScale , xScale , yScale , element  }) {
+function getTooltipData({ candidate , groupScale , xScale , yScale , element , colors  }) {
     const { metric , timeseries , timeseriesIndex  } = candidate;
     const activeTimestamp = metric.time;
     const bandwidth = groupScale.bandwidth();
     // Calculate proper positions
     const left = (groupScale(formatTimeseries(timeseries)) ?? 0) + (xScale(new Date(activeTimestamp).getTime())?.valueOf() ?? 0) + MARGINS.left + 0.5 * bandwidth;
     const top = yScale(metric.value).valueOf() + MARGINS.top;
-    const colorName = getChartColor(timeseriesIndex);
+    const color = getChartColor(timeseriesIndex, colors);
     return {
         top,
         left,
-        colorName,
+        color,
         element,
         metric: formatTimeseriesTooltip$1(timeseries, metric, activeTimestamp)
     };
@@ -2213,9 +2198,8 @@ function formatTimeseriesTooltip$1(timeseries, metric, activeTimestamp) {
 /**
  * Hook managing tooltips/mouseevents for BarStacked component
  */ function useTooltips(params) {
-    const { groupScale , timeseriesData , xScale , yScale  } = params;
+    const { groupScale , timeseriesData , xScale , yScale , colors  } = params;
     const { showTooltip , hideTooltip  } = useContext(TooltipContext);
-    const theme = useTheme();
     const onMouseMove = useHandler((event)=>{
         const { x: x0 , y: y0  } = localPoint(event) || {
             x: 0,
@@ -2253,7 +2237,7 @@ function formatTimeseriesTooltip$1(timeseries, metric, activeTimestamp) {
             yScale,
             element: svg,
             groupScale,
-            theme
+            colors
         });
         if (!tooltipData) {
             hideTooltip();
@@ -2268,14 +2252,14 @@ function formatTimeseriesTooltip$1(timeseries, metric, activeTimestamp) {
 }
 
 const DefaultBars = /*#__PURE__*/ memo(function DefaultBars(props) {
-    const { groupScale , timeseriesData , xScale , yScale  } = props;
+    const { groupScale , timeseriesData , xScale , yScale , colors  } = props;
     const { onMouseMove , onMouseLeave  } = useTooltips({
         groupScale,
         timeseriesData,
         xScale,
-        yScale
+        yScale,
+        colors
     });
-    const theme = useTheme();
     const dataItems = useMemo(()=>toDataItems(timeseriesData), [
         timeseriesData
     ]);
@@ -2284,12 +2268,12 @@ const DefaultBars = /*#__PURE__*/ memo(function DefaultBars(props) {
     const { focusedTimeseries  } = useContext(FocusedTimeseriesStateContext);
     const seriesData = useMemo(()=>{
         return timeseriesData.map((timeseries, index)=>{
-            const colorName = getChartColor(index);
+            const color = getChartColor(index, colors);
             return {
                 timeseries,
                 index,
                 x: groupScale(formatTimeseries(timeseries)),
-                colorName
+                color
             };
         });
     }, [
@@ -2300,12 +2284,11 @@ const DefaultBars = /*#__PURE__*/ memo(function DefaultBars(props) {
         children: [
             dataItems.map((dataItem, index)=>/*#__PURE__*/ jsx(Group, {
                     transform: `translate(${xScale(new Date(dataItem[dateKey]).getTime())}, 0)`,
-                    children: seriesData.map(({ timeseries , x , colorName  }, keyIndex)=>{
+                    children: seriesData.map(({ timeseries , x , color  }, keyIndex)=>{
                         const value = dataItem.data.get(timeseries);
                         if (value === undefined) {
                             return null;
                         }
-                        const color = theme[colorName];
                         return /*#__PURE__*/ jsx(Bar, {
                             id: `stack-${index}-${keyIndex}`,
                             x: x,
@@ -2363,9 +2346,8 @@ const Series = /*#__PURE__*/ memo(function Series({ metrics , xScale , yScale , 
     });
 });
 
-const Line = /*#__PURE__*/ memo(function Line({ xScale , yScale , metrics , index , yMax , highlight =false  }) {
-    const theme = useTheme();
-    const color = theme[getChartColor(index)];
+const Line = /*#__PURE__*/ memo(function Line({ xScale , yScale , metrics , index , yMax , highlight =false , colors  }) {
+    const color = getChartColor(index, colors);
     return /*#__PURE__*/ jsxs(Fragment, {
         children: [
             /*#__PURE__*/ jsx(LinearGradient, {
@@ -2394,7 +2376,7 @@ const Line = /*#__PURE__*/ memo(function Line({ xScale , yScale , metrics , inde
 
 const x = (metric)=>new Date(metric.time).getTime();
 const y = (metric)=>metric.value;
-const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , yScale  }) {
+const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , yScale , colors  }) {
     const { xMax , yMax  } = useContext(ChartSizeContext);
     const { showTooltip , hideTooltip  } = useContext(TooltipContext);
     const handleTooltip = useHandler((event)=>{
@@ -2423,7 +2405,7 @@ const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , ySca
             const svg = event.currentTarget.ownerSVGElement;
             if (svg) {
                 showTooltip({
-                    colorName: getChartColor(absoluteIndex),
+                    color: getChartColor(absoluteIndex, colors),
                     metric: formatTimeseriesTooltip(timeseries, metric),
                     element: svg,
                     left,
@@ -2445,7 +2427,8 @@ const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , ySca
                         yScale: yScale,
                         metrics: timeseries.metrics,
                         yMax: yMax,
-                        highlight: focusedTimeseries === timeseries
+                        highlight: focusedTimeseries === timeseries,
+                        colors: colors
                     })
                 }, formatTimeseries(timeseries, {
                     sortLabels: false
@@ -2524,12 +2507,13 @@ function formatTimeseriesTooltip(timeseries, metric) {
     });
 }
 
-function ChartContent({ timeseriesData , xScaleProps , yScale  }) {
+function ChartContent({ timeseriesData , xScaleProps , yScale , colors  }) {
     if (xScaleProps.graphType === "line" && xScaleProps.stackingType === "none") {
         return /*#__PURE__*/ jsx(Lines, {
             timeseriesData: timeseriesData,
             xScale: xScaleProps.xScale,
-            yScale: yScale
+            yScale: yScale,
+            colors: colors
         });
     }
     if (xScaleProps.graphType === "line") {
@@ -2537,7 +2521,8 @@ function ChartContent({ timeseriesData , xScaleProps , yScale  }) {
             timeseriesData: timeseriesData,
             xScale: xScaleProps.xScale,
             yScale: yScale,
-            asPercentage: xScaleProps.stackingType === "percentage"
+            asPercentage: xScaleProps.stackingType === "percentage",
+            colors: colors
         });
     }
     if (xScaleProps.stackingType === "none") {
@@ -2545,14 +2530,16 @@ function ChartContent({ timeseriesData , xScaleProps , yScale  }) {
             groupScale: xScaleProps.groupScale,
             timeseriesData: timeseriesData,
             xScale: xScaleProps.xScale,
-            yScale: yScale
+            yScale: yScale,
+            colors: colors
         });
     }
     return /*#__PURE__*/ jsx(BarsStacked, {
         timeseriesData: timeseriesData,
         xScale: xScaleProps.xScale,
         yScale: yScale,
-        asPercentage: xScaleProps.stackingType === "percentage"
+        asPercentage: xScaleProps.stackingType === "percentage",
+        colors: colors
     });
 }
 
@@ -2718,7 +2705,6 @@ function MainChartContent(props) {
         showTooltip,
         hideTooltip
     ]);
-    const theme = useTheme();
     // Use a custom formatter when `xScale` is a `ScaleBand<number>`. We want to
     // display the time, not the timestamp (number).
     const xScaleFormatter = xScaleProps.graphType === "bar" && xScaleProps.stackingType === "none" ? getTimeFormatter(xScaleProps.xScale) : undefined;
@@ -2769,7 +2755,8 @@ function MainChartContent(props) {
                                 children: /*#__PURE__*/ jsx(ChartContent, {
                                     timeseriesData: props.timeseriesData,
                                     xScaleProps: xScaleProps,
-                                    yScale: yScale
+                                    yScale: yScale,
+                                    colors: props.colors
                                 })
                             }),
                             /*#__PURE__*/ jsx(ZoomBar, {})
@@ -2786,7 +2773,7 @@ function MainChartContent(props) {
                                     x: graphTooltip.left,
                                     y: yMax
                                 },
-                                stroke: theme[graphTooltip.colorName],
+                                stroke: graphTooltip.color,
                                 strokeWidth: 1,
                                 pointerEvents: "none",
                                 strokeDasharray: "1 1"
@@ -2795,7 +2782,7 @@ function MainChartContent(props) {
                                 cx: graphTooltip.left,
                                 cy: graphTooltip.top,
                                 r: 4,
-                                fill: theme[graphTooltip.colorName],
+                                fill: graphTooltip.color,
                                 pointerEvents: "none"
                             })
                         ]
@@ -2852,7 +2839,26 @@ function ReadOnlyMetricsChart(props) {
     });
 }
 const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
-    const { readOnly , legendShown =true , chartControlsShown =true , stackingControlsShown =true  } = props;
+    const { readOnly , legendShown =true , chartControlsShown =true , stackingControlsShown =true , colors  } = props;
+    const theme = useTheme();
+    const chartColors = useMemo(()=>{
+        return colors || [
+            theme["colorSupport1400"],
+            theme["colorSupport2400"],
+            theme["colorSupport3400"],
+            theme["colorSupport4400"],
+            theme["colorSupport5400"],
+            theme["colorSupport6400"],
+            theme["colorSupport7400"],
+            theme["colorSupport8400"],
+            theme["colorSupport9400"],
+            theme["colorSupport10400"],
+            theme["colorSupport11400"]
+        ];
+    }, [
+        theme,
+        colors
+    ]);
     return /*#__PURE__*/ jsxs(FocusedTimeseriesContextProvider, {
         children: [
             !readOnly && chartControlsShown && /*#__PURE__*/ jsx(ChartControls, {
@@ -2860,10 +2866,12 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
                 stackingControlsShown: stackingControlsShown
             }),
             /*#__PURE__*/ jsx(MainChartContent, {
-                ...props
+                ...props,
+                colors: chartColors
             }),
             legendShown && /*#__PURE__*/ jsx(Legend, {
-                ...props
+                ...props,
+                colors: chartColors
             })
         ]
     });

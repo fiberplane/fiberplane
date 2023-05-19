@@ -28,6 +28,11 @@ export type ChartLegendProps = {
      * Show the footer. (default: true)
      */
     footerShown?: boolean;
+
+    /**
+     * Array of colors to use for the timeseries.
+     */
+    colors: Array<string>;
 };
 
 export type ToggleTimeseriesEvent = {

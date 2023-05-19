@@ -1,5 +1,5 @@
-import { memo } from "react";
-import styled from "styled-components";
+import { memo, useMemo } from "react";
+import styled, { useTheme } from "styled-components";
 
 import { ChartControls } from "./ChartControls";
 import { ChartSizeContainerProvider } from "./ChartSizeContainerProvider";
@@ -57,7 +57,27 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
         legendShown = true,
         chartControlsShown = true,
         stackingControlsShown = true,
+        colors,
     } = props;
+
+    const theme = useTheme();
+
+    const chartColors = useMemo(() => {
+        return colors || [
+            theme["colorSupport1400"],
+            theme["colorSupport2400"],
+            theme["colorSupport3400"],
+            theme["colorSupport4400"],
+            theme["colorSupport5400"],
+            theme["colorSupport6400"],
+            theme["colorSupport7400"],
+            theme["colorSupport8400"],
+            theme["colorSupport9400"],
+            theme["colorSupport10400"],
+            theme["colorSupport11400"],
+        ];
+    }, [theme, colors]);
+
 
     return (
         <FocusedTimeseriesContextProvider>
@@ -67,8 +87,8 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
                     stackingControlsShown={stackingControlsShown}
                 />
             )}
-            <MainChartContent {...props} />
-            {legendShown && <Legend {...props} />}
+            <MainChartContent {...props} colors={chartColors}/>
+            {legendShown && <Legend {...props} colors={chartColors}/>}
         </FocusedTimeseriesContextProvider>
     );
 });

@@ -20,6 +20,7 @@ export const Legend = memo(function Legend({
     readOnly = false,
     timeseriesData,
     footerShown = true,
+    colors,
 }: ChartLegendProps) {
     const { expandButton, gradient, isExpanded, onScroll, ref } =
         useExpandable<HTMLDivElement>({ defaultHeight: DEFAULT_HEIGHT });
@@ -35,7 +36,6 @@ export const Legend = memo(function Legend({
         () => findUniqueKeys(timeseriesData),
         [timeseriesData]
     );
-    const theme = useTheme();
     const listRef = useRef<VariableSizeList<Array<Timeseries>>>(null);
     const sizeMap = useRef(new Map<number, number>());
     const heightRef = useRef(timeseriesData.length * DEFAULT_SIZE);
@@ -78,7 +78,7 @@ export const Legend = memo(function Legend({
                 <div style={style}>
                     {timeseries && (
                         <ChartLegendItem
-                            color={theme[getChartColor(index)]}
+                            color={getChartColor(index, colors)}
                             onHover={() => setFocusedTimeseries(timeseries)}
                             onToggleTimeseriesVisibility={
                                 onToggleTimeseriesVisibility

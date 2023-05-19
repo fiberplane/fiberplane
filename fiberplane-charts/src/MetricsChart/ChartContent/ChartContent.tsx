@@ -10,12 +10,14 @@ type Props = {
     timeseriesData: Array<Timeseries>;
     xScaleProps: XScaleProps;
     yScale: ValueScale;
+    colors: string[];
 };
 
 export function ChartContent({
     timeseriesData,
     xScaleProps,
     yScale,
+    colors,
 }: Props): JSX.Element {
     if (
         xScaleProps.graphType === "line" &&
@@ -26,6 +28,7 @@ export function ChartContent({
                 timeseriesData={timeseriesData}
                 xScale={xScaleProps.xScale}
                 yScale={yScale}
+                colors={colors}
             />
         );
     }
@@ -37,6 +40,7 @@ export function ChartContent({
                 xScale={xScaleProps.xScale}
                 yScale={yScale}
                 asPercentage={xScaleProps.stackingType === "percentage"}
+                colors={colors}
             />
         );
     }
@@ -48,6 +52,7 @@ export function ChartContent({
                 timeseriesData={timeseriesData}
                 xScale={xScaleProps.xScale}
                 yScale={yScale}
+                colors={colors}
             />
         );
     }
@@ -58,6 +63,7 @@ export function ChartContent({
             xScale={xScaleProps.xScale}
             yScale={yScale}
             asPercentage={xScaleProps.stackingType === "percentage"}
+            colors={colors}
         />
     );
 }

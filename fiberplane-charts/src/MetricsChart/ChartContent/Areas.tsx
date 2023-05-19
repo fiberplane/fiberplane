@@ -3,7 +3,6 @@ import { LinearGradient } from "@visx/gradient";
 import { memo, useContext, useMemo } from "react";
 import { SeriesPoint } from "@visx/shape/lib/types";
 import { Group } from "@visx/group";
-import { useTheme } from "styled-components";
 
 import {
     ChartSizeContext,
@@ -31,6 +30,7 @@ type Props = {
     xScale: TimeScale;
     yScale: ValueScale;
     asPercentage?: boolean;
+    colors: string[]
 };
 
 const getY0 = (d: SeriesPoint<DataItem>) => d[0];
@@ -41,10 +41,10 @@ export const Areas = memo(function Areas({
     xScale,
     yScale,
     asPercentage = false,
+    colors,
 }: Props) {
     const { xMax, yMax } = useContext(ChartSizeContext);
     const { showTooltip, hideTooltip } = useContext(TooltipContext);
-    const theme = useTheme();
     const dataItems = useMemo(() => {
         const dataItems = toDataItems(timeseriesData);
         return asPercentage ? dataToPercentages(dataItems) : dataItems;
@@ -66,7 +66,7 @@ export const Areas = memo(function Areas({
             const svg = event.currentTarget.ownerSVGElement;
             if (svg) {
                 showTooltip({
-                    colorName: getChartColor(seriesIndex),
+                    color: getChartColor(seriesIndex, colors),
                     metric: formatTimeseriesTooltip(
                         timeseries,
                         metric,
@@ -105,7 +105,7 @@ export const Areas = memo(function Areas({
                                 (item) => formatTimeseries(item) === series.key,
                             );
                             const timeseries = timeseriesData[realIndex];
-                            const color = theme[getChartColor(realIndex)];
+                            const color = getChartColor(realIndex, colors);
 
                             return (
                                 <Group

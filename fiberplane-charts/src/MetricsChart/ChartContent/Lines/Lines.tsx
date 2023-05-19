@@ -28,12 +28,14 @@ type Props = {
     timeseriesData: Array<Timeseries>;
     xScale: TimeScale;
     yScale: ValueScale;
+    colors: string[];
 };
 
 export const Lines = memo(function Lines({
     timeseriesData,
     xScale,
     yScale,
+    colors,
 }: Props) {
     const { xMax, yMax } = useContext(ChartSizeContext);
     const { showTooltip, hideTooltip } = useContext(TooltipContext);
@@ -65,7 +67,7 @@ export const Lines = memo(function Lines({
                 const svg = event.currentTarget.ownerSVGElement;
                 if (svg) {
                     showTooltip({
-                        colorName: getChartColor(absoluteIndex),
+                        color: getChartColor(absoluteIndex, colors),
                         metric: formatTimeseriesTooltip(timeseries, metric),
                         element: svg,
                         left,
@@ -103,6 +105,7 @@ export const Lines = memo(function Lines({
                                 metrics={timeseries.metrics}
                                 yMax={yMax}
                                 highlight={focusedTimeseries === timeseries}
+                                colors={colors}
                             />
                         </Group>
                     ),
