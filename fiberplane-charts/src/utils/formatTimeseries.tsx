@@ -38,7 +38,7 @@ export const FormattedTimeseries = memo(function FormattedTimeseries({
 }: {
     metric: Timeseries;
     sortLabels?: boolean;
-    emphasizedKeys?: string[];
+    emphasizedKeys?: Array<string>;
 }): JSX.Element {
     const { name, labels } = metric;
 

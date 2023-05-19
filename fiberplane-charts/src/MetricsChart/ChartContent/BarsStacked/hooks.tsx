@@ -21,7 +21,7 @@ type Params = {
     xScale: TimeScale;
     yScale: ValueScale;
     asPercentage: boolean;
-    colors: string[];
+    colors: Array<string>;
 };
 
 type Handlers = {

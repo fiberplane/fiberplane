@@ -10,7 +10,7 @@ type Props = {
     timeseriesData: Array<Timeseries>;
     xScaleProps: XScaleProps;
     yScale: ValueScale;
-    colors: string[];
+    colors: Array<string>;
 };
 
 export function ChartContent({

@@ -28,7 +28,7 @@ type Props = {
     timeseriesData: Array<Timeseries>;
     xScale: TimeScale;
     yScale: ValueScale;
-    colors: string[];
+    colors: Array<string>;
 };
 
 export const Lines = memo(function Lines({

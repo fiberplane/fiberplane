@@ -15,7 +15,7 @@ import { useTooltips } from "./hooks";
 type Props = {
     timeseriesData: Array<Timeseries>;
     yScale: ValueScale;
-    colors: string[];
+    colors: Array<string>;
 } & GroupedScales;
 
 export const DefaultBars = memo(function DefaultBars(

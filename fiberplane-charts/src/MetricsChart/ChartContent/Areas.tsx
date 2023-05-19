@@ -30,7 +30,7 @@ type Props = {
     xScale: TimeScale;
     yScale: ValueScale;
     asPercentage?: boolean;
-    colors: string[]
+    colors: Array<string>;
 };
 
 const getY0 = (d: SeriesPoint<DataItem>) => d[0];

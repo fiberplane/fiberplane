@@ -23,7 +23,7 @@ type Props = {
     xScale: TimeScale;
     yScale: ValueScale;
     asPercentage?: boolean;
-    colors: string[];
+    colors: Array<string>;
 };
 
 export const BarsStacked = memo(function BarsStacked(props: Props) {

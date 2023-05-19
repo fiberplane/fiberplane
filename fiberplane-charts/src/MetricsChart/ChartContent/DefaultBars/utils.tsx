@@ -187,7 +187,7 @@ type GetTooltipArgs = {
     xScale: ScaleBand<number>;
     yScale: ValueScale;
     element: SVGSVGElement;
-    colors: string[];
+    colors: Array<string>;
 };
 
 export function getTooltipData({

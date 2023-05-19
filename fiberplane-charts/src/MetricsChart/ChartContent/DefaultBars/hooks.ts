@@ -19,7 +19,7 @@ type Params = {
     timeseriesData: Array<Timeseries>;
     xScale: ScaleBand<number>;
     yScale: ValueScale;
-    colors: string[];
+    colors: Array<string>;
 };
 
 type Handlers = {
