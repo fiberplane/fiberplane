@@ -2260,6 +2260,26 @@ components:
         timestamp:
           type: string
           format: date-time
+    oid_connection:
+      type: object
+      required:
+        - linked
+      properties:
+        linked:
+          type: boolean
+        sub:
+          type: string
+          description: "The unique ID on the providers' site for the user"
+    oid_connections:
+      type: object
+      required:
+        - google
+        - github
+      properties:
+        google:
+          $ref: "#/components/schemas/oid_connection"
+        github:
+          $ref: "#/components/schemas/oid_connection"
   parameters:
     sortDirection:
       in: query
@@ -3108,6 +3128,7 @@ paths:
     get:
       operationId: profile_get
       description: "Fetch the profile of the authenticated user"
+      summary: "Fetch the profile of the authenticated user"
       tags:
         - Miscellaneous
       responses:
@@ -3117,6 +3138,20 @@ paths:
               schema:
                 $ref: "#/components/schemas/profile"
           description: OK
+  /api/profile/connections:
+    get:
+      operationId: oidc_connections_list
+      description: "Get the list of all available providers and if they're linked to the current user"
+      summary: "Get the list of all available providers and if they're linked to the current user"
+      tags:
+        - Miscellaneous
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/oid_connections"
   /api/profile/picture:
     get:
       operationId: profile_picture_get

@@ -33,3 +33,32 @@ pub struct Profile {
     #[builder(default, setter(into))]
     pub roles: HashMap<Base64Uuid, AuthRole>,
 }
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::users")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct OidConnections {
+    pub google: OidConnection,
+    pub github: OidConnection,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::users")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct OidConnection {
+    pub linked: bool,
+    /// The unique ID on the providers' site for the user, if linked
+    #[builder(default, setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sub: Option<String>,
+}

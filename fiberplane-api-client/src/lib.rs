@@ -530,6 +530,14 @@ pub async fn profile_get(client: &ApiClient) -> Result<models::Profile> {
     Ok(response)
 }
 
+#[doc = r#"Get the list of all available providers and if they're linked to the current user"#]
+pub async fn oidc_connections_list(client: &ApiClient) -> Result<models::OidConnections> {
+    let mut builder = client.request(Method::GET, "/api/profile/connections")?;
+    let response = builder.send().await?.error_for_status()?.json().await?;
+
+    Ok(response)
+}
+
 #[doc = r#"Retrieve profile image"#]
 pub async fn profile_picture_get(client: &ApiClient) -> Result<bytes::Bytes> {
     let mut builder = client.request(Method::GET, "/api/profile/picture")?;
