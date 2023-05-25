@@ -509,7 +509,7 @@ pub async fn oid_linkup(
     redirect: Option<&str>,
 ) -> Result<models::OidLinkupLocation> {
     let mut builder = client.request(
-        Method::GET,
+        Method::POST,
         &format!("/api/oidc/linkup/{provider}", provider = provider,),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
