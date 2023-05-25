@@ -34,17 +34,17 @@ pub struct Profile {
     pub roles: HashMap<Base64Uuid, AuthRole>,
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
     fp(rust_module = "fiberplane_models::users")
 )]
 #[non_exhaustive]
-#[serde(rename_all = "camelCase")]
-pub struct OidConnections {
-    pub google: OidConnection,
-    pub github: OidConnection,
+#[serde(rename_all = "snake_case")]
+pub enum OidProvider {
+    Google,
+    Github,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -56,6 +56,7 @@ pub struct OidConnections {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct OidConnection {
+    pub provider: OidProvider,
     pub linked: bool,
     /// The unique ID on the providers' site for the user, if linked
     #[builder(default, setter(into, strip_option))]

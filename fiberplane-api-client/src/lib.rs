@@ -554,8 +554,8 @@ pub async fn profile_get(client: &ApiClient) -> Result<models::Profile> {
     Ok(response)
 }
 
-#[doc = r#"Get the list of all available providers and if they're linked to the current user"#]
-pub async fn oid_connections_list(client: &ApiClient) -> Result<models::OidConnections> {
+#[doc = r#"List of all available providers and if they're linked to the current user"#]
+pub async fn oid_connections_list(client: &ApiClient) -> Result<Vec<models::OidConnection>> {
     let mut builder = client.request(Method::GET, "/api/profile/connections")?;
     let response = builder.send().await?.error_for_status()?.json().await?;
 
