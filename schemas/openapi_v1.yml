@@ -3285,7 +3285,7 @@ paths:
       - $ref: "#/components/parameters/cli_redirect_port"
       - $ref: "#/components/parameters/redirect"
     get:
-      operationId: oidc_linkup
+      operationId: oid_linkup
       description: |
         Start the auth flow for linking an existing Fiberplane account with a new OID identity (used only with the Studio).
         For authenticating with the API see the Authentication section in the docs

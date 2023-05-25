@@ -502,7 +502,7 @@ pub async fn oidc_authorize(
 #[doc = r#"Start the auth flow for linking an existing Fiberplane account with a new OID identity (used only with the Studio).
 For authenticating with the API see the Authentication section in the docs
 "#]
-pub async fn oidc_linkup(
+pub async fn oid_linkup(
     client: &ApiClient,
     provider: &str,
     cli_redirect_port: Option<i32>,
