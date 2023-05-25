@@ -481,16 +481,40 @@ pub async fn thread_create(
     Ok(response)
 }
 
-#[doc = r#"Start the Google OAuth flow to authenticate a user (used only with the Studio) for authenticating with the API see the Authentication section in the docs"#]
-pub async fn oidc_authorize_google(
+#[doc = r#"Start the auth flow to authenticate a user (used only with the Studio).
+For authenticating with the API see the Authentication section in the docs
+"#]
+pub async fn oidc_authorize(
     client: &ApiClient,
+    provider: &str,
     cli_redirect_port: Option<i32>,
     redirect: Option<&str>,
 ) -> Result<()> {
-    let mut builder = client.request(Method::GET, "/api/oidc/authorize/google")?;
+    let mut builder = client.request(
+        Method::GET,
+        &format!("/api/oidc/authorize/{provider}", provider = provider,),
+    )?;
     let response = builder.send().await?.error_for_status()?;
 
     Ok(())
+}
+
+#[doc = r#"Start the auth flow for linking an existing Fiberplane account with a new OID identity (used only with the Studio).
+For authenticating with the API see the Authentication section in the docs
+"#]
+pub async fn oidc_linkup(
+    client: &ApiClient,
+    provider: &str,
+    cli_redirect_port: Option<i32>,
+    redirect: Option<&str>,
+) -> Result<models::OidLinkupLocation> {
+    let mut builder = client.request(
+        Method::GET,
+        &format!("/api/oidc/linkup/{provider}", provider = provider,),
+    )?;
+    let response = builder.send().await?.error_for_status()?.json().await?;
+
+    Ok(response)
 }
 
 #[doc = r#"Pins a notebook"#]
@@ -531,7 +555,7 @@ pub async fn profile_get(client: &ApiClient) -> Result<models::Profile> {
 }
 
 #[doc = r#"Get the list of all available providers and if they're linked to the current user"#]
-pub async fn oidc_connections_list(client: &ApiClient) -> Result<models::OidConnections> {
+pub async fn oid_connections_list(client: &ApiClient) -> Result<models::OidConnections> {
     let mut builder = client.request(Method::GET, "/api/profile/connections")?;
     let response = builder.send().await?.error_for_status()?.json().await?;
 
