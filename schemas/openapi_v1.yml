@@ -3269,6 +3269,7 @@ paths:
       - $ref: "#/components/parameters/redirect"
     get:
       operationId: oidc_authorize
+      summary: Start the OID auth flow directly (normal sign in)
       description: | 
         Start the auth flow to authenticate a user (used only with the Studio).
         For authenticating with the API see the Authentication section in the docs
@@ -3284,6 +3285,7 @@ paths:
       - $ref: "#/components/parameters/redirect"
     post:
       operationId: oid_linkup
+      summary: Start the OID auth flow linking the identity to an existing account
       description: |
         Start the auth flow for linking an existing Fiberplane account with a new OID identity (used only with the Studio).
         For authenticating with the API see the Authentication section in the docs
