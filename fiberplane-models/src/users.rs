@@ -44,7 +44,8 @@ pub struct Profile {
 #[serde(rename_all = "snake_case")]
 pub enum OidProvider {
     Google,
-    Github,
+    #[serde(rename = "github")]
+    GitHub,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -58,10 +59,6 @@ pub enum OidProvider {
 pub struct OidConnection {
     pub provider: OidProvider,
     pub linked: bool,
-    /// The unique ID on the providers' site for the user, if linked
-    #[builder(default, setter(into, strip_option))]
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub sub: Option<String>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]

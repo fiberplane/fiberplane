@@ -2273,9 +2273,6 @@ components:
             - github
         linked:
           type: boolean
-        sub:
-          type: string
-          description: "The unique ID on the providers' site for the user"
     oid_linkup_location:
       type: object
       required:
