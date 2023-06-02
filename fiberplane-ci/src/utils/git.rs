@@ -2,45 +2,6 @@ use anyhow::{bail, Result};
 use duct::cmd;
 use std::str::Utf8Error;
 
-/// Returns whether a path in the repo has changed since the given commit.
-pub fn did_change(repo_dir: &str, path: &str, since_commit: &str) -> Result<bool> {
-    let output = cmd!(
-        "git",
-        "diff",
-        "--quiet",
-        "--ignore-space-change",
-        "HEAD",
-        since_commit,
-        "--",
-        path
-    )
-    .dir(repo_dir)
-    .unchecked()
-    .run()?;
-    match output.status.code() {
-        Some(1) => Ok(true),
-        Some(0) => Ok(false),
-        Some(code) => bail!("Unexpected exit code ({code}) from `git diff`"),
-        None => bail!("`git diff` terminated unexpectedly"),
-    }
-}
-
-/// Returns whether a path in the repo has changed since the previous release
-/// branch was created.
-///
-/// If no previous release branch can be found at all, we consider that a new
-/// release is in order, so this function will return `true` in that case.
-pub fn did_change_since_previous_release(repo_dir: &str, path: &str) -> Result<bool> {
-    let Some(latest_release_branch) = get_latest_release_branch(repo_dir)? else {
-        return Ok(true); // No release found? Report as having changes.
-    };
-
-    let main_tip = get_latest_commit(repo_dir, "main")?;
-    let release_branch_tip = get_latest_commit(repo_dir, &latest_release_branch)?;
-    let common_ancestor = get_common_ancestor(repo_dir, &main_tip, &release_branch_tip)?;
-    did_change(repo_dir, path, &common_ancestor)
-}
-
 /// Returns whether a crate in the repo has changed since the previous release
 /// branch was created.
 ///
