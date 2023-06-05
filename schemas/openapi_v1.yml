@@ -2260,6 +2260,27 @@ components:
         timestamp:
           type: string
           format: date-time
+    oid_connection:
+      type: object
+      required:
+        - provider
+        - linked
+      properties:
+        provider:
+          type: string
+          enum:
+            - google
+            - github
+        linked:
+          type: boolean
+    oid_linkup_location:
+      type: object
+      required:
+        - location
+      properties:
+        location:
+          type: string
+          description: URL which the user needs to visit
   parameters:
     sortDirection:
       in: query
@@ -2383,6 +2404,30 @@ components:
       schema:
         type: string
         format: base64uuid
+    provider:
+      in: path
+      name: provider
+      description: Name of the provider to start the authorization process for
+      required: true
+      schema:
+        type: string
+        enum:
+          - google
+          - github
+    cli_redirect_port:
+      in: query
+      name: cli_redirect_port
+      description: The port on localhost to redirect to after the OAuth flow is successful. Used for authorizing the CLI
+      required: false
+      schema:
+        type: integer
+    redirect:
+      in: query
+      name: redirect
+      description: Relative path to redirect to after the OAuth flow is successful. Used for deep linking into the Studio
+      required: false
+      schema:
+        type: string
   responses:
     thread:
       description: OK
@@ -3108,6 +3153,7 @@ paths:
     get:
       operationId: profile_get
       description: "Fetch the profile of the authenticated user"
+      summary: "Fetch the profile of the authenticated user"
       tags:
         - Miscellaneous
       responses:
@@ -3117,6 +3163,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/profile"
           description: OK
+  /api/profile/connections:
+    get:
+      operationId: oid_connections_list
+      description: "List of all available providers and if they're linked to the current user"
+      summary: "List of all available providers and if they're linked to the current user"
+      tags:
+        - Miscellaneous
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/oid_connection"
   /api/profile/picture:
     get:
       operationId: profile_picture_get
@@ -3197,28 +3259,42 @@ paths:
       responses:
         "200":
           description: OK
-  /api/oidc/authorize/google:
+  /api/oidc/authorize/{provider}:
     parameters:
-      - name: cli_redirect_port
-        in: query
-        description: The port on localhost to redirect to after the OAuth flow is successful. Used for authorizing the CLI
-        required: false
-        schema:
-          type: integer
-      - name: redirect
-        in: query
-        description: Relative path to redirect to after the OAuth flow is successful. Used for deep linking into the Studio
-        required: false
-        schema:
-          type: string
+      - $ref: "#/components/parameters/provider"
+      - $ref: "#/components/parameters/cli_redirect_port"
+      - $ref: "#/components/parameters/redirect"
     get:
-      operationId: oidc_authorize_google
-      description: Start the Google OAuth flow to authenticate a user (used only with the Studio) for authenticating with the API see the Authentication section in the docs
+      operationId: oidc_authorize
+      summary: Start the OID auth flow directly (normal sign in)
+      description: | 
+        Start the auth flow to authenticate a user (used only with the Studio).
+        For authenticating with the API see the Authentication section in the docs
       tags:
         - Internal
       responses:
         "307":
-          description: Redirect to Google
+          description: Redirect to specified provider
+  /api/oidc/linkup/{provider}:
+    parameters:
+      - $ref: "#/components/parameters/provider"
+      - $ref: "#/components/parameters/cli_redirect_port"
+      - $ref: "#/components/parameters/redirect"
+    post:
+      operationId: oid_linkup
+      summary: Start the OID auth flow linking the identity to an existing account
+      description: |
+        Start the auth flow for linking an existing Fiberplane account with a new OID identity (used only with the Studio).
+        For authenticating with the API see the Authentication section in the docs
+      tags:
+        - Internal
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/oid_linkup_location"
   /api/logout:
     post:
       operationId: logout

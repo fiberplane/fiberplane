@@ -16,7 +16,7 @@ struct Args {
 #[tokio::main]
 async fn main() {
     if let Err(err) = handle_cli().await {
-        println!("{ERROR}{}", style(format!("Error: {err}")).red());
+        println!("{ERROR}{}", style(format!("Error: {err:?}")).red());
         std::process::exit(1);
     }
 }

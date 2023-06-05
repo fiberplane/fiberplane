@@ -33,3 +33,43 @@ pub struct Profile {
     #[builder(default, setter(into))]
     pub roles: HashMap<Base64Uuid, AuthRole>,
 }
+
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::users")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "snake_case")]
+pub enum OidProvider {
+    Google,
+    #[serde(rename = "github")]
+    GitHub,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::users")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct OidConnection {
+    pub provider: OidProvider,
+    pub linked: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::users")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct OidLinkupLocation {
+    #[builder(setter(into))]
+    pub location: String,
+}

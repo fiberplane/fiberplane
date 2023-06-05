@@ -35,6 +35,8 @@ changes if the major version hasn't changed.
 - `fiberplane-models`: Added various structures for webhooks. (#41)
 - `fiberplane-api-client`: Added new webhook endpoints. (#41)
 - `fiberplane-models`: Added new field `successful` to `Webhook` and added new field `enabled` to `NewWebhook` struct (#54)
+- `fiberplane-models`: Add `OidConnection(s)` models displaying linked connections to user accounts in preparation
+  for Sign in with GitHub (#58)
 
 ### Changed
 
