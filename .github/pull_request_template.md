@@ -21,11 +21,9 @@ indicate they don't apply.
 
 > Please link any related PRs in other repositories that depend on this:
 
-<!-- * API: https://github.com/fiberplane/api/pull/XXX -->
-<!-- * Studio: https://github.com/fiberplane/studio/pull/XXX  -->
 <!-- * Providers: https://github.com/fiberplane/providers/pull/XXX -->
 <!-- * Daemon: https://github.com/fiberplane/fpd/pull/XXX -->
 <!-- * FP: https://github.com/fiberplane/fp/pull/XXX -->
-<!-- * OT: https://github.com/fiberplane/fiberplane-ot/pull/XXX -->
+<!-- * Monofiber: https://github.com/fiberplane/monofiber/pull/XXX -->
 
 After merging, please merge related PRs ASAP, so others don't get blocked.
