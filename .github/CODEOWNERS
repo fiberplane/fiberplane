@@ -2,12 +2,20 @@
 # dependent on this crate
 * @fiberplane/api-devs @fiberplane/studio-devs
 
+# API devs own the API client and the API generator
+/fiberplane-api-client/ @fiberplane/api-devs
+/fiberplane-openapi-rust-gen/ @fiberplane/api-devs
+
 # Provider specific stuff is owned by the plugin team
 /fiberplane-provider-protocol/ @fiberplane/plugin-devs
-/providers/ @fiberplane/plugin-devs
 
 # Templates are owned by the template team
 /fiberplane-templates/ @fiberplane/template-devs
 
 # Charts is owned by the Studio team
 /fiberplane-charts/ @fiberplane/studio-devs
+
+# CI stuff is owned by the infrastructure team
+.github @fiberplane/infrastructure-devs
+/fiberplane-ci/ @fiberplane/infrastructure-devs
+/xtask/ @fiberplane/infrastructure-devs
