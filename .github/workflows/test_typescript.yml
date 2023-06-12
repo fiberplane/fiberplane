@@ -2,6 +2,7 @@ name: Test TypeScript packages
 
 on:
   push:
+    branches: ["**"]
     paths:
       - ".github/workflows/*_typescript.yml"
       - "fiberplane-charts"

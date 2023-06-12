@@ -2,6 +2,7 @@ name: TypeScript package audit
 
 on:
   push:
+    branches: ["**"]
     paths:
       - "**/package.json"
       - "**/yarn.lock"
