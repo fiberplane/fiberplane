@@ -33,7 +33,8 @@ type Handlers = {
  * Hook managing tooltips/mouseevents for BarStacked component
  */
 export function useTooltips(params: Params): Handlers {
-    const { dataItems, xScale, yScale, timeseriesData, asPercentage, colors } = params;
+    const { dataItems, xScale, yScale, timeseriesData, asPercentage, colors } =
+        params;
     const { xMax } = useContext(ChartSizeContext);
 
     const { showTooltip, hideTooltip } = useContext(TooltipContext);

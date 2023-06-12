@@ -34,7 +34,7 @@ export const Legend = memo(function Legend({
 
     const uniqueKeys = useMemo(
         () => findUniqueKeys(timeseriesData),
-        [timeseriesData]
+        [timeseriesData],
     );
     const listRef = useRef<VariableSizeList<Array<Timeseries>>>(null);
     const sizeMap = useRef(new Map<number, number>());
@@ -92,7 +92,7 @@ export const Legend = memo(function Legend({
                     )}
                 </div>
             );
-        }
+        },
     );
 
     return (

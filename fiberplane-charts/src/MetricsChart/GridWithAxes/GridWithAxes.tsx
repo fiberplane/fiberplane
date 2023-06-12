@@ -69,22 +69,26 @@ export const GridWithAxes = memo(function GridWithAxes({
                 stroke={colorBase300}
                 strokeDasharray={gridDashArray}
             />
-            {gridBordersShown && <line
-                x1={xMax}
-                x2={xMax}
-                y1={0}
-                y2={yMax}
-                stroke={colorBase300}
-                strokeWidth={1}
-                strokeDasharray={gridDashArray}
-            />}
-            {gridColumnsShown && <GridColumns
-                scale={xScale}
-                width={xMax}
-                height={yMax}
-                stroke={colorBase300}
-                strokeDasharray={gridDashArray}
-            />}
+            {gridBordersShown && (
+                <line
+                    x1={xMax}
+                    x2={xMax}
+                    y1={0}
+                    y2={yMax}
+                    stroke={colorBase300}
+                    strokeWidth={1}
+                    strokeDasharray={gridDashArray}
+                />
+            )}
+            {gridColumnsShown && (
+                <GridColumns
+                    scale={xScale}
+                    width={xMax}
+                    height={yMax}
+                    stroke={colorBase300}
+                    strokeDasharray={gridDashArray}
+                />
+            )}
             <Bottom
                 xMax={xMax}
                 xScale={xScale}
