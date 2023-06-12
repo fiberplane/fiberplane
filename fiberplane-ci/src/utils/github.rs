@@ -187,6 +187,7 @@ pub enum WorkflowStatus {
     Cancelled,
     Failure,
     Neutral,
+    Queued,
     Success,
     Skipped,
     Stale,

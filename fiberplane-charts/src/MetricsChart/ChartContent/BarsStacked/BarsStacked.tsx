@@ -27,7 +27,13 @@ type Props = {
 };
 
 export const BarsStacked = memo(function BarsStacked(props: Props) {
-    const { timeseriesData, xScale, yScale, asPercentage = false, colors } = props;
+    const {
+        timeseriesData,
+        xScale,
+        yScale,
+        asPercentage = false,
+        colors,
+    } = props;
 
     const { xMax, yMax } = useContext(ChartSizeContext);
 

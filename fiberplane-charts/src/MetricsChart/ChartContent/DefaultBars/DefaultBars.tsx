@@ -60,37 +60,34 @@ export const DefaultBars = memo(function DefaultBars(
                         new Date(dataItem[dateKey]).getTime(),
                     )}, 0)`}
                 >
-                    {seriesData.map(
-                        ({ timeseries, x, color }, keyIndex) => {
-                            const value = dataItem.data.get(timeseries);
-                            if (value === undefined) {
-                                return null;
-                            }
+                    {seriesData.map(({ timeseries, x, color }, keyIndex) => {
+                        const value = dataItem.data.get(timeseries);
+                        if (value === undefined) {
+                            return null;
+                        }
 
-
-                            return (
-                                <Bar
-                                    key={formatTimeseries(timeseries, {
-                                        sortLabels: false,
-                                    })}
-                                    id={`stack-${index}-${keyIndex}`}
-                                    x={x}
-                                    y={yScale(value)}
-                                    height={yMax - yScale(value)}
-                                    width={bandwidth}
-                                    stroke={color}
-                                    fill={color}
-                                    fillOpacity={0.1}
-                                    opacity={
-                                        focusedTimeseries === null ||
-                                        focusedTimeseries === timeseries
-                                            ? 1
-                                            : 0.2
-                                    }
-                                />
-                            );
-                        },
-                    )}
+                        return (
+                            <Bar
+                                key={formatTimeseries(timeseries, {
+                                    sortLabels: false,
+                                })}
+                                id={`stack-${index}-${keyIndex}`}
+                                x={x}
+                                y={yScale(value)}
+                                height={yMax - yScale(value)}
+                                width={bandwidth}
+                                stroke={color}
+                                fill={color}
+                                fillOpacity={0.1}
+                                opacity={
+                                    focusedTimeseries === null ||
+                                    focusedTimeseries === timeseries
+                                        ? 1
+                                        : 0.2
+                                }
+                            />
+                        );
+                    })}
                 </Group>
             ))}
             <Bar

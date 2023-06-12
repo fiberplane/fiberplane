@@ -6,7 +6,7 @@ on:
     paths-ignore:
       - "fiberplane-charts"
   release:
-    type: [published]
+    types: [published]
 
 env:
   CARGO_TERM_COLOR: always

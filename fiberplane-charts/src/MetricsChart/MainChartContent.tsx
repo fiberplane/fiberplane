@@ -19,7 +19,7 @@ import { useMouseControls, useScales, useTooltip } from "../hooks";
 import { ZoomBar } from "./ZoomBar";
 
 export function MainChartContent(
-    props: MetricsChartProps & Required<Pick<MetricsChartProps, "colors">>
+    props: MetricsChartProps & Required<Pick<MetricsChartProps, "colors">>,
 ): JSX.Element {
     const { width, height, xMax, yMax } = useContext(ChartSizeContext);
     const interactiveControlsState = useContext(
