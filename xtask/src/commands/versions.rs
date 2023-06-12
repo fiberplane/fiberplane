@@ -49,7 +49,7 @@ fn handle_set_version(args: &SetVersionArgs) -> TaskResult {
     } else {
         for crate_name in crates_using_workspace_version {
             set_version(
-                format!("Cargo.toml"),
+                "Cargo.toml",
                 &SetVersionArgs {
                     crate_name: Some(crate_name.to_owned()),
                     version: args.version.clone(),
