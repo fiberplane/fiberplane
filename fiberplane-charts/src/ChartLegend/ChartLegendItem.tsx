@@ -61,7 +61,9 @@ export function ChartLegendItem({
         >
             <LegendItemContainer
                 onMouseOver={timeseries.visible ? onHover : noop}
-                interactive={!readOnly && onToggleTimeseriesVisibility !== undefined}
+                interactive={
+                    !readOnly && onToggleTimeseriesVisibility !== undefined
+                }
             >
                 <ColorBlock color={color} selected={timeseries.visible}>
                     {timeseries.visible && (
