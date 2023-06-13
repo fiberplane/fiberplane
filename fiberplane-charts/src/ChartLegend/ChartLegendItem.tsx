@@ -61,7 +61,7 @@ export function ChartLegendItem({
         >
             <LegendItemContainer
                 onMouseOver={timeseries.visible ? onHover : noop}
-                readOnly={readOnly}
+                interactive={!readOnly && onToggleTimeseriesVisibility !== undefined}
             >
                 <ColorBlock color={color} selected={timeseries.visible}>
                     {timeseries.visible && (
@@ -100,7 +100,7 @@ const InteractiveItemStyling = css`
     }
 `;
 
-const LegendItemContainer = styled(Container)<{ readOnly: boolean }>`
+const LegendItemContainer = styled(Container)<{ interactive: boolean }>`
     border-radius: ${({ theme }) => theme.borderRadius500};
     display: flex;
     align-items: center;
@@ -109,7 +109,7 @@ const LegendItemContainer = styled(Container)<{ readOnly: boolean }>`
     gap: 10px;
     word-wrap: anywhere;
 
-    ${({ readOnly }) => readOnly === false && InteractiveItemStyling}
+    ${({ interactive }) => interactive && InteractiveItemStyling}
 `;
 
 const Text = styled.div`

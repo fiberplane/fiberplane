@@ -1,3 +1,4 @@
+import { ChartLegendProps } from "../ChartLegend/types";
 import type {
     GraphType,
     StackingType,
@@ -114,7 +115,7 @@ export type MetricsChartProps = {
      * Override the colors that the charts will use. If not specified several colors of the theme are used
      */
     colors?: Array<string>;
-};
+} & Pick<ChartLegendProps, "onToggleTimeseriesVisibility">;
 
 export type TotalBarType = {
     graphType: "bar";
