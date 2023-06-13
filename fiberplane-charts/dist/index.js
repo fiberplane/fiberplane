@@ -1516,7 +1516,7 @@ function ChartLegendItem({ color , onHover , onToggleTimeseriesVisibility , read
         onKeyDown: onKeyDown,
         children: /*#__PURE__*/ jsxs(LegendItemContainer, {
             onMouseOver: timeseries.visible ? onHover : noop,
-            readOnly: readOnly,
+            interactive: !readOnly && onToggleTimeseriesVisibility !== undefined,
             children: [
                 /*#__PURE__*/ jsx(ColorBlock, {
                     color: color,
@@ -1565,7 +1565,7 @@ const LegendItemContainer = styled(Container)`
     gap: 10px;
     word-wrap: anywhere;
 
-    ${({ readOnly  })=>readOnly === false && InteractiveItemStyling}
+    ${({ interactive  })=>interactive && InteractiveItemStyling}
 `;
 const Text = styled.div`
     flex: 1;

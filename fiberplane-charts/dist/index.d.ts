@@ -170,6 +170,46 @@ type VirtualElement = {
     contextElement: Element;
 };
 
+type ChartLegendProps = {
+    /**
+     * Handler that is invoked when the user toggles the visibility of a
+     * timeseries.
+     *
+     * If no handler is specified, no UI for toggling the visibility of timeseries
+     * is presented.
+     */
+    onToggleTimeseriesVisibility?: (event: ToggleTimeseriesEvent) => void;
+    /**
+     * Whether the chart is read-only.
+     *
+     * Set to `true` to disable interactive controls.
+     */
+    readOnly?: boolean;
+    /**
+     * Array of timeseries data to display in the legend.
+     */
+    timeseriesData: Array<Timeseries>;
+    /**
+     * Show the footer. (default: true)
+     */
+    footerShown?: boolean;
+    /**
+     * Array of colors to use for the timeseries.
+     */
+    colors: Array<string>;
+};
+type ToggleTimeseriesEvent = {
+    /**
+     * The timeseries that was toggled.
+     */
+    timeseries: Timeseries;
+    /**
+     * If `true`, the visibility should be toggled of all timeseries *except* the
+     * one specified.
+     */
+    toggleOthers: boolean;
+};
+
 type InteractiveControlsState = {
     type: "none";
 } | {
@@ -286,7 +326,7 @@ type MetricsChartProps = {
      * Override the colors that the charts will use. If not specified several colors of the theme are used
      */
     colors?: Array<string>;
-};
+} & Pick<ChartLegendProps, "onToggleTimeseriesVisibility">;
 type TotalBarType = {
     graphType: "bar";
     stackingType: "none";
