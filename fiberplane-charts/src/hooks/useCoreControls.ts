@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 
 import type { CoreControls } from "../context";
-import type { MetricsChartProps } from "../MetricsChart/types";
 import { secondsToTimestamp, timestampToSeconds } from "../utils";
 import { useHandler } from "./useHandler";
+import { CoreChartProps } from "../CoreChart";
 
 const MIN_DURATION = 60; // in seconds
 
@@ -13,7 +13,7 @@ const MIN_DURATION = 60; // in seconds
 export function useCoreControls({
     timeRange,
     onChangeTimeRange,
-}: MetricsChartProps): CoreControls {
+}: CoreChartProps): CoreControls {
     /**
      * Moves the time scale.
      *

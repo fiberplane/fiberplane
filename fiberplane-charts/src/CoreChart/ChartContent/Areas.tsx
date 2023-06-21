@@ -22,7 +22,7 @@ import { formatTimeseries } from "../../utils";
 import { getChartColor } from "../../colors";
 import { MARGINS } from "../../constants";
 import type { Metric, OtelMetadata, Timeseries } from "../../types";
-import { TimeScale, ValueScale } from "../scales";
+import { TimeScale, ValueScale } from "../../MetricsChart/scales";
 import { TimeseriesTableCaption, TimeseriesTableTd } from "./TimeseriesTable";
 
 type Props = {

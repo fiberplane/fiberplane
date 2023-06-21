@@ -1,36 +1,32 @@
 import { LinearGradient } from "@visx/gradient";
-import { memo } from "react";
+import { memo, useId } from "react";
 
-import { getChartColor } from "../../../colors";
 import type { Metric } from "../../../types";
 import { Series } from "./Series";
-import { TimeScale, ValueScale } from "../../scales";
+import { TimeScale, ValueScale } from "../../../MetricsChart/scales";
 
 type Props = {
-    index: number;
     xScale: TimeScale;
     yScale: ValueScale;
     metrics: Array<Metric>;
     yMax: number;
     highlight?: boolean;
-    colors: Array<string>;
+    color: string;
 };
 
 export const Line = memo(function Line({
     xScale,
     yScale,
     metrics,
-    index,
     yMax,
     highlight = false,
-    colors,
+    color,
 }: Props): JSX.Element {
-    const color = getChartColor(index, colors);
-
+    const id = useId();
     return (
         <>
             <LinearGradient
-                id={`line-${index}`}
+                id={`line-${id}`}
                 from={color}
                 to={color}
                 fromOpacity={0.15}
@@ -38,7 +34,7 @@ export const Line = memo(function Line({
                 toOffset="23%"
             />
             <Series
-                id={index.toString()}
+                id={id}
                 metrics={metrics}
                 xScale={xScale}
                 yScale={yScale}
@@ -47,7 +43,7 @@ export const Line = memo(function Line({
                 // Later make colors fixed per time series.
                 strokeColor={color}
                 highlight={highlight}
-                fillColor={`url(#line-${index})`}
+                fillColor={`url(#line-${id})`}
             />
         </>
     );

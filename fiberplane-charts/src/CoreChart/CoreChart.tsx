@@ -1,7 +1,7 @@
 import { Group } from "@visx/group";
 import { Line } from "@visx/shape";
 import styled from "styled-components";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useId, useMemo, useState } from "react";
 
 import { ChartContent } from "./ChartContent";
 import {
@@ -13,15 +13,19 @@ import {
 import { Container } from "../BaseComponents";
 import { getTimeFormatter } from "../utils";
 import { GridWithAxes } from "./GridWithAxes";
-import type { MetricsChartProps } from "./types";
-import { MARGINS } from "../constants";
 import { useMouseControls, useScales, useTooltip } from "../hooks";
 import { ZoomBar } from "./ZoomBar";
+import type { CoreChartProps } from "./types";
 
-export function MainChartContent(
-    props: MetricsChartProps & Required<Pick<MetricsChartProps, "colors">>,
-): JSX.Element {
-    const { width, height, xMax, yMax } = useContext(ChartSizeContext);
+export function CoreChart({
+    gridShown = true,
+    ...props
+}: CoreChartProps &
+    Required<Pick<CoreChartProps, "colors">> & {
+        gridShown?: boolean;
+    }): JSX.Element {
+    const { width, height, xMax, yMax, marginTop, marginLeft } =
+        useContext(ChartSizeContext);
     const interactiveControlsState = useContext(
         InteractiveControlsStateContext,
     );
@@ -57,6 +61,8 @@ export function MainChartContent(
         [showTooltip, hideTooltip],
     );
 
+    const clipPathId = useId();
+
     // Use a custom formatter when `xScale` is a `ScaleBand<number>`. We want to
     // display the time, not the timestamp (number).
     const xScaleFormatter =
@@ -85,24 +91,27 @@ export function MainChartContent(
                     }}
                 >
                     <defs>
-                        <clipPath id="clip-chart">
+                        <clipPath id={clipPathId}>
                             <rect x={0} y={0} width={xMax} height={yMax} />
                         </clipPath>
                     </defs>
-                    <Group left={MARGINS.left} top={MARGINS.top}>
-                        <GridWithAxes
-                            xMax={xMax}
-                            yMax={yMax}
-                            xScale={xScaleProps.xScale}
-                            yScale={yScale}
-                            xScaleFormatter={xScaleFormatter}
-                            gridColumnsShown={props.gridColumnsShown}
-                            gridBordersShown={props.gridBordersShown}
-                            gridDashArray={props.gridDashArray}
-                        />
+                    <Group left={marginLeft} top={marginTop}>
+                        {gridShown && (
+                            <GridWithAxes
+                                xMax={xMax}
+                                yMax={yMax}
+                                xScale={xScaleProps.xScale}
+                                yScale={yScale}
+                                xScaleFormatter={xScaleFormatter}
+                                gridColumnsShown={props.gridColumnsShown}
+                                gridRowsShown={props.gridRowsShown}
+                                gridBordersShown={props.gridBordersShown}
+                                gridDashArray={props.gridDashArray}
+                            />
+                        )}
                         <Group
                             innerRef={graphContentRef}
-                            clipPath="url(#clip-chart)"
+                            clipPath={`url(#${clipPathId})`}
                         >
                             <ChartContent
                                 timeseriesData={props.timeseriesData}

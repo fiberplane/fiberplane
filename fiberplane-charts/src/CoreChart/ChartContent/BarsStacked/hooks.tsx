@@ -12,7 +12,7 @@ import {
 import { getChartColor } from "../../../colors";
 import { MARGINS } from "../../../constants";
 import type { Metric, OtelMetadata, Timeseries } from "../../../types";
-import type { TimeScale, ValueScale } from "../../scales";
+import type { TimeScale, ValueScale } from "../../../MetricsChart/scales";
 import { TimeseriesTableCaption, TimeseriesTableTd } from "../TimeseriesTable";
 
 type Params = {

@@ -3,8 +3,8 @@ import { BarsStacked } from "./BarsStacked";
 import { DefaultBars } from "./DefaultBars";
 import { Lines } from "./Lines";
 import type { Timeseries } from "../../types";
-import type { ValueScale } from "../scales";
-import type { XScaleProps } from "../types";
+import type { ValueScale } from "../../MetricsChart/scales";
+import type { XScaleProps } from "../../MetricsChart/types";
 
 type Props = {
     timeseriesData: Array<Timeseries>;

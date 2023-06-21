@@ -1,6 +1,6 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import * as React from 'react';
-import { forwardRef, memo, Fragment as Fragment$1, createContext, useRef, useCallback, useMemo, useState, useEffect, useReducer, useLayoutEffect, useContext } from 'react';
+import { forwardRef, memo, Fragment as Fragment$1, createContext, useRef, useCallback, useMemo, useState, useEffect, useReducer, useLayoutEffect, useContext, useId } from 'react';
 import styled, { css, useTheme } from 'styled-components';
 import { localPoint } from '@visx/event';
 import { getTicks, scaleUtc, scaleBand, scaleLinear } from '@visx/scale';
@@ -689,7 +689,11 @@ const isMac = os === "mac";
     width: 0,
     height: 0,
     xMax: 0,
-    yMax: 0
+    yMax: 0,
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0
 });
 
 /**
@@ -1405,9 +1409,8 @@ function useTooltip(showTooltip) {
     };
 }
 
-const yMax = HEIGHT - MARGINS.top - MARGINS.bottom;
-function ChartSizeContainerProvider({ children , className  }) {
-    const [measureRef, { width , height  }] = useMeasure();
+function ChartSizeContainerProvider({ children , className , overrideHeight , marginTop =0 , marginRight =0 , marginBottom =0 , marginLeft =0  }) {
+    const [measureRef, { width , height: measuredHeight  }] = useMeasure();
     const intersectionRef = useRef(null);
     const ref = mergeRefs([
         measureRef,
@@ -1418,26 +1421,46 @@ function ChartSizeContainerProvider({ children , className  }) {
         rootMargin: "0px",
         threshold: 0
     });
-    const [value, setValue] = useState(getValue(width));
-    const heightRef = useRef(height || 700);
-    const updateValue = useMemo(()=>debounce(100, (newWidth)=>setValue(getValue(newWidth))), []);
+    const [value, setValue] = useState({
+        xMax: 0,
+        yMax: 0,
+        width: 0,
+        height: 0,
+        marginTop,
+        marginRight,
+        marginBottom,
+        marginLeft
+    });
+    const height = overrideHeight ?? measuredHeight;
+    const updateValue = useMemo(()=>debounce(100, (width, height)=>setValue({
+                xMax: width - marginLeft - marginRight,
+                yMax: height - marginTop - marginBottom,
+                width,
+                height,
+                marginTop,
+                marginRight,
+                marginBottom,
+                marginLeft
+            })), [
+        marginTop,
+        marginRight,
+        marginBottom,
+        marginLeft
+    ]);
     useEffect(()=>{
-        updateValue(width);
+        updateValue(width, height);
     }, [
         width,
-        updateValue
+        height
     ]);
-    if (height) {
-        heightRef.current = height;
-    }
     return /*#__PURE__*/ jsx("div", {
         ref: ref,
         className: className,
-        children: intersections.some((intersection)=>intersection.isIntersecting) ? /*#__PURE__*/ jsx(ChartSizeContext.Provider, {
+        children: value.width > 0 && value.height > 0 && intersections.some((intersection)=>intersection.isIntersecting) ? /*#__PURE__*/ jsx(ChartSizeContext.Provider, {
             value: value,
             children: children
         }) : /*#__PURE__*/ jsx(ChartSkeleton, {
-            height: heightRef.current
+            height: height
         })
     });
 }
@@ -1447,17 +1470,6 @@ function ChartSkeleton({ height  }) {
             height
         }
     });
-}
-function getXMax(width) {
-    return width - MARGINS.left - MARGINS.right;
-}
-function getValue(width = 0) {
-    return {
-        width,
-        height: HEIGHT,
-        xMax: Math.max(0, getXMax(width)),
-        yMax
-    };
 }
 
 function FocusedTimeseriesContextProvider(props) {
@@ -2346,12 +2358,12 @@ const Series = /*#__PURE__*/ memo(function Series({ metrics , xScale , yScale , 
     });
 });
 
-const Line = /*#__PURE__*/ memo(function Line({ xScale , yScale , metrics , index , yMax , highlight =false , colors  }) {
-    const color = getChartColor(index, colors);
+const Line = /*#__PURE__*/ memo(function Line({ xScale , yScale , metrics , yMax , highlight =false , color  }) {
+    const id = useId();
     return /*#__PURE__*/ jsxs(Fragment, {
         children: [
             /*#__PURE__*/ jsx(LinearGradient, {
-                id: `line-${index}`,
+                id: `line-${id}`,
                 from: color,
                 to: color,
                 fromOpacity: 0.15,
@@ -2359,7 +2371,7 @@ const Line = /*#__PURE__*/ memo(function Line({ xScale , yScale , metrics , inde
                 toOffset: "23%"
             }),
             /*#__PURE__*/ jsx(Series, {
-                id: index.toString(),
+                id: id,
                 metrics: metrics,
                 xScale: xScale,
                 yScale: yScale,
@@ -2368,7 +2380,7 @@ const Line = /*#__PURE__*/ memo(function Line({ xScale , yScale , metrics , inde
                 // Later make colors fixed per time series.
                 strokeColor: color,
                 highlight: highlight,
-                fillColor: `url(#line-${index})`
+                fillColor: `url(#line-${id})`
             })
         ]
     });
@@ -2422,13 +2434,12 @@ const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , ySca
             timeseriesData.map((timeseries, index)=>timeseries.visible && /*#__PURE__*/ jsx(Group, {
                     opacity: focusedTimeseries === null || focusedTimeseries === timeseries ? 1 : 0.2,
                     children: /*#__PURE__*/ jsx(Line, {
-                        index: index,
                         xScale: xScale,
                         yScale: yScale,
                         metrics: timeseries.metrics,
                         yMax: yMax,
                         highlight: focusedTimeseries === timeseries,
-                        colors: colors
+                        color: getChartColor(index, colors)
                     })
                 }, formatTimeseries(timeseries, {
                     sortLabels: false
@@ -2567,7 +2578,7 @@ function Bottom({ yMax , xScale , xScaleFormatter , strokeDasharray  }) {
 }
 var Bottom$1 = /*#__PURE__*/ memo(Bottom);
 
-const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xScale , yScale , xScaleFormatter , gridColumnsShown =true , gridBordersShown =true , gridDashArray  }) {
+const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xScale , yScale , xScaleFormatter , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDashArray  }) {
     const [targetLower = 0, targetUpper = 0] = yScale.domain();
     const { colorBase300  } = useTheme();
     const lower = useCustomSpring(targetLower);
@@ -2592,7 +2603,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xS
     };
     return /*#__PURE__*/ jsxs(Fragment, {
         children: [
-            /*#__PURE__*/ jsx(GridRows, {
+            gridRowsShown && /*#__PURE__*/ jsx(GridRows, {
                 scale: temporaryScale,
                 width: xMax,
                 height: yMax,
@@ -2684,8 +2695,8 @@ function ZoomBar() {
     });
 }
 
-function MainChartContent(props) {
-    const { width , height , xMax , yMax  } = useContext(ChartSizeContext);
+function CoreChart({ gridShown =true , ...props }) {
+    const { width , height , xMax , yMax , marginTop , marginLeft  } = useContext(ChartSizeContext);
     const interactiveControlsState = useContext(InteractiveControlsStateContext);
     const { xScaleProps , yScale  } = useScales(props);
     const { onMouseDown , onMouseUp , onMouseEnter , onMouseMove , graphContentRef  } = useMouseControls(props);
@@ -2705,6 +2716,7 @@ function MainChartContent(props) {
         showTooltip,
         hideTooltip
     ]);
+    const clipPathId = useId();
     // Use a custom formatter when `xScale` is a `ScaleBand<number>`. We want to
     // display the time, not the timestamp (number).
     const xScaleFormatter = xScaleProps.graphType === "bar" && xScaleProps.stackingType === "none" ? getTimeFormatter(xScaleProps.xScale) : undefined;
@@ -2726,7 +2738,7 @@ function MainChartContent(props) {
                 children: [
                     /*#__PURE__*/ jsx("defs", {
                         children: /*#__PURE__*/ jsx("clipPath", {
-                            id: "clip-chart",
+                            id: clipPathId,
                             children: /*#__PURE__*/ jsx("rect", {
                                 x: 0,
                                 y: 0,
@@ -2736,22 +2748,23 @@ function MainChartContent(props) {
                         })
                     }),
                     /*#__PURE__*/ jsxs(Group, {
-                        left: MARGINS.left,
-                        top: MARGINS.top,
+                        left: marginLeft,
+                        top: marginTop,
                         children: [
-                            /*#__PURE__*/ jsx(GridWithAxes, {
+                            gridShown && /*#__PURE__*/ jsx(GridWithAxes, {
                                 xMax: xMax,
                                 yMax: yMax,
                                 xScale: xScaleProps.xScale,
                                 yScale: yScale,
                                 xScaleFormatter: xScaleFormatter,
                                 gridColumnsShown: props.gridColumnsShown,
+                                gridRowsShown: props.gridRowsShown,
                                 gridBordersShown: props.gridBordersShown,
                                 gridDashArray: props.gridDashArray
                             }),
                             /*#__PURE__*/ jsx(Group, {
                                 innerRef: graphContentRef,
-                                clipPath: "url(#clip-chart)",
+                                clipPath: `url(#${clipPathId})`,
                                 children: /*#__PURE__*/ jsx(ChartContent, {
                                     timeseriesData: props.timeseriesData,
                                     xScaleProps: xScaleProps,
@@ -2822,7 +2835,12 @@ function InteractiveMetricsChart(props) {
             value: interactiveControls,
             children: /*#__PURE__*/ jsx(InteractiveControlsStateContext.Provider, {
                 value: interactiveControlsState,
-                children: /*#__PURE__*/ jsx(StyledChartSizeContainerProvider, {
+                children: /*#__PURE__*/ jsx(StyledChartSizeContainerProvider$1, {
+                    overrideHeight: HEIGHT,
+                    marginTop: MARGINS.top,
+                    marginRight: MARGINS.right,
+                    marginBottom: MARGINS.bottom,
+                    marginLeft: MARGINS.left,
                     children: /*#__PURE__*/ jsx(InnerMetricsChart, {
                         ...props
                     })
@@ -2833,6 +2851,11 @@ function InteractiveMetricsChart(props) {
 }
 function ReadOnlyMetricsChart(props) {
     return /*#__PURE__*/ jsx(ChartSizeContainerProvider, {
+        overrideHeight: HEIGHT,
+        marginTop: MARGINS.top,
+        marginRight: MARGINS.right,
+        marginBottom: MARGINS.bottom,
+        marginLeft: MARGINS.left,
         children: /*#__PURE__*/ jsx(InnerMetricsChart, {
             ...props
         })
@@ -2865,7 +2888,7 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
                 ...props,
                 stackingControlsShown: stackingControlsShown
             }),
-            /*#__PURE__*/ jsx(MainChartContent, {
+            /*#__PURE__*/ jsx(CoreChart, {
                 ...props,
                 colors: chartColors
             }),
@@ -2876,11 +2899,45 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
         ]
     });
 });
-const StyledChartSizeContainerProvider = styled(ChartSizeContainerProvider)`
+const StyledChartSizeContainerProvider$1 = styled(ChartSizeContainerProvider)`
     display: flex;
     gap: 12px;
     flex-direction: column;
 `;
 
-export { MetricsChart };
+function SparkChart(props) {
+    const { colors , ...rest } = props;
+    const theme = useTheme();
+    const chartColors = useMemo(()=>{
+        return colors || [
+            theme["colorSupport1400"],
+            theme["colorSupport2400"],
+            theme["colorSupport3400"],
+            theme["colorSupport4400"],
+            theme["colorSupport5400"],
+            theme["colorSupport6400"],
+            theme["colorSupport7400"],
+            theme["colorSupport8400"],
+            theme["colorSupport9400"],
+            theme["colorSupport10400"],
+            theme["colorSupport11400"]
+        ];
+    }, [
+        theme,
+        colors
+    ]);
+    return /*#__PURE__*/ jsx(StyledChartSizeContainerProvider, {
+        children: /*#__PURE__*/ jsx(CoreChart, {
+            ...rest,
+            colors: chartColors,
+            gridShown: false
+        })
+    });
+}
+const StyledChartSizeContainerProvider = styled(ChartSizeContainerProvider)`
+  width: 100%;
+  height: 100%;
+`;
+
+export { MetricsChart, SparkChart };
 //# sourceMappingURL=index.js.map

@@ -8,7 +8,7 @@ import {
 } from "../../../context";
 import { dateKey, formatTimeseries, toDataItems } from "../../../utils";
 import { getChartColor } from "../../../colors";
-import { GroupedScales, ValueScale } from "../../scales";
+import { GroupedScales, ValueScale } from "../../../MetricsChart/scales";
 import type { Timeseries } from "../../../types";
 import { useTooltips } from "./hooks";
 

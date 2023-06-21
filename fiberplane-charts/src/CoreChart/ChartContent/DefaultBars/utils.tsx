@@ -12,7 +12,7 @@ import type { GraphTooltip } from "../../../context";
 import { MARGINS } from "../../../constants";
 import type { Metric, Timeseries } from "../../../types";
 import { TimeseriesTableCaption, TimeseriesTableTd } from "../TimeseriesTable";
-import { ValueScale } from "../../scales";
+import { ValueScale } from "../../../MetricsChart/scales";
 
 /**
  * Returns the relative value inside a band.

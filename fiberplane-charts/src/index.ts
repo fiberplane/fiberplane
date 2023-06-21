@@ -14,3 +14,4 @@ export type {
 } from "./types";
 
 export * from "./MetricsChart";
+export * from "./SparkChart";

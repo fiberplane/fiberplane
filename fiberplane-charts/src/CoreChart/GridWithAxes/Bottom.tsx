@@ -3,7 +3,7 @@ import type { NumberValue } from "d3-scale";
 import { memo } from "react";
 import { useTheme } from "styled-components";
 
-import { XScaleTypes } from "../scales";
+import { XScaleTypes } from "../../MetricsChart/scales";
 
 type Props = {
     xMax: number;

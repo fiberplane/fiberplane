@@ -6,7 +6,7 @@ import { memo, useEffect, useLayoutEffect, useState } from "react";
 import { useTheme } from "styled-components";
 
 import Bottom from "./Bottom";
-import { ValueScale, XScaleTypes } from "../scales";
+import { ValueScale, XScaleTypes } from "../../MetricsChart/scales";
 
 type Props = {
     xMax: number;
@@ -15,6 +15,7 @@ type Props = {
     yScale: ValueScale;
     xScaleFormatter?: TickFormatter<Date | NumberValue>;
     gridColumnsShown?: boolean;
+    gridRowsShown?: boolean;
     gridBordersShown?: boolean;
     gridDashArray?: string;
 };
@@ -26,6 +27,7 @@ export const GridWithAxes = memo(function GridWithAxes({
     yScale,
     xScaleFormatter,
     gridColumnsShown = true,
+    gridRowsShown = true,
     gridBordersShown = true,
     gridDashArray,
 }: Props) {
@@ -62,13 +64,15 @@ export const GridWithAxes = memo(function GridWithAxes({
 
     return (
         <>
-            <GridRows
-                scale={temporaryScale}
-                width={xMax}
-                height={yMax}
-                stroke={colorBase300}
-                strokeDasharray={gridDashArray}
-            />
+            {gridRowsShown && (
+                <GridRows
+                    scale={temporaryScale}
+                    width={xMax}
+                    height={yMax}
+                    stroke={colorBase300}
+                    strokeDasharray={gridDashArray}
+                />
+            )}
             {gridBordersShown && (
                 <line
                     x1={xMax}

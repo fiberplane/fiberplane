@@ -10,16 +10,17 @@ import {
     getTimeScale,
     getValueScale,
 } from "../MetricsChart/scales";
-import type { MetricsChartProps, XScaleProps } from "../MetricsChart/types";
+import type { XScaleProps } from "../MetricsChart";
 import { secondsToTimestamp, timestampToSeconds } from "../utils";
 import type { TimeRange } from "../types";
+import { CoreChartProps } from "../CoreChart";
 
 export function useScales({
     graphType,
     timeseriesData,
     stackingType,
     timeRange,
-}: MetricsChartProps) {
+}: CoreChartProps) {
     const { xMax, yMax } = useContext(ChartSizeContext);
     const controlsState = useContext(InteractiveControlsStateContext);
 

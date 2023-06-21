@@ -18,7 +18,7 @@ import { Line } from "./Line";
 import { MARGINS } from "../../../constants";
 import type { Metric, Timeseries } from "../../../types";
 import { TimeseriesTableCaption, TimeseriesTableTd } from "../TimeseriesTable";
-import type { ValueScale, TimeScale } from "../../scales";
+import type { ValueScale, TimeScale } from "../../../MetricsChart/scales";
 import { useHandler } from "../../../hooks";
 
 export const x = (metric: Metric) => new Date(metric.time).getTime();
@@ -99,13 +99,12 @@ export const Lines = memo(function Lines({
                             }
                         >
                             <Line
-                                index={index}
                                 xScale={xScale}
                                 yScale={yScale}
                                 metrics={timeseries.metrics}
                                 yMax={yMax}
                                 highlight={focusedTimeseries === timeseries}
-                                colors={colors}
+                                color={getChartColor(index, colors)}
                             />
                         </Group>
                     ),

@@ -170,6 +170,47 @@ type VirtualElement = {
     contextElement: Element;
 };
 
+type InteractiveControlsState = {
+    type: "none";
+} | {
+    type: "drag";
+    start: number;
+    end?: number;
+} | {
+    type: "zoom";
+    start: number;
+    end?: number;
+};
+
+declare function getTimeScale(timeRange: TimeRange, xMax: number): d3_scale.ScaleTime<number, number, never>;
+type TimeScale = ReturnType<typeof getTimeScale>;
+/**
+ * In short: get two scales. This is used for bar charts (no `stackingType`),
+ * where there's an `xScale` chart which contains the timeseries and a
+ * `groupScale` for each of the metrics for each timestamp.
+ */
+declare function getGroupedScales(timeseriesData: Array<Timeseries>, controlsState: InteractiveControlsState, xMax: number): {
+    xScale: d3_scale.ScaleBand<number>;
+    groupScale: d3_scale.ScaleBand<string>;
+};
+type GroupedScales = ReturnType<typeof getGroupedScales>;
+
+type TotalBarType = {
+    graphType: "bar";
+    stackingType: "none";
+} & GroupedScales;
+type LineBarType = {
+    graphType: "line";
+    stackingType: StackingType;
+    xScale: TimeScale;
+};
+type StackedBarType = {
+    graphType: "bar";
+    stackingType: Exclude<StackingType, "none">;
+    xScale: TimeScale;
+};
+type XScaleProps = TotalBarType | LineBarType | StackedBarType;
+
 type ChartLegendProps = {
     /**
      * Handler that is invoked when the user toggles the visibility of a
@@ -210,32 +251,7 @@ type ToggleTimeseriesEvent = {
     toggleOthers: boolean;
 };
 
-type InteractiveControlsState = {
-    type: "none";
-} | {
-    type: "drag";
-    start: number;
-    end?: number;
-} | {
-    type: "zoom";
-    start: number;
-    end?: number;
-};
-
-declare function getTimeScale(timeRange: TimeRange, xMax: number): d3_scale.ScaleTime<number, number, never>;
-type TimeScale = ReturnType<typeof getTimeScale>;
-/**
- * In short: get two scales. This is used for bar charts (no `stackingType`),
- * where there's an `xScale` chart which contains the timeseries and a
- * `groupScale` for each of the metrics for each timestamp.
- */
-declare function getGroupedScales(timeseriesData: Array<Timeseries>, controlsState: InteractiveControlsState, xMax: number): {
-    xScale: d3_scale.ScaleBand<number>;
-    groupScale: d3_scale.ScaleBand<string>;
-};
-type GroupedScales = ReturnType<typeof getGroupedScales>;
-
-type MetricsChartProps = {
+type CoreChartProps = {
     /**
      * The type of chart to display.
      */
@@ -314,6 +330,10 @@ type MetricsChartProps = {
      */
     gridColumnsShown?: boolean;
     /**
+     * Show the grid row (horizontal) lines. (default: true)
+     */
+    gridRowsShown?: boolean;
+    /**
      * Show the line/border at the outer edge of the chart. (default: true)
      */
     gridBordersShown?: boolean;
@@ -327,22 +347,10 @@ type MetricsChartProps = {
      */
     colors?: Array<string>;
 } & Pick<ChartLegendProps, "onToggleTimeseriesVisibility">;
-type TotalBarType = {
-    graphType: "bar";
-    stackingType: "none";
-} & GroupedScales;
-type LineBarType = {
-    graphType: "line";
-    stackingType: StackingType;
-    xScale: TimeScale;
-};
-type StackedBarType = {
-    graphType: "bar";
-    stackingType: Exclude<StackingType, "none">;
-    xScale: TimeScale;
-};
-type XScaleProps = TotalBarType | LineBarType | StackedBarType;
 
-declare function MetricsChart(props: MetricsChartProps): JSX.Element;
+declare function MetricsChart(props: CoreChartProps): JSX.Element;
 
-export { ChartTheme, CloseTooltipFn, GraphType, LineBarType, Metric, MetricsChart, MetricsChartProps, OtelMetadata, ShowTooltipFn, StackedBarType, StackingType, TimeRange, Timeseries, Timestamp, TooltipAnchor, TotalBarType, VirtualElement, XScaleProps };
+type Props = Pick<CoreChartProps, "colors" | "graphType" | "onChangeGraphType" | "onChangeTimeRange" | "stackingType" | "timeRange" | "timeseriesData">;
+declare function SparkChart(props: Props): JSX.Element;
+
+export { ChartTheme, CloseTooltipFn, GraphType, LineBarType, Metric, MetricsChart, OtelMetadata, ShowTooltipFn, SparkChart, StackedBarType, StackingType, TimeRange, Timeseries, Timestamp, TooltipAnchor, TotalBarType, VirtualElement, XScaleProps };

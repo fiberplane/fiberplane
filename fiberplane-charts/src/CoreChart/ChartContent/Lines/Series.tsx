@@ -4,7 +4,7 @@ import { Threshold } from "@visx/threshold";
 import { memo } from "react";
 
 import type { Metric } from "../../../types";
-import { x, y, ValueScale } from "../../scales";
+import { x, y, ValueScale } from "../../../MetricsChart/scales";
 
 type Props = {
     id: string;

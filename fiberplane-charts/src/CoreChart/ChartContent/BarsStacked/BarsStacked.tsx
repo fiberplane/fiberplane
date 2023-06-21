@@ -14,7 +14,7 @@ import {
     toDataItems,
 } from "../../../utils";
 import { getChartColor } from "../../../colors";
-import type { TimeScale, ValueScale } from "../../scales";
+import type { TimeScale, ValueScale } from "../../../MetricsChart/scales";
 import type { Timeseries } from "../../../types";
 import { useTooltips } from "./hooks";
 
