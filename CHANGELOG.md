@@ -13,6 +13,10 @@ changes if the major version hasn't changed.
 
 ## [Unreleased]
 
+TBD
+
+## [v1.0.0-beta.3] - 2023-06-14
+
 **Breaking changes!** Some breaking changes occurred between beta versions.
 
 ### Added
