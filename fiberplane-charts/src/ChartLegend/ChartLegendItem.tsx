@@ -7,79 +7,71 @@ import { FormattedTimeseries, isMac, noop, preventDefault } from "../utils";
 import { useMeasure } from "../hooks";
 
 type Props = {
-    color: string;
-    onHover: () => void;
-    onToggleTimeseriesVisibility: ChartLegendProps["onToggleTimeseriesVisibility"];
-    readOnly: boolean;
-    index: number;
-    setSize: (index: number, value: number) => void;
-    timeseries: Timeseries;
-    uniqueKeys: Array<string>;
+  color: string;
+  onHover: () => void;
+  onToggleTimeseriesVisibility: ChartLegendProps["onToggleTimeseriesVisibility"];
+  readOnly: boolean;
+  index: number;
+  setSize: (index: number, value: number) => void;
+  timeseries: Timeseries;
+  uniqueKeys: Array<string>;
 };
 
 export function ChartLegendItem({
-    color,
-    onHover,
-    onToggleTimeseriesVisibility,
-    readOnly,
-    index,
-    setSize,
-    timeseries,
-    uniqueKeys,
+  color,
+  onHover,
+  onToggleTimeseriesVisibility,
+  readOnly,
+  index,
+  setSize,
+  timeseries,
+  uniqueKeys,
 }: Props): JSX.Element {
-    const [ref, { height }] = useMeasure<HTMLDivElement>();
+  const [ref, { height }] = useMeasure<HTMLDivElement>();
 
-    useEffect(() => {
-        if (height) {
-            setSize(index, height);
+  useEffect(() => {
+    if (height) {
+      setSize(index, height);
+    }
+  }, [height, setSize, index]);
+
+  const toggleTimeseriesVisibility =
+    onToggleTimeseriesVisibility && !readOnly
+      ? (event: React.MouseEvent | React.KeyboardEvent) => {
+          preventDefault(event);
+          const toggleSingle = isMac ? event.metaKey : event.ctrlKey;
+          onToggleTimeseriesVisibility({
+            timeseries,
+            toggleOthers: !toggleSingle,
+          });
         }
-    }, [height, setSize, index]);
+      : noop;
 
-    const toggleTimeseriesVisibility =
-        onToggleTimeseriesVisibility && !readOnly
-            ? (event: React.MouseEvent | React.KeyboardEvent) => {
-                  preventDefault(event);
-                  const toggleSingle = isMac ? event.metaKey : event.ctrlKey;
-                  onToggleTimeseriesVisibility({
-                      timeseries,
-                      toggleOthers: !toggleSingle,
-                  });
-              }
-            : noop;
+  const onKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Space") {
+      toggleTimeseriesVisibility(event);
+    }
+  };
 
-    const onKeyDown = (event: React.KeyboardEvent) => {
-        if (event.key === "Space") {
-            toggleTimeseriesVisibility(event);
-        }
-    };
-
-    return (
-        <div
-            ref={ref}
-            onClick={toggleTimeseriesVisibility}
-            onKeyDown={onKeyDown}
-        >
-            <LegendItemContainer
-                onMouseOver={timeseries.visible ? onHover : noop}
-                interactive={
-                    !readOnly && onToggleTimeseriesVisibility !== undefined
-                }
-            >
-                <ColorBlock color={color} selected={timeseries.visible}>
-                    {timeseries.visible && (
-                        <Icon type="check" width="12" height="12" />
-                    )}
-                </ColorBlock>
-                <Text>
-                    <FormattedTimeseries
-                        metric={timeseries}
-                        sortLabels
-                        emphasizedKeys={uniqueKeys}
-                    />
-                </Text>
-            </LegendItemContainer>
-        </div>
-    );
+  return (
+    <div ref={ref} onClick={toggleTimeseriesVisibility} onKeyDown={onKeyDown}>
+      <LegendItemContainer
+        onMouseOver={timeseries.visible ? onHover : noop}
+        interactive={!readOnly && onToggleTimeseriesVisibility !== undefined}
+      >
+        <ColorBlock color={color} selected={timeseries.visible}>
+          {timeseries.visible && <Icon type="check" width="12" height="12" />}
+        </ColorBlock>
+        <Text>
+          <FormattedTimeseries
+            metric={timeseries}
+            sortLabels
+            emphasizedKeys={uniqueKeys}
+          />
+        </Text>
+      </LegendItemContainer>
+    </div>
+  );
 }
 
 const ColorBlock = styled.div<{ color: string; selected: boolean }>`

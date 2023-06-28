@@ -3,8 +3,8 @@ import { createContext } from "react";
 import type { Timeseries } from "../types";
 
 export type FocusedTimeseriesState = {
-    focusedTimeseries: Timeseries | null;
+  focusedTimeseries: Timeseries | null;
 };
 
 export const FocusedTimeseriesStateContext =
-    createContext<FocusedTimeseriesState>({ focusedTimeseries: null });
+  createContext<FocusedTimeseriesState>({ focusedTimeseries: null });

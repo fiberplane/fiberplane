@@ -11,14 +11,14 @@ import { sortBy } from "./sortBy";
  * a specific label in the text
  */
 export function formatTimeseries(
-    timeseries: Timeseries,
-    { sortLabels = true }: { sortLabels?: boolean } = {},
+  timeseries: Timeseries,
+  { sortLabels = true }: { sortLabels?: boolean } = {},
 ): string {
-    const { name, labels } = timeseries;
-    let entries = Object.entries(labels);
-    entries = sortLabels ? sortBy(entries, ([key]) => key) : entries;
+  const { name, labels } = timeseries;
+  let entries = Object.entries(labels);
+  entries = sortLabels ? sortBy(entries, ([key]) => key) : entries;
 
-    return `${name}{${entries.map(([k, v]) => `"${k}":"${v}"`).join(", ")}}`;
+  return `${name}{${entries.map(([k, v]) => `"${k}":"${v}"`).join(", ")}}`;
 }
 
 const Emphasis = styled.span`
@@ -32,40 +32,40 @@ const Emphasis = styled.span`
 `;
 
 export const FormattedTimeseries = memo(function FormattedTimeseries({
-    metric,
-    sortLabels = true,
-    emphasizedKeys = [],
+  metric,
+  sortLabels = true,
+  emphasizedKeys = [],
 }: {
-    metric: Timeseries;
-    sortLabels?: boolean;
-    emphasizedKeys?: Array<string>;
+  metric: Timeseries;
+  sortLabels?: boolean;
+  emphasizedKeys?: Array<string>;
 }): JSX.Element {
-    const { name, labels } = metric;
+  const { name, labels } = metric;
 
-    let labelEntries: Array<[string, string]> = Object.entries(labels);
-    if (sortLabels) {
-        labelEntries = sortBy(labelEntries, ([key]) => key);
-    }
+  let labelEntries: Array<[string, string]> = Object.entries(labels);
+  if (sortLabels) {
+    labelEntries = sortBy(labelEntries, ([key]) => key);
+  }
 
-    return (
-        <>
-            {name && `${name}: `}
-            {labelEntries.map(([key, value], index) => (
-                <Fragment key={key}>
-                    {index > 0 && ", "}
-                    <span className={key in emphasizedKeys ? "emphasize" : ""}>
-                        {key}
-                        {value && [
-                            ": ",
-                            emphasizedKeys.includes(key) ? (
-                                <Emphasis key={key}>{value}</Emphasis>
-                            ) : (
-                                value
-                            ),
-                        ]}
-                    </span>
-                </Fragment>
-            ))}
-        </>
-    );
+  return (
+    <>
+      {name && `${name}: `}
+      {labelEntries.map(([key, value], index) => (
+        <Fragment key={key}>
+          {index > 0 && ", "}
+          <span className={key in emphasizedKeys ? "emphasize" : ""}>
+            {key}
+            {value && [
+              ": ",
+              emphasizedKeys.includes(key) ? (
+                <Emphasis key={key}>{value}</Emphasis>
+              ) : (
+                value
+              ),
+            ]}
+          </span>
+        </Fragment>
+      ))}
+    </>
+  );
 });

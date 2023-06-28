@@ -1,10 +1,10 @@
 import { createContext } from "react";
 
 export type InteractiveControls = {
-    reset(): void;
-    startDrag(start: number | null): void;
-    startZoom(start: number | null): void;
-    updateEndValue(end: number): void;
+  reset(): void;
+  startDrag(start: number | null): void;
+  startZoom(start: number | null): void;
+  updateEndValue(end: number): void;
 };
 
 /**
@@ -13,8 +13,8 @@ export type InteractiveControls = {
  * This is the api/functional part
  */
 export const InteractiveControlsContext = createContext<InteractiveControls>({
-    reset() {},
-    startDrag() {},
-    startZoom() {},
-    updateEndValue() {},
+  reset() {},
+  startDrag() {},
+  startZoom() {},
+  updateEndValue() {},
 });

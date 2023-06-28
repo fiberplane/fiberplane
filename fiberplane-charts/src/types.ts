@@ -1,12 +1,12 @@
 import type { Timestamp } from "./providerTypes";
 
 export type {
-    GraphType,
-    Metric,
-    OtelMetadata,
-    StackingType,
-    Timeseries,
-    Timestamp,
+  GraphType,
+  Metric,
+  OtelMetadata,
+  StackingType,
+  Timeseries,
+  Timestamp,
 } from "./providerTypes";
 
 /**
@@ -21,13 +21,13 @@ export type CloseTooltipFn = () => void;
  * Should return a function to close the tooltip.
  */
 export type ShowTooltipFn = (
-    anchor: TooltipAnchor,
-    content: React.ReactNode,
+  anchor: TooltipAnchor,
+  content: React.ReactNode,
 ) => CloseTooltipFn;
 
 export type TimeRange = {
-    from: Timestamp;
-    to: Timestamp;
+  from: Timestamp;
+  to: Timestamp;
 };
 
 /**
@@ -38,6 +38,6 @@ export type TimeRange = {
 export type TooltipAnchor = HTMLElement | VirtualElement;
 
 export type VirtualElement = {
-    getBoundingClientRect: () => DOMRect;
-    contextElement: Element;
+  getBoundingClientRect: () => DOMRect;
+  contextElement: Element;
 };

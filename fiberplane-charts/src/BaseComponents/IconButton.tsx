@@ -64,41 +64,41 @@ export const buttonStyling = css`
   `;
 
 type IconButtonColorSet = {
-    color: string;
-    backgroundColor: string;
+  color: string;
+  backgroundColor: string;
 };
 
 type IconButtonTheme = {
-    normal: IconButtonColorSet;
-    hover: IconButtonColorSet;
-    active: IconButtonColorSet;
-    focus: IconButtonColorSet;
-    disabled: IconButtonColorSet;
+  normal: IconButtonColorSet;
+  hover: IconButtonColorSet;
+  active: IconButtonColorSet;
+  focus: IconButtonColorSet;
+  disabled: IconButtonColorSet;
 };
 
 function useIconButtonTheme(theme: DefaultTheme): IconButtonTheme {
-    return {
-        normal: {
-            color: theme.colorBase800,
-            backgroundColor: "transparent",
-        },
-        hover: {
-            color: theme.colorBase800,
-            backgroundColor: theme.colorBase300,
-        },
-        active: {
-            color: theme.colorBackground,
-            backgroundColor: theme.colorBase600,
-        },
-        focus: {
-            color: theme.colorBase600,
-            backgroundColor: theme.colorBackground,
-        },
-        disabled: {
-            color: theme.colorBase500,
-            backgroundColor: "transparent",
-        },
-    };
+  return {
+    normal: {
+      color: theme.colorBase800,
+      backgroundColor: "transparent",
+    },
+    hover: {
+      color: theme.colorBase800,
+      backgroundColor: theme.colorBase300,
+    },
+    active: {
+      color: theme.colorBackground,
+      backgroundColor: theme.colorBase600,
+    },
+    focus: {
+      color: theme.colorBase600,
+      backgroundColor: theme.colorBackground,
+    },
+    disabled: {
+      color: theme.colorBase500,
+      backgroundColor: "transparent",
+    },
+  };
 }
 
 const StyledButton = styled.button`
@@ -106,60 +106,58 @@ const StyledButton = styled.button`
 `;
 
 const buttonSize = {
-    padding: "6px",
-    width: "32px",
-    height: "32px",
-    iconSize: "20px",
+  padding: "6px",
+  width: "32px",
+  height: "32px",
+  iconSize: "20px",
 };
 
 export type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-    active?: boolean;
+  active?: boolean;
 };
 
 export const IconButton = forwardRef(function IconButton(
-    props: Props,
-    ref: React.ForwardedRef<HTMLButtonElement>,
+  props: Props,
+  ref: React.ForwardedRef<HTMLButtonElement>,
 ): JSX.Element {
-    const {
-        className = "",
-        style = {},
-        active = false,
-        children,
-        ...otherProps
-    } = props;
+  const {
+    className = "",
+    style = {},
+    active = false,
+    children,
+    ...otherProps
+  } = props;
 
-    const theme = useTheme();
-    const iconButtonTheme = useIconButtonTheme(theme);
+  const theme = useTheme();
+  const iconButtonTheme = useIconButtonTheme(theme);
 
-    const newStyle = {
-        ...style,
-        "--icon-button-padding": buttonSize.padding,
-        "--icon-button-width": buttonSize.width,
-        "--icon-button-height": buttonSize.height,
-        "--icon-button-icon-size": buttonSize.iconSize,
+  const newStyle = {
+    ...style,
+    "--icon-button-padding": buttonSize.padding,
+    "--icon-button-width": buttonSize.width,
+    "--icon-button-height": buttonSize.height,
+    "--icon-button-icon-size": buttonSize.iconSize,
 
-        "--button-normal-color": iconButtonTheme.normal.color,
-        "--button-normal-backgroundColor":
-            iconButtonTheme.normal.backgroundColor,
-        "--button-hover-color": iconButtonTheme.hover.color,
-        "--button-hover-backgroundColor": iconButtonTheme.hover.backgroundColor,
-        "--button-active-color": iconButtonTheme.active.color,
-        "--button-active-backgroundColor":
-            iconButtonTheme.active.backgroundColor,
-        "--button-focus-color": iconButtonTheme.focus.color,
-        "--button-focus-backgroundColor": iconButtonTheme.focus.backgroundColor,
-        "--button-disabled-color": iconButtonTheme.disabled.color,
-        "--button-disabled-backgroundColor":
-            iconButtonTheme.disabled.backgroundColor,
-    };
+    "--button-normal-color": iconButtonTheme.normal.color,
+    "--button-normal-backgroundColor": iconButtonTheme.normal.backgroundColor,
+    "--button-hover-color": iconButtonTheme.hover.color,
+    "--button-hover-backgroundColor": iconButtonTheme.hover.backgroundColor,
+    "--button-active-color": iconButtonTheme.active.color,
+    "--button-active-backgroundColor": iconButtonTheme.active.backgroundColor,
+    "--button-focus-color": iconButtonTheme.focus.color,
+    "--button-focus-backgroundColor": iconButtonTheme.focus.backgroundColor,
+    "--button-disabled-color": iconButtonTheme.disabled.color,
+    "--button-disabled-backgroundColor":
+      iconButtonTheme.disabled.backgroundColor,
+  };
 
-    const elementProps = {
-        ...otherProps,
-        ref,
-        style: newStyle,
-        className: active ? `${className} active` : className,
-        "aria-pressed": active,
-    };
+  const elementProps = {
+    ...otherProps,
+    ref,
+    style: newStyle,
+    className: active ? `${className} active` : className,
+    "aria-pressed": active,
+  };
 
-    return <StyledButton {...elementProps}>{children}</StyledButton>;
+  return <StyledButton {...elementProps}>{children}</StyledButton>;
 });

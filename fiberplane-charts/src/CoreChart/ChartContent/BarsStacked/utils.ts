@@ -4,8 +4,5 @@ const FIXED_PADDING = 7;
 const MIN_BAR_WIDTH = 3;
 
 export function calculateBandwidth(width: number, steps: number): number {
-    return Math.max(
-        (width - FIXED_PADDING * (steps - 1)) / steps,
-        MIN_BAR_WIDTH,
-    );
+  return Math.max((width - FIXED_PADDING * (steps - 1)) / steps, MIN_BAR_WIDTH);
 }

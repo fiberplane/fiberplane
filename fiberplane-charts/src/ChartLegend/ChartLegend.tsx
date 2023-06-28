@@ -16,115 +16,109 @@ const DEFAULT_SIZE = 50;
 const EXPANDED_HEIGHT = 592;
 
 export const Legend = memo(function Legend({
-    onToggleTimeseriesVisibility,
-    readOnly = false,
-    timeseriesData,
-    footerShown = true,
-    colors,
+  onToggleTimeseriesVisibility,
+  readOnly = false,
+  timeseriesData,
+  footerShown = true,
+  colors,
 }: ChartLegendProps) {
-    const { expandButton, gradient, isExpanded, onScroll, ref } =
-        useExpandable<HTMLDivElement>({ defaultHeight: DEFAULT_HEIGHT });
+  const { expandButton, gradient, isExpanded, onScroll, ref } =
+    useExpandable<HTMLDivElement>({ defaultHeight: DEFAULT_HEIGHT });
 
-    const { setFocusedTimeseries } = useContext(FocusedTimeseriesApiContext);
+  const { setFocusedTimeseries } = useContext(FocusedTimeseriesApiContext);
 
-    const maxHeight = isExpanded ? EXPANDED_HEIGHT : DEFAULT_HEIGHT;
+  const maxHeight = isExpanded ? EXPANDED_HEIGHT : DEFAULT_HEIGHT;
 
-    const numSeries = timeseriesData.length;
-    const resultsText = `${numSeries} result${numSeries === 1 ? "" : "s"}`;
+  const numSeries = timeseriesData.length;
+  const resultsText = `${numSeries} result${numSeries === 1 ? "" : "s"}`;
 
-    const uniqueKeys = useMemo(
-        () => findUniqueKeys(timeseriesData),
-        [timeseriesData],
-    );
-    const listRef = useRef<VariableSizeList<Array<Timeseries>>>(null);
-    const sizeMap = useRef(new Map<number, number>());
-    const heightRef = useRef(timeseriesData.length * DEFAULT_SIZE);
-    const update = useForceUpdate();
+  const uniqueKeys = useMemo(
+    () => findUniqueKeys(timeseriesData),
+    [timeseriesData],
+  );
+  const listRef = useRef<VariableSizeList<Array<Timeseries>>>(null);
+  const sizeMap = useRef(new Map<number, number>());
+  const heightRef = useRef(timeseriesData.length * DEFAULT_SIZE);
+  const update = useForceUpdate();
 
-    useEffect(() => {
-        sizeMap.current = new Map();
-        heightRef.current = timeseriesData.length * DEFAULT_SIZE;
-        update();
-    }, [timeseriesData, update]);
+  useEffect(() => {
+    sizeMap.current = new Map();
+    heightRef.current = timeseriesData.length * DEFAULT_SIZE;
+    update();
+  }, [timeseriesData, update]);
 
-    const getSize = (index: number) =>
-        sizeMap.current.get(index) ?? DEFAULT_SIZE;
+  const getSize = (index: number) => sizeMap.current.get(index) ?? DEFAULT_SIZE;
 
-    const setSize = useHandler((index: number, size: number) => {
-        const oldSize = getSize(index);
-        sizeMap.current.set(index, size);
-        listRef.current?.resetAfterIndex(index);
-        heightRef.current += size - oldSize;
+  const setSize = useHandler((index: number, size: number) => {
+    const oldSize = getSize(index);
+    sizeMap.current.set(index, size);
+    listRef.current?.resetAfterIndex(index);
+    heightRef.current += size - oldSize;
 
-        if (heightRef.current < maxHeight) {
-            update();
-        }
-    });
+    if (heightRef.current < maxHeight) {
+      update();
+    }
+  });
 
-    const onMouseOut = () => setFocusedTimeseries(null);
+  const onMouseOut = () => setFocusedTimeseries(null);
 
-    const render = useHandler(
-        ({
-            data,
-            index,
-            style,
-        }: {
-            data: Array<Timeseries>;
-            index: number;
-            style: React.CSSProperties;
-        }) => {
-            const timeseries = data[index];
-            return (
-                <div style={style}>
-                    {timeseries && (
-                        <ChartLegendItem
-                            color={getChartColor(index, colors)}
-                            onHover={() => setFocusedTimeseries(timeseries)}
-                            onToggleTimeseriesVisibility={
-                                onToggleTimeseriesVisibility
-                            }
-                            readOnly={readOnly}
-                            timeseries={timeseries}
-                            uniqueKeys={uniqueKeys}
-                            index={index}
-                            setSize={setSize}
-                        />
-                    )}
-                </div>
-            );
-        },
-    );
+  const render = useHandler(
+    ({
+      data,
+      index,
+      style,
+    }: {
+      data: Array<Timeseries>;
+      index: number;
+      style: React.CSSProperties;
+    }) => {
+      const timeseries = data[index];
+      return (
+        <div style={style}>
+          {timeseries && (
+            <ChartLegendItem
+              color={getChartColor(index, colors)}
+              onHover={() => setFocusedTimeseries(timeseries)}
+              onToggleTimeseriesVisibility={onToggleTimeseriesVisibility}
+              readOnly={readOnly}
+              timeseries={timeseries}
+              uniqueKeys={uniqueKeys}
+              index={index}
+              setSize={setSize}
+            />
+          )}
+        </div>
+      );
+    },
+  );
 
-    return (
-        <ChartLegendContainer onMouseOut={onMouseOut} ref={ref}>
-            <ExpandableContainer
-                maxHeight={`${maxHeight}px`}
-                onScroll={onScroll}
-            >
-                <VariableSizeList
-                    height={Math.min(heightRef.current, maxHeight)}
-                    width="100%"
-                    ref={listRef}
-                    itemCount={timeseriesData.length}
-                    itemData={timeseriesData}
-                    itemSize={getSize}
-                >
-                    {render}
-                </VariableSizeList>
-                {gradient}
-            </ExpandableContainer>
-            {footerShown && (
-                <Footer>
-                    <Results>{resultsText}</Results>
-                    {expandButton}
-                </Footer>
-            )}
-        </ChartLegendContainer>
-    );
+  return (
+    <ChartLegendContainer onMouseOut={onMouseOut} ref={ref}>
+      <ExpandableContainer maxHeight={`${maxHeight}px`} onScroll={onScroll}>
+        <VariableSizeList
+          height={Math.min(heightRef.current, maxHeight)}
+          width="100%"
+          ref={listRef}
+          itemCount={timeseriesData.length}
+          itemData={timeseriesData}
+          itemSize={getSize}
+        >
+          {render}
+        </VariableSizeList>
+        {gradient}
+      </ExpandableContainer>
+      {footerShown && (
+        <Footer>
+          <Results>{resultsText}</Results>
+          {expandButton}
+        </Footer>
+      )}
+    </ChartLegendContainer>
+  );
 });
 
 const ExpandableContainer = styled.div<{
-    maxHeight: Exclude<React.CSSProperties["height"], undefined>;
+  maxHeight: Exclude<React.CSSProperties["height"], undefined>;
 }>`
     max-height: ${({ maxHeight }) => maxHeight};
     overflow: auto;

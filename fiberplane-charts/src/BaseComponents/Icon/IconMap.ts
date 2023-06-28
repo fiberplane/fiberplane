@@ -7,11 +7,11 @@ import StackedIcon from "./icons/Stacked.svg";
 import TriangleDownIcon from "./icons/TriangleDown.svg";
 
 export const ICON_MAP = {
-    chart_bar: ChartBarIcon,
-    chart_line: ChartLineIcon,
-    check: CheckIcon,
-    combined: CombinedIcon,
-    percentage: PercentageIcon,
-    stacked: StackedIcon,
-    triangle_down: TriangleDownIcon,
+  chart_bar: ChartBarIcon,
+  chart_line: ChartLineIcon,
+  check: CheckIcon,
+  combined: CombinedIcon,
+  percentage: PercentageIcon,
+  stacked: StackedIcon,
+  triangle_down: TriangleDownIcon,
 } as const;
