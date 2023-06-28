@@ -5,7 +5,7 @@ import { animate, Tween, useMotionValue } from "framer-motion";
 import { memo, useEffect, useLayoutEffect, useState } from "react";
 import { useTheme } from "styled-components";
 
-import Bottom from "./Bottom";
+import { Bottom } from "./Bottom";
 import { ValueScale, XScaleTypes } from "../../MetricsChart/scales";
 
 type Props = {

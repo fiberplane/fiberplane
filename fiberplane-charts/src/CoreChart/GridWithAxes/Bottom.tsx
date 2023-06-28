@@ -13,7 +13,12 @@ type Props = {
   strokeDasharray?: string;
 };
 
-function Bottom({ yMax, xScale, xScaleFormatter, strokeDasharray }: Props) {
+export const Bottom = memo(function Bottom({
+  yMax,
+  xScale,
+  xScaleFormatter,
+  strokeDasharray,
+}: Props) {
   const {
     colorBase300,
     colorBase500,
@@ -47,6 +52,4 @@ function Bottom({ yMax, xScale, xScaleFormatter, strokeDasharray }: Props) {
       strokeDasharray={strokeDasharray}
     />
   );
-}
-
-export default memo(Bottom);
+});
