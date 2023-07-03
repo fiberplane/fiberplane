@@ -7,7 +7,6 @@ type Props = Pick<
   CoreChartProps,
   | "colors"
   | "graphType"
-  | "onChangeGraphType"
   | "onChangeTimeRange"
   | "stackingType"
   | "timeRange"

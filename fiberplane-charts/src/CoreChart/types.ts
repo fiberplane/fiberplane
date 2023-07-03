@@ -14,28 +14,12 @@ export type CoreChartProps = {
   graphType: GraphType;
 
   /**
-   * Handler that is invoked when the graph type is changed.
-   *
-   * If no handler is specified, no UI for changing the graph type is
-   * presented.
-   */
-  onChangeGraphType?: (graphType: GraphType) => void;
-
-  /**
    * Handler that is invoked when the time range is changed.
    *
    * If no handler is specified, no UI for changing the time range is
    * presented.
    */
   onChangeTimeRange?: (timeRange: TimeRange) => void;
-
-  /**
-   * Handler that is invoked when the stacking type is changed.
-   *
-   * If no handler is specified, no UI for changing the stacking type is
-   * presented.
-   */
-  onChangeStackingType?: (stackingType: StackingType) => void;
 
   /**
    * Whether the chart is read-only.

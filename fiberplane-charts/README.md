@@ -2,7 +2,7 @@
 
 > Fiberplane Charts library
 
-Exposes a `MetricsChart` and `SparkChart` React components used for rendering
+Exposes `MetricsChart` and `SparkChart` React components used for rendering
 charts with `Timeseries` data. The `Timeseries` type is generated from our
 [Provider Protocol](../fiberplane-provider-protocol/).
 

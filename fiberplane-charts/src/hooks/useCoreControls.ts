@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 
+import type { CoreChartProps } from "../CoreChart";
 import type { CoreControls } from "../context";
 import { secondsToTimestamp, timestampToSeconds } from "../utils";
 import { useHandler } from "./useHandler";
-import { CoreChartProps } from "../CoreChart";
 
 const MIN_DURATION = 60; // in seconds
 
