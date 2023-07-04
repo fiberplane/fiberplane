@@ -747,12 +747,12 @@ const MIN_DURATION = 60; // in seconds
  * Hook for creating convenient move/zoom functions
  */ function useCoreControls({ timeRange , onChangeTimeRange  }) {
     /**
-     * Moves the time scale.
-     *
-     * @param deltaRatio The delta to move as a ratio of the current time scale
-     *                   window. -1 moves a full window to the left, and 1 moves
-     *                   a full window to the right.
-     */ const move = useHandler((deltaRatio)=>{
+   * Moves the time scale.
+   *
+   * @param deltaRatio The delta to move as a ratio of the current time scale
+   *                   window. -1 moves a full window to the left, and 1 moves
+   *                   a full window to the right.
+   */ const move = useHandler((deltaRatio)=>{
         const currentFrom = timestampToSeconds(timeRange.from);
         const currentTo = timestampToSeconds(timeRange.to);
         const delta = deltaRatio * (currentTo - currentFrom);
@@ -764,15 +764,15 @@ const MIN_DURATION = 60; // in seconds
         });
     });
     /**
-     * Zooms into or out from the graph.
-     *
-     * @param factor The zoom factor. Anything below 1 makes the time scale
-     *               smaller (zooming in), and anything above 1 makes the time
-     *               scale larger (zooming out).
-     * @param focusRatio The horizontal point on which to focus the zoom,
-     *                   expressed as a ratio from 0 (left-hand side of the graph)
-     *                   to 1 (right-hand side of the graph).
-     */ const zoom = useHandler((factor, focusRatio = 0.5)=>{
+   * Zooms into or out from the graph.
+   *
+   * @param factor The zoom factor. Anything below 1 makes the time scale
+   *               smaller (zooming in), and anything above 1 makes the time
+   *               scale larger (zooming out).
+   * @param focusRatio The horizontal point on which to focus the zoom,
+   *                   expressed as a ratio from 0 (left-hand side of the graph)
+   *                   to 1 (right-hand side of the graph).
+   */ const zoom = useHandler((factor, focusRatio = 0.5)=>{
         const currentFrom = timestampToSeconds(timeRange.from);
         const currentTo = timestampToSeconds(timeRange.to);
         const duration = currentTo - currentFrom;
@@ -2143,9 +2143,9 @@ function getCandidate({ x , xScale , y , yScale , timeseriesData , activeTimesta
     const paddingOuter = scale.paddingOuter();
     const paddingInner = scale.paddingInner();
     /**
-     * The range isn't divided into equal sections, padding outer offsets
-     * the pattern as well as the paddingInner is used n(items) - 1 times
-     */ const calculatedItems = domain.length + 2 * paddingOuter - paddingInner;
+   * The range isn't divided into equal sections, padding outer offsets
+   * the pattern as well as the paddingInner is used n(items) - 1 times
+   */ const calculatedItems = domain.length + 2 * paddingOuter - paddingInner;
     const itemWidth = (end - start) / calculatedItems;
     const beginOffset = (0.5 * paddingInner - paddingOuter) * itemWidth;
     const offsetX = value + beginOffset;
@@ -2578,9 +2578,10 @@ function Bottom({ yMax , xScale , xScaleFormatter , strokeDasharray  }) {
 }
 var Bottom$1 = /*#__PURE__*/ memo(Bottom);
 
-const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xScale , yScale , xScaleFormatter , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDashArray  }) {
+const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xScale , yScale , xScaleFormatter , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDashArray , gridStrokeColor  }) {
     const [targetLower = 0, targetUpper = 0] = yScale.domain();
     const { colorBase300  } = useTheme();
+    const strokeColor = gridStrokeColor || colorBase300;
     const lower = useCustomSpring(targetLower);
     const upper = useCustomSpring(targetUpper);
     const temporaryScale = yScale.copy().domain([
@@ -2607,7 +2608,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xS
                 scale: temporaryScale,
                 width: xMax,
                 height: yMax,
-                stroke: colorBase300,
+                stroke: strokeColor,
                 strokeDasharray: gridDashArray
             }),
             gridBordersShown && /*#__PURE__*/ jsx("line", {
@@ -2615,7 +2616,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xS
                 x2: xMax,
                 y1: 0,
                 y2: yMax,
-                stroke: colorBase300,
+                stroke: strokeColor,
                 strokeWidth: 1,
                 strokeDasharray: gridDashArray
             }),
@@ -2623,7 +2624,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xS
                 scale: xScale,
                 width: xMax,
                 height: yMax,
-                stroke: colorBase300,
+                stroke: strokeColor,
                 strokeDasharray: gridDashArray
             }),
             /*#__PURE__*/ jsx(Bottom$1, {
@@ -2636,7 +2637,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ xMax , yMax , xS
             /*#__PURE__*/ jsx(AxisLeft, {
                 scale: temporaryScale,
                 orientation: Orientation.left,
-                stroke: colorBase300,
+                stroke: strokeColor,
                 strokeWidth: gridBordersShown ? 1 : 0,
                 strokeDasharray: gridDashArray,
                 hideTicks: true,
@@ -2760,7 +2761,8 @@ function CoreChart({ gridShown =true , ...props }) {
                                 gridColumnsShown: props.gridColumnsShown,
                                 gridRowsShown: props.gridRowsShown,
                                 gridBordersShown: props.gridBordersShown,
-                                gridDashArray: props.gridDashArray
+                                gridDashArray: props.gridDashArray,
+                                gridStrokeColor: props.gridStrokeColor
                             }),
                             /*#__PURE__*/ jsx(Group, {
                                 innerRef: graphContentRef,
