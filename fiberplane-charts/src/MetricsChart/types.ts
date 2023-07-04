@@ -1,28 +1,26 @@
-import { ChartLegendProps } from "../ChartLegend/types";
-import type {
-  GraphType,
-  StackingType,
-  Timeseries,
-  TimeRange,
-  ShowTooltipFn,
-} from "../types";
-import type { GroupedScales, TimeScale } from "./scales";
+import type { ChartControlsProps } from "./ChartControls";
+import type { ChartInputData } from "../ACG";
+import type { ChartLegendProps } from "../ChartLegend";
+import type { CoreChartProps } from "../CoreChart";
 
-export type TotalBarType = {
-  graphType: "bar";
-  stackingType: "none";
-} & GroupedScales;
+export type MetricsTypeProps = CoreChartProps &
+  ChartControlsProps &
+  ChartLegendProps &
+  ChartInputData & {
+    /**
+     * Show the chart controls. (default: true)
+     *
+     * Setting this to false will also hide the stacking controls
+     */
+    chartControlsShown?: boolean;
 
-export type LineBarType = {
-  graphType: "line";
-  stackingType: StackingType;
-  xScale: TimeScale;
-};
+    /**
+     * Show the legend. (default: true)
+     */
+    legendShown?: boolean;
 
-export type StackedBarType = {
-  graphType: "bar";
-  stackingType: Exclude<StackingType, "none">;
-  xScale: TimeScale;
-};
-
-export type XScaleProps = TotalBarType | LineBarType | StackedBarType;
+    /**
+     * Show the stacking controls. (default: true)
+     */
+    stackingControlsShown?: boolean;
+  };

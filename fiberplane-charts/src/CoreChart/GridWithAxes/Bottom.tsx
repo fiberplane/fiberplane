@@ -1,24 +1,13 @@
-import { AxisBottom, TickFormatter } from "@visx/axis";
-import type { NumberValue } from "d3-scale";
+import { AxisBottom } from "@visx/axis";
 import { memo } from "react";
 import { useTheme } from "styled-components";
 
-import { XScaleTypes } from "../../MetricsChart/scales";
-
 type Props = {
-  xMax: number;
   yMax: number;
-  xScale: XScaleTypes;
-  xScaleFormatter?: TickFormatter<Date | NumberValue>;
   strokeDasharray?: string;
 };
 
-export const Bottom = memo(function Bottom({
-  yMax,
-  xScale,
-  xScaleFormatter,
-  strokeDasharray,
-}: Props) {
+export const Bottom = memo(function Bottom({ yMax, strokeDasharray }: Props) {
   const {
     colorBase300,
     colorBase500,

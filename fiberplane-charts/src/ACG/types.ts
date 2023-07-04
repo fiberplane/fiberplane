@@ -1,5 +1,49 @@
-import type { Timeseries } from "../providerTypes";
+import type {
+  GraphType,
+  Metric,
+  StackingType,
+  TimeRange,
+  Timeseries,
+} from "../providerTypes";
 
+export type { GraphType, Metric, StackingType, TimeRange, Timeseries };
+
+/**
+ * All the data necessary to generate an abstract chart.
+ */
+export type ChartInputData = {
+  /**
+   * The type of chart to display.
+   */
+  graphType: GraphType;
+
+  /**
+   * The type of stacking to apply to the chart.
+   */
+  stackingType: StackingType;
+
+  /**
+   * Array of timeseries data to display in the chart.
+   *
+   * Make sure the timeseries contains data for the given time range, or you
+   * may not see any results.
+   */
+  timeseriesData: Array<Timeseries>;
+
+  /**
+   * The time range to be displayed.
+   */
+  timeRange: TimeRange;
+};
+
+/**
+ * An abstract chart with information about what to render and where to render
+ * it.
+ *
+ * All coordinates in an abstract chart are normalized to run from 0.0 to 1.0,
+ * so (0, 0) is the origin of the chart (typically rendered bottom left), while
+ * (1, 0) is the end of the X axis and (0, 1) is the end of the Y axis.
+ */
 export type AbstractChart = {
   xAxis: Axis;
   yAxis: Axis;
@@ -32,7 +76,7 @@ export type ShapeList = {
   /**
    * The original timeseries this shape list belongs to.
    */
-  // TODO: We should disconnect this from the concrete types.
+  // TODO: We should disconnect this from the input types.
   timeseries: Timeseries;
 };
 

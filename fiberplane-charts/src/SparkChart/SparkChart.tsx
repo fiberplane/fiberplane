@@ -1,21 +1,33 @@
 import styled, { useTheme } from "styled-components";
-import { ChartSizeContainerProvider } from "../ChartSizeContainerProvider";
 import { useMemo } from "react";
+
+import { ChartSizeContainerProvider } from "../ChartSizeContainerProvider";
+import { ChartInputData, generateAbstractChart } from "../ACG";
 import { CoreChart, CoreChartProps } from "../CoreChart";
 
-type Props = Pick<
-  CoreChartProps,
-  | "colors"
-  | "graphType"
-  | "onChangeTimeRange"
-  | "stackingType"
-  | "timeRange"
-  | "timeseriesData"
->;
+type Props = Pick<CoreChartProps, "colors" | "onChangeTimeRange"> &
+  ChartInputData;
 
-export function SparkChart(props: Props) {
-  const { colors, ...rest } = props;
+export function SparkChart({
+  colors,
+  graphType,
+  stackingType,
+  timeRange,
+  timeseriesData,
+  onChangeTimeRange,
+}: Props) {
   const theme = useTheme();
+
+  const chart = useMemo(
+    () =>
+      generateAbstractChart({
+        graphType,
+        stackingType,
+        timeRange,
+        timeseriesData,
+      }),
+    [graphType, stackingType, timeRange, timeseriesData],
+  );
 
   const chartColors = useMemo((): Array<string> => {
     return (
@@ -37,7 +49,13 @@ export function SparkChart(props: Props) {
 
   return (
     <StyledChartSizeContainerProvider>
-      <CoreChart {...rest} colors={chartColors} gridShown={false} />
+      <CoreChart
+        chart={chart}
+        colors={chartColors}
+        gridShown={false}
+        onChangeTimeRange={onChangeTimeRange}
+        timeRange={timeRange}
+      />
     </StyledChartSizeContainerProvider>
   );
 }

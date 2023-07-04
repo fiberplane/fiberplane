@@ -1084,6 +1084,11 @@ export type TimelineCell = {
     readOnly?: boolean;
 };
 
+export type TimeRange = {
+    from: Timestamp;
+    to: Timestamp;
+};
+  
 /**
  * A series of metrics over time, with metadata.
  */

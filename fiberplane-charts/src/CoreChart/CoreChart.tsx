@@ -19,6 +19,7 @@ import type { CoreChartProps } from "./types";
 
 export function CoreChart({
   gridShown = true,
+  readOnly = false,
   ...props
 }: CoreChartProps &
   Required<Pick<CoreChartProps, "colors">> & {
@@ -27,8 +28,6 @@ export function CoreChart({
   const { width, height, xMax, yMax, marginTop, marginLeft } =
     useContext(ChartSizeContext);
   const interactiveControlsState = useContext(InteractiveControlsStateContext);
-
-  const { xScaleProps, yScale } = useScales(props);
 
   const { onMouseDown, onMouseUp, onMouseEnter, onMouseMove, graphContentRef } =
     useMouseControls(props);
@@ -56,12 +55,7 @@ export function CoreChart({
 
   const clipPathId = useId();
 
-  // Use a custom formatter when `xScale` is a `ScaleBand<number>`. We want to
-  // display the time, not the timestamp (number).
-  const xScaleFormatter =
-    xScaleProps.graphType === "bar" && xScaleProps.stackingType === "none"
-      ? getTimeFormatter(xScaleProps.xScale)
-      : undefined;
+  const cursor = getCursorFromState(interactiveControlsState, shiftKeyPressed);
 
   return (
     <TooltipContext.Provider value={tooltipApiValue}>
@@ -73,16 +67,8 @@ export function CoreChart({
         onMouseUp={onMouseUp}
         onMouseEnter={onMouseEnter}
       >
-        <svg
-          width={width}
-          height={height}
-          style={{
-            cursor: getCursorFromState(
-              interactiveControlsState,
-              shiftKeyPressed,
-            ),
-          }}
-        >
+        <svg width={width} height={height} style={{ cursor }}>
+          <title>{readOnly ? "Chart" : "Interactive chart"}</title>
           <defs>
             <clipPath id={clipPathId}>
               <rect x={0} y={0} width={xMax} height={yMax} />
@@ -95,7 +81,6 @@ export function CoreChart({
                 yMax={yMax}
                 xScale={xScaleProps.xScale}
                 yScale={yScale}
-                xScaleFormatter={xScaleFormatter}
                 gridColumnsShown={props.gridColumnsShown}
                 gridRowsShown={props.gridRowsShown}
                 gridBordersShown={props.gridBordersShown}

@@ -1,19 +1,14 @@
 import { AxisLeft, TickFormatter, Orientation } from "@visx/axis";
 import { GridRows, GridColumns } from "@visx/grid";
-import type { NumberValue } from "d3-scale";
 import { animate, Tween, useMotionValue } from "framer-motion";
 import { memo, useEffect, useLayoutEffect, useState } from "react";
 import { useTheme } from "styled-components";
 
 import { Bottom } from "./Bottom";
-import { ValueScale, XScaleTypes } from "../../MetricsChart/scales";
 
 type Props = {
   xMax: number;
   yMax: number;
-  xScale: XScaleTypes;
-  yScale: ValueScale;
-  xScaleFormatter?: TickFormatter<Date | NumberValue>;
   gridColumnsShown?: boolean;
   gridRowsShown?: boolean;
   gridBordersShown?: boolean;
@@ -24,9 +19,6 @@ type Props = {
 export const GridWithAxes = memo(function GridWithAxes({
   xMax,
   yMax,
-  xScale,
-  yScale,
-  xScaleFormatter,
   gridColumnsShown = true,
   gridRowsShown = true,
   gridBordersShown = true,
@@ -101,7 +93,6 @@ export const GridWithAxes = memo(function GridWithAxes({
         xMax={xMax}
         xScale={xScale}
         yMax={yMax}
-        xScaleFormatter={xScaleFormatter}
         strokeDasharray={gridDashArray}
       />
       <AxisLeft

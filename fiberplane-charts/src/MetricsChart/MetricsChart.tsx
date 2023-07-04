@@ -3,19 +3,19 @@ import styled, { useTheme } from "styled-components";
 
 import { ChartControls } from "./ChartControls";
 import { ChartSizeContainerProvider } from "../ChartSizeContainerProvider";
+import { CoreChart } from "../CoreChart";
 import {
   CoreControlsContext,
   InteractiveControlsContext,
   InteractiveControlsStateContext,
 } from "../context";
 import { FocusedTimeseriesContextProvider } from "./FocusedTimeseriesContextProvider";
-import { Legend } from "../ChartLegend";
-import { CoreChart } from "../CoreChart";
-import type { CoreChartProps } from "../CoreChart";
-import { useCoreControls, useInteractiveControls } from "../hooks";
 import { HEIGHT, MARGINS } from "../constants";
+import { Legend } from "../ChartLegend";
+import type { MetricsTypeProps } from "./types";
+import { useCoreControls, useInteractiveControls } from "../hooks";
 
-export function MetricsChart(props: CoreChartProps) {
+export function MetricsChart(props: MetricsTypeProps) {
   return props.readOnly ? (
     <ReadOnlyMetricsChart {...props} />
   ) : (
@@ -23,7 +23,7 @@ export function MetricsChart(props: CoreChartProps) {
   );
 }
 
-function InteractiveMetricsChart(props: CoreChartProps) {
+function InteractiveMetricsChart(props: MetricsTypeProps) {
   const coreControls = useCoreControls(props);
   const { interactiveControls, interactiveControlsState } =
     useInteractiveControls();
@@ -49,7 +49,7 @@ function InteractiveMetricsChart(props: CoreChartProps) {
   );
 }
 
-function ReadOnlyMetricsChart(props: CoreChartProps) {
+function ReadOnlyMetricsChart(props: MetricsTypeProps) {
   return (
     <ChartSizeContainerProvider
       overrideHeight={HEIGHT}
@@ -63,7 +63,7 @@ function ReadOnlyMetricsChart(props: CoreChartProps) {
   );
 }
 const InnerMetricsChart = memo(function InnerMetricsChart(
-  props: CoreChartProps,
+  props: MetricsTypeProps,
 ) {
   const {
     readOnly,

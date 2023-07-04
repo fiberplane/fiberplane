@@ -1,24 +1,19 @@
 import { Area } from "@visx/shape";
 import { LinearGradient } from "@visx/gradient";
-import { Threshold } from "@visx/threshold";
 import { memo, useId } from "react";
+import { Threshold } from "@visx/threshold";
 
-import type { Metric } from "../../../types";
-import { x, y, TimeScale, ValueScale } from "../../../MetricsChart/scales";
+import type { Point } from "../../../ACG";
 
 type Props = {
-  xScale: TimeScale;
-  yScale: ValueScale;
-  metrics: Array<Metric>;
+  points: Array<Point>;
   yMax: number;
   highlight?: boolean;
   color: string;
 };
 
 export const Line = memo(function Line({
-  xScale,
-  yScale,
-  metrics,
+  points,
   yMax,
   highlight = false,
   color,
@@ -27,8 +22,8 @@ export const Line = memo(function Line({
   const gradientId = `line-${id}`;
   const fillColor = `url(#${gradientId})`;
 
-  const getX = (metric: Metric) => xScale(x(metric)) ?? 0;
-  const getY = (metric: Metric) => yScale(y(metric)) ?? 0;
+  const getX = (point: { x: number }) => point.x * width;
+  const getY = (point: { y: number }) => point.y * height;
 
   return (
     <>
@@ -40,12 +35,12 @@ export const Line = memo(function Line({
         toOpacity={0.03}
         toOffset="23%"
       />
-      <Threshold<Metric>
+      <Threshold<Point>
         id={id}
-        data={metrics}
+        data={points}
         x={getX}
         y0={getY}
-        y1={yScale(0)}
+        y1={getY({ y: 0 })}
         clipAboveTo={0}
         clipBelowTo={yMax}
         aboveAreaProps={{ fill: fillColor }}
@@ -53,7 +48,7 @@ export const Line = memo(function Line({
         belowAreaProps={{ fill: "violet" }}
       />
       <Area
-        data={metrics}
+        data={points}
         x={getX}
         y={getY}
         stroke={color}

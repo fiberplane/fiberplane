@@ -1,17 +1,11 @@
-import {
-  GraphType,
-  ShowTooltipFn,
-  StackingType,
-  TimeRange,
-  Timeseries,
-} from "../types";
-import { ChartLegendProps } from "../ChartLegend";
+import type { AbstractChart } from "../ACG";
+import type { ShowTooltipFn, TimeRange } from "../types";
 
 export type CoreChartProps = {
   /**
-   * The type of chart to display.
+   * The chart to render.
    */
-  graphType: GraphType;
+  chart: AbstractChart;
 
   /**
    * Handler that is invoked when the time range is changed.
@@ -36,47 +30,12 @@ export type CoreChartProps = {
   showTooltip?: ShowTooltipFn;
 
   /**
-   * The type of stacking to apply to the chart.
-   */
-  stackingType: StackingType;
-
-  /**
    * The time range for which to display the data.
    *
    * Make sure the timeseries contains data for the given time range, or you
    * may not see any results.
    */
   timeRange: TimeRange;
-
-  /**
-   * Array of timeseries data to display in the chart.
-   *
-   * Make sure the timeseries contains data for the given time range, or you
-   * may not see any results.
-   */
-  timeseriesData: Array<Timeseries>;
-
-  /**
-   * Show the legend. (default: true)
-   */
-  legendShown?: boolean;
-
-  /**
-   * Show the chart controls. (default: true)
-   *
-   * Setting this to false will also hide the stacking controls
-   */
-  chartControlsShown?: boolean;
-
-  /**
-   * Show the stacking controls. (default: true)
-   */
-  stackingControlsShown?: boolean;
-
-  /**
-   * Show the footer (which can contain the expand button & results text). (default: true)
-   */
-  footerShown?: boolean;
 
   /**
    * Show the grid column (vertical) lines. (default: true)
@@ -108,4 +67,4 @@ export type CoreChartProps = {
    * Override the colors that the charts will use. If not specified several colors of the theme are used
    */
   colors?: Array<string>;
-} & Pick<ChartLegendProps, "onToggleTimeseriesVisibility">;
+};

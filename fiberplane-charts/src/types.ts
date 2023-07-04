@@ -1,10 +1,9 @@
-import type { Timestamp } from "./providerTypes";
-
 export type {
   GraphType,
   Metric,
   OtelMetadata,
   StackingType,
+  TimeRange,
   Timeseries,
   Timestamp,
 } from "./providerTypes";
@@ -24,11 +23,6 @@ export type ShowTooltipFn = (
   anchor: TooltipAnchor,
   content: React.ReactNode,
 ) => CloseTooltipFn;
-
-export type TimeRange = {
-  from: Timestamp;
-  to: Timestamp;
-};
 
 /**
  * Anchor to determine where the tooltip should be positioned.

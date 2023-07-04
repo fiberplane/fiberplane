@@ -25,7 +25,7 @@ export type ChartLegendProps = {
   timeseriesData: Array<Timeseries>;
 
   /**
-   * Show the footer. (default: true)
+   * Show the footer with the expand button & results text (default: true).
    */
   footerShown?: boolean;
 
