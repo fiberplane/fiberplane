@@ -18,6 +18,7 @@ type Props = {
   gridRowsShown?: boolean;
   gridBordersShown?: boolean;
   gridDashArray?: string;
+  gridStrokeColor?: string;
 };
 
 export const GridWithAxes = memo(function GridWithAxes({
@@ -30,10 +31,13 @@ export const GridWithAxes = memo(function GridWithAxes({
   gridRowsShown = true,
   gridBordersShown = true,
   gridDashArray,
+  gridStrokeColor,
 }: Props) {
   const [targetLower = 0, targetUpper = 0] = yScale.domain();
 
   const { colorBase300 } = useTheme();
+  const strokeColor = gridStrokeColor || colorBase300;
+
   const lower = useCustomSpring(targetLower);
   const upper = useCustomSpring(targetUpper);
 
@@ -69,7 +73,7 @@ export const GridWithAxes = memo(function GridWithAxes({
           scale={temporaryScale}
           width={xMax}
           height={yMax}
-          stroke={colorBase300}
+          stroke={strokeColor}
           strokeDasharray={gridDashArray}
         />
       )}
@@ -79,7 +83,7 @@ export const GridWithAxes = memo(function GridWithAxes({
           x2={xMax}
           y1={0}
           y2={yMax}
-          stroke={colorBase300}
+          stroke={strokeColor}
           strokeWidth={1}
           strokeDasharray={gridDashArray}
         />
@@ -89,7 +93,7 @@ export const GridWithAxes = memo(function GridWithAxes({
           scale={xScale}
           width={xMax}
           height={yMax}
-          stroke={colorBase300}
+          stroke={strokeColor}
           strokeDasharray={gridDashArray}
         />
       )}
@@ -103,7 +107,7 @@ export const GridWithAxes = memo(function GridWithAxes({
       <AxisLeft
         scale={temporaryScale}
         orientation={Orientation.left}
-        stroke={colorBase300}
+        stroke={strokeColor}
         strokeWidth={gridBordersShown ? 1 : 0}
         strokeDasharray={gridDashArray}
         hideTicks={true}
