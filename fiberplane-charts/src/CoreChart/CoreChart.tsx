@@ -100,6 +100,7 @@ export function CoreChart({
                 gridRowsShown={props.gridRowsShown}
                 gridBordersShown={props.gridBordersShown}
                 gridDashArray={props.gridDashArray}
+                gridStrokeColor={props.gridStrokeColor}
               />
             )}
             <Group innerRef={graphContentRef} clipPath={`url(#${clipPathId})`}>
