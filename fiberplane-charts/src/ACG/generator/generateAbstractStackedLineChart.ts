@@ -7,7 +7,7 @@ import type {
   ShapeList,
 } from "../types";
 import {
-  detectYAxisRange,
+  detectStackedYAxisRange,
   getTimeFromTimestamp,
   getXAxisFromTimeRange,
   normalizeAlongLinearAxis,
@@ -17,7 +17,10 @@ export function generateAbstractStackedLineChart(
   input: ChartInputData,
 ): AbstractChart {
   const xAxis = getXAxisFromTimeRange(input.timeRange);
-  const yAxis = detectYAxisRange(input.timeseriesData);
+  const yAxis =
+    input.stackingType === "percentage"
+      ? { minValue: 0, maxValue: 100 }
+      : detectStackedYAxisRange(input.timeseriesData);
 
   const metrics: Array<ShapeList> = input.timeseriesData.map((timeseries) => ({
     shapes: getShapes(timeseries.metrics, xAxis, yAxis),

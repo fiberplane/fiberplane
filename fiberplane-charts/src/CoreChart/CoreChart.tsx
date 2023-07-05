@@ -11,13 +11,13 @@ import {
   TooltipContext,
 } from "../context";
 import { Container } from "../BaseComponents";
-import { getTimeFormatter } from "../utils";
 import { GridWithAxes } from "./GridWithAxes";
 import { useMouseControls, useScales, useTooltip } from "../hooks";
 import { ZoomBar } from "./ZoomBar";
 import type { CoreChartProps } from "./types";
 
 export function CoreChart({
+  chart,
   gridShown = true,
   readOnly = false,
   ...props
@@ -57,6 +57,8 @@ export function CoreChart({
 
   const cursor = getCursorFromState(interactiveControlsState, shiftKeyPressed);
 
+  const scales = useScales(xMax, yMax);
+
   return (
     <TooltipContext.Provider value={tooltipApiValue}>
       <StyledContainer
@@ -77,23 +79,19 @@ export function CoreChart({
           <Group left={marginLeft} top={marginTop}>
             {gridShown && (
               <GridWithAxes
-                xMax={xMax}
-                yMax={yMax}
-                xScale={xScaleProps.xScale}
-                yScale={yScale}
                 gridColumnsShown={props.gridColumnsShown}
                 gridRowsShown={props.gridRowsShown}
                 gridBordersShown={props.gridBordersShown}
                 gridDashArray={props.gridDashArray}
                 gridStrokeColor={props.gridStrokeColor}
+                scales={scales}
               />
             )}
             <Group innerRef={graphContentRef} clipPath={`url(#${clipPathId})`}>
               <ChartContent
-                timeseriesData={props.timeseriesData}
-                xScaleProps={xScaleProps}
-                yScale={yScale}
+                chart={chart}
                 colors={props.colors}
+                scales={scales}
               />
             </Group>
             <ZoomBar />

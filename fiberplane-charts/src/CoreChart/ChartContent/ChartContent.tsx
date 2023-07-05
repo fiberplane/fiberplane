@@ -1,22 +1,17 @@
+import type { AbstractChart } from "../../ACG";
 import { Areas } from "./Areas";
 import { BarsStacked } from "./BarsStacked";
 import { DefaultBars } from "./DefaultBars";
 import { Lines } from "./Lines";
-import type { Timeseries } from "../../types";
+import type { Scales } from "../../hooks";
 
 type Props = {
-  timeseriesData: Array<Timeseries>;
-  xScaleProps: XScaleProps;
-  yScale: ValueScale;
+  chart: AbstractChart;
   colors: Array<string>;
+  scales: Scales;
 };
 
-export function ChartContent({
-  timeseriesData,
-  xScaleProps,
-  yScale,
-  colors,
-}: Props): JSX.Element {
+export function ChartContent({ chart, colors, scales }: Props): JSX.Element {
   if (xScaleProps.graphType === "line" && xScaleProps.stackingType === "none") {
     return (
       <Lines

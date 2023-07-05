@@ -1,4 +1,3 @@
-import { DefaultTheme } from "styled-components";
 import type { ScaleBand } from "d3-scale";
 
 import {
@@ -12,7 +11,6 @@ import type { GraphTooltip } from "../../../context";
 import { MARGINS } from "../../../constants";
 import type { Metric, Timeseries } from "../../../types";
 import { TimeseriesTableCaption, TimeseriesTableTd } from "../TimeseriesTable";
-import { ValueScale } from "../../../MetricsChart/scales";
 
 /**
  * Returns the relative value inside a band.

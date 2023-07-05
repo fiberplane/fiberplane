@@ -12,7 +12,6 @@ import { MARGINS } from "../../../constants";
 import type { Timeseries } from "../../../types";
 import { TooltipContext } from "../../../context";
 import { useHandler } from "../../../hooks";
-import { ValueScale } from "../../../MetricsChart/scales";
 
 type Params = {
   groupScale: ScaleBand<string>;

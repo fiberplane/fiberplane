@@ -1,76 +1,38 @@
-import { useContext, useMemo } from "react";
+import type { ScaleLinear } from "d3-scale";
+import { scaleLinear } from "@visx/scale";
+import { useMemo } from "react";
 
-import {
-  ChartSizeContext,
-  InteractiveControlsState,
-  InteractiveControlsStateContext,
-} from "../context";
-import {
-  getGroupedScales,
-  getTimeScale,
-  getValueScale,
-} from "../MetricsChart/scales";
-import type { XScaleProps } from "../MetricsChart";
-import { secondsToTimestamp, timestampToSeconds } from "../utils";
-import type { TimeRange } from "../types";
-import { CoreChartProps } from "../CoreChart";
+export type Scale = ScaleLinear<number, number>;
 
-export function useScales({
-  graphType,
-  timeseriesData,
-  stackingType,
-  timeRange,
-}: CoreChartProps) {
-  const { xMax, yMax } = useContext(ChartSizeContext);
-  const controlsState = useContext(InteractiveControlsStateContext);
-
-  const xScaleProps = useMemo((): XScaleProps => {
-    if (graphType === "bar" && stackingType === "none") {
-      return {
-        graphType,
-        stackingType,
-        ...getGroupedScales(timeseriesData, controlsState, xMax),
-      };
-    }
-
-    return {
-      graphType,
-      stackingType,
-      xScale: getTimeScale(
-        translateTimeRange(timeRange, controlsState, xMax),
-        xMax,
-      ),
-    } as XScaleProps;
-  }, [timeRange, xMax, controlsState, graphType, timeseriesData, stackingType]);
-
-  const yScale = useMemo(
-    () => getValueScale({ timeseriesData, stackingType, yMax }),
-    [timeseriesData, stackingType, yMax],
-  );
-
-  return { xScaleProps, yScale };
-}
+export type Scales = {
+  xMax: number;
+  xScale: Scale;
+  yMax: number;
+  yScale: Scale;
+};
 
 /**
- * Translates a time-range based on the active zoom state.
+ * Returns the scales to use for rendering VisX components.
+ *
+ * Fortunately for us, our abstract charts are normalized along both axes to
+ * values from 0.0 to 1.0, meaning we can suffice with trivial linear scales.
  */
-function translateTimeRange(
-  timeRange: TimeRange,
-  controlsState: InteractiveControlsState,
-  xMax: number,
-): TimeRange {
-  if (controlsState.type === "drag") {
-    const { start, end } = controlsState;
-    if (end !== undefined && start !== end) {
-      const from = timestampToSeconds(timeRange.from);
-      const to = timestampToSeconds(timeRange.to);
-      const delta = ((start - end) / xMax) * (to - from);
-      return {
-        from: secondsToTimestamp(from + delta),
-        to: secondsToTimestamp(to + delta),
-      };
-    }
-  }
+export function useScales(xMax: number, yMax: number): Scales {
+  return useMemo(() => {
+    const xScale = scaleLinear({
+      range: [0, xMax],
+      round: false,
+      nice: false,
+      domain: [0, 1],
+    });
 
-  return timeRange;
+    const yScale = scaleLinear({
+      range: [yMax, 0],
+      round: false,
+      nice: false,
+      domain: [0, 1],
+    });
+
+    return { xMax, xScale, yMax, yScale };
+  }, [xMax, yMax]);
 }

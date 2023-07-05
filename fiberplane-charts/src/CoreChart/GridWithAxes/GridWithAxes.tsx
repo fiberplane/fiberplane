@@ -1,29 +1,28 @@
-import { AxisLeft, TickFormatter, Orientation } from "@visx/axis";
+import { AxisLeft, Orientation } from "@visx/axis";
 import { GridRows, GridColumns } from "@visx/grid";
 import { animate, Tween, useMotionValue } from "framer-motion";
 import { memo, useEffect, useLayoutEffect, useState } from "react";
 import { useTheme } from "styled-components";
 
 import { Bottom } from "./Bottom";
+import type { Scales } from "../../hooks";
 
 type Props = {
-  xMax: number;
-  yMax: number;
   gridColumnsShown?: boolean;
   gridRowsShown?: boolean;
   gridBordersShown?: boolean;
   gridDashArray?: string;
   gridStrokeColor?: string;
+  scales: Scales;
 };
 
 export const GridWithAxes = memo(function GridWithAxes({
-  xMax,
-  yMax,
   gridColumnsShown = true,
   gridRowsShown = true,
   gridBordersShown = true,
   gridDashArray,
   gridStrokeColor,
+  scales: { xMax, xScale, yMax, yScale },
 }: Props) {
   const [targetLower = 0, targetUpper = 0] = yScale.domain();
 
@@ -89,12 +88,7 @@ export const GridWithAxes = memo(function GridWithAxes({
           strokeDasharray={gridDashArray}
         />
       )}
-      <Bottom
-        xMax={xMax}
-        xScale={xScale}
-        yMax={yMax}
-        strokeDasharray={gridDashArray}
-      />
+      <Bottom xScale={xScale} yMax={yMax} strokeDasharray={gridDashArray} />
       <AxisLeft
         scale={temporaryScale}
         orientation={Orientation.left}
