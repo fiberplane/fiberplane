@@ -1,31 +1,35 @@
 import type {
   AbstractChart,
   Axis,
-  ChartInputData,
-  Metric,
+  TimeseriesSourceData,
   Shape,
   ShapeList,
 } from "../types";
 import {
-  detectYAxisRange,
+  detectStackedYAxisRange,
   getTimeFromTimestamp,
   getXAxisFromTimeRange,
   normalizeAlongLinearAxis,
 } from "../utils";
+import type { Metric, Timeseries } from "../../providerTypes";
 
-export function generateAbstractLineChart(
-  input: ChartInputData,
-): AbstractChart {
+export function generateStackedLineChartFromTimeseries(
+  input: TimeseriesSourceData,
+): AbstractChart<Timeseries, Metric> {
   const xAxis = getXAxisFromTimeRange(input.timeRange);
-  const yAxis = detectYAxisRange(input.timeseriesData);
+  const yAxis =
+    input.stackingType === "percentage"
+      ? { minValue: 0, maxValue: 100 }
+      : detectStackedYAxisRange(input.timeseriesData);
 
-  const metrics: Array<ShapeList> = input.timeseriesData.map((timeseries) => ({
-    shapes: getShapes(timeseries.metrics, xAxis, yAxis),
-    timeseries,
-  }));
+  const shapeLists: Array<ShapeList<Timeseries, Metric>> =
+    input.timeseriesData.map((timeseries) => ({
+      shapes: getShapes(timeseries.metrics, xAxis, yAxis),
+      source: timeseries,
+    }));
 
   return {
-    metrics,
+    shapeLists,
     xAxis,
     yAxis,
   };
@@ -35,7 +39,7 @@ function getShapes(
   metrics: Array<Metric>,
   xAxis: Axis,
   yAxis: Axis,
-): Array<Shape> {
+): Array<Shape<Metric>> {
   switch (metrics.length) {
     case 0:
       return [];
@@ -44,7 +48,8 @@ function getShapes(
         {
           type: "point",
           x: normalizeAlongLinearAxis(getTime(metrics[0]), xAxis),
-          y: normalizeAlongLinearAxis(metrics[0].value, yAxis),
+          y: normalizeAlongLinearAxis(metrics[0].value, yAxis), // FIXME
+          source: metrics[0],
         },
       ];
     default:
@@ -53,7 +58,8 @@ function getShapes(
           type: "line",
           points: metrics.map((metric) => ({
             x: normalizeAlongLinearAxis(getTime(metric), xAxis),
-            y: normalizeAlongLinearAxis(metric.value, yAxis),
+            y: normalizeAlongLinearAxis(metric.value, yAxis), // FIXME
+            source: metric,
           })),
         },
       ];

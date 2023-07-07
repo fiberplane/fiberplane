@@ -1,11 +1,11 @@
 import type { AbstractChart } from "../ACG";
 import type { ShowTooltipFn, TimeRange } from "../types";
 
-export type CoreChartProps = {
+export type CoreChartProps<S, P> = {
   /**
    * The chart to render.
    */
-  chart: AbstractChart;
+  chart: AbstractChart<S, P>;
 
   /**
    * Handler that is invoked when the time range is changed.

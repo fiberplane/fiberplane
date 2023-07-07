@@ -7,13 +7,18 @@ import { useHandler } from "./useHandler";
 
 const MIN_DURATION = 60; // in seconds
 
+type Props = Pick<
+  CoreChartProps<unknown, unknown>,
+  "timeRange" | "onChangeTimeRange"
+>;
+
 /**
  * Hook for creating convenient move/zoom functions
  */
 export function useCoreControls({
   timeRange,
   onChangeTimeRange,
-}: CoreChartProps): CoreControls {
+}: Props): CoreControls {
   /**
    * Moves the time scale.
    *

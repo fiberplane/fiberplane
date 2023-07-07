@@ -10,6 +10,7 @@ import {
   InteractiveControlsStateContext,
 } from "../context";
 import { FocusedTimeseriesContextProvider } from "./FocusedTimeseriesContextProvider";
+import { generateFromTimeseries } from "../ACG";
 import { HEIGHT, MARGINS } from "../constants";
 import { Legend } from "../ChartLegend";
 import type { MetricsTypeProps } from "./types";
@@ -66,12 +67,27 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
   props: MetricsTypeProps,
 ) {
   const {
-    readOnly,
-    legendShown = true,
     chartControlsShown = true,
-    stackingControlsShown = true,
     colors,
+    graphType,
+    legendShown = true,
+    readOnly,
+    stackingControlsShown = true,
+    stackingType,
+    timeRange,
+    timeseriesData,
   } = props;
+
+  const chart = useMemo(
+    () =>
+      generateFromTimeseries({
+        graphType,
+        stackingType,
+        timeRange,
+        timeseriesData,
+      }),
+    [graphType, stackingType, timeRange, timeseriesData],
+  );
 
   const theme = useTheme();
 
@@ -101,7 +117,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
           stackingControlsShown={stackingControlsShown}
         />
       )}
-      <CoreChart {...props} colors={chartColors} />
+      <CoreChart {...props} chart={chart} colors={chartColors} />
       {legendShown && <Legend {...props} colors={chartColors} />}
     </FocusedTimeseriesContextProvider>
   );

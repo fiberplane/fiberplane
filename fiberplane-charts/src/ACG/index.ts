@@ -1,3 +1,3 @@
 export type * from "./types";
 
-export { generateAbstractChart } from "./generator";
+export { generateFromTimeseries } from "./generator";

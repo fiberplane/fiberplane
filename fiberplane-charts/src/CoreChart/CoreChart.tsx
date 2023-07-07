@@ -16,13 +16,13 @@ import { useMouseControls, useScales, useTooltip } from "../hooks";
 import { ZoomBar } from "./ZoomBar";
 import type { CoreChartProps } from "./types";
 
-export function CoreChart({
+export function CoreChart<S, P>({
   chart,
   gridShown = true,
   readOnly = false,
   ...props
-}: CoreChartProps &
-  Required<Pick<CoreChartProps, "colors">> & {
+}: CoreChartProps<S, P> &
+  Required<Pick<CoreChartProps<S, P>, "colors">> & {
     gridShown?: boolean;
   }): JSX.Element {
   const { width, height, xMax, yMax, marginTop, marginLeft } =

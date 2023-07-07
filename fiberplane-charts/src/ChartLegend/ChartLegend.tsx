@@ -1,5 +1,5 @@
 import { memo, useContext, useEffect, useMemo, useRef } from "react";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 import { VariableSizeList } from "react-window";
 
 import type { ChartLegendProps } from "./types";

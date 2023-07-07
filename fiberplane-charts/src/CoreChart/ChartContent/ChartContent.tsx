@@ -5,13 +5,17 @@ import { DefaultBars } from "./DefaultBars";
 import { Lines } from "./Lines";
 import type { Scales } from "../../hooks";
 
-type Props = {
-  chart: AbstractChart;
+type Props<S, P> = {
+  chart: AbstractChart<S, P>;
   colors: Array<string>;
   scales: Scales;
 };
 
-export function ChartContent({ chart, colors, scales }: Props): JSX.Element {
+export function ChartContent<S, P>({
+  chart,
+  colors,
+  scales,
+}: Props<S, P>): JSX.Element {
   if (xScaleProps.graphType === "line" && xScaleProps.stackingType === "none") {
     return (
       <Lines

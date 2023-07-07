@@ -1,17 +1,17 @@
 import type {
   GraphType,
-  Metric,
   StackingType,
   TimeRange,
   Timeseries,
 } from "../providerTypes";
 
-export type { GraphType, Metric, StackingType, TimeRange, Timeseries };
+export type { GraphType, StackingType, TimeRange };
 
 /**
- * All the data necessary to generate an abstract chart.
+ * All the data necessary to generate an abstract chart from an array of
+ * timeseries.
  */
-export type ChartInputData = {
+export type TimeseriesSourceData = {
   /**
    * The type of chart to display.
    */
@@ -44,10 +44,10 @@ export type ChartInputData = {
  * so (0, 0) is the origin of the chart (typically rendered bottom left), while
  * (1, 0) is the end of the X axis and (0, 1) is the end of the Y axis.
  */
-export type AbstractChart = {
+export type AbstractChart<S, P> = {
   xAxis: Axis;
   yAxis: Axis;
-  metrics: Array<ShapeList>;
+  shapeLists: Array<ShapeList<S, P>>;
 };
 
 /**
@@ -70,26 +70,28 @@ export type Axis = {
  *
  * These should be rendered in the same color.
  */
-export type ShapeList = {
-  shapes: Array<Shape>;
+export type ShapeList<S, P> = {
+  shapes: Array<Shape<P>>;
 
   /**
-   * The original timeseries this shape list belongs to.
+   * The original source this shape list belongs to.
+   *
+   * This would be the type of input data the chart was generated from, such as
+   * `Timeseries`.
    */
-  // TODO: We should disconnect this from the input types.
-  timeseries: Timeseries;
+  source: S;
 };
 
-export type Shape =
-  | ({ type: "bar" } & Bar)
-  | ({ type: "line" } & Line)
-  | ({ type: "point" } & Point);
+export type Shape<P> =
+  | ({ type: "bar" } & Bar<P>)
+  | ({ type: "line" } & Line<P>)
+  | ({ type: "point" } & Point<P>);
 
 /**
  * A line to be drawn between two or more points.
  */
-export type Line = {
-  points: Array<Point>;
+export type Line<P> = {
+  points: Array<Point<P>>;
 };
 
 /**
@@ -98,7 +100,7 @@ export type Line = {
  * Points can be rendered independently as a dot, or can be used to draw lines
  * between them.
  */
-export type Point = {
+export type Point<P> = {
   /**
    * X coordinate between 0.0 and 1.0.
    */
@@ -108,14 +110,28 @@ export type Point = {
    * Y coordinate between 0.0 and 1.0.
    */
   y: number;
+
+  /**
+   * The source this point was generated from.
+   *
+   * This would be a `Metric` if the chart was generated from `Timeseries`.
+   */
+  source: P;
 };
 
 /**
  * A bar to be rendered parallel to the Y axis.
  */
-export type Bar = {
+export type Bar<P> = {
   x: number;
   width: number;
   yMin: number;
   yMax: number;
+
+  /**
+   * The source this bar was generated from.
+   *
+   * This would be a `Metric` if the chart was generated from `Timeseries`.
+   */
+  source: P;
 };

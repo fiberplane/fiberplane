@@ -1,7 +1,5 @@
 import type { Timeseries } from "../providerTypes";
 
-export type { Timeseries };
-
 export type ChartLegendProps = {
   /**
    * Handler that is invoked when the user toggles the visibility of a

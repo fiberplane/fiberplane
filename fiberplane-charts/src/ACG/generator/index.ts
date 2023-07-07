@@ -1,17 +1,20 @@
-import type { AbstractChart, ChartInputData } from "../types";
-import { generateAbstractBarChart } from "./generateAbstractBarChart";
-import { generateAbstractLineChart } from "./generateAbstractLineChart";
-import { generateAbstractStackedBarChart } from "./generateAbstractStackedBarChart";
-import { generateAbstractStackedLineChart } from "./generateAbstractStackedLineChart";
+import type { AbstractChart, TimeseriesSourceData } from "../types";
+import { generateBarChartFromTimeseries } from "./generateBarChartFromTimeseries";
+import { generateLineChartFromTimeseries } from "./generateLineChartFromTimeseries";
+import { generateStackedBarChartFromTimeseries } from "./generateStackedBarChartFromTimeseries";
+import { generateStackedLineChartFromTimeseries } from "./generateStackedLineChartFromTimeseries";
+import type { Timeseries, Metric } from "../../providerTypes";
 
-export function generateAbstractChart(input: ChartInputData): AbstractChart {
+export function generateFromTimeseries(
+  input: TimeseriesSourceData,
+): AbstractChart<Timeseries, Metric> {
   if (input.graphType === "line") {
     return input.stackingType === "none"
-      ? generateAbstractLineChart(input)
-      : generateAbstractStackedLineChart(input);
+      ? generateLineChartFromTimeseries(input)
+      : generateStackedLineChartFromTimeseries(input);
   } else {
     return input.stackingType === "none"
-      ? generateAbstractBarChart(input)
-      : generateAbstractStackedBarChart(input);
+      ? generateBarChartFromTimeseries(input)
+      : generateStackedBarChartFromTimeseries(input);
   }
 }

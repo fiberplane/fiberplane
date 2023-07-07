@@ -1,7 +1,7 @@
 import styled, { css } from "styled-components";
 import { useEffect } from "react";
 
-import type { ChartLegendProps, Timeseries } from "./types";
+import type { ChartLegendProps } from "./types";
 import { Container, Icon } from "../BaseComponents";
 import { FormattedTimeseries, isMac, noop, preventDefault } from "../utils";
 import { useMeasure } from "../hooks";

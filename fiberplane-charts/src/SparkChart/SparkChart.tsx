@@ -2,11 +2,15 @@ import styled, { useTheme } from "styled-components";
 import { useMemo } from "react";
 
 import { ChartSizeContainerProvider } from "../ChartSizeContainerProvider";
-import { ChartInputData, generateAbstractChart } from "../ACG";
 import { CoreChart, CoreChartProps } from "../CoreChart";
+import { Metric, Timeseries } from "../providerTypes";
+import { TimeseriesSourceData, generateFromTimeseries } from "../ACG";
 
-type Props = Pick<CoreChartProps, "colors" | "onChangeTimeRange"> &
-  ChartInputData;
+type Props = Pick<
+  CoreChartProps<Timeseries, Metric>,
+  "colors" | "onChangeTimeRange"
+> &
+  TimeseriesSourceData;
 
 export function SparkChart({
   colors,
@@ -20,7 +24,7 @@ export function SparkChart({
 
   const chart = useMemo(
     () =>
-      generateAbstractChart({
+      generateFromTimeseries({
         graphType,
         stackingType,
         timeRange,
