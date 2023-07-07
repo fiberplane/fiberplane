@@ -1,7 +1,7 @@
 import { Bar } from "@visx/shape";
 import { useContext } from "react";
 
-import { ChartSizeContext, InteractiveControlsStateContext } from "../context";
+import { ChartSizeContext, InteractiveControlsStateContext } from "./context";
 
 export function ZoomBar(): JSX.Element | null {
   const { yMax } = useContext(ChartSizeContext);

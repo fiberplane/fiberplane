@@ -1,4 +1,4 @@
-import type { InteractiveControlsState } from "../context";
+import type { InteractiveControlsState } from "../CoreChart";
 import { secondsToTimestamp, timestampToSeconds } from "../utils";
 import type { TimeRange } from "../types";
 

@@ -1,6 +1,12 @@
+import type { AbstractChart } from "../ACG";
 import type { Timeseries } from "../providerTypes";
 
-export type ChartLegendProps = {
+export type ChartLegendProps<S, P> = {
+  /**
+   * Array of timeseries data to display in the legend.
+   */
+  chart: AbstractChart<S, P>;
+
   /**
    * Handler that is invoked when the user toggles the visibility of a
    * timeseries.
@@ -16,11 +22,6 @@ export type ChartLegendProps = {
    * Set to `true` to disable interactive controls.
    */
   readOnly?: boolean;
-
-  /**
-   * Array of timeseries data to display in the legend.
-   */
-  timeseriesData: Array<Timeseries>;
 
   /**
    * Show the footer with the expand button & results text (default: true).

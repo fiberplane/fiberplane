@@ -43,6 +43,11 @@ export type TimeseriesSourceData = {
  * All coordinates in an abstract chart are normalized to run from 0.0 to 1.0,
  * so (0, 0) is the origin of the chart (typically rendered bottom left), while
  * (1, 0) is the end of the X axis and (0, 1) is the end of the Y axis.
+ *
+ * The generic argument `S` refers to the type of the series from which shapes
+ * will be generated, while the type `P` refers to the type for individual data
+ * points. When generating charts from timeseries data, these will be
+ * `Timeseries` and `Metric`, respectively.
  */
 export type AbstractChart<S, P> = {
   xAxis: Axis;
@@ -83,9 +88,44 @@ export type ShapeList<S, P> = {
 };
 
 export type Shape<P> =
-  | ({ type: "bar" } & Bar<P>)
+  | ({ type: "area" } & Area<P>)
   | ({ type: "line" } & Line<P>)
-  | ({ type: "point" } & Point<P>);
+  | ({ type: "point" } & Point<P>)
+  | ({ type: "rectangle" } & Rectangle<P>);
+
+/**
+ * An area to be drawn between two lines that share their X coordinates.
+ */
+export type Area<P> = {
+  points: Array<AreaPoint<P>>;
+};
+
+/**
+ * A single data point in an area shape.
+ */
+export type AreaPoint<P> = {
+  /**
+   * X coordinate between 0.0 and 1.0.
+   */
+  x: number;
+
+  /**
+   * Y coordinate between 0.0 and 1.0 for the bottom of the area.
+   */
+  yMin: number;
+
+  /**
+   * Y coordinate between 0.0 and 1.0 for the top of the area.
+   */
+  yMax: number;
+
+  /**
+   * The source this point was generated from.
+   *
+   * This would be a `Metric` if the chart was generated from `Timeseries`.
+   */
+  source: P;
+};
 
 /**
  * A line to be drawn between two or more points.
@@ -122,9 +162,9 @@ export type Point<P> = {
 /**
  * A bar to be rendered parallel to the Y axis.
  */
-export type Bar<P> = {
-  x: number;
-  width: number;
+export type Rectangle<P> = {
+  xMin: number;
+  xMax: number;
   yMin: number;
   yMax: number;
 

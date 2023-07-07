@@ -2,10 +2,46 @@ import { useMemo, useReducer } from "react";
 
 import {
   defaultControlsState,
-  InteractiveControls,
+  InteractiveControlsApi,
   InteractiveControlsState,
 } from "../context";
-import { useHandler } from "./useHandler";
+import { useHandler } from "../../hooks/useHandler";
+
+/**
+ * Returns zoom/drag handlers and state.
+ */
+export function useInteractiveControls(): {
+  interactiveControls: InteractiveControlsApi;
+  interactiveControlsState: InteractiveControlsState;
+} {
+  const [interactiveControlsState, dispatch] = useReducer(
+    controlsStateReducer,
+    defaultControlsState,
+  );
+
+  const reset = useHandler(() => {
+    dispatch({ type: "RESET" });
+  });
+
+  const startZoom = useHandler((start: number) => {
+    dispatch({ type: "ZOOM_START", payload: { start } });
+  });
+
+  const startDrag = useHandler((start: number) => {
+    dispatch({ type: "DRAG_START", payload: { start } });
+  });
+
+  const updateEndValue = useHandler((end: number) => {
+    dispatch({ type: "UPDATE_END_VALUE", payload: { end } });
+  });
+
+  const interactiveControls = useMemo(
+    () => ({ reset, startDrag, startZoom, updateEndValue }),
+    [reset, startDrag, startZoom, updateEndValue],
+  );
+
+  return { interactiveControls, interactiveControlsState };
+}
 
 type ActionZoomStart = {
   type: "ZOOM_START";
@@ -72,40 +108,4 @@ function controlsStateReducer(
     default:
       return state;
   }
-}
-
-/**
- * Returns zoom/drag handlers and state.
- */
-export function useInteractiveControls(): {
-  interactiveControls: InteractiveControls;
-  interactiveControlsState: InteractiveControlsState;
-} {
-  const [interactiveControlsState, dispatch] = useReducer(
-    controlsStateReducer,
-    defaultControlsState,
-  );
-
-  const reset = useHandler(() => {
-    dispatch({ type: "RESET" });
-  });
-
-  const startZoom = useHandler((start: number) => {
-    dispatch({ type: "ZOOM_START", payload: { start } });
-  });
-
-  const startDrag = useHandler((start: number) => {
-    dispatch({ type: "DRAG_START", payload: { start } });
-  });
-
-  const updateEndValue = useHandler((end: number) => {
-    dispatch({ type: "UPDATE_END_VALUE", payload: { end } });
-  });
-
-  const interactiveControls = useMemo(
-    () => ({ reset, startDrag, startZoom, updateEndValue }),
-    [reset, startDrag, startZoom, updateEndValue],
-  );
-
-  return { interactiveControls, interactiveControlsState };
 }

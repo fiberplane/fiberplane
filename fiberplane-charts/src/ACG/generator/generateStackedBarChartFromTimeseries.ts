@@ -38,10 +38,11 @@ export function generateStackedBarChartFromTimeseries(
 }
 
 function getBarShape(metric: Metric, xAxis: Axis, yAxis: Axis): Shape<Metric> {
+  const x = normalizeAlongLinearAxis(getTime(metric), xAxis);
   return {
-    type: "bar",
-    x: normalizeAlongLinearAxis(getTime(metric), xAxis),
-    width: 0.1, // FIXME
+    type: "rectangle",
+    xMin: x - 0.05, // FIXME
+    xMax: x + 0.05, // FIXME
     yMin: 0, // FIXME
     yMax: normalizeAlongLinearAxis(metric.value, yAxis),
     source: metric,

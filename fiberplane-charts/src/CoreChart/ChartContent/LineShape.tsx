@@ -1,29 +1,27 @@
 import { Area } from "@visx/shape";
 import { LinearGradient } from "@visx/gradient";
-import { memo, useId } from "react";
 import { Threshold } from "@visx/threshold";
+import { useId } from "react";
 
-import type { Point } from "../../../ACG";
+import type { CommonShapeProps } from "./types";
+import type { Line, Point } from "../../ACG";
 
-type Props = {
-  points: Array<Point>;
-  yMax: number;
-  highlight?: boolean;
-  color: string;
+type Props<P> = CommonShapeProps & {
+  line: Line<P>;
 };
 
-export const Line = memo(function Line({
-  points,
-  yMax,
-  highlight = false,
+export function LineShape<P>({
   color,
-}: Props): JSX.Element {
+  focused,
+  line,
+  scales,
+}: Props<P>): JSX.Element {
   const id = useId();
   const gradientId = `line-${id}`;
   const fillColor = `url(#${gradientId})`;
 
-  const getX = (point: { x: number }) => point.x * width;
-  const getY = (point: { y: number }) => point.y * height;
+  const getX = (point: { x: number }) => scales.xScale(point.x);
+  const getY = (point: { y: number }) => scales.yScale(point.y);
 
   return (
     <>
@@ -35,26 +33,26 @@ export const Line = memo(function Line({
         toOpacity={0.03}
         toOffset="23%"
       />
-      <Threshold<Point>
+      <Threshold<Point<P>>
         id={id}
-        data={points}
+        data={line.points}
         x={getX}
         y0={getY}
         y1={getY({ y: 0 })}
         clipAboveTo={0}
-        clipBelowTo={yMax}
+        clipBelowTo={scales.yMax}
         aboveAreaProps={{ fill: fillColor }}
         // Keep this one around to spot any incorrect threshold computations.
         belowAreaProps={{ fill: "violet" }}
       />
       <Area
-        data={points}
+        data={line.points}
         x={getX}
         y={getY}
         stroke={color}
-        strokeWidth={highlight ? 1.5 : 1}
+        strokeWidth={focused ? 1.5 : 1}
         fill={fillColor}
       />
     </>
   );
-});
+}

@@ -1,7 +1,7 @@
 import styled, { useTheme } from "styled-components";
 import { useMemo } from "react";
 
-import { ChartSizeContainerProvider } from "../ChartSizeContainerProvider";
+import { ChartSizeContainerProvider } from "../CoreChart/ChartSizeContainerProvider";
 import { CoreChart, CoreChartProps } from "../CoreChart";
 import { Metric, Timeseries } from "../providerTypes";
 import { TimeseriesSourceData, generateFromTimeseries } from "../ACG";
@@ -33,8 +33,8 @@ export function SparkChart({
     [graphType, stackingType, timeRange, timeseriesData],
   );
 
-  const chartColors = useMemo((): Array<string> => {
-    return (
+  const chartColors = useMemo(
+    (): Array<string> =>
       colors || [
         theme["colorSupport1400"],
         theme["colorSupport2400"],
@@ -47,9 +47,9 @@ export function SparkChart({
         theme["colorSupport9400"],
         theme["colorSupport10400"],
         theme["colorSupport11400"],
-      ]
-    );
-  }, [theme, colors]);
+      ],
+    [theme, colors],
+  );
 
   return (
     <StyledChartSizeContainerProvider>

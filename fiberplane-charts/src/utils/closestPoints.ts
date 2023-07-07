@@ -1,6 +1,6 @@
 import { localPoint } from "@visx/event";
 
-import { MARGINS } from "../constants";
+import { MARGINS } from "../CoreChart/constants";
 import type { TimeScale, ValueScale } from "../MetricsChart/scales";
 
 export function toClosestPointArgs(args: {

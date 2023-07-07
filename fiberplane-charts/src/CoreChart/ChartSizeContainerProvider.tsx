@@ -1,7 +1,7 @@
 import { debounce } from "throttle-debounce";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { ChartSizeContext, ChartSizeContextValue } from "../context";
+import { ChartSizeContext, ChartSizeContextValue } from "./context";
 import { mergeRefs } from "../utils";
 import { useIntersectionObserver, useMeasure } from "../hooks";
 

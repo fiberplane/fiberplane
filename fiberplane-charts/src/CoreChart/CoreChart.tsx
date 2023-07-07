@@ -9,9 +9,9 @@ import {
   InteractiveControlsState,
   InteractiveControlsStateContext,
   TooltipContext,
-} from "../context";
-import { Container } from "../BaseComponents";
+} from "./context";
 import type { CoreChartProps } from "./types";
+import { Container } from "../BaseComponents";
 import { GridWithAxes } from "./GridWithAxes";
 import { useMouseControls, useScales, useTooltip } from "./hooks";
 import { ZoomBar } from "./ZoomBar";

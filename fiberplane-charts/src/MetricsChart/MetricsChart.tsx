@@ -2,21 +2,21 @@ import { memo, useMemo } from "react";
 import styled, { useTheme } from "styled-components";
 
 import { ChartControls } from "./ChartControls";
-import { ChartSizeContainerProvider } from "../ChartSizeContainerProvider";
-import { CoreChart } from "../CoreChart";
+import { ChartSizeContainerProvider } from "../CoreChart/ChartSizeContainerProvider";
 import {
+  CoreChart,
   CoreControlsContext,
-  InteractiveControlsContext,
+  InteractiveControlsApiContext,
   InteractiveControlsStateContext,
-} from "../context";
-import { FocusedTimeseriesContextProvider } from "./FocusedTimeseriesContextProvider";
+} from "../CoreChart";
+import { FocusedShapeListContextProvider } from "./FocusedShapeListProvider";
 import { generateFromTimeseries } from "../ACG";
-import { HEIGHT, MARGINS } from "../constants";
-import { Legend } from "../ChartLegend";
-import type { MetricsTypeProps } from "./types";
+import { HEIGHT, MARGINS } from "../CoreChart/constants";
+import type { MetricsChartProps } from "./types";
+import { TimeseriesLegend } from "../TimeseriesLegend";
 import { useCoreControls, useInteractiveControls } from "../hooks";
 
-export function MetricsChart(props: MetricsTypeProps) {
+export function MetricsChart(props: MetricsChartProps) {
   return props.readOnly ? (
     <ReadOnlyMetricsChart {...props} />
   ) : (
@@ -24,14 +24,14 @@ export function MetricsChart(props: MetricsTypeProps) {
   );
 }
 
-function InteractiveMetricsChart(props: MetricsTypeProps) {
+function InteractiveMetricsChart(props: MetricsChartProps) {
   const coreControls = useCoreControls(props);
   const { interactiveControls, interactiveControlsState } =
     useInteractiveControls();
 
   return (
     <CoreControlsContext.Provider value={coreControls}>
-      <InteractiveControlsContext.Provider value={interactiveControls}>
+      <InteractiveControlsApiContext.Provider value={interactiveControls}>
         <InteractiveControlsStateContext.Provider
           value={interactiveControlsState}
         >
@@ -45,12 +45,12 @@ function InteractiveMetricsChart(props: MetricsTypeProps) {
             <InnerMetricsChart {...props} />
           </StyledChartSizeContainerProvider>
         </InteractiveControlsStateContext.Provider>
-      </InteractiveControlsContext.Provider>
+      </InteractiveControlsApiContext.Provider>
     </CoreControlsContext.Provider>
   );
 }
 
-function ReadOnlyMetricsChart(props: MetricsTypeProps) {
+function ReadOnlyMetricsChart(props: MetricsChartProps) {
   return (
     <ChartSizeContainerProvider
       overrideHeight={HEIGHT}
@@ -64,7 +64,7 @@ function ReadOnlyMetricsChart(props: MetricsTypeProps) {
   );
 }
 const InnerMetricsChart = memo(function InnerMetricsChart(
-  props: MetricsTypeProps,
+  props: MetricsChartProps,
 ) {
   const {
     chartControlsShown = true,
@@ -110,7 +110,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
   }, [theme, colors]);
 
   return (
-    <FocusedTimeseriesContextProvider>
+    <FocusedShapeListContextProvider>
       {!readOnly && chartControlsShown && (
         <ChartControls
           {...props}
@@ -118,8 +118,8 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
         />
       )}
       <CoreChart {...props} chart={chart} colors={chartColors} />
-      {legendShown && <Legend {...props} colors={chartColors} />}
-    </FocusedTimeseriesContextProvider>
+      {legendShown && <TimeseriesLegend {...props} colors={chartColors} />}
+    </FocusedShapeListContextProvider>
   );
 });
 

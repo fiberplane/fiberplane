@@ -2,33 +2,36 @@ import { memo, useContext, useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { VariableSizeList } from "react-window";
 
+import { TimeseriesLegendItem } from "./TimeseriesLegendItem";
 import type { ChartLegendProps } from "./types";
 import { Container } from "../BaseComponents";
-import { findUniqueKeys } from "../utils";
-import { getChartColor } from "../colors";
-import { ChartLegendItem } from "./ChartLegendItem";
-import type { Timeseries } from "../providerTypes";
-import { FocusedTimeseriesApiContext } from "../context";
+import { findUniqueKeys, getShapeListColor } from "../utils";
+import { FocusedShapeListApiContext } from "../CoreChart";
+import type { Metric, Timeseries } from "../providerTypes";
 import { useExpandable, useForceUpdate, useHandler } from "../hooks";
 
 const DEFAULT_HEIGHT = 293;
 const DEFAULT_SIZE = 50;
 const EXPANDED_HEIGHT = 592;
 
-export const Legend = memo(function Legend({
+export const TimeseriesLegend = memo(function TimeseriesLegend({
+  chart,
+  colors,
+  footerShown = true,
   onToggleTimeseriesVisibility,
   readOnly = false,
-  timeseriesData,
-  footerShown = true,
-  colors,
-}: ChartLegendProps) {
+}: ChartLegendProps<Timeseries, Metric>) {
   const { expandButton, gradient, isExpanded, onScroll, ref } =
     useExpandable<HTMLDivElement>({ defaultHeight: DEFAULT_HEIGHT });
 
-  const { setFocusedTimeseries } = useContext(FocusedTimeseriesApiContext);
+  const { setFocusedShapeList } = useContext(FocusedShapeListApiContext);
 
   const maxHeight = isExpanded ? EXPANDED_HEIGHT : DEFAULT_HEIGHT;
 
+  const timeseriesData = useMemo(
+    () => chart.shapeLists.map((shapeList) => shapeList.source),
+    [chart],
+  );
   const numSeries = timeseriesData.length;
   const resultsText = `${numSeries} result${numSeries === 1 ? "" : "s"}`;
 
@@ -60,7 +63,16 @@ export const Legend = memo(function Legend({
     }
   });
 
-  const onMouseOut = () => setFocusedTimeseries(null);
+  const onMouseOut = () => setFocusedShapeList(null);
+
+  const setFocusedTimeseries = (timeseries: Timeseries) => {
+    const shapeList = chart.shapeLists.find(
+      (shapeList) => shapeList.source === timeseries,
+    );
+    if (shapeList) {
+      setFocusedShapeList(shapeList);
+    }
+  };
 
   const render = useHandler(
     ({
@@ -76,8 +88,8 @@ export const Legend = memo(function Legend({
       return (
         <div style={style}>
           {timeseries && (
-            <ChartLegendItem
-              color={getChartColor(index, colors)}
+            <TimeseriesLegendItem
+              color={getShapeListColor(colors, index)}
               onHover={() => setFocusedTimeseries(timeseries)}
               onToggleTimeseriesVisibility={onToggleTimeseriesVisibility}
               readOnly={readOnly}

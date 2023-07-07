@@ -5,8 +5,8 @@ import type {
   ShowTooltipFn,
   VirtualElement,
 } from "../../types";
-import type { GraphTooltip } from "../../context";
-import { useHandler } from "../../hooks/useHandler";
+import type { GraphTooltip } from "../context";
+import { useHandler } from "../../hooks";
 
 export function useTooltip(showTooltip: ShowTooltipFn | undefined) {
   const [graphTooltip, setGraphTooltip] = useState<GraphTooltip | null>(null);

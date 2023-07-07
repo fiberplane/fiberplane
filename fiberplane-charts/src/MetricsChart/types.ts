@@ -1,10 +1,10 @@
 import type { ChartControlsProps } from "./ChartControls";
-import type { ChartLegendProps } from "../ChartLegend";
+import type { ChartLegendProps } from "../TimeseriesLegend";
 import type { CoreChartProps } from "../CoreChart";
 import type { Metric, Timeseries } from "../providerTypes";
 import type { TimeseriesSourceData } from "../ACG";
 
-export type MetricsTypeProps = Omit<
+export type MetricsChartProps = Omit<
   CoreChartProps<Timeseries, Metric>,
   "chart"
 > &

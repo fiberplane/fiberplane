@@ -4,16 +4,16 @@ import { MouseEvent, MouseEventHandler, Ref, useContext, useRef } from "react";
 import {
   ChartSizeContext,
   CoreControlsContext,
-  InteractiveControlsContext,
+  InteractiveControlsApiContext,
   InteractiveControlsStateContext,
-} from "../../context";
+} from "../context";
 import {
   isMac,
   preventDefault,
   secondsToTimestamp,
   timestampToSeconds,
 } from "../../utils";
-import { MARGINS } from "../../constants";
+import { MARGINS } from "../constants";
 import type { TimeRange } from "../../types";
 
 function zoomKeyPressed(event: MouseEvent | WheelEvent) {
@@ -38,7 +38,7 @@ export function useMouseControls({
 } {
   const { move, zoom } = useContext(CoreControlsContext);
   const { startDrag, startZoom, reset, updateEndValue } = useContext(
-    InteractiveControlsContext,
+    InteractiveControlsApiContext,
   );
   const controlsState = useContext(InteractiveControlsStateContext);
   const { xMax, yMax } = useContext(ChartSizeContext);
