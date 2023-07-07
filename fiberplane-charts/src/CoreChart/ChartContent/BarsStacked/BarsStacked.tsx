@@ -14,8 +14,7 @@ import {
   toDataItems,
 } from "../../../utils";
 import { getChartColor } from "../../../colors";
-import type { TimeScale, ValueScale } from "../../../MetricsChart/scales";
-import type { Timeseries } from "../../../types";
+import type { Scales } from "../../types";
 import { useTooltips } from "./hooks";
 
 type Props = {
@@ -24,6 +23,7 @@ type Props = {
   yScale: ValueScale;
   asPercentage?: boolean;
   colors: Array<string>;
+  scales: Scales;
 };
 
 export const BarsStacked = memo(function BarsStacked(props: Props) {

@@ -1,4 +1,5 @@
 import type { AbstractChart } from "../ACG";
+import type { ScaleLinear } from "d3-scale";
 import type { ShowTooltipFn, TimeRange } from "../types";
 
 export type CoreChartProps<S, P> = {
@@ -67,4 +68,13 @@ export type CoreChartProps<S, P> = {
    * Override the colors that the charts will use. If not specified several colors of the theme are used
    */
   colors?: Array<string>;
+};
+
+export type Scale = ScaleLinear<number, number>;
+
+export type Scales = {
+  xMax: number;
+  xScale: Scale;
+  yMax: number;
+  yScale: Scale;
 };

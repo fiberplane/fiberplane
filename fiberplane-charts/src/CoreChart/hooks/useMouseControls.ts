@@ -6,15 +6,15 @@ import {
   CoreControlsContext,
   InteractiveControlsContext,
   InteractiveControlsStateContext,
-} from "../context";
+} from "../../context";
 import {
   isMac,
   preventDefault,
   secondsToTimestamp,
   timestampToSeconds,
-} from "../utils";
-import { MARGINS } from "../constants";
-import type { TimeRange } from "../types";
+} from "../../utils";
+import { MARGINS } from "../../constants";
+import type { TimeRange } from "../../types";
 
 function zoomKeyPressed(event: MouseEvent | WheelEvent) {
   return isMac ? event.metaKey : event.ctrlKey;

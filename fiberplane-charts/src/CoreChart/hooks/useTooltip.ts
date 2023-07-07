@@ -1,8 +1,12 @@
 import { useRef, useState } from "react";
 
-import type { CloseTooltipFn, ShowTooltipFn, VirtualElement } from "../types";
-import type { GraphTooltip } from "../context";
-import { useHandler } from "./useHandler";
+import type {
+  CloseTooltipFn,
+  ShowTooltipFn,
+  VirtualElement,
+} from "../../types";
+import type { GraphTooltip } from "../../context";
+import { useHandler } from "../../hooks/useHandler";
 
 export function useTooltip(showTooltip: ShowTooltipFn | undefined) {
   const [graphTooltip, setGraphTooltip] = useState<GraphTooltip | null>(null);

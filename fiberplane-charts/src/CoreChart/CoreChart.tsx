@@ -11,10 +11,10 @@ import {
   TooltipContext,
 } from "../context";
 import { Container } from "../BaseComponents";
-import { GridWithAxes } from "./GridWithAxes";
-import { useMouseControls, useScales, useTooltip } from "../hooks";
-import { ZoomBar } from "./ZoomBar";
 import type { CoreChartProps } from "./types";
+import { GridWithAxes } from "./GridWithAxes";
+import { useMouseControls, useScales, useTooltip } from "./hooks";
+import { ZoomBar } from "./ZoomBar";
 
 export function CoreChart<S, P>({
   chart,

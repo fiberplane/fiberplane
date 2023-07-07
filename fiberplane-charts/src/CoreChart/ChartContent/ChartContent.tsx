@@ -3,7 +3,7 @@ import { Areas } from "./Areas";
 import { BarsStacked } from "./BarsStacked";
 import { DefaultBars } from "./DefaultBars";
 import { Lines } from "./Lines";
-import type { Scales } from "../../hooks";
+import type { Scales } from "../types";
 
 type Props<S, P> = {
   chart: AbstractChart<S, P>;

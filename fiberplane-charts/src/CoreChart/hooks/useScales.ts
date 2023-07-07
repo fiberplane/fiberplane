@@ -1,15 +1,7 @@
-import type { ScaleLinear } from "d3-scale";
 import { scaleLinear } from "@visx/scale";
 import { useMemo } from "react";
 
-export type Scale = ScaleLinear<number, number>;
-
-export type Scales = {
-  xMax: number;
-  xScale: Scale;
-  yMax: number;
-  yScale: Scale;
-};
+import type { Scales } from "../types";
 
 /**
  * Returns the scales to use for rendering VisX components.
