@@ -1,4 +1,5 @@
-import { Axis, TimeRange, Timeseries } from "./types";
+import type { Axis } from "../types";
+import type { TimeRange, Timeseries } from "../../providerTypes";
 
 /**
  * Detects the range to display along the Y axis by looking at all the visible

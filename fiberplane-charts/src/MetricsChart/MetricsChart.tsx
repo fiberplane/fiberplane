@@ -1,17 +1,17 @@
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 import styled, { useTheme } from "styled-components";
 
 import { ChartControls } from "./ChartControls";
-import { ChartSizeContainerProvider } from "../CoreChart/ChartSizeContainerProvider";
+import { ChartSizeContainerProvider } from "../CoreChart";
 import {
   CoreChart,
   CoreControlsContext,
   InteractiveControlsApiContext,
   InteractiveControlsStateContext,
 } from "../CoreChart";
-import { FocusedShapeListContextProvider } from "./FocusedShapeListProvider";
-import { generateFromTimeseries } from "../ACG";
+import { ShapeList, generateFromTimeseries } from "../ACG";
 import { HEIGHT, MARGINS } from "../CoreChart/constants";
+import type { Metric, Timeseries } from "../providerTypes";
 import type { MetricsChartProps } from "./types";
 import { TimeseriesLegend } from "../TimeseriesLegend";
 import { useCoreControls, useInteractiveControls } from "../hooks";
@@ -89,6 +89,11 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
     [graphType, stackingType, timeRange, timeseriesData],
   );
 
+  const [focusedShapeList, setFocusedShapeList] = useState<ShapeList<
+    Timeseries,
+    Metric
+  > | null>(null);
+
   const theme = useTheme();
 
   const chartColors = useMemo(() => {
@@ -110,16 +115,28 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
   }, [theme, colors]);
 
   return (
-    <FocusedShapeListContextProvider>
-      {!readOnly && chartControlsShown && (
+    <>
+      {chartControlsShown && !readOnly && (
         <ChartControls
           {...props}
           stackingControlsShown={stackingControlsShown}
         />
       )}
-      <CoreChart {...props} chart={chart} colors={chartColors} />
-      {legendShown && <TimeseriesLegend {...props} colors={chartColors} />}
-    </FocusedShapeListContextProvider>
+      <CoreChart
+        {...props}
+        chart={chart}
+        colors={chartColors}
+        focusedShapeList={focusedShapeList}
+        onFocusedShapeListChange={setFocusedShapeList}
+      />
+      {legendShown && (
+        <TimeseriesLegend
+          {...props}
+          colors={chartColors}
+          onFocusedShapeListChange={setFocusedShapeList}
+        />
+      )}
+    </>
   );
 });
 

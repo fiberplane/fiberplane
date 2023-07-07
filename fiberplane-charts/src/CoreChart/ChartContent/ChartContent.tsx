@@ -1,10 +1,9 @@
 import { useContext } from "react";
 
-import type { AbstractChart, Shape } from "../../ACG";
+import type { AbstractChart, Shape, ShapeList } from "../../ACG";
 import { AreaShape } from "./AreaShape";
 import { RectangleShape } from "./RectangleShape";
 import type { CommonShapeProps } from "./types";
-import { FocusedShapeListStateContext } from "../context";
 import { getShapeListColor } from "../../utils";
 import { LineShape } from "./LineShape";
 import { PointShape } from "./PointShape";
@@ -13,16 +12,16 @@ import type { Scales } from "../types";
 type Props<S, P> = {
   chart: AbstractChart<S, P>;
   colors: Array<string>;
+  focusedShapeList: ShapeList<S, P> | null;
   scales: Scales;
 };
 
 export function ChartContent<S, P>({
   chart,
   colors,
+  focusedShapeList,
   scales,
 }: Props<S, P>): JSX.Element {
-  const { focusedShapeList } = useContext(FocusedShapeListStateContext);
-
   return (
     <>
       {chart.shapeLists.flatMap((shapeList, listIndex) =>

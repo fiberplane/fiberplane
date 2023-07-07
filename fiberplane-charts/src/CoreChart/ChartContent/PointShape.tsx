@@ -1,4 +1,5 @@
 import { Circle } from "@visx/shape";
+import { memo } from "react";
 
 import type { CommonShapeProps } from "./types";
 import type { Point } from "../../ACG";
@@ -7,7 +8,7 @@ type Props<P> = CommonShapeProps & {
   point: Point<P>;
 };
 
-export function PointShape<P>({
+export const PointShape = memo(function PointShape<P>({
   color,
   focused,
   point,
@@ -22,4 +23,4 @@ export function PointShape<P>({
       fill={color}
     />
   );
-}
+});

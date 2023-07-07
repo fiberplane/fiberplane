@@ -56,6 +56,7 @@ export function SparkChart({
       <CoreChart
         chart={chart}
         colors={chartColors}
+        focusedShapeList={null}
         gridShown={false}
         onChangeTimeRange={onChangeTimeRange}
         timeRange={timeRange}

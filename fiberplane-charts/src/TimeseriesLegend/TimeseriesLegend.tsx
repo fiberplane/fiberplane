@@ -1,13 +1,12 @@
-import { memo, useContext, useEffect, useMemo, useRef } from "react";
+import { memo, useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { VariableSizeList } from "react-window";
 
 import { TimeseriesLegendItem } from "./TimeseriesLegendItem";
-import type { ChartLegendProps } from "./types";
+import type { TimeseriesLegendProps } from "./types";
 import { Container } from "../BaseComponents";
-import { findUniqueKeys, getShapeListColor } from "../utils";
-import { FocusedShapeListApiContext } from "../CoreChart";
-import type { Metric, Timeseries } from "../providerTypes";
+import { findUniqueKeys, getShapeListColor, noop } from "../utils";
+import type { Timeseries } from "../providerTypes";
 import { useExpandable, useForceUpdate, useHandler } from "../hooks";
 
 const DEFAULT_HEIGHT = 293;
@@ -18,13 +17,12 @@ export const TimeseriesLegend = memo(function TimeseriesLegend({
   chart,
   colors,
   footerShown = true,
+  onFocusedShapeListChange,
   onToggleTimeseriesVisibility,
   readOnly = false,
-}: ChartLegendProps<Timeseries, Metric>) {
+}: TimeseriesLegendProps) {
   const { expandButton, gradient, isExpanded, onScroll, ref } =
     useExpandable<HTMLDivElement>({ defaultHeight: DEFAULT_HEIGHT });
-
-  const { setFocusedShapeList } = useContext(FocusedShapeListApiContext);
 
   const maxHeight = isExpanded ? EXPANDED_HEIGHT : DEFAULT_HEIGHT;
 
@@ -63,16 +61,18 @@ export const TimeseriesLegend = memo(function TimeseriesLegend({
     }
   });
 
-  const onMouseOut = () => setFocusedShapeList(null);
+  const onMouseOut = () => onFocusedShapeListChange?.(null);
 
-  const setFocusedTimeseries = (timeseries: Timeseries) => {
-    const shapeList = chart.shapeLists.find(
-      (shapeList) => shapeList.source === timeseries,
-    );
-    if (shapeList) {
-      setFocusedShapeList(shapeList);
-    }
-  };
+  const setFocusedTimeseries = onFocusedShapeListChange
+    ? (timeseries: Timeseries) => {
+        const shapeList = chart.shapeLists.find(
+          (shapeList) => shapeList.source === timeseries,
+        );
+        if (shapeList) {
+          onFocusedShapeListChange(shapeList);
+        }
+      }
+    : noop;
 
   const render = useHandler(
     ({

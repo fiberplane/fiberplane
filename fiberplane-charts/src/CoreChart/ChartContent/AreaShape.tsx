@@ -1,7 +1,7 @@
 import { Area as VisxArea } from "@visx/shape";
 import { LinearGradient } from "@visx/gradient";
+import { memo, useId } from "react";
 import { Threshold } from "@visx/threshold";
-import { useId } from "react";
 
 import type { Area, AreaPoint } from "../../ACG";
 import type { CommonShapeProps } from "./types";
@@ -10,7 +10,7 @@ type Props<P> = CommonShapeProps & {
   area: Area<P>;
 };
 
-export function AreaShape<P>({
+export const AreaShape = memo(function AreaShape<P>({
   area,
   color,
   focused,
@@ -57,4 +57,4 @@ export function AreaShape<P>({
       />
     </>
   );
-}
+});

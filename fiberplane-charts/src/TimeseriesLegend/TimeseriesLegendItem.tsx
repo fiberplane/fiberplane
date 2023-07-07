@@ -1,20 +1,17 @@
 import styled, { css } from "styled-components";
 import { useEffect } from "react";
 
-import type { ChartLegendProps } from "./types";
+import type { TimeseriesLegendProps } from "./types";
 import { Container, Icon } from "../BaseComponents";
 import { FormattedTimeseries, isMac, noop, preventDefault } from "../utils";
-import type { Metric, Timeseries } from "../providerTypes";
+import type { Timeseries } from "../providerTypes";
 import { useMeasure } from "../hooks";
 
 type Props = {
   color: string;
   index: number;
   onHover: () => void;
-  onToggleTimeseriesVisibility: ChartLegendProps<
-    Timeseries,
-    Metric
-  >["onToggleTimeseriesVisibility"];
+  onToggleTimeseriesVisibility: TimeseriesLegendProps["onToggleTimeseriesVisibility"];
   readOnly: boolean;
   setSize: (index: number, value: number) => void;
   timeseries: Timeseries;

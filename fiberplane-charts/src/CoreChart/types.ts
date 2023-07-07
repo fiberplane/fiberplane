@@ -1,4 +1,4 @@
-import type { AbstractChart } from "../ACG";
+import type { AbstractChart, ShapeList } from "../ACG";
 import type { ScaleLinear } from "d3-scale";
 import type { ShowTooltipFn, TimeRange } from "../types";
 
@@ -9,12 +9,24 @@ export type CoreChartProps<S, P> = {
   chart: AbstractChart<S, P>;
 
   /**
+   * Indicates which of the shape lists should be focused.
+   *
+   * `null` is used to indicate no shape list is focused.
+   */
+  focusedShapeList: ShapeList<S, P> | null;
+
+  /**
    * Handler that is invoked when the time range is changed.
    *
    * If no handler is specified, no UI for changing the time range is
    * presented.
    */
   onChangeTimeRange?: (timeRange: TimeRange) => void;
+
+  /**
+   * Handler that is invoked when the focused shape list is changed.
+   */
+  onFocusedShapeListChange?: (shapeList: ShapeList<S, P> | null) => void;
 
   /**
    * Whether the chart is read-only.

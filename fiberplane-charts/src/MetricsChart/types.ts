@@ -1,7 +1,7 @@
 import type { ChartControlsProps } from "./ChartControls";
-import type { ChartLegendProps } from "../TimeseriesLegend";
 import type { CoreChartProps } from "../CoreChart";
 import type { Metric, Timeseries } from "../providerTypes";
+import type { TimeseriesLegendProps } from "../TimeseriesLegend";
 import type { TimeseriesSourceData } from "../ACG";
 
 export type MetricsChartProps = Omit<
@@ -9,7 +9,7 @@ export type MetricsChartProps = Omit<
   "chart"
 > &
   ChartControlsProps &
-  ChartLegendProps &
+  TimeseriesLegendProps &
   TimeseriesSourceData & {
     /**
      * Show the chart controls. (default: true)

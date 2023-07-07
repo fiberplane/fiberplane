@@ -1,4 +1,5 @@
 import { Bar } from "@visx/shape";
+import { memo } from "react";
 
 import type { CommonShapeProps } from "./types";
 import type { Rectangle } from "../../ACG";
@@ -7,7 +8,7 @@ type Props<P> = CommonShapeProps & {
   rectangle: Rectangle<P>;
 };
 
-export function RectangleShape<P>({
+export const RectangleShape = memo(function RectangleShape<P>({
   anyFocused,
   color,
   focused,
@@ -26,4 +27,4 @@ export function RectangleShape<P>({
       opacity={focused || !anyFocused ? 1 : 0.2}
     />
   );
-}
+});

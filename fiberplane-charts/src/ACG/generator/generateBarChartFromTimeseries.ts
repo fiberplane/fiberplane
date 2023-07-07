@@ -10,7 +10,7 @@ import {
   getTimeFromTimestamp,
   getXAxisFromTimeRange,
   normalizeAlongLinearAxis,
-} from "../utils";
+} from "./utils";
 import type { Metric, Timeseries } from "../../providerTypes";
 
 export function generateBarChartFromTimeseries(

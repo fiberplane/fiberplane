@@ -1,7 +1,7 @@
 import { Area } from "@visx/shape";
 import { LinearGradient } from "@visx/gradient";
+import { memo, useId } from "react";
 import { Threshold } from "@visx/threshold";
-import { useId } from "react";
 
 import type { CommonShapeProps } from "./types";
 import type { Line, Point } from "../../ACG";
@@ -10,7 +10,7 @@ type Props<P> = CommonShapeProps & {
   line: Line<P>;
 };
 
-export function LineShape<P>({
+export const LineShape = memo(function LineShape<P>({
   color,
   focused,
   line,
@@ -55,4 +55,4 @@ export function LineShape<P>({
       />
     </>
   );
-}
+});

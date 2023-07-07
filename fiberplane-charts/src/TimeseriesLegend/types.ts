@@ -1,11 +1,18 @@
-import type { AbstractChart } from "../ACG";
-import type { Timeseries } from "../providerTypes";
+import type { AbstractChart, ShapeList } from "../ACG";
+import type { Metric, Timeseries } from "../providerTypes";
 
-export type ChartLegendProps<S, P> = {
+export type TimeseriesLegendProps = {
   /**
    * Array of timeseries data to display in the legend.
    */
-  chart: AbstractChart<S, P>;
+  chart: AbstractChart<Timeseries, Metric>;
+
+  /**
+   * Handler that is invoked when the focused shape list is changed.
+   */
+  onFocusedShapeListChange?: (
+    shapeList: ShapeList<Timeseries, Metric> | null,
+  ) => void;
 
   /**
    * Handler that is invoked when the user toggles the visibility of a

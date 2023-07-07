@@ -5,7 +5,7 @@ import type { NumberValue } from "d3-scale";
 import { useTheme } from "styled-components";
 import { utcFormat } from "d3-time-format";
 
-import type { Scale } from "../../hooks";
+import type { Scale } from "../types";
 
 type Props = {
   strokeDasharray?: string;

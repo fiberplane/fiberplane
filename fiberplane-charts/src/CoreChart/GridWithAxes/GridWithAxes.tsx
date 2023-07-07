@@ -5,7 +5,7 @@ import { memo, useEffect, useLayoutEffect, useState } from "react";
 import { useTheme } from "styled-components";
 
 import { Bottom } from "./Bottom";
-import type { Scales } from "../../hooks";
+import type { Scales } from "../types";
 
 type Props = {
   gridColumnsShown?: boolean;
