@@ -1,4 +1,3 @@
-export * from "./closestPoints";
 export * from "./compact";
 export * from "./convert";
 export * from "./findUniqueKeys";

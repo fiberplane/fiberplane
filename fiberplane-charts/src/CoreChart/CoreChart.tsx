@@ -91,6 +91,7 @@ export function CoreChart<S, P>({
               <ChartContent
                 chart={chart}
                 colors={props.colors}
+                focusedShapeList={props.focusedShapeList}
                 scales={scales}
               />
             </Group>

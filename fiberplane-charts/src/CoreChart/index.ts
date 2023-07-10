@@ -1,12 +1,14 @@
 export type * from "./types";
 export {
   CoreControlsContext,
-  InteractiveControlsApi,
   InteractiveControlsApiContext,
-  InteractiveControlsState,
   InteractiveControlsStateContext,
 } from "./context";
 export { ChartSizeContainerProvider } from "./ChartSizeContainerProvider";
+export type {
+  InteractiveControlsApi,
+  InteractiveControlsState,
+} from "./context";
 export { useCoreControls, useInteractiveControls } from "./hooks";
 
 export * from "./CoreChart";
