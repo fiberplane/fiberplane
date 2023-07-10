@@ -31,11 +31,10 @@ export function ChartSizeContainerProvider({
   const intersectionRef = useRef<HTMLDivElement>(null);
   const ref = mergeRefs([measureRef, intersectionRef]);
 
-  const intersections = useIntersectionObserver(intersectionRef, {
-    root: null,
-    rootMargin: "0px",
-    threshold: 0,
-  });
+  const intersections = useIntersectionObserver(
+    intersectionRef,
+    intersectionOptions,
+  );
   const [value, setValue] = useState<ChartSizeContextValue>({
     xMax: 0,
     yMax: 0,
@@ -67,7 +66,7 @@ export function ChartSizeContainerProvider({
 
   useEffect(() => {
     updateValue(width, height);
-  }, [width, height]);
+  }, [width, height, updateValue]);
 
   return (
     <div ref={ref} className={className}>
@@ -87,3 +86,9 @@ export function ChartSizeContainerProvider({
 function ChartSkeleton({ height }: { height: number }) {
   return <div style={{ height }} />;
 }
+
+const intersectionOptions = {
+  root: null,
+  rootMargin: "0px",
+  threshold: 0,
+};

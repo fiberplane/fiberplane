@@ -6,8 +6,7 @@ export function useIntersectionObserver(
   ref: React.RefObject<HTMLElement>,
   options?: IntersectionObserverInit,
 ) {
-  const [intersections, setIntersections] =
-    useState<Array<IntersectionObserverEntry>>(noEntries);
+  const [intersections, setIntersections] = useState(noEntries);
 
   const element = ref.current;
   useEffect(() => {
@@ -21,7 +20,7 @@ export function useIntersectionObserver(
       observer.disconnect();
       setIntersections(noEntries);
     };
-  }, [element, options?.root, options?.rootMargin, options?.threshold]);
+  }, [element, options]);
 
   return intersections;
 }

@@ -14,7 +14,7 @@ import { HEIGHT, MARGINS } from "../CoreChart/constants";
 import type { Metric, Timeseries } from "../providerTypes";
 import type { MetricsChartProps } from "./types";
 import { TimeseriesLegend } from "../TimeseriesLegend";
-import { useCoreControls, useInteractiveControls } from "../hooks";
+import { useCoreControls, useInteractiveControls } from "../CoreChart";
 
 export function MetricsChart(props: MetricsChartProps) {
   return props.readOnly ? (
@@ -96,8 +96,8 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
 
   const theme = useTheme();
 
-  const chartColors = useMemo(() => {
-    return (
+  const chartColors = useMemo(
+    () =>
       colors || [
         theme["colorSupport1400"],
         theme["colorSupport2400"],
@@ -110,9 +110,9 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
         theme["colorSupport9400"],
         theme["colorSupport10400"],
         theme["colorSupport11400"],
-      ]
-    );
-  }, [theme, colors]);
+      ],
+    [theme, colors],
+  );
 
   return (
     <>
@@ -141,7 +141,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
 });
 
 const StyledChartSizeContainerProvider = styled(ChartSizeContainerProvider)`
-    display: flex;
-    gap: 12px;
-    flex-direction: column;
+  display: flex;
+  gap: 12px;
+  flex-direction: column;
 `;

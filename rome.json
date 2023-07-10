@@ -10,7 +10,8 @@
         "rules": {
             "recommended": true,
             "nursery": {
-                "useGroupedTypeImport": true
+                "useExhaustiveDependencies": "error",
+                "useHookAtTopLevel": "error"
             }
         }
     },

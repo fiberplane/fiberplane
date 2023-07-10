@@ -35,7 +35,7 @@ export function useMeasure<T extends HTMLElement>(): [
     return () => {
       observer.disconnect();
     };
-  }, [element]);
+  }, [element, observer]);
 
   return [setElement, rect];
 }

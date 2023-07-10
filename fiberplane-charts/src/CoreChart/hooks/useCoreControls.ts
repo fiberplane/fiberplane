@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 
-import type { CoreChartProps } from "..";
+import type { CoreChartProps } from "../types";
 import type { CoreControls } from "../context";
 import { secondsToTimestamp, timestampToSeconds } from "../../utils";
-import { useHandler } from "../../hooks/useHandler";
+import { useHandler } from "../../hooks";
 
 const MIN_DURATION = 60; // in seconds
 
@@ -60,5 +60,6 @@ export function useCoreControls({
     onChangeTimeRange?.({ from, to });
   });
 
+  // rome-ignore lint/nursery/useHookAtTopLevel: https://github.com/rome/tools/issues/4483
   return useMemo(() => ({ move, zoom }), [move, zoom]);
 }

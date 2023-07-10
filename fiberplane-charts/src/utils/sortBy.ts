@@ -7,7 +7,7 @@
 export function sortBy<T, U extends number | string>(
   array: Array<T>,
   getPriorityFn: (item: T) => U,
-  reverse: boolean = false,
+  reverse = false,
 ) {
   return array.sort((a, b) => {
     const priorityA = getPriorityFn(a);

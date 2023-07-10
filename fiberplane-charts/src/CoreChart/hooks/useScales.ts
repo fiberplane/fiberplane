@@ -10,6 +10,7 @@ import type { Scales } from "../types";
  * values from 0.0 to 1.0, meaning we can suffice with trivial linear scales.
  */
 export function useScales(xMax: number, yMax: number): Scales {
+  // rome-ignore lint/nursery/useHookAtTopLevel: https://github.com/rome/tools/issues/4483
   return useMemo(() => {
     const xScale = scaleLinear({
       range: [0, xMax],

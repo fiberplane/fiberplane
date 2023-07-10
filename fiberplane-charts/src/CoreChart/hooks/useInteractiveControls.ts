@@ -5,7 +5,6 @@ import {
   InteractiveControlsApi,
   InteractiveControlsState,
 } from "../context";
-import { useHandler } from "../../hooks/useHandler";
 
 /**
  * Returns zoom/drag handlers and state.
@@ -19,25 +18,25 @@ export function useInteractiveControls(): {
     defaultControlsState,
   );
 
-  const reset = useHandler(() => {
-    dispatch({ type: "RESET" });
-  });
-
-  const startZoom = useHandler((start: number) => {
-    dispatch({ type: "ZOOM_START", payload: { start } });
-  });
-
-  const startDrag = useHandler((start: number) => {
-    dispatch({ type: "DRAG_START", payload: { start } });
-  });
-
-  const updateEndValue = useHandler((end: number) => {
-    dispatch({ type: "UPDATE_END_VALUE", payload: { end } });
-  });
-
   const interactiveControls = useMemo(
-    () => ({ reset, startDrag, startZoom, updateEndValue }),
-    [reset, startDrag, startZoom, updateEndValue],
+    () => ({
+      reset() {
+        dispatch({ type: "RESET" });
+      },
+
+      startDrag(start: number) {
+        dispatch({ type: "DRAG_START", payload: { start } });
+      },
+
+      startZoom(start: number) {
+        dispatch({ type: "ZOOM_START", payload: { start } });
+      },
+
+      updateEndValue(end: number) {
+        dispatch({ type: "UPDATE_END_VALUE", payload: { end } });
+      },
+    }),
+    [],
   );
 
   return { interactiveControls, interactiveControlsState };

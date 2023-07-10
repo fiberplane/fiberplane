@@ -5,48 +5,62 @@ import type {
   ShowTooltipFn,
   VirtualElement,
 } from "../../types";
-import type { GraphTooltip } from "../context";
-import { useHandler } from "../../hooks";
+import { noop } from "../../utils";
 
-export function useTooltip(showTooltip: ShowTooltipFn | undefined) {
+export type GraphTooltip = {
+  top: number;
+  left: number;
+  element: SVGSVGElement;
+  color: string;
+  metric: JSX.Element;
+};
+
+export function useTooltip(showTooltipFn: ShowTooltipFn | undefined) {
   const [graphTooltip, setGraphTooltip] = useState<GraphTooltip | null>(null);
 
   const closeFnRef = useRef<CloseTooltipFn | null>(null);
 
+  const showTooltip = showTooltipFn
+    ? (tip: GraphTooltip) => {
+        setGraphTooltip(tip);
+
+        const element: VirtualElement = {
+          getBoundingClientRect: (): DOMRect => {
+            const ctm = tip.element.getScreenCTM();
+            const point = tip.element.createSVGPoint();
+            point.x = tip.left;
+            point.y = tip.top;
+
+            const { x, y } = ctm
+              ? point.matrixTransform(ctm)
+              : { x: tip.left, y: tip.top };
+
+            return new DOMRect(x - 4, y - 4, 8, 8);
+          },
+          contextElement: tip.element,
+        };
+
+        closeFnRef.current = showTooltipFn(element, tip.metric);
+      }
+    : noop;
+
+  const closeTooltip = () => {
+    setGraphTooltip(null);
+    if (closeFnRef.current) {
+      closeFnRef.current();
+      closeFnRef.current = null;
+    }
+  };
+
   return {
     graphTooltip,
 
-    showTooltip: useHandler((tip: GraphTooltip) => {
-      if (!showTooltip) {
-        return;
-      }
+    onMouseMove: (_event: React.MouseEvent) => {
+      // TODO
+    },
 
-      setGraphTooltip(tip);
-
-      const element: VirtualElement = {
-        getBoundingClientRect: (): DOMRect => {
-          const ctm = tip.element.getScreenCTM();
-          const point = tip.element.createSVGPoint();
-          point.x = tip.left;
-          point.y = tip.top;
-
-          const { x = tip.left, y = tip.top } =
-            ctm === null ? {} : point.matrixTransform(ctm);
-
-          return new DOMRect(x - 4, y - 4, 8, 8);
-        },
-        contextElement: tip.element,
-      };
-
-      closeFnRef.current = showTooltip(element, tip.metric);
-    }),
-
-    hideTooltip: useHandler(() => {
-      setGraphTooltip(null);
-      if (closeFnRef.current) {
-        closeFnRef.current();
-        closeFnRef.current = null;
-      }
-    }),
+    onMouseLeave: (_event: React.MouseEvent) => {
+      // TODO
+    },
   };
 }
