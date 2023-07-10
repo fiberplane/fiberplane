@@ -132,6 +132,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
       {legendShown && (
         <TimeseriesLegend
           {...props}
+          chart={chart}
           colors={chartColors}
           onFocusedShapeListChange={setFocusedShapeList}
         />

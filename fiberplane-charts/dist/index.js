@@ -2195,6 +2195,7 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
             }),
             legendShown && /*#__PURE__*/ jsx(TimeseriesLegend, {
                 ...props,
+                chart: chart,
                 colors: chartColors,
                 onFocusedShapeListChange: setFocusedShapeList
             })
