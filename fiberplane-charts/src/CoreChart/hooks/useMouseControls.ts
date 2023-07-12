@@ -2,7 +2,6 @@ import { localPoint } from "@visx/event";
 import { MouseEvent, MouseEventHandler, Ref, useContext, useRef } from "react";
 
 import {
-  ChartSizeContext,
   CoreControlsContext,
   InteractiveControlsApiContext,
   InteractiveControlsStateContext,
@@ -16,9 +15,20 @@ import {
 import { MARGINS } from "../constants";
 import type { TimeRange } from "../../types";
 
-function zoomKeyPressed(event: MouseEvent | WheelEvent) {
-  return isMac ? event.metaKey : event.ctrlKey;
-}
+type MouseControls = {
+  onMouseDown: MouseEventHandler<HTMLElement>;
+  onMouseMove: MouseEventHandler<HTMLElement>;
+  onMouseUp: MouseEventHandler<HTMLElement>;
+  onMouseEnter: MouseEventHandler<HTMLElement>;
+  graphContentRef: Ref<SVGGElement>;
+};
+
+type Props = {
+  timeRange: TimeRange;
+  onChangeTimeRange?: (timeRange: TimeRange) => void;
+  xMax: number;
+  yMax: number;
+};
 
 /**
  * Hook for setting up mouse handlers to control dragging & zoom
@@ -26,22 +36,14 @@ function zoomKeyPressed(event: MouseEvent | WheelEvent) {
 export function useMouseControls({
   timeRange,
   onChangeTimeRange,
-}: {
-  timeRange: TimeRange;
-  onChangeTimeRange?: (timeRange: TimeRange) => void;
-}): {
-  onMouseDown: MouseEventHandler<HTMLElement>;
-  onMouseMove: MouseEventHandler<HTMLElement>;
-  onMouseUp: MouseEventHandler<HTMLElement>;
-  onMouseEnter: MouseEventHandler<HTMLElement>;
-  graphContentRef: Ref<SVGGElement>;
-} {
+  xMax,
+  yMax,
+}: Props): MouseControls {
   const { move, zoom } = useContext(CoreControlsContext);
   const { startDrag, startZoom, reset, updateEndValue } = useContext(
     InteractiveControlsApiContext,
   );
   const controlsState = useContext(InteractiveControlsStateContext);
-  const { xMax, yMax } = useContext(ChartSizeContext);
   const graphContentRef = useRef<SVGGElement | null>(null);
 
   const onMouseDown = (event: MouseEvent<HTMLElement>) => {
@@ -183,4 +185,8 @@ export function useMouseControls({
     onMouseEnter,
     graphContentRef,
   };
+}
+
+function zoomKeyPressed(event: MouseEvent | WheelEvent) {
+  return isMac ? event.metaKey : event.ctrlKey;
 }

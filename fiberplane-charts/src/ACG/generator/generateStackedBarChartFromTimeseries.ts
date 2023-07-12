@@ -6,21 +6,29 @@ import type {
   ShapeList,
 } from "../types";
 import {
-  detectStackedYAxisRange,
+  calculateStackedYAxisRange,
+  createMetricBuckets,
   getTimeFromTimestamp,
   getXAxisFromTimeRange,
   normalizeAlongLinearAxis,
 } from "./utils";
+import { identity } from "../../utils";
 import type { Metric, Timeseries } from "../../providerTypes";
 
 export function generateStackedBarChartFromTimeseries(
   input: TimeseriesSourceData,
 ): AbstractChart<Timeseries, Metric> {
+  const buckets = createMetricBuckets(
+    input.timeseriesData,
+    (total, value) => total + value,
+    0,
+  );
+
   const xAxis = getXAxisFromTimeRange(input.timeRange);
   const yAxis =
     input.stackingType === "percentage"
       ? { minValue: 0, maxValue: 100 }
-      : detectStackedYAxisRange(input.timeseriesData);
+      : calculateStackedYAxisRange(buckets, identity);
 
   const shapeLists: Array<ShapeList<Timeseries, Metric>> =
     input.timeseriesData.map((timeseries) => ({
@@ -41,10 +49,10 @@ function getBarShape(metric: Metric, xAxis: Axis, yAxis: Axis): Shape<Metric> {
   const x = normalizeAlongLinearAxis(getTime(metric), xAxis);
   return {
     type: "rectangle",
-    xMin: x - 0.05, // FIXME
-    xMax: x + 0.05, // FIXME
-    yMin: 0, // FIXME
-    yMax: normalizeAlongLinearAxis(metric.value, yAxis),
+    x: x - 0.05, // FIXME
+    width: 0.1, // FIXME
+    y: 0, // FIXME
+    height: normalizeAlongLinearAxis(metric.value, yAxis),
     source: metric,
   };
 }

@@ -314,15 +314,15 @@ type Point<P> = {
     source: P;
 };
 /**
- * A bar to be rendered parallel to the Y axis.
+ * A rectangle to be rendered inside the chart.
  */
 type Rectangle<P> = {
-    xMin: number;
-    xMax: number;
-    yMin: number;
-    yMax: number;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
     /**
-     * The source this bar was generated from.
+     * The source this rectangle was generated from.
      *
      * This would be a `Metric` if the chart was generated from `Timeseries`.
      */

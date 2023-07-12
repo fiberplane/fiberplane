@@ -1,4 +1,3 @@
-import { Bar } from "@visx/shape";
 import { memo } from "react";
 
 import type { CommonShapeProps } from "./types";
@@ -13,14 +12,16 @@ export const RectangleShape = memo(function RectangleShape<P>({
   color,
   focused,
   rectangle,
-  scales,
+  scales: { xMax, yMax },
 }: Props<P>): JSX.Element {
+  const height = rectangle.height * yMax;
+
   return (
-    <Bar
-      x1={scales.xScale(rectangle.xMin)}
-      x2={scales.xScale(rectangle.xMax)}
-      y1={scales.yScale(rectangle.yMin)}
-      y2={scales.yScale(rectangle.yMax)}
+    <rect
+      x={rectangle.x * xMax}
+      y={yMax - height}
+      width={rectangle.width * xMax}
+      height={height}
       stroke={color}
       fill={color}
       fillOpacity={0.1}

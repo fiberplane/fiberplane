@@ -1,11 +1,13 @@
 import { Bar } from "@visx/shape";
-import { useContext } from "react";
 
-import { ChartSizeContext, InteractiveControlsStateContext } from "./context";
+import type { InteractiveControlsState } from "./context";
 
-export function ZoomBar(): JSX.Element | null {
-  const { yMax } = useContext(ChartSizeContext);
-  const controlsState = useContext(InteractiveControlsStateContext);
+type Props = {
+  controlsState: InteractiveControlsState;
+  yMax: number;
+};
+
+export function ZoomBar({ controlsState, yMax }: Props): JSX.Element | null {
   if (controlsState.type !== "zoom") {
     return null;
   }

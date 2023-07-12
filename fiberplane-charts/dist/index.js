@@ -5,9 +5,7 @@ import styled, { css, useTheme } from 'styled-components';
 import { debounce } from 'throttle-debounce';
 import { localPoint } from '@visx/event';
 import { scaleLinear, getTicks } from '@visx/scale';
-import { Area, Bar, Circle, Line } from '@visx/shape';
-import { Group } from '@visx/group';
-import { LinearGradient } from '@visx/gradient';
+import { Area, Bar, Line } from '@visx/shape';
 import { Threshold } from '@visx/threshold';
 import { AxisBottom, AxisLeft, Orientation } from '@visx/axis';
 import { GridRows, GridColumns } from '@visx/grid';
@@ -395,6 +393,12 @@ const FormattedTimeseries = /*#__PURE__*/ memo(function FormattedTimeseries({ me
 
 function getShapeListColor(colors, listIndex) {
     return colors[listIndex % colors.length];
+}
+
+/**
+ * Returns the input value, also known as the identity function.
+ */ function identity(input) {
+    return input;
 }
 
 /**
@@ -975,16 +979,12 @@ const MARGINS = {
     right: 0
 };
 
-function zoomKeyPressed(event) {
-    return isMac ? event.metaKey : event.ctrlKey;
-}
 /**
  * Hook for setting up mouse handlers to control dragging & zoom
- */ function useMouseControls({ timeRange , onChangeTimeRange  }) {
+ */ function useMouseControls({ timeRange , onChangeTimeRange , xMax , yMax  }) {
     const { move , zoom  } = useContext(CoreControlsContext);
     const { startDrag , startZoom , reset , updateEndValue  } = useContext(InteractiveControlsApiContext);
     const controlsState = useContext(InteractiveControlsStateContext);
-    const { xMax , yMax  } = useContext(ChartSizeContext);
     const graphContentRef = useRef(null);
     const onMouseDown = (event)=>{
         if (event.buttons !== 1 || !onChangeTimeRange) {
@@ -1094,6 +1094,9 @@ function zoomKeyPressed(event) {
         graphContentRef
     };
 }
+function zoomKeyPressed(event) {
+    return isMac ? event.metaKey : event.ctrlKey;
+}
 
 /**
  * Returns the scales to use for rendering VisX components.
@@ -1162,13 +1165,22 @@ const AreaShape = /*#__PURE__*/ memo(function AreaShape({ area , color , focused
     const getY1 = (point)=>scales.yScale(point.yMax);
     return /*#__PURE__*/ jsxs(Fragment, {
         children: [
-            /*#__PURE__*/ jsx(LinearGradient, {
-                id: gradientId,
-                from: color,
-                to: color,
-                fromOpacity: 0.15,
-                toOpacity: 0.03,
-                toOffset: "80%"
+            /*#__PURE__*/ jsx("defs", {
+                children: /*#__PURE__*/ jsxs("linearGradient", {
+                    id: gradientId,
+                    children: [
+                        /*#__PURE__*/ jsx("stop", {
+                            offset: "0%",
+                            stopColor: color,
+                            stopOpacity: 0.15
+                        }),
+                        /*#__PURE__*/ jsx("stop", {
+                            offset: "80%",
+                            stopColor: color,
+                            stopOpacity: 0.03
+                        })
+                    ]
+                })
             }),
             /*#__PURE__*/ jsx(Threshold, {
                 id: id,
@@ -1199,19 +1211,6 @@ const AreaShape = /*#__PURE__*/ memo(function AreaShape({ area , color , focused
     });
 });
 
-const RectangleShape = /*#__PURE__*/ memo(function RectangleShape({ anyFocused , color , focused , rectangle , scales  }) {
-    return /*#__PURE__*/ jsx(Bar, {
-        x1: scales.xScale(rectangle.xMin),
-        x2: scales.xScale(rectangle.xMax),
-        y1: scales.yScale(rectangle.yMin),
-        y2: scales.yScale(rectangle.yMax),
-        stroke: color,
-        fill: color,
-        fillOpacity: 0.1,
-        opacity: focused || !anyFocused ? 1 : 0.2
-    });
-});
-
 const LineShape = /*#__PURE__*/ memo(function LineShape({ color , focused , line , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
@@ -1220,22 +1219,29 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ color , focused , line
     const getY = (point)=>scales.yScale(point.y);
     return /*#__PURE__*/ jsxs(Fragment, {
         children: [
-            /*#__PURE__*/ jsx(LinearGradient, {
-                id: gradientId,
-                from: color,
-                to: color,
-                fromOpacity: 0.15,
-                toOpacity: 0.03,
-                toOffset: "23%"
+            /*#__PURE__*/ jsx("defs", {
+                children: /*#__PURE__*/ jsxs("linearGradient", {
+                    id: gradientId,
+                    children: [
+                        /*#__PURE__*/ jsx("stop", {
+                            offset: "0%",
+                            stopColor: color,
+                            stopOpacity: 0.15
+                        }),
+                        /*#__PURE__*/ jsx("stop", {
+                            offset: "23%",
+                            stopColor: color,
+                            stopOpacity: 0.03
+                        })
+                    ]
+                })
             }),
             /*#__PURE__*/ jsx(Threshold, {
                 id: id,
                 data: line.points,
                 x: getX,
                 y0: getY,
-                y1: getY({
-                    y: 0
-                }),
+                y1: scales.yScale(0),
                 clipAboveTo: 0,
                 clipBelowTo: scales.yMax,
                 aboveAreaProps: {
@@ -1259,7 +1265,7 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ color , focused , line
 });
 
 const PointShape = /*#__PURE__*/ memo(function PointShape({ color , focused , point , scales  }) {
-    return /*#__PURE__*/ jsx(Circle, {
+    return /*#__PURE__*/ jsx("circle", {
         x: scales.xScale(point.x),
         y: scales.yScale(point.y),
         radius: focused ? 2 : 1,
@@ -1268,17 +1274,20 @@ const PointShape = /*#__PURE__*/ memo(function PointShape({ color , focused , po
     });
 });
 
-function ChartContent({ chart , colors , focusedShapeList , scales  }) {
-    return /*#__PURE__*/ jsx(Fragment, {
-        children: chart.shapeLists.flatMap((shapeList, listIndex)=>shapeList.shapes.map((shape, shapeIndex)=>/*#__PURE__*/ jsx(ChartShape, {
-                    anyFocused: !!focusedShapeList,
-                    color: getShapeListColor(colors, listIndex),
-                    focused: shapeList === focusedShapeList,
-                    scales: scales,
-                    shape: shape
-                }, `${listIndex}-${shapeIndex}`)))
+const RectangleShape = /*#__PURE__*/ memo(function RectangleShape({ anyFocused , color , focused , rectangle , scales: { xMax , yMax  }  }) {
+    const height = rectangle.height * yMax;
+    return /*#__PURE__*/ jsx("rect", {
+        x: rectangle.x * xMax,
+        y: yMax - height,
+        width: rectangle.width * xMax,
+        height: height,
+        stroke: color,
+        fill: color,
+        fillOpacity: 0.1,
+        opacity: focused || !anyFocused ? 1 : 0.2
     });
-}
+});
+
 function ChartShape({ shape , ...props }) {
     switch(shape.type){
         case "area":
@@ -1302,6 +1311,25 @@ function ChartShape({ shape , ...props }) {
                 ...props
             });
     }
+}
+
+function ChartContent({ chart , colors , focusedShapeList , scales  }) {
+    return /*#__PURE__*/ jsxs(Fragment, {
+        children: [
+            chart.shapeLists.flatMap((shapeList, listIndex)=>shapeList.shapes.map((shape, shapeIndex)=>/*#__PURE__*/ jsx(ChartShape, {
+                        anyFocused: !!focusedShapeList,
+                        color: getShapeListColor(colors, listIndex),
+                        focused: shapeList === focusedShapeList,
+                        scales: scales,
+                        shape: shape
+                    }, `${listIndex}-${shapeIndex}`))),
+            /*#__PURE__*/ jsx(Bar, {
+                width: scales.xMax,
+                height: scales.yMax,
+                fill: "transparent"
+            })
+        ]
+    });
 }
 
 const Bottom = /*#__PURE__*/ memo(function Bottom({ strokeDasharray , xScale , yMax  }) {
@@ -1465,9 +1493,7 @@ function useCustomSpring(value) {
     return current;
 }
 
-function ZoomBar() {
-    const { yMax  } = useContext(ChartSizeContext);
-    const controlsState = useContext(InteractiveControlsStateContext);
+function ZoomBar({ controlsState , yMax  }) {
     if (controlsState.type !== "zoom") {
         return null;
     }
@@ -1488,14 +1514,20 @@ function ZoomBar() {
     });
 }
 
-function CoreChart({ chart , gridShown =true , readOnly =false , ...props }) {
+function CoreChart({ chart , gridShown =true , onChangeTimeRange , readOnly =false , showTooltip , timeRange , ...props }) {
     const interactiveControlsState = useContext(InteractiveControlsStateContext);
     const [shiftKeyPressed, setShiftKeyPressed] = useState(false);
     const onKeyHandler = (event)=>{
         setShiftKeyPressed(event.shiftKey);
     };
-    const { onMouseDown , onMouseUp , onMouseEnter , onMouseMove: onMouseMoveControls , graphContentRef  } = useMouseControls(props);
-    const { graphTooltip , onMouseMove: onMouseMoveTooltip , onMouseLeave  } = useTooltip(props.showTooltip);
+    const { width , height , xMax , yMax , marginTop , marginLeft  } = useContext(ChartSizeContext);
+    const { onMouseDown , onMouseUp , onMouseEnter , onMouseMove: onMouseMoveControls , graphContentRef  } = useMouseControls({
+        onChangeTimeRange,
+        timeRange,
+        xMax,
+        yMax
+    });
+    const { graphTooltip , onMouseMove: onMouseMoveTooltip , onMouseLeave  } = useTooltip();
     const onMouseMove = (event)=>{
         setShiftKeyPressed(event.shiftKey);
         onMouseMoveControls(event);
@@ -1503,7 +1535,6 @@ function CoreChart({ chart , gridShown =true , readOnly =false , ...props }) {
     };
     const clipPathId = useId();
     const cursor = getCursorFromState(interactiveControlsState, shiftKeyPressed);
-    const { width , height , xMax , yMax , marginTop , marginLeft  } = useContext(ChartSizeContext);
     const scales = useScales(xMax, yMax);
     return /*#__PURE__*/ jsx(StyledContainer, {
         onKeyDown: onKeyHandler,
@@ -1520,9 +1551,6 @@ function CoreChart({ chart , gridShown =true , readOnly =false , ...props }) {
                 cursor
             },
             children: [
-                /*#__PURE__*/ jsx("title", {
-                    children: readOnly ? "Chart" : "Interactive chart"
-                }),
                 /*#__PURE__*/ jsx("defs", {
                     children: /*#__PURE__*/ jsx("clipPath", {
                         id: clipPathId,
@@ -1534,29 +1562,26 @@ function CoreChart({ chart , gridShown =true , readOnly =false , ...props }) {
                         })
                     })
                 }),
-                /*#__PURE__*/ jsxs(Group, {
-                    left: marginLeft,
-                    top: marginTop,
+                /*#__PURE__*/ jsxs("g", {
+                    transform: `transform(${marginLeft}, ${marginTop})`,
                     children: [
                         gridShown && /*#__PURE__*/ jsx(GridWithAxes, {
-                            gridColumnsShown: props.gridColumnsShown,
-                            gridRowsShown: props.gridRowsShown,
-                            gridBordersShown: props.gridBordersShown,
-                            gridDashArray: props.gridDashArray,
-                            gridStrokeColor: props.gridStrokeColor,
+                            ...props,
                             scales: scales
                         }),
-                        /*#__PURE__*/ jsx(Group, {
-                            innerRef: graphContentRef,
+                        /*#__PURE__*/ jsx("g", {
                             clipPath: `url(#${clipPathId})`,
+                            ref: graphContentRef,
                             children: /*#__PURE__*/ jsx(ChartContent, {
+                                ...props,
                                 chart: chart,
-                                colors: props.colors,
-                                focusedShapeList: props.focusedShapeList,
                                 scales: scales
                             })
                         }),
-                        /*#__PURE__*/ jsx(ZoomBar, {})
+                        /*#__PURE__*/ jsx(ZoomBar, {
+                            controlsState: interactiveControlsState,
+                            yMax: yMax
+                        })
                     ]
                 }),
                 graphTooltip && /*#__PURE__*/ jsxs("g", {
@@ -1602,13 +1627,54 @@ function getCursorFromState(interactiveControlsState, shiftKey) {
     }
 }
 
+const BAR_PADDING = 0.2;
+const BAR_PLUS_PADDING = 1 + BAR_PADDING;
+const HALF_PADDING = 0.5 * BAR_PADDING;
+/**
+ * Calculates the width of bars in bar charts.
+ */ function calculateBarWidth(xAxis, interval, numShapeLists) {
+    const numGroups = interval === 0 ? 1 : Math.round((xAxis.maxValue - xAxis.minValue) / interval) + 1;
+    const numBars = numGroups * numShapeLists;
+    return 1 / (numBars * BAR_PLUS_PADDING);
+}
+/**
+ * Calculates the (left) X coordinate for a bar in a bar chart.
+ *
+ * `groupX` is the center coordinate for the bar group that contains all the
+ * bars for a given bucket. `barWidth` is the width of an individual bar.
+ *
+ * `barIndex` and `numShapeLists` define the index of the bar within the group,
+ * and how many bars may exist in the group in total, respectively.
+ */ function calculateBarX(groupX, barWidth, barIndex, numShapeLists) {
+    return groupX + (barIndex - 0.5 * numShapeLists) * (barWidth * BAR_PLUS_PADDING) - barWidth * HALF_PADDING;
+}
+/**
+ * Calculates the smallest interval between any two timestamps present in the
+ * given buckets.
+ *
+ * Returns `null` if there are insufficient timestamps to calculate an interval.
+ */ function calculateSmallestTimeInterval(buckets) {
+    const timestamps = Array.from(buckets.keys(), getTimeFromTimestamp);
+    if (timestamps.length < 2) {
+        return null;
+    }
+    timestamps.sort();
+    let smallestInterval = Infinity;
+    for(let i = 1; i < timestamps.length; i++){
+        const interval = timestamps[i] - timestamps[i - 1];
+        if (interval < smallestInterval) {
+            smallestInterval = interval;
+        }
+    }
+    return smallestInterval;
+}
 /**
  * Detects the range to display along the Y axis by looking at all the visible
  * data in the given timeseries.
  *
  * When rendering a stacked chart, use `detectStackedYAxisRange()` instead.
- */ function detectYAxisRange(timeseriesData) {
-    const minMax = detectTimeseriesArrayMinMax(timeseriesData);
+ */ function calculateYAxisRange(buckets, getMinMax) {
+    const minMax = getBucketsMinMax(buckets, getMinMax);
     if (!minMax) {
         return getYAxisForConstantValue(0);
     }
@@ -1624,80 +1690,84 @@ function getCursorFromState(interactiveControlsState, shiftKey) {
  *
  * This function is used for stacked charts. When rendering a normal chart, use
  * `detectYAxisRange()` instead.
- */ function detectStackedYAxisRange(timeseriesData) {
+ */ function calculateStackedYAxisRange(buckets, getTotalValue) {
+    if (buckets.size === 0) {
+        return getYAxisForConstantValue(0);
+    }
+    const minMax = getInitialMinMax(0);
+    for (const value of buckets.values()){
+        extendMinMax(minMax, getTotalValue(value));
+    }
+    if (minMax[0] === minMax[1]) {
+        return getYAxisForConstantValue(minMax[0]);
+    }
+    return {
+        minValue: minMax[0],
+        maxValue: minMax[1]
+    };
+}
+function createMetricBuckets(timeseriesData, reducer, initialValue) {
     const buckets = new Map();
     for (const timeseries of timeseriesData){
         if (!timeseries.visible) {
             continue;
         }
         for (const { time , value  } of timeseries.metrics){
-            const bucket = buckets.get(time);
-            if (bucket) {
-                bucket.total += value;
-            } else {
-                buckets.set(time, {
-                    total: value
-                });
-            }
+            buckets.set(time, reducer(buckets.get(time) ?? initialValue, value));
         }
     }
-    if (buckets.size === 0) {
-        return getYAxisForConstantValue(0);
-    }
-    let minValue = 0;
-    let maxValue = 0;
-    for (const { total  } of buckets.values()){
-        if (total > maxValue) {
-            maxValue = total;
-        } else if (total < minValue) {
-            minValue = total; // If total is negative, try to make the best of it.
-        }
-    }
-    if (minValue === maxValue) {
-        return getYAxisForConstantValue(minValue);
-    }
-    return {
-        minValue,
-        maxValue
-    };
+    return buckets;
 }
-function detectTimeseriesArrayMinMax(timeseriesData) {
+/**
+ * Extends the range of an axis with the given interval.
+ *
+ * The range of the interval is divided among ends of the axis. The purpose of
+ * this is to extend the axis with enough space to display the bars for the
+ * first and last buckets displayed on the bar chart.
+ *
+ * @note This function mutates its input axis.
+ */ function extendAxisWithInterval(axis, interval) {
+    const halfInterval = 0.5 * interval;
+    axis.minValue -= halfInterval;
+    axis.maxValue += halfInterval;
+    return axis;
+}
+/**
+ * Extends the given min-max, if necessary, with the given value.
+ *
+ * @note This function mutates its input min-max.
+ */ function extendMinMax(minMax, value) {
+    if (value < minMax[0]) {
+        minMax[0] = value;
+    } else if (value > minMax[1]) {
+        minMax[1] = value;
+    }
+    return minMax;
+}
+function getBucketsMinMax(buckets, getMinMax) {
     let minMax;
-    for (const timeseries of timeseriesData){
-        if (!timeseries.visible) {
+    for (const value of buckets.values()){
+        const bucketMinMax = getMinMax(value);
+        if (!minMax) {
+            minMax = bucketMinMax;
             continue;
         }
-        const timeseriesMinMax = detectTimeseriesMinMax(timeseries);
-        if (timeseriesMinMax) {
-            if (!minMax) {
-                minMax = timeseriesMinMax;
-                continue;
-            }
-            if (timeseriesMinMax[0] < minMax[0]) {
-                minMax[0] = timeseriesMinMax[0];
-            }
-            if (timeseriesMinMax[1] > minMax[1]) {
-                minMax[1] = timeseriesMinMax[1];
-            }
+        if (bucketMinMax[0] < minMax[0]) {
+            minMax[0] = bucketMinMax[0];
+        }
+        if (bucketMinMax[1] > minMax[1]) {
+            minMax[1] = bucketMinMax[1];
         }
     }
     return minMax;
 }
-function detectTimeseriesMinMax(timeseries) {
-    let minMax;
-    for (const { value  } of timeseries.metrics){
-        if (!minMax) {
-            minMax = [
-                value,
-                value
-            ];
-        } else if (value < minMax[0]) {
-            minMax[0] = value;
-        } else if (value > minMax[1]) {
-            minMax[1] = value;
-        }
-    }
-    return minMax;
+/**
+ * Returns the initial min-max based on a single value.
+ */ function getInitialMinMax(value) {
+    return [
+        value,
+        value
+    ];
 }
 /**
  * Converts an RFC 3339-formatted timestamp to a time expressed in milliseconds.
@@ -1749,10 +1819,24 @@ function detectTimeseriesMinMax(timeseries) {
 }
 
 function generateBarChartFromTimeseries(input) {
+    const visibleTimeseriesData = input.timeseriesData.filter((timeseries)=>timeseries.visible);
+    const buckets = createMetricBuckets(visibleTimeseriesData, (maybeMinMax, value)=>maybeMinMax ? extendMinMax(maybeMinMax, value) : getInitialMinMax(value));
     const xAxis = getXAxisFromTimeRange(input.timeRange);
-    const yAxis = detectYAxisRange(input.timeseriesData);
+    const yAxis = calculateYAxisRange(buckets, identity);
+    const numShapeLists = visibleTimeseriesData.length;
+    const smallestInterval = calculateSmallestTimeInterval(buckets);
+    if (smallestInterval) {
+        extendAxisWithInterval(xAxis, smallestInterval);
+    }
+    const barWidth = calculateBarWidth(xAxis, smallestInterval ?? 0, numShapeLists);
+    const shapeArgs = {
+        xAxis,
+        yAxis,
+        barWidth,
+        numShapeLists
+    };
     const shapeLists = input.timeseriesData.map((timeseries)=>({
-            shapes: timeseries.metrics.map((metric)=>getBarShape$1(metric, xAxis, yAxis)),
+            shapes: timeseries.visible ? timeseries.metrics.map((metric)=>getBarShape$1(metric, visibleTimeseriesData.indexOf(timeseries), shapeArgs)) : [],
             source: timeseries
         }));
     return {
@@ -1761,26 +1845,24 @@ function generateBarChartFromTimeseries(input) {
         yAxis
     };
 }
-function getBarShape$1(metric, xAxis, yAxis) {
-    const x = normalizeAlongLinearAxis(getTime$3(metric), xAxis);
+function getBarShape$1(metric, barIndex, { xAxis , yAxis , barWidth , numShapeLists: numVisibleTimeseries  }) {
+    const groupX = normalizeAlongLinearAxis(getTimeFromTimestamp(metric.time), xAxis);
     return {
         type: "rectangle",
-        xMin: x - 0.05,
-        xMax: x + 0.05,
-        yMin: 0,
-        yMax: normalizeAlongLinearAxis(metric.value, yAxis),
+        x: calculateBarX(groupX, barWidth, barIndex, numVisibleTimeseries),
+        width: barWidth,
+        y: 0,
+        height: normalizeAlongLinearAxis(metric.value, yAxis),
         source: metric
     };
 }
-function getTime$3(metric) {
-    return getTimeFromTimestamp(metric.time);
-}
 
 function generateLineChartFromTimeseries(input) {
+    const buckets = createMetricBuckets(input.timeseriesData, (maybeMinMax, value)=>maybeMinMax ? extendMinMax(maybeMinMax, value) : getInitialMinMax(value));
     const xAxis = getXAxisFromTimeRange(input.timeRange);
-    const yAxis = detectYAxisRange(input.timeseriesData);
+    const yAxis = calculateYAxisRange(buckets, identity);
     const shapeLists = input.timeseriesData.map((timeseries)=>({
-            shapes: getShapes$1(timeseries.metrics, xAxis, yAxis),
+            shapes: timeseries.visible ? getShapes$1(timeseries.metrics, xAxis, yAxis) : [],
             source: timeseries
         }));
     return {
@@ -1820,11 +1902,12 @@ function getTime$2(metric) {
 }
 
 function generateStackedBarChartFromTimeseries(input) {
+    const buckets = createMetricBuckets(input.timeseriesData, (total, value)=>total + value, 0);
     const xAxis = getXAxisFromTimeRange(input.timeRange);
     const yAxis = input.stackingType === "percentage" ? {
         minValue: 0,
         maxValue: 100
-    } : detectStackedYAxisRange(input.timeseriesData);
+    } : calculateStackedYAxisRange(buckets, identity);
     const shapeLists = input.timeseriesData.map((timeseries)=>({
             shapes: timeseries.metrics.map((metric)=>getBarShape(metric, xAxis, yAxis)),
             source: timeseries
@@ -1839,10 +1922,10 @@ function getBarShape(metric, xAxis, yAxis) {
     const x = normalizeAlongLinearAxis(getTime$1(metric), xAxis);
     return {
         type: "rectangle",
-        xMin: x - 0.05,
-        xMax: x + 0.05,
-        yMin: 0,
-        yMax: normalizeAlongLinearAxis(metric.value, yAxis),
+        x: x - 0.05,
+        width: 0.1,
+        y: 0,
+        height: normalizeAlongLinearAxis(metric.value, yAxis),
         source: metric
     };
 }
@@ -1851,11 +1934,12 @@ function getTime$1(metric) {
 }
 
 function generateStackedLineChartFromTimeseries(input) {
+    const buckets = createMetricBuckets(input.timeseriesData, (total, value)=>total + value, 0);
     const xAxis = getXAxisFromTimeRange(input.timeRange);
     const yAxis = input.stackingType === "percentage" ? {
         minValue: 0,
         maxValue: 100
-    } : detectStackedYAxisRange(input.timeseriesData);
+    } : calculateStackedYAxisRange(buckets, identity);
     const shapeLists = input.timeseriesData.map((timeseries)=>({
             shapes: getShapes(timeseries.metrics, xAxis, yAxis),
             source: timeseries

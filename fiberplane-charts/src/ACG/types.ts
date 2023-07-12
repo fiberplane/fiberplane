@@ -163,10 +163,10 @@ export type Point<P> = {
  * A rectangle to be rendered inside the chart.
  */
 export type Rectangle<P> = {
-  xMin: number;
-  xMax: number;
-  yMin: number;
-  yMax: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 
   /**
    * The source this rectangle was generated from.

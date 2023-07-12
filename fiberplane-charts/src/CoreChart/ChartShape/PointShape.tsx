@@ -1,4 +1,3 @@
-import { Circle } from "@visx/shape";
 import { memo } from "react";
 
 import type { CommonShapeProps } from "./types";
@@ -15,7 +14,7 @@ export const PointShape = memo(function PointShape<P>({
   scales,
 }: Props<P>): JSX.Element {
   return (
-    <Circle
+    <circle
       x={scales.xScale(point.x)}
       y={scales.yScale(point.y)}
       radius={focused ? 2 : 1}

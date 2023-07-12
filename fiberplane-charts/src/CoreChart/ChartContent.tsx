@@ -1,3 +1,5 @@
+import { Bar } from "@visx/shape";
+
 import type { AbstractChart, ShapeList } from "../ACG";
 import { ChartShape } from "./ChartShape";
 import { getShapeListColor } from "../utils";
@@ -30,6 +32,7 @@ export function ChartContent<S, P>({
           />
         )),
       )}
+      <Bar width={scales.xMax} height={scales.yMax} fill="transparent" />
     </>
   );
 }

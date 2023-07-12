@@ -1,4 +1,3 @@
-import { Group } from "@visx/group";
 import { Line } from "@visx/shape";
 import styled from "styled-components";
 import { useContext, useId, useState } from "react";
@@ -23,7 +22,10 @@ type Props<S, P> = CoreChartProps<S, P> &
 export function CoreChart<S, P>({
   chart,
   gridShown = true,
+  onChangeTimeRange,
   readOnly = false,
+  showTooltip,
+  timeRange,
   ...props
 }: Props<S, P>): JSX.Element {
   const interactiveControlsState = useContext(InteractiveControlsStateContext);
@@ -34,19 +36,22 @@ export function CoreChart<S, P>({
     setShiftKeyPressed(event.shiftKey);
   };
 
+  const { width, height, xMax, yMax, marginTop, marginLeft } =
+    useContext(ChartSizeContext);
+
   const {
     onMouseDown,
     onMouseUp,
     onMouseEnter,
     onMouseMove: onMouseMoveControls,
     graphContentRef,
-  } = useMouseControls(props);
+  } = useMouseControls({ onChangeTimeRange, timeRange, xMax, yMax });
 
   const {
     graphTooltip,
     onMouseMove: onMouseMoveTooltip,
     onMouseLeave,
-  } = useTooltip(props.showTooltip);
+  } = useTooltip(showTooltip);
 
   const onMouseMove = (event: React.MouseEvent<HTMLElement>) => {
     setShiftKeyPressed(event.shiftKey);
@@ -57,9 +62,6 @@ export function CoreChart<S, P>({
   const clipPathId = useId();
 
   const cursor = getCursorFromState(interactiveControlsState, shiftKeyPressed);
-
-  const { width, height, xMax, yMax, marginTop, marginLeft } =
-    useContext(ChartSizeContext);
 
   const scales = useScales(xMax, yMax);
 
@@ -73,34 +75,20 @@ export function CoreChart<S, P>({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
+      {/* rome-ignore lint/a11y/noSvgWithoutTitle: title would interfere with tooltip */}
       <svg width={width} height={height} style={{ cursor }}>
-        <title>{readOnly ? "Chart" : "Interactive chart"}</title>
         <defs>
           <clipPath id={clipPathId}>
             <rect x={0} y={0} width={xMax} height={yMax} />
           </clipPath>
         </defs>
-        <Group left={marginLeft} top={marginTop}>
-          {gridShown && (
-            <GridWithAxes
-              gridColumnsShown={props.gridColumnsShown}
-              gridRowsShown={props.gridRowsShown}
-              gridBordersShown={props.gridBordersShown}
-              gridDashArray={props.gridDashArray}
-              gridStrokeColor={props.gridStrokeColor}
-              scales={scales}
-            />
-          )}
-          <Group innerRef={graphContentRef} clipPath={`url(#${clipPathId})`}>
-            <ChartContent
-              chart={chart}
-              colors={props.colors}
-              focusedShapeList={props.focusedShapeList}
-              scales={scales}
-            />
-          </Group>
-          <ZoomBar />
-        </Group>
+        <g transform={`transform(${marginLeft}, ${marginTop})`}>
+          {gridShown && <GridWithAxes {...props} scales={scales} />}
+          <g clipPath={`url(#${clipPathId})`} ref={graphContentRef}>
+            <ChartContent {...props} chart={chart} scales={scales} />
+          </g>
+          <ZoomBar controlsState={interactiveControlsState} yMax={yMax} />
+        </g>
         {graphTooltip && (
           <g>
             <Line

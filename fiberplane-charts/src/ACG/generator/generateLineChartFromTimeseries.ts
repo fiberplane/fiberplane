@@ -6,22 +6,35 @@ import type {
   ShapeList,
 } from "../types";
 import {
-  detectYAxisRange,
+  calculateYAxisRange,
+  createMetricBuckets,
+  extendMinMax,
+  getInitialMinMax,
   getTimeFromTimestamp,
   getXAxisFromTimeRange,
+  MinMax,
   normalizeAlongLinearAxis,
 } from "./utils";
+import { identity } from "../../utils";
 import type { Metric, Timeseries } from "../../providerTypes";
 
 export function generateLineChartFromTimeseries(
   input: TimeseriesSourceData,
 ): AbstractChart<Timeseries, Metric> {
+  const buckets = createMetricBuckets(
+    input.timeseriesData,
+    (maybeMinMax: MinMax | undefined, value) =>
+      maybeMinMax ? extendMinMax(maybeMinMax, value) : getInitialMinMax(value),
+  );
+
   const xAxis = getXAxisFromTimeRange(input.timeRange);
-  const yAxis = detectYAxisRange(input.timeseriesData);
+  const yAxis = calculateYAxisRange(buckets, identity);
 
   const shapeLists: Array<ShapeList<Timeseries, Metric>> =
     input.timeseriesData.map((timeseries) => ({
-      shapes: getShapes(timeseries.metrics, xAxis, yAxis),
+      shapes: timeseries.visible
+        ? getShapes(timeseries.metrics, xAxis, yAxis)
+        : [],
       source: timeseries,
     }));
 

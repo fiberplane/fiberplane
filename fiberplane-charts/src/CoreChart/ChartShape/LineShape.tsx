@@ -1,5 +1,4 @@
 import { Area } from "@visx/shape";
-import { LinearGradient } from "@visx/gradient";
 import { memo, useId } from "react";
 import { Threshold } from "@visx/threshold";
 
@@ -25,20 +24,18 @@ export const LineShape = memo(function LineShape<P>({
 
   return (
     <>
-      <LinearGradient
-        id={gradientId}
-        from={color}
-        to={color}
-        fromOpacity={0.15}
-        toOpacity={0.03}
-        toOffset="23%"
-      />
+      <defs>
+        <linearGradient id={gradientId}>
+          <stop offset="0%" stopColor={color} stopOpacity={0.15} />
+          <stop offset="23%" stopColor={color} stopOpacity={0.03} />
+        </linearGradient>
+      </defs>
       <Threshold<Point<P>>
         id={id}
         data={line.points}
         x={getX}
         y0={getY}
-        y1={getY({ y: 0 })}
+        y1={scales.yScale(0)}
         clipAboveTo={0}
         clipBelowTo={scales.yMax}
         aboveAreaProps={{ fill: fillColor }}

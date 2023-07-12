@@ -3,6 +3,7 @@ export * from "./convert";
 export * from "./findUniqueKeys";
 export * from "./formatTimeseries";
 export * from "./getShapeListColor";
+export * from "./identity";
 export * from "./mergeRefs";
 export * from "./noop";
 export * from "./preventDefault";
