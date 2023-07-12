@@ -1,5 +1,5 @@
-import { Bar, Line } from "@visx/shape";
 import { Group } from "@visx/group";
+import { Line } from "@visx/shape";
 import styled from "styled-components";
 import { useContext, useId, useState } from "react";
 
