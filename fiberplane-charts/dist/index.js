@@ -308,6 +308,12 @@ const IconButton = /*#__PURE__*/ forwardRef(function IconButton(props, ref) {
 });
 
 /**
+ * Strips all falsy values from an array.
+ */ function compact(items) {
+    return items.filter(Boolean);
+}
+
+/**
  * Return a list of keys whose values vary across series (or don't exist
  * everywhere).
  */ function findUniqueKeys(timeseriesData) {
@@ -1156,14 +1162,15 @@ function useTooltip(showTooltipFn) {
     };
 }
 
-const AreaShape = /*#__PURE__*/ memo(function AreaShape({ area , color , focused , scales  }) {
+const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , area , color , focused , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
     const fillColor = `url(#${gradientId})`;
     const getX = (point)=>scales.xScale(point.x);
     const getY0 = (point)=>scales.yScale(point.yMin);
     const getY1 = (point)=>scales.yScale(point.yMax);
-    return /*#__PURE__*/ jsxs(Fragment, {
+    return /*#__PURE__*/ jsxs("g", {
+        opacity: focused || !anyFocused ? 1 : 0.2,
         children: [
             /*#__PURE__*/ jsx("defs", {
                 children: /*#__PURE__*/ jsxs("linearGradient", {
@@ -1189,7 +1196,7 @@ const AreaShape = /*#__PURE__*/ memo(function AreaShape({ area , color , focused
                 y0: getY0,
                 y1: getY1,
                 clipAboveTo: 0,
-                clipBelowTo: scales.yMax,
+                clipBelowTo: getY1,
                 aboveAreaProps: {
                     fill: fillColor
                 },
@@ -1211,13 +1218,14 @@ const AreaShape = /*#__PURE__*/ memo(function AreaShape({ area , color , focused
     });
 });
 
-const LineShape = /*#__PURE__*/ memo(function LineShape({ color , focused , line , scales  }) {
+const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , color , focused , line , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
     const fillColor = `url(#${gradientId})`;
     const getX = (point)=>scales.xScale(point.x);
     const getY = (point)=>scales.yScale(point.y);
-    return /*#__PURE__*/ jsxs(Fragment, {
+    return /*#__PURE__*/ jsxs("g", {
+        opacity: focused || !anyFocused ? 1 : 0.2,
         children: [
             /*#__PURE__*/ jsx("defs", {
                 children: /*#__PURE__*/ jsxs("linearGradient", {
@@ -1278,7 +1286,7 @@ const RectangleShape = /*#__PURE__*/ memo(function RectangleShape({ anyFocused ,
     const height = rectangle.height * yMax;
     return /*#__PURE__*/ jsx("rect", {
         x: rectangle.x * xMax,
-        y: yMax - height,
+        y: yMax - rectangle.y * yMax - height,
         width: rectangle.width * xMax,
         height: height,
         stroke: color,
@@ -1563,7 +1571,7 @@ function CoreChart({ chart , gridShown =true , onChangeTimeRange , readOnly =fal
                     })
                 }),
                 /*#__PURE__*/ jsxs("g", {
-                    transform: `transform(${marginLeft}, ${marginTop})`,
+                    transform: `translate(${marginLeft}, ${marginTop})`,
                     children: [
                         gridShown && /*#__PURE__*/ jsx(GridWithAxes, {
                             ...props,
@@ -1632,9 +1640,9 @@ const BAR_PLUS_PADDING = 1 + BAR_PADDING;
 const HALF_PADDING = 0.5 * BAR_PADDING;
 /**
  * Calculates the width of bars in bar charts.
- */ function calculateBarWidth(xAxis, interval, numShapeLists) {
+ */ function calculateBarWidth(xAxis, interval, numBarsPerGroup) {
     const numGroups = interval === 0 ? 1 : Math.round((xAxis.maxValue - xAxis.minValue) / interval) + 1;
-    const numBars = numGroups * numShapeLists;
+    const numBars = numGroups * numBarsPerGroup;
     return 1 / (numBars * BAR_PLUS_PADDING);
 }
 /**
@@ -1647,6 +1655,30 @@ const HALF_PADDING = 0.5 * BAR_PADDING;
  * and how many bars may exist in the group in total, respectively.
  */ function calculateBarX(groupX, barWidth, barIndex, numShapeLists) {
     return groupX + (barIndex - 0.5 * numShapeLists) * (barWidth * BAR_PLUS_PADDING) - barWidth * HALF_PADDING;
+}
+/**
+ * Wrapper around `createMetricBuckets()` and axes creation specialized for
+ * usage with stacked charts.
+ */ function calculateBucketsAndAxesForStackedChart(input) {
+    const buckets = createMetricBuckets(input.timeseriesData, ({ currentY , total  }, value)=>({
+            currentY,
+            total: total + value
+        }), {
+        currentY: 0,
+        total: 0
+    });
+    const isPercentage = input.stackingType === "percentage";
+    const xAxis = getXAxisFromTimeRange(input.timeRange);
+    const yAxis = isPercentage ? {
+        minValue: 0,
+        maxValue: 1
+    } : calculateStackedYAxisRange(buckets, ({ total  })=>total);
+    return {
+        buckets,
+        isPercentage,
+        xAxis,
+        yAxis
+    };
 }
 /**
  * Calculates the smallest interval between any two timestamps present in the
@@ -1669,10 +1701,10 @@ const HALF_PADDING = 0.5 * BAR_PADDING;
     return smallestInterval;
 }
 /**
- * Detects the range to display along the Y axis by looking at all the visible
- * data in the given timeseries.
+ * Detects the range to display along the Y axis by looking at all the min-max
+ * values inside the buckets.
  *
- * When rendering a stacked chart, use `detectStackedYAxisRange()` instead.
+ * When rendering a stacked chart, use `calculateStackedYAxisRange()` instead.
  */ function calculateYAxisRange(buckets, getMinMax) {
     const minMax = getBucketsMinMax(buckets, getMinMax);
     if (!minMax) {
@@ -1685,11 +1717,11 @@ const HALF_PADDING = 0.5 * BAR_PADDING;
     };
 }
 /**
- * Detects the range to display along the Y axis by looking at all the visible
- * data in the given timeseries.
+ * Detects the range to display along the Y axis by looking at all the totals
+ * inside the buckets.
  *
  * This function is used for stacked charts. When rendering a normal chart, use
- * `detectYAxisRange()` instead.
+ * `calculateYAxisRange()` instead.
  */ function calculateStackedYAxisRange(buckets, getTotalValue) {
     if (buckets.size === 0) {
         return getYAxisForConstantValue(0);
@@ -1698,12 +1730,13 @@ const HALF_PADDING = 0.5 * BAR_PADDING;
     for (const value of buckets.values()){
         extendMinMax(minMax, getTotalValue(value));
     }
-    if (minMax[0] === minMax[1]) {
-        return getYAxisForConstantValue(minMax[0]);
+    const [minValue, maxValue] = minMax;
+    if (minValue === maxValue) {
+        return getYAxisForConstantValue(minValue);
     }
     return {
-        minValue: minMax[0],
-        maxValue: minMax[1]
+        minValue,
+        maxValue
     };
 }
 function createMetricBuckets(timeseriesData, reducer, initialValue) {
@@ -1713,7 +1746,9 @@ function createMetricBuckets(timeseriesData, reducer, initialValue) {
             continue;
         }
         for (const { time , value  } of timeseries.metrics){
-            buckets.set(time, reducer(buckets.get(time) ?? initialValue, value));
+            if (!Number.isNaN(value)) {
+                buckets.set(time, reducer(buckets.get(time) ?? initialValue, value));
+            }
         }
     }
     return buckets;
@@ -1824,19 +1859,19 @@ function generateBarChartFromTimeseries(input) {
     const xAxis = getXAxisFromTimeRange(input.timeRange);
     const yAxis = calculateYAxisRange(buckets, identity);
     const numShapeLists = visibleTimeseriesData.length;
-    const smallestInterval = calculateSmallestTimeInterval(buckets);
-    if (smallestInterval) {
-        extendAxisWithInterval(xAxis, smallestInterval);
+    const interval = calculateSmallestTimeInterval(buckets);
+    if (interval) {
+        extendAxisWithInterval(xAxis, interval);
     }
-    const barWidth = calculateBarWidth(xAxis, smallestInterval ?? 0, numShapeLists);
-    const shapeArgs = {
-        xAxis,
-        yAxis,
+    const barWidth = calculateBarWidth(xAxis, interval ?? 0, numShapeLists);
+    const barArgs = {
         barWidth,
-        numShapeLists
+        numShapeLists,
+        xAxis,
+        yAxis
     };
     const shapeLists = input.timeseriesData.map((timeseries)=>({
-            shapes: timeseries.visible ? timeseries.metrics.map((metric)=>getBarShape$1(metric, visibleTimeseriesData.indexOf(timeseries), shapeArgs)) : [],
+            shapes: timeseries.visible ? compact(timeseries.metrics.map((metric)=>getBarShape$1(metric, visibleTimeseriesData.indexOf(timeseries), barArgs))) : [],
             source: timeseries
         }));
     return {
@@ -1846,6 +1881,9 @@ function generateBarChartFromTimeseries(input) {
     };
 }
 function getBarShape$1(metric, barIndex, { xAxis , yAxis , barWidth , numShapeLists: numVisibleTimeseries  }) {
+    if (Number.isNaN(metric.value)) {
+        return null;
+    }
     const groupX = normalizeAlongLinearAxis(getTimeFromTimestamp(metric.time), xAxis);
     return {
         type: "rectangle",
@@ -1876,72 +1914,50 @@ function getShapes$1(metrics, xAxis, yAxis) {
         case 0:
             return [];
         case 1:
-            return [
-                {
-                    type: "point",
-                    x: normalizeAlongLinearAxis(getTime$2(metrics[0]), xAxis),
-                    y: normalizeAlongLinearAxis(metrics[0].value, yAxis),
-                    source: metrics[0]
-                }
-            ];
+            {
+                const metric = metrics[0];
+                return Number.isNaN(metric.value) ? [] : [
+                    {
+                        type: "point",
+                        ...getPointForMetric$1(metric, xAxis, yAxis)
+                    }
+                ];
+            }
         default:
+            // TODO: Implement gap detection: https://github.com/autometrics-dev/explorer/issues/35
             return [
                 {
                     type: "line",
-                    points: metrics.map((metric)=>({
-                            x: normalizeAlongLinearAxis(getTime$2(metric), xAxis),
-                            y: normalizeAlongLinearAxis(metric.value, yAxis),
-                            source: metric
-                        }))
+                    points: metrics.map((metric)=>getPointForMetric$1(metric, xAxis, yAxis))
                 }
             ];
     }
 }
-function getTime$2(metric) {
-    return getTimeFromTimestamp(metric.time);
-}
-
-function generateStackedBarChartFromTimeseries(input) {
-    const buckets = createMetricBuckets(input.timeseriesData, (total, value)=>total + value, 0);
-    const xAxis = getXAxisFromTimeRange(input.timeRange);
-    const yAxis = input.stackingType === "percentage" ? {
-        minValue: 0,
-        maxValue: 100
-    } : calculateStackedYAxisRange(buckets, identity);
-    const shapeLists = input.timeseriesData.map((timeseries)=>({
-            shapes: timeseries.metrics.map((metric)=>getBarShape(metric, xAxis, yAxis)),
-            source: timeseries
-        }));
+function getPointForMetric$1(metric, xAxis, yAxis) {
+    const time = getTimeFromTimestamp(metric.time);
     return {
-        shapeLists,
-        xAxis,
-        yAxis
-    };
-}
-function getBarShape(metric, xAxis, yAxis) {
-    const x = normalizeAlongLinearAxis(getTime$1(metric), xAxis);
-    return {
-        type: "rectangle",
-        x: x - 0.05,
-        width: 0.1,
-        y: 0,
-        height: normalizeAlongLinearAxis(metric.value, yAxis),
+        x: normalizeAlongLinearAxis(time, xAxis),
+        y: normalizeAlongLinearAxis(metric.value, yAxis),
         source: metric
     };
 }
-function getTime$1(metric) {
-    return getTimeFromTimestamp(metric.time);
-}
 
-function generateStackedLineChartFromTimeseries(input) {
-    const buckets = createMetricBuckets(input.timeseriesData, (total, value)=>total + value, 0);
-    const xAxis = getXAxisFromTimeRange(input.timeRange);
-    const yAxis = input.stackingType === "percentage" ? {
-        minValue: 0,
-        maxValue: 100
-    } : calculateStackedYAxisRange(buckets, identity);
+function generateStackedBarChartFromTimeseries(input) {
+    const { buckets , isPercentage , xAxis , yAxis  } = calculateBucketsAndAxesForStackedChart(input);
+    const interval = calculateSmallestTimeInterval(buckets);
+    if (interval) {
+        extendAxisWithInterval(xAxis, interval);
+    }
+    const barWidth = calculateBarWidth(xAxis, interval ?? 0, 1);
+    const barArgs = {
+        barWidth,
+        buckets,
+        isPercentage,
+        xAxis,
+        yAxis
+    };
     const shapeLists = input.timeseriesData.map((timeseries)=>({
-            shapes: getShapes(timeseries.metrics, xAxis, yAxis),
+            shapes: timeseries.visible ? compact(timeseries.metrics.map((metric)=>getBarShape(metric, barArgs))) : [],
             source: timeseries
         }));
     return {
@@ -1950,34 +1966,68 @@ function generateStackedLineChartFromTimeseries(input) {
         yAxis
     };
 }
-function getShapes(metrics, xAxis, yAxis) {
-    switch(metrics.length){
-        case 0:
-            return [];
-        case 1:
-            return [
-                {
-                    type: "point",
-                    x: normalizeAlongLinearAxis(getTime(metrics[0]), xAxis),
-                    y: normalizeAlongLinearAxis(metrics[0].value, yAxis),
-                    source: metrics[0]
-                }
-            ];
-        default:
-            return [
-                {
-                    type: "line",
-                    points: metrics.map((metric)=>({
-                            x: normalizeAlongLinearAxis(getTime(metric), xAxis),
-                            y: normalizeAlongLinearAxis(metric.value, yAxis),
-                            source: metric
-                        }))
-                }
-            ];
+function getBarShape(metric, { xAxis , yAxis , barWidth , isPercentage , buckets  }) {
+    const bucketValue = buckets.get(metric.time);
+    if (!bucketValue || Number.isNaN(metric.value)) {
+        return null;
     }
+    const time = getTimeFromTimestamp(metric.time);
+    const value = isPercentage ? metric.value / bucketValue.total : metric.value;
+    const x = normalizeAlongLinearAxis(time, xAxis) - 0.5 * barWidth;
+    const y = bucketValue.currentY;
+    const height = normalizeAlongLinearAxis(value, yAxis);
+    bucketValue.currentY += height;
+    return {
+        type: "rectangle",
+        x,
+        y,
+        width: barWidth,
+        height,
+        source: metric
+    };
 }
-function getTime(metric) {
-    return getTimeFromTimestamp(metric.time);
+
+function generateStackedLineChartFromTimeseries(input) {
+    const axesAndBuckets = calculateBucketsAndAxesForStackedChart(input);
+    const shapeLists = input.timeseriesData.map((timeseries)=>({
+            shapes: timeseries.visible ? getShapes(timeseries.metrics, axesAndBuckets) : [],
+            source: timeseries
+        }));
+    return {
+        shapeLists,
+        xAxis: axesAndBuckets.xAxis,
+        yAxis: axesAndBuckets.yAxis
+    };
+}
+function getShapes(metrics, axesAndBuckets) {
+    if (metrics.length === 0) {
+        return [];
+    }
+    // TODO: Implement gap detection: https://github.com/autometrics-dev/explorer/issues/35
+    const points = compact(metrics.map((metric)=>getPointForMetric(metric, axesAndBuckets)));
+    return [
+        {
+            type: "area",
+            points
+        }
+    ];
+}
+function getPointForMetric(metric, { buckets , isPercentage , xAxis , yAxis  }) {
+    const bucketValue = buckets.get(metric.time);
+    if (!bucketValue) {
+        return null;
+    }
+    const time = getTimeFromTimestamp(metric.time);
+    const value = isPercentage ? metric.value / bucketValue.total : metric.value;
+    const yMin = bucketValue.currentY;
+    const yMax = yMin + normalizeAlongLinearAxis(value, yAxis);
+    bucketValue.currentY = yMax;
+    return {
+        x: normalizeAlongLinearAxis(time, xAxis),
+        yMin,
+        yMax,
+        source: metric
+    };
 }
 
 function generateFromTimeseries(input) {

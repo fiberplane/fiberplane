@@ -1,9 +1,10 @@
 import type {
   AbstractChart,
   Axis,
-  TimeseriesSourceData,
+  Point,
   Shape,
   ShapeList,
+  TimeseriesSourceData,
 } from "../types";
 import {
   calculateYAxisRange,
@@ -38,11 +39,7 @@ export function generateLineChartFromTimeseries(
       source: timeseries,
     }));
 
-  return {
-    shapeLists,
-    xAxis,
-    yAxis,
-  };
+  return { shapeLists, xAxis, yAxis };
 }
 
 function getShapes(
@@ -53,29 +50,35 @@ function getShapes(
   switch (metrics.length) {
     case 0:
       return [];
-    case 1:
-      return [
-        {
-          type: "point",
-          x: normalizeAlongLinearAxis(getTime(metrics[0]), xAxis),
-          y: normalizeAlongLinearAxis(metrics[0].value, yAxis),
-          source: metrics[0],
-        },
-      ];
+    case 1: {
+      const metric = metrics[0];
+      return Number.isNaN(metric.value)
+        ? []
+        : [{ type: "point", ...getPointForMetric(metric, xAxis, yAxis) }];
+    }
     default:
+      // TODO: Implement gap detection: https://github.com/autometrics-dev/explorer/issues/35
       return [
         {
           type: "line",
-          points: metrics.map((metric) => ({
-            x: normalizeAlongLinearAxis(getTime(metric), xAxis),
-            y: normalizeAlongLinearAxis(metric.value, yAxis),
-            source: metric,
-          })),
+          points: metrics.map((metric) =>
+            getPointForMetric(metric, xAxis, yAxis),
+          ),
         },
       ];
   }
 }
 
-function getTime(metric: Metric): number {
-  return getTimeFromTimestamp(metric.time);
+function getPointForMetric(
+  metric: Metric,
+  xAxis: Axis,
+  yAxis: Axis,
+): Point<Metric> {
+  const time = getTimeFromTimestamp(metric.time);
+
+  return {
+    x: normalizeAlongLinearAxis(time, xAxis),
+    y: normalizeAlongLinearAxis(metric.value, yAxis),
+    source: metric,
+  };
 }

@@ -19,7 +19,7 @@ export const RectangleShape = memo(function RectangleShape<P>({
   return (
     <rect
       x={rectangle.x * xMax}
-      y={yMax - height}
+      y={yMax - rectangle.y * yMax - height}
       width={rectangle.width * xMax}
       height={height}
       stroke={color}

@@ -10,6 +10,7 @@ type Props<P> = CommonShapeProps & {
 };
 
 export const AreaShape = memo(function AreaShape<P>({
+  anyFocused,
   area,
   color,
   focused,
@@ -24,7 +25,7 @@ export const AreaShape = memo(function AreaShape<P>({
   const getY1 = (point: { yMax: number }) => scales.yScale(point.yMax);
 
   return (
-    <>
+    <g opacity={focused || !anyFocused ? 1 : 0.2}>
       <defs>
         <linearGradient id={gradientId}>
           <stop offset="0%" stopColor={color} stopOpacity={0.15} />
@@ -38,7 +39,7 @@ export const AreaShape = memo(function AreaShape<P>({
         y0={getY0}
         y1={getY1}
         clipAboveTo={0}
-        clipBelowTo={scales.yMax}
+        clipBelowTo={getY1}
         aboveAreaProps={{ fill: fillColor }}
         // Keep this one around to spot any incorrect threshold computations.
         belowAreaProps={{ fill: "violet" }}
@@ -52,6 +53,6 @@ export const AreaShape = memo(function AreaShape<P>({
         strokeWidth={focused ? 1.5 : 1}
         fill={fillColor}
       />
-    </>
+    </g>
   );
 });

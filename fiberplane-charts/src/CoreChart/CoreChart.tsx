@@ -82,7 +82,7 @@ export function CoreChart<S, P>({
             <rect x={0} y={0} width={xMax} height={yMax} />
           </clipPath>
         </defs>
-        <g transform={`transform(${marginLeft}, ${marginTop})`}>
+        <g transform={`translate(${marginLeft}, ${marginTop})`}>
           {gridShown && <GridWithAxes {...props} scales={scales} />}
           <g clipPath={`url(#${clipPathId})`} ref={graphContentRef}>
             <ChartContent {...props} chart={chart} scales={scales} />

@@ -1,79 +1,76 @@
 import type {
   AbstractChart,
-  Axis,
-  TimeseriesSourceData,
+  AreaPoint,
   Shape,
   ShapeList,
+  TimeseriesSourceData,
 } from "../types";
 import {
-  calculateStackedYAxisRange,
-  createMetricBuckets,
+  calculateBucketsAndAxesForStackedChart,
   getTimeFromTimestamp,
-  getXAxisFromTimeRange,
   normalizeAlongLinearAxis,
 } from "./utils";
-import { identity } from "../../utils";
 import type { Metric, Timeseries } from "../../providerTypes";
+import { compact } from "../../utils";
+
+type AxesAndBuckets = ReturnType<typeof calculateBucketsAndAxesForStackedChart>;
 
 export function generateStackedLineChartFromTimeseries(
   input: TimeseriesSourceData,
 ): AbstractChart<Timeseries, Metric> {
-  const buckets = createMetricBuckets(
-    input.timeseriesData,
-    (total, value) => total + value,
-    0,
-  );
-
-  const xAxis = getXAxisFromTimeRange(input.timeRange);
-  const yAxis =
-    input.stackingType === "percentage"
-      ? { minValue: 0, maxValue: 100 }
-      : calculateStackedYAxisRange(buckets, identity);
+  const axesAndBuckets = calculateBucketsAndAxesForStackedChart(input);
 
   const shapeLists: Array<ShapeList<Timeseries, Metric>> =
     input.timeseriesData.map((timeseries) => ({
-      shapes: getShapes(timeseries.metrics, xAxis, yAxis),
+      shapes: timeseries.visible
+        ? getShapes(timeseries.metrics, axesAndBuckets)
+        : [],
       source: timeseries,
     }));
 
   return {
     shapeLists,
-    xAxis,
-    yAxis,
+    xAxis: axesAndBuckets.xAxis,
+    yAxis: axesAndBuckets.yAxis,
   };
 }
 
 function getShapes(
   metrics: Array<Metric>,
-  xAxis: Axis,
-  yAxis: Axis,
+  axesAndBuckets: AxesAndBuckets,
 ): Array<Shape<Metric>> {
-  switch (metrics.length) {
-    case 0:
-      return [];
-    case 1:
-      return [
-        {
-          type: "point",
-          x: normalizeAlongLinearAxis(getTime(metrics[0]), xAxis),
-          y: normalizeAlongLinearAxis(metrics[0].value, yAxis), // FIXME
-          source: metrics[0],
-        },
-      ];
-    default:
-      return [
-        {
-          type: "line",
-          points: metrics.map((metric) => ({
-            x: normalizeAlongLinearAxis(getTime(metric), xAxis),
-            y: normalizeAlongLinearAxis(metric.value, yAxis), // FIXME
-            source: metric,
-          })),
-        },
-      ];
+  if (metrics.length === 0) {
+    return [];
   }
+
+  // TODO: Implement gap detection: https://github.com/autometrics-dev/explorer/issues/35
+  const points = compact(
+    metrics.map((metric) => getPointForMetric(metric, axesAndBuckets)),
+  );
+
+  return [{ type: "area", points }];
 }
 
-function getTime(metric: Metric): number {
-  return getTimeFromTimestamp(metric.time);
+function getPointForMetric(
+  metric: Metric,
+  { buckets, isPercentage, xAxis, yAxis }: AxesAndBuckets,
+): AreaPoint<Metric> | null {
+  const bucketValue = buckets.get(metric.time);
+  if (!bucketValue) {
+    return null;
+  }
+
+  const time = getTimeFromTimestamp(metric.time);
+  const value = isPercentage ? metric.value / bucketValue.total : metric.value;
+
+  const yMin = bucketValue.currentY;
+  const yMax = yMin + normalizeAlongLinearAxis(value, yAxis);
+  bucketValue.currentY = yMax;
+
+  return {
+    x: normalizeAlongLinearAxis(time, xAxis),
+    yMin,
+    yMax,
+    source: metric,
+  };
 }

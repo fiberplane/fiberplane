@@ -1,4 +1,4 @@
-import type { Axis } from "../types";
+import type { Axis, TimeseriesSourceData } from "../types";
 import type { TimeRange, Timeseries } from "../../providerTypes";
 
 const BAR_PADDING = 0.2;
@@ -18,19 +18,34 @@ export type Buckets<T> = Map<string, T>;
  */
 export type MinMax = [min: number, max: number];
 
+export type StackedChartBuckets = Buckets<StackedChartBucketValue>;
+
+export type StackedChartBucketValue = {
+  /**
+   * Used to keep track of how much a bucket is "filled" while calculating the
+   * area shapes.
+   */
+  currentY: number;
+
+  /**
+   * The sum of all values in the bucket.
+   */
+  total: number;
+};
+
 /**
  * Calculates the width of bars in bar charts.
  */
 export function calculateBarWidth(
   xAxis: Axis,
   interval: number,
-  numShapeLists: number,
+  numBarsPerGroup: number,
 ): number {
   const numGroups =
     interval === 0
       ? 1
       : Math.round((xAxis.maxValue - xAxis.minValue) / interval) + 1;
-  const numBars = numGroups * numShapeLists;
+  const numBars = numGroups * numBarsPerGroup;
   return 1 / (numBars * BAR_PLUS_PADDING);
 }
 
@@ -54,6 +69,29 @@ export function calculateBarX(
     (barIndex - 0.5 * numShapeLists) * (barWidth * BAR_PLUS_PADDING) -
     barWidth * HALF_PADDING
   );
+}
+
+/**
+ * Wrapper around `createMetricBuckets()` and axes creation specialized for
+ * usage with stacked charts.
+ */
+export function calculateBucketsAndAxesForStackedChart(
+  input: TimeseriesSourceData,
+) {
+  const buckets = createMetricBuckets(
+    input.timeseriesData,
+    ({ currentY, total }, value) => ({ currentY, total: total + value }),
+    { currentY: 0, total: 0 } as StackedChartBucketValue,
+  );
+
+  const isPercentage = input.stackingType === "percentage";
+
+  const xAxis = getXAxisFromTimeRange(input.timeRange);
+  const yAxis = isPercentage
+    ? { minValue: 0, maxValue: 1 }
+    : calculateStackedYAxisRange(buckets, ({ total }) => total);
+
+  return { buckets, isPercentage, xAxis, yAxis };
 }
 
 /**
@@ -84,10 +122,10 @@ export function calculateSmallestTimeInterval(
 }
 
 /**
- * Detects the range to display along the Y axis by looking at all the visible
- * data in the given timeseries.
+ * Detects the range to display along the Y axis by looking at all the min-max
+ * values inside the buckets.
  *
- * When rendering a stacked chart, use `detectStackedYAxisRange()` instead.
+ * When rendering a stacked chart, use `calculateStackedYAxisRange()` instead.
  */
 export function calculateYAxisRange<T>(
   buckets: Buckets<T>,
@@ -108,11 +146,11 @@ export function calculateYAxisRange<T>(
 }
 
 /**
- * Detects the range to display along the Y axis by looking at all the visible
- * data in the given timeseries.
+ * Detects the range to display along the Y axis by looking at all the totals
+ * inside the buckets.
  *
  * This function is used for stacked charts. When rendering a normal chart, use
- * `detectYAxisRange()` instead.
+ * `calculateYAxisRange()` instead.
  */
 export function calculateStackedYAxisRange<T>(
   buckets: Buckets<T>,
@@ -127,11 +165,12 @@ export function calculateStackedYAxisRange<T>(
     extendMinMax(minMax, getTotalValue(value));
   }
 
-  if (minMax[0] === minMax[1]) {
-    return getYAxisForConstantValue(minMax[0]);
+  const [minValue, maxValue] = minMax;
+  if (minValue === maxValue) {
+    return getYAxisForConstantValue(minValue);
   }
 
-  return { minValue: minMax[0], maxValue: minMax[1] };
+  return { minValue, maxValue };
 }
 
 /**
@@ -154,7 +193,7 @@ export function createMetricBuckets<T>(
 ): Buckets<T>;
 export function createMetricBuckets<T>(
   timeseriesData: Array<Timeseries>,
-  reducer: (current: T | undefined, metricValue: number) => T,
+  reducer: (current: T, metricValue: number) => T,
   initialValue: T,
 ): Buckets<T> {
   const buckets = new Map<string, T>();
@@ -165,7 +204,9 @@ export function createMetricBuckets<T>(
     }
 
     for (const { time, value } of timeseries.metrics) {
-      buckets.set(time, reducer(buckets.get(time) ?? initialValue, value));
+      if (!Number.isNaN(value)) {
+        buckets.set(time, reducer(buckets.get(time) ?? initialValue, value));
+      }
     }
   }
 

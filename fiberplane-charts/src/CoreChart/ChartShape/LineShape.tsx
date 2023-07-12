@@ -10,6 +10,7 @@ type Props<P> = CommonShapeProps & {
 };
 
 export const LineShape = memo(function LineShape<P>({
+  anyFocused,
   color,
   focused,
   line,
@@ -23,7 +24,7 @@ export const LineShape = memo(function LineShape<P>({
   const getY = (point: { y: number }) => scales.yScale(point.y);
 
   return (
-    <>
+    <g opacity={focused || !anyFocused ? 1 : 0.2}>
       <defs>
         <linearGradient id={gradientId}>
           <stop offset="0%" stopColor={color} stopOpacity={0.15} />
@@ -50,6 +51,6 @@ export const LineShape = memo(function LineShape<P>({
         strokeWidth={focused ? 1.5 : 1}
         fill={fillColor}
       />
-    </>
+    </g>
   );
 });

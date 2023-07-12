@@ -19,7 +19,7 @@ import {
   MinMax,
   normalizeAlongLinearAxis,
 } from "./utils";
-import { identity } from "../../utils";
+import { compact, identity } from "../../utils";
 import type { Metric, Timeseries } from "../../providerTypes";
 
 export function generateBarChartFromTimeseries(
@@ -39,52 +39,49 @@ export function generateBarChartFromTimeseries(
   const yAxis = calculateYAxisRange(buckets, identity);
 
   const numShapeLists = visibleTimeseriesData.length;
-  const smallestInterval = calculateSmallestTimeInterval(buckets);
-  if (smallestInterval) {
-    extendAxisWithInterval(xAxis, smallestInterval);
+  const interval = calculateSmallestTimeInterval(buckets);
+  if (interval) {
+    extendAxisWithInterval(xAxis, interval);
   }
 
-  const barWidth = calculateBarWidth(
-    xAxis,
-    smallestInterval ?? 0,
-    numShapeLists,
-  );
-
-  const shapeArgs: ShapeArgs = { xAxis, yAxis, barWidth, numShapeLists };
+  const barWidth = calculateBarWidth(xAxis, interval ?? 0, numShapeLists);
+  const barArgs: BarArgs = { barWidth, numShapeLists, xAxis, yAxis };
 
   const shapeLists: Array<ShapeList<Timeseries, Metric>> =
     input.timeseriesData.map((timeseries) => ({
       shapes: timeseries.visible
-        ? timeseries.metrics.map((metric) =>
-            getBarShape(
-              metric,
-              visibleTimeseriesData.indexOf(timeseries),
-              shapeArgs,
+        ? compact(
+            timeseries.metrics.map((metric) =>
+              getBarShape(
+                metric,
+                visibleTimeseriesData.indexOf(timeseries),
+                barArgs,
+              ),
             ),
           )
         : [],
       source: timeseries,
     }));
 
-  return {
-    shapeLists,
-    xAxis,
-    yAxis,
-  };
+  return { shapeLists, xAxis, yAxis };
 }
 
-type ShapeArgs = {
-  xAxis: Axis;
-  yAxis: Axis;
+type BarArgs = {
   barWidth: number;
   numShapeLists: number;
+  xAxis: Axis;
+  yAxis: Axis;
 };
 
 function getBarShape(
   metric: Metric,
   barIndex: number,
-  { xAxis, yAxis, barWidth, numShapeLists: numVisibleTimeseries }: ShapeArgs,
-): Shape<Metric> {
+  { xAxis, yAxis, barWidth, numShapeLists: numVisibleTimeseries }: BarArgs,
+): Shape<Metric> | null {
+  if (Number.isNaN(metric.value)) {
+    return null;
+  }
+
   const groupX = normalizeAlongLinearAxis(
     getTimeFromTimestamp(metric.time),
     xAxis,
