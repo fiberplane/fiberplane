@@ -2425,6 +2425,32 @@ const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , ySca
                 });
             }
         } else {
+            if (events) {
+                const candidates = events.map((event)=>{
+                    const xValue = x(event);
+                    return {
+                        xValue,
+                        event
+                    };
+                }).filter((data)=>insideRange(data.xValue, args.xRange));
+                // const candidates = events.filter(p => insideRange(x(p), args.xRange))
+                if (candidates.length > 0) {
+                    const candidate = candidates[0];
+                    const left = xScale(candidate.xValue) + MARGINS.left;
+                    const top = MARGINS.top;
+                    const svg = event.currentTarget.ownerSVGElement;
+                    if (svg) {
+                        showTooltip({
+                            color: "red",
+                            metric: formatTimeseriesTooltip(candidate.event.info, candidate.event),
+                            element: svg,
+                            left,
+                            top
+                        });
+                        return;
+                    }
+                }
+            }
             hideTooltip();
         }
     });
@@ -2448,6 +2474,9 @@ const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , ySca
                 id: "events",
                 children: events.map((event)=>{
                     const x = xScale(new Date(event.time));
+                    if (x < 10) {
+                        return null;
+                    }
                     return /*#__PURE__*/ jsx("line", {
                         x1: x,
                         x2: x,
@@ -2503,7 +2532,7 @@ function formatTimeseriesTooltip(timeseries, metric) {
                 children: metric.time
             }),
             /*#__PURE__*/ jsx("thead", {
-                children: /*#__PURE__*/ jsxs("tr", {
+                children: "value" in metric && /*#__PURE__*/ jsxs("tr", {
                     children: [
                         /*#__PURE__*/ jsx("th", {
                             children: timeseries.name || "value"
@@ -2737,7 +2766,6 @@ function CoreChart({ gridShown =true , ...props }) {
     // Use a custom formatter when `xScale` is a `ScaleBand<number>`. We want to
     // display the time, not the timestamp (number).
     const xScaleFormatter = xScaleProps.graphType === "bar" && xScaleProps.stackingType === "none" ? getTimeFormatter(xScaleProps.xScale) : undefined;
-    console.log("props.events", props.events);
     return /*#__PURE__*/ jsx(TooltipContext.Provider, {
         value: tooltipApiValue,
         children: /*#__PURE__*/ jsx(StyledContainer, {

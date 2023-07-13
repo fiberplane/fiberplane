@@ -21,9 +21,10 @@ import { TimeseriesTableCaption, TimeseriesTableTd } from "../TimeseriesTable";
 import type { ValueScale, TimeScale } from "../../../MetricsChart/scales";
 import { useHandler } from "../../../hooks";
 import { CoreChartProps } from "../..";
+import { Timestamp } from "../../../../dist";
 
-export const x = (metric: Metric) => new Date(metric.time).getTime();
-export const y = (metric: Metric) => metric.value;
+export const x = (metric: Pick<Metric, "time">) => new Date(metric.time).getTime();
+export const y = (metric: Pick<Metric, "value">) => metric.value;
 
 type Props = {
   timeseriesData: Array<Timeseries>;
@@ -76,6 +77,34 @@ export const Lines = memo(function Lines({
           });
         }
       } else {
+        if (events) {
+          const candidates = events.map(event => {
+            const xValue = x(event);
+            return {
+              xValue,
+              event,
+            };
+          }).filter(data => insideRange(data.xValue, args.xRange))
+
+          // const candidates = events.filter(p => insideRange(x(p), args.xRange))
+          if (candidates.length > 0) {
+            const candidate = candidates[0];
+            const left = xScale(candidate.xValue) + MARGINS.left;
+            const top = MARGINS.top + 2;
+            const svg = event.currentTarget.ownerSVGElement;
+
+            if (svg) {
+              showTooltip({
+                color: "red",
+                metric: formatTimeseriesTooltip(candidate.event.info, candidate.event),
+                element: svg,
+                left,
+                top,
+              });
+              return;
+            }
+          }
+        }
         hideTooltip();
       }
     },
@@ -113,6 +142,10 @@ export const Lines = memo(function Lines({
         <Group id="events">
           {events.map((event) => {
             const x = xScale(new Date(event.time));
+            if (x < 10) {
+              return null;
+            }
+
             return (
               <line
                 key={event.time}
@@ -176,15 +209,15 @@ function closestMetric({
   return [metric, seriesIndex];
 }
 
-function formatTimeseriesTooltip(timeseries: Timeseries, metric: Metric) {
+function formatTimeseriesTooltip(timeseries: Omit<Timeseries, "metrics">, metric: Metric | { time: Timestamp}) {
   return (
     <table>
       <TimeseriesTableCaption>{metric.time}</TimeseriesTableCaption>
       <thead>
-        <tr>
+        {"value" in metric && <tr>
           <th>{timeseries.name || "value"}</th>
           <th>{metric.value}</th>
-        </tr>
+        </tr>}
       </thead>
       <tbody>
         {Object.entries(timeseries.labels).map(([key, value]) => (
