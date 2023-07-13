@@ -109,6 +109,7 @@ export function CoreChart({
                 xScaleProps={xScaleProps}
                 yScale={yScale}
                 colors={props.colors}
+                events={props.events}
               />
             </Group>
             <ZoomBar />

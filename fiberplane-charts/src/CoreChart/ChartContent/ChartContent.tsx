@@ -5,19 +5,21 @@ import { Lines } from "./Lines";
 import type { Timeseries } from "../../types";
 import type { ValueScale } from "../../MetricsChart/scales";
 import type { XScaleProps } from "../../MetricsChart/types";
+import { CoreChartProps } from "..";
 
 type Props = {
   timeseriesData: Array<Timeseries>;
   xScaleProps: XScaleProps;
   yScale: ValueScale;
   colors: Array<string>;
-};
+} & Pick<CoreChartProps, "events">;
 
 export function ChartContent({
   timeseriesData,
   xScaleProps,
   yScale,
   colors,
+  events,
 }: Props): JSX.Element {
   if (xScaleProps.graphType === "line" && xScaleProps.stackingType === "none") {
     return (
@@ -26,6 +28,7 @@ export function ChartContent({
         xScale={xScaleProps.xScale}
         yScale={yScale}
         colors={colors}
+        events={events}
       />
     );
   }

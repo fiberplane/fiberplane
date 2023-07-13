@@ -2388,7 +2388,7 @@ const Line = /*#__PURE__*/ memo(function Line({ xScale , yScale , metrics , yMax
 
 const x = (metric)=>new Date(metric.time).getTime();
 const y = (metric)=>metric.value;
-const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , yScale , colors  }) {
+const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , yScale , colors , events  }) {
     const { xMax , yMax  } = useContext(ChartSizeContext);
     const { showTooltip , hideTooltip  } = useContext(TooltipContext);
     const handleTooltip = useHandler((event)=>{
@@ -2444,6 +2444,19 @@ const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , ySca
                 }, formatTimeseries(timeseries, {
                     sortLabels: false
                 }))),
+            events && /*#__PURE__*/ jsx(Group, {
+                children: events.map((event)=>{
+                    const x = xScale(new Date(event.time));
+                    return /*#__PURE__*/ jsx("line", {
+                        x1: x,
+                        x2: x,
+                        y1: 0,
+                        y2: yMax,
+                        stroke: "red",
+                        strokeWidth: 1
+                    }, event.time);
+                })
+            }),
             /*#__PURE__*/ jsx(Bar, {
                 width: xMax,
                 height: yMax,
@@ -2518,13 +2531,14 @@ function formatTimeseriesTooltip(timeseries, metric) {
     });
 }
 
-function ChartContent({ timeseriesData , xScaleProps , yScale , colors  }) {
+function ChartContent({ timeseriesData , xScaleProps , yScale , colors , events  }) {
     if (xScaleProps.graphType === "line" && xScaleProps.stackingType === "none") {
         return /*#__PURE__*/ jsx(Lines, {
             timeseriesData: timeseriesData,
             xScale: xScaleProps.xScale,
             yScale: yScale,
-            colors: colors
+            colors: colors,
+            events: events
         });
     }
     if (xScaleProps.graphType === "line") {
@@ -2771,7 +2785,8 @@ function CoreChart({ gridShown =true , ...props }) {
                                     timeseriesData: props.timeseriesData,
                                     xScaleProps: xScaleProps,
                                     yScale: yScale,
-                                    colors: props.colors
+                                    colors: props.colors,
+                                    events: props.events
                                 })
                             }),
                             /*#__PURE__*/ jsx(ZoomBar, {})

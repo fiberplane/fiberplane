@@ -20,6 +20,7 @@ import type { Metric, Timeseries } from "../../../types";
 import { TimeseriesTableCaption, TimeseriesTableTd } from "../TimeseriesTable";
 import type { ValueScale, TimeScale } from "../../../MetricsChart/scales";
 import { useHandler } from "../../../hooks";
+import { CoreChartProps } from "../..";
 
 export const x = (metric: Metric) => new Date(metric.time).getTime();
 export const y = (metric: Metric) => metric.value;
@@ -29,17 +30,17 @@ type Props = {
   xScale: TimeScale;
   yScale: ValueScale;
   colors: Array<string>;
-};
+} & Pick<CoreChartProps, "events">;
 
 export const Lines = memo(function Lines({
   timeseriesData,
   xScale,
   yScale,
   colors,
+  events,
 }: Props) {
   const { xMax, yMax } = useContext(ChartSizeContext);
   const { showTooltip, hideTooltip } = useContext(TooltipContext);
-
   const handleTooltip = useHandler(
     (event: React.MouseEvent<SVGRectElement>) => {
       const displayed = timeseriesData.filter((series) => series.visible);
@@ -108,6 +109,21 @@ export const Lines = memo(function Lines({
             </Group>
           ),
       )}
+      {events && <Group>
+          {events.map((event) => {
+            const x = xScale(new Date(event.time));
+            return (
+              <line
+                key={event.time}
+                x1={x}
+                x2={x}
+                y1={0}
+                y2={yMax}
+                stroke="red"
+                strokeWidth={1}/>
+            );
+          })}
+        </Group>}
       <Bar
         width={xMax}
         height={yMax}

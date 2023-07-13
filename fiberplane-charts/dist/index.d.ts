@@ -350,6 +350,10 @@ type CoreChartProps = {
      * Override the colors that the charts will use. If not specified several colors of the theme are used
      */
     colors?: Array<string>;
+    events?: Array<{
+        info: Omit<Timeseries, "metrics">;
+        time: Timestamp;
+    }>;
 } & Pick<ChartLegendProps, "onToggleTimeseriesVisibility">;
 
 declare function MetricsChart(props: CoreChartProps): JSX.Element;

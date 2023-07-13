@@ -4,6 +4,7 @@ import {
   StackingType,
   TimeRange,
   Timeseries,
+  Timestamp,
 } from "../types";
 import { ChartLegendProps } from "../ChartLegend";
 
@@ -124,4 +125,9 @@ export type CoreChartProps = {
    * Override the colors that the charts will use. If not specified several colors of the theme are used
    */
   colors?: Array<string>;
+
+  events?: Array<{
+    info: Omit<Timeseries, "metrics">;
+    time: Timestamp;
+  }>
 } & Pick<ChartLegendProps, "onToggleTimeseriesVisibility">;
