@@ -109,7 +109,8 @@ export const Lines = memo(function Lines({
             </Group>
           ),
       )}
-      {events && <Group>
+      {events && (
+        <Group id="events">
           {events.map((event) => {
             const x = xScale(new Date(event.time));
             return (
@@ -120,10 +121,13 @@ export const Lines = memo(function Lines({
                 y1={0}
                 y2={yMax}
                 stroke="red"
-                strokeWidth={1}/>
+                strokeWidth={1}
+                strokeDasharray="2"
+              />
             );
           })}
-        </Group>}
+        </Group>
+      )}
       <Bar
         width={xMax}
         height={yMax}

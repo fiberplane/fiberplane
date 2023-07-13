@@ -62,7 +62,6 @@ export function CoreChart({
     xScaleProps.graphType === "bar" && xScaleProps.stackingType === "none"
       ? getTimeFormatter(xScaleProps.xScale)
       : undefined;
-
   return (
     <TooltipContext.Provider value={tooltipApiValue}>
       <StyledContainer

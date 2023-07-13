@@ -2445,6 +2445,7 @@ const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , ySca
                     sortLabels: false
                 }))),
             events && /*#__PURE__*/ jsx(Group, {
+                id: "events",
                 children: events.map((event)=>{
                     const x = xScale(new Date(event.time));
                     return /*#__PURE__*/ jsx("line", {
@@ -2453,7 +2454,8 @@ const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , ySca
                         y1: 0,
                         y2: yMax,
                         stroke: "red",
-                        strokeWidth: 1
+                        strokeWidth: 1,
+                        strokeDasharray: "2"
                     }, event.time);
                 })
             }),
@@ -2735,6 +2737,7 @@ function CoreChart({ gridShown =true , ...props }) {
     // Use a custom formatter when `xScale` is a `ScaleBand<number>`. We want to
     // display the time, not the timestamp (number).
     const xScaleFormatter = xScaleProps.graphType === "bar" && xScaleProps.stackingType === "none" ? getTimeFormatter(xScaleProps.xScale) : undefined;
+    console.log("props.events", props.events);
     return /*#__PURE__*/ jsx(TooltipContext.Provider, {
         value: tooltipApiValue,
         children: /*#__PURE__*/ jsx(StyledContainer, {

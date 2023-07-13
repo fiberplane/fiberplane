@@ -129,5 +129,5 @@ export type CoreChartProps = {
   events?: Array<{
     info: Omit<Timeseries, "metrics">;
     time: Timestamp;
-  }>
+  }>;
 } & Pick<ChartLegendProps, "onToggleTimeseriesVisibility">;
