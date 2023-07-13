@@ -126,6 +126,8 @@ export type CoreChartProps = {
    */
   colors?: Array<string>;
 
+  eventStrokeColor?: string;
+
   events?: Array<{
     info: Omit<Timeseries, "metrics">;
     time: Timestamp;

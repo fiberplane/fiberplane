@@ -350,6 +350,7 @@ type CoreChartProps = {
      * Override the colors that the charts will use. If not specified several colors of the theme are used
      */
     colors?: Array<string>;
+    eventStrokeColor?: string;
     events?: Array<{
         info: Omit<Timeseries, "metrics">;
         time: Timestamp;

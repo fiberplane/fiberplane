@@ -2388,7 +2388,7 @@ const Line = /*#__PURE__*/ memo(function Line({ xScale , yScale , metrics , yMax
 
 const x = (metric)=>new Date(metric.time).getTime();
 const y = (metric)=>metric.value;
-const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , yScale , colors , events  }) {
+const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , yScale , colors , events , eventStrokeColor  }) {
     const { xMax , yMax  } = useContext(ChartSizeContext);
     const { showTooltip , hideTooltip  } = useContext(TooltipContext);
     const handleTooltip = useHandler((event)=>{
@@ -2437,11 +2437,11 @@ const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , ySca
                 if (candidates.length > 0) {
                     const candidate = candidates[0];
                     const left = xScale(candidate.xValue) + MARGINS.left;
-                    const top = MARGINS.top + 2;
+                    const top = MARGINS.top + 4;
                     const svg = event.currentTarget.ownerSVGElement;
                     if (svg) {
                         showTooltip({
-                            color: "red",
+                            color: eventStrokeColor,
                             metric: formatTimeseriesTooltip(candidate.event.info, candidate.event),
                             element: svg,
                             left,
@@ -2482,7 +2482,7 @@ const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , ySca
                         x2: x,
                         y1: 0,
                         y2: yMax,
-                        stroke: "red",
+                        stroke: eventStrokeColor || "red",
                         strokeWidth: 1,
                         strokeDasharray: "2"
                     }, event.time);
@@ -2562,14 +2562,15 @@ function formatTimeseriesTooltip(timeseries, metric) {
     });
 }
 
-function ChartContent({ timeseriesData , xScaleProps , yScale , colors , events  }) {
+function ChartContent({ timeseriesData , xScaleProps , yScale , colors , events , eventStrokeColor  }) {
     if (xScaleProps.graphType === "line" && xScaleProps.stackingType === "none") {
         return /*#__PURE__*/ jsx(Lines, {
             timeseriesData: timeseriesData,
             xScale: xScaleProps.xScale,
             yScale: yScale,
             colors: colors,
-            events: events
+            events: events,
+            eventStrokeColor: eventStrokeColor
         });
     }
     if (xScaleProps.graphType === "line") {
@@ -2817,7 +2818,8 @@ function CoreChart({ gridShown =true , ...props }) {
                                     xScaleProps: xScaleProps,
                                     yScale: yScale,
                                     colors: props.colors,
-                                    events: props.events
+                                    events: props.events,
+                                    eventStrokeColor: props.eventStrokeColor
                                 })
                             }),
                             /*#__PURE__*/ jsx(ZoomBar, {})
@@ -2910,8 +2912,8 @@ function ReadOnlyMetricsChart(props) {
     });
 }
 const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
-    const { readOnly , legendShown =true , chartControlsShown =true , stackingControlsShown =true , colors  } = props;
     const theme = useTheme();
+    const { readOnly , legendShown =true , chartControlsShown =true , stackingControlsShown =true , colors , eventStrokeColor =theme.colorPrimary400  } = props;
     const chartColors = useMemo(()=>{
         return colors || [
             theme["colorSupport1400"],
@@ -2938,7 +2940,8 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
             }),
             /*#__PURE__*/ jsx(CoreChart, {
                 ...props,
-                colors: chartColors
+                colors: chartColors,
+                eventStrokeColor: eventStrokeColor
             }),
             legendShown && /*#__PURE__*/ jsx(Legend, {
                 ...props,
@@ -2978,7 +2981,8 @@ function SparkChart(props) {
         children: /*#__PURE__*/ jsx(CoreChart, {
             ...rest,
             colors: chartColors,
-            gridShown: false
+            gridShown: false,
+            eventStrokeColor: "transparent"
         })
     });
 }

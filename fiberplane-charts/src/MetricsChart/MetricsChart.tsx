@@ -65,15 +65,16 @@ function ReadOnlyMetricsChart(props: CoreChartProps) {
 const InnerMetricsChart = memo(function InnerMetricsChart(
   props: CoreChartProps,
 ) {
+  const theme = useTheme();
+
   const {
     readOnly,
     legendShown = true,
     chartControlsShown = true,
     stackingControlsShown = true,
     colors,
+    eventStrokeColor = theme.colorPrimary400,
   } = props;
-
-  const theme = useTheme();
 
   const chartColors = useMemo(() => {
     return (
@@ -101,7 +102,11 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
           stackingControlsShown={stackingControlsShown}
         />
       )}
-      <CoreChart {...props} colors={chartColors} />
+      <CoreChart
+        {...props}
+        colors={chartColors}
+        eventStrokeColor={eventStrokeColor}
+      />
       {legendShown && <Legend {...props} colors={chartColors} />}
     </FocusedTimeseriesContextProvider>
   );

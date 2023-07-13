@@ -32,7 +32,8 @@ type Props = {
   xScale: TimeScale;
   yScale: ValueScale;
   colors: Array<string>;
-} & Pick<CoreChartProps, "events">;
+} & Pick<CoreChartProps, "events" | "eventStrokeColor"> &
+  Required<Pick<CoreChartProps, "eventStrokeColor">>;
 
 export const Lines = memo(function Lines({
   timeseriesData,
@@ -40,6 +41,7 @@ export const Lines = memo(function Lines({
   yScale,
   colors,
   events,
+  eventStrokeColor,
 }: Props) {
   const { xMax, yMax } = useContext(ChartSizeContext);
   const { showTooltip, hideTooltip } = useContext(TooltipContext);
@@ -93,12 +95,12 @@ export const Lines = memo(function Lines({
           if (candidates.length > 0) {
             const candidate = candidates[0];
             const left = xScale(candidate.xValue) + MARGINS.left;
-            const top = MARGINS.top + 2;
+            const top = MARGINS.top + 4;
             const svg = event.currentTarget.ownerSVGElement;
 
             if (svg) {
               showTooltip({
-                color: "red",
+                color: eventStrokeColor,
                 metric: formatTimeseriesTooltip(
                   candidate.event.info,
                   candidate.event,
@@ -159,7 +161,7 @@ export const Lines = memo(function Lines({
                 x2={x}
                 y1={0}
                 y2={yMax}
-                stroke="red"
+                stroke={eventStrokeColor || "red"}
                 strokeWidth={1}
                 strokeDasharray="2"
               />

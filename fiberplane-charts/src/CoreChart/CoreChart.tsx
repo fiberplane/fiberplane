@@ -21,7 +21,7 @@ export function CoreChart({
   gridShown = true,
   ...props
 }: CoreChartProps &
-  Required<Pick<CoreChartProps, "colors">> & {
+  Required<Pick<CoreChartProps, "colors" | "eventStrokeColor">> & {
     gridShown?: boolean;
   }): JSX.Element {
   const { width, height, xMax, yMax, marginTop, marginLeft } =
@@ -109,6 +109,7 @@ export function CoreChart({
                 yScale={yScale}
                 colors={props.colors}
                 events={props.events}
+                eventStrokeColor={props.eventStrokeColor}
               />
             </Group>
             <ZoomBar />

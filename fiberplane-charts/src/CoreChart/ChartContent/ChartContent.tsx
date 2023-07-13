@@ -12,7 +12,8 @@ type Props = {
   xScaleProps: XScaleProps;
   yScale: ValueScale;
   colors: Array<string>;
-} & Pick<CoreChartProps, "events">;
+} & Pick<CoreChartProps, "events" | "eventStrokeColor"> &
+  Required<Pick<CoreChartProps, "eventStrokeColor">>;
 
 export function ChartContent({
   timeseriesData,
@@ -20,6 +21,7 @@ export function ChartContent({
   yScale,
   colors,
   events,
+  eventStrokeColor,
 }: Props): JSX.Element {
   if (xScaleProps.graphType === "line" && xScaleProps.stackingType === "none") {
     return (
@@ -29,6 +31,7 @@ export function ChartContent({
         yScale={yScale}
         colors={colors}
         events={events}
+        eventStrokeColor={eventStrokeColor}
       />
     );
   }

@@ -38,7 +38,12 @@ export function SparkChart(props: Props) {
 
   return (
     <StyledChartSizeContainerProvider>
-      <CoreChart {...rest} colors={chartColors} gridShown={false} />
+      <CoreChart
+        {...rest}
+        colors={chartColors}
+        gridShown={false}
+        eventStrokeColor="transparent"
+      />
     </StyledChartSizeContainerProvider>
   );
 }
