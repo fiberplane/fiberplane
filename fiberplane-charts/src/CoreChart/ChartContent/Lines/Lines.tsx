@@ -23,7 +23,8 @@ import { useHandler } from "../../../hooks";
 import { CoreChartProps } from "../..";
 import { Timestamp } from "../../../../dist";
 
-export const x = (metric: Pick<Metric, "time">) => new Date(metric.time).getTime();
+export const x = (metric: Pick<Metric, "time">) =>
+  new Date(metric.time).getTime();
 export const y = (metric: Pick<Metric, "value">) => metric.value;
 
 type Props = {
@@ -78,13 +79,15 @@ export const Lines = memo(function Lines({
         }
       } else {
         if (events) {
-          const candidates = events.map(event => {
-            const xValue = x(event);
-            return {
-              xValue,
-              event,
-            };
-          }).filter(data => insideRange(data.xValue, args.xRange))
+          const candidates = events
+            .map((event) => {
+              const xValue = x(event);
+              return {
+                xValue,
+                event,
+              };
+            })
+            .filter((data) => insideRange(data.xValue, args.xRange));
 
           // const candidates = events.filter(p => insideRange(x(p), args.xRange))
           if (candidates.length > 0) {
@@ -96,7 +99,10 @@ export const Lines = memo(function Lines({
             if (svg) {
               showTooltip({
                 color: "red",
-                metric: formatTimeseriesTooltip(candidate.event.info, candidate.event),
+                metric: formatTimeseriesTooltip(
+                  candidate.event.info,
+                  candidate.event,
+                ),
                 element: svg,
                 left,
                 top,
@@ -209,15 +215,20 @@ function closestMetric({
   return [metric, seriesIndex];
 }
 
-function formatTimeseriesTooltip(timeseries: Omit<Timeseries, "metrics">, metric: Metric | { time: Timestamp}) {
+function formatTimeseriesTooltip(
+  timeseries: Omit<Timeseries, "metrics">,
+  metric: Metric | { time: Timestamp },
+) {
   return (
     <table>
       <TimeseriesTableCaption>{metric.time}</TimeseriesTableCaption>
       <thead>
-        {"value" in metric && <tr>
-          <th>{timeseries.name || "value"}</th>
-          <th>{metric.value}</th>
-        </tr>}
+        {"value" in metric && (
+          <tr>
+            <th>{timeseries.name || "value"}</th>
+            <th>{metric.value}</th>
+          </tr>
+        )}
       </thead>
       <tbody>
         {Object.entries(timeseries.labels).map(([key, value]) => (

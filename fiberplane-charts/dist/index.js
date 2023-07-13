@@ -2437,7 +2437,7 @@ const Lines = /*#__PURE__*/ memo(function Lines({ timeseriesData , xScale , ySca
                 if (candidates.length > 0) {
                     const candidate = candidates[0];
                     const left = xScale(candidate.xValue) + MARGINS.left;
-                    const top = MARGINS.top;
+                    const top = MARGINS.top + 2;
                     const svg = event.currentTarget.ownerSVGElement;
                     if (svg) {
                         showTooltip({
