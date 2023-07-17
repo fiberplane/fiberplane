@@ -13,13 +13,13 @@ import {
   timestampToSeconds,
 } from "../../utils";
 import { MARGINS } from "../constants";
-import type { TimeRange } from "../../types";
+import type { TimeRange } from "../../providerTypes";
 
 type MouseControls = {
-  onMouseDown: MouseEventHandler<HTMLElement>;
-  onMouseMove: MouseEventHandler<HTMLElement>;
-  onMouseUp: MouseEventHandler<HTMLElement>;
-  onMouseEnter: MouseEventHandler<HTMLElement>;
+  onMouseDown: MouseEventHandler<SVGElement>;
+  onMouseMove: MouseEventHandler<SVGElement>;
+  onMouseUp: MouseEventHandler<SVGElement>;
+  onMouseEnter: MouseEventHandler<SVGElement>;
   graphContentRef: Ref<SVGGElement>;
 };
 
@@ -46,7 +46,7 @@ export function useMouseControls({
   const controlsState = useContext(InteractiveControlsStateContext);
   const graphContentRef = useRef<SVGGElement | null>(null);
 
-  const onMouseDown = (event: MouseEvent<HTMLElement>) => {
+  const onMouseDown = (event: MouseEvent<SVGElement>) => {
     if (event.buttons !== 1 || !onChangeTimeRange) {
       return;
     }
@@ -75,7 +75,7 @@ export function useMouseControls({
     }
   };
 
-  const onMouseMove = (event: MouseEvent<HTMLElement>) => {
+  const onMouseMove = (event: MouseEvent<SVGElement>) => {
     preventDefault(event);
 
     if (controlsState.type === "none") {
@@ -170,7 +170,7 @@ export function useMouseControls({
     zoom(factor, focusRatio);
   };
 
-  const onMouseEnter = (event: MouseEvent<HTMLElement>) => {
+  const onMouseEnter = (event: MouseEvent<SVGElement>) => {
     const { currentTarget } = event;
     currentTarget.addEventListener("wheel", onWheel);
     currentTarget.addEventListener("mouseleave", () => {

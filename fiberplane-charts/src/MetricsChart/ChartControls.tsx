@@ -7,7 +7,7 @@ import {
   Icon,
   IconButton,
 } from "../BaseComponents";
-import type { GraphType, StackingType } from "../types";
+import type { GraphType, StackingType } from "../providerTypes";
 import { preventDefault } from "../utils";
 
 export type ChartControlsProps = {

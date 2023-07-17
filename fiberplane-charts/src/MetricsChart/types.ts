@@ -1,15 +1,20 @@
 import type { ChartControlsProps } from "./ChartControls";
-import type { CoreChartProps } from "../CoreChart";
+import type {
+  CloseTooltipFn,
+  CoreChartProps,
+  TooltipAnchor,
+  VirtualElement,
+} from "../CoreChart";
 import type { Metric, Timeseries } from "../providerTypes";
 import type { TimeseriesLegendProps } from "../TimeseriesLegend";
 import type { TimeseriesSourceData } from "../ACG";
 
 export type MetricsChartProps = Omit<
   CoreChartProps<Timeseries, Metric>,
-  "chart"
+  "chart" | "focusedShapeList" | "onFocusedShapeListChange" | "showTooltip"
 > &
+  Pick<TimeseriesLegendProps, "footerShown" | "onToggleTimeseriesVisibility"> &
   ChartControlsProps &
-  TimeseriesLegendProps &
   TimeseriesSourceData & {
     /**
      * Show the chart controls. (default: true)
@@ -24,7 +29,25 @@ export type MetricsChartProps = Omit<
     legendShown?: boolean;
 
     /**
+     * Handler to display a tooltips with information about hovered metrics.
+     */
+    showTooltip?: ShowTooltipFn;
+
+    /**
      * Show the stacking controls. (default: true)
      */
     stackingControlsShown?: boolean;
   };
+
+/**
+ * Function to display a tooltip relative to the given anchor containing the
+ * given React content.
+ *
+ * Should return a function to close the tooltip.
+ */
+export type ShowTooltipFn = (
+  anchor: TooltipAnchor,
+  content: React.ReactNode,
+) => CloseTooltipFn;
+
+export type { CloseTooltipFn, TooltipAnchor, VirtualElement };

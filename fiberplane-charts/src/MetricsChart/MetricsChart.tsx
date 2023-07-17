@@ -3,18 +3,21 @@ import styled, { useTheme } from "styled-components";
 
 import { ChartControls } from "./ChartControls";
 import { ChartSizeContainerProvider } from "../CoreChart";
+import type { CloseTooltipFn, MetricsChartProps, TooltipAnchor } from "./types";
 import {
   CoreChart,
   CoreControlsContext,
   InteractiveControlsApiContext,
   InteractiveControlsStateContext,
 } from "../CoreChart";
-import { ShapeList, generateFromTimeseries } from "../ACG";
 import { HEIGHT, MARGINS } from "../CoreChart/constants";
 import type { Metric, Timeseries } from "../providerTypes";
-import type { MetricsChartProps } from "./types";
+import { noop } from "../utils";
+import { ShapeList, generateFromTimeseries } from "../ACG";
 import { TimeseriesLegend } from "../TimeseriesLegend";
+import { Tooltip } from "./Tooltip";
 import { useCoreControls, useInteractiveControls } from "../CoreChart";
+import { useHandler } from "../hooks";
 
 export function MetricsChart(props: MetricsChartProps) {
   return props.readOnly ? (
@@ -114,6 +117,17 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
     [theme, colors],
   );
 
+  const showTooltip = useHandler(
+    (
+      anchor: TooltipAnchor,
+      [timeseries, metric]: [Timeseries, Metric],
+    ): CloseTooltipFn =>
+      props.showTooltip?.(
+        anchor,
+        <Tooltip timeseries={timeseries} metric={metric} />,
+      ) ?? noop,
+  );
+
   return (
     <>
       {chartControlsShown && !readOnly && (
@@ -128,6 +142,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
         colors={chartColors}
         focusedShapeList={focusedShapeList}
         onFocusedShapeListChange={setFocusedShapeList}
+        showTooltip={showTooltip}
       />
       {legendShown && (
         <TimeseriesLegend

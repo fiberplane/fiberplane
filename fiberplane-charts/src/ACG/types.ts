@@ -95,6 +95,8 @@ export type Shape<P> =
 
 /**
  * An area to be drawn between two lines that share their X coordinates.
+ *
+ * Area points move from left to right.
  */
 export type Area<P> = {
   points: Array<AreaPoint<P>>;

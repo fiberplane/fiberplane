@@ -1148,18 +1148,227 @@ function zoomKeyPressed(event) {
     ]);
 }
 
-function useTooltip(showTooltipFn) {
+function useTooltip(props) {
     const [graphTooltip, setGraphTooltip] = useState(null);
-    useRef(null);
-    return {
-        graphTooltip,
-        onMouseMove: (_event)=>{
-        // TODO
-        },
-        onMouseLeave: (_event)=>{
-        // TODO
+    const closeFnRef = useRef(null);
+    const showTooltipFn = props.showTooltip;
+    const showTooltip = showTooltipFn ? (tip)=>{
+        setGraphTooltip(tip);
+        const element = {
+            getBoundingClientRect: ()=>{
+                const ctm = tip.element.getScreenCTM();
+                const point = tip.element.createSVGPoint();
+                point.x = tip.left;
+                point.y = tip.top;
+                const { x , y  } = ctm ? point.matrixTransform(ctm) : {
+                    x: tip.left,
+                    y: tip.top
+                };
+                return new DOMRect(x - 4, y - 4, 8, 8);
+            },
+            contextElement: tip.element
+        };
+        closeFnRef.current = showTooltipFn(element, tip.sourcePoint);
+    } : noop;
+    const closeTooltip = ()=>{
+        setGraphTooltip(null);
+        if (closeFnRef.current) {
+            closeFnRef.current();
+            closeFnRef.current = null;
         }
     };
+    return {
+        graphTooltip,
+        onMouseMove: (event)=>{
+            const closest = getClosestSeriesAndPointWithCoordinates(event, props);
+            if (!closest) {
+                return;
+            }
+            const [series, point, coords] = closest;
+            const { chart , colors , xMax , yMax  } = props;
+            const seriesIndex = chart.shapeLists.findIndex((shapeList)=>shapeList.source === series);
+            const color = getShapeListColor(colors, seriesIndex);
+            showTooltip({
+                color,
+                element: event.currentTarget,
+                sourcePoint: [
+                    series,
+                    point
+                ],
+                top: (1 - coords.y) * yMax + MARGINS.top,
+                left: coords.x * xMax + MARGINS.left
+            });
+        },
+        onMouseLeave: ()=>{
+            closeTooltip();
+        }
+    };
+}
+function getClosestSeriesAndPointWithCoordinates(event, { chart , xMax , yMax  }) {
+    const coords = getCoordinatesForEvent(event, xMax, yMax);
+    if (!coords) {
+        return null;
+    }
+    let closestSeriesAndPoint = null;
+    let closestDistance = [
+        Infinity,
+        0
+    ];
+    for (const shapeList of chart.shapeLists){
+        for (const shape of shapeList.shapes){
+            const closest = getClosestPointWithDistance(shape, coords);
+            if (!closest) {
+                continue;
+            }
+            const [point, closestCoords, distance] = closest;
+            if (isCloser(distance, closestDistance)) {
+                closestSeriesAndPoint = [
+                    shapeList.source,
+                    point,
+                    closestCoords
+                ];
+                closestDistance = distance;
+            }
+        }
+    }
+    return closestSeriesAndPoint;
+}
+function getCoordinatesForEvent(event, xMax, yMax) {
+    const svg = event.currentTarget;
+    const rect = svg.getBoundingClientRect();
+    const x = event.clientX - rect.left - MARGINS.left;
+    const y = event.clientY - rect.top - MARGINS.top;
+    if (x < 0 || x > xMax || y < 0 || y > yMax) {
+        return null;
+    }
+    return {
+        x: x / xMax,
+        y: 1 - y / yMax
+    };
+}
+function getClosestPointWithDistance(shape, coords) {
+    switch(shape.type){
+        case "area":
+            return getClosestPointWithDistanceForArea(shape, coords);
+        case "line":
+            return getClosestPointWithDistanceForLine(shape, coords);
+        case "point":
+            return [
+                shape.source,
+                shape,
+                getDistance(coords, shape)
+            ];
+        case "rectangle":
+            return getClosestPointWithDistanceForRectangle(shape, coords);
+    }
+}
+function getClosestPointWithDistanceForArea(area, coords) {
+    const len = area.points.length;
+    if (len === 0) {
+        return null;
+    }
+    let closest;
+    let horizontalDistance;
+    if (coords.x < area.points[0].x) {
+        closest = area.points[0];
+        horizontalDistance = closest.x - coords.x;
+    } else if (coords.x > area.points[len - 1].x) {
+        closest = area.points[len - 1];
+        horizontalDistance = coords.x - closest.x;
+    } else {
+        closest = area.points[0];
+        horizontalDistance = coords.x - closest.x;
+        for(let i = 1; i < len; i++){
+            const point = area.points[i];
+            const distance = Math.abs(point.x - coords.x);
+            if (distance < horizontalDistance) {
+                closest = point;
+                horizontalDistance = distance;
+            } else {
+                break;
+            }
+        }
+    }
+    let verticalDistance;
+    if (coords.y < closest.yMin) {
+        verticalDistance = closest.yMin - coords.y;
+    } else if (coords.y > closest.yMax) {
+        verticalDistance = coords.y - closest.yMax;
+    } else {
+        verticalDistance = 0;
+    }
+    return [
+        closest.source,
+        {
+            x: closest.x,
+            y: coords.y < closest.yMin ? closest.yMin : closest.yMax
+        },
+        [
+            horizontalDistance,
+            verticalDistance
+        ]
+    ];
+}
+function getClosestPointWithDistanceForLine(line, coords) {
+    let closestPoint = null;
+    let closestDistance = [
+        Infinity,
+        0
+    ];
+    for (const point of line.points){
+        const distance = getDistance(coords, point);
+        if (isCloser(distance, closestDistance)) {
+            closestPoint = point;
+            closestDistance = distance;
+        }
+    }
+    return closestPoint ? [
+        closestPoint.source,
+        closestPoint,
+        closestDistance
+    ] : null;
+}
+function getClosestPointWithDistanceForRectangle(rectangle, coords) {
+    let horizontal;
+    if (coords.x < rectangle.x) {
+        horizontal = rectangle.x - coords.x;
+    } else if (coords.x > rectangle.x + rectangle.width) {
+        horizontal = coords.x - (rectangle.x + rectangle.width);
+    } else {
+        horizontal = 0;
+    }
+    let vertical;
+    if (coords.y < rectangle.y) {
+        vertical = rectangle.y - coords.y;
+    } else if (coords.y > rectangle.y + rectangle.height) {
+        vertical = coords.y - (rectangle.y + rectangle.height);
+    } else {
+        vertical = 0;
+    }
+    return [
+        rectangle.source,
+        {
+            x: rectangle.x + 0.5 * rectangle.width,
+            y: rectangle.y + rectangle.height
+        },
+        [
+            horizontal,
+            vertical
+        ]
+    ];
+}
+function getDistance(p1, p2) {
+    return [
+        Math.abs(p1.x - p2.x),
+        Math.abs(p1.y - p2.y)
+    ];
+}
+/**
+ * Returns whether the given distance is closer than the given reference.
+ *
+ * Horizontal distance is prioritized over vertical distance.
+ */ function isCloser(distance, reference) {
+    return distance[0] < reference[0] || distance[0] === reference[0] && distance[1] < reference[1];
 }
 
 const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , area , color , focused , scales  }) {
@@ -1522,7 +1731,7 @@ function ZoomBar({ controlsState , yMax  }) {
     });
 }
 
-function CoreChart({ chart , gridShown =true , onChangeTimeRange , readOnly =false , showTooltip , timeRange , ...props }) {
+function CoreChart({ chart , colors , gridShown =true , onChangeTimeRange , readOnly =false , showTooltip , timeRange , ...props }) {
     const interactiveControlsState = useContext(InteractiveControlsStateContext);
     const [shiftKeyPressed, setShiftKeyPressed] = useState(false);
     const onKeyHandler = (event)=>{
@@ -1535,7 +1744,13 @@ function CoreChart({ chart , gridShown =true , onChangeTimeRange , readOnly =fal
         xMax,
         yMax
     });
-    const { graphTooltip , onMouseMove: onMouseMoveTooltip , onMouseLeave  } = useTooltip();
+    const { graphTooltip , onMouseMove: onMouseMoveTooltip , onMouseLeave  } = useTooltip({
+        showTooltip,
+        chart,
+        colors,
+        xMax,
+        yMax
+    });
     const onMouseMove = (event)=>{
         setShiftKeyPressed(event.shiftKey);
         onMouseMoveControls(event);
@@ -1544,7 +1759,10 @@ function CoreChart({ chart , gridShown =true , onChangeTimeRange , readOnly =fal
     const clipPathId = useId();
     const cursor = getCursorFromState(interactiveControlsState, shiftKeyPressed);
     const scales = useScales(xMax, yMax);
-    return /*#__PURE__*/ jsx(StyledContainer, {
+    return(// rome-ignore lint/a11y/noSvgWithoutTitle: title would interfere with tooltip
+    /*#__PURE__*/ jsxs("svg", {
+        width: width,
+        height: height,
         onKeyDown: onKeyHandler,
         onKeyUp: onKeyHandler,
         onMouseDown: onMouseDown,
@@ -1552,78 +1770,73 @@ function CoreChart({ chart , gridShown =true , onChangeTimeRange , readOnly =fal
         onMouseUp: onMouseUp,
         onMouseEnter: onMouseEnter,
         onMouseLeave: onMouseLeave,
-        children: /*#__PURE__*/ jsxs("svg", {
-            width: width,
-            height: height,
-            style: {
-                cursor
-            },
-            children: [
-                /*#__PURE__*/ jsx("defs", {
-                    children: /*#__PURE__*/ jsx("clipPath", {
-                        id: clipPathId,
-                        children: /*#__PURE__*/ jsx("rect", {
-                            x: 0,
-                            y: 0,
-                            width: xMax,
-                            height: yMax
-                        })
+        style: {
+            cursor,
+            marginTop: 2
+        },
+        children: [
+            /*#__PURE__*/ jsx("defs", {
+                children: /*#__PURE__*/ jsx("clipPath", {
+                    id: clipPathId,
+                    children: /*#__PURE__*/ jsx("rect", {
+                        x: 0,
+                        y: 0,
+                        width: xMax,
+                        height: yMax
                     })
-                }),
-                /*#__PURE__*/ jsxs("g", {
-                    transform: `translate(${marginLeft}, ${marginTop})`,
-                    children: [
-                        gridShown && /*#__PURE__*/ jsx(GridWithAxes, {
-                            ...props,
-                            scales: scales
-                        }),
-                        /*#__PURE__*/ jsx("g", {
-                            clipPath: `url(#${clipPathId})`,
-                            ref: graphContentRef,
-                            children: /*#__PURE__*/ jsx(ChartContent, {
-                                ...props,
-                                chart: chart,
-                                scales: scales
-                            })
-                        }),
-                        /*#__PURE__*/ jsx(ZoomBar, {
-                            controlsState: interactiveControlsState,
-                            yMax: yMax
-                        })
-                    ]
-                }),
-                graphTooltip && /*#__PURE__*/ jsxs("g", {
-                    children: [
-                        /*#__PURE__*/ jsx(Line, {
-                            from: {
-                                x: graphTooltip.left,
-                                y: 0
-                            },
-                            to: {
-                                x: graphTooltip.left,
-                                y: yMax
-                            },
-                            stroke: graphTooltip.color,
-                            strokeWidth: 1,
-                            pointerEvents: "none",
-                            strokeDasharray: "1 1"
-                        }),
-                        /*#__PURE__*/ jsx("circle", {
-                            cx: graphTooltip.left,
-                            cy: graphTooltip.top,
-                            r: 4,
-                            fill: graphTooltip.color,
-                            pointerEvents: "none"
-                        })
-                    ]
                 })
-            ]
-        })
-    });
+            }),
+            /*#__PURE__*/ jsxs("g", {
+                transform: `translate(${marginLeft}, ${marginTop})`,
+                children: [
+                    gridShown && /*#__PURE__*/ jsx(GridWithAxes, {
+                        ...props,
+                        scales: scales
+                    }),
+                    /*#__PURE__*/ jsx("g", {
+                        clipPath: `url(#${clipPathId})`,
+                        ref: graphContentRef,
+                        children: /*#__PURE__*/ jsx(ChartContent, {
+                            ...props,
+                            chart: chart,
+                            colors: colors,
+                            scales: scales
+                        })
+                    }),
+                    /*#__PURE__*/ jsx(ZoomBar, {
+                        controlsState: interactiveControlsState,
+                        yMax: yMax
+                    })
+                ]
+            }),
+            graphTooltip && /*#__PURE__*/ jsxs("g", {
+                children: [
+                    /*#__PURE__*/ jsx(Line, {
+                        from: {
+                            x: graphTooltip.left,
+                            y: 0
+                        },
+                        to: {
+                            x: graphTooltip.left,
+                            y: yMax
+                        },
+                        stroke: graphTooltip.color,
+                        strokeWidth: 1,
+                        pointerEvents: "none",
+                        strokeDasharray: "1 1"
+                    }),
+                    /*#__PURE__*/ jsx("circle", {
+                        cx: graphTooltip.left,
+                        cy: graphTooltip.top,
+                        r: 4,
+                        fill: graphTooltip.color,
+                        pointerEvents: "none"
+                    })
+                ]
+            })
+        ]
+    }));
 }
-const StyledContainer = styled(Container)`
-  margin-top: 2px;
-`;
 function getCursorFromState(interactiveControlsState, shiftKey) {
     switch(interactiveControlsState.type){
         case "none":
@@ -2241,6 +2454,52 @@ const Results = styled.span`
     color: ${({ theme  })=>theme.colorBase400};
 `;
 
+function Tooltip({ timeseries , metric  }) {
+    return /*#__PURE__*/ jsxs("table", {
+        children: [
+            /*#__PURE__*/ jsx(TimeseriesTableCaption, {
+                children: metric.time
+            }),
+            /*#__PURE__*/ jsx("thead", {
+                children: /*#__PURE__*/ jsxs("tr", {
+                    children: [
+                        /*#__PURE__*/ jsx("th", {
+                            children: timeseries.name || "value"
+                        }),
+                        /*#__PURE__*/ jsx("th", {
+                            children: metric.value
+                        })
+                    ]
+                })
+            }),
+            /*#__PURE__*/ jsx("tbody", {
+                children: Object.entries(timeseries.labels).map(([key, value])=>/*#__PURE__*/ jsxs("tr", {
+                        children: [
+                            /*#__PURE__*/ jsxs(TimeseriesTableTd, {
+                                children: [
+                                    key,
+                                    ":"
+                                ]
+                            }),
+                            /*#__PURE__*/ jsx(TimeseriesTableTd, {
+                                children: value
+                            })
+                        ]
+                    }, key))
+            })
+        ]
+    });
+}
+const TimeseriesTableCaption = styled.caption`
+  font-weight: bold;
+  text-align: center;
+  padding: 0 0 6px;
+  color: ${({ theme  })=>theme.colorBase400};
+`;
+const TimeseriesTableTd = styled.td`
+  word-wrap: anywhere;
+`;
+
 function MetricsChart(props) {
     return props.readOnly ? /*#__PURE__*/ jsx(ReadOnlyMetricsChart, {
         ...props
@@ -2314,6 +2573,10 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
         theme,
         colors
     ]);
+    const showTooltip = useHandler((anchor, [timeseries, metric])=>props.showTooltip?.(anchor, /*#__PURE__*/ jsx(Tooltip, {
+            timeseries: timeseries,
+            metric: metric
+        })) ?? noop);
     return /*#__PURE__*/ jsxs(Fragment, {
         children: [
             chartControlsShown && !readOnly && /*#__PURE__*/ jsx(ChartControls, {
@@ -2325,7 +2588,8 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
                 chart: chart,
                 colors: chartColors,
                 focusedShapeList: focusedShapeList,
-                onFocusedShapeListChange: setFocusedShapeList
+                onFocusedShapeListChange: setFocusedShapeList,
+                showTooltip: showTooltip
             }),
             legendShown && /*#__PURE__*/ jsx(TimeseriesLegend, {
                 ...props,

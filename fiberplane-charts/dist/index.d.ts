@@ -147,36 +147,6 @@ type Timeseries = {
 type Timestamp = string;
 
 /**
- * Function to invoke to close the tooltip.
- */
-type CloseTooltipFn = () => void;
-/**
- * Function to display a tooltip relative to the given anchor containing the
- * given React content.
- *
- * Should return a function to close the tooltip.
- */
-type ShowTooltipFn = (anchor: TooltipAnchor, content: React.ReactNode) => CloseTooltipFn;
-/**
- * Anchor to determine where the tooltip should be positioned.
- *
- * Positioning relative to the anchor is left to the callback provided.
- */
-type TooltipAnchor = HTMLElement | VirtualElement;
-type VirtualElement = {
-    getBoundingClientRect: () => DOMRect;
-    contextElement: Element;
-};
-
-type ChartControlsProps = {
-    graphType: GraphType;
-    onChangeGraphType?: (graphType: GraphType) => void;
-    onChangeStackingType?: (stackingType: StackingType) => void;
-    stackingControlsShown: boolean;
-    stackingType: StackingType;
-};
-
-/**
  * All the data necessary to generate an abstract chart from an array of
  * timeseries.
  */
@@ -258,6 +228,8 @@ type Shape<P> = ({
 } & Rectangle<P>);
 /**
  * An area to be drawn between two lines that share their X coordinates.
+ *
+ * Area points move from left to right.
  */
 type Area<P> = {
     points: Array<AreaPoint<P>>;
@@ -329,74 +301,6 @@ type Rectangle<P> = {
     source: P;
 };
 
-type CoreChartProps<S, P> = {
-    /**
-     * The chart to render.
-     */
-    chart: AbstractChart<S, P>;
-    /**
-     * Indicates which of the shape lists should be focused.
-     *
-     * `null` is used to indicate no shape list is focused.
-     */
-    focusedShapeList: ShapeList<S, P> | null;
-    /**
-     * Handler that is invoked when the time range is changed.
-     *
-     * If no handler is specified, no UI for changing the time range is
-     * presented.
-     */
-    onChangeTimeRange?: (timeRange: TimeRange) => void;
-    /**
-     * Handler that is invoked when the focused shape list is changed.
-     */
-    onFocusedShapeListChange?: (shapeList: ShapeList<S, P> | null) => void;
-    /**
-     * Whether the chart is read-only.
-     *
-     * Set to `true` to disable interactive controls.
-     */
-    readOnly?: boolean;
-    /**
-     * Callback for showing tooltips.
-     *
-     * If no callback is provided, no tooltips will be shown.
-     */
-    showTooltip?: ShowTooltipFn;
-    /**
-     * The time range for which to display the data.
-     *
-     * Make sure the timeseries contains data for the given time range, or you
-     * may not see any results.
-     */
-    timeRange: TimeRange;
-    /**
-     * Show the grid column (vertical) lines. (default: true)
-     */
-    gridColumnsShown?: boolean;
-    /**
-     * Show the grid row (horizontal) lines. (default: true)
-     */
-    gridRowsShown?: boolean;
-    /**
-     * Show the line/border at the outer edge of the chart. (default: true)
-     */
-    gridBordersShown?: boolean;
-    /**
-     * Customize the grid line style. (defaults to a solid line). This parameter is passed
-     * directly to the svg's stroke-dasharray attribute for several of the lines in the chart.
-     */
-    gridDashArray?: string;
-    /**
-     * Override the color of the grid lines. (defaults to the theme's grid color)
-     */
-    gridStrokeColor?: string;
-    /**
-     * Override the colors that the charts will use. If not specified several colors of the theme are used
-     */
-    colors?: Array<string>;
-};
-
 type TimeseriesLegendProps = {
     /**
      * Array of timeseries data to display in the legend.
@@ -441,7 +345,98 @@ type ToggleTimeseriesEvent = {
     toggleOthers: boolean;
 };
 
-type MetricsChartProps = Omit<CoreChartProps<Timeseries, Metric>, "chart"> & ChartControlsProps & TimeseriesLegendProps & TimeseriesSourceData & {
+type ChartControlsProps = {
+    graphType: GraphType;
+    onChangeGraphType?: (graphType: GraphType) => void;
+    onChangeStackingType?: (stackingType: StackingType) => void;
+    stackingControlsShown: boolean;
+    stackingType: StackingType;
+};
+
+type CoreChartProps<S, P> = {
+    /**
+     * The chart to render.
+     */
+    chart: AbstractChart<S, P>;
+    /**
+     * Override the colors that the charts will use. If not specified several colors of the theme are used
+     */
+    colors?: Array<string>;
+    /**
+     * Indicates which of the shape lists should be focused.
+     *
+     * `null` is used to indicate no shape list is focused.
+     */
+    focusedShapeList: ShapeList<S, P> | null;
+    /**
+     * Show the line/border at the outer edge of the chart. (default: true)
+     */
+    gridBordersShown?: boolean;
+    /**
+     * Show the grid column (vertical) lines. (default: true)
+     */
+    gridColumnsShown?: boolean;
+    /**
+     * Customize the grid line style. (defaults to a solid line). This parameter is passed
+     * directly to the svg's stroke-dasharray attribute for several of the lines in the chart.
+     */
+    gridDashArray?: string;
+    /**
+     * Show the grid row (horizontal) lines. (default: true)
+     */
+    gridRowsShown?: boolean;
+    /**
+     * Override the color of the grid lines. (defaults to the theme's grid color)
+     */
+    gridStrokeColor?: string;
+    /**
+     * Handler that is invoked when the time range is changed.
+     *
+     * If no handler is specified, no UI for changing the time range is
+     * presented.
+     */
+    onChangeTimeRange?: (timeRange: TimeRange) => void;
+    /**
+     * Handler that is invoked when the focused shape list is changed.
+     */
+    onFocusedShapeListChange?: (shapeList: ShapeList<S, P> | null) => void;
+    /**
+     * Whether the chart is read-only.
+     *
+     * Set to `true` to disable interactive controls.
+     */
+    readOnly?: boolean;
+    /**
+     * Callback for showing tooltips.
+     *
+     * If no callback is provided, no tooltips will be shown.
+     */
+    showTooltip?: ShowTooltipFn$1<S, P>;
+    /**
+     * The time range for which to display the data.
+     *
+     * Make sure the timeseries contains data for the given time range, or you
+     * may not see any results.
+     */
+    timeRange: TimeRange;
+};
+type ShowTooltipFn$1<S, P> = (anchor: TooltipAnchor, closestSource: [S, P]) => CloseTooltipFn;
+/**
+ * Function to invoke to close the tooltip.
+ */
+type CloseTooltipFn = () => void;
+/**
+ * Anchor to determine where the tooltip should be positioned.
+ *
+ * Positioning relative to the anchor is left to the callback provided.
+ */
+type TooltipAnchor = HTMLElement | VirtualElement;
+type VirtualElement = {
+    getBoundingClientRect: () => DOMRect;
+    contextElement: Element;
+};
+
+type MetricsChartProps = Omit<CoreChartProps<Timeseries, Metric>, "chart" | "focusedShapeList" | "onFocusedShapeListChange" | "showTooltip"> & Pick<TimeseriesLegendProps, "footerShown" | "onToggleTimeseriesVisibility"> & ChartControlsProps & TimeseriesSourceData & {
     /**
      * Show the chart controls. (default: true)
      *
@@ -453,14 +448,25 @@ type MetricsChartProps = Omit<CoreChartProps<Timeseries, Metric>, "chart"> & Cha
      */
     legendShown?: boolean;
     /**
+     * Handler to display a tooltips with information about hovered metrics.
+     */
+    showTooltip?: ShowTooltipFn;
+    /**
      * Show the stacking controls. (default: true)
      */
     stackingControlsShown?: boolean;
 };
+/**
+ * Function to display a tooltip relative to the given anchor containing the
+ * given React content.
+ *
+ * Should return a function to close the tooltip.
+ */
+type ShowTooltipFn = (anchor: TooltipAnchor, content: React.ReactNode) => CloseTooltipFn;
 
 declare function MetricsChart(props: MetricsChartProps): JSX.Element;
 
 type Props = Pick<CoreChartProps<Timeseries, Metric>, "colors" | "onChangeTimeRange"> & TimeseriesSourceData;
 declare function SparkChart({ colors, graphType, stackingType, timeRange, timeseriesData, onChangeTimeRange, }: Props): JSX.Element;
 
-export { ChartTheme, CloseTooltipFn, GraphType, Metric, MetricsChart, MetricsChartProps, OtelMetadata, ShowTooltipFn, SparkChart, StackingType, TimeRange, Timeseries, Timestamp, TooltipAnchor, VirtualElement };
+export { ChartTheme, CloseTooltipFn, GraphType, Metric, MetricsChart, MetricsChartProps, OtelMetadata, ShowTooltipFn, SparkChart, StackingType, TimeRange, Timeseries, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement };

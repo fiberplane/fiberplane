@@ -1,6 +1,6 @@
 import type { InteractiveControlsState } from "../CoreChart";
 import { secondsToTimestamp, timestampToSeconds } from "../utils";
-import type { TimeRange } from "../types";
+import type { TimeRange } from "../providerTypes";
 
 /**
  * Translates a time-range based on the active zoom state.

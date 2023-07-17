@@ -1,5 +1,4 @@
 import { Line } from "@visx/shape";
-import styled from "styled-components";
 import { useContext, useId, useState } from "react";
 
 import { ChartContent } from "./ChartContent";
@@ -9,7 +8,6 @@ import {
   InteractiveControlsStateContext,
 } from "./context";
 import type { CoreChartProps } from "./types";
-import { Container } from "../BaseComponents";
 import { GridWithAxes } from "./GridWithAxes";
 import { useMouseControls, useScales, useTooltip } from "./hooks";
 import { ZoomBar } from "./ZoomBar";
@@ -21,6 +19,7 @@ type Props<S, P> = CoreChartProps<S, P> &
 
 export function CoreChart<S, P>({
   chart,
+  colors,
   gridShown = true,
   onChangeTimeRange,
   readOnly = false,
@@ -51,9 +50,9 @@ export function CoreChart<S, P>({
     graphTooltip,
     onMouseMove: onMouseMoveTooltip,
     onMouseLeave,
-  } = useTooltip(showTooltip);
+  } = useTooltip({ showTooltip, chart, colors, xMax, yMax });
 
-  const onMouseMove = (event: React.MouseEvent<HTMLElement>) => {
+  const onMouseMove = (event: React.MouseEvent<SVGSVGElement>) => {
     setShiftKeyPressed(event.shiftKey);
     onMouseMoveControls(event);
     onMouseMoveTooltip(event);
@@ -66,7 +65,10 @@ export function CoreChart<S, P>({
   const scales = useScales(xMax, yMax);
 
   return (
-    <StyledContainer
+    // rome-ignore lint/a11y/noSvgWithoutTitle: title would interfere with tooltip
+    <svg
+      width={width}
+      height={height}
       onKeyDown={onKeyHandler}
       onKeyUp={onKeyHandler}
       onMouseDown={onMouseDown}
@@ -74,48 +76,47 @@ export function CoreChart<S, P>({
       onMouseUp={onMouseUp}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      style={{ cursor, marginTop: 2 }}
     >
-      {/* rome-ignore lint/a11y/noSvgWithoutTitle: title would interfere with tooltip */}
-      <svg width={width} height={height} style={{ cursor }}>
-        <defs>
-          <clipPath id={clipPathId}>
-            <rect x={0} y={0} width={xMax} height={yMax} />
-          </clipPath>
-        </defs>
-        <g transform={`translate(${marginLeft}, ${marginTop})`}>
-          {gridShown && <GridWithAxes {...props} scales={scales} />}
-          <g clipPath={`url(#${clipPathId})`} ref={graphContentRef}>
-            <ChartContent {...props} chart={chart} scales={scales} />
-          </g>
-          <ZoomBar controlsState={interactiveControlsState} yMax={yMax} />
+      <defs>
+        <clipPath id={clipPathId}>
+          <rect x={0} y={0} width={xMax} height={yMax} />
+        </clipPath>
+      </defs>
+      <g transform={`translate(${marginLeft}, ${marginTop})`}>
+        {gridShown && <GridWithAxes {...props} scales={scales} />}
+        <g clipPath={`url(#${clipPathId})`} ref={graphContentRef}>
+          <ChartContent
+            {...props}
+            chart={chart}
+            colors={colors}
+            scales={scales}
+          />
         </g>
-        {graphTooltip && (
-          <g>
-            <Line
-              from={{ x: graphTooltip.left, y: 0 }}
-              to={{ x: graphTooltip.left, y: yMax }}
-              stroke={graphTooltip.color}
-              strokeWidth={1}
-              pointerEvents="none"
-              strokeDasharray="1 1"
-            />
-            <circle
-              cx={graphTooltip.left}
-              cy={graphTooltip.top}
-              r={4}
-              fill={graphTooltip.color}
-              pointerEvents="none"
-            />
-          </g>
-        )}
-      </svg>
-    </StyledContainer>
+        <ZoomBar controlsState={interactiveControlsState} yMax={yMax} />
+      </g>
+      {graphTooltip && (
+        <g>
+          <Line
+            from={{ x: graphTooltip.left, y: 0 }}
+            to={{ x: graphTooltip.left, y: yMax }}
+            stroke={graphTooltip.color}
+            strokeWidth={1}
+            pointerEvents="none"
+            strokeDasharray="1 1"
+          />
+          <circle
+            cx={graphTooltip.left}
+            cy={graphTooltip.top}
+            r={4}
+            fill={graphTooltip.color}
+            pointerEvents="none"
+          />
+        </g>
+      )}
+    </svg>
   );
 }
-
-const StyledContainer = styled(Container)`
-  margin-top: 2px;
-`;
 
 function getCursorFromState(
   interactiveControlsState: InteractiveControlsState,

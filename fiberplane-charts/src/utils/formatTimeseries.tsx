@@ -1,7 +1,7 @@
 import { Fragment, memo } from "react";
 import styled from "styled-components";
 
-import type { Timeseries } from "../types";
+import type { Timeseries } from "../providerTypes";
 import { sortBy } from "./sortBy";
 
 /**

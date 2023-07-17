@@ -1,27 +1,44 @@
 import { useRef, useState } from "react";
 
-import type {
-  CloseTooltipFn,
-  ShowTooltipFn,
-  VirtualElement,
-} from "../../types";
-import { noop } from "../../utils";
+import type { CloseTooltipFn, ShowTooltipFn, VirtualElement } from "../types";
+import { getShapeListColor, noop } from "../../utils";
+import { MARGINS } from "../constants";
+import {
+  AbstractChart,
+  Area,
+  AreaPoint,
+  Line,
+  Point,
+  Rectangle,
+  Shape,
+} from "../../ACG";
 
-export type GraphTooltip = {
+export type GraphTooltip<S, P> = {
   top: number;
   left: number;
   element: SVGSVGElement;
   color: string;
-  metric: JSX.Element;
+  sourcePoint: [S, P];
 };
 
-export function useTooltip(showTooltipFn: ShowTooltipFn | undefined) {
-  const [graphTooltip, setGraphTooltip] = useState<GraphTooltip | null>(null);
+type Props<S, P> = {
+  chart: AbstractChart<S, P>;
+  colors: Array<string>;
+  showTooltip: ShowTooltipFn<S, P> | undefined;
+  xMax: number;
+  yMax: number;
+};
+
+export function useTooltip<S, P>(props: Props<S, P>) {
+  const [graphTooltip, setGraphTooltip] = useState<GraphTooltip<S, P> | null>(
+    null,
+  );
 
   const closeFnRef = useRef<CloseTooltipFn | null>(null);
 
+  const showTooltipFn = props.showTooltip;
   const showTooltip = showTooltipFn
-    ? (tip: GraphTooltip) => {
+    ? (tip: GraphTooltip<S, P>) => {
         setGraphTooltip(tip);
 
         const element: VirtualElement = {
@@ -40,12 +57,13 @@ export function useTooltip(showTooltipFn: ShowTooltipFn | undefined) {
           contextElement: tip.element,
         };
 
-        closeFnRef.current = showTooltipFn(element, tip.metric);
+        closeFnRef.current = showTooltipFn(element, tip.sourcePoint);
       }
     : noop;
 
   const closeTooltip = () => {
     setGraphTooltip(null);
+
     if (closeFnRef.current) {
       closeFnRef.current();
       closeFnRef.current = null;
@@ -55,12 +73,215 @@ export function useTooltip(showTooltipFn: ShowTooltipFn | undefined) {
   return {
     graphTooltip,
 
-    onMouseMove: (_event: React.MouseEvent) => {
-      // TODO
+    onMouseMove: (event: React.MouseEvent<SVGSVGElement>) => {
+      const closest = getClosestSeriesAndPointWithCoordinates(event, props);
+      if (!closest) {
+        return;
+      }
+
+      const [series, point, coords] = closest;
+
+      const { chart, colors, xMax, yMax } = props;
+      const seriesIndex = chart.shapeLists.findIndex(
+        (shapeList) => shapeList.source === series,
+      );
+      const color = getShapeListColor(colors, seriesIndex);
+
+      showTooltip({
+        color,
+        element: event.currentTarget,
+        sourcePoint: [series, point],
+        top: (1 - coords.y) * yMax + MARGINS.top,
+        left: coords.x * xMax + MARGINS.left,
+      });
     },
 
-    onMouseLeave: (_event: React.MouseEvent) => {
-      // TODO
+    onMouseLeave: () => {
+      closeTooltip();
     },
   };
+}
+
+/**
+ * Coordinats within the chart, normalized to values between 0.0 and 1.0.
+ */
+type ChartCoordinates = { x: number; y: number };
+
+function getClosestSeriesAndPointWithCoordinates<S, P>(
+  event: React.MouseEvent<SVGElement>,
+  { chart, xMax, yMax }: Props<S, P>,
+): [S, P, ChartCoordinates] | null {
+  const coords = getCoordinatesForEvent(event, xMax, yMax);
+  if (!coords) {
+    return null;
+  }
+
+  let closestSeriesAndPoint: [S, P, ChartCoordinates] | null = null;
+  let closestDistance: Distance = [Infinity, 0];
+  for (const shapeList of chart.shapeLists) {
+    for (const shape of shapeList.shapes) {
+      const closest = getClosestPointWithDistance(shape, coords);
+      if (!closest) {
+        continue;
+      }
+
+      const [point, closestCoords, distance] = closest;
+      if (isCloser(distance, closestDistance)) {
+        closestSeriesAndPoint = [shapeList.source, point, closestCoords];
+        closestDistance = distance;
+      }
+    }
+  }
+
+  return closestSeriesAndPoint;
+}
+
+function getCoordinatesForEvent(
+  event: React.MouseEvent<SVGElement>,
+  xMax: number,
+  yMax: number,
+): ChartCoordinates | null {
+  const svg = event.currentTarget;
+  const rect = svg.getBoundingClientRect();
+
+  const x = event.clientX - rect.left - MARGINS.left;
+  const y = event.clientY - rect.top - MARGINS.top;
+  if (x < 0 || x > xMax || y < 0 || y > yMax) {
+    return null;
+  }
+
+  return { x: x / xMax, y: 1 - y / yMax };
+}
+
+function getClosestPointWithDistance<P>(
+  shape: Shape<P>,
+  coords: ChartCoordinates,
+): [P, ChartCoordinates, Distance] | null {
+  switch (shape.type) {
+    case "area":
+      return getClosestPointWithDistanceForArea(shape, coords);
+    case "line":
+      return getClosestPointWithDistanceForLine(shape, coords);
+    case "point":
+      return [shape.source, shape, getDistance(coords, shape)];
+    case "rectangle":
+      return getClosestPointWithDistanceForRectangle(shape, coords);
+  }
+}
+
+function getClosestPointWithDistanceForArea<P>(
+  area: Area<P>,
+  coords: ChartCoordinates,
+): [P, ChartCoordinates, Distance] | null {
+  const len = area.points.length;
+  if (len === 0) {
+    return null;
+  }
+
+  let closest: AreaPoint<P>;
+  let horizontalDistance: number;
+  if (coords.x < area.points[0].x) {
+    closest = area.points[0];
+    horizontalDistance = closest.x - coords.x;
+  } else if (coords.x > area.points[len - 1].x) {
+    closest = area.points[len - 1];
+    horizontalDistance = coords.x - closest.x;
+  } else {
+    closest = area.points[0];
+    horizontalDistance = coords.x - closest.x;
+    for (let i = 1; i < len; i++) {
+      const point = area.points[i];
+      const distance = Math.abs(point.x - coords.x);
+      if (distance < horizontalDistance) {
+        closest = point;
+        horizontalDistance = distance;
+      } else {
+        break;
+      }
+    }
+  }
+
+  let verticalDistance: number;
+  if (coords.y < closest.yMin) {
+    verticalDistance = closest.yMin - coords.y;
+  } else if (coords.y > closest.yMax) {
+    verticalDistance = coords.y - closest.yMax;
+  } else {
+    verticalDistance = 0;
+  }
+
+  return [
+    closest.source,
+    { x: closest.x, y: coords.y < closest.yMin ? closest.yMin : closest.yMax },
+    [horizontalDistance, verticalDistance],
+  ];
+}
+
+function getClosestPointWithDistanceForLine<P>(
+  line: Line<P>,
+  coords: ChartCoordinates,
+): [P, ChartCoordinates, Distance] | null {
+  let closestPoint: Point<P> | null = null;
+  let closestDistance: Distance = [Infinity, 0];
+  for (const point of line.points) {
+    const distance = getDistance(coords, point);
+    if (isCloser(distance, closestDistance)) {
+      closestPoint = point;
+      closestDistance = distance;
+    }
+  }
+
+  return closestPoint
+    ? [closestPoint.source, closestPoint, closestDistance]
+    : null;
+}
+
+function getClosestPointWithDistanceForRectangle<P>(
+  rectangle: Rectangle<P>,
+  coords: ChartCoordinates,
+): [P, ChartCoordinates, Distance] {
+  let horizontal: number;
+  if (coords.x < rectangle.x) {
+    horizontal = rectangle.x - coords.x;
+  } else if (coords.x > rectangle.x + rectangle.width) {
+    horizontal = coords.x - (rectangle.x + rectangle.width);
+  } else {
+    horizontal = 0;
+  }
+
+  let vertical: number;
+  if (coords.y < rectangle.y) {
+    vertical = rectangle.y - coords.y;
+  } else if (coords.y > rectangle.y + rectangle.height) {
+    vertical = coords.y - (rectangle.y + rectangle.height);
+  } else {
+    vertical = 0;
+  }
+
+  return [
+    rectangle.source,
+    {
+      x: rectangle.x + 0.5 * rectangle.width,
+      y: rectangle.y + rectangle.height,
+    },
+    [horizontal, vertical],
+  ];
+}
+
+type Distance = [horizontal: number, vertical: number];
+
+function getDistance(p1: ChartCoordinates, p2: ChartCoordinates): Distance {
+  return [Math.abs(p1.x - p2.x), Math.abs(p1.y - p2.y)];
+}
+
+/**
+ * Returns whether the given distance is closer than the given reference.
+ *
+ * Horizontal distance is prioritized over vertical distance.
+ */
+function isCloser(distance: Distance, reference: Distance): boolean {
+  return (
+    distance[0] < reference[0] ||
+    (distance[0] === reference[0] && distance[1] < reference[1])
+  );
 }
