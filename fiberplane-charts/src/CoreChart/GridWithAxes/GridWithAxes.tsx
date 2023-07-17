@@ -1,13 +1,15 @@
-import { AxisLeft, Orientation } from "@visx/axis";
 import { GridRows, GridColumns } from "@visx/grid";
 import { animate, Tween, useMotionValue } from "framer-motion";
 import { memo, useEffect, useLayoutEffect, useState } from "react";
 import { useTheme } from "styled-components";
 
-import { Bottom } from "./Bottom";
+import type { AbstractChart } from "../../ACG";
+import { BottomAxis } from "./BottomAxis";
+import { LeftAxis } from "./LeftAxis";
 import type { Scales } from "../types";
 
 type Props = {
+  chart: AbstractChart<unknown, unknown>;
   gridColumnsShown?: boolean;
   gridRowsShown?: boolean;
   gridBordersShown?: boolean;
@@ -17,51 +19,29 @@ type Props = {
 };
 
 export const GridWithAxes = memo(function GridWithAxes({
+  chart,
   gridColumnsShown = true,
   gridRowsShown = true,
   gridBordersShown = true,
   gridDashArray,
   gridStrokeColor,
-  scales: { xMax, xScale, yMax, yScale },
+  scales,
 }: Props) {
-  const [targetLower = 0, targetUpper = 0] = yScale.domain();
+  const { xMax, xScale, yMax, yScale } = scales;
 
   const { colorBase300 } = useTheme();
   const strokeColor = gridStrokeColor || colorBase300;
 
-  const lower = useCustomSpring(targetLower);
-  const upper = useCustomSpring(targetUpper);
+  const minValue = useCustomSpring(chart.yAxis.minValue);
+  const maxValue = useCustomSpring(chart.yAxis.maxValue);
 
-  const temporaryScale = yScale.copy().domain([lower, upper]);
-  const ticks = temporaryScale.ticks();
-  const {
-    colorBase500,
-    fontAxisFontSize,
-    fontAxisFontFamily,
-    fontAxisFontStyle,
-    fontAxisFontWeight,
-    fontAxisLetterSpacing,
-    fontAxisLineHeight,
-  } = useTheme();
-
-  const axisLeftTickLabelProps = {
-    dx: "-0.25em",
-    dy: "0.25em",
-    textAnchor: "end" as const,
-    fontFamily: fontAxisFontFamily,
-    fontStyle: fontAxisFontStyle,
-    fontWeight: fontAxisFontWeight,
-    fontSize: fontAxisFontSize,
-    letterSpacing: fontAxisLetterSpacing,
-    lineHeight: fontAxisLineHeight,
-    fill: colorBase500,
-  };
+  const animatedScale = yScale.copy().domain([minValue, maxValue]);
 
   return (
     <>
       {gridRowsShown && (
         <GridRows
-          scale={temporaryScale}
+          scale={animatedScale}
           width={xMax}
           height={yMax}
           stroke={strokeColor}
@@ -88,17 +68,19 @@ export const GridWithAxes = memo(function GridWithAxes({
           strokeDasharray={gridDashArray}
         />
       )}
-      <Bottom xScale={xScale} yMax={yMax} strokeDasharray={gridDashArray} />
-      <AxisLeft
-        scale={temporaryScale}
-        orientation={Orientation.left}
-        stroke={strokeColor}
-        strokeWidth={gridBordersShown ? 1 : 0}
+      <BottomAxis
+        numTicks={10}
+        scales={scales}
+        strokeColor={strokeColor}
         strokeDasharray={gridDashArray}
-        hideTicks={true}
-        tickLabelProps={() => axisLeftTickLabelProps}
-        tickFormat={temporaryScale.tickFormat(10, "~s")}
-        tickValues={ticks.slice(1, -1)}
+        xAxis={chart.xAxis}
+      />
+      <LeftAxis
+        numTicks={6}
+        scales={{ ...scales, yScale: animatedScale }}
+        strokeColor={strokeColor}
+        strokeDasharray={gridDashArray}
+        strokeWidth={gridBordersShown ? 1 : 0}
       />
     </>
   );
@@ -115,7 +97,7 @@ function useCustomSpring(value: number) {
   const [current, setCurrent] = useState(value);
 
   useLayoutEffect(() => {
-    return motionValue.onChange((value) => setCurrent(value));
+    return motionValue.on("change", (value) => setCurrent(value));
   }, [motionValue]);
 
   useEffect(() => {

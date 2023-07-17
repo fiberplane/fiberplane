@@ -1,13 +1,12 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import * as React from 'react';
-import { forwardRef, memo, Fragment as Fragment$1, createContext, useRef, useCallback, useState, useEffect, useReducer, useMemo, useLayoutEffect, useContext, useId } from 'react';
+import { forwardRef, createContext, useRef, useCallback, useState, useEffect, useReducer, useMemo, useLayoutEffect, useContext, memo, useId, Fragment as Fragment$1 } from 'react';
 import styled, { css, useTheme } from 'styled-components';
 import { debounce } from 'throttle-debounce';
 import { localPoint } from '@visx/event';
 import { scaleLinear, getTicks } from '@visx/scale';
 import { Area, Bar, Line } from '@visx/shape';
 import { Threshold } from '@visx/threshold';
-import { AxisBottom, AxisLeft, Orientation } from '@visx/axis';
 import { GridRows, GridColumns } from '@visx/grid';
 import { useMotionValue, animate } from 'framer-motion';
 import { utcFormat } from 'd3-time-format';
@@ -339,64 +338,6 @@ const IconButton = /*#__PURE__*/ forwardRef(function IconButton(props, ref) {
     return allKeys.filter((key)=>constantKeys === undefined || constantKeys.has(key) === false);
 }
 
-/**
- * Sorts an array ascending by priority.
- *
- * *Warning:* As this function uses `Array#sort()` it also mutates the input
- * array.
- */ function sortBy(array, getPriorityFn, reverse = false) {
-    return array.sort((a, b)=>{
-        const priorityA = getPriorityFn(a);
-        const priorityB = getPriorityFn(b);
-        if (priorityA < priorityB) {
-            return reverse === true ? 1 : -1;
-        } else if (priorityA > priorityB) {
-            return reverse === true ? -1 : 1;
-        } else {
-            return 0;
-        }
-    });
-}
-
-const Emphasis = styled.span`
-  background-color: ${({ theme  })=>theme.colorBase200};
-  /* TODO (Jacco): we should try and find out what to do with this styling */
-  /* stylelint-disable-next-line scale-unlimited/declaration-strict-value */
-  font-weight: 600;
-  border-radius: ${({ theme  })=>theme.borderRadius500};
-  padding: 1px 4px;
-  display: inline-block;
-`;
-const FormattedTimeseries = /*#__PURE__*/ memo(function FormattedTimeseries({ metric , sortLabels =true , emphasizedKeys =[]  }) {
-    const { name , labels  } = metric;
-    let labelEntries = Object.entries(labels);
-    if (sortLabels) {
-        labelEntries = sortBy(labelEntries, ([key])=>key);
-    }
-    return /*#__PURE__*/ jsxs(Fragment, {
-        children: [
-            name && `${name}: `,
-            labelEntries.map(([key, value], index)=>/*#__PURE__*/ jsxs(Fragment$1, {
-                    children: [
-                        index > 0 && ", ",
-                        /*#__PURE__*/ jsxs("span", {
-                            className: key in emphasizedKeys ? "emphasize" : "",
-                            children: [
-                                key,
-                                value && [
-                                    ": ",
-                                    emphasizedKeys.includes(key) ? /*#__PURE__*/ jsx(Emphasis, {
-                                        children: value
-                                    }, key) : value
-                                ]
-                            ]
-                        })
-                    ]
-                }, key))
-        ]
-    });
-});
-
 function getShapeListColor(colors, listIndex) {
     return colors[listIndex % colors.length];
 }
@@ -429,6 +370,25 @@ function noop() {}
 
 function preventDefault(event) {
     event.preventDefault();
+}
+
+/**
+ * Sorts an array ascending by priority.
+ *
+ * *Warning:* As this function uses `Array#sort()` it also mutates the input
+ * array.
+ */ function sortBy(array, getPriorityFn, reverse = false) {
+    return array.sort((a, b)=>{
+        const priorityA = getPriorityFn(a);
+        const priorityB = getPriorityFn(b);
+        if (priorityA < priorityB) {
+            return reverse === true ? 1 : -1;
+        } else if (priorityA > priorityB) {
+            return reverse === true ? -1 : 1;
+        } else {
+            return 0;
+        }
+    });
 }
 
 const secondsToTimestamp = (seconds)=>new Date(seconds * 1000).toISOString();
@@ -1549,47 +1509,45 @@ function ChartContent({ chart , colors , focusedShapeList , scales  }) {
     });
 }
 
-const Bottom = /*#__PURE__*/ memo(function Bottom({ strokeDasharray , xScale , yMax  }) {
-    const { colorBase300 , colorBase500 , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing , fontAxisLineHeight  } = useTheme();
-    const axisBottomTickLabelProps = {
-        textAnchor: "middle",
-        fontFamily: fontAxisFontFamily,
-        fontStyle: fontAxisFontStyle,
-        fontWeight: fontAxisFontWeight,
-        fontSize: fontAxisFontSize,
-        letterSpacing: fontAxisLetterSpacing,
-        lineHeight: fontAxisLineHeight,
-        fill: colorBase500
-    };
-    const formatter = useMemo(()=>getTimeFormatter(xScale), [
-        xScale
-    ]);
-    return /*#__PURE__*/ jsx(AxisBottom, {
-        top: yMax,
-        scale: xScale,
-        stroke: colorBase300,
-        hideTicks: true,
-        tickFormat: formatter,
-        tickLabelProps: axisBottomTickLabelProps,
-        strokeDasharray: strokeDasharray
+const BottomAxis = /*#__PURE__*/ memo(function BottomAxis({ numTicks , scales: { xMax , xScale , yMax  } , strokeColor , strokeDasharray , xAxis  }) {
+    const { colorBase500 , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing  } = useTheme();
+    const formatter = getTimeFormatter(xAxis, numTicks);
+    return /*#__PURE__*/ jsxs("g", {
+        transform: `translate(0, ${yMax})`,
+        children: [
+            /*#__PURE__*/ jsx("line", {
+                x1: 0,
+                y1: 0,
+                x2: xMax,
+                y2: 0,
+                stroke: strokeColor,
+                strokeDasharray: strokeDasharray
+            }),
+            getTicks(xScale, numTicks).map((value, index)=>/*#__PURE__*/ jsx("text", {
+                    x: xScale(value),
+                    y: fontAxisFontSize,
+                    fill: colorBase500,
+                    fontFamily: fontAxisFontFamily,
+                    fontStyle: fontAxisFontStyle,
+                    fontWeight: fontAxisFontWeight,
+                    fontSize: fontAxisFontSize,
+                    letterSpacing: fontAxisLetterSpacing,
+                    textAnchor: "middle",
+                    children: formatter(value)
+                }, index))
+        ]
     });
 });
-function getTimeFormatter(scale) {
-    const ticks = getTicks(scale, 10);
-    if (ticks.length === 0) {
-        return (item)=>item.toString();
-    }
-    const first = ticks[0];
-    const second = ticks[1];
-    const timeScale = first !== undefined && second !== undefined ? getTimeScale(first, second) : "hours";
+function getTimeFormatter({ minValue , maxValue  }, numTicks) {
+    const timeScale = getTimeScale(minValue, maxValue, numTicks);
     const formatter = getFormatter(timeScale);
     return (item)=>{
-        const value = new Date(item.valueOf());
+        const value = new Date(minValue + item.valueOf() * (maxValue - minValue));
         return formatter(value);
     };
 }
-function getTimeScale(time1, time2) {
-    const delta = time2.valueOf() - time1.valueOf();
+function getTimeScale(time1, time2, numTicks) {
+    const delta = (time2 - time1) / numTicks;
     if (delta < 1000) {
         return "milliseconds";
     } else if (delta < 60 * 1000) {
@@ -1607,7 +1565,7 @@ function getFormatter(unit) {
         case "milliseconds":
             return utcFormat(".%L");
         case "seconds":
-            return utcFormat(":%S");
+            return utcFormat("%M:%S");
         case "minutes":
             return utcFormat("%I:%M");
         case "hours":
@@ -1617,19 +1575,9 @@ function getFormatter(unit) {
     }
 }
 
-const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDashArray , gridStrokeColor , scales: { xMax , xScale , yMax , yScale  }  }) {
-    const [targetLower = 0, targetUpper = 0] = yScale.domain();
-    const { colorBase300  } = useTheme();
-    const strokeColor = gridStrokeColor || colorBase300;
-    const lower = useCustomSpring(targetLower);
-    const upper = useCustomSpring(targetUpper);
-    const temporaryScale = yScale.copy().domain([
-        lower,
-        upper
-    ]);
-    const ticks = temporaryScale.ticks();
-    const { colorBase500 , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing , fontAxisLineHeight  } = useTheme();
-    const axisLeftTickLabelProps = {
+const LeftAxis = /*#__PURE__*/ memo(function LeftAxis({ numTicks , scales: { yMax , yScale  } , strokeColor , strokeDasharray , strokeWidth  }) {
+    const { colorBase500 , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing  } = useTheme();
+    const tickLabelProps = {
         dx: "-0.25em",
         dy: "0.25em",
         textAnchor: "end",
@@ -1638,13 +1586,45 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ gridColumnsShown
         fontWeight: fontAxisFontWeight,
         fontSize: fontAxisFontSize,
         letterSpacing: fontAxisLetterSpacing,
-        lineHeight: fontAxisLineHeight,
         fill: colorBase500
     };
+    const formatter = yScale.tickFormat(10, "~s");
+    return /*#__PURE__*/ jsxs("g", {
+        children: [
+            /*#__PURE__*/ jsx("line", {
+                x1: 0,
+                y1: 0,
+                x2: 0,
+                y2: yMax,
+                stroke: strokeColor,
+                strokeDasharray: strokeDasharray,
+                strokeWidth: strokeWidth
+            }),
+            getTicks(yScale, numTicks).map((value, index)=>index > 0 || index < numTicks - 1 ? // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
+                /*#__PURE__*/ jsx("text", {
+                    x: 0,
+                    y: yScale(value),
+                    ...tickLabelProps,
+                    children: formatter(value)
+                }, index) : null)
+        ]
+    });
+});
+
+const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDashArray , gridStrokeColor , scales  }) {
+    const { xMax , xScale , yMax , yScale  } = scales;
+    const { colorBase300  } = useTheme();
+    const strokeColor = gridStrokeColor || colorBase300;
+    const minValue = useCustomSpring(chart.yAxis.minValue);
+    const maxValue = useCustomSpring(chart.yAxis.maxValue);
+    const animatedScale = yScale.copy().domain([
+        minValue,
+        maxValue
+    ]);
     return /*#__PURE__*/ jsxs(Fragment, {
         children: [
             gridRowsShown && /*#__PURE__*/ jsx(GridRows, {
-                scale: temporaryScale,
+                scale: animatedScale,
                 width: xMax,
                 height: yMax,
                 stroke: strokeColor,
@@ -1666,21 +1646,22 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ gridColumnsShown
                 stroke: strokeColor,
                 strokeDasharray: gridDashArray
             }),
-            /*#__PURE__*/ jsx(Bottom, {
-                xScale: xScale,
-                yMax: yMax,
-                strokeDasharray: gridDashArray
-            }),
-            /*#__PURE__*/ jsx(AxisLeft, {
-                scale: temporaryScale,
-                orientation: Orientation.left,
-                stroke: strokeColor,
-                strokeWidth: gridBordersShown ? 1 : 0,
+            /*#__PURE__*/ jsx(BottomAxis, {
+                numTicks: 10,
+                scales: scales,
+                strokeColor: strokeColor,
                 strokeDasharray: gridDashArray,
-                hideTicks: true,
-                tickLabelProps: ()=>axisLeftTickLabelProps,
-                tickFormat: temporaryScale.tickFormat(10, "~s"),
-                tickValues: ticks.slice(1, -1)
+                xAxis: chart.xAxis
+            }),
+            /*#__PURE__*/ jsx(LeftAxis, {
+                numTicks: 6,
+                scales: {
+                    ...scales,
+                    yScale: animatedScale
+                },
+                strokeColor: strokeColor,
+                strokeDasharray: gridDashArray,
+                strokeWidth: gridBordersShown ? 1 : 0
             })
         ]
     });
@@ -1696,7 +1677,7 @@ function useCustomSpring(value) {
     const motionValue = useMotionValue(value);
     const [current, setCurrent] = useState(value);
     useLayoutEffect(()=>{
-        return motionValue.onChange((value)=>setCurrent(value));
+        return motionValue.on("change", (value)=>setCurrent(value));
     }, [
         motionValue
     ]);
@@ -1791,6 +1772,7 @@ function CoreChart({ chart , colors , gridShown =true , onChangeTimeRange , read
                 children: [
                     gridShown && /*#__PURE__*/ jsx(GridWithAxes, {
                         ...props,
+                        chart: chart,
                         scales: scales
                     }),
                     /*#__PURE__*/ jsx("g", {
@@ -2292,17 +2274,40 @@ function TimeseriesLegendItem({ color , onHover , onToggleTimeseriesVisibility ,
                         height: "12"
                     })
                 }),
-                /*#__PURE__*/ jsx(Text, {
-                    children: /*#__PURE__*/ jsx(FormattedTimeseries, {
-                        metric: timeseries,
-                        sortLabels: true,
-                        emphasizedKeys: uniqueKeys
-                    })
+                /*#__PURE__*/ jsx(FormattedTimeseries, {
+                    metric: timeseries,
+                    emphasizedKeys: uniqueKeys
                 })
             ]
         })
     });
 }
+const FormattedTimeseries = /*#__PURE__*/ memo(function FormattedTimeseries({ metric , emphasizedKeys =[]  }) {
+    const { name , labels  } = metric;
+    const labelEntries = sortBy(Object.entries(labels), ([key])=>key);
+    return /*#__PURE__*/ jsxs(Text, {
+        children: [
+            name && `${name}: `,
+            labelEntries.map(([key, value], index)=>/*#__PURE__*/ jsxs(Fragment$1, {
+                    children: [
+                        index > 0 && ", ",
+                        /*#__PURE__*/ jsxs("span", {
+                            className: key in emphasizedKeys ? "emphasize" : "",
+                            children: [
+                                key,
+                                value && [
+                                    ": ",
+                                    emphasizedKeys.includes(key) ? /*#__PURE__*/ jsx(Emphasis, {
+                                        children: value
+                                    }, key) : value
+                                ]
+                            ]
+                        })
+                    ]
+                }, key))
+        ]
+    });
+});
 const ColorBlock = styled.div`
     background: ${({ color , selected  })=>selected ? color : "transparent"};
     border: 2px solid ${({ color  })=>color};
@@ -2313,6 +2318,15 @@ const ColorBlock = styled.div`
     justify-content: center;
     color: ${({ theme  })=>theme.colorBackground};
     border-radius: ${({ theme  })=>theme.borderRadius400};
+`;
+const Emphasis = styled.span`
+  background-color: ${({ theme  })=>theme.colorBase200};
+  /* TODO (Jacco): we should try and find out what to do with this styling */
+  /* stylelint-disable-next-line scale-unlimited/declaration-strict-value */
+  font-weight: 600;
+  border-radius: ${({ theme  })=>theme.borderRadius500};
+  padding: 1px 4px;
+  display: inline-block;
 `;
 const InteractiveItemStyling = css`
     cursor: pointer;

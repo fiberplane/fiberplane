@@ -1,17 +1,17 @@
+import { Fragment, memo, useEffect } from "react";
 import styled, { css } from "styled-components";
-import { useEffect } from "react";
 
-import type { TimeseriesLegendProps } from "./types";
 import { Container, Icon } from "../BaseComponents";
-import { FormattedTimeseries, isMac, noop, preventDefault } from "../utils";
+import { isMac, noop, preventDefault, sortBy } from "../utils";
 import type { Timeseries } from "../providerTypes";
+import type { ToggleTimeseriesEvent } from "./types";
 import { useMeasure } from "../hooks";
 
 type Props = {
   color: string;
   index: number;
   onHover: () => void;
-  onToggleTimeseriesVisibility: TimeseriesLegendProps["onToggleTimeseriesVisibility"];
+  onToggleTimeseriesVisibility?: (event: ToggleTimeseriesEvent) => void;
   readOnly: boolean;
   setSize: (index: number, value: number) => void;
   timeseries: Timeseries;
@@ -63,17 +63,45 @@ export function TimeseriesLegendItem({
         <ColorBlock color={color} selected={timeseries.visible}>
           {timeseries.visible && <Icon type="check" width="12" height="12" />}
         </ColorBlock>
-        <Text>
-          <FormattedTimeseries
-            metric={timeseries}
-            sortLabels
-            emphasizedKeys={uniqueKeys}
-          />
-        </Text>
+        <FormattedTimeseries metric={timeseries} emphasizedKeys={uniqueKeys} />
       </LegendItemContainer>
     </div>
   );
 }
+
+const FormattedTimeseries = memo(function FormattedTimeseries({
+  metric,
+  emphasizedKeys = [],
+}: {
+  metric: Timeseries;
+  emphasizedKeys?: Array<string>;
+}): JSX.Element {
+  const { name, labels } = metric;
+
+  const labelEntries = sortBy(Object.entries(labels), ([key]) => key);
+
+  return (
+    <Text>
+      {name && `${name}: `}
+      {labelEntries.map(([key, value], index) => (
+        <Fragment key={key}>
+          {index > 0 && ", "}
+          <span className={key in emphasizedKeys ? "emphasize" : ""}>
+            {key}
+            {value && [
+              ": ",
+              emphasizedKeys.includes(key) ? (
+                <Emphasis key={key}>{value}</Emphasis>
+              ) : (
+                value
+              ),
+            ]}
+          </span>
+        </Fragment>
+      ))}
+    </Text>
+  );
+});
 
 const ColorBlock = styled.div<{ color: string; selected: boolean }>`
     background: ${({ color, selected }) => (selected ? color : "transparent")};
@@ -85,6 +113,16 @@ const ColorBlock = styled.div<{ color: string; selected: boolean }>`
     justify-content: center;
     color: ${({ theme }) => theme.colorBackground};
     border-radius: ${({ theme }) => theme.borderRadius400};
+`;
+
+const Emphasis = styled.span`
+  background-color: ${({ theme }) => theme.colorBase200};
+  /* TODO (Jacco): we should try and find out what to do with this styling */
+  /* stylelint-disable-next-line scale-unlimited/declaration-strict-value */
+  font-weight: 600;
+  border-radius: ${({ theme }) => theme.borderRadius500};
+  padding: 1px 4px;
+  display: inline-block;
 `;
 
 const InteractiveItemStyling = css`
