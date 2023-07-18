@@ -1,0 +1,183 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`it generates a line chart 1`] = `
+{
+  "shapeLists": [
+    {
+      "shapes": [
+        {
+          "points": [
+            {
+              "source": {
+                "attributes": {},
+                "resource": {},
+                "time": "2023-07-18T16:00:00.000Z",
+                "value": 10,
+              },
+              "x": 0,
+              "y": 0,
+            },
+            {
+              "source": {
+                "attributes": {},
+                "resource": {},
+                "time": "2023-07-18T16:01:00.000Z",
+                "value": 15,
+              },
+              "x": 0.1,
+              "y": 0.25,
+            },
+            {
+              "source": {
+                "attributes": {},
+                "resource": {},
+                "time": "2023-07-18T16:02:00.000Z",
+                "value": 20,
+              },
+              "x": 0.2,
+              "y": 0.5,
+            },
+          ],
+          "type": "line",
+        },
+        {
+          "points": [
+            {
+              "source": {
+                "attributes": {},
+                "resource": {},
+                "time": "2023-07-18T16:04:00.000Z",
+                "value": 25,
+              },
+              "x": 0.4,
+              "y": 0.75,
+            },
+            {
+              "source": {
+                "attributes": {},
+                "resource": {},
+                "time": "2023-07-18T16:05:00.000Z",
+                "value": 30,
+              },
+              "x": 0.5,
+              "y": 1,
+            },
+            {
+              "source": {
+                "attributes": {},
+                "resource": {},
+                "time": "2023-07-18T16:06:00.000Z",
+                "value": 25,
+              },
+              "x": 0.6,
+              "y": 0.75,
+            },
+            {
+              "source": {
+                "attributes": {},
+                "resource": {},
+                "time": "2023-07-18T16:07:00.000Z",
+                "value": 20,
+              },
+              "x": 0.7,
+              "y": 0.5,
+            },
+            {
+              "source": {
+                "attributes": {},
+                "resource": {},
+                "time": "2023-07-18T16:08:00.000Z",
+                "value": 15,
+              },
+              "x": 0.8,
+              "y": 0.25,
+            },
+            {
+              "source": {
+                "attributes": {},
+                "resource": {},
+                "time": "2023-07-18T16:09:00.000Z",
+                "value": 10,
+              },
+              "x": 0.9,
+              "y": 0,
+            },
+          ],
+          "type": "line",
+        },
+      ],
+      "source": {
+        "attributes": {},
+        "labels": {},
+        "metrics": [
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:00:00.000Z",
+            "value": 10,
+          },
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:01:00.000Z",
+            "value": 15,
+          },
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:02:00.000Z",
+            "value": 20,
+          },
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:04:00.000Z",
+            "value": 25,
+          },
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:05:00.000Z",
+            "value": 30,
+          },
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:06:00.000Z",
+            "value": 25,
+          },
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:07:00.000Z",
+            "value": 20,
+          },
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:08:00.000Z",
+            "value": 15,
+          },
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:09:00.000Z",
+            "value": 10,
+          },
+        ],
+        "name": "dummy_data",
+        "resource": {},
+        "visible": true,
+      },
+    },
+  ],
+  "xAxis": {
+    "maxValue": 1689696600000,
+    "minValue": 1689696000000,
+  },
+  "yAxis": {
+    "maxValue": 30,
+    "minValue": 10,
+  },
+}
+`;

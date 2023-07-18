@@ -1,0 +1,200 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`it generates a bar chart 1`] = `
+{
+  "shapeLists": [
+    {
+      "shapes": [
+        {
+          "height": 0,
+          "source": {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:00:00.000Z",
+            "value": 10,
+          },
+          "type": "rectangle",
+          "width": 0.06944444444444445,
+          "x": -0.0031565656565656535,
+          "y": 0,
+        },
+        {
+          "height": 0.25,
+          "source": {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:01:00.000Z",
+            "value": 15,
+          },
+          "type": "rectangle",
+          "width": 0.06944444444444445,
+          "x": 0.08775252525252525,
+          "y": 0,
+        },
+        {
+          "height": 0.5,
+          "source": {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:02:00.000Z",
+            "value": 20,
+          },
+          "type": "rectangle",
+          "width": 0.06944444444444445,
+          "x": 0.17866161616161616,
+          "y": 0,
+        },
+        {
+          "height": 0.75,
+          "source": {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:04:00.000Z",
+            "value": 25,
+          },
+          "type": "rectangle",
+          "width": 0.06944444444444445,
+          "x": 0.360479797979798,
+          "y": 0,
+        },
+        {
+          "height": 1,
+          "source": {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:05:00.000Z",
+            "value": 30,
+          },
+          "type": "rectangle",
+          "width": 0.06944444444444445,
+          "x": 0.4513888888888889,
+          "y": 0,
+        },
+        {
+          "height": 0.75,
+          "source": {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:06:00.000Z",
+            "value": 25,
+          },
+          "type": "rectangle",
+          "width": 0.06944444444444445,
+          "x": 0.5422979797979799,
+          "y": 0,
+        },
+        {
+          "height": 0.5,
+          "source": {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:07:00.000Z",
+            "value": 20,
+          },
+          "type": "rectangle",
+          "width": 0.06944444444444445,
+          "x": 0.6332070707070707,
+          "y": 0,
+        },
+        {
+          "height": 0.25,
+          "source": {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:08:00.000Z",
+            "value": 15,
+          },
+          "type": "rectangle",
+          "width": 0.06944444444444445,
+          "x": 0.7241161616161617,
+          "y": 0,
+        },
+        {
+          "height": 0,
+          "source": {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:09:00.000Z",
+            "value": 10,
+          },
+          "type": "rectangle",
+          "width": 0.06944444444444445,
+          "x": 0.8150252525252526,
+          "y": 0,
+        },
+      ],
+      "source": {
+        "attributes": {},
+        "labels": {},
+        "metrics": [
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:00:00.000Z",
+            "value": 10,
+          },
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:01:00.000Z",
+            "value": 15,
+          },
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:02:00.000Z",
+            "value": 20,
+          },
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:04:00.000Z",
+            "value": 25,
+          },
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:05:00.000Z",
+            "value": 30,
+          },
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:06:00.000Z",
+            "value": 25,
+          },
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:07:00.000Z",
+            "value": 20,
+          },
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:08:00.000Z",
+            "value": 15,
+          },
+          {
+            "attributes": {},
+            "resource": {},
+            "time": "2023-07-18T16:09:00.000Z",
+            "value": 10,
+          },
+        ],
+        "name": "dummy_data",
+        "resource": {},
+        "visible": true,
+      },
+    },
+  ],
+  "xAxis": {
+    "maxValue": 1689696630000,
+    "minValue": 1689695970000,
+  },
+  "yAxis": {
+    "maxValue": 30,
+    "minValue": 10,
+  },
+}
+`;
