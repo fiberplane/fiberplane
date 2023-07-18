@@ -1,14 +1,13 @@
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import * as React from 'react';
-import { forwardRef, createContext, useRef, useCallback, useState, useEffect, useReducer, useMemo, useLayoutEffect, useContext, memo, useId, Fragment as Fragment$1 } from 'react';
+import { forwardRef, createContext, useRef, useCallback, useState, useEffect, useReducer, useMemo, useLayoutEffect, memo, useId, useContext, Fragment as Fragment$1 } from 'react';
 import styled, { css, useTheme } from 'styled-components';
 import { debounce } from 'throttle-debounce';
-import { localPoint } from '@visx/event';
-import { scaleLinear, getTicks } from '@visx/scale';
-import { Area, Bar, Line } from '@visx/shape';
+import { Area } from '@visx/shape';
 import { Threshold } from '@visx/threshold';
 import { GridRows, GridColumns } from '@visx/grid';
 import { useMotionValue, animate } from 'framer-motion';
+import { getTicks, scaleLinear } from '@visx/scale';
 import { utcFormat } from 'd3-time-format';
 import { VariableSizeList } from 'react-window';
 
@@ -343,7 +342,10 @@ function getShapeListColor(colors, listIndex) {
 }
 
 /**
- * Returns the input value, also known as the identity function.
+ * Returns the input value.
+ *
+ * A function that only returns its input is also known as the identity
+ * function.
  */ function identity(input) {
     return input;
 }
@@ -508,30 +510,6 @@ const isMac = os === "mac";
     marginRight: 0,
     marginBottom: 0,
     marginLeft: 0
-});
-
-/**
- * Context that handles the result of useCoreControls hooks
- */ const CoreControlsContext = createContext({
-    zoom () {},
-    move () {}
-});
-
-const defaultControlsState = {
-    type: "none"
-};
-/**
- * Holds the interactive control state as returned by the useInteractiveControlState
- */ const InteractiveControlsStateContext = createContext(defaultControlsState);
-/**
- * One of two parts of the useInteractiveControlState hook results
- *
- * This is the api/functional part
- */ const InteractiveControlsApiContext = createContext({
-    reset () {},
-    startDrag () {},
-    startZoom () {},
-    updateEndValue () {}
 });
 
 const noDeps = [];
@@ -815,522 +793,6 @@ const intersectionOptions = {
     threshold: 0
 };
 
-const MIN_DURATION = 60; // in seconds
-/**
- * Hook for creating convenient move/zoom functions
- */ function useCoreControls({ timeRange , onChangeTimeRange  }) {
-    /**
-   * Moves the time scale.
-   *
-   * @param deltaRatio The delta to move as a ratio of the current time scale
-   *                   window. -1 moves a full window to the left, and 1 moves
-   *                   a full window to the right.
-   */ const move = useHandler((deltaRatio)=>{
-        const currentFrom = timestampToSeconds(timeRange.from);
-        const currentTo = timestampToSeconds(timeRange.to);
-        const delta = deltaRatio * (currentTo - currentFrom);
-        const from = secondsToTimestamp(currentFrom + delta);
-        const to = secondsToTimestamp(currentTo + delta);
-        onChangeTimeRange?.({
-            from,
-            to
-        });
-    });
-    /**
-   * Zooms into or out from the graph.
-   *
-   * @param factor The zoom factor. Anything below 1 makes the time scale
-   *               smaller (zooming in), and anything above 1 makes the time
-   *               scale larger (zooming out).
-   * @param focusRatio The horizontal point on which to focus the zoom,
-   *                   expressed as a ratio from 0 (left-hand side of the graph)
-   *                   to 1 (right-hand side of the graph).
-   */ const zoom = useHandler((factor, focusRatio = 0.5)=>{
-        const currentFrom = timestampToSeconds(timeRange.from);
-        const currentTo = timestampToSeconds(timeRange.to);
-        const duration = currentTo - currentFrom;
-        const focusTimestamp = currentFrom + focusRatio * duration;
-        const newDuration = Math.max(duration * factor, MIN_DURATION);
-        const from = secondsToTimestamp(focusTimestamp - newDuration * focusRatio);
-        const to = secondsToTimestamp(focusTimestamp + newDuration * (1 - focusRatio));
-        onChangeTimeRange?.({
-            from,
-            to
-        });
-    });
-    // rome-ignore lint/nursery/useHookAtTopLevel: https://github.com/rome/tools/issues/4483
-    return useMemo(()=>({
-            move,
-            zoom
-        }), [
-        move,
-        zoom
-    ]);
-}
-
-/**
- * Returns zoom/drag handlers and state.
- */ function useInteractiveControls() {
-    const [interactiveControlsState, dispatch] = useReducer(controlsStateReducer, defaultControlsState);
-    const interactiveControls = useMemo(()=>({
-            reset () {
-                dispatch({
-                    type: "RESET"
-                });
-            },
-            startDrag (start) {
-                dispatch({
-                    type: "DRAG_START",
-                    payload: {
-                        start
-                    }
-                });
-            },
-            startZoom (start) {
-                dispatch({
-                    type: "ZOOM_START",
-                    payload: {
-                        start
-                    }
-                });
-            },
-            updateEndValue (end) {
-                dispatch({
-                    type: "UPDATE_END_VALUE",
-                    payload: {
-                        end
-                    }
-                });
-            }
-        }), []);
-    return {
-        interactiveControls,
-        interactiveControlsState
-    };
-}
-function controlsStateReducer(state, action) {
-    switch(action.type){
-        case "RESET":
-            return defaultControlsState;
-        case "DRAG_START":
-            return {
-                type: "drag",
-                start: action.payload.start
-            };
-        case "ZOOM_START":
-            return {
-                type: "zoom",
-                start: action.payload.start
-            };
-        case "UPDATE_END_VALUE":
-            if (state.type === "none") {
-                return state;
-            }
-            return {
-                type: state.type,
-                start: state.start,
-                end: action.payload.end
-            };
-        default:
-            return state;
-    }
-}
-
-// Dimensions.
-const HEIGHT = 275;
-const MARGINS = {
-    top: 0,
-    bottom: 20,
-    left: 38,
-    right: 0
-};
-
-/**
- * Hook for setting up mouse handlers to control dragging & zoom
- */ function useMouseControls({ timeRange , onChangeTimeRange , xMax , yMax  }) {
-    const { move , zoom  } = useContext(CoreControlsContext);
-    const { startDrag , startZoom , reset , updateEndValue  } = useContext(InteractiveControlsApiContext);
-    const controlsState = useContext(InteractiveControlsStateContext);
-    const graphContentRef = useRef(null);
-    const onMouseDown = (event)=>{
-        if (event.buttons !== 1 || !onChangeTimeRange) {
-            return;
-        }
-        preventDefault(event);
-        if (!graphContentRef.current) {
-            return;
-        }
-        const point = localPoint(graphContentRef.current, event);
-        if (!point) {
-            return;
-        }
-        let { x , y  } = point;
-        x -= MARGINS.left;
-        y -= MARGINS.top;
-        if (x >= 0 && x <= xMax && y >= 0 && y <= yMax) {
-            if (zoomKeyPressed(event)) {
-                startZoom(x);
-            } else if (event.shiftKey) {
-                startDrag(x);
-            }
-        }
-    };
-    const onMouseMove = (event)=>{
-        preventDefault(event);
-        if (controlsState.type === "none") {
-            return;
-        }
-        if (controlsState.type === "drag" && !event.shiftKey || controlsState.type === "zoom" && !zoomKeyPressed(event)) {
-            reset();
-            return;
-        }
-        if (!graphContentRef.current) {
-            return;
-        }
-        const point = localPoint(graphContentRef.current, event);
-        if (!point) {
-            return;
-        }
-        let { x , y  } = point;
-        x -= MARGINS.left;
-        y -= MARGINS.top;
-        if (x >= 0 && x <= xMax && y >= 0 && y <= yMax) {
-            updateEndValue(x);
-        }
-    };
-    const onMouseUp = (event)=>{
-        if (event.button !== 0) {
-            return;
-        }
-        preventDefault(event);
-        if (controlsState.type === "none") {
-            return;
-        }
-        if (controlsState.type === "zoom") {
-            const { start , end  } = controlsState;
-            if (end !== undefined && start !== end) {
-                const positionToSeconds = (x)=>timestampToSeconds(timeRange.from) + x / xMax * (timestampToSeconds(timeRange.to) - timestampToSeconds(timeRange.from));
-                const positionToTimestamp = (x)=>secondsToTimestamp(positionToSeconds(x));
-                const from = positionToTimestamp(Math.min(start, end));
-                const to = positionToTimestamp(Math.max(start, end));
-                onChangeTimeRange?.({
-                    from,
-                    to
-                });
-            }
-        } else if (controlsState.type === "drag") {
-            const { start , end  } = controlsState;
-            if (end !== undefined && start !== end) {
-                move((start - end) / xMax);
-            }
-        }
-        reset();
-    };
-    const onWheel = (event)=>{
-        if (controlsState.type !== "none" || !zoomKeyPressed(event)) {
-            return;
-        }
-        startZoom(null);
-        const graphContent = graphContentRef.current;
-        if (!graphContent) {
-            return;
-        }
-        const rect = graphContent.getClientRects()[0];
-        const x = event.pageX - (rect?.left ?? 0);
-        if (x < 0 || x > xMax) {
-            return;
-        }
-        preventDefault(event);
-        const factor = event.deltaY < 0 ? 0.5 : 2;
-        const focusRatio = x / xMax;
-        zoom(factor, focusRatio);
-    };
-    const onMouseEnter = (event)=>{
-        const { currentTarget  } = event;
-        currentTarget.addEventListener("wheel", onWheel);
-        currentTarget.addEventListener("mouseleave", ()=>{
-            currentTarget.removeEventListener("wheel", onWheel);
-        });
-    };
-    return {
-        onMouseDown,
-        onMouseMove,
-        onMouseUp,
-        onMouseEnter,
-        graphContentRef
-    };
-}
-function zoomKeyPressed(event) {
-    return isMac ? event.metaKey : event.ctrlKey;
-}
-
-/**
- * Returns the scales to use for rendering VisX components.
- *
- * Fortunately for us, our abstract charts are normalized along both axes to
- * values from 0.0 to 1.0, meaning we can suffice with trivial linear scales.
- */ function useScales(xMax, yMax) {
-    // rome-ignore lint/nursery/useHookAtTopLevel: https://github.com/rome/tools/issues/4483
-    return useMemo(()=>{
-        const xScale = scaleLinear({
-            range: [
-                0,
-                xMax
-            ],
-            round: false,
-            nice: false,
-            domain: [
-                0,
-                1
-            ]
-        });
-        const yScale = scaleLinear({
-            range: [
-                yMax,
-                0
-            ],
-            round: false,
-            nice: false,
-            domain: [
-                0,
-                1
-            ]
-        });
-        return {
-            xMax,
-            xScale,
-            yMax,
-            yScale
-        };
-    }, [
-        xMax,
-        yMax
-    ]);
-}
-
-function useTooltip(props) {
-    const [graphTooltip, setGraphTooltip] = useState(null);
-    const closeFnRef = useRef(null);
-    const showTooltipFn = props.showTooltip;
-    const showTooltip = showTooltipFn ? (tip)=>{
-        setGraphTooltip(tip);
-        const element = {
-            getBoundingClientRect: ()=>{
-                const ctm = tip.element.getScreenCTM();
-                const point = tip.element.createSVGPoint();
-                point.x = tip.left;
-                point.y = tip.top;
-                const { x , y  } = ctm ? point.matrixTransform(ctm) : {
-                    x: tip.left,
-                    y: tip.top
-                };
-                return new DOMRect(x - 4, y - 4, 8, 8);
-            },
-            contextElement: tip.element
-        };
-        closeFnRef.current = showTooltipFn(element, tip.sourcePoint);
-    } : noop;
-    const closeTooltip = ()=>{
-        setGraphTooltip(null);
-        if (closeFnRef.current) {
-            closeFnRef.current();
-            closeFnRef.current = null;
-        }
-    };
-    return {
-        graphTooltip,
-        onMouseMove: (event)=>{
-            const closest = getClosestSeriesAndPointWithCoordinates(event, props);
-            if (!closest) {
-                return;
-            }
-            const [series, point, coords] = closest;
-            const { chart , colors , xMax , yMax  } = props;
-            const seriesIndex = chart.shapeLists.findIndex((shapeList)=>shapeList.source === series);
-            const color = getShapeListColor(colors, seriesIndex);
-            showTooltip({
-                color,
-                element: event.currentTarget,
-                sourcePoint: [
-                    series,
-                    point
-                ],
-                top: (1 - coords.y) * yMax + MARGINS.top,
-                left: coords.x * xMax + MARGINS.left
-            });
-        },
-        onMouseLeave: ()=>{
-            closeTooltip();
-        }
-    };
-}
-function getClosestSeriesAndPointWithCoordinates(event, { chart , xMax , yMax  }) {
-    const coords = getCoordinatesForEvent(event, xMax, yMax);
-    if (!coords) {
-        return null;
-    }
-    let closestSeriesAndPoint = null;
-    let closestDistance = [
-        Infinity,
-        0
-    ];
-    for (const shapeList of chart.shapeLists){
-        for (const shape of shapeList.shapes){
-            const closest = getClosestPointWithDistance(shape, coords);
-            if (!closest) {
-                continue;
-            }
-            const [point, closestCoords, distance] = closest;
-            if (isCloser(distance, closestDistance)) {
-                closestSeriesAndPoint = [
-                    shapeList.source,
-                    point,
-                    closestCoords
-                ];
-                closestDistance = distance;
-            }
-        }
-    }
-    return closestSeriesAndPoint;
-}
-function getCoordinatesForEvent(event, xMax, yMax) {
-    const svg = event.currentTarget;
-    const rect = svg.getBoundingClientRect();
-    const x = event.clientX - rect.left - MARGINS.left;
-    const y = event.clientY - rect.top - MARGINS.top;
-    if (x < 0 || x > xMax || y < 0 || y > yMax) {
-        return null;
-    }
-    return {
-        x: x / xMax,
-        y: 1 - y / yMax
-    };
-}
-function getClosestPointWithDistance(shape, coords) {
-    switch(shape.type){
-        case "area":
-            return getClosestPointWithDistanceForArea(shape, coords);
-        case "line":
-            return getClosestPointWithDistanceForLine(shape, coords);
-        case "point":
-            return [
-                shape.source,
-                shape,
-                getDistance(coords, shape)
-            ];
-        case "rectangle":
-            return getClosestPointWithDistanceForRectangle(shape, coords);
-    }
-}
-function getClosestPointWithDistanceForArea(area, coords) {
-    const len = area.points.length;
-    if (len === 0) {
-        return null;
-    }
-    let closest;
-    let horizontalDistance;
-    if (coords.x < area.points[0].x) {
-        closest = area.points[0];
-        horizontalDistance = closest.x - coords.x;
-    } else if (coords.x > area.points[len - 1].x) {
-        closest = area.points[len - 1];
-        horizontalDistance = coords.x - closest.x;
-    } else {
-        closest = area.points[0];
-        horizontalDistance = coords.x - closest.x;
-        for(let i = 1; i < len; i++){
-            const point = area.points[i];
-            const distance = Math.abs(point.x - coords.x);
-            if (distance < horizontalDistance) {
-                closest = point;
-                horizontalDistance = distance;
-            } else {
-                break;
-            }
-        }
-    }
-    let verticalDistance;
-    if (coords.y < closest.yMin) {
-        verticalDistance = closest.yMin - coords.y;
-    } else if (coords.y > closest.yMax) {
-        verticalDistance = coords.y - closest.yMax;
-    } else {
-        verticalDistance = 0;
-    }
-    return [
-        closest.source,
-        {
-            x: closest.x,
-            y: coords.y < closest.yMin ? closest.yMin : closest.yMax
-        },
-        [
-            horizontalDistance,
-            verticalDistance
-        ]
-    ];
-}
-function getClosestPointWithDistanceForLine(line, coords) {
-    let closestPoint = null;
-    let closestDistance = [
-        Infinity,
-        0
-    ];
-    for (const point of line.points){
-        const distance = getDistance(coords, point);
-        if (isCloser(distance, closestDistance)) {
-            closestPoint = point;
-            closestDistance = distance;
-        }
-    }
-    return closestPoint ? [
-        closestPoint.source,
-        closestPoint,
-        closestDistance
-    ] : null;
-}
-function getClosestPointWithDistanceForRectangle(rectangle, coords) {
-    let horizontal;
-    if (coords.x < rectangle.x) {
-        horizontal = rectangle.x - coords.x;
-    } else if (coords.x > rectangle.x + rectangle.width) {
-        horizontal = coords.x - (rectangle.x + rectangle.width);
-    } else {
-        horizontal = 0;
-    }
-    let vertical;
-    if (coords.y < rectangle.y) {
-        vertical = rectangle.y - coords.y;
-    } else if (coords.y > rectangle.y + rectangle.height) {
-        vertical = coords.y - (rectangle.y + rectangle.height);
-    } else {
-        vertical = 0;
-    }
-    return [
-        rectangle.source,
-        {
-            x: rectangle.x + 0.5 * rectangle.width,
-            y: rectangle.y + rectangle.height
-        },
-        [
-            horizontal,
-            vertical
-        ]
-    ];
-}
-function getDistance(p1, p2) {
-    return [
-        Math.abs(p1.x - p2.x),
-        Math.abs(p1.y - p2.y)
-    ];
-}
-/**
- * Returns whether the given distance is closer than the given reference.
- *
- * Horizontal distance is prioritized over vertical distance.
- */ function isCloser(distance, reference) {
-    return distance[0] < reference[0] || distance[0] === reference[0] && distance[1] < reference[1];
-}
-
 const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , area , color , focused , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
@@ -1491,21 +953,14 @@ function ChartShape({ shape , ...props }) {
 }
 
 function ChartContent({ chart , colors , focusedShapeList , scales  }) {
-    return /*#__PURE__*/ jsxs(Fragment, {
-        children: [
-            chart.shapeLists.flatMap((shapeList, listIndex)=>shapeList.shapes.map((shape, shapeIndex)=>/*#__PURE__*/ jsx(ChartShape, {
-                        anyFocused: !!focusedShapeList,
-                        color: getShapeListColor(colors, listIndex),
-                        focused: shapeList === focusedShapeList,
-                        scales: scales,
-                        shape: shape
-                    }, `${listIndex}-${shapeIndex}`))),
-            /*#__PURE__*/ jsx(Bar, {
-                width: scales.xMax,
-                height: scales.yMax,
-                fill: "transparent"
-            })
-        ]
+    return /*#__PURE__*/ jsx(Fragment, {
+        children: chart.shapeLists.flatMap((shapeList, listIndex)=>shapeList.shapes.map((shape, shapeIndex)=>/*#__PURE__*/ jsx(ChartShape, {
+                    anyFocused: !!focusedShapeList,
+                    color: getShapeListColor(colors, listIndex),
+                    focused: shapeList === focusedShapeList,
+                    scales: scales,
+                    shape: shape
+                }, `${listIndex}-${shapeIndex}`)))
     });
 }
 
@@ -1691,65 +1146,605 @@ function useCustomSpring(value) {
     return current;
 }
 
-function ZoomBar({ controlsState , yMax  }) {
-    if (controlsState.type !== "zoom") {
+const defaultState = {
+    mouseInteraction: {
+        type: "none"
+    },
+    dragKeyPressed: false,
+    zoomKeyPressed: false
+};
+/**
+ * Returns zoom/drag handlers and state.
+ */ function useInteractiveControls(readOnly) {
+    const [state, dispatch] = useReducer(readOnly ? identity : controlsStateReducer, defaultState);
+    const controls = useMemo(()=>createControls(dispatch), []);
+    return {
+        ...controls,
+        ...state
+    };
+}
+function createControls(dispatch) {
+    return {
+        resetMouseInteraction () {
+            dispatch({
+                type: "RESET_MOUSE_INTERACTION"
+            });
+        },
+        startDrag (start) {
+            dispatch({
+                type: "DRAG_START",
+                payload: {
+                    start
+                }
+            });
+        },
+        startZoom (start) {
+            dispatch({
+                type: "ZOOM_START",
+                payload: {
+                    start
+                }
+            });
+        },
+        updateEndValue (end) {
+            dispatch({
+                type: "UPDATE_END_VALUE",
+                payload: {
+                    end
+                }
+            });
+        },
+        updatePressedKeys (event) {
+            dispatch({
+                type: "UPDATE_PRESSED_KEYS",
+                payload: {
+                    dragKeyPressed: dragKeyPressed(event),
+                    zoomKeyPressed: zoomKeyPressed(event)
+                }
+            });
+        }
+    };
+}
+function controlsStateReducer(state, action) {
+    switch(action.type){
+        case "DRAG_START":
+            return {
+                ...state,
+                mouseInteraction: {
+                    type: "drag",
+                    start: action.payload.start
+                }
+            };
+        case "RESET_MOUSE_INTERACTION":
+            return {
+                ...state,
+                mouseInteraction: defaultState.mouseInteraction
+            };
+        case "UPDATE_END_VALUE":
+            if (state.mouseInteraction.type === "none") {
+                return state;
+            }
+            return {
+                ...state,
+                mouseInteraction: {
+                    ...state.mouseInteraction,
+                    end: action.payload.end
+                }
+            };
+        case "UPDATE_PRESSED_KEYS":
+            return {
+                ...state,
+                ...action.payload
+            };
+        case "ZOOM_START":
+            return {
+                ...state,
+                mouseInteraction: {
+                    type: "zoom",
+                    start: action.payload.start
+                }
+            };
+        default:
+            return state;
+    }
+}
+function dragKeyPressed(event) {
+    return event.shiftKey;
+}
+function zoomKeyPressed(event) {
+    return isMac ? event.metaKey : event.ctrlKey;
+}
+
+// Dimensions.
+const HEIGHT = 275;
+const MARGINS = {
+    top: 0,
+    bottom: 20,
+    left: 38,
+    right: 0
+};
+
+function getCoordinatesForEvent(event, { xMax , yMax  }) {
+    const svg = event.currentTarget;
+    const rect = svg.getBoundingClientRect();
+    const x = event.clientX - rect.left - MARGINS.left;
+    const y = event.clientY - rect.top - MARGINS.top;
+    if (x < 0 || x > xMax || y < 0 || y > yMax) {
         return null;
     }
-    const { start , end  } = controlsState;
+    return {
+        x: x / xMax,
+        y: 1 - y / yMax
+    };
+}
+
+const MIN_DURATION = 60; // in seconds
+/**
+ * Hook for setting up mouse handlers to control dragging & zoom
+ */ function useMouseControls({ interactiveControls: { dragKeyPressed , zoomKeyPressed , mouseInteraction , resetMouseInteraction , startDrag , startZoom , updateEndValue  } , timeRange , onChangeTimeRange , dimensions  }) {
+    function onMouseDown(event) {
+        if (event.buttons !== 1 || !onChangeTimeRange) {
+            return;
+        }
+        preventDefault(event);
+        const coords = getCoordinatesForEvent(event, dimensions);
+        if (!coords) {
+            return;
+        }
+        if (dragKeyPressed) {
+            startDrag(coords.x);
+        } else if (zoomKeyPressed) {
+            startZoom(coords.x);
+        }
+    }
+    function onMouseMove(event) {
+        preventDefault(event);
+        if (mouseInteraction.type === "none") {
+            return;
+        }
+        if (mouseInteraction.type === "drag" && !dragKeyPressed || mouseInteraction.type === "zoom" && !zoomKeyPressed) {
+            resetMouseInteraction();
+            return;
+        }
+        const coords = getCoordinatesForEvent(event, dimensions);
+        if (coords) {
+            updateEndValue(coords.x);
+        }
+    }
+    function onMouseUp(event) {
+        if (event.button !== 0) {
+            return;
+        }
+        preventDefault(event);
+        if (mouseInteraction.type === "zoom") {
+            const { start , end  } = mouseInteraction;
+            if (end !== undefined && start !== end) {
+                onChangeTimeRange?.({
+                    from: coordinateToTimestamp(timeRange, Math.min(start, end)),
+                    to: coordinateToTimestamp(timeRange, Math.max(start, end))
+                });
+            }
+            resetMouseInteraction();
+        } else if (mouseInteraction.type === "drag") {
+            const { start , end  } = mouseInteraction;
+            if (end !== undefined && start !== end) {
+                move(start - end);
+            }
+            resetMouseInteraction();
+        }
+    }
+    function onWheel(event) {
+        if (mouseInteraction.type !== "none" || !zoomKeyPressed) {
+            return;
+        }
+        const coords = getCoordinatesForEvent(event, dimensions);
+        if (!coords) {
+            return;
+        }
+        preventDefault(event);
+        const factor = event.deltaY < 0 ? 0.5 : 2;
+        zoom(factor, coords.x);
+    }
+    /**
+   * Moves the time scale.
+   *
+   * @param deltaRatio The delta to move as a ratio of the current time scale
+   *                   window. -1 moves a full window to the left, and 1 moves
+   *                   a full window to the right.
+   */ function move(deltaRatio) {
+        const currentFrom = timestampToSeconds(timeRange.from);
+        const currentTo = timestampToSeconds(timeRange.to);
+        const delta = deltaRatio * (currentTo - currentFrom);
+        const from = secondsToTimestamp(currentFrom + delta);
+        const to = secondsToTimestamp(currentTo + delta);
+        onChangeTimeRange?.({
+            from,
+            to
+        });
+    }
+    /**
+   * Zooms into or out from the graph.
+   *
+   * @param factor The zoom factor. Anything below 1 makes the time scale
+   *               smaller (zooming in), and anything above 1 makes the time
+   *               scale larger (zooming out).
+   * @param focusRatio The horizontal point on which to focus the zoom,
+   *                   expressed as a ratio from 0 (left-hand side of the graph)
+   *                   to 1 (right-hand side of the graph).
+   */ function zoom(factor, focusRatio = 0.5) {
+        const currentFrom = timestampToSeconds(timeRange.from);
+        const currentTo = timestampToSeconds(timeRange.to);
+        const duration = currentTo - currentFrom;
+        const focusTimestamp = currentFrom + focusRatio * duration;
+        const newDuration = Math.max(duration * factor, MIN_DURATION);
+        const from = secondsToTimestamp(focusTimestamp - newDuration * focusRatio);
+        const to = secondsToTimestamp(focusTimestamp + newDuration * (1 - focusRatio));
+        onChangeTimeRange?.({
+            from,
+            to
+        });
+    }
+    return {
+        onMouseDown,
+        onMouseMove,
+        onMouseUp,
+        onWheel
+    };
+}
+function coordinateToTimestamp(timeRange, x) {
+    const from = timestampToSeconds(timeRange.from);
+    const to = timestampToSeconds(timeRange.to);
+    return secondsToTimestamp(from + x * (to - from));
+}
+
+/**
+ * Returns the scales to use for rendering VisX components.
+ *
+ * Fortunately for us, our abstract charts are normalized along both axes to
+ * values from 0.0 to 1.0, meaning we can suffice with trivial linear scales.
+ *
+ * If the chart is being dragged with the mouse, translation along the X axis
+ * is applied.
+ */ function useScales({ xMax , yMax  }, mouseInteraction) {
+    // rome-ignore lint/nursery/useHookAtTopLevel: https://github.com/rome/tools/issues/4483
+    return useMemo(()=>{
+        const xScale = scaleLinear({
+            range: translatedRange(xMax, mouseInteraction),
+            round: false,
+            nice: false,
+            domain: [
+                0,
+                1
+            ]
+        });
+        const yScale = scaleLinear({
+            range: [
+                yMax,
+                0
+            ],
+            round: false,
+            nice: false,
+            domain: [
+                0,
+                1
+            ]
+        });
+        return {
+            xMax,
+            xScale,
+            yMax,
+            yScale
+        };
+    }, [
+        mouseInteraction,
+        xMax,
+        yMax
+    ]);
+}
+function translatedRange(xMax, mouseInteraction) {
+    if (mouseInteraction.type === "drag") {
+        const { start , end  } = mouseInteraction;
+        if (end !== undefined && start !== end) {
+            const delta = (end - start) * xMax;
+            return [
+                delta,
+                xMax + delta
+            ];
+        }
+    }
+    return [
+        0,
+        xMax
+    ];
+}
+
+function useTooltip(props) {
+    const [graphTooltip, setGraphTooltip] = useState(null);
+    const closeFnRef = useRef(null);
+    const showTooltipFn = props.showTooltip;
+    const showTooltip = showTooltipFn ? (tip)=>{
+        setGraphTooltip(tip);
+        const element = {
+            getBoundingClientRect: ()=>{
+                const ctm = tip.element.getScreenCTM();
+                const point = tip.element.createSVGPoint();
+                point.x = tip.left;
+                point.y = tip.top;
+                const { x , y  } = ctm ? point.matrixTransform(ctm) : {
+                    x: tip.left,
+                    y: tip.top
+                };
+                return new DOMRect(x - 4, y - 4, 8, 8);
+            },
+            contextElement: tip.element
+        };
+        closeFnRef.current = showTooltipFn(element, tip.sourcePoint);
+    } : noop;
+    const closeTooltip = useHandler(()=>{
+        setGraphTooltip(null);
+        if (closeFnRef.current) {
+            closeFnRef.current();
+            closeFnRef.current = null;
+        }
+    });
+    useEffect(()=>{
+        if (!showTooltipFn) {
+            closeTooltip();
+        }
+    }, [
+        closeTooltip,
+        showTooltipFn
+    ]);
+    return {
+        graphTooltip,
+        onMouseMove: (event)=>{
+            const closest = getClosestSeriesAndPointWithCoordinates(event, props);
+            if (!closest) {
+                return;
+            }
+            const [series, point, coords] = closest;
+            const { chart , colors , dimensions  } = props;
+            const seriesIndex = chart.shapeLists.findIndex((shapeList)=>shapeList.source === series);
+            const color = getShapeListColor(colors, seriesIndex);
+            showTooltip({
+                color,
+                element: event.currentTarget,
+                sourcePoint: [
+                    series,
+                    point
+                ],
+                top: (1 - coords.y) * dimensions.yMax + MARGINS.top,
+                left: coords.x * dimensions.xMax + MARGINS.left
+            });
+        },
+        onMouseLeave: ()=>{
+            closeTooltip();
+        }
+    };
+}
+function getClosestSeriesAndPointWithCoordinates(event, { chart , dimensions: scales  }) {
+    const coords = getCoordinatesForEvent(event, scales);
+    if (!coords) {
+        return null;
+    }
+    let closestSeriesAndPoint = null;
+    let closestDistance = [
+        Infinity,
+        0
+    ];
+    for (const shapeList of chart.shapeLists){
+        for (const shape of shapeList.shapes){
+            const closest = getClosestPointWithDistance(shape, coords);
+            if (!closest) {
+                continue;
+            }
+            const [point, closestCoords, distance] = closest;
+            if (isCloser(distance, closestDistance)) {
+                closestSeriesAndPoint = [
+                    shapeList.source,
+                    point,
+                    closestCoords
+                ];
+                closestDistance = distance;
+            }
+        }
+    }
+    return closestSeriesAndPoint;
+}
+function getClosestPointWithDistance(shape, coords) {
+    switch(shape.type){
+        case "area":
+            return getClosestPointWithDistanceForArea(shape, coords);
+        case "line":
+            return getClosestPointWithDistanceForLine(shape, coords);
+        case "point":
+            return [
+                shape.source,
+                shape,
+                getDistance(coords, shape)
+            ];
+        case "rectangle":
+            return getClosestPointWithDistanceForRectangle(shape, coords);
+    }
+}
+function getClosestPointWithDistanceForArea(area, coords) {
+    const len = area.points.length;
+    if (len === 0) {
+        return null;
+    }
+    let closest;
+    let horizontalDistance;
+    if (coords.x < area.points[0].x) {
+        closest = area.points[0];
+        horizontalDistance = closest.x - coords.x;
+    } else if (coords.x > area.points[len - 1].x) {
+        closest = area.points[len - 1];
+        horizontalDistance = coords.x - closest.x;
+    } else {
+        closest = area.points[0];
+        horizontalDistance = coords.x - closest.x;
+        for(let i = 1; i < len; i++){
+            const point = area.points[i];
+            const distance = Math.abs(point.x - coords.x);
+            if (distance < horizontalDistance) {
+                closest = point;
+                horizontalDistance = distance;
+            } else {
+                break;
+            }
+        }
+    }
+    let verticalDistance;
+    if (coords.y < closest.yMin) {
+        verticalDistance = closest.yMin - coords.y;
+    } else if (coords.y > closest.yMax) {
+        verticalDistance = coords.y - closest.yMax;
+    } else {
+        verticalDistance = 0;
+    }
+    return [
+        closest.source,
+        {
+            x: closest.x,
+            y: coords.y < closest.yMin ? closest.yMin : closest.yMax
+        },
+        [
+            horizontalDistance,
+            verticalDistance
+        ]
+    ];
+}
+function getClosestPointWithDistanceForLine(line, coords) {
+    let closestPoint = null;
+    let closestDistance = [
+        Infinity,
+        0
+    ];
+    for (const point of line.points){
+        const distance = getDistance(coords, point);
+        if (isCloser(distance, closestDistance)) {
+            closestPoint = point;
+            closestDistance = distance;
+        }
+    }
+    return closestPoint ? [
+        closestPoint.source,
+        closestPoint,
+        closestDistance
+    ] : null;
+}
+function getClosestPointWithDistanceForRectangle(rectangle, coords) {
+    let horizontal;
+    if (coords.x < rectangle.x) {
+        horizontal = rectangle.x - coords.x;
+    } else if (coords.x > rectangle.x + rectangle.width) {
+        horizontal = coords.x - (rectangle.x + rectangle.width);
+    } else {
+        horizontal = 0;
+    }
+    let vertical;
+    if (coords.y < rectangle.y) {
+        vertical = rectangle.y - coords.y;
+    } else if (coords.y > rectangle.y + rectangle.height) {
+        vertical = coords.y - (rectangle.y + rectangle.height);
+    } else {
+        vertical = 0;
+    }
+    return [
+        rectangle.source,
+        {
+            x: rectangle.x + 0.5 * rectangle.width,
+            y: rectangle.y + rectangle.height
+        },
+        [
+            horizontal,
+            vertical
+        ]
+    ];
+}
+function getDistance(p1, p2) {
+    return [
+        Math.abs(p1.x - p2.x),
+        Math.abs(p1.y - p2.y)
+    ];
+}
+/**
+ * Returns whether the given distance is closer than the given reference.
+ *
+ * Horizontal distance is prioritized over vertical distance.
+ */ function isCloser(distance, reference) {
+    return distance[0] < reference[0] || distance[0] === reference[0] && distance[1] < reference[1];
+}
+
+function ZoomBar({ dimensions: { xMax , yMax  } , mouseInteraction  }) {
+    if (mouseInteraction.type !== "zoom") {
+        return null;
+    }
+    const { start , end  } = mouseInteraction;
     if (end === undefined) {
         return null;
     }
     const reverseZoom = end < start;
-    return /*#__PURE__*/ jsx(Bar, {
+    return /*#__PURE__*/ jsx("rect", {
         stroke: "#4797ff",
         strokeWidth: 1,
         fill: "#a3cbff",
         fillOpacity: "10%",
-        x: reverseZoom ? end : start,
+        x: (reverseZoom ? end : start) * xMax,
         y: 0,
-        width: reverseZoom ? start - end : end - start,
+        width: (reverseZoom ? start - end : end - start) * xMax,
         height: yMax
     });
 }
 
 function CoreChart({ chart , colors , gridShown =true , onChangeTimeRange , readOnly =false , showTooltip , timeRange , ...props }) {
-    const interactiveControlsState = useContext(InteractiveControlsStateContext);
-    const [shiftKeyPressed, setShiftKeyPressed] = useState(false);
-    const onKeyHandler = (event)=>{
-        setShiftKeyPressed(event.shiftKey);
-    };
+    const interactiveControls = useInteractiveControls(readOnly);
+    const { mouseInteraction , updatePressedKeys  } = interactiveControls;
     const { width , height , xMax , yMax , marginTop , marginLeft  } = useContext(ChartSizeContext);
-    const { onMouseDown , onMouseUp , onMouseEnter , onMouseMove: onMouseMoveControls , graphContentRef  } = useMouseControls({
-        onChangeTimeRange,
-        timeRange,
+    const dimensions = {
         xMax,
         yMax
+    };
+    const { onMouseDown , onMouseUp , onWheel , onMouseMove: onMouseMoveControls  } = useMouseControls({
+        dimensions,
+        interactiveControls,
+        onChangeTimeRange,
+        timeRange
     });
     const { graphTooltip , onMouseMove: onMouseMoveTooltip , onMouseLeave  } = useTooltip({
-        showTooltip,
         chart,
         colors,
-        xMax,
-        yMax
+        dimensions,
+        showTooltip: modifierPressed(interactiveControls) ? undefined : showTooltip
     });
     const onMouseMove = (event)=>{
-        setShiftKeyPressed(event.shiftKey);
+        updatePressedKeys(event);
         onMouseMoveControls(event);
         onMouseMoveTooltip(event);
     };
     const clipPathId = useId();
-    const cursor = getCursorFromState(interactiveControlsState, shiftKeyPressed);
-    const scales = useScales(xMax, yMax);
+    const cursor = getCursorFromState(interactiveControls);
+    const scales = useScales(dimensions, mouseInteraction);
+    useEffect(()=>{
+        window.addEventListener("keydown", updatePressedKeys);
+        window.addEventListener("keyup", updatePressedKeys);
+        window.addEventListener("wheel", onWheel);
+        return ()=>{
+            window.removeEventListener("keydown", updatePressedKeys);
+            window.removeEventListener("keyup", updatePressedKeys);
+            window.removeEventListener("wheel", onWheel);
+        };
+    }, [
+        onWheel,
+        updatePressedKeys
+    ]);
     return(// rome-ignore lint/a11y/noSvgWithoutTitle: title would interfere with tooltip
     /*#__PURE__*/ jsxs("svg", {
         width: width,
         height: height,
-        onKeyDown: onKeyHandler,
-        onKeyUp: onKeyHandler,
         onMouseDown: onMouseDown,
         onMouseMove: onMouseMove,
         onMouseUp: onMouseUp,
-        onMouseEnter: onMouseEnter,
         onMouseLeave: onMouseLeave,
         style: {
             cursor,
@@ -1777,7 +1772,6 @@ function CoreChart({ chart , colors , gridShown =true , onChangeTimeRange , read
                     }),
                     /*#__PURE__*/ jsx("g", {
                         clipPath: `url(#${clipPathId})`,
-                        ref: graphContentRef,
                         children: /*#__PURE__*/ jsx(ChartContent, {
                             ...props,
                             chart: chart,
@@ -1786,22 +1780,18 @@ function CoreChart({ chart , colors , gridShown =true , onChangeTimeRange , read
                         })
                     }),
                     /*#__PURE__*/ jsx(ZoomBar, {
-                        controlsState: interactiveControlsState,
-                        yMax: yMax
+                        dimensions: dimensions,
+                        mouseInteraction: mouseInteraction
                     })
                 ]
             }),
             graphTooltip && /*#__PURE__*/ jsxs("g", {
                 children: [
-                    /*#__PURE__*/ jsx(Line, {
-                        from: {
-                            x: graphTooltip.left,
-                            y: 0
-                        },
-                        to: {
-                            x: graphTooltip.left,
-                            y: yMax
-                        },
+                    /*#__PURE__*/ jsx("line", {
+                        x1: graphTooltip.left,
+                        y1: 0,
+                        x2: graphTooltip.left,
+                        y2: yMax,
                         stroke: graphTooltip.color,
                         strokeWidth: 1,
                         pointerEvents: "none",
@@ -1819,12 +1809,21 @@ function CoreChart({ chart , colors , gridShown =true , onChangeTimeRange , read
         ]
     }));
 }
-function getCursorFromState(interactiveControlsState, shiftKey) {
-    switch(interactiveControlsState.type){
+function modifierPressed(state) {
+    return state.dragKeyPressed || state.zoomKeyPressed;
+}
+function getCursorFromState(state) {
+    switch(state.mouseInteraction.type){
         case "none":
-            return shiftKey ? "grab" : "default";
+            if (state.dragKeyPressed) {
+                return "grab";
+            }
+            if (state.zoomKeyPressed) {
+                return "zoom-in";
+            }
+            return "default";
         case "drag":
-            return interactiveControlsState.start === null ? "grab" : "grabbing";
+            return "grabbing";
         case "zoom":
             return "zoom-in";
     }
@@ -2515,37 +2514,7 @@ const TimeseriesTableTd = styled.td`
 `;
 
 function MetricsChart(props) {
-    return props.readOnly ? /*#__PURE__*/ jsx(ReadOnlyMetricsChart, {
-        ...props
-    }) : /*#__PURE__*/ jsx(InteractiveMetricsChart, {
-        ...props
-    });
-}
-function InteractiveMetricsChart(props) {
-    const coreControls = useCoreControls(props);
-    const { interactiveControls , interactiveControlsState  } = useInteractiveControls();
-    return /*#__PURE__*/ jsx(CoreControlsContext.Provider, {
-        value: coreControls,
-        children: /*#__PURE__*/ jsx(InteractiveControlsApiContext.Provider, {
-            value: interactiveControls,
-            children: /*#__PURE__*/ jsx(InteractiveControlsStateContext.Provider, {
-                value: interactiveControlsState,
-                children: /*#__PURE__*/ jsx(StyledChartSizeContainerProvider$1, {
-                    overrideHeight: HEIGHT,
-                    marginTop: MARGINS.top,
-                    marginRight: MARGINS.right,
-                    marginBottom: MARGINS.bottom,
-                    marginLeft: MARGINS.left,
-                    children: /*#__PURE__*/ jsx(InnerMetricsChart, {
-                        ...props
-                    })
-                })
-            })
-        })
-    });
-}
-function ReadOnlyMetricsChart(props) {
-    return /*#__PURE__*/ jsx(ChartSizeContainerProvider, {
+    return /*#__PURE__*/ jsx(StyledChartSizeContainerProvider$1, {
         overrideHeight: HEIGHT,
         marginTop: MARGINS.top,
         marginRight: MARGINS.right,

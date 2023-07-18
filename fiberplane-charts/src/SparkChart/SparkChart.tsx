@@ -1,8 +1,11 @@
 import styled, { useTheme } from "styled-components";
 import { useMemo } from "react";
 
-import { ChartSizeContainerProvider } from "../CoreChart/ChartSizeContainerProvider";
-import { CoreChart, CoreChartProps } from "../CoreChart";
+import {
+  ChartSizeContainerProvider,
+  CoreChart,
+  CoreChartProps,
+} from "../CoreChart";
 import { Metric, Timeseries } from "../providerTypes";
 import { TimeseriesSourceData, generateFromTimeseries } from "../ACG";
 

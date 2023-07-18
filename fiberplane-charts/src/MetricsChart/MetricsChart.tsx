@@ -4,58 +4,18 @@ import styled, { useTheme } from "styled-components";
 import { ChartControls } from "./ChartControls";
 import { ChartSizeContainerProvider } from "../CoreChart";
 import type { CloseTooltipFn, MetricsChartProps, TooltipAnchor } from "./types";
-import {
-  CoreChart,
-  CoreControlsContext,
-  InteractiveControlsApiContext,
-  InteractiveControlsStateContext,
-} from "../CoreChart";
+import { CoreChart } from "../CoreChart";
 import { HEIGHT, MARGINS } from "../CoreChart/constants";
 import type { Metric, Timeseries } from "../providerTypes";
 import { noop } from "../utils";
 import { ShapeList, generateFromTimeseries } from "../ACG";
 import { TimeseriesLegend } from "../TimeseriesLegend";
 import { Tooltip } from "./Tooltip";
-import { useCoreControls, useInteractiveControls } from "../CoreChart";
 import { useHandler } from "../hooks";
 
 export function MetricsChart(props: MetricsChartProps) {
-  return props.readOnly ? (
-    <ReadOnlyMetricsChart {...props} />
-  ) : (
-    <InteractiveMetricsChart {...props} />
-  );
-}
-
-function InteractiveMetricsChart(props: MetricsChartProps) {
-  const coreControls = useCoreControls(props);
-  const { interactiveControls, interactiveControlsState } =
-    useInteractiveControls();
-
   return (
-    <CoreControlsContext.Provider value={coreControls}>
-      <InteractiveControlsApiContext.Provider value={interactiveControls}>
-        <InteractiveControlsStateContext.Provider
-          value={interactiveControlsState}
-        >
-          <StyledChartSizeContainerProvider
-            overrideHeight={HEIGHT}
-            marginTop={MARGINS.top}
-            marginRight={MARGINS.right}
-            marginBottom={MARGINS.bottom}
-            marginLeft={MARGINS.left}
-          >
-            <InnerMetricsChart {...props} />
-          </StyledChartSizeContainerProvider>
-        </InteractiveControlsStateContext.Provider>
-      </InteractiveControlsApiContext.Provider>
-    </CoreControlsContext.Provider>
-  );
-}
-
-function ReadOnlyMetricsChart(props: MetricsChartProps) {
-  return (
-    <ChartSizeContainerProvider
+    <StyledChartSizeContainerProvider
       overrideHeight={HEIGHT}
       marginTop={MARGINS.top}
       marginRight={MARGINS.right}
@@ -63,9 +23,10 @@ function ReadOnlyMetricsChart(props: MetricsChartProps) {
       marginLeft={MARGINS.left}
     >
       <InnerMetricsChart {...props} />
-    </ChartSizeContainerProvider>
+    </StyledChartSizeContainerProvider>
   );
 }
+
 const InnerMetricsChart = memo(function InnerMetricsChart(
   props: MetricsChartProps,
 ) {

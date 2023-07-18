@@ -1,192 +1,179 @@
-import { localPoint } from "@visx/event";
-import { MouseEvent, MouseEventHandler, Ref, useContext, useRef } from "react";
-
+import type { Dimensions } from "../types";
+import { getCoordinatesForEvent } from "../utils";
+import type {
+  InteractiveControls,
+  InteractiveControlsState,
+} from "./useInteractiveControls";
 import {
-  CoreControlsContext,
-  InteractiveControlsApiContext,
-  InteractiveControlsStateContext,
-} from "../context";
-import {
-  isMac,
   preventDefault,
   secondsToTimestamp,
   timestampToSeconds,
 } from "../../utils";
-import { MARGINS } from "../constants";
-import type { TimeRange } from "../../providerTypes";
+import type { TimeRange, Timestamp } from "../../providerTypes";
+
+const MIN_DURATION = 60; // in seconds
 
 type MouseControls = {
-  onMouseDown: MouseEventHandler<SVGElement>;
-  onMouseMove: MouseEventHandler<SVGElement>;
-  onMouseUp: MouseEventHandler<SVGElement>;
-  onMouseEnter: MouseEventHandler<SVGElement>;
-  graphContentRef: Ref<SVGGElement>;
+  onMouseDown: React.MouseEventHandler<SVGElement>;
+  onMouseMove: React.MouseEventHandler<SVGElement>;
+  onMouseUp: React.MouseEventHandler<SVGElement>;
+  onWheel: (event: WheelEvent) => void;
 };
 
 type Props = {
+  interactiveControls: InteractiveControls & InteractiveControlsState;
   timeRange: TimeRange;
   onChangeTimeRange?: (timeRange: TimeRange) => void;
-  xMax: number;
-  yMax: number;
+  dimensions: Dimensions;
 };
 
 /**
  * Hook for setting up mouse handlers to control dragging & zoom
  */
 export function useMouseControls({
+  interactiveControls: {
+    dragKeyPressed,
+    zoomKeyPressed,
+    mouseInteraction,
+    resetMouseInteraction,
+    startDrag,
+    startZoom,
+    updateEndValue,
+  },
   timeRange,
   onChangeTimeRange,
-  xMax,
-  yMax,
+  dimensions,
 }: Props): MouseControls {
-  const { move, zoom } = useContext(CoreControlsContext);
-  const { startDrag, startZoom, reset, updateEndValue } = useContext(
-    InteractiveControlsApiContext,
-  );
-  const controlsState = useContext(InteractiveControlsStateContext);
-  const graphContentRef = useRef<SVGGElement | null>(null);
-
-  const onMouseDown = (event: MouseEvent<SVGElement>) => {
+  function onMouseDown(event: React.MouseEvent<SVGElement>) {
     if (event.buttons !== 1 || !onChangeTimeRange) {
       return;
     }
 
     preventDefault(event);
 
-    if (!graphContentRef.current) {
+    const coords = getCoordinatesForEvent(event, dimensions);
+    if (!coords) {
       return;
     }
 
-    const point = localPoint(graphContentRef.current, event);
-    if (!point) {
-      return;
+    if (dragKeyPressed) {
+      startDrag(coords.x);
+    } else if (zoomKeyPressed) {
+      startZoom(coords.x);
     }
+  }
 
-    let { x, y } = point;
-    x -= MARGINS.left;
-    y -= MARGINS.top;
-
-    if (x >= 0 && x <= xMax && y >= 0 && y <= yMax) {
-      if (zoomKeyPressed(event)) {
-        startZoom(x);
-      } else if (event.shiftKey) {
-        startDrag(x);
-      }
-    }
-  };
-
-  const onMouseMove = (event: MouseEvent<SVGElement>) => {
+  function onMouseMove(event: React.MouseEvent<SVGElement>) {
     preventDefault(event);
 
-    if (controlsState.type === "none") {
+    if (mouseInteraction.type === "none") {
       return;
     }
 
     if (
-      (controlsState.type === "drag" && !event.shiftKey) ||
-      (controlsState.type === "zoom" && !zoomKeyPressed(event))
+      (mouseInteraction.type === "drag" && !dragKeyPressed) ||
+      (mouseInteraction.type === "zoom" && !zoomKeyPressed)
     ) {
-      reset();
+      resetMouseInteraction();
       return;
     }
 
-    if (!graphContentRef.current) {
-      return;
+    const coords = getCoordinatesForEvent(event, dimensions);
+    if (coords) {
+      updateEndValue(coords.x);
     }
+  }
 
-    const point = localPoint(graphContentRef.current, event);
-    if (!point) {
-      return;
-    }
-
-    let { x, y } = point;
-    x -= MARGINS.left;
-    y -= MARGINS.top;
-
-    if (x >= 0 && x <= xMax && y >= 0 && y <= yMax) {
-      updateEndValue(x);
-    }
-  };
-
-  const onMouseUp = (event: MouseEvent) => {
+  function onMouseUp(event: React.MouseEvent) {
     if (event.button !== 0) {
       return;
     }
 
     preventDefault(event);
 
-    if (controlsState.type === "none") {
-      return;
-    }
-
-    if (controlsState.type === "zoom") {
-      const { start, end } = controlsState;
+    if (mouseInteraction.type === "zoom") {
+      const { start, end } = mouseInteraction;
       if (end !== undefined && start !== end) {
-        const positionToSeconds = (x: number) =>
-          timestampToSeconds(timeRange.from) +
-          (x / xMax) *
-            (timestampToSeconds(timeRange.to) -
-              timestampToSeconds(timeRange.from));
-        const positionToTimestamp = (x: number) =>
-          secondsToTimestamp(positionToSeconds(x));
-
-        const from = positionToTimestamp(Math.min(start, end));
-        const to = positionToTimestamp(Math.max(start, end));
-
-        onChangeTimeRange?.({ from, to });
+        onChangeTimeRange?.({
+          from: coordinateToTimestamp(timeRange, Math.min(start, end)),
+          to: coordinateToTimestamp(timeRange, Math.max(start, end)),
+        });
       }
-    } else if (controlsState.type === "drag") {
-      const { start, end } = controlsState;
+
+      resetMouseInteraction();
+    } else if (mouseInteraction.type === "drag") {
+      const { start, end } = mouseInteraction;
       if (end !== undefined && start !== end) {
-        move((start - end) / xMax);
+        move(start - end);
       }
+
+      resetMouseInteraction();
     }
+  }
 
-    reset();
-  };
-
-  const onWheel = (event: WheelEvent) => {
-    if (controlsState.type !== "none" || !zoomKeyPressed(event)) {
+  function onWheel(event: WheelEvent) {
+    if (mouseInteraction.type !== "none" || !zoomKeyPressed) {
       return;
     }
 
-    startZoom(null);
-
-    const graphContent = graphContentRef.current;
-    if (!graphContent) {
-      return;
-    }
-
-    const rect = graphContent.getClientRects()[0];
-    const x = event.pageX - (rect?.left ?? 0);
-    if (x < 0 || x > xMax) {
+    const coords = getCoordinatesForEvent(event, dimensions);
+    if (!coords) {
       return;
     }
 
     preventDefault(event);
 
     const factor = event.deltaY < 0 ? 0.5 : 2;
-    const focusRatio = x / xMax;
-    zoom(factor, focusRatio);
-  };
+    zoom(factor, coords.x);
+  }
 
-  const onMouseEnter = (event: MouseEvent<SVGElement>) => {
-    const { currentTarget } = event;
-    currentTarget.addEventListener("wheel", onWheel);
-    currentTarget.addEventListener("mouseleave", () => {
-      currentTarget.removeEventListener("wheel", onWheel);
-    });
-  };
+  /**
+   * Moves the time scale.
+   *
+   * @param deltaRatio The delta to move as a ratio of the current time scale
+   *                   window. -1 moves a full window to the left, and 1 moves
+   *                   a full window to the right.
+   */
+  function move(deltaRatio: number) {
+    const currentFrom = timestampToSeconds(timeRange.from);
+    const currentTo = timestampToSeconds(timeRange.to);
+    const delta = deltaRatio * (currentTo - currentFrom);
+    const from = secondsToTimestamp(currentFrom + delta);
+    const to = secondsToTimestamp(currentTo + delta);
 
-  return {
-    onMouseDown,
-    onMouseMove,
-    onMouseUp,
-    onMouseEnter,
-    graphContentRef,
-  };
+    onChangeTimeRange?.({ from, to });
+  }
+
+  /**
+   * Zooms into or out from the graph.
+   *
+   * @param factor The zoom factor. Anything below 1 makes the time scale
+   *               smaller (zooming in), and anything above 1 makes the time
+   *               scale larger (zooming out).
+   * @param focusRatio The horizontal point on which to focus the zoom,
+   *                   expressed as a ratio from 0 (left-hand side of the graph)
+   *                   to 1 (right-hand side of the graph).
+   */
+  function zoom(factor: number, focusRatio = 0.5) {
+    const currentFrom = timestampToSeconds(timeRange.from);
+    const currentTo = timestampToSeconds(timeRange.to);
+    const duration = currentTo - currentFrom;
+    const focusTimestamp = currentFrom + focusRatio * duration;
+    const newDuration = Math.max(duration * factor, MIN_DURATION);
+    const from = secondsToTimestamp(focusTimestamp - newDuration * focusRatio);
+    const to = secondsToTimestamp(
+      focusTimestamp + newDuration * (1 - focusRatio),
+    );
+
+    onChangeTimeRange?.({ from, to });
+  }
+
+  return { onMouseDown, onMouseMove, onMouseUp, onWheel };
 }
 
-function zoomKeyPressed(event: MouseEvent | WheelEvent) {
-  return isMac ? event.metaKey : event.ctrlKey;
+function coordinateToTimestamp(timeRange: TimeRange, x: number): Timestamp {
+  const from = timestampToSeconds(timeRange.from);
+  const to = timestampToSeconds(timeRange.to);
+
+  return secondsToTimestamp(from + x * (to - from));
 }

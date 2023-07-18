@@ -1,18 +1,20 @@
-import { Bar } from "@visx/shape";
-
-import type { InteractiveControlsState } from "./context";
+import type { Dimensions } from "./types";
+import type { MouseInteractionState } from "./hooks";
 
 type Props = {
-  controlsState: InteractiveControlsState;
-  yMax: number;
+  dimensions: Dimensions;
+  mouseInteraction: MouseInteractionState;
 };
 
-export function ZoomBar({ controlsState, yMax }: Props): JSX.Element | null {
-  if (controlsState.type !== "zoom") {
+export function ZoomBar({
+  dimensions: { xMax, yMax },
+  mouseInteraction,
+}: Props): JSX.Element | null {
+  if (mouseInteraction.type !== "zoom") {
     return null;
   }
 
-  const { start, end } = controlsState;
+  const { start, end } = mouseInteraction;
   if (end === undefined) {
     return null;
   }
@@ -20,14 +22,14 @@ export function ZoomBar({ controlsState, yMax }: Props): JSX.Element | null {
   const reverseZoom = end < start;
 
   return (
-    <Bar
+    <rect
       stroke="#4797ff"
       strokeWidth={1}
       fill="#a3cbff"
       fillOpacity="10%"
-      x={reverseZoom ? end : start}
+      x={(reverseZoom ? end : start) * xMax}
       y={0}
-      width={reverseZoom ? start - end : end - start}
+      width={(reverseZoom ? start - end : end - start) * xMax}
       height={yMax}
     />
   );

@@ -1,8 +1,5 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import type { CloseTooltipFn, ShowTooltipFn, VirtualElement } from "../types";
-import { getShapeListColor, noop } from "../../utils";
-import { MARGINS } from "../constants";
 import {
   AbstractChart,
   Area,
@@ -12,6 +9,17 @@ import {
   Rectangle,
   Shape,
 } from "../../ACG";
+import type {
+  ChartCoordinates,
+  CloseTooltipFn,
+  Dimensions,
+  ShowTooltipFn,
+  VirtualElement,
+} from "../types";
+import { getCoordinatesForEvent } from "../utils";
+import { getShapeListColor, noop } from "../../utils";
+import { MARGINS } from "../constants";
+import { useHandler } from "../../hooks";
 
 export type GraphTooltip<S, P> = {
   top: number;
@@ -24,9 +32,8 @@ export type GraphTooltip<S, P> = {
 type Props<S, P> = {
   chart: AbstractChart<S, P>;
   colors: Array<string>;
+  dimensions: Dimensions;
   showTooltip: ShowTooltipFn<S, P> | undefined;
-  xMax: number;
-  yMax: number;
 };
 
 export function useTooltip<S, P>(props: Props<S, P>) {
@@ -61,14 +68,20 @@ export function useTooltip<S, P>(props: Props<S, P>) {
       }
     : noop;
 
-  const closeTooltip = () => {
+  const closeTooltip = useHandler(() => {
     setGraphTooltip(null);
 
     if (closeFnRef.current) {
       closeFnRef.current();
       closeFnRef.current = null;
     }
-  };
+  });
+
+  useEffect(() => {
+    if (!showTooltipFn) {
+      closeTooltip();
+    }
+  }, [closeTooltip, showTooltipFn]);
 
   return {
     graphTooltip,
@@ -81,7 +94,7 @@ export function useTooltip<S, P>(props: Props<S, P>) {
 
       const [series, point, coords] = closest;
 
-      const { chart, colors, xMax, yMax } = props;
+      const { chart, colors, dimensions } = props;
       const seriesIndex = chart.shapeLists.findIndex(
         (shapeList) => shapeList.source === series,
       );
@@ -91,8 +104,8 @@ export function useTooltip<S, P>(props: Props<S, P>) {
         color,
         element: event.currentTarget,
         sourcePoint: [series, point],
-        top: (1 - coords.y) * yMax + MARGINS.top,
-        left: coords.x * xMax + MARGINS.left,
+        top: (1 - coords.y) * dimensions.yMax + MARGINS.top,
+        left: coords.x * dimensions.xMax + MARGINS.left,
       });
     },
 
@@ -102,16 +115,11 @@ export function useTooltip<S, P>(props: Props<S, P>) {
   };
 }
 
-/**
- * Coordinats within the chart, normalized to values between 0.0 and 1.0.
- */
-type ChartCoordinates = { x: number; y: number };
-
 function getClosestSeriesAndPointWithCoordinates<S, P>(
   event: React.MouseEvent<SVGElement>,
-  { chart, xMax, yMax }: Props<S, P>,
+  { chart, dimensions: scales }: Props<S, P>,
 ): [S, P, ChartCoordinates] | null {
-  const coords = getCoordinatesForEvent(event, xMax, yMax);
+  const coords = getCoordinatesForEvent(event, scales);
   if (!coords) {
     return null;
   }
@@ -134,23 +142,6 @@ function getClosestSeriesAndPointWithCoordinates<S, P>(
   }
 
   return closestSeriesAndPoint;
-}
-
-function getCoordinatesForEvent(
-  event: React.MouseEvent<SVGElement>,
-  xMax: number,
-  yMax: number,
-): ChartCoordinates | null {
-  const svg = event.currentTarget;
-  const rect = svg.getBoundingClientRect();
-
-  const x = event.clientX - rect.left - MARGINS.left;
-  const y = event.clientY - rect.top - MARGINS.top;
-  if (x < 0 || x > xMax || y < 0 || y > yMax) {
-    return null;
-  }
-
-  return { x: x / xMax, y: 1 - y / yMax };
 }
 
 function getClosestPointWithDistance<P>(

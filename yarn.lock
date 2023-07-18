@@ -2498,16 +2498,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@visx/event@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "@visx/event@npm:3.0.1"
-  dependencies:
-    "@types/react": "*"
-    "@visx/point": 3.0.1
-  checksum: 0cb4dd578bbe54bd428a0cfae9e64db141b039c2c6c1412d1cd1d04e1613d193212b031124948ca3b7eed877cdea87d161cc3a008b973c6f217e21a8a2dd27b0
-  languageName: node
-  linkType: hard
-
 "@visx/grid@npm:^3.0.1":
   version: 3.0.1
   resolution: "@visx/grid@npm:3.0.1"
@@ -3616,7 +3606,6 @@ __metadata:
     "@types/react-window": ^1.8.5
     "@types/styled-components": ^5.1.26
     "@types/throttle-debounce": ^5.0.0
-    "@visx/event": ^3.0.1
     "@visx/grid": ^3.0.1
     "@visx/scale": ^3.0.0
     "@visx/shape": ^3.0.0

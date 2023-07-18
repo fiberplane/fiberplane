@@ -3,6 +3,11 @@ import type { ScaleLinear } from "d3-scale";
 import type { AbstractChart, ShapeList } from "../ACG";
 import type { TimeRange } from "../providerTypes";
 
+/**
+ * Coordinats within the chart, normalized to values between 0.0 and 1.0.
+ */
+export type ChartCoordinates = { x: number; y: number };
+
 export type CoreChartProps<S, P> = {
   /**
    * The chart to render.
@@ -83,12 +88,12 @@ export type CoreChartProps<S, P> = {
   timeRange: TimeRange;
 };
 
+export type Dimensions = { xMax: number; yMax: number };
+
 export type Scale = ScaleLinear<number, number>;
 
-export type Scales = {
-  xMax: number;
+export type Scales = Dimensions & {
   xScale: Scale;
-  yMax: number;
   yScale: Scale;
 };
 

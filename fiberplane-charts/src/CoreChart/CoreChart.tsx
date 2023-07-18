@@ -1,15 +1,16 @@
-import { Line } from "@visx/shape";
-import { useContext, useId, useState } from "react";
+import { useContext, useEffect, useId } from "react";
 
 import { ChartContent } from "./ChartContent";
-import {
-  ChartSizeContext,
-  InteractiveControlsState,
-  InteractiveControlsStateContext,
-} from "./context";
+import { ChartSizeContext } from "./ChartSizeContext";
 import type { CoreChartProps } from "./types";
 import { GridWithAxes } from "./GridWithAxes";
-import { useMouseControls, useScales, useTooltip } from "./hooks";
+import {
+  InteractiveControlsState,
+  useInteractiveControls,
+  useMouseControls,
+  useScales,
+  useTooltip,
+} from "./hooks";
 import { ZoomBar } from "./ZoomBar";
 
 type Props<S, P> = CoreChartProps<S, P> &
@@ -27,54 +28,67 @@ export function CoreChart<S, P>({
   timeRange,
   ...props
 }: Props<S, P>): JSX.Element {
-  const interactiveControlsState = useContext(InteractiveControlsStateContext);
-
-  const [shiftKeyPressed, setShiftKeyPressed] = useState(false);
-
-  const onKeyHandler = (event: React.KeyboardEvent) => {
-    setShiftKeyPressed(event.shiftKey);
-  };
+  const interactiveControls = useInteractiveControls(readOnly);
+  const { mouseInteraction, updatePressedKeys } = interactiveControls;
 
   const { width, height, xMax, yMax, marginTop, marginLeft } =
     useContext(ChartSizeContext);
+  const dimensions = { xMax, yMax };
 
   const {
     onMouseDown,
     onMouseUp,
-    onMouseEnter,
+    onWheel,
     onMouseMove: onMouseMoveControls,
-    graphContentRef,
-  } = useMouseControls({ onChangeTimeRange, timeRange, xMax, yMax });
+  } = useMouseControls({
+    dimensions,
+    interactiveControls,
+    onChangeTimeRange,
+    timeRange,
+  });
 
   const {
     graphTooltip,
     onMouseMove: onMouseMoveTooltip,
     onMouseLeave,
-  } = useTooltip({ showTooltip, chart, colors, xMax, yMax });
+  } = useTooltip({
+    chart,
+    colors,
+    dimensions,
+    showTooltip: modifierPressed(interactiveControls) ? undefined : showTooltip,
+  });
 
   const onMouseMove = (event: React.MouseEvent<SVGSVGElement>) => {
-    setShiftKeyPressed(event.shiftKey);
+    updatePressedKeys(event);
     onMouseMoveControls(event);
     onMouseMoveTooltip(event);
   };
 
   const clipPathId = useId();
 
-  const cursor = getCursorFromState(interactiveControlsState, shiftKeyPressed);
+  const cursor = getCursorFromState(interactiveControls);
 
-  const scales = useScales(xMax, yMax);
+  const scales = useScales(dimensions, mouseInteraction);
+
+  useEffect(() => {
+    window.addEventListener("keydown", updatePressedKeys);
+    window.addEventListener("keyup", updatePressedKeys);
+    window.addEventListener("wheel", onWheel);
+    return () => {
+      window.removeEventListener("keydown", updatePressedKeys);
+      window.removeEventListener("keyup", updatePressedKeys);
+      window.removeEventListener("wheel", onWheel);
+    };
+  }, [onWheel, updatePressedKeys]);
 
   return (
     // rome-ignore lint/a11y/noSvgWithoutTitle: title would interfere with tooltip
     <svg
       width={width}
       height={height}
-      onKeyDown={onKeyHandler}
-      onKeyUp={onKeyHandler}
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
-      onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{ cursor, marginTop: 2 }}
     >
@@ -85,7 +99,7 @@ export function CoreChart<S, P>({
       </defs>
       <g transform={`translate(${marginLeft}, ${marginTop})`}>
         {gridShown && <GridWithAxes {...props} chart={chart} scales={scales} />}
-        <g clipPath={`url(#${clipPathId})`} ref={graphContentRef}>
+        <g clipPath={`url(#${clipPathId})`}>
           <ChartContent
             {...props}
             chart={chart}
@@ -93,13 +107,15 @@ export function CoreChart<S, P>({
             scales={scales}
           />
         </g>
-        <ZoomBar controlsState={interactiveControlsState} yMax={yMax} />
+        <ZoomBar dimensions={dimensions} mouseInteraction={mouseInteraction} />
       </g>
       {graphTooltip && (
         <g>
-          <Line
-            from={{ x: graphTooltip.left, y: 0 }}
-            to={{ x: graphTooltip.left, y: yMax }}
+          <line
+            x1={graphTooltip.left}
+            y1={0}
+            x2={graphTooltip.left}
+            y2={yMax}
             stroke={graphTooltip.color}
             strokeWidth={1}
             pointerEvents="none"
@@ -118,15 +134,24 @@ export function CoreChart<S, P>({
   );
 }
 
-function getCursorFromState(
-  interactiveControlsState: InteractiveControlsState,
-  shiftKey: boolean,
-): string {
-  switch (interactiveControlsState.type) {
+function modifierPressed(state: InteractiveControlsState): boolean {
+  return state.dragKeyPressed || state.zoomKeyPressed;
+}
+
+function getCursorFromState(state: InteractiveControlsState): string {
+  switch (state.mouseInteraction.type) {
     case "none":
-      return shiftKey ? "grab" : "default";
+      if (state.dragKeyPressed) {
+        return "grab";
+      }
+
+      if (state.zoomKeyPressed) {
+        return "zoom-in";
+      }
+
+      return "default";
     case "drag":
-      return interactiveControlsState.start === null ? "grab" : "grabbing";
+      return "grabbing";
     case "zoom":
       return "zoom-in";
   }
