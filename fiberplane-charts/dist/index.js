@@ -1265,15 +1265,8 @@ const MARGINS = {
 };
 
 function getCoordinatesForEvent(event, { xMax , yMax  }) {
-    const svgElement = event.currentTarget;
-    const hasBoundingClientRect = svgElement && "getBoundingClientRect" in svgElement;
-    if (!hasBoundingClientRect) {
-        console.log("getCoordinatesForEvent has an event target without .getBoundingClientRect", {
-            event
-        });
-        return null;
-    }
-    const rect = svgElement.getBoundingClientRect();
+    const svg = event.currentTarget;
+    const rect = svg.getBoundingClientRect();
     const x = event.clientX - rect.left - MARGINS.left;
     const y = event.clientY - rect.top - MARGINS.top;
     if (x < 0 || x > xMax || y < 0 || y > yMax) {

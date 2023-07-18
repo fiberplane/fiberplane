@@ -5,18 +5,8 @@ export function getCoordinatesForEvent(
   event: React.MouseEvent<SVGElement> | WheelEvent,
   { xMax, yMax }: Dimensions,
 ): ChartCoordinates | null {
-  const svgElement = event.currentTarget;
-  const hasBoundingClientRect =
-    svgElement && "getBoundingClientRect" in svgElement;
-
-  if (!hasBoundingClientRect) {
-    console.log(
-      "getCoordinatesForEvent has an event target without .getBoundingClientRect",
-      { event }
-    );
-    return null;
-  }
-  const rect = (svgElement as SVGElement).getBoundingClientRect();
+  const svg = event.currentTarget;
+  const rect = (svg as SVGElement).getBoundingClientRect();
 
   const x = event.clientX - rect.left - MARGINS.left;
   const y = event.clientY - rect.top - MARGINS.top;
