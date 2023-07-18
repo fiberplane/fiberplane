@@ -1,4 +1,4 @@
-import type { AbstractChart, ShapeList } from "../ACG";
+import type { AbstractChart, ShapeList } from "../Mondrian";
 import type { Metric, Timeseries } from "../providerTypes";
 
 export type TimeseriesLegendProps = {

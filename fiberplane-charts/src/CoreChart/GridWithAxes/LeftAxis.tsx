@@ -2,7 +2,7 @@ import { getTicks } from "@visx/scale";
 import { memo } from "react";
 import { useTheme } from "styled-components";
 
-import type { Axis } from "../../ACG";
+import type { Axis } from "../../Mondrian";
 import type { Scales } from "../types";
 
 type Props = {

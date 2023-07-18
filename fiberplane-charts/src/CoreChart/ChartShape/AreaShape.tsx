@@ -2,7 +2,7 @@ import { Area as VisxArea } from "@visx/shape";
 import { memo, useId } from "react";
 import { Threshold } from "@visx/threshold";
 
-import type { Area, AreaPoint } from "../../ACG";
+import type { Area, AreaPoint } from "../../Mondrian";
 import type { CommonShapeProps } from "./types";
 
 type Props<P> = CommonShapeProps & {

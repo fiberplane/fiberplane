@@ -8,7 +8,7 @@ import {
   Point,
   Rectangle,
   Shape,
-} from "../../ACG";
+} from "../../Mondrian";
 import type {
   ChartCoordinates,
   CloseTooltipFn,
@@ -36,6 +36,12 @@ type Props<S, P> = {
   showTooltip: ShowTooltipFn<S, P> | undefined;
 };
 
+/**
+ * Handles the detection of where a tooltip should be shown.
+ *
+ * Should be passed a callback for showing the actual tooltip. If no callback
+ * is passed, tooltips are disabled.
+ */
 export function useTooltip<S, P>(props: Props<S, P>) {
   const [graphTooltip, setGraphTooltip] = useState<GraphTooltip<S, P> | null>(
     null,
@@ -115,6 +121,11 @@ export function useTooltip<S, P>(props: Props<S, P>) {
   };
 }
 
+/**
+ * Returns the closest coordinates where a tooltip should be displayed,
+ * including the source series and point that were used to generate the shape
+ * at those coordinates.
+ */
 function getClosestSeriesAndPointWithCoordinates<S, P>(
   event: React.MouseEvent<SVGElement>,
   { chart, dimensions: scales }: Props<S, P>,

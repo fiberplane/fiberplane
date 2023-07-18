@@ -8,7 +8,7 @@ import { CoreChart } from "../CoreChart";
 import { HEIGHT, MARGINS } from "../CoreChart/constants";
 import type { Metric, Timeseries } from "../providerTypes";
 import { noop } from "../utils";
-import { ShapeList, generateFromTimeseries } from "../ACG";
+import { ShapeList, generateFromTimeseries } from "../Mondrian";
 import { TimeseriesLegend } from "../TimeseriesLegend";
 import { Tooltip } from "./Tooltip";
 import { useHandler } from "../hooks";

@@ -3,7 +3,7 @@ import type { CommonShapeProps } from "./types";
 import { LineShape } from "./LineShape";
 import { PointShape } from "./PointShape";
 import { RectangleShape } from "./RectangleShape";
-import type { Shape } from "../../ACG";
+import type { Shape } from "../../Mondrian";
 
 type Props<P> = CommonShapeProps & { shape: Shape<P> };
 

@@ -7,7 +7,7 @@ import type {
 } from "../CoreChart";
 import type { Metric, Timeseries } from "../providerTypes";
 import type { TimeseriesLegendProps } from "../TimeseriesLegend";
-import type { TimeseriesSourceData } from "../ACG";
+import type { TimeseriesSourceData } from "../Mondrian";
 
 export type MetricsChartProps = Omit<
   CoreChartProps<Timeseries, Metric>,

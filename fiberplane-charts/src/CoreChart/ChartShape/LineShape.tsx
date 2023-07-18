@@ -3,7 +3,7 @@ import { memo, useId } from "react";
 import { Threshold } from "@visx/threshold";
 
 import type { CommonShapeProps } from "./types";
-import type { Line, Point } from "../../ACG";
+import type { Line, Point } from "../../Mondrian";
 
 type Props<P> = CommonShapeProps & {
   line: Line<P>;

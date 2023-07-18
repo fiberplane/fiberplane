@@ -1,6 +1,6 @@
 import type { ScaleLinear } from "d3-scale";
 
-import type { AbstractChart, ShapeList } from "../ACG";
+import type { AbstractChart, ShapeList } from "../Mondrian";
 import type { TimeRange } from "../providerTypes";
 
 /**

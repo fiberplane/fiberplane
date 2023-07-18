@@ -8,5 +8,5 @@ charts with `Timeseries` data. The `Timeseries` type is generated from our
 
 Also exposes the `CoreChart` component, which can render "abstract charts".
 Abstract charts are data structures that define how a chart should be
-rendered. We use the *ACG* library to convert from `Timeseries` to abstract
-charts.
+rendered. We use the *Mondrian* library to create abstract charts from
+`Timeseries`.

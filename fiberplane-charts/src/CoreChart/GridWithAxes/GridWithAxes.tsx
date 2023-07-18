@@ -3,7 +3,7 @@ import { animate, Tween, useMotionValue } from "framer-motion";
 import { memo, useEffect, useLayoutEffect, useState } from "react";
 import { useTheme } from "styled-components";
 
-import type { AbstractChart } from "../../ACG";
+import type { AbstractChart } from "../../Mondrian";
 import { BottomAxis } from "./BottomAxis";
 import { LeftAxis } from "./LeftAxis";
 import type { Scales } from "../types";

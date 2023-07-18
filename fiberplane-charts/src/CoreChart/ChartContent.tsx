@@ -1,4 +1,4 @@
-import type { AbstractChart, ShapeList } from "../ACG";
+import type { AbstractChart, ShapeList } from "../Mondrian";
 import { ChartShape } from "./ChartShape";
 import { getShapeListColor } from "../utils";
 import type { Scales } from "./types";

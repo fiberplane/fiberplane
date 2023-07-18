@@ -7,7 +7,7 @@ import {
   CoreChartProps,
 } from "../CoreChart";
 import { Metric, Timeseries } from "../providerTypes";
-import { TimeseriesSourceData, generateFromTimeseries } from "../ACG";
+import { TimeseriesSourceData, generateFromTimeseries } from "../Mondrian";
 
 type Props = Pick<
   CoreChartProps<Timeseries, Metric>,

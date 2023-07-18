@@ -5,6 +5,9 @@ import { generateStackedBarChartFromTimeseries } from "./generateStackedBarChart
 import { generateStackedLineChartFromTimeseries } from "./generateStackedLineChartFromTimeseries";
 import type { Timeseries, Metric } from "../../providerTypes";
 
+/**
+ * Generates an abstract chart from the given timeseries data.
+ */
 export function generateFromTimeseries(
   input: TimeseriesSourceData,
 ): AbstractChart<Timeseries, Metric> {

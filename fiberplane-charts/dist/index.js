@@ -1458,7 +1458,12 @@ function translatedRange(xMax, mouseInteraction) {
     ];
 }
 
-function useTooltip(props) {
+/**
+ * Handles the detection of where a tooltip should be shown.
+ *
+ * Should be passed a callback for showing the actual tooltip. If no callback
+ * is passed, tooltips are disabled.
+ */ function useTooltip(props) {
     const [graphTooltip, setGraphTooltip] = useState(null);
     const closeFnRef = useRef(null);
     const showTooltipFn = props.showTooltip;
@@ -1522,7 +1527,11 @@ function useTooltip(props) {
         }
     };
 }
-function getClosestSeriesAndPointWithCoordinates(event, { chart , dimensions: scales  }) {
+/**
+ * Returns the closest coordinates where a tooltip should be displayed,
+ * including the source series and point that were used to generate the shape
+ * at those coordinates.
+ */ function getClosestSeriesAndPointWithCoordinates(event, { chart , dimensions: scales  }) {
     const coords = getCoordinatesForEvent(event, scales);
     if (!coords) {
         return null;
@@ -2224,7 +2233,9 @@ function getPointForMetric(metric, { buckets , isPercentage , xAxis , yAxis  }) 
     };
 }
 
-function generateFromTimeseries(input) {
+/**
+ * Generates an abstract chart from the given timeseries data.
+ */ function generateFromTimeseries(input) {
     if (input.graphType === "line") {
         return input.stackingType === "none" ? generateLineChartFromTimeseries(input) : generateStackedLineChartFromTimeseries(input);
     } else {

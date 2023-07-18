@@ -4,7 +4,7 @@ import { memo, useMemo } from "react";
 import { useTheme } from "styled-components";
 import { utcFormat } from "d3-time-format";
 
-import { Axis } from "../../ACG";
+import { Axis } from "../../Mondrian";
 import type { Scales } from "../types";
 
 type Props = {
