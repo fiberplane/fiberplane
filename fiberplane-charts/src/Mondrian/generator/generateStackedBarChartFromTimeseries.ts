@@ -6,7 +6,6 @@ import type {
   ShapeList,
 } from "../types";
 import {
-  StackedChartBuckets,
   calculateBucketsAndAxesForStackedChart,
   calculateBarWidth,
   calculateSmallestTimeInterval,
@@ -14,8 +13,9 @@ import {
   getTimeFromTimestamp,
   normalizeAlongLinearAxis,
 } from "./utils";
-import type { Metric, Timeseries } from "../../providerTypes";
 import { compact } from "../../utils";
+import type { Metric, Timeseries } from "../../providerTypes";
+import type { StackedChartBuckets } from "./types";
 
 export function generateStackedBarChartFromTimeseries(
   input: TimeseriesSourceData,

@@ -1840,7 +1840,7 @@ function getCursorFromState(state) {
 
 const BAR_PADDING = 0.2;
 const BAR_PLUS_PADDING = 1 + BAR_PADDING;
-const HALF_PADDING = 0.5 * BAR_PADDING;
+
 /**
  * Calculates the width of bars in bar charts.
  */ function calculateBarWidth(xAxis, interval, numBarsPerGroup) {
@@ -1848,6 +1848,8 @@ const HALF_PADDING = 0.5 * BAR_PADDING;
     const numBars = numGroups * numBarsPerGroup;
     return 1 / (numBars * BAR_PLUS_PADDING);
 }
+
+const HALF_PADDING = 0.5 * BAR_PADDING;
 /**
  * Calculates the (left) X coordinate for a bar in a bar chart.
  *
@@ -1859,117 +1861,7 @@ const HALF_PADDING = 0.5 * BAR_PADDING;
  */ function calculateBarX(groupX, barWidth, barIndex, numShapeLists) {
     return groupX + (barIndex - 0.5 * numShapeLists) * (barWidth * BAR_PLUS_PADDING) - barWidth * HALF_PADDING;
 }
-/**
- * Wrapper around `createMetricBuckets()` and axes creation specialized for
- * usage with stacked charts.
- */ function calculateBucketsAndAxesForStackedChart(input) {
-    const buckets = createMetricBuckets(input.timeseriesData, ({ currentY , total  }, value)=>({
-            currentY,
-            total: total + value
-        }), {
-        currentY: 0,
-        total: 0
-    });
-    const isPercentage = input.stackingType === "percentage";
-    const xAxis = getXAxisFromTimeRange(input.timeRange);
-    const yAxis = isPercentage ? {
-        minValue: 0,
-        maxValue: 1
-    } : calculateStackedYAxisRange(buckets, ({ total  })=>total);
-    return {
-        buckets,
-        isPercentage,
-        xAxis,
-        yAxis
-    };
-}
-/**
- * Calculates the smallest interval between any two timestamps present in the
- * given buckets.
- *
- * Returns `null` if there are insufficient timestamps to calculate an interval.
- */ function calculateSmallestTimeInterval(buckets) {
-    const timestamps = Array.from(buckets.keys(), getTimeFromTimestamp);
-    if (timestamps.length < 2) {
-        return null;
-    }
-    timestamps.sort();
-    let smallestInterval = Infinity;
-    for(let i = 1; i < timestamps.length; i++){
-        const interval = timestamps[i] - timestamps[i - 1];
-        if (interval < smallestInterval) {
-            smallestInterval = interval;
-        }
-    }
-    return smallestInterval;
-}
-/**
- * Detects the range to display along the Y axis by looking at all the min-max
- * values inside the buckets.
- *
- * When rendering a stacked chart, use `calculateStackedYAxisRange()` instead.
- */ function calculateYAxisRange(buckets, getMinMax) {
-    const minMax = getBucketsMinMax(buckets, getMinMax);
-    if (!minMax) {
-        return getYAxisForConstantValue(0);
-    }
-    const [minValue, maxValue] = minMax;
-    return {
-        minValue,
-        maxValue
-    };
-}
-/**
- * Detects the range to display along the Y axis by looking at all the totals
- * inside the buckets.
- *
- * This function is used for stacked charts. When rendering a normal chart, use
- * `calculateYAxisRange()` instead.
- */ function calculateStackedYAxisRange(buckets, getTotalValue) {
-    if (buckets.size === 0) {
-        return getYAxisForConstantValue(0);
-    }
-    const minMax = getInitialMinMax(0);
-    for (const value of buckets.values()){
-        extendMinMax(minMax, getTotalValue(value));
-    }
-    const [minValue, maxValue] = minMax;
-    if (minValue === maxValue) {
-        return getYAxisForConstantValue(minValue);
-    }
-    return {
-        minValue,
-        maxValue
-    };
-}
-function createMetricBuckets(timeseriesData, reducer, initialValue) {
-    const buckets = new Map();
-    for (const timeseries of timeseriesData){
-        if (!timeseries.visible) {
-            continue;
-        }
-        for (const { time , value  } of timeseries.metrics){
-            if (!Number.isNaN(value)) {
-                buckets.set(time, reducer(buckets.get(time) ?? initialValue, value));
-            }
-        }
-    }
-    return buckets;
-}
-/**
- * Extends the range of an axis with the given interval.
- *
- * The range of the interval is divided among ends of the axis. The purpose of
- * this is to extend the axis with enough space to display the bars for the
- * first and last buckets displayed on the bar chart.
- *
- * @note This function mutates its input axis.
- */ function extendAxisWithInterval(axis, interval) {
-    const halfInterval = 0.5 * interval;
-    axis.minValue -= halfInterval;
-    axis.maxValue += halfInterval;
-    return axis;
-}
+
 /**
  * Extends the given min-max, if necessary, with the given value.
  *
@@ -1982,23 +1874,7 @@ function createMetricBuckets(timeseriesData, reducer, initialValue) {
     }
     return minMax;
 }
-function getBucketsMinMax(buckets, getMinMax) {
-    let minMax;
-    for (const value of buckets.values()){
-        const bucketMinMax = getMinMax(value);
-        if (!minMax) {
-            minMax = bucketMinMax;
-            continue;
-        }
-        if (bucketMinMax[0] < minMax[0]) {
-            minMax[0] = bucketMinMax[0];
-        }
-        if (bucketMinMax[1] > minMax[1]) {
-            minMax[1] = bucketMinMax[1];
-        }
-    }
-    return minMax;
-}
+
 /**
  * Returns the initial min-max based on a single value.
  */ function getInitialMinMax(value) {
@@ -2007,23 +1883,7 @@ function getBucketsMinMax(buckets, getMinMax) {
         value
     ];
 }
-/**
- * Converts an RFC 3339-formatted timestamp to a time expressed in milliseconds.
- */ function getTimeFromTimestamp(timestamp) {
-    const time = new Date(timestamp).getTime();
-    if (Number.isNaN(time)) {
-        throw new TypeError(`Invalid timestamp: ${timestamp}`);
-    }
-    return time;
-}
-/**
- * Returns the X axis to display results for the given time range.
- */ function getXAxisFromTimeRange(timeRange) {
-    return {
-        minValue: getTimeFromTimestamp(timeRange.from),
-        maxValue: getTimeFromTimestamp(timeRange.to)
-    };
-}
+
 /**
  * Returns the Y axis to display results if all results have the same value.
  *
@@ -2049,11 +1909,202 @@ function getBucketsMinMax(buckets, getMinMax) {
         };
     }
 }
+
+/**
+ * Detects the range to display along the Y axis by looking at all the totals
+ * inside the buckets.
+ *
+ * This function is used for stacked charts. When rendering a normal chart, use
+ * `calculateYAxisRange()` instead.
+ */ function calculateStackedYAxisRange(buckets, getTotalValue) {
+    if (buckets.size === 0) {
+        return getYAxisForConstantValue(0);
+    }
+    const minMax = getInitialMinMax(0);
+    for (const value of buckets.values()){
+        extendMinMax(minMax, getTotalValue(value));
+    }
+    const [minValue, maxValue] = minMax;
+    if (minValue === maxValue) {
+        return getYAxisForConstantValue(minValue);
+    }
+    return {
+        minValue,
+        maxValue
+    };
+}
+
+function createMetricBuckets(timeseriesData, reducer, initialValue) {
+    const buckets = new Map();
+    for (const timeseries of timeseriesData){
+        if (!timeseries.visible) {
+            continue;
+        }
+        for (const { time , value  } of timeseries.metrics){
+            if (!Number.isNaN(value)) {
+                buckets.set(time, reducer(buckets.get(time) ?? initialValue, value));
+            }
+        }
+    }
+    return buckets;
+}
+
+/**
+ * Converts an RFC 3339-formatted timestamp to a time expressed in milliseconds.
+ */ function getTimeFromTimestamp(timestamp) {
+    const time = new Date(timestamp).getTime();
+    if (Number.isNaN(time)) {
+        throw new TypeError(`Invalid timestamp: ${timestamp}`);
+    }
+    return time;
+}
+
+/**
+ * Returns the X axis to display results for the given time range.
+ */ function getXAxisFromTimeRange(timeRange) {
+    return {
+        minValue: getTimeFromTimestamp(timeRange.from),
+        maxValue: getTimeFromTimestamp(timeRange.to)
+    };
+}
+
+/**
+ * Wrapper around `createMetricBuckets()` and axes creation specialized for
+ * usage with stacked charts.
+ */ function calculateBucketsAndAxesForStackedChart(input) {
+    const buckets = createMetricBuckets(input.timeseriesData, ({ currentY , total  }, value)=>({
+            currentY,
+            total: total + value
+        }), {
+        currentY: 0,
+        total: 0
+    });
+    const isPercentage = input.stackingType === "percentage";
+    const xAxis = getXAxisFromTimeRange(input.timeRange);
+    const yAxis = isPercentage ? {
+        minValue: 0,
+        maxValue: 1
+    } : calculateStackedYAxisRange(buckets, ({ total  })=>total);
+    return {
+        buckets,
+        isPercentage,
+        xAxis,
+        yAxis
+    };
+}
+
+/**
+ * Calculates the smallest interval between any two timestamps present in the
+ * given buckets.
+ *
+ * Returns `null` if there are insufficient timestamps to calculate an interval.
+ */ function calculateSmallestTimeInterval(buckets) {
+    const timestamps = Array.from(buckets.keys(), getTimeFromTimestamp);
+    if (timestamps.length < 2) {
+        return null;
+    }
+    timestamps.sort();
+    let smallestInterval = Infinity;
+    for(let i = 1; i < timestamps.length; i++){
+        const interval = timestamps[i] - timestamps[i - 1];
+        if (interval < smallestInterval) {
+            smallestInterval = interval;
+        }
+    }
+    return smallestInterval;
+}
+
+/**
+ * Detects the range to display along the Y axis by looking at all the min-max
+ * values inside the buckets.
+ *
+ * When rendering a stacked chart, use `calculateStackedYAxisRange()` instead.
+ */ function calculateYAxisRange(buckets, getMinMax) {
+    const minMax = getBucketsMinMax(buckets, getMinMax);
+    if (!minMax) {
+        return getYAxisForConstantValue(0);
+    }
+    const [minValue, maxValue] = minMax;
+    return {
+        minValue,
+        maxValue
+    };
+}
+function getBucketsMinMax(buckets, getMinMax) {
+    let minMax;
+    for (const value of buckets.values()){
+        const bucketMinMax = getMinMax(value);
+        if (!minMax) {
+            minMax = bucketMinMax;
+            continue;
+        }
+        if (bucketMinMax[0] < minMax[0]) {
+            minMax[0] = bucketMinMax[0];
+        }
+        if (bucketMinMax[1] > minMax[1]) {
+            minMax[1] = bucketMinMax[1];
+        }
+    }
+    return minMax;
+}
+
+/**
+ * Extends the range of an axis with the given interval.
+ *
+ * The range of the interval is divided among ends of the axis. The purpose of
+ * this is to extend the axis with enough space to display the bars for the
+ * first and last buckets displayed on the bar chart.
+ *
+ * @note This function mutates its input axis.
+ */ function extendAxisWithInterval(axis, interval) {
+    const halfInterval = 0.5 * interval;
+    axis.minValue -= halfInterval;
+    axis.maxValue += halfInterval;
+    return axis;
+}
+
 /**
  * Takes an absolute value and normalizes it to a value between 0.0 and 1.0 for
  * the given axis.
  */ function normalizeAlongLinearAxis(value, axis) {
     return (value - axis.minValue) / (axis.maxValue - axis.minValue);
+}
+
+/**
+ * Takes an array of metrics and divides it into a lines of metrics without
+ * gaps.
+ *
+ * Any metric that has a `NaN` value, or that follows more than `1.5 * interval`
+ * after the previous metric is considered to introduce a gap in the metrics.
+ */ function splitIntoContinuousLines(metrics, interval) {
+    const lines = [];
+    let currentLine = [];
+    let previousTime = null;
+    for (const metric of metrics){
+        if (Number.isNaN(metric.value)) {
+            if (currentLine.length > 0) {
+                lines.push(currentLine);
+                currentLine = [];
+            }
+            continue;
+        }
+        const newTime = getTimeFromTimestamp(metric.time);
+        if (previousTime && interval && newTime - previousTime > 1.5 * interval) {
+            if (currentLine.length > 0) {
+                lines.push(currentLine);
+                currentLine = [
+                    metric
+                ];
+            }
+        } else {
+            currentLine.push(metric);
+        }
+        previousTime = newTime;
+    }
+    if (currentLine.length > 0) {
+        lines.push(currentLine);
+    }
+    return lines;
 }
 
 function generateBarChartFromTimeseries(input) {
@@ -2102,8 +2153,9 @@ function generateLineChartFromTimeseries(input) {
     const buckets = createMetricBuckets(input.timeseriesData, (maybeMinMax, value)=>maybeMinMax ? extendMinMax(maybeMinMax, value) : getInitialMinMax(value));
     const xAxis = getXAxisFromTimeRange(input.timeRange);
     const yAxis = calculateYAxisRange(buckets, identity);
+    const interval = calculateSmallestTimeInterval(buckets);
     const shapeLists = input.timeseriesData.map((timeseries)=>({
-            shapes: timeseries.visible ? getShapes$1(timeseries.metrics, xAxis, yAxis) : [],
+            shapes: timeseries.visible ? getShapes$1(timeseries.metrics, xAxis, yAxis, interval) : [],
             source: timeseries
         }));
     return {
@@ -2112,7 +2164,7 @@ function generateLineChartFromTimeseries(input) {
         yAxis
     };
 }
-function getShapes$1(metrics, xAxis, yAxis) {
+function getShapes$1(metrics, xAxis, yAxis, interval) {
     switch(metrics.length){
         case 0:
             return [];
@@ -2127,13 +2179,13 @@ function getShapes$1(metrics, xAxis, yAxis) {
                 ];
             }
         default:
-            // TODO: Implement gap detection: https://github.com/autometrics-dev/explorer/issues/35
-            return [
-                {
-                    type: "line",
-                    points: metrics.map((metric)=>getPointForMetric$1(metric, xAxis, yAxis))
-                }
-            ];
+            {
+                const lines = splitIntoContinuousLines(metrics, interval ?? undefined);
+                return lines.map((line)=>({
+                        type: "line",
+                        points: line.map((metric)=>getPointForMetric$1(metric, xAxis, yAxis))
+                    }));
+            }
     }
 }
 function getPointForMetric$1(metric, xAxis, yAxis) {
@@ -2192,8 +2244,9 @@ function getBarShape(metric, { xAxis , yAxis , barWidth , isPercentage , buckets
 
 function generateStackedLineChartFromTimeseries(input) {
     const axesAndBuckets = calculateBucketsAndAxesForStackedChart(input);
+    const interval = calculateSmallestTimeInterval(axesAndBuckets.buckets);
     const shapeLists = input.timeseriesData.map((timeseries)=>({
-            shapes: timeseries.visible ? getShapes(timeseries.metrics, axesAndBuckets) : [],
+            shapes: timeseries.visible ? getShapes(timeseries.metrics, axesAndBuckets, interval) : [],
             source: timeseries
         }));
     return {
@@ -2202,18 +2255,12 @@ function generateStackedLineChartFromTimeseries(input) {
         yAxis: axesAndBuckets.yAxis
     };
 }
-function getShapes(metrics, axesAndBuckets) {
-    if (metrics.length === 0) {
-        return [];
-    }
-    // TODO: Implement gap detection: https://github.com/autometrics-dev/explorer/issues/35
-    const points = compact(metrics.map((metric)=>getPointForMetric(metric, axesAndBuckets)));
-    return [
-        {
+function getShapes(metrics, axesAndBuckets, interval) {
+    const lines = splitIntoContinuousLines(metrics, interval ?? undefined);
+    return lines.map((line)=>({
             type: "area",
-            points
-        }
-    ];
+            points: compact(line.map((metric)=>getPointForMetric(metric, axesAndBuckets)))
+        }));
 }
 function getPointForMetric(metric, { buckets , isPercentage , xAxis , yAxis  }) {
     const bucketValue = buckets.get(metric.time);

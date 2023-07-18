@@ -16,11 +16,11 @@ import {
   getInitialMinMax,
   getTimeFromTimestamp,
   getXAxisFromTimeRange,
-  MinMax,
   normalizeAlongLinearAxis,
 } from "./utils";
 import { compact, identity } from "../../utils";
 import type { Metric, Timeseries } from "../../providerTypes";
+import type { MinMax } from "./types";
 
 export function generateBarChartFromTimeseries(
   input: TimeseriesSourceData,
