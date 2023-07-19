@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`it generates shapes from events 1`] = `
+{
+  "shapes": [
+    {
+      "points": [
+        {
+          "source": {
+            "attributes": {},
+            "labels": {},
+            "resource": {},
+            "time": "2023-07-18T16:02:00.000Z",
+            "title": "deploy 1",
+          },
+          "x": 0.2,
+          "yMax": 1,
+          "yMin": 0,
+        },
+      ],
+      "type": "area",
+    },
+    {
+      "points": [
+        {
+          "source": {
+            "attributes": {},
+            "labels": {},
+            "resource": {},
+            "time": "2023-07-18T16:07:00.000Z",
+            "title": "deploy 2",
+          },
+          "x": 0.7,
+          "yMax": 1,
+          "yMin": 0,
+        },
+      ],
+      "type": "area",
+    },
+  ],
+  "source": {
+    "type": "events",
+  },
+}
+`;

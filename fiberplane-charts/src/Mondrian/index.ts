@@ -1,3 +1,6 @@
 export type * from "./types";
 
-export { generateFromTimeseries } from "./generator";
+export {
+  generateFromTimeseries,
+  generateFromTimeseriesAndEvents,
+} from "./generator";

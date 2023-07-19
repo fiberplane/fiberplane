@@ -15,16 +15,16 @@ export type CoreChartProps<S, P> = {
   chart: AbstractChart<S, P>;
 
   /**
-   * Override the colors that the charts will use. If not specified several colors of the theme are used
-   */
-  colors?: Array<string>;
-
-  /**
    * Indicates which of the shape lists should be focused.
    *
    * `null` is used to indicate no shape list is focused.
    */
   focusedShapeList: ShapeList<S, P> | null;
+
+  /**
+   * Callback used to determine the color for a shape list.
+   */
+  getShapeListColor: (shapeList: ShapeList<S, P>) => string;
 
   /**
    * Show the line/border at the outer edge of the chart. (default: true)
@@ -46,6 +46,11 @@ export type CoreChartProps<S, P> = {
    * Show the grid row (horizontal) lines. (default: true)
    */
   gridRowsShown?: boolean;
+
+  /**
+   * Whether the grid is shown at all. (default: true)
+   */
+  gridShown?: boolean;
 
   /**
    * Override the color of the grid lines. (defaults to the theme's grid color)

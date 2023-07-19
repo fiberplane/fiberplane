@@ -1,11 +1,12 @@
-import { memo, useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
+import { useEffect, useMemo, useRef } from "react";
 import { VariableSizeList } from "react-window";
 
 import { TimeseriesLegendItem } from "./TimeseriesLegendItem";
 import type { TimeseriesLegendProps } from "./types";
 import { Container } from "../BaseComponents";
-import { findUniqueKeys, getShapeListColor, noop } from "../utils";
+import { findUniqueKeys, noop } from "../utils";
+import type { ShapeList } from "../Mondrian";
 import type { Timeseries } from "../providerTypes";
 import { useExpandable, useForceUpdate, useHandler } from "../hooks";
 
@@ -13,22 +14,22 @@ const DEFAULT_HEIGHT = 293;
 const DEFAULT_SIZE = 50;
 const EXPANDED_HEIGHT = 592;
 
-export const TimeseriesLegend = memo(function TimeseriesLegend({
-  chart,
-  colors,
+export function TimeseriesLegend<S extends Timeseries, P>({
   footerShown = true,
+  getShapeListColor,
   onFocusedShapeListChange,
   onToggleTimeseriesVisibility,
   readOnly = false,
-}: TimeseriesLegendProps) {
+  shapeLists,
+}: TimeseriesLegendProps<S, P>) {
   const { expandButton, gradient, isExpanded, onScroll, ref } =
     useExpandable<HTMLDivElement>({ defaultHeight: DEFAULT_HEIGHT });
 
   const maxHeight = isExpanded ? EXPANDED_HEIGHT : DEFAULT_HEIGHT;
 
   const timeseriesData = useMemo(
-    () => chart.shapeLists.map((shapeList) => shapeList.source),
-    [chart],
+    () => shapeLists.map((shapeList) => shapeList.source),
+    [shapeLists],
   );
   const numSeries = timeseriesData.length;
   const resultsText = `${numSeries} result${numSeries === 1 ? "" : "s"}`;
@@ -37,7 +38,7 @@ export const TimeseriesLegend = memo(function TimeseriesLegend({
     () => findUniqueKeys(timeseriesData),
     [timeseriesData],
   );
-  const listRef = useRef<VariableSizeList<Array<Timeseries>>>(null);
+  const listRef = useRef<VariableSizeList<Array<ShapeList<S, P>>>>(null);
   const sizeMap = useRef(new Map<number, number>());
   const heightRef = useRef(timeseriesData.length * DEFAULT_SIZE);
   const update = useForceUpdate();
@@ -65,7 +66,7 @@ export const TimeseriesLegend = memo(function TimeseriesLegend({
 
   const setFocusedTimeseries = onFocusedShapeListChange
     ? (timeseries: Timeseries) => {
-        const shapeList = chart.shapeLists.find(
+        const shapeList = shapeLists.find(
           (shapeList) => shapeList.source === timeseries,
         );
         if (shapeList) {
@@ -74,35 +75,32 @@ export const TimeseriesLegend = memo(function TimeseriesLegend({
       }
     : noop;
 
-  const render = useHandler(
-    ({
-      data,
-      index,
-      style,
-    }: {
-      data: Array<Timeseries>;
-      index: number;
-      style: React.CSSProperties;
-    }) => {
-      const timeseries = data[index];
-      return (
-        <div style={style}>
-          {timeseries && (
-            <TimeseriesLegendItem
-              color={getShapeListColor(colors, index)}
-              onHover={() => setFocusedTimeseries(timeseries)}
-              onToggleTimeseriesVisibility={onToggleTimeseriesVisibility}
-              readOnly={readOnly}
-              timeseries={timeseries}
-              uniqueKeys={uniqueKeys}
-              index={index}
-              setSize={setSize}
-            />
-          )}
-        </div>
-      );
-    },
-  );
+  type RenderProps = {
+    data: Array<ShapeList<S, P>>;
+    index: number;
+    style: React.CSSProperties;
+  };
+
+  const render = useHandler(({ data, index, style }: RenderProps) => {
+    const shapeList = data[index];
+    const timeseries = shapeList.source;
+    return (
+      <div style={style}>
+        {timeseries && (
+          <TimeseriesLegendItem
+            color={getShapeListColor(shapeList)}
+            onHover={() => setFocusedTimeseries(timeseries)}
+            onToggleTimeseriesVisibility={onToggleTimeseriesVisibility}
+            readOnly={readOnly}
+            timeseries={timeseries}
+            uniqueKeys={uniqueKeys}
+            index={index}
+            setSize={setSize}
+          />
+        )}
+      </div>
+    );
+  });
 
   return (
     <ChartLegendContainer onMouseOut={onMouseOut} ref={ref}>
@@ -111,8 +109,8 @@ export const TimeseriesLegend = memo(function TimeseriesLegend({
           height={Math.min(heightRef.current, maxHeight)}
           width="100%"
           ref={listRef}
-          itemCount={timeseriesData.length}
-          itemData={timeseriesData}
+          itemCount={shapeLists.length}
+          itemData={shapeLists}
           itemSize={getSize}
         >
           {render}
@@ -127,7 +125,7 @@ export const TimeseriesLegend = memo(function TimeseriesLegend({
       )}
     </ChartLegendContainer>
   );
-});
+}
 
 const ExpandableContainer = styled.div<{
   maxHeight: Exclude<React.CSSProperties["height"], undefined>;
