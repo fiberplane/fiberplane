@@ -1939,6 +1939,9 @@ const HALF_PADDING = 0.5 * BAR_PADDING;
         return getYAxisForConstantValue(0);
     }
     const [minValue, maxValue] = minMax;
+    if (minValue === maxValue) {
+        return getYAxisForConstantValue(minValue);
+    }
     return {
         minValue,
         maxValue
