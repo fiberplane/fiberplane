@@ -2209,10 +2209,15 @@ function getShapes$1(metrics, xAxis, yAxis, interval) {
         default:
             {
                 const lines = splitIntoContinuousLines(metrics, interval ?? undefined);
-                return lines.map((line)=>({
+                return lines.map((line)=>// If the line only containes one metric value, render it as a point
+                    // Otherwise, render a line
+                    line.length === 1 ? {
+                        type: "point",
+                        ...getPointForMetric$1(line[0], xAxis, yAxis)
+                    } : {
                         type: "line",
                         points: line.map((metric)=>getPointForMetric$1(metric, xAxis, yAxis))
-                    }));
+                    });
             }
     }
 }

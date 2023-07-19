@@ -59,14 +59,30 @@ function getShapes(
       const metric = metrics[0];
       return Number.isNaN(metric.value)
         ? []
-        : [{ type: "point", ...getPointForMetric(metric, xAxis, yAxis) }];
+        : [
+            {
+              type: "point",
+              ...getPointForMetric(metric, xAxis, yAxis),
+            },
+          ];
     }
     default: {
       const lines = splitIntoContinuousLines(metrics, interval ?? undefined);
-      return lines.map((line) => ({
-        type: "line",
-        points: line.map((metric) => getPointForMetric(metric, xAxis, yAxis)),
-      }));
+      return lines.map((line) =>
+        // If the line only containes one metric value, render it as a point
+        // Otherwise, render a line
+        line.length === 1
+          ? {
+              type: "point",
+              ...getPointForMetric(line[0], xAxis, yAxis),
+            }
+          : {
+              type: "line",
+              points: line.map((metric) =>
+                getPointForMetric(metric, xAxis, yAxis),
+              ),
+            },
+      );
     }
   }
 }
