@@ -31,5 +31,6 @@ jobs:
       - name: Type-checking
         run: yarn type-check
 
-      - name: Run tests
-        run: yarn workspaces foreach run test
+      # Disabled because there are no TS tests currently.
+      #- name: Run tests
+      #  run: yarn workspaces foreach run test
