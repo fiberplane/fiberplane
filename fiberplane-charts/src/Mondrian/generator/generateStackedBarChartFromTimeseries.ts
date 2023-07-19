@@ -12,6 +12,7 @@ import {
   extendAxisWithInterval,
   getTimeFromTimestamp,
   normalizeAlongLinearAxis,
+  attachSuggestionsToXAxis,
 } from "./utils";
 import { compact } from "../../utils";
 import type { Metric, Timeseries } from "../../providerTypes";
@@ -26,6 +27,7 @@ export function generateStackedBarChartFromTimeseries(
   const interval = calculateSmallestTimeInterval(buckets);
   if (interval) {
     extendAxisWithInterval(xAxis, interval);
+    attachSuggestionsToXAxis(xAxis, buckets, interval);
   }
 
   const barWidth = calculateBarWidth(xAxis, interval ?? 0, 1);

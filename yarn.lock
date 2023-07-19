@@ -2498,24 +2498,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@visx/grid@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "@visx/grid@npm:3.0.1"
-  dependencies:
-    "@types/react": "*"
-    "@visx/curve": 3.0.0
-    "@visx/group": 3.0.0
-    "@visx/point": 3.0.1
-    "@visx/scale": 3.0.0
-    "@visx/shape": 3.0.0
-    classnames: ^2.3.1
-    prop-types: ^15.6.2
-  peerDependencies:
-    react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
-  checksum: 2ff960b180f0ac1960170f3628a49667f3da58751242638af7844eb49a30273e52bba380103c14bb5b4829ca4bef0c072a8a78696abf2b41d4a49fcdbc02a263
-  languageName: node
-  linkType: hard
-
 "@visx/group@npm:3.0.0":
   version: 3.0.0
   resolution: "@visx/group@npm:3.0.0"
@@ -2526,13 +2508,6 @@ __metadata:
   peerDependencies:
     react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
   checksum: f52b946fb39cfcd4798bd5c77b729ceb41b2041e0464edeef2f15955c4022d51ed9f7626f2a7ac331f8430c84037254be5dd38f8282881a63d1680b27f41d04d
-  languageName: node
-  linkType: hard
-
-"@visx/point@npm:3.0.1":
-  version: 3.0.1
-  resolution: "@visx/point@npm:3.0.1"
-  checksum: 727f314826eb85a608b4088a9e2fedb7e6996a5f0fdddaeb40702a51aa04da07fdbc5fdcf2d595d914dfa083389c644f769fc69b3a247b4da274936dd58c7bb8
   languageName: node
   linkType: hard
 
@@ -3606,7 +3581,6 @@ __metadata:
     "@types/react-window": ^1.8.5
     "@types/styled-components": ^5.1.26
     "@types/throttle-debounce": ^5.0.0
-    "@visx/grid": ^3.0.1
     "@visx/scale": ^3.0.0
     "@visx/shape": ^3.0.0
     "@visx/threshold": ^3.0.0

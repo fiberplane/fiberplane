@@ -7,6 +7,7 @@ import type {
   TimeseriesSourceData,
 } from "../types";
 import {
+  attachSuggestionsToXAxis,
   calculateSmallestTimeInterval,
   calculateYAxisRange,
   createMetricBuckets,
@@ -34,6 +35,9 @@ export function generateLineChartFromTimeseries(
   const yAxis = calculateYAxisRange(buckets, identity);
 
   const interval = calculateSmallestTimeInterval(buckets);
+  if (interval) {
+    attachSuggestionsToXAxis(xAxis, buckets, interval);
+  }
 
   const shapeLists: Array<ShapeList<Timeseries, Metric>> =
     input.timeseriesData.map((timeseries) => ({

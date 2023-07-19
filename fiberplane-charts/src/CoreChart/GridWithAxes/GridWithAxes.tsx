@@ -1,10 +1,11 @@
-import { GridRows, GridColumns } from "@visx/grid";
 import { animate, Tween, useMotionValue } from "framer-motion";
-import { memo, useEffect, useLayoutEffect, useState } from "react";
+import { memo, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useTheme } from "styled-components";
 
-import type { AbstractChart } from "../../Mondrian";
+import type { AbstractChart, Axis } from "../../Mondrian";
 import { BottomAxis } from "./BottomAxis";
+import { GridColumns } from "./GridColumns";
+import { GridRows } from "./GridRows";
 import { LeftAxis } from "./LeftAxis";
 import type { Scales } from "../types";
 
@@ -27,25 +28,29 @@ export const GridWithAxes = memo(function GridWithAxes({
   gridStrokeColor,
   scales,
 }: Props) {
-  const { xMax, xScale, yMax, yScale } = scales;
+  const { xMax, yMax, yScale } = scales;
 
   const { colorBase300 } = useTheme();
   const strokeColor = gridStrokeColor || colorBase300;
 
-  const minValue = useCustomSpring(chart.yAxis.minValue);
-  const maxValue = useCustomSpring(chart.yAxis.maxValue);
+  const { xAxis, yAxis } = chart;
+  const minValue = useCustomSpring(yAxis.minValue);
+  const maxValue = useCustomSpring(yAxis.maxValue);
 
   const animatedScale = yScale.copy().domain([minValue, maxValue]);
+
+  const xTicks = useMemo(() => getTicks(xAxis, 12), [xAxis]);
+  const yTicks = useMemo(() => getTicks(yAxis, 8), [yAxis]);
 
   return (
     <>
       {gridRowsShown && (
         <GridRows
-          scale={animatedScale}
-          width={xMax}
-          height={yMax}
           stroke={strokeColor}
           strokeDasharray={gridDashArray}
+          xMax={xMax}
+          yScale={animatedScale}
+          yTicks={yTicks}
         />
       )}
       {gridBordersShown && (
@@ -61,26 +66,26 @@ export const GridWithAxes = memo(function GridWithAxes({
       )}
       {gridColumnsShown && (
         <GridColumns
-          scale={xScale}
-          width={xMax}
-          height={yMax}
+          dimensions={scales}
           stroke={strokeColor}
           strokeDasharray={gridDashArray}
+          xAxis={xAxis}
+          xTicks={xTicks}
         />
       )}
       <BottomAxis
-        numTicks={10}
-        scales={scales}
+        dimensions={scales}
         strokeColor={strokeColor}
         strokeDasharray={gridDashArray}
-        xAxis={chart.xAxis}
+        ticks={xTicks}
+        xAxis={xAxis}
       />
       <LeftAxis
-        numTicks={6}
         scales={{ ...scales, yScale: animatedScale }}
         strokeColor={strokeColor}
         strokeDasharray={gridDashArray}
         strokeWidth={gridBordersShown ? 1 : 0}
+        ticks={yTicks}
       />
     </>
   );
@@ -106,4 +111,43 @@ function useCustomSpring(value: number) {
   }, [motionValue, value]);
 
   return current;
+}
+
+function getTicks(axis: Axis, numTicks: number): Array<number> {
+  const suggestions = axis.tickSuggestions;
+  if (suggestions) {
+    return getTicksFromSuggestions(suggestions, numTicks);
+  }
+
+  const { minValue, maxValue } = axis;
+  const interval = (maxValue - minValue) / numTicks;
+
+  const ticks = [minValue];
+  let tick = minValue + interval;
+  while (tick < maxValue) {
+    ticks.push(tick);
+    tick += interval;
+  }
+
+  return ticks;
+}
+
+function getTicksFromSuggestions(
+  suggestions: Array<number>,
+  numTicks: number,
+): Array<number> {
+  const len = suggestions.length;
+  if (len <= numTicks) {
+    return suggestions;
+  }
+
+  const ticks = [];
+  const divisionFactor = Math.ceil(len / numTicks);
+  for (let i = 0; i < len; i++) {
+    if (i % divisionFactor === 0) {
+      ticks.push(suggestions[i]);
+    }
+  }
+
+  return ticks;
 }

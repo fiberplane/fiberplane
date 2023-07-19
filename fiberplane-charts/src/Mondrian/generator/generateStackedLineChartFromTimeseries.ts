@@ -6,6 +6,7 @@ import type {
   TimeseriesSourceData,
 } from "../types";
 import {
+  attachSuggestionsToXAxis,
   calculateBucketsAndAxesForStackedChart,
   calculateSmallestTimeInterval,
   getTimeFromTimestamp,
@@ -21,8 +22,12 @@ export function generateStackedLineChartFromTimeseries(
   input: TimeseriesSourceData,
 ): AbstractChart<Timeseries, Metric> {
   const axesAndBuckets = calculateBucketsAndAxesForStackedChart(input);
+  const { buckets, xAxis, yAxis } = axesAndBuckets;
 
-  const interval = calculateSmallestTimeInterval(axesAndBuckets.buckets);
+  const interval = calculateSmallestTimeInterval(buckets);
+  if (interval) {
+    attachSuggestionsToXAxis(xAxis, buckets, interval);
+  }
 
   const shapeLists: Array<ShapeList<Timeseries, Metric>> =
     input.timeseriesData.map((timeseries) => ({
@@ -32,11 +37,7 @@ export function generateStackedLineChartFromTimeseries(
       source: timeseries,
     }));
 
-  return {
-    shapeLists,
-    xAxis: axesAndBuckets.xAxis,
-    yAxis: axesAndBuckets.yAxis,
-  };
+  return { shapeLists, xAxis, yAxis };
 }
 
 function getShapes(
