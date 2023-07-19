@@ -905,9 +905,9 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , color , f
 
 const PointShape = /*#__PURE__*/ memo(function PointShape({ color , focused , point , scales  }) {
     return /*#__PURE__*/ jsx("circle", {
-        x: scales.xScale(point.x),
-        y: scales.yScale(point.y),
-        radius: focused ? 2 : 1,
+        cx: scales.xScale(point.x),
+        cy: scales.yScale(point.y),
+        r: focused ? 2 : 1,
         stroke: color,
         fill: color
     });
