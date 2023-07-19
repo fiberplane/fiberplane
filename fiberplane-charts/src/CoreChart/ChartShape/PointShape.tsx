@@ -15,9 +15,9 @@ export const PointShape = memo(function PointShape<P>({
 }: Props<P>): JSX.Element {
   return (
     <circle
-      x={scales.xScale(point.x)}
-      y={scales.yScale(point.y)}
-      radius={focused ? 2 : 1}
+      cx={scales.xScale(point.x)}
+      cy={scales.yScale(point.y)}
+      r={focused ? 2 : 1}
       stroke={color}
       fill={color}
     />
