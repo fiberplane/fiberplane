@@ -2050,6 +2050,9 @@ function createMetricBuckets(timeseriesData, reducer, initialValue) {
         return getYAxisForConstantValue(0);
     }
     const [minValue, maxValue] = minMax;
+    if (minValue === maxValue) {
+        return getYAxisForConstantValue(minValue);
+    }
     return {
         minValue,
         maxValue

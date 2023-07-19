@@ -20,7 +20,7 @@ export function calculateYAxisRange<T>(
   const [minValue, maxValue] = minMax;
 
   if (minValue === maxValue) {
-    getYAxisForConstantValue(minValue);
+    return getYAxisForConstantValue(minValue);
   }
 
   return { minValue, maxValue };
