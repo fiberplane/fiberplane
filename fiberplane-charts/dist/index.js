@@ -964,6 +964,7 @@ function ChartContent({ chart , colors , focusedShapeList , scales  }) {
     });
 }
 
+const LABEL_OFFSET = 8;
 const BottomAxis = /*#__PURE__*/ memo(function BottomAxis({ numTicks , scales: { xMax , xScale , yMax  } , strokeColor , strokeDasharray , xAxis  }) {
     const { colorBase500 , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing  } = useTheme();
     const formatter = getTimeFormatter(xAxis, numTicks);
@@ -981,6 +982,7 @@ const BottomAxis = /*#__PURE__*/ memo(function BottomAxis({ numTicks , scales: {
             getTicks(xScale, numTicks).map((value, index)=>/*#__PURE__*/ jsx("text", {
                     x: xScale(value),
                     y: fontAxisFontSize,
+                    dy: LABEL_OFFSET,
                     fill: colorBase500,
                     fontFamily: fontAxisFontFamily,
                     fontStyle: fontAxisFontStyle,
@@ -1033,7 +1035,7 @@ function getFormatter(unit) {
 const LeftAxis = /*#__PURE__*/ memo(function LeftAxis({ numTicks , scales: { yMax , yScale  } , strokeColor , strokeDasharray , strokeWidth  }) {
     const { colorBase500 , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing  } = useTheme();
     const tickLabelProps = {
-        dx: "-0.25em",
+        dx: "-0.45em",
         dy: "0.25em",
         textAnchor: "end",
         fontFamily: fontAxisFontFamily,
@@ -1055,7 +1057,7 @@ const LeftAxis = /*#__PURE__*/ memo(function LeftAxis({ numTicks , scales: { yMa
                 strokeDasharray: strokeDasharray,
                 strokeWidth: strokeWidth
             }),
-            getTicks(yScale, numTicks).map((value, index)=>index > 0 || index < numTicks - 1 ? // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
+            getTicks(yScale, numTicks).map((value, index)=>(index > 0 || index < numTicks - 1) && value.valueOf() !== 0 ? // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
                 /*#__PURE__*/ jsx("text", {
                     x: 0,
                     y: yScale(value),
@@ -1265,7 +1267,10 @@ const MARGINS = {
 };
 
 function getCoordinatesForEvent(event, { xMax , yMax  }) {
-    const svg = event.currentTarget;
+    const svg = getTarget(event);
+    if (!svg) {
+        return null;
+    }
     const rect = svg.getBoundingClientRect();
     const x = event.clientX - rect.left - MARGINS.left;
     const y = event.clientY - rect.top - MARGINS.top;
@@ -1276,6 +1281,23 @@ function getCoordinatesForEvent(event, { xMax , yMax  }) {
         x: x / xMax,
         y: 1 - y / yMax
     };
+}
+/**
+ * Finds the root `<svg>` element we use as target. Most event listeners are
+ * directly attached to it, but some may be attached elsewhere and we need to
+ * travel from the `event.target` to find it.
+ */ function getTarget(event) {
+    if (event.currentTarget instanceof SVGSVGElement) {
+        return event.currentTarget;
+    }
+    let target = event.target;
+    while(target){
+        if (target instanceof SVGSVGElement) {
+            return target;
+        }
+        target = target.parentElement;
+    }
+    return null;
 }
 
 const MIN_DURATION = 60; // in seconds
@@ -1735,13 +1757,16 @@ function CoreChart({ chart , colors , gridShown =true , onChangeTimeRange , read
     const cursor = getCursorFromState(interactiveControls);
     const scales = useScales(dimensions, mouseInteraction);
     useEffect(()=>{
+        const wheelListenerOptions = {
+            passive: false
+        };
         window.addEventListener("keydown", updatePressedKeys);
         window.addEventListener("keyup", updatePressedKeys);
-        window.addEventListener("wheel", onWheel);
+        window.addEventListener("wheel", onWheel, wheelListenerOptions);
         return ()=>{
             window.removeEventListener("keydown", updatePressedKeys);
             window.removeEventListener("keyup", updatePressedKeys);
-            window.removeEventListener("wheel", onWheel);
+            window.removeEventListener("wheel", onWheel, wheelListenerOptions);
         };
     }, [
         onWheel,
