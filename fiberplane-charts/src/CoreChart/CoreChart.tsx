@@ -71,13 +71,14 @@ export function CoreChart<S, P>({
   const scales = useScales(dimensions, mouseInteraction);
 
   useEffect(() => {
+    const wheelListenerOptions: AddEventListenerOptions = { passive: false };
     window.addEventListener("keydown", updatePressedKeys);
     window.addEventListener("keyup", updatePressedKeys);
-    window.addEventListener("wheel", onWheel);
+    window.addEventListener("wheel", onWheel, wheelListenerOptions);
     return () => {
       window.removeEventListener("keydown", updatePressedKeys);
       window.removeEventListener("keyup", updatePressedKeys);
-      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("wheel", onWheel, wheelListenerOptions);
     };
   }, [onWheel, updatePressedKeys]);
 

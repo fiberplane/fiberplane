@@ -2,7 +2,6 @@ import { getTicks } from "@visx/scale";
 import { memo } from "react";
 import { useTheme } from "styled-components";
 
-import type { Axis } from "../../Mondrian";
 import type { Scales } from "../types";
 
 type Props = {
@@ -30,7 +29,7 @@ export const LeftAxis = memo(function LeftAxis({
   } = useTheme();
 
   const tickLabelProps = {
-    dx: "-0.25em",
+    dx: "-0.45em",
     dy: "0.25em",
     textAnchor: "end" as const,
     fontFamily: fontAxisFontFamily,
@@ -56,7 +55,7 @@ export const LeftAxis = memo(function LeftAxis({
       />
 
       {getTicks(yScale, numTicks).map((value, index) =>
-        index > 0 || index < numTicks - 1 ? (
+        (index > 0 || index < numTicks - 1) && value.valueOf() !== 0 ? (
           // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
           <text key={index} x={0} y={yScale(value)} {...tickLabelProps}>
             {formatter(value)}

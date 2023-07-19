@@ -1,11 +1,13 @@
 import { getTicks } from "@visx/scale";
 import type { NumberValue } from "d3-scale";
-import { memo, useMemo } from "react";
+import { memo } from "react";
 import { useTheme } from "styled-components";
 import { utcFormat } from "d3-time-format";
 
 import { Axis } from "../../Mondrian";
 import type { Scales } from "../types";
+
+const LABEL_OFFSET = 8;
 
 type Props = {
   numTicks: number;
@@ -50,6 +52,7 @@ export const BottomAxis = memo(function BottomAxis({
           key={index}
           x={xScale(value)}
           y={fontAxisFontSize}
+          dy={LABEL_OFFSET}
           fill={colorBase500}
           fontFamily={fontAxisFontFamily}
           fontStyle={fontAxisFontStyle}
