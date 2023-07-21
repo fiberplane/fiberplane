@@ -3,6 +3,7 @@ export type {
   GraphType,
   Metric,
   OtelMetadata,
+  ProviderEvent,
   StackingType,
   TimeRange,
   Timeseries,
