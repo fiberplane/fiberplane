@@ -2256,9 +2256,21 @@ function createMetricBuckets(timeseriesData, reducer, initialValue) {
     if (!minMax) {
         return getYAxisForConstantValue(0);
     }
-    const [minValue, maxValue] = minMax;
+    let [minValue, maxValue] = minMax;
     if (minValue === maxValue) {
         return getYAxisForConstantValue(minValue);
+    }
+    const distance = maxValue - minValue;
+    const margin = 0.05 * distance;
+    if (minValue < 0 || minValue >= margin) {
+        minValue -= margin;
+    } else {
+        minValue = 0;
+    }
+    if (maxValue > 0 || maxValue <= -margin) {
+        maxValue += margin;
+    } else {
+        maxValue = 0;
     }
     return {
         minValue,

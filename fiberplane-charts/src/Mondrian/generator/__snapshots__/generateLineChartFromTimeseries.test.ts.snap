@@ -15,7 +15,7 @@ exports[`it generates a line chart 1`] = `
                 "value": 10,
               },
               "x": 0,
-              "y": 0,
+              "y": 0.045454545454545456,
             },
             {
               "source": {
@@ -25,7 +25,7 @@ exports[`it generates a line chart 1`] = `
                 "value": 15,
               },
               "x": 0.1,
-              "y": 0.25,
+              "y": 0.2727272727272727,
             },
             {
               "source": {
@@ -50,7 +50,7 @@ exports[`it generates a line chart 1`] = `
                 "value": 25,
               },
               "x": 0.4,
-              "y": 0.75,
+              "y": 0.7272727272727273,
             },
             {
               "source": {
@@ -60,7 +60,7 @@ exports[`it generates a line chart 1`] = `
                 "value": 30,
               },
               "x": 0.5,
-              "y": 1,
+              "y": 0.9545454545454546,
             },
             {
               "source": {
@@ -70,7 +70,7 @@ exports[`it generates a line chart 1`] = `
                 "value": 25,
               },
               "x": 0.6,
-              "y": 0.75,
+              "y": 0.7272727272727273,
             },
             {
               "source": {
@@ -90,7 +90,7 @@ exports[`it generates a line chart 1`] = `
                 "value": 15,
               },
               "x": 0.8,
-              "y": 0.25,
+              "y": 0.2727272727272727,
             },
             {
               "source": {
@@ -100,7 +100,7 @@ exports[`it generates a line chart 1`] = `
                 "value": 10,
               },
               "x": 0.9,
-              "y": 0,
+              "y": 0.045454545454545456,
             },
           ],
           "type": "line",
@@ -188,8 +188,8 @@ exports[`it generates a line chart 1`] = `
     ],
   },
   "yAxis": {
-    "maxValue": 30,
-    "minValue": 10,
+    "maxValue": 31,
+    "minValue": 9,
   },
 }
 `;
