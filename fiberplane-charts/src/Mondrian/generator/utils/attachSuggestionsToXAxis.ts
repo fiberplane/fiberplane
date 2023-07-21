@@ -13,6 +13,10 @@ export function attachSuggestionsToXAxis(
   buckets: Buckets<unknown>,
   interval: number,
 ) {
+  if (interval <= 0) {
+    return;
+  }
+
   const firstBucketTime = getFirstBucketTime(buckets);
   if (!firstBucketTime) {
     return;

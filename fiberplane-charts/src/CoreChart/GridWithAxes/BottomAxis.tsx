@@ -2,12 +2,12 @@ import { useTheme } from "styled-components";
 import { utcFormat } from "d3-time-format";
 
 import type { Axis } from "../../Mondrian";
-import type { Dimensions } from "../types";
+import type { Scales } from "../types";
 
 const LABEL_OFFSET = 8;
 
 type Props = {
-  dimensions: Dimensions;
+  scales: Scales;
   strokeColor: string;
   strokeDasharray?: string;
   ticks: Array<number>;
@@ -15,11 +15,11 @@ type Props = {
 };
 
 export function BottomAxis({
-  dimensions: { xMax, yMax },
+  scales: { xMax, xScale, yMax },
   strokeColor,
   strokeDasharray,
   ticks,
-  xAxis: { minValue, maxValue },
+  xAxis: { maxValue, minValue },
 }: Props) {
   const {
     colorBase500,
@@ -47,7 +47,7 @@ export function BottomAxis({
         <text
           // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
           key={index}
-          x={(xMax * (time - minValue)) / (maxValue - minValue)}
+          x={xScale((time - minValue) / (maxValue - minValue))}
           y={fontAxisFontSize}
           dy={LABEL_OFFSET}
           fill={colorBase500}

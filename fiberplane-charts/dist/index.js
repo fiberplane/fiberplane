@@ -904,9 +904,9 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , color , f
 
 const PointShape = /*#__PURE__*/ memo(function PointShape({ color , focused , point , scales  }) {
     return /*#__PURE__*/ jsx("circle", {
-        x: scales.xScale(point.x),
-        y: scales.yScale(point.y),
-        radius: focused ? 2 : 1,
+        cx: scales.xScale(point.x),
+        cy: scales.yScale(point.y),
+        r: focused ? 2 : 1,
         stroke: color,
         fill: color
     });
@@ -964,7 +964,7 @@ function ChartContent({ chart , colors , focusedShapeList , scales  }) {
 }
 
 const LABEL_OFFSET = 8;
-function BottomAxis({ dimensions: { xMax , yMax  } , strokeColor , strokeDasharray , ticks , xAxis: { minValue , maxValue  }  }) {
+function BottomAxis({ scales: { xMax , xScale , yMax  } , strokeColor , strokeDasharray , ticks , xAxis: { maxValue , minValue  }  }) {
     const { colorBase500 , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing  } = useTheme();
     const formatter = getTimeFormatter(ticks);
     return /*#__PURE__*/ jsxs("g", {
@@ -979,7 +979,7 @@ function BottomAxis({ dimensions: { xMax , yMax  } , strokeColor , strokeDasharr
                 strokeDasharray: strokeDasharray
             }),
             ticks.map((time, index)=>/*#__PURE__*/ jsx("text", {
-                    x: xMax * (time - minValue) / (maxValue - minValue),
+                    x: xScale((time - minValue) / (maxValue - minValue)),
                     y: fontAxisFontSize,
                     dy: LABEL_OFFSET,
                     fill: colorBase500,
@@ -1032,10 +1032,10 @@ function getFormatter(unit) {
     }
 }
 
-function GridColumns({ dimensions: { xMax , yMax  } , xAxis: { maxValue , minValue  } , xTicks , ...lineProps }) {
+function GridColumns({ scales: { xScale , yMax  } , xAxis: { maxValue , minValue  } , xTicks , ...lineProps }) {
     return /*#__PURE__*/ jsx("g", {
         children: xTicks.map((time, index)=>{
-            const x = xMax * (time - minValue) / (maxValue - minValue);
+            const x = xScale((time - minValue) / (maxValue - minValue));
             return /*#__PURE__*/ jsx("line", {
                 x1: x,
                 y1: 0,
@@ -1102,7 +1102,7 @@ function LeftAxis({ scales: { yMax , yScale  } , strokeColor , strokeDasharray ,
 }
 
 const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDashArray , gridStrokeColor , scales  }) {
-    const { xMax , yMax , yScale  } = scales;
+    const { xMax , xScale , yMax , yScale  } = scales;
     const { colorBase300  } = useTheme();
     const strokeColor = gridStrokeColor || colorBase300;
     const { xAxis , yAxis  } = chart;
@@ -1112,11 +1112,15 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
         minValue,
         maxValue
     ]);
-    const xTicks = useMemo(()=>getTicks(xAxis, 12), [
-        xAxis
+    const xTicks = useMemo(()=>getTicks(xAxis, xMax, xScale, 12), [
+        xAxis,
+        xMax,
+        xScale
     ]);
-    const yTicks = useMemo(()=>getTicks(yAxis, 8), [
-        yAxis
+    const yTicks = useMemo(()=>getTicks(yAxis, yMax, animatedScale, 8), [
+        yAxis,
+        yMax,
+        animatedScale
     ]);
     return /*#__PURE__*/ jsxs(Fragment, {
         children: [
@@ -1137,14 +1141,14 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
                 strokeDasharray: gridDashArray
             }),
             gridColumnsShown && /*#__PURE__*/ jsx(GridColumns, {
-                dimensions: scales,
+                scales: scales,
                 stroke: strokeColor,
                 strokeDasharray: gridDashArray,
                 xAxis: xAxis,
                 xTicks: xTicks
             }),
             /*#__PURE__*/ jsx(BottomAxis, {
-                dimensions: scales,
+                scales: scales,
                 strokeColor: strokeColor,
                 strokeDasharray: gridDashArray,
                 ticks: xTicks,
@@ -1163,36 +1167,13 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
         ]
     });
 });
-const spring = {
-    type: "tween",
-    duration: 1,
-    easings: [
-        "anticipate"
-    ]
-};
-function useCustomSpring(value) {
-    const motionValue = useMotionValue(value);
-    const [current, setCurrent] = useState(value);
-    useLayoutEffect(()=>{
-        return motionValue.on("change", (value)=>setCurrent(value));
-    }, [
-        motionValue
-    ]);
-    useEffect(()=>{
-        const controls = animate(motionValue, value, spring);
-        return controls.stop;
-    }, [
-        motionValue,
-        value
-    ]);
-    return current;
-}
-function getTicks(axis, numTicks) {
+function getTicks(axis, max, scale, numTicks) {
     const suggestions = axis.tickSuggestions;
-    if (suggestions) {
-        return getTicksFromSuggestions(suggestions, numTicks);
-    }
-    const { minValue , maxValue  } = axis;
+    const ticks = suggestions ? getTicksFromSuggestions(suggestions, numTicks) : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
+    extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks);
+    return ticks;
+}
+function getTicksFromRange(minValue, maxValue, numTicks) {
     const interval = (maxValue - minValue) / numTicks;
     const ticks = [
         minValue
@@ -1217,6 +1198,56 @@ function getTicksFromSuggestions(suggestions, numTicks) {
         }
     }
     return ticks;
+}
+/**
+ * Extends the ticks to cover the full range of the axis.
+ *
+ * Due to animations/translations it is possible the ticks don't yet cover the
+ * full range of the axis. This function extends the ticks as necessary, and
+ * also includes a slight margin to prevent a "pop-in" effect of suddenly
+ * appearing tick labels along the edges.
+ *
+ * @note This function mutates the input ticks.
+ */ function extendTicksToFitAxis(ticks, axis, max, scale, maxTicks) {
+    if (ticks.length < 2) {
+        return;
+    }
+    const interval = ticks[1] - ticks[0];
+    const scaleToAxis = (value)=>scale((value - axis.minValue) / (axis.maxValue - axis.minValue));
+    let preTick = ticks[0] - interval;
+    while(ticks.length < maxTicks && scaleToAxis(preTick) > -0.1 * max){
+        ticks.unshift(preTick);
+        preTick -= interval;
+    }
+    let postTick = ticks[ticks.length - 1] + interval;
+    while(ticks.length < maxTicks && scaleToAxis(postTick) < 1.1 * max){
+        ticks.push(postTick);
+        postTick += interval;
+    }
+}
+const spring = {
+    type: "tween",
+    duration: 1,
+    easings: [
+        "anticipate"
+    ]
+};
+function useCustomSpring(value) {
+    const motionValue = useMotionValue(value);
+    const [current, setCurrent] = useState(value);
+    useLayoutEffect(()=>{
+        return motionValue.on("change", (value)=>setCurrent(value));
+    }, [
+        motionValue
+    ]);
+    useEffect(()=>{
+        const controls = animate(motionValue, value, spring);
+        return controls.stop;
+    }, [
+        motionValue,
+        value
+    ]);
+    return current;
 }
 
 const defaultState = {
@@ -1950,6 +1981,9 @@ function getCursorFromState(state) {
  *
  * @note This function mutates its input axis.
  */ function attachSuggestionsToXAxis(xAxis, buckets, interval) {
+    if (interval <= 0) {
+        return;
+    }
     const firstBucketTime = getFirstBucketTime(buckets);
     if (!firstBucketTime) {
         return;
@@ -2314,10 +2348,15 @@ function getShapes$1(metrics, xAxis, yAxis, interval) {
         default:
             {
                 const lines = splitIntoContinuousLines(metrics, interval ?? undefined);
-                return lines.map((line)=>({
+                return lines.map((line)=>// If the line only containes one metric value, render it as a point
+                    // Otherwise, render a line
+                    line.length === 1 ? {
+                        type: "point",
+                        ...getPointForMetric$1(line[0], xAxis, yAxis)
+                    } : {
                         type: "line",
                         points: line.map((metric)=>getPointForMetric$1(metric, xAxis, yAxis))
-                    }));
+                    });
             }
     }
 }

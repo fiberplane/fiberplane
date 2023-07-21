@@ -1,8 +1,8 @@
 import type { Axis } from "../../Mondrian";
-import type { Dimensions } from "../types";
+import type { Scales } from "../types";
 
 type Props = {
-  dimensions: Dimensions;
+  scales: Scales;
   stroke: string;
   strokeDasharray?: string;
   xAxis: Axis;
@@ -10,7 +10,7 @@ type Props = {
 };
 
 export function GridColumns({
-  dimensions: { xMax, yMax },
+  scales: { xScale, yMax },
   xAxis: { maxValue, minValue },
   xTicks,
   ...lineProps
@@ -18,7 +18,7 @@ export function GridColumns({
   return (
     <g>
       {xTicks.map((time, index) => {
-        const x = (xMax * (time - minValue)) / (maxValue - minValue);
+        const x = xScale((time - minValue) / (maxValue - minValue));
         return (
           <line
             // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
