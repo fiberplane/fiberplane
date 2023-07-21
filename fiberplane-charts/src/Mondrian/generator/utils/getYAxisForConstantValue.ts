@@ -9,11 +9,13 @@ import type { Axis } from "../../types";
  * axis.
  */
 export function getYAxisForConstantValue(value: number): Axis {
+  const tickSuggestions = [value];
+
   if (value > 1 || value < -1) {
-    return { minValue: value - 1, maxValue: value + 1 };
+    return { minValue: value - 1, maxValue: value + 1, tickSuggestions };
   } else if (value >= 0) {
-    return { minValue: 0, maxValue: value + 1 };
+    return { minValue: 0, maxValue: value + 1, tickSuggestions };
   } else {
-    return { minValue: value - 1, maxValue: 0 };
+    return { minValue: value - 1, maxValue: 0, tickSuggestions };
   }
 }
