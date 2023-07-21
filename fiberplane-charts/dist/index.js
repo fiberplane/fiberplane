@@ -904,9 +904,9 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , color , f
 
 const PointShape = /*#__PURE__*/ memo(function PointShape({ color , focused , point , scales  }) {
     return /*#__PURE__*/ jsx("circle", {
-        x: scales.xScale(point.x),
-        y: scales.yScale(point.y),
-        radius: focused ? 2 : 1,
+        cx: scales.xScale(point.x),
+        cy: scales.yScale(point.y),
+        r: focused ? 2 : 1,
         stroke: color,
         fill: color
     });
@@ -2314,10 +2314,15 @@ function getShapes$1(metrics, xAxis, yAxis, interval) {
         default:
             {
                 const lines = splitIntoContinuousLines(metrics, interval ?? undefined);
-                return lines.map((line)=>({
+                return lines.map((line)=>// If the line only containes one metric value, render it as a point
+                    // Otherwise, render a line
+                    line.length === 1 ? {
+                        type: "point",
+                        ...getPointForMetric$1(line[0], xAxis, yAxis)
+                    } : {
                         type: "line",
                         points: line.map((metric)=>getPointForMetric$1(metric, xAxis, yAxis))
-                    }));
+                    });
             }
     }
 }
