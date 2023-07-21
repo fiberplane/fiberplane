@@ -7,7 +7,7 @@ import { BottomAxis } from "./BottomAxis";
 import { GridColumns } from "./GridColumns";
 import { GridRows } from "./GridRows";
 import { LeftAxis } from "./LeftAxis";
-import type { Scales } from "../types";
+import type { Scale, Scales } from "../types";
 
 type Props = {
   chart: AbstractChart<unknown, unknown>;
@@ -28,7 +28,7 @@ export const GridWithAxes = memo(function GridWithAxes({
   gridStrokeColor,
   scales,
 }: Props) {
-  const { xMax, yMax, yScale } = scales;
+  const { xMax, xScale, yMax, yScale } = scales;
 
   const { colorBase300 } = useTheme();
   const strokeColor = gridStrokeColor || colorBase300;
@@ -39,8 +39,14 @@ export const GridWithAxes = memo(function GridWithAxes({
 
   const animatedScale = yScale.copy().domain([minValue, maxValue]);
 
-  const xTicks = useMemo(() => getTicks(xAxis, 12), [xAxis]);
-  const yTicks = useMemo(() => getTicks(yAxis, 8), [yAxis]);
+  const xTicks = useMemo(
+    () => getTicks(xAxis, xMax, xScale, 12),
+    [xAxis, xMax, xScale],
+  );
+  const yTicks = useMemo(
+    () => getTicks(yAxis, yMax, animatedScale, 8),
+    [yAxis, yMax, animatedScale],
+  );
 
   return (
     <>
@@ -66,7 +72,7 @@ export const GridWithAxes = memo(function GridWithAxes({
       )}
       {gridColumnsShown && (
         <GridColumns
-          dimensions={scales}
+          scales={scales}
           stroke={strokeColor}
           strokeDasharray={gridDashArray}
           xAxis={xAxis}
@@ -74,7 +80,7 @@ export const GridWithAxes = memo(function GridWithAxes({
         />
       )}
       <BottomAxis
-        dimensions={scales}
+        scales={scales}
         strokeColor={strokeColor}
         strokeDasharray={gridDashArray}
         ticks={xTicks}
@@ -91,35 +97,27 @@ export const GridWithAxes = memo(function GridWithAxes({
   );
 });
 
-const spring: Tween = {
-  type: "tween",
-  duration: 1,
-  easings: ["anticipate"],
-};
+function getTicks(
+  axis: Axis,
+  max: number,
+  scale: Scale,
+  numTicks: number,
+): Array<number> {
+  const suggestions = axis.tickSuggestions;
+  const ticks = suggestions
+    ? getTicksFromSuggestions(suggestions, numTicks)
+    : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
 
-function useCustomSpring(value: number) {
-  const motionValue = useMotionValue(value);
-  const [current, setCurrent] = useState(value);
+  extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks);
 
-  useLayoutEffect(() => {
-    return motionValue.on("change", (value) => setCurrent(value));
-  }, [motionValue]);
-
-  useEffect(() => {
-    const controls = animate(motionValue, value, spring);
-    return controls.stop;
-  }, [motionValue, value]);
-
-  return current;
+  return ticks;
 }
 
-function getTicks(axis: Axis, numTicks: number): Array<number> {
-  const suggestions = axis.tickSuggestions;
-  if (suggestions) {
-    return getTicksFromSuggestions(suggestions, numTicks);
-  }
-
-  const { minValue, maxValue } = axis;
+function getTicksFromRange(
+  minValue: number,
+  maxValue: number,
+  numTicks: number,
+): Array<number> {
   const interval = (maxValue - minValue) / numTicks;
 
   const ticks = [minValue];
@@ -150,4 +148,64 @@ function getTicksFromSuggestions(
   }
 
   return ticks;
+}
+
+/**
+ * Extends the ticks to cover the full range of the axis.
+ *
+ * Due to animations/translations it is possible the ticks don't yet cover the
+ * full range of the axis. This function extends the ticks as necessary, and
+ * also includes a slight margin to prevent a "pop-in" effect of suddenly
+ * appearing tick labels along the edges.
+ *
+ * @note This function mutates the input ticks.
+ */
+function extendTicksToFitAxis(
+  ticks: Array<number>,
+  axis: Axis,
+  max: number,
+  scale: Scale,
+  maxTicks: number,
+) {
+  if (ticks.length < 2) {
+    return;
+  }
+
+  const interval = ticks[1] - ticks[0];
+  const scaleToAxis = (value: number) =>
+    scale((value - axis.minValue) / (axis.maxValue - axis.minValue));
+
+  let preTick = ticks[0] - interval;
+  while (ticks.length < maxTicks && scaleToAxis(preTick) > -0.1 * max) {
+    ticks.unshift(preTick);
+    preTick -= interval;
+  }
+
+  let postTick = ticks[ticks.length - 1] + interval;
+  while (ticks.length < maxTicks && scaleToAxis(postTick) < 1.1 * max) {
+    ticks.push(postTick);
+    postTick += interval;
+  }
+}
+
+const spring: Tween = {
+  type: "tween",
+  duration: 1,
+  easings: ["anticipate"],
+};
+
+function useCustomSpring(value: number) {
+  const motionValue = useMotionValue(value);
+  const [current, setCurrent] = useState(value);
+
+  useLayoutEffect(() => {
+    return motionValue.on("change", (value) => setCurrent(value));
+  }, [motionValue]);
+
+  useEffect(() => {
+    const controls = animate(motionValue, value, spring);
+    return controls.stop;
+  }, [motionValue, value]);
+
+  return current;
 }
