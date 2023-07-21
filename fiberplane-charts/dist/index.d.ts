@@ -464,7 +464,7 @@ type VirtualElement = {
     contextElement: Element;
 };
 
-type MetricsChartProps = Omit<CoreChartProps<Timeseries, Metric>, "chart" | "colors" | "focusedShapeList" | "onFocusedShapeListChange" | "showTooltip"> & Pick<TimeseriesLegendProps<Timeseries, Metric>, "footerShown" | "onToggleTimeseriesVisibility"> & ChartControlsProps & TimeseriesSourceData & {
+type MetricsChartProps = Omit<CoreChartProps<Timeseries, Metric>, "chart" | "colors" | "focusedShapeList" | "getShapeListColor" | "onFocusedShapeListChange" | "showTooltip"> & Pick<TimeseriesLegendProps<Timeseries, Metric>, "footerShown" | "onToggleTimeseriesVisibility"> & Omit<ChartControlsProps, "stackingControlsShown"> & TimeseriesSourceData & {
     /**
      * Show the chart controls. (default: true)
      *

@@ -14,6 +14,7 @@ export type MetricsChartProps = Omit<
   | "chart"
   | "colors"
   | "focusedShapeList"
+  | "getShapeListColor"
   | "onFocusedShapeListChange"
   | "showTooltip"
 > &
@@ -21,7 +22,7 @@ export type MetricsChartProps = Omit<
     TimeseriesLegendProps<Timeseries, Metric>,
     "footerShown" | "onToggleTimeseriesVisibility"
   > &
-  ChartControlsProps &
+  Omit<ChartControlsProps, "stackingControlsShown"> &
   TimeseriesSourceData & {
     /**
      * Show the chart controls. (default: true)
