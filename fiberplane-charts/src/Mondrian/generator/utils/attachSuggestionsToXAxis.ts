@@ -7,10 +7,9 @@ import type { Buckets } from "../types";
  * If the min value and max value of the data are sufficiently close to the minValue and maxValue of the axis,
  * then suggestions are based on the position of the first bucket and the interval between buckets.
  *
- * Otherwise, suggestions are based on an the axis min and max values,
- * where the interval is the full length of the axis divided by the number of buckets.
+ * Otherwise, no suggestions are given.
  *
- * This strategy is meant to accomodate the case where the axis min and max values are far away from the data.
+ * This is meant to accomodate the case where the axis min and max values are far away from the data.
  * E.g., when you query data from 2pm to 6pm, but we only observed data from 3pm to 4pm
  *
  * @note This function mutates its input axis.
