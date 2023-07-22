@@ -44,6 +44,24 @@ test("it doesn't return suggestions outside the min-max", () => {
   ]);
 });
 
+test("it attaches the right suggestions when axis min value is long before the first bucket", () => {
+  const buckets = new Map<string, number>();
+  buckets.set(getDateAtMinuteAndSecond(15, 0).toISOString(), 10);
+  buckets.set(getDateAtMinuteAndSecond(16, 0).toISOString(), 15);
+  buckets.set(getDateAtMinuteAndSecond(17, 0).toISOString(), 20);
+
+  const axis: Axis = {
+    minValue: getDateAtMinuteAndSecond(0, 0).getTime(),
+    maxValue: getDateAtMinuteAndSecond(21, 0).getTime(),
+  };
+  attachSuggestionsToXAxis(axis, buckets, 60_000);
+
+  expect(axis.tickSuggestions).toEqual([
+    getDateAtMinuteAndSecond(7, 0).getTime(),
+    getDateAtMinuteAndSecond(14, 0).getTime(),
+  ]);
+});
+
 function getDateAtMinuteAndSecond(minute: number, second: number): Date {
   return new Date(
     `2023-07-18T16:${minute.toString().padStart(2, "0")}:${second
