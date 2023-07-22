@@ -18,7 +18,7 @@ import type { Buckets } from "../types";
 export function attachSuggestionsToXAxis(
   xAxis: Axis,
   buckets: Buckets<unknown>,
-  dataInterval: number,
+  interval: number,
 ) {
   const { firstBucketTimestamp, lastBucketTimestamp } =
     getBucketFirstLastTimestamps(buckets);
@@ -27,33 +27,24 @@ export function attachSuggestionsToXAxis(
     return;
   }
 
-  if (dataInterval <= 0) {
+  if (interval <= 0) {
     return;
   }
 
   const isAxisMinFarAwayFromFirstBucket =
-    firstBucketTimestamp - xAxis.minValue > 2 * dataInterval;
+    firstBucketTimestamp - xAxis.minValue > 2 * interval;
 
   const isAxisMaxFarAwayFromLastBucket =
-    xAxis.maxValue - lastBucketTimestamp > 2 * dataInterval;
+    xAxis.maxValue - lastBucketTimestamp > 2 * interval;
 
   const canUseBucketsAsSuggestsions =
     !isAxisMinFarAwayFromFirstBucket && !isAxisMaxFarAwayFromLastBucket;
 
-  // if (!canUseBucketsAsSuggestsions) {
-  //   return;
-  // }
-
-  let interval;
-  let suggestion;
-  if (canUseBucketsAsSuggestsions) {
-    interval = dataInterval;
-    suggestion = firstBucketTimestamp;
-  } else {
-    // Use fallback interval to divide the axis into equal parts
-    interval = (xAxis.maxValue - xAxis.minValue) / buckets.size;
-    suggestion = xAxis.minValue + interval;
+  if (!canUseBucketsAsSuggestsions) {
+    return;
   }
+
+  let suggestion = firstBucketTimestamp;
 
   const suggestions = [];
 
