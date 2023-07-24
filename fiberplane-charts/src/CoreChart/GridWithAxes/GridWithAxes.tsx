@@ -164,7 +164,7 @@ function getTicksFromSuggestions(
  * Due to animations/translations it is possible the ticks don't yet cover the
  * full range of the axis. This function extends the ticks as necessary, and
  * also includes a slight margin to prevent a "pop-in" effect of suddenly
- * appearing tick labels along the edges.
+ * appearing tick labels from the right edge.
  *
  * @note This function mutates the input ticks.
  */
@@ -184,7 +184,7 @@ function extendTicksToFitAxis(
     scale((value - axis.minValue) / (axis.maxValue - axis.minValue));
 
   let preTick = ticks[0] - interval;
-  while (ticks.length < maxTicks && scaleToAxis(preTick) > -0.1 * max) {
+  while (ticks.length < maxTicks && scaleToAxis(preTick) >= 0) {
     ticks.unshift(preTick);
     preTick -= interval;
   }
