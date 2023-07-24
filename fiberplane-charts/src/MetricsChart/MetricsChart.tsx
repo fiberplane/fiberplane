@@ -5,13 +5,21 @@ import { ChartControls } from "./ChartControls";
 import { ChartSizeContainerProvider } from "../CoreChart";
 import type { CloseTooltipFn, MetricsChartProps, TooltipAnchor } from "./types";
 import { CoreChart } from "../CoreChart";
+import { EventTooltip, TimeseriesTooltip } from "./Tooltips";
+import {
+  generateFromTimeseriesAndEvents,
+  SeriesSource,
+  ShapeList,
+} from "../Mondrian";
 import { HEIGHT, MARGINS } from "../CoreChart/constants";
-import type { Metric, Timeseries } from "../providerTypes";
+import type { Metric, ProviderEvent, Timeseries } from "../providerTypes";
 import { noop } from "../utils";
-import { ShapeList, generateFromTimeseries } from "../Mondrian";
 import { TimeseriesLegend } from "../TimeseriesLegend";
-import { Tooltip } from "./Tooltip";
 import { useHandler } from "../hooks";
+
+type GenericShapeList = ShapeList<SeriesSource, Metric | ProviderEvent>;
+
+type TimeseriesShapeList = ShapeList<Timeseries, Metric>;
 
 export function MetricsChart(props: MetricsChartProps) {
   return (
@@ -30,9 +38,13 @@ export function MetricsChart(props: MetricsChartProps) {
 const InnerMetricsChart = memo(function InnerMetricsChart(
   props: MetricsChartProps,
 ) {
+  const theme = useTheme();
+
   const {
     chartControlsShown = true,
     colors,
+    events,
+    eventColor = theme.colorPrimary400,
     graphType,
     legendShown = true,
     readOnly,
@@ -44,48 +56,64 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
 
   const chart = useMemo(
     () =>
-      generateFromTimeseries({
+      generateFromTimeseriesAndEvents({
+        events: events ?? [],
         graphType,
         stackingType,
         timeRange,
         timeseriesData,
       }),
-    [graphType, stackingType, timeRange, timeseriesData],
+    [events, graphType, stackingType, timeRange, timeseriesData],
   );
 
-  const [focusedShapeList, setFocusedShapeList] = useState<ShapeList<
-    Timeseries,
-    Metric
-  > | null>(null);
+  const [focusedShapeList, setFocusedShapeList] =
+    useState<TimeseriesShapeList | null>(null);
 
-  const theme = useTheme();
+  const getShapeListColor = useMemo(() => {
+    const shapeListColors = colors || [
+      theme["colorSupport1400"],
+      theme["colorSupport2400"],
+      theme["colorSupport3400"],
+      theme["colorSupport4400"],
+      theme["colorSupport5400"],
+      theme["colorSupport6400"],
+      theme["colorSupport7400"],
+      theme["colorSupport8400"],
+      theme["colorSupport9400"],
+      theme["colorSupport10400"],
+      theme["colorSupport11400"],
+    ];
 
-  const chartColors = useMemo(
-    () =>
-      colors || [
-        theme["colorSupport1400"],
-        theme["colorSupport2400"],
-        theme["colorSupport3400"],
-        theme["colorSupport4400"],
-        theme["colorSupport5400"],
-        theme["colorSupport6400"],
-        theme["colorSupport7400"],
-        theme["colorSupport8400"],
-        theme["colorSupport9400"],
-        theme["colorSupport10400"],
-        theme["colorSupport11400"],
-      ],
-    [theme, colors],
+    return (shapeList: GenericShapeList): string => {
+      if (isTimeseriesShapeList(shapeList)) {
+        const index = chart.shapeLists.indexOf(shapeList);
+        return shapeListColors[index % shapeListColors.length];
+      } else {
+        return eventColor;
+      }
+    };
+  }, [chart, colors, eventColor, theme]);
+
+  const onFocusedShapeListChange = useHandler(
+    (shapeList: GenericShapeList | null) => {
+      if (!shapeList || isTimeseriesShapeList(shapeList)) {
+        setFocusedShapeList(shapeList);
+      }
+    },
   );
 
   const showTooltip = useHandler(
     (
       anchor: TooltipAnchor,
-      [timeseries, metric]: [Timeseries, Metric],
+      [series, point]: [SeriesSource, Metric | ProviderEvent],
     ): CloseTooltipFn =>
       props.showTooltip?.(
         anchor,
-        <Tooltip timeseries={timeseries} metric={metric} />,
+        series.type === "events" ? (
+          <EventTooltip event={point as ProviderEvent} />
+        ) : (
+          <TimeseriesTooltip timeseries={series} metric={point as Metric} />
+        ),
       ) ?? noop,
   );
 
@@ -100,17 +128,17 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
       <CoreChart
         {...props}
         chart={chart}
-        colors={chartColors}
-        focusedShapeList={focusedShapeList}
-        onFocusedShapeListChange={setFocusedShapeList}
+        focusedShapeList={focusedShapeList as GenericShapeList | null}
+        getShapeListColor={getShapeListColor}
+        onFocusedShapeListChange={onFocusedShapeListChange}
         showTooltip={showTooltip}
       />
       {legendShown && (
         <TimeseriesLegend
           {...props}
-          chart={chart}
-          colors={chartColors}
-          onFocusedShapeListChange={setFocusedShapeList}
+          getShapeListColor={getShapeListColor}
+          onFocusedShapeListChange={onFocusedShapeListChange}
+          shapeLists={chart.shapeLists.filter(isTimeseriesShapeList)}
         />
       )}
     </>
@@ -122,3 +150,9 @@ const StyledChartSizeContainerProvider = styled(ChartSizeContainerProvider)`
   gap: 12px;
   flex-direction: column;
 `;
+
+function isTimeseriesShapeList(
+  shapeList: GenericShapeList,
+): shapeList is TimeseriesShapeList & { source: { type: "timeseries" } } {
+  return shapeList.source.type === "timeseries";
+}

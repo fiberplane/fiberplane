@@ -1,5 +1,6 @@
 import type {
   GraphType,
+  ProviderEvent,
   StackingType,
   TimeRange,
   Timeseries,
@@ -35,6 +36,54 @@ export type TimeseriesSourceData = {
    */
   timeRange: TimeRange;
 };
+
+/**
+ * All the data necessary to generate an abstract chart from an array of
+ * timeseries.
+ *
+ * Note we only support generating line charts from combined timeseries and
+ * events data. If `graphType` is anything other than `"line"`, the events will
+ * be ignored.
+ */
+export type TimeseriesAndEventsSourceData = {
+  /**
+   * The type of stacking to apply to the chart.
+   *
+   * @warning This property is accepted for consistency, but setting it to
+   *          anything except `"line"` will cause the events to be ignored.
+   */
+  graphType: GraphType;
+
+  /**
+   * The type of stacking to apply to the chart.
+   */
+  stackingType: StackingType;
+
+  /**
+   * Array of timeseries data to display in the chart.
+   *
+   * Make sure the timeseries contains data for the given time range, or you
+   * may not see any results.
+   */
+  timeseriesData: Array<Timeseries>;
+
+  /**
+   * Array of events to display in the chart.
+   */
+  events: Array<ProviderEvent>;
+
+  /**
+   * The time range to be displayed.
+   */
+  timeRange: TimeRange;
+};
+
+/**
+ * Source type for use with charts that contain combined data sources.
+ */
+export type SeriesSource =
+  | ({ type: "timeseries" } & Timeseries)
+  | { type: "events" };
 
 /**
  * An abstract chart with information about what to render and where to render

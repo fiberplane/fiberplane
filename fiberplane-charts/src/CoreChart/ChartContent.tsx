@@ -1,19 +1,18 @@
 import type { AbstractChart, ShapeList } from "../Mondrian";
 import { ChartShape } from "./ChartShape";
-import { getShapeListColor } from "../utils";
 import type { Scales } from "./types";
 
 type Props<S, P> = {
   chart: AbstractChart<S, P>;
-  colors: Array<string>;
   focusedShapeList: ShapeList<S, P> | null;
+  getShapeListColor: (shapeList: ShapeList<S, P>) => string;
   scales: Scales;
 };
 
 export function ChartContent<S, P>({
   chart,
-  colors,
   focusedShapeList,
+  getShapeListColor,
   scales,
 }: Props<S, P>): JSX.Element {
   return (
@@ -22,7 +21,7 @@ export function ChartContent<S, P>({
         shapeList.shapes.map((shape, shapeIndex) => (
           <ChartShape
             anyFocused={!!focusedShapeList}
-            color={getShapeListColor(colors, listIndex)}
+            color={getShapeListColor(shapeList)}
             focused={shapeList === focusedShapeList}
             key={`${listIndex}-${shapeIndex}`}
             scales={scales}

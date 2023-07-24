@@ -118,6 +118,11 @@ type OtelMetadata = {
     spanId?: OtelSpanId;
 };
 /**
+ * SeverityNumber, as specified by OpenTelemetry:
+ *  https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/logs/data-model.md#field-severitynumber
+ */
+type OtelSeverityNumber = number;
+/**
  * Span ID, as specified by OpenTelemetry:
  *  https://opentelemetry.io/docs/reference/specification/overview/#spancontext
  */
@@ -127,6 +132,21 @@ type OtelSpanId = Uint8Array;
  *  https://opentelemetry.io/docs/reference/specification/overview/#spancontext
  */
 type OtelTraceId = Uint8Array;
+/**
+ * A single event that is used within providers.
+ *
+ * Events occur at a given time and optionally last until a given end time.
+ * They may contain both event-specific metadata as well as OpenTelemetry
+ * metadata.
+ */
+type ProviderEvent = {
+    time: Timestamp;
+    endTime?: Timestamp;
+    title: string;
+    description?: string;
+    severity?: OtelSeverityNumber;
+    labels: Record<string, string>;
+} & OtelMetadata;
 type StackingType = "none" | "stacked" | "percentage";
 type TimeRange = {
     from: Timestamp;
@@ -308,15 +328,12 @@ type Rectangle<P> = {
     source: P;
 };
 
-type TimeseriesLegendProps = {
-    /**
-     * Array of timeseries data to display in the legend.
-     */
-    chart: AbstractChart<Timeseries, Metric>;
+type TimeseriesLegendProps<S extends Timeseries, P> = {
+    getShapeListColor: (shapeList: ShapeList<S, P>) => string;
     /**
      * Handler that is invoked when the focused shape list is changed.
      */
-    onFocusedShapeListChange?: (shapeList: ShapeList<Timeseries, Metric> | null) => void;
+    onFocusedShapeListChange?: (shapeList: ShapeList<S, P> | null) => void;
     /**
      * Handler that is invoked when the user toggles the visibility of a
      * timeseries.
@@ -336,9 +353,9 @@ type TimeseriesLegendProps = {
      */
     footerShown?: boolean;
     /**
-     * Array of colors to use for the timeseries.
+     * Array of shape lists for the timeseries data to display in the legend.
      */
-    colors: Array<string>;
+    shapeLists: Array<ShapeList<S, P>>;
 };
 type ToggleTimeseriesEvent = {
     /**
@@ -366,15 +383,15 @@ type CoreChartProps<S, P> = {
      */
     chart: AbstractChart<S, P>;
     /**
-     * Override the colors that the charts will use. If not specified several colors of the theme are used
-     */
-    colors?: Array<string>;
-    /**
      * Indicates which of the shape lists should be focused.
      *
      * `null` is used to indicate no shape list is focused.
      */
     focusedShapeList: ShapeList<S, P> | null;
+    /**
+     * Callback used to determine the color for a shape list.
+     */
+    getShapeListColor: (shapeList: ShapeList<S, P>) => string;
     /**
      * Show the line/border at the outer edge of the chart. (default: true)
      */
@@ -392,6 +409,10 @@ type CoreChartProps<S, P> = {
      * Show the grid row (horizontal) lines. (default: true)
      */
     gridRowsShown?: boolean;
+    /**
+     * Whether the grid is shown at all. (default: true)
+     */
+    gridShown?: boolean;
     /**
      * Override the color of the grid lines. (defaults to the theme's grid color)
      */
@@ -443,13 +464,29 @@ type VirtualElement = {
     contextElement: Element;
 };
 
-type MetricsChartProps = Omit<CoreChartProps<Timeseries, Metric>, "chart" | "focusedShapeList" | "onFocusedShapeListChange" | "showTooltip"> & Pick<TimeseriesLegendProps, "footerShown" | "onToggleTimeseriesVisibility"> & ChartControlsProps & TimeseriesSourceData & {
+type MetricsChartProps = Omit<CoreChartProps<Timeseries, Metric>, "chart" | "colors" | "focusedShapeList" | "getShapeListColor" | "onFocusedShapeListChange" | "showTooltip"> & Pick<TimeseriesLegendProps<Timeseries, Metric>, "footerShown" | "onToggleTimeseriesVisibility"> & Omit<ChartControlsProps, "stackingControlsShown"> & TimeseriesSourceData & {
     /**
      * Show the chart controls. (default: true)
      *
      * Setting this to false will also hide the stacking controls
      */
     chartControlsShown?: boolean;
+    /**
+     * Override the colors to use for the timeseries.
+     *
+     * If not specified, several colors from the theme are used.
+     */
+    colors?: Array<string>;
+    /**
+     * Optional events to display on the chart.
+     */
+    events?: Array<ProviderEvent>;
+    /**
+     * Override for the color to use for events.
+     *
+     * If not specified, a color from the theme is used.
+     */
+    eventColor?: string;
     /**
      * Show the legend. (default: true)
      */
@@ -473,7 +510,13 @@ type ShowTooltipFn = (anchor: TooltipAnchor, content: React.ReactNode) => CloseT
 
 declare function MetricsChart(props: MetricsChartProps): JSX.Element;
 
-type Props = Pick<CoreChartProps<Timeseries, Metric>, "colors" | "onChangeTimeRange"> & TimeseriesSourceData;
+type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange"> & TimeseriesSourceData & {
+    /**
+     * Override the colors for the timeseries. If not specified several colors
+     * of the theme are used.
+     */
+    colors?: Array<string>;
+};
 declare function SparkChart({ colors, graphType, stackingType, timeRange, timeseriesData, onChangeTimeRange, }: Props): JSX.Element;
 
-export { ChartTheme, CloseTooltipFn, GraphType, Metric, MetricsChart, MetricsChartProps, OtelMetadata, ShowTooltipFn, SparkChart, StackingType, TimeRange, Timeseries, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement };
+export { ChartTheme, CloseTooltipFn, GraphType, Metric, MetricsChart, MetricsChartProps, OtelMetadata, ProviderEvent, ShowTooltipFn, SparkChart, StackingType, TimeRange, Timeseries, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement };

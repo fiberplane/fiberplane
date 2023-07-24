@@ -6,7 +6,7 @@ exports[`it generates a bar chart 1`] = `
     {
       "shapes": [
         {
-          "height": 0,
+          "height": 0.045454545454545456,
           "source": {
             "attributes": {},
             "resource": {},
@@ -19,7 +19,7 @@ exports[`it generates a bar chart 1`] = `
           "y": 0,
         },
         {
-          "height": 0.25,
+          "height": 0.2727272727272727,
           "source": {
             "attributes": {},
             "resource": {},
@@ -45,7 +45,7 @@ exports[`it generates a bar chart 1`] = `
           "y": 0,
         },
         {
-          "height": 0.75,
+          "height": 0.7272727272727273,
           "source": {
             "attributes": {},
             "resource": {},
@@ -58,7 +58,7 @@ exports[`it generates a bar chart 1`] = `
           "y": 0,
         },
         {
-          "height": 1,
+          "height": 0.9545454545454546,
           "source": {
             "attributes": {},
             "resource": {},
@@ -71,7 +71,7 @@ exports[`it generates a bar chart 1`] = `
           "y": 0,
         },
         {
-          "height": 0.75,
+          "height": 0.7272727272727273,
           "source": {
             "attributes": {},
             "resource": {},
@@ -97,7 +97,7 @@ exports[`it generates a bar chart 1`] = `
           "y": 0,
         },
         {
-          "height": 0.25,
+          "height": 0.2727272727272727,
           "source": {
             "attributes": {},
             "resource": {},
@@ -110,7 +110,7 @@ exports[`it generates a bar chart 1`] = `
           "y": 0,
         },
         {
-          "height": 0,
+          "height": 0.045454545454545456,
           "source": {
             "attributes": {},
             "resource": {},
@@ -206,8 +206,8 @@ exports[`it generates a bar chart 1`] = `
     ],
   },
   "yAxis": {
-    "maxValue": 30,
-    "minValue": 10,
+    "maxValue": 31,
+    "minValue": 9,
   },
 }
 `;

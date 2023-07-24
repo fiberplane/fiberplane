@@ -7,13 +7,20 @@ import {
   CoreChartProps,
 } from "../CoreChart";
 import { Metric, Timeseries } from "../providerTypes";
-import { TimeseriesSourceData, generateFromTimeseries } from "../Mondrian";
+import {
+  ShapeList,
+  TimeseriesSourceData,
+  generateFromTimeseries,
+} from "../Mondrian";
 
-type Props = Pick<
-  CoreChartProps<Timeseries, Metric>,
-  "colors" | "onChangeTimeRange"
-> &
-  TimeseriesSourceData;
+type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange"> &
+  TimeseriesSourceData & {
+    /**
+     * Override the colors for the timeseries. If not specified several colors
+     * of the theme are used.
+     */
+    colors?: Array<string>;
+  };
 
 export function SparkChart({
   colors,
@@ -36,30 +43,33 @@ export function SparkChart({
     [graphType, stackingType, timeRange, timeseriesData],
   );
 
-  const chartColors = useMemo(
-    (): Array<string> =>
-      colors || [
-        theme["colorSupport1400"],
-        theme["colorSupport2400"],
-        theme["colorSupport3400"],
-        theme["colorSupport4400"],
-        theme["colorSupport5400"],
-        theme["colorSupport6400"],
-        theme["colorSupport7400"],
-        theme["colorSupport8400"],
-        theme["colorSupport9400"],
-        theme["colorSupport10400"],
-        theme["colorSupport11400"],
-      ],
-    [theme, colors],
-  );
+  const getShapeListColor = useMemo(() => {
+    const shapeListColors = colors || [
+      theme["colorSupport1400"],
+      theme["colorSupport2400"],
+      theme["colorSupport3400"],
+      theme["colorSupport4400"],
+      theme["colorSupport5400"],
+      theme["colorSupport6400"],
+      theme["colorSupport7400"],
+      theme["colorSupport8400"],
+      theme["colorSupport9400"],
+      theme["colorSupport10400"],
+      theme["colorSupport11400"],
+    ];
+
+    return (shapeList: ShapeList<Timeseries, Metric>): string => {
+      const index = chart.shapeLists.indexOf(shapeList);
+      return shapeListColors[index % shapeListColors.length];
+    };
+  }, [chart, colors, theme]);
 
   return (
     <StyledChartSizeContainerProvider>
       <CoreChart
         chart={chart}
-        colors={chartColors}
         focusedShapeList={null}
+        getShapeListColor={getShapeListColor}
         gridShown={false}
         onChangeTimeRange={onChangeTimeRange}
         timeRange={timeRange}

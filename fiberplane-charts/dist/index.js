@@ -336,10 +336,6 @@ const IconButton = /*#__PURE__*/ forwardRef(function IconButton(props, ref) {
     return allKeys.filter((key)=>constantKeys === undefined || constantKeys.has(key) === false);
 }
 
-function getShapeListColor(colors, listIndex) {
-    return colors[listIndex % colors.length];
-}
-
 /**
  * Returns the input value.
  *
@@ -951,11 +947,11 @@ function ChartShape({ shape , ...props }) {
     }
 }
 
-function ChartContent({ chart , colors , focusedShapeList , scales  }) {
+function ChartContent({ chart , focusedShapeList , getShapeListColor , scales  }) {
     return /*#__PURE__*/ jsx(Fragment, {
         children: chart.shapeLists.flatMap((shapeList, listIndex)=>shapeList.shapes.map((shape, shapeIndex)=>/*#__PURE__*/ jsx(ChartShape, {
                     anyFocused: !!focusedShapeList,
-                    color: getShapeListColor(colors, listIndex),
+                    color: getShapeListColor(shapeList),
                     focused: shapeList === focusedShapeList,
                     scales: scales,
                     shape: shape
@@ -1642,9 +1638,9 @@ function translatedRange(xMax, mouseInteraction) {
                 return;
             }
             const [series, point, coords] = closest;
-            const { chart , colors , dimensions  } = props;
+            const { chart , dimensions , getShapeListColor  } = props;
             const seriesIndex = chart.shapeLists.findIndex((shapeList)=>shapeList.source === series);
-            const color = getShapeListColor(colors, seriesIndex);
+            const color = getShapeListColor(chart.shapeLists[seriesIndex]);
             showTooltip({
                 color,
                 element: event.currentTarget,
@@ -1840,7 +1836,7 @@ function ZoomBar({ dimensions: { xMax , yMax  } , mouseInteraction  }) {
     });
 }
 
-function CoreChart({ chart , colors , gridShown =true , onChangeTimeRange , readOnly =false , showTooltip , timeRange , ...props }) {
+function CoreChart({ chart , getShapeListColor , gridShown =true , onChangeTimeRange , readOnly =false , showTooltip , timeRange , ...props }) {
     const interactiveControls = useInteractiveControls(readOnly);
     const { mouseInteraction , updatePressedKeys  } = interactiveControls;
     const { width , height , xMax , yMax , marginTop , marginLeft  } = useContext(ChartSizeContext);
@@ -1856,8 +1852,8 @@ function CoreChart({ chart , colors , gridShown =true , onChangeTimeRange , read
     });
     const { graphTooltip , onMouseMove: onMouseMoveTooltip , onMouseLeave  } = useTooltip({
         chart,
-        colors,
         dimensions,
+        getShapeListColor,
         showTooltip: modifierPressed(interactiveControls) ? undefined : showTooltip
     });
     const onMouseMove = (event)=>{
@@ -1921,7 +1917,7 @@ function CoreChart({ chart , colors , gridShown =true , onChangeTimeRange , read
                         children: /*#__PURE__*/ jsx(ChartContent, {
                             ...props,
                             chart: chart,
-                            colors: colors,
+                            getShapeListColor: getShapeListColor,
                             scales: scales
                         })
                     }),
@@ -1973,6 +1969,76 @@ function getCursorFromState(state) {
         case "zoom":
             return "zoom-in";
     }
+}
+
+function TooltipBody({ labels  }) {
+    return /*#__PURE__*/ jsx("tbody", {
+        children: Object.entries(labels).map(([key, value])=>/*#__PURE__*/ jsxs("tr", {
+                children: [
+                    /*#__PURE__*/ jsxs(LabelTd, {
+                        children: [
+                            key,
+                            ":"
+                        ]
+                    }),
+                    /*#__PURE__*/ jsx(LabelTd, {
+                        children: value
+                    })
+                ]
+            }, key))
+    });
+}
+const LabelTd = styled.td`
+  word-wrap: anywhere;
+`;
+
+const TooltipCaption = styled.caption`
+  font-weight: bold;
+  text-align: center;
+  padding: 0 0 6px;
+  color: ${({ theme  })=>theme.colorBase400};
+`;
+
+function EventTooltip({ event  }) {
+    return /*#__PURE__*/ jsxs("table", {
+        children: [
+            /*#__PURE__*/ jsxs(TooltipCaption, {
+                children: [
+                    event.title,
+                    " @ ",
+                    event.time
+                ]
+            }),
+            /*#__PURE__*/ jsx(TooltipBody, {
+                labels: event.labels
+            })
+        ]
+    });
+}
+
+function TimeseriesTooltip({ timeseries , metric  }) {
+    return /*#__PURE__*/ jsxs("table", {
+        children: [
+            /*#__PURE__*/ jsx(TooltipCaption, {
+                children: metric.time
+            }),
+            /*#__PURE__*/ jsx("thead", {
+                children: /*#__PURE__*/ jsxs("tr", {
+                    children: [
+                        /*#__PURE__*/ jsx("th", {
+                            children: timeseries.name || "value"
+                        }),
+                        /*#__PURE__*/ jsx("th", {
+                            children: metric.value
+                        })
+                    ]
+                })
+            }),
+            /*#__PURE__*/ jsx(TooltipBody, {
+                labels: timeseries.labels
+            })
+        ]
+    });
 }
 
 /**
@@ -2072,20 +2138,26 @@ const HALF_PADDING = 0.5 * BAR_PADDING;
  * bottom (for zero and positive values) or top (for negative values) of the
  * axis.
  */ function getYAxisForConstantValue(value) {
+    const tickSuggestions = [
+        value
+    ];
     if (value > 1 || value < -1) {
         return {
             minValue: value - 1,
-            maxValue: value + 1
+            maxValue: value + 1,
+            tickSuggestions
         };
     } else if (value >= 0) {
         return {
             minValue: 0,
-            maxValue: value + 1
+            maxValue: value + 1,
+            tickSuggestions
         };
     } else {
         return {
             minValue: value - 1,
-            maxValue: 0
+            maxValue: 0,
+            tickSuggestions
         };
     }
 }
@@ -2194,9 +2266,21 @@ function createMetricBuckets(timeseriesData, reducer, initialValue) {
     if (!minMax) {
         return getYAxisForConstantValue(0);
     }
-    const [minValue, maxValue] = minMax;
+    let [minValue, maxValue] = minMax;
     if (minValue === maxValue) {
         return getYAxisForConstantValue(minValue);
+    }
+    const distance = maxValue - minValue;
+    const margin = 0.05 * distance;
+    if (minValue < 0 || minValue >= margin) {
+        minValue -= margin;
+    } else {
+        minValue = 0;
+    }
+    if (maxValue > 0 || maxValue <= -margin) {
+        maxValue += margin;
+    } else {
+        maxValue = 0;
     }
     return {
         minValue,
@@ -2379,6 +2463,28 @@ function getPointForMetric$1(metric, xAxis, yAxis) {
     };
 }
 
+function generateShapeListFromEvents({ minValue , maxValue  }, events) {
+    return {
+        shapes: events.map((event)=>{
+            const x = (getTimeFromTimestamp(event.time) - minValue) / (maxValue - minValue);
+            return {
+                type: "area",
+                points: [
+                    {
+                        x,
+                        yMin: 0,
+                        yMax: 1,
+                        source: event
+                    }
+                ]
+            };
+        }),
+        source: {
+            type: "events"
+        }
+    };
+}
+
 function generateStackedBarChartFromTimeseries(input) {
     const { buckets , isPercentage , xAxis , yAxis  } = calculateBucketsAndAxesForStackedChart(input);
     const interval = calculateSmallestTimeInterval(buckets);
@@ -2475,6 +2581,25 @@ function getPointForMetric(metric, { buckets , isPercentage , xAxis , yAxis  }) 
     } else {
         return input.stackingType === "none" ? generateBarChartFromTimeseries(input) : generateStackedBarChartFromTimeseries(input);
     }
+}
+/**
+ * Generates an abstract chart from the given timeseries data.
+ */ function generateFromTimeseriesAndEvents(input) {
+    const timeseriesChart = input.stackingType === "none" ? generateLineChartFromTimeseries(input) : generateStackedLineChartFromTimeseries(input);
+    const chart = {
+        ...timeseriesChart,
+        shapeLists: timeseriesChart.shapeLists.map((list)=>({
+                ...list,
+                source: {
+                    ...list.source,
+                    type: "timeseries"
+                }
+            }))
+    };
+    if (input.events.length > 0) {
+        chart.shapeLists.push(generateShapeListFromEvents(chart.xAxis, input.events));
+    }
+    return chart;
 }
 
 function TimeseriesLegendItem({ color , onHover , onToggleTimeseriesVisibility , readOnly , index , setSize , timeseries , uniqueKeys  }) {
@@ -2597,13 +2722,13 @@ const Text = styled.div`
 const DEFAULT_HEIGHT = 293;
 const DEFAULT_SIZE = 50;
 const EXPANDED_HEIGHT = 592;
-const TimeseriesLegend = /*#__PURE__*/ memo(function TimeseriesLegend({ chart , colors , footerShown =true , onFocusedShapeListChange , onToggleTimeseriesVisibility , readOnly =false  }) {
+function TimeseriesLegend({ footerShown =true , getShapeListColor , onFocusedShapeListChange , onToggleTimeseriesVisibility , readOnly =false , shapeLists  }) {
     const { expandButton , gradient , isExpanded , onScroll , ref  } = useExpandable({
         defaultHeight: DEFAULT_HEIGHT
     });
     const maxHeight = isExpanded ? EXPANDED_HEIGHT : DEFAULT_HEIGHT;
-    const timeseriesData = useMemo(()=>chart.shapeLists.map((shapeList)=>shapeList.source), [
-        chart
+    const timeseriesData = useMemo(()=>shapeLists.map((shapeList)=>shapeList.source), [
+        shapeLists
     ]);
     const numSeries = timeseriesData.length;
     const resultsText = `${numSeries} result${numSeries === 1 ? "" : "s"}`;
@@ -2634,17 +2759,18 @@ const TimeseriesLegend = /*#__PURE__*/ memo(function TimeseriesLegend({ chart , 
     });
     const onMouseOut = ()=>onFocusedShapeListChange?.(null);
     const setFocusedTimeseries = onFocusedShapeListChange ? (timeseries)=>{
-        const shapeList = chart.shapeLists.find((shapeList)=>shapeList.source === timeseries);
+        const shapeList = shapeLists.find((shapeList)=>shapeList.source === timeseries);
         if (shapeList) {
             onFocusedShapeListChange(shapeList);
         }
     } : noop;
     const render = useHandler(({ data , index , style  })=>{
-        const timeseries = data[index];
+        const shapeList = data[index];
+        const timeseries = shapeList.source;
         return /*#__PURE__*/ jsx("div", {
             style: style,
             children: timeseries && /*#__PURE__*/ jsx(TimeseriesLegendItem, {
-                color: getShapeListColor(colors, index),
+                color: getShapeListColor(shapeList),
                 onHover: ()=>setFocusedTimeseries(timeseries),
                 onToggleTimeseriesVisibility: onToggleTimeseriesVisibility,
                 readOnly: readOnly,
@@ -2667,8 +2793,8 @@ const TimeseriesLegend = /*#__PURE__*/ memo(function TimeseriesLegend({ chart , 
                         height: Math.min(heightRef.current, maxHeight),
                         width: "100%",
                         ref: listRef,
-                        itemCount: timeseriesData.length,
-                        itemData: timeseriesData,
+                        itemCount: shapeLists.length,
+                        itemData: shapeLists,
                         itemSize: getSize,
                         children: render
                     }),
@@ -2685,7 +2811,7 @@ const TimeseriesLegend = /*#__PURE__*/ memo(function TimeseriesLegend({ chart , 
             })
         ]
     });
-});
+}
 const ExpandableContainer = styled.div`
     max-height: ${({ maxHeight  })=>maxHeight};
     overflow: auto;
@@ -2712,52 +2838,6 @@ const Results = styled.span`
     color: ${({ theme  })=>theme.colorBase400};
 `;
 
-function Tooltip({ timeseries , metric  }) {
-    return /*#__PURE__*/ jsxs("table", {
-        children: [
-            /*#__PURE__*/ jsx(TimeseriesTableCaption, {
-                children: metric.time
-            }),
-            /*#__PURE__*/ jsx("thead", {
-                children: /*#__PURE__*/ jsxs("tr", {
-                    children: [
-                        /*#__PURE__*/ jsx("th", {
-                            children: timeseries.name || "value"
-                        }),
-                        /*#__PURE__*/ jsx("th", {
-                            children: metric.value
-                        })
-                    ]
-                })
-            }),
-            /*#__PURE__*/ jsx("tbody", {
-                children: Object.entries(timeseries.labels).map(([key, value])=>/*#__PURE__*/ jsxs("tr", {
-                        children: [
-                            /*#__PURE__*/ jsxs(TimeseriesTableTd, {
-                                children: [
-                                    key,
-                                    ":"
-                                ]
-                            }),
-                            /*#__PURE__*/ jsx(TimeseriesTableTd, {
-                                children: value
-                            })
-                        ]
-                    }, key))
-            })
-        ]
-    });
-}
-const TimeseriesTableCaption = styled.caption`
-  font-weight: bold;
-  text-align: center;
-  padding: 0 0 6px;
-  color: ${({ theme  })=>theme.colorBase400};
-`;
-const TimeseriesTableTd = styled.td`
-  word-wrap: anywhere;
-`;
-
 function MetricsChart(props) {
     return /*#__PURE__*/ jsx(StyledChartSizeContainerProvider$1, {
         overrideHeight: HEIGHT,
@@ -2771,21 +2851,24 @@ function MetricsChart(props) {
     });
 }
 const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
-    const { chartControlsShown =true , colors , graphType , legendShown =true , readOnly , stackingControlsShown =true , stackingType , timeRange , timeseriesData  } = props;
-    const chart = useMemo(()=>generateFromTimeseries({
+    const theme = useTheme();
+    const { chartControlsShown =true , colors , events , eventColor =theme.colorPrimary400 , graphType , legendShown =true , readOnly , stackingControlsShown =true , stackingType , timeRange , timeseriesData  } = props;
+    const chart = useMemo(()=>generateFromTimeseriesAndEvents({
+            events: events ?? [],
             graphType,
             stackingType,
             timeRange,
             timeseriesData
         }), [
+        events,
         graphType,
         stackingType,
         timeRange,
         timeseriesData
     ]);
     const [focusedShapeList, setFocusedShapeList] = useState(null);
-    const theme = useTheme();
-    const chartColors = useMemo(()=>colors || [
+    const getShapeListColor = useMemo(()=>{
+        const shapeListColors = colors || [
             theme["colorSupport1400"],
             theme["colorSupport2400"],
             theme["colorSupport3400"],
@@ -2797,13 +2880,31 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
             theme["colorSupport9400"],
             theme["colorSupport10400"],
             theme["colorSupport11400"]
-        ], [
-        theme,
-        colors
+        ];
+        return (shapeList)=>{
+            if (isTimeseriesShapeList(shapeList)) {
+                const index = chart.shapeLists.indexOf(shapeList);
+                return shapeListColors[index % shapeListColors.length];
+            } else {
+                return eventColor;
+            }
+        };
+    }, [
+        chart,
+        colors,
+        eventColor,
+        theme
     ]);
-    const showTooltip = useHandler((anchor, [timeseries, metric])=>props.showTooltip?.(anchor, /*#__PURE__*/ jsx(Tooltip, {
-            timeseries: timeseries,
-            metric: metric
+    const onFocusedShapeListChange = useHandler((shapeList)=>{
+        if (!shapeList || isTimeseriesShapeList(shapeList)) {
+            setFocusedShapeList(shapeList);
+        }
+    });
+    const showTooltip = useHandler((anchor, [series, point])=>props.showTooltip?.(anchor, series.type === "events" ? /*#__PURE__*/ jsx(EventTooltip, {
+            event: point
+        }) : /*#__PURE__*/ jsx(TimeseriesTooltip, {
+            timeseries: series,
+            metric: point
         })) ?? noop);
     return /*#__PURE__*/ jsxs(Fragment, {
         children: [
@@ -2814,16 +2915,16 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
             /*#__PURE__*/ jsx(CoreChart, {
                 ...props,
                 chart: chart,
-                colors: chartColors,
                 focusedShapeList: focusedShapeList,
-                onFocusedShapeListChange: setFocusedShapeList,
+                getShapeListColor: getShapeListColor,
+                onFocusedShapeListChange: onFocusedShapeListChange,
                 showTooltip: showTooltip
             }),
             legendShown && /*#__PURE__*/ jsx(TimeseriesLegend, {
                 ...props,
-                chart: chart,
-                colors: chartColors,
-                onFocusedShapeListChange: setFocusedShapeList
+                getShapeListColor: getShapeListColor,
+                onFocusedShapeListChange: onFocusedShapeListChange,
+                shapeLists: chart.shapeLists.filter(isTimeseriesShapeList)
             })
         ]
     });
@@ -2833,6 +2934,9 @@ const StyledChartSizeContainerProvider$1 = styled(ChartSizeContainerProvider)`
   gap: 12px;
   flex-direction: column;
 `;
+function isTimeseriesShapeList(shapeList) {
+    return shapeList.source.type === "timeseries";
+}
 
 function SparkChart({ colors , graphType , stackingType , timeRange , timeseriesData , onChangeTimeRange  }) {
     const theme = useTheme();
@@ -2847,7 +2951,8 @@ function SparkChart({ colors , graphType , stackingType , timeRange , timeseries
         timeRange,
         timeseriesData
     ]);
-    const chartColors = useMemo(()=>colors || [
+    const getShapeListColor = useMemo(()=>{
+        const shapeListColors = colors || [
             theme["colorSupport1400"],
             theme["colorSupport2400"],
             theme["colorSupport3400"],
@@ -2859,15 +2964,21 @@ function SparkChart({ colors , graphType , stackingType , timeRange , timeseries
             theme["colorSupport9400"],
             theme["colorSupport10400"],
             theme["colorSupport11400"]
-        ], [
-        theme,
-        colors
+        ];
+        return (shapeList)=>{
+            const index = chart.shapeLists.indexOf(shapeList);
+            return shapeListColors[index % shapeListColors.length];
+        };
+    }, [
+        chart,
+        colors,
+        theme
     ]);
     return /*#__PURE__*/ jsx(StyledChartSizeContainerProvider, {
         children: /*#__PURE__*/ jsx(CoreChart, {
             chart: chart,
-            colors: chartColors,
             focusedShapeList: null,
+            getShapeListColor: getShapeListColor,
             gridShown: false,
             onChangeTimeRange: onChangeTimeRange,
             timeRange: timeRange

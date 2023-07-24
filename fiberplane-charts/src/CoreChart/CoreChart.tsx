@@ -13,21 +13,16 @@ import {
 } from "./hooks";
 import { ZoomBar } from "./ZoomBar";
 
-type Props<S, P> = CoreChartProps<S, P> &
-  Required<Pick<CoreChartProps<S, P>, "colors">> & {
-    gridShown?: boolean;
-  };
-
 export function CoreChart<S, P>({
   chart,
-  colors,
+  getShapeListColor,
   gridShown = true,
   onChangeTimeRange,
   readOnly = false,
   showTooltip,
   timeRange,
   ...props
-}: Props<S, P>): JSX.Element {
+}: CoreChartProps<S, P>): JSX.Element {
   const interactiveControls = useInteractiveControls(readOnly);
   const { mouseInteraction, updatePressedKeys } = interactiveControls;
 
@@ -53,8 +48,8 @@ export function CoreChart<S, P>({
     onMouseLeave,
   } = useTooltip({
     chart,
-    colors,
     dimensions,
+    getShapeListColor,
     showTooltip: modifierPressed(interactiveControls) ? undefined : showTooltip,
   });
 
@@ -104,7 +99,7 @@ export function CoreChart<S, P>({
           <ChartContent
             {...props}
             chart={chart}
-            colors={colors}
+            getShapeListColor={getShapeListColor}
             scales={scales}
           />
         </g>

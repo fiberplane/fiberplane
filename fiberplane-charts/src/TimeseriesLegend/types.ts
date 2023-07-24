@@ -1,18 +1,13 @@
-import type { AbstractChart, ShapeList } from "../Mondrian";
-import type { Metric, Timeseries } from "../providerTypes";
+import type { ShapeList } from "../Mondrian";
+import type { Timeseries } from "../providerTypes";
 
-export type TimeseriesLegendProps = {
-  /**
-   * Array of timeseries data to display in the legend.
-   */
-  chart: AbstractChart<Timeseries, Metric>;
+export type TimeseriesLegendProps<S extends Timeseries, P> = {
+  getShapeListColor: (shapeList: ShapeList<S, P>) => string;
 
   /**
    * Handler that is invoked when the focused shape list is changed.
    */
-  onFocusedShapeListChange?: (
-    shapeList: ShapeList<Timeseries, Metric> | null,
-  ) => void;
+  onFocusedShapeListChange?: (shapeList: ShapeList<S, P> | null) => void;
 
   /**
    * Handler that is invoked when the user toggles the visibility of a
@@ -36,9 +31,9 @@ export type TimeseriesLegendProps = {
   footerShown?: boolean;
 
   /**
-   * Array of colors to use for the timeseries.
+   * Array of shape lists for the timeseries data to display in the legend.
    */
-  colors: Array<string>;
+  shapeLists: Array<ShapeList<S, P>>;
 };
 
 export type ToggleTimeseriesEvent = {

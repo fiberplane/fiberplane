@@ -5,16 +5,24 @@ import type {
   TooltipAnchor,
   VirtualElement,
 } from "../CoreChart";
-import type { Metric, Timeseries } from "../providerTypes";
+import type { Metric, ProviderEvent, Timeseries } from "../providerTypes";
 import type { TimeseriesLegendProps } from "../TimeseriesLegend";
 import type { TimeseriesSourceData } from "../Mondrian";
 
 export type MetricsChartProps = Omit<
   CoreChartProps<Timeseries, Metric>,
-  "chart" | "focusedShapeList" | "onFocusedShapeListChange" | "showTooltip"
+  | "chart"
+  | "colors"
+  | "focusedShapeList"
+  | "getShapeListColor"
+  | "onFocusedShapeListChange"
+  | "showTooltip"
 > &
-  Pick<TimeseriesLegendProps, "footerShown" | "onToggleTimeseriesVisibility"> &
-  ChartControlsProps &
+  Pick<
+    TimeseriesLegendProps<Timeseries, Metric>,
+    "footerShown" | "onToggleTimeseriesVisibility"
+  > &
+  Omit<ChartControlsProps, "stackingControlsShown"> &
   TimeseriesSourceData & {
     /**
      * Show the chart controls. (default: true)
@@ -22,6 +30,25 @@ export type MetricsChartProps = Omit<
      * Setting this to false will also hide the stacking controls
      */
     chartControlsShown?: boolean;
+
+    /**
+     * Override the colors to use for the timeseries.
+     *
+     * If not specified, several colors from the theme are used.
+     */
+    colors?: Array<string>;
+
+    /**
+     * Optional events to display on the chart.
+     */
+    events?: Array<ProviderEvent>;
+
+    /**
+     * Override for the color to use for events.
+     *
+     * If not specified, a color from the theme is used.
+     */
+    eventColor?: string;
 
     /**
      * Show the legend. (default: true)

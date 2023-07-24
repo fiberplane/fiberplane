@@ -1,7 +1,6 @@
 export * from "./compact";
 export * from "./convert";
 export * from "./findUniqueKeys";
-export * from "./getShapeListColor";
 export * from "./identity";
 export * from "./mergeRefs";
 export * from "./noop";
