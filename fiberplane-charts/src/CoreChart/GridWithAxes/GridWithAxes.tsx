@@ -183,6 +183,11 @@ function extendTicksToFitAxis(
   const scaleToAxis = (value: number) =>
     scale((value - axis.minValue) / (axis.maxValue - axis.minValue));
 
+  // Trim ticks from the start if the user has dragged them beyond the Y axis.
+  while (ticks.length && scaleToAxis(ticks[0]) < 0) {
+    ticks.shift();
+  }
+
   let preTick = ticks[0] - interval;
   while (ticks.length < maxTicks && scaleToAxis(preTick) >= 0) {
     ticks.unshift(preTick);
