@@ -1,3 +1,4 @@
+export * from "./attachSuggestionsToXAxis";
 export * from "./calculateBarWidth";
 export * from "./calculateBarX";
 export * from "./calculateBucketsAndAxesForStackedChart";

@@ -1,23 +1,21 @@
-import { getTicks } from "@visx/scale";
-import { memo } from "react";
 import { useTheme } from "styled-components";
 
 import type { Scales } from "../types";
 
 type Props = {
-  numTicks: number;
   scales: Scales;
   strokeColor: string;
   strokeDasharray?: string;
   strokeWidth: number;
+  ticks: Array<number>;
 };
 
-export const LeftAxis = memo(function LeftAxis({
-  numTicks,
+export function LeftAxis({
   scales: { yMax, yScale },
   strokeColor,
   strokeDasharray,
   strokeWidth,
+  ticks,
 }: Props) {
   const {
     colorBase500,
@@ -40,7 +38,8 @@ export const LeftAxis = memo(function LeftAxis({
     fill: colorBase500,
   };
 
-  const formatter = yScale.tickFormat(10, "~s");
+  const numTicks = ticks.length - 1;
+  const formatter = yScale.tickFormat(numTicks, "~s");
 
   return (
     <g>
@@ -54,7 +53,7 @@ export const LeftAxis = memo(function LeftAxis({
         strokeWidth={strokeWidth}
       />
 
-      {getTicks(yScale, numTicks).map((value, index) =>
+      {ticks.map((value, index) =>
         (index > 0 || index < numTicks - 1) && value.valueOf() !== 0 ? (
           // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
           <text key={index} x={0} y={yScale(value)} {...tickLabelProps}>
@@ -64,4 +63,4 @@ export const LeftAxis = memo(function LeftAxis({
       )}
     </g>
   );
-});
+}

@@ -68,6 +68,14 @@ export type Axis = {
    * The value to display at the end of the axis.
    */
   maxValue: number;
+
+  /**
+   * Optional suggestion of where to draw ticks based on the detected bucket
+   * intervals.
+   *
+   * Ticks are expressed as values between `minValue` and `maxValue`.
+   */
+  tickSuggestions?: Array<number>;
 };
 
 /**

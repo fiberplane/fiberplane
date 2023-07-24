@@ -1,28 +1,25 @@
-import { getTicks } from "@visx/scale";
-import type { NumberValue } from "d3-scale";
-import { memo } from "react";
 import { useTheme } from "styled-components";
 import { utcFormat } from "d3-time-format";
 
-import { Axis } from "../../Mondrian";
+import type { Axis } from "../../Mondrian";
 import type { Scales } from "../types";
 
 const LABEL_OFFSET = 8;
 
 type Props = {
-  numTicks: number;
   scales: Scales;
   strokeColor: string;
   strokeDasharray?: string;
+  ticks: Array<number>;
   xAxis: Axis;
 };
 
-export const BottomAxis = memo(function BottomAxis({
-  numTicks,
+export function BottomAxis({
   scales: { xMax, xScale, yMax },
   strokeColor,
   strokeDasharray,
-  xAxis,
+  ticks,
+  xAxis: { maxValue, minValue },
 }: Props) {
   const {
     colorBase500,
@@ -33,7 +30,7 @@ export const BottomAxis = memo(function BottomAxis({
     fontAxisLetterSpacing,
   } = useTheme();
 
-  const formatter = getTimeFormatter(xAxis, numTicks);
+  const formatter = getTimeFormatter(ticks);
 
   return (
     <g transform={`translate(0, ${yMax})`}>
@@ -46,11 +43,11 @@ export const BottomAxis = memo(function BottomAxis({
         strokeDasharray={strokeDasharray}
       />
 
-      {getTicks(xScale, numTicks).map((value, index) => (
+      {ticks.map((time, index) => (
         <text
           // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
           key={index}
-          x={xScale(value)}
+          x={xScale((time - minValue) / (maxValue - minValue))}
           y={fontAxisFontSize}
           dy={LABEL_OFFSET}
           fill={colorBase500}
@@ -61,34 +58,29 @@ export const BottomAxis = memo(function BottomAxis({
           letterSpacing={fontAxisLetterSpacing}
           textAnchor="middle"
         >
-          {formatter(value)}
+          {formatter(time)}
         </text>
       ))}
     </g>
   );
-});
+}
 
-function getTimeFormatter(
-  { minValue, maxValue }: Axis,
-  numTicks: number,
-): (time: NumberValue) => string {
-  const timeScale = getTimeScale(minValue, maxValue, numTicks);
+function getTimeFormatter(ticks: Array<number>): (time: number) => string {
+  if (ticks.length < 2) {
+    // If there's only a single tick, just display the full timestamp.
+    return (time) => new Date(time).toISOString();
+  }
+
+  const timeScale = getTimeScale(ticks[0], ticks[1]);
   const formatter = getFormatter(timeScale);
 
-  return (item) => {
-    const value = new Date(minValue + item.valueOf() * (maxValue - minValue));
-    return formatter(value);
-  };
+  return (time) => formatter(new Date(time));
 }
 
 type TimeScale = "milliseconds" | "seconds" | "minutes" | "hours" | "days";
 
-function getTimeScale(
-  time1: number,
-  time2: number,
-  numTicks: number,
-): TimeScale {
-  const delta = (time2 - time1) / numTicks;
+function getTimeScale(time1: number, time2: number): TimeScale {
+  const delta = time2 - time1;
   if (delta < 1000) {
     return "milliseconds";
   } else if (delta < 60 * 1000) {
