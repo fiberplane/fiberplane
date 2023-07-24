@@ -1165,7 +1165,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
 });
 function getTicks(axis, max, scale, numTicks) {
     const suggestions = axis.tickSuggestions;
-    const ticks = suggestions ? getTicksFromSuggestions(suggestions, numTicks) : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
+    const ticks = suggestions ? getTicksFromSuggestions(axis, suggestions, numTicks) : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
     extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks);
     return ticks;
 }
@@ -1181,13 +1181,19 @@ function getTicksFromRange(minValue, maxValue, numTicks) {
     }
     return ticks;
 }
-function getTicksFromSuggestions(suggestions, numTicks) {
+function getTicksFromSuggestions(axis, suggestions, numTicks) {
     const len = suggestions.length;
-    if (len <= numTicks) {
+    if (len < 2) {
+        return suggestions;
+    }
+    const suggestionInterval = suggestions[1] - suggestions[0];
+    const axisRange = axis.maxValue - axis.minValue;
+    const ticksPerRange = axisRange / suggestionInterval;
+    if (ticksPerRange < numTicks) {
         return suggestions;
     }
     const ticks = [];
-    const divisionFactor = Math.ceil(len / numTicks);
+    const divisionFactor = Math.ceil(ticksPerRange / numTicks);
     for(let i = 0; i < len; i++){
         if (i % divisionFactor === 0) {
             ticks.push(suggestions[i]);
@@ -1201,7 +1207,7 @@ function getTicksFromSuggestions(suggestions, numTicks) {
  * Due to animations/translations it is possible the ticks don't yet cover the
  * full range of the axis. This function extends the ticks as necessary, and
  * also includes a slight margin to prevent a "pop-in" effect of suddenly
- * appearing tick labels along the edges.
+ * appearing tick labels from the right edge.
  *
  * @note This function mutates the input ticks.
  */ function extendTicksToFitAxis(ticks, axis, max, scale, maxTicks) {
@@ -1210,8 +1216,12 @@ function getTicksFromSuggestions(suggestions, numTicks) {
     }
     const interval = ticks[1] - ticks[0];
     const scaleToAxis = (value)=>scale((value - axis.minValue) / (axis.maxValue - axis.minValue));
+    // Trim ticks from the start if the user has dragged them beyond the Y axis.
+    while(ticks.length && scaleToAxis(ticks[0]) < 0){
+        ticks.shift();
+    }
     let preTick = ticks[0] - interval;
-    while(ticks.length < maxTicks && scaleToAxis(preTick) > -0.1 * max){
+    while(ticks.length < maxTicks && scaleToAxis(preTick) >= 0){
         ticks.unshift(preTick);
         preTick -= interval;
     }

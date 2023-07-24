@@ -105,7 +105,7 @@ function getTicks(
 ): Array<number> {
   const suggestions = axis.tickSuggestions;
   const ticks = suggestions
-    ? getTicksFromSuggestions(suggestions, numTicks)
+    ? getTicksFromSuggestions(axis, suggestions, numTicks)
     : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
 
   extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks);
@@ -131,16 +131,24 @@ function getTicksFromRange(
 }
 
 function getTicksFromSuggestions(
+  axis: Axis,
   suggestions: Array<number>,
   numTicks: number,
 ): Array<number> {
   const len = suggestions.length;
-  if (len <= numTicks) {
+  if (len < 2) {
+    return suggestions;
+  }
+
+  const suggestionInterval = suggestions[1] - suggestions[0];
+  const axisRange = axis.maxValue - axis.minValue;
+  const ticksPerRange = axisRange / suggestionInterval;
+  if (ticksPerRange < numTicks) {
     return suggestions;
   }
 
   const ticks = [];
-  const divisionFactor = Math.ceil(len / numTicks);
+  const divisionFactor = Math.ceil(ticksPerRange / numTicks);
   for (let i = 0; i < len; i++) {
     if (i % divisionFactor === 0) {
       ticks.push(suggestions[i]);
@@ -156,7 +164,7 @@ function getTicksFromSuggestions(
  * Due to animations/translations it is possible the ticks don't yet cover the
  * full range of the axis. This function extends the ticks as necessary, and
  * also includes a slight margin to prevent a "pop-in" effect of suddenly
- * appearing tick labels along the edges.
+ * appearing tick labels from the right edge.
  *
  * @note This function mutates the input ticks.
  */
@@ -175,8 +183,13 @@ function extendTicksToFitAxis(
   const scaleToAxis = (value: number) =>
     scale((value - axis.minValue) / (axis.maxValue - axis.minValue));
 
+  // Trim ticks from the start if the user has dragged them beyond the Y axis.
+  while (ticks.length && scaleToAxis(ticks[0]) < 0) {
+    ticks.shift();
+  }
+
   let preTick = ticks[0] - interval;
-  while (ticks.length < maxTicks && scaleToAxis(preTick) > -0.1 * max) {
+  while (ticks.length < maxTicks && scaleToAxis(preTick) >= 0) {
     ticks.unshift(preTick);
     preTick -= interval;
   }
