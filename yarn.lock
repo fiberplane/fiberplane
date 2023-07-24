@@ -5152,6 +5152,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prometheus-provider-ts@workspace:prometheus-provider-ts":
+  version: 0.0.0-use.local
+  resolution: "prometheus-provider-ts@workspace:prometheus-provider-ts"
+  dependencies:
+    "@swc/core": ^1.3.51
+    rollup: ^3.20.5
+    rollup-plugin-dts: ^5.3.0
+    rollup-plugin-swc3: ^0.8.1
+    typescript: ^5.0.4
+  languageName: unknown
+  linkType: soft
+
 "promise-inflight@npm:^1.0.1":
   version: 1.0.1
   resolution: "promise-inflight@npm:1.0.1"

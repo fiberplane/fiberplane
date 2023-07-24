@@ -6,7 +6,8 @@
     "license": "MIT OR Apache-2.0",
     "packageManager": "yarn@3.5.0",
     "workspaces": [
-        "fiberplane-charts"
+        "fiberplane-charts",
+        "prometheus-provider-ts"
     ],
     "devDependencies": {
         "rome": "^12.1.3",
@@ -14,6 +15,6 @@
     },
     "scripts": {
         "lint": "rome ci .",
-        "type-check": "tsc -p fiberplane-charts/tsconfig.json"
+        "type-check": "tsc -p fiberplane-charts/tsconfig.json && tsc -p prometheus-provider-ts/tsconfig.json"
     }
 }

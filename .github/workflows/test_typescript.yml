@@ -5,9 +5,9 @@ on:
     branches: ["**"]
     paths:
       - ".github/workflows/*_typescript.yml"
-      - "fiberplane-charts/**.ts"
-      - "fiberplane-charts/**.tsx"
+      - "fiberplane-charts/**"
       - "package.json"
+      - "prometheus-provider-ts/**"
       - "rome.json"
       - "yarn.lock"
 
