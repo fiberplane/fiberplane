@@ -1169,7 +1169,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
 });
 function getTicks(axis, max, scale, numTicks) {
     const suggestions = axis.tickSuggestions;
-    const ticks = suggestions ? getTicksFromSuggestions(suggestions, numTicks) : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
+    const ticks = suggestions ? getTicksFromSuggestions(axis, suggestions, numTicks) : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
     extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks);
     return ticks;
 }
@@ -1185,13 +1185,19 @@ function getTicksFromRange(minValue, maxValue, numTicks) {
     }
     return ticks;
 }
-function getTicksFromSuggestions(suggestions, numTicks) {
+function getTicksFromSuggestions(axis, suggestions, numTicks) {
     const len = suggestions.length;
-    if (len <= numTicks) {
+    if (len < 2) {
+        return suggestions;
+    }
+    const suggestionInterval = suggestions[1] - suggestions[0];
+    const axisRange = axis.maxValue - axis.minValue;
+    const ticksPerRange = axisRange / suggestionInterval;
+    if (ticksPerRange < numTicks) {
         return suggestions;
     }
     const ticks = [];
-    const divisionFactor = Math.ceil(len / numTicks);
+    const divisionFactor = Math.ceil(ticksPerRange / numTicks);
     for(let i = 0; i < len; i++){
         if (i % divisionFactor === 0) {
             ticks.push(suggestions[i]);
@@ -1976,32 +1982,20 @@ function getCursorFromState(state) {
 }
 
 /**
- * Adds suggestions to the axis.
- * If the min value and max value of the data are sufficiently close to the minValue and maxValue of the axis,
- * then suggestions are based on the position of the first bucket and the interval between buckets.
- *
- * Otherwise, no suggestions are given.
- *
- * This is meant to accomodate the case where the axis min and max values are far away from the data.
- * E.g., when you query data from 2pm to 6pm, but we only observed data from 3pm to 4pm
+ * Adds suggestions to the axis based on the position of the first bucket and
+ * the interval between buckets.
  *
  * @note This function mutates its input axis.
  */ function attachSuggestionsToXAxis(xAxis, buckets, interval) {
-    const { firstBucketTimestamp , lastBucketTimestamp  } = getBucketFirstLastTimestamps(buckets);
-    if (!firstBucketTimestamp || !lastBucketTimestamp) {
-        return;
-    }
     if (interval <= 0) {
         return;
     }
-    const isAxisMinFarAwayFromFirstBucket = firstBucketTimestamp - xAxis.minValue > 2 * interval;
-    const isAxisMaxFarAwayFromLastBucket = xAxis.maxValue - lastBucketTimestamp > 2 * interval;
-    const canUseBucketsAsSuggestsions = !isAxisMinFarAwayFromFirstBucket && !isAxisMaxFarAwayFromLastBucket;
-    if (!canUseBucketsAsSuggestsions) {
+    const firstBucketTime = getFirstBucketTime(buckets);
+    if (!firstBucketTime) {
         return;
     }
-    let suggestion = firstBucketTimestamp;
     const suggestions = [];
+    let suggestion = firstBucketTime;
     while(suggestion < xAxis.maxValue){
         if (suggestion >= xAxis.minValue) {
             suggestions.push(suggestion);
@@ -2010,21 +2004,14 @@ function getCursorFromState(state) {
     }
     xAxis.tickSuggestions = suggestions;
 }
-function getBucketFirstLastTimestamps(buckets) {
+function getFirstBucketTime(buckets) {
     let firstBucketTimestamp;
-    let lastBucketTimestamp;
     for (const timestamp of buckets.keys()){
         if (!firstBucketTimestamp || timestamp < firstBucketTimestamp) {
             firstBucketTimestamp = timestamp;
         }
-        if (!lastBucketTimestamp || timestamp > lastBucketTimestamp) {
-            lastBucketTimestamp = timestamp;
-        }
     }
-    return {
-        firstBucketTimestamp: firstBucketTimestamp ? getTimeFromTimestamp(firstBucketTimestamp) : undefined,
-        lastBucketTimestamp: lastBucketTimestamp ? getTimeFromTimestamp(lastBucketTimestamp) : undefined
-    };
+    return firstBucketTimestamp ? getTimeFromTimestamp(firstBucketTimestamp) : undefined;
 }
 
 const BAR_PADDING = 0.2;

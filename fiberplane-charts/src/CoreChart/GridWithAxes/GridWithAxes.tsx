@@ -105,7 +105,7 @@ function getTicks(
 ): Array<number> {
   const suggestions = axis.tickSuggestions;
   const ticks = suggestions
-    ? getTicksFromSuggestions(suggestions, numTicks)
+    ? getTicksFromSuggestions(axis, suggestions, numTicks)
     : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
 
   extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks);
@@ -131,16 +131,24 @@ function getTicksFromRange(
 }
 
 function getTicksFromSuggestions(
+  axis: Axis,
   suggestions: Array<number>,
   numTicks: number,
 ): Array<number> {
   const len = suggestions.length;
-  if (len <= numTicks) {
+  if (len < 2) {
+    return suggestions;
+  }
+
+  const suggestionInterval = suggestions[1] - suggestions[0];
+  const axisRange = axis.maxValue - axis.minValue;
+  const ticksPerRange = axisRange / suggestionInterval;
+  if (ticksPerRange < numTicks) {
     return suggestions;
   }
 
   const ticks = [];
-  const divisionFactor = Math.ceil(len / numTicks);
+  const divisionFactor = Math.ceil(ticksPerRange / numTicks);
   for (let i = 0; i < len; i++) {
     if (i % divisionFactor === 0) {
       ticks.push(suggestions[i]);
