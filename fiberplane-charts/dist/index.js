@@ -1178,10 +1178,7 @@ function getTicksFromRange(minValue, maxValue, numTicks) {
         minValue
     ];
     let tick = minValue + interval;
-    // NOTE - We don't want to render ticks too close to the max value,
-    //        as they will get cut off
-    const maxTickValue = maxValue - interval / 2;
-    while(tick < maxTickValue){
+    while(tick < maxValue){
         ticks.push(tick);
         tick += interval;
     }
