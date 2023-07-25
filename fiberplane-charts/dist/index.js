@@ -898,11 +898,13 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , color , f
     });
 });
 
+const POINT_RADIUS = 1;
+const POINT_RADIUS_FOCUSED = 2;
 const PointShape = /*#__PURE__*/ memo(function PointShape({ color , focused , point , scales  }) {
     return /*#__PURE__*/ jsx("circle", {
         cx: scales.xScale(point.x),
         cy: scales.yScale(point.y),
-        r: focused ? 2 : 1,
+        r: focused ? POINT_RADIUS_FOCUSED : POINT_RADIUS,
         stroke: color,
         fill: color
     });
@@ -1373,6 +1375,9 @@ const MARGINS = {
     left: 38,
     right: 0
 };
+// If a point is directly on the edge of the chart, it can be cut off.
+// The overflow margin ensures that the point is still visible.
+const CHART_SHAPE_OVERFLOW_MARGIN = POINT_RADIUS_FOCUSED;
 
 function getCoordinatesForEvent(event, { xMax , yMax  }) {
     const svg = getTarget(event);
@@ -1898,9 +1903,9 @@ function CoreChart({ chart , getShapeListColor , gridShown =true , onChangeTimeR
                     id: clipPathId,
                     children: /*#__PURE__*/ jsx("rect", {
                         x: 0,
-                        y: 0,
+                        y: -CHART_SHAPE_OVERFLOW_MARGIN,
                         width: xMax,
-                        height: yMax
+                        height: yMax + 2 * CHART_SHAPE_OVERFLOW_MARGIN
                     })
                 })
             }),

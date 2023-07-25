@@ -12,6 +12,7 @@ import {
   useTooltip,
 } from "./hooks";
 import { ZoomBar } from "./ZoomBar";
+import { CHART_SHAPE_OVERFLOW_MARGIN } from "./constants";
 
 export function CoreChart<S, P>({
   chart,
@@ -90,7 +91,12 @@ export function CoreChart<S, P>({
     >
       <defs>
         <clipPath id={clipPathId}>
-          <rect x={0} y={0} width={xMax} height={yMax} />
+          <rect
+            x={0}
+            y={-CHART_SHAPE_OVERFLOW_MARGIN}
+            width={xMax}
+            height={yMax + 2 * CHART_SHAPE_OVERFLOW_MARGIN}
+          />
         </clipPath>
       </defs>
       <g transform={`translate(${marginLeft}, ${marginTop})`}>
