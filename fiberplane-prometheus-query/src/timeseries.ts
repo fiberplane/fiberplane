@@ -1,16 +1,27 @@
 import type { Metric, TimeRange, Timeseries, Timestamp } from "./providerTypes";
 
+export type QueryPrometheusOptions = {
+  /**
+   * Base URL to the Prometheus service, without trailing slash.
+   */
+  baseUrl: string;
+
+  /**
+   * Optional headers to pass along the request.
+   */
+  headers?: HeadersInit;
+};
+
 /**
  * Fetches timeseries data from the Prometheus `query_range` endpoint.
  *
- * @param baseUrl Base URL to the Prometheus service, without trailing slash.
  * @param query Prometheus query string.
  * @param timeRange Time range to fetch the data for.
  */
 export async function querySeries(
-  baseUrl: string,
   query: string,
   timeRange: TimeRange,
+  { baseUrl, headers }: QueryPrometheusOptions,
 ): Promise<Array<Timeseries>> {
   const [stepParam, stepSeconds] = getStepFromTimeRange(timeRange);
 
@@ -21,7 +32,7 @@ export async function querySeries(
   params.append("step", stepParam);
 
   const url = `${baseUrl}/prometheus/api/v1/query_range?${params.toString()}`;
-  const response = await fetch(url, { mode: "cors" });
+  const response = await fetch(url, { mode: "cors", headers });
   if (!response.ok) {
     throw new Error("Error fetching prometheus data");
   }
