@@ -1,4 +1,4 @@
-import { POINT_RADIUS_FOCUSED } from './ChartShape';
+import { POINT_RADIUS_FOCUSED } from "./ChartShape";
 
 // Dimensions.
 export const HEIGHT = 275;
