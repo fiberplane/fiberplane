@@ -1169,6 +1169,7 @@ function getTicks(axis, max, scale, numTicks) {
     const suggestions = axis.tickSuggestions;
     const ticks = suggestions ? getTicksFromSuggestions(axis, suggestions, numTicks) : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
     extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks);
+    removeLastTickIfTooCloseToMax(ticks, max);
     return ticks;
 }
 function getTicksFromRange(minValue, maxValue, numTicks) {
@@ -1177,7 +1178,10 @@ function getTicksFromRange(minValue, maxValue, numTicks) {
         minValue
     ];
     let tick = minValue + interval;
-    while(tick < maxValue){
+    // NOTE - We don't want to render ticks too close to the max value,
+    //        as they will get cut off
+    const maxTickValue = maxValue - interval / 2;
+    while(tick < maxTickValue){
         ticks.push(tick);
         tick += interval;
     }
@@ -1257,6 +1261,26 @@ function useCustomSpring(value) {
     ]);
     return current;
 }
+/**
+ * When rendering our svg charts, we want to avoid cutting off tick labels.
+ * The way we can do this (simiar to visx's solution) is by not rendering ticks,
+ * if they are too close to the axis's max value.
+ *
+ * The heuristic: If a tick's distance to the maxValue is within 1/3 the size of the tick-interval,
+ * the tick will get dropped.
+ *
+ * @note This function mutates the input ticks.
+ */ const removeLastTickIfTooCloseToMax = (ticks, maxValue)=>{
+    if (ticks.length < 2) {
+        return;
+    }
+    const interval = ticks[1] - ticks[0];
+    const maxTickValue = maxValue - interval / 3;
+    const lastTick = ticks[ticks.length - 1];
+    if (lastTick > maxTickValue) {
+        ticks.pop();
+    }
+};
 
 const defaultState = {
     mouseInteraction: {
