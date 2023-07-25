@@ -10,7 +10,7 @@ export type {
   Timeseries,
   Timestamp,
 } from "./providerTypes";
-export type { TickFormatters, TimeFormattersFactory } from "./CoreChart";
+export type { TickFormatters, TickFormattersFactory } from "./CoreChart";
 export type { ToggleTimeseriesEvent } from "./TimeseriesLegend";
 
 export * from "./MetricsChart";

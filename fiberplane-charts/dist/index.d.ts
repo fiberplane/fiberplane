@@ -402,7 +402,7 @@ type CoreChartProps<S, P> = {
     /**
      * Functions for formatting the ticks that are displayed along the axes.
      */
-    tickFormatters: TickFormatters | TimeFormattersFactory;
+    tickFormatters: TickFormatters | TickFormattersFactory;
     /**
      * The time range for which to display the data.
      *
@@ -421,7 +421,7 @@ type TickFormatters = {
      */
     yFormatter(value: number): string;
 };
-type TimeFormattersFactory = (xAxis: Axis, yAxis: Axis) => TickFormatters;
+type TickFormattersFactory = (xAxis: Axis, yAxis: Axis) => TickFormatters;
 type ShowTooltipFn$1<S, P> = (anchor: TooltipAnchor, closestSource: [S, P]) => CloseTooltipFn;
 /**
  * Function to invoke to close the tooltip.
@@ -538,4 +538,4 @@ type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange"> & Tim
 };
 declare function SparkChart({ colors, graphType, stackingType, timeRange, timeseriesData, onChangeTimeRange, }: Props): JSX.Element;
 
-export { Axis, ChartTheme, CloseTooltipFn, GraphType, Metric, MetricsChart, MetricsChartProps, OtelMetadata, ProviderEvent, SeriesSource, ShowTooltipFn, SparkChart, StackingType, TickFormatters, TimeFormattersFactory, TimeRange, Timeseries, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement };
+export { Axis, ChartTheme, CloseTooltipFn, GraphType, Metric, MetricsChart, MetricsChartProps, OtelMetadata, ProviderEvent, SeriesSource, ShowTooltipFn, SparkChart, StackingType, TickFormatters, TickFormattersFactory, TimeRange, Timeseries, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement };

@@ -87,7 +87,7 @@ export type CoreChartProps<S, P> = {
   /**
    * Functions for formatting the ticks that are displayed along the axes.
    */
-  tickFormatters: TickFormatters | TimeFormattersFactory;
+  tickFormatters: TickFormatters | TickFormattersFactory;
 
   /**
    * The time range for which to display the data.
@@ -119,7 +119,7 @@ export type TickFormatters = {
   yFormatter(value: number): string;
 };
 
-export type TimeFormattersFactory = (
+export type TickFormattersFactory = (
   xAxis: Axis,
   yAxis: Axis,
 ) => TickFormatters;
