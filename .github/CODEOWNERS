@@ -12,8 +12,12 @@
 # Templates are owned by the template team
 /fiberplane-templates/ @fiberplane/template-devs
 
-# Charts is owned by the Studio team
+# TypeScript stuff is owned by the Studio team
 /fiberplane-charts/ @fiberplane/studio-devs
+/fiberplane-prometheus-query/ @fiberplane/studio-devs
+package.json
+rome.json
+yarn.lock
 
 # CI stuff is owned by the infrastructure team
 .github @fiberplane/infrastructure-devs
