@@ -9,6 +9,7 @@ export type {
   Timeseries,
   Timestamp,
 } from "./providerTypes";
+export type { SeriesSource } from "./Mondrian";
 export type { ToggleTimeseriesEvent } from "./TimeseriesLegend";
 
 export * from "./MetricsChart";
