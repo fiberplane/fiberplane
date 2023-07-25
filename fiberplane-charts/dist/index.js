@@ -1885,10 +1885,15 @@ function CoreChart({ chart , getShapeListColor , gridShown =true , onChangeTimeR
         onWheel,
         updatePressedKeys
     ]);
+    const clipPathYStart = -1 * CHART_SHAPE_OVERFLOW_MARGIN;
+    const clipPathHeight = yMax + 2 * CHART_SHAPE_OVERFLOW_MARGIN;
+    // HACK - For spark charts, the clip path can be larger than the chart itself,
+    //        which leads to points getting cut off
+    const svgHeight = height > clipPathHeight ? height : clipPathHeight;
     return(// rome-ignore lint/a11y/noSvgWithoutTitle: title would interfere with tooltip
     /*#__PURE__*/ jsxs("svg", {
         width: width,
-        height: height,
+        height: svgHeight,
         onMouseDown: onMouseDown,
         onMouseMove: onMouseMove,
         onMouseUp: onMouseUp,
@@ -1903,9 +1908,9 @@ function CoreChart({ chart , getShapeListColor , gridShown =true , onChangeTimeR
                     id: clipPathId,
                     children: /*#__PURE__*/ jsx("rect", {
                         x: 0,
-                        y: -CHART_SHAPE_OVERFLOW_MARGIN,
+                        y: clipPathYStart,
                         width: xMax,
-                        height: yMax + 2 * CHART_SHAPE_OVERFLOW_MARGIN
+                        height: clipPathHeight
                     })
                 })
             }),
