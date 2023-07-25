@@ -15,6 +15,7 @@
     },
     "scripts": {
         "lint": "rome ci .",
-        "type-check": "tsc -p fiberplane-charts/tsconfig.json && tsc -p fiberplane-prometheus-query/tsconfig.json"
+        "test": "yarn workspaces foreach run test",
+        "type-check": "yarn workspaces foreach run type-check"
     }
 }
