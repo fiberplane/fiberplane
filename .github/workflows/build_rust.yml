@@ -5,7 +5,7 @@ on:
     branches: ["**"]
     paths-ignore:
       - "fiberplane-charts"
-      - "prometheus-provider-ts"
+      - "fiberplane-prometheus-query"
   release:
     types: [published]
 
