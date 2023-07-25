@@ -1,12 +1,12 @@
 import { useTheme } from "styled-components";
-import { utcFormat } from "d3-time-format";
 
 import type { Axis } from "../../Mondrian";
-import type { Scales } from "../types";
+import type { Scales, TickFormatters } from "../types";
 
 const LABEL_OFFSET = 8;
 
 type Props = {
+  formatter: TickFormatters["xFormatter"];
   scales: Scales;
   strokeColor: string;
   strokeDasharray?: string;
@@ -15,6 +15,7 @@ type Props = {
 };
 
 export function BottomAxis({
+  formatter,
   scales: { xMax, xScale, yMax },
   strokeColor,
   strokeDasharray,
@@ -29,8 +30,6 @@ export function BottomAxis({
     fontAxisFontWeight,
     fontAxisLetterSpacing,
   } = useTheme();
-
-  const formatter = getTimeFormatter(ticks);
 
   return (
     <g transform={`translate(0, ${yMax})`}>
@@ -63,48 +62,4 @@ export function BottomAxis({
       ))}
     </g>
   );
-}
-
-function getTimeFormatter(ticks: Array<number>): (time: number) => string {
-  if (ticks.length < 2) {
-    // If there's only a single tick, just display the full timestamp.
-    return (time) => new Date(time).toISOString();
-  }
-
-  const timeScale = getTimeScale(ticks[0], ticks[1]);
-  const formatter = getFormatter(timeScale);
-
-  return (time) => formatter(new Date(time));
-}
-
-type TimeScale = "milliseconds" | "seconds" | "minutes" | "hours" | "days";
-
-function getTimeScale(time1: number, time2: number): TimeScale {
-  const delta = time2 - time1;
-  if (delta < 1000) {
-    return "milliseconds";
-  } else if (delta < 60 * 1000) {
-    return "seconds";
-  } else if (delta < 60 * 60 * 1000) {
-    return "minutes";
-  } else if (delta < 24 * 60 * 60 * 1000) {
-    return "hours";
-  } else {
-    return "days";
-  }
-}
-
-function getFormatter(unit: TimeScale): ReturnType<typeof utcFormat> {
-  switch (unit) {
-    case "milliseconds":
-      return utcFormat(".%L");
-    case "seconds":
-      return utcFormat("%M:%S");
-    case "minutes":
-      return utcFormat("%I:%M");
-    case "hours":
-      return utcFormat("%I %p");
-    case "days":
-      return utcFormat("%a %d");
-  }
 }

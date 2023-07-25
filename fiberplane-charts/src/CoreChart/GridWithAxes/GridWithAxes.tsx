@@ -7,7 +7,7 @@ import { BottomAxis } from "./BottomAxis";
 import { GridColumns } from "./GridColumns";
 import { GridRows } from "./GridRows";
 import { LeftAxis } from "./LeftAxis";
-import type { Scale, Scales } from "../types";
+import type { Scale, Scales, TickFormatters } from "../types";
 
 type Props = {
   chart: AbstractChart<unknown, unknown>;
@@ -17,6 +17,7 @@ type Props = {
   gridDashArray?: string;
   gridStrokeColor?: string;
   scales: Scales;
+  tickFormatters: TickFormatters;
 };
 
 export const GridWithAxes = memo(function GridWithAxes({
@@ -27,6 +28,7 @@ export const GridWithAxes = memo(function GridWithAxes({
   gridDashArray,
   gridStrokeColor,
   scales,
+  tickFormatters,
 }: Props) {
   const { xMax, xScale, yMax, yScale } = scales;
 
@@ -80,6 +82,7 @@ export const GridWithAxes = memo(function GridWithAxes({
         />
       )}
       <BottomAxis
+        formatter={tickFormatters.xFormatter}
         scales={scales}
         strokeColor={strokeColor}
         strokeDasharray={gridDashArray}
@@ -87,6 +90,7 @@ export const GridWithAxes = memo(function GridWithAxes({
         xAxis={xAxis}
       />
       <LeftAxis
+        formatter={tickFormatters.yFormatter}
         scales={{ ...scales, yScale: animatedScale }}
         strokeColor={strokeColor}
         strokeDasharray={gridDashArray}

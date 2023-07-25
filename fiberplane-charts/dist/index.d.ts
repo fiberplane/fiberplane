@@ -192,6 +192,14 @@ type TimeseriesSourceData = {
     timeRange: TimeRange;
 };
 /**
+ * Source type for use with charts that contain combined data sources.
+ */
+type SeriesSource = ({
+    type: "timeseries";
+} & Timeseries) | {
+    type: "events";
+};
+/**
  * An abstract chart with information about what to render and where to render
  * it.
  *
@@ -441,12 +449,26 @@ type CoreChartProps<S, P> = {
      */
     showTooltip?: ShowTooltipFn$1<S, P>;
     /**
+     * Functions for formatting the ticks that are displayed along the axes.
+     */
+    tickFormatters: TickFormatters;
+    /**
      * The time range for which to display the data.
      *
      * Make sure the timeseries contains data for the given time range, or you
      * may not see any results.
      */
     timeRange: TimeRange;
+};
+type TickFormatters = {
+    /**
+     * Formats the ticks displayed along the X axis.
+     */
+    xFormatter(value: number): string;
+    /**
+     * Formats the ticks displayed along the Y axis.
+     */
+    yFormatter(value: number): string;
 };
 type ShowTooltipFn$1<S, P> = (anchor: TooltipAnchor, closestSource: [S, P]) => CloseTooltipFn;
 /**
@@ -464,7 +486,7 @@ type VirtualElement = {
     contextElement: Element;
 };
 
-type MetricsChartProps = Omit<CoreChartProps<Timeseries, Metric>, "chart" | "colors" | "focusedShapeList" | "getShapeListColor" | "onFocusedShapeListChange" | "showTooltip"> & Pick<TimeseriesLegendProps<Timeseries, Metric>, "footerShown" | "onToggleTimeseriesVisibility"> & Omit<ChartControlsProps, "stackingControlsShown"> & TimeseriesSourceData & {
+type MetricsChartProps = Omit<CoreChartProps<SeriesSource, Metric | ProviderEvent>, "chart" | "colors" | "focusedShapeList" | "getShapeListColor" | "onFocusedShapeListChange"> & Pick<TimeseriesLegendProps<Timeseries, Metric>, "footerShown" | "onToggleTimeseriesVisibility"> & Omit<ChartControlsProps, "stackingControlsShown"> & TimeseriesSourceData & {
     /**
      * Show the chart controls. (default: true)
      *
@@ -491,10 +513,6 @@ type MetricsChartProps = Omit<CoreChartProps<Timeseries, Metric>, "chart" | "col
      * Show the legend. (default: true)
      */
     legendShown?: boolean;
-    /**
-     * Handler to display a tooltips with information about hovered metrics.
-     */
-    showTooltip?: ShowTooltipFn;
     /**
      * Show the stacking controls. (default: true)
      */

@@ -17,7 +17,6 @@
         "@visx/shape": "^3.0.0",
         "@visx/threshold": "^3.0.0",
         "d3-scale": "^4.0.2",
-        "d3-time-format": "^4.1.0",
         "framer-motion": "^10.12.4",
         "react-window": "^1.8.9",
         "throttle-debounce": "^5.0.0"

@@ -6,7 +6,6 @@ import { debounce } from 'throttle-debounce';
 import { Area } from '@visx/shape';
 import { Threshold } from '@visx/threshold';
 import { useMotionValue, animate } from 'framer-motion';
-import { utcFormat } from 'd3-time-format';
 import { scaleLinear } from '@visx/scale';
 import { VariableSizeList } from 'react-window';
 
@@ -960,9 +959,8 @@ function ChartContent({ chart , focusedShapeList , getShapeListColor , scales  }
 }
 
 const LABEL_OFFSET = 8;
-function BottomAxis({ scales: { xMax , xScale , yMax  } , strokeColor , strokeDasharray , ticks , xAxis: { maxValue , minValue  }  }) {
+function BottomAxis({ formatter , scales: { xMax , xScale , yMax  } , strokeColor , strokeDasharray , ticks , xAxis: { maxValue , minValue  }  }) {
     const { colorBase500 , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing  } = useTheme();
-    const formatter = getTimeFormatter(ticks);
     return /*#__PURE__*/ jsxs("g", {
         transform: `translate(0, ${yMax})`,
         children: [
@@ -989,43 +987,6 @@ function BottomAxis({ scales: { xMax , xScale , yMax  } , strokeColor , strokeDa
                 }, index))
         ]
     });
-}
-function getTimeFormatter(ticks) {
-    if (ticks.length < 2) {
-        // If there's only a single tick, just display the full timestamp.
-        return (time)=>new Date(time).toISOString();
-    }
-    const timeScale = getTimeScale(ticks[0], ticks[1]);
-    const formatter = getFormatter(timeScale);
-    return (time)=>formatter(new Date(time));
-}
-function getTimeScale(time1, time2) {
-    const delta = time2 - time1;
-    if (delta < 1000) {
-        return "milliseconds";
-    } else if (delta < 60 * 1000) {
-        return "seconds";
-    } else if (delta < 60 * 60 * 1000) {
-        return "minutes";
-    } else if (delta < 24 * 60 * 60 * 1000) {
-        return "hours";
-    } else {
-        return "days";
-    }
-}
-function getFormatter(unit) {
-    switch(unit){
-        case "milliseconds":
-            return utcFormat(".%L");
-        case "seconds":
-            return utcFormat("%M:%S");
-        case "minutes":
-            return utcFormat("%I:%M");
-        case "hours":
-            return utcFormat("%I %p");
-        case "days":
-            return utcFormat("%a %d");
-    }
 }
 
 function GridColumns({ scales: { xScale , yMax  } , xAxis: { maxValue , minValue  } , xTicks , ...lineProps }) {
@@ -1060,7 +1021,7 @@ function GridRows({ xMax , yScale , yTicks , ...lineProps }) {
     });
 }
 
-function LeftAxis({ scales: { yMax , yScale  } , strokeColor , strokeDasharray , strokeWidth , ticks  }) {
+function LeftAxis({ formatter , scales: { yMax , yScale  } , strokeColor , strokeDasharray , strokeWidth , ticks  }) {
     const { colorBase500 , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing  } = useTheme();
     const tickLabelProps = {
         dx: "-0.45em",
@@ -1074,7 +1035,6 @@ function LeftAxis({ scales: { yMax , yScale  } , strokeColor , strokeDasharray ,
         fill: colorBase500
     };
     const numTicks = ticks.length - 1;
-    const formatter = yScale.tickFormat(numTicks, "~s");
     return /*#__PURE__*/ jsxs("g", {
         children: [
             /*#__PURE__*/ jsx("line", {
@@ -1097,7 +1057,7 @@ function LeftAxis({ scales: { yMax , yScale  } , strokeColor , strokeDasharray ,
     });
 }
 
-const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDashArray , gridStrokeColor , scales  }) {
+const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDashArray , gridStrokeColor , scales , tickFormatters  }) {
     const { xMax , xScale , yMax , yScale  } = scales;
     const { colorBase300  } = useTheme();
     const strokeColor = gridStrokeColor || colorBase300;
@@ -1144,6 +1104,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
                 xTicks: xTicks
             }),
             /*#__PURE__*/ jsx(BottomAxis, {
+                formatter: tickFormatters.xFormatter,
                 scales: scales,
                 strokeColor: strokeColor,
                 strokeDasharray: gridDashArray,
@@ -1151,6 +1112,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
                 xAxis: xAxis
             }),
             /*#__PURE__*/ jsx(LeftAxis, {
+                formatter: tickFormatters.yFormatter,
                 scales: {
                     ...scales,
                     yScale: animatedScale
@@ -1969,76 +1931,6 @@ function getCursorFromState(state) {
         case "zoom":
             return "zoom-in";
     }
-}
-
-function TooltipBody({ labels  }) {
-    return /*#__PURE__*/ jsx("tbody", {
-        children: Object.entries(labels).map(([key, value])=>/*#__PURE__*/ jsxs("tr", {
-                children: [
-                    /*#__PURE__*/ jsxs(LabelTd, {
-                        children: [
-                            key,
-                            ":"
-                        ]
-                    }),
-                    /*#__PURE__*/ jsx(LabelTd, {
-                        children: value
-                    })
-                ]
-            }, key))
-    });
-}
-const LabelTd = styled.td`
-  word-wrap: anywhere;
-`;
-
-const TooltipCaption = styled.caption`
-  font-weight: bold;
-  text-align: center;
-  padding: 0 0 6px;
-  color: ${({ theme  })=>theme.colorBase400};
-`;
-
-function EventTooltip({ event  }) {
-    return /*#__PURE__*/ jsxs("table", {
-        children: [
-            /*#__PURE__*/ jsxs(TooltipCaption, {
-                children: [
-                    event.title,
-                    " @ ",
-                    event.time
-                ]
-            }),
-            /*#__PURE__*/ jsx(TooltipBody, {
-                labels: event.labels
-            })
-        ]
-    });
-}
-
-function TimeseriesTooltip({ timeseries , metric  }) {
-    return /*#__PURE__*/ jsxs("table", {
-        children: [
-            /*#__PURE__*/ jsx(TooltipCaption, {
-                children: metric.time
-            }),
-            /*#__PURE__*/ jsx("thead", {
-                children: /*#__PURE__*/ jsxs("tr", {
-                    children: [
-                        /*#__PURE__*/ jsx("th", {
-                            children: timeseries.name || "value"
-                        }),
-                        /*#__PURE__*/ jsx("th", {
-                            children: metric.value
-                        })
-                    ]
-                })
-            }),
-            /*#__PURE__*/ jsx(TooltipBody, {
-                labels: timeseries.labels
-            })
-        ]
-    });
 }
 
 /**
@@ -2900,12 +2792,6 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
             setFocusedShapeList(shapeList);
         }
     });
-    const showTooltip = useHandler((anchor, [series, point])=>props.showTooltip?.(anchor, series.type === "events" ? /*#__PURE__*/ jsx(EventTooltip, {
-            event: point
-        }) : /*#__PURE__*/ jsx(TimeseriesTooltip, {
-            timeseries: series,
-            metric: point
-        })) ?? noop);
     return /*#__PURE__*/ jsxs(Fragment, {
         children: [
             chartControlsShown && !readOnly && /*#__PURE__*/ jsx(ChartControls, {
@@ -2917,8 +2803,7 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
                 chart: chart,
                 focusedShapeList: focusedShapeList,
                 getShapeListColor: getShapeListColor,
-                onFocusedShapeListChange: onFocusedShapeListChange,
-                showTooltip: showTooltip
+                onFocusedShapeListChange: onFocusedShapeListChange
             }),
             legendShown && /*#__PURE__*/ jsx(TimeseriesLegend, {
                 ...props,
@@ -2981,6 +2866,7 @@ function SparkChart({ colors , graphType , stackingType , timeRange , timeseries
             getShapeListColor: getShapeListColor,
             gridShown: false,
             onChangeTimeRange: onChangeTimeRange,
+            tickFormatters: tickFormatters,
             timeRange: timeRange
         })
     });
@@ -2989,6 +2875,11 @@ const StyledChartSizeContainerProvider = styled(ChartSizeContainerProvider)`
   width: 100%;
   height: 100%;
 `;
+// Dummy formatters, since we don't display axes in a spark chart anyway.
+const tickFormatters = {
+    xFormatter: ()=>"",
+    yFormatter: ()=>""
+};
 
 export { MetricsChart, SparkChart };
 //# sourceMappingURL=index.js.map

@@ -6,17 +6,16 @@ import type {
   VirtualElement,
 } from "../CoreChart";
 import type { Metric, ProviderEvent, Timeseries } from "../providerTypes";
+import type { SeriesSource, TimeseriesSourceData } from "../Mondrian";
 import type { TimeseriesLegendProps } from "../TimeseriesLegend";
-import type { TimeseriesSourceData } from "../Mondrian";
 
 export type MetricsChartProps = Omit<
-  CoreChartProps<Timeseries, Metric>,
+  CoreChartProps<SeriesSource, Metric | ProviderEvent>,
   | "chart"
   | "colors"
   | "focusedShapeList"
   | "getShapeListColor"
   | "onFocusedShapeListChange"
-  | "showTooltip"
 > &
   Pick<
     TimeseriesLegendProps<Timeseries, Metric>,
@@ -54,11 +53,6 @@ export type MetricsChartProps = Omit<
      * Show the legend. (default: true)
      */
     legendShown?: boolean;
-
-    /**
-     * Handler to display a tooltips with information about hovered metrics.
-     */
-    showTooltip?: ShowTooltipFn;
 
     /**
      * Show the stacking controls. (default: true)

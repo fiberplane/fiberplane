@@ -5,6 +5,7 @@ import {
   ChartSizeContainerProvider,
   CoreChart,
   CoreChartProps,
+  TickFormatters,
 } from "../CoreChart";
 import { Metric, Timeseries } from "../providerTypes";
 import {
@@ -72,6 +73,7 @@ export function SparkChart({
         getShapeListColor={getShapeListColor}
         gridShown={false}
         onChangeTimeRange={onChangeTimeRange}
+        tickFormatters={tickFormatters}
         timeRange={timeRange}
       />
     </StyledChartSizeContainerProvider>
@@ -82,3 +84,9 @@ const StyledChartSizeContainerProvider = styled(ChartSizeContainerProvider)`
   width: 100%;
   height: 100%;
 `;
+
+// Dummy formatters, since we don't display axes in a spark chart anyway.
+const tickFormatters: TickFormatters = {
+  xFormatter: () => "",
+  yFormatter: () => "",
+};

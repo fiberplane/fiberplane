@@ -12,7 +12,6 @@ export default {
     "@visx/scale",
     "@visx/shape",
     "@visx/threshold",
-    "d3-time-format",
     "framer-motion",
     "react",
     "react/jsx-runtime",

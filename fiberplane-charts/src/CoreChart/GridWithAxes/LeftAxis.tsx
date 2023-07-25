@@ -1,8 +1,9 @@
 import { useTheme } from "styled-components";
 
-import type { Scales } from "../types";
+import type { Scales, TickFormatters } from "../types";
 
 type Props = {
+  formatter: TickFormatters["yFormatter"];
   scales: Scales;
   strokeColor: string;
   strokeDasharray?: string;
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export function LeftAxis({
+  formatter,
   scales: { yMax, yScale },
   strokeColor,
   strokeDasharray,
@@ -39,7 +41,6 @@ export function LeftAxis({
   };
 
   const numTicks = ticks.length - 1;
-  const formatter = yScale.tickFormat(numTicks, "~s");
 
   return (
     <g>
