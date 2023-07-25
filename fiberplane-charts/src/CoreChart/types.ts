@@ -1,6 +1,6 @@
 import type { ScaleLinear } from "d3-scale";
 
-import type { AbstractChart, ShapeList } from "../Mondrian";
+import type { AbstractChart, Axis, ShapeList } from "../Mondrian";
 import type { TimeRange } from "../providerTypes";
 
 /**
@@ -87,7 +87,7 @@ export type CoreChartProps<S, P> = {
   /**
    * Functions for formatting the ticks that are displayed along the axes.
    */
-  tickFormatters: TickFormatters;
+  tickFormatters: TickFormatters | TimeFormattersFactory;
 
   /**
    * The time range for which to display the data.
@@ -118,6 +118,11 @@ export type TickFormatters = {
    */
   yFormatter(value: number): string;
 };
+
+export type TimeFormattersFactory = (
+  xAxis: Axis,
+  yAxis: Axis,
+) => TickFormatters;
 
 export type ShowTooltipFn<S, P> = (
   anchor: TooltipAnchor,

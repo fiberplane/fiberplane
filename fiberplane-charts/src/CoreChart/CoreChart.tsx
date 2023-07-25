@@ -1,4 +1,4 @@
-import { useContext, useEffect, useId } from "react";
+import { useContext, useEffect, useId, useMemo } from "react";
 
 import { ChartContent } from "./ChartContent";
 import { ChartSizeContext } from "./ChartSizeContext";
@@ -65,6 +65,12 @@ export function CoreChart<S, P>({
 
   const scales = useScales(dimensions, mouseInteraction);
 
+  const tickFormatters = useMemo(() => {
+    return typeof props.tickFormatters === "function"
+      ? props.tickFormatters(chart.xAxis, chart.yAxis)
+      : props.tickFormatters;
+  }, [chart, props.tickFormatters]);
+
   useEffect(() => {
     const wheelListenerOptions: AddEventListenerOptions = { passive: false };
     window.addEventListener("keydown", updatePressedKeys);
@@ -94,7 +100,14 @@ export function CoreChart<S, P>({
         </clipPath>
       </defs>
       <g transform={`translate(${marginLeft}, ${marginTop})`}>
-        {gridShown && <GridWithAxes {...props} chart={chart} scales={scales} />}
+        {gridShown && (
+          <GridWithAxes
+            {...props}
+            chart={chart}
+            scales={scales}
+            tickFormatters={tickFormatters}
+          />
+        )}
         <g clipPath={`url(#${clipPathId})`}>
           <ChartContent
             {...props}

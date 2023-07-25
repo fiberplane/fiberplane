@@ -1,102 +1,3 @@
-interface ChartTheme {
-  colorBackground: string;
-  colorForeground: string;
-  colorBase100: string;
-  colorBase200: string;
-  colorBase300: string;
-  colorBase400: string;
-  colorBase500: string;
-  colorBase600: string;
-  colorBase700: string;
-  colorBase800: string;
-  colorPrimary50: string;
-  colorPrimary100: string;
-  colorPrimary200: string;
-  colorPrimary300: string;
-  colorPrimary400: string;
-  colorPrimary500: string;
-  colorPrimary600: string;
-  colorPrimary700: string;
-  colorPrimary800: string;
-  colorPrimaryAlpha50: string;
-  colorPrimaryAlpha100: string;
-  colorPrimaryAlpha200: string;
-  colorPrimaryAlpha300: string;
-  colorPrimaryAlpha400: string;
-  colorSupport1100: string;
-  colorSupport1200: string;
-  colorSupport1300: string;
-  colorSupport1400: string;
-  colorSupport2100: string;
-  colorSupport2200: string;
-  colorSupport2300: string;
-  colorSupport2400: string;
-  colorSupport3100: string;
-  colorSupport3200: string;
-  colorSupport3300: string;
-  colorSupport3400: string;
-  colorSupport4100: string;
-  colorSupport4200: string;
-  colorSupport4300: string;
-  colorSupport4400: string;
-  colorSupport5100: string;
-  colorSupport5200: string;
-  colorSupport5300: string;
-  colorSupport5400: string;
-  colorSupport6100: string;
-  colorSupport6200: string;
-  colorSupport6300: string;
-  colorSupport6400: string;
-  colorSupport7100: string;
-  colorSupport7200: string;
-  colorSupport7300: string;
-  colorSupport7400: string;
-  colorSupport8100: string;
-  colorSupport8200: string;
-  colorSupport8300: string;
-  colorSupport8400: string;
-  colorSupport9100: string;
-  colorSupport9200: string;
-  colorSupport9300: string;
-  colorSupport9400: string;
-  colorSupport10100: string;
-  colorSupport10200: string;
-  colorSupport10300: string;
-  colorSupport10400: string;
-  colorSupport11100: string;
-  colorSupport11200: string;
-  colorSupport11300: string;
-  colorSupport11400: string;
-  fontAxisFontSize: string;
-  fontAxisFontFamily: string;
-  fontAxisFontWeight: string;
-  fontAxisFontStyle: string;
-  fontAxisLetterSpacing: string;
-  fontAxisLineHeight: string;
-  fontAxisShortHand: string;
-  fontControlsLetterSpacing: string;
-  fontControlsShortHand: string;
-  fontLegendLetterSpacing: string;
-  fontLegendShortHand: string;
-  fontResultsSummaryLetterSpacing: string;
-  fontResultsSummaryShortHand: string;
-  effectFocusOutline: string;
-  effectFocus: string;
-  effectNone: string;
-  borderRadius300: string;
-  borderRadius400: string;
-  borderRadius500: string;
-  borderRadius600: string;
-  borderRadius700: string;
-  borderRadiusNone: string;
-  borderRadiusRound: string;
-}
-
-declare module "styled-components" {
-  // rome-ignore lint/suspicious/noEmptyInterface: <explanation>
-  export interface DefaultTheme extends ChartTheme {}
-}
-
 type GraphType = "bar" | "line";
 /**
  * A single metric value.
@@ -336,54 +237,104 @@ type Rectangle<P> = {
     source: P;
 };
 
-type TimeseriesLegendProps<S extends Timeseries, P> = {
-    getShapeListColor: (shapeList: ShapeList<S, P>) => string;
-    /**
-     * Handler that is invoked when the focused shape list is changed.
-     */
-    onFocusedShapeListChange?: (shapeList: ShapeList<S, P> | null) => void;
-    /**
-     * Handler that is invoked when the user toggles the visibility of a
-     * timeseries.
-     *
-     * If no handler is specified, no UI for toggling the visibility of timeseries
-     * is presented.
-     */
-    onToggleTimeseriesVisibility?: (event: ToggleTimeseriesEvent) => void;
-    /**
-     * Whether the chart is read-only.
-     *
-     * Set to `true` to disable interactive controls.
-     */
-    readOnly?: boolean;
-    /**
-     * Show the footer with the expand button & results text (default: true).
-     */
-    footerShown?: boolean;
-    /**
-     * Array of shape lists for the timeseries data to display in the legend.
-     */
-    shapeLists: Array<ShapeList<S, P>>;
-};
-type ToggleTimeseriesEvent = {
-    /**
-     * The timeseries that was toggled.
-     */
-    timeseries: Timeseries;
-    /**
-     * If `true`, the visibility should be toggled of all timeseries *except* the
-     * one specified.
-     */
-    toggleOthers: boolean;
-};
+interface ChartTheme {
+  colorBackground: string;
+  colorForeground: string;
+  colorBase100: string;
+  colorBase200: string;
+  colorBase300: string;
+  colorBase400: string;
+  colorBase500: string;
+  colorBase600: string;
+  colorBase700: string;
+  colorBase800: string;
+  colorPrimary50: string;
+  colorPrimary100: string;
+  colorPrimary200: string;
+  colorPrimary300: string;
+  colorPrimary400: string;
+  colorPrimary500: string;
+  colorPrimary600: string;
+  colorPrimary700: string;
+  colorPrimary800: string;
+  colorPrimaryAlpha50: string;
+  colorPrimaryAlpha100: string;
+  colorPrimaryAlpha200: string;
+  colorPrimaryAlpha300: string;
+  colorPrimaryAlpha400: string;
+  colorSupport1100: string;
+  colorSupport1200: string;
+  colorSupport1300: string;
+  colorSupport1400: string;
+  colorSupport2100: string;
+  colorSupport2200: string;
+  colorSupport2300: string;
+  colorSupport2400: string;
+  colorSupport3100: string;
+  colorSupport3200: string;
+  colorSupport3300: string;
+  colorSupport3400: string;
+  colorSupport4100: string;
+  colorSupport4200: string;
+  colorSupport4300: string;
+  colorSupport4400: string;
+  colorSupport5100: string;
+  colorSupport5200: string;
+  colorSupport5300: string;
+  colorSupport5400: string;
+  colorSupport6100: string;
+  colorSupport6200: string;
+  colorSupport6300: string;
+  colorSupport6400: string;
+  colorSupport7100: string;
+  colorSupport7200: string;
+  colorSupport7300: string;
+  colorSupport7400: string;
+  colorSupport8100: string;
+  colorSupport8200: string;
+  colorSupport8300: string;
+  colorSupport8400: string;
+  colorSupport9100: string;
+  colorSupport9200: string;
+  colorSupport9300: string;
+  colorSupport9400: string;
+  colorSupport10100: string;
+  colorSupport10200: string;
+  colorSupport10300: string;
+  colorSupport10400: string;
+  colorSupport11100: string;
+  colorSupport11200: string;
+  colorSupport11300: string;
+  colorSupport11400: string;
+  fontAxisFontSize: string;
+  fontAxisFontFamily: string;
+  fontAxisFontWeight: string;
+  fontAxisFontStyle: string;
+  fontAxisLetterSpacing: string;
+  fontAxisLineHeight: string;
+  fontAxisShortHand: string;
+  fontControlsLetterSpacing: string;
+  fontControlsShortHand: string;
+  fontLegendLetterSpacing: string;
+  fontLegendShortHand: string;
+  fontResultsSummaryLetterSpacing: string;
+  fontResultsSummaryShortHand: string;
+  effectFocusOutline: string;
+  effectFocus: string;
+  effectNone: string;
+  borderRadius300: string;
+  borderRadius400: string;
+  borderRadius500: string;
+  borderRadius600: string;
+  borderRadius700: string;
+  borderRadiusNone: string;
+  borderRadiusRound: string;
+}
 
-type ChartControlsProps = {
-    graphType: GraphType;
-    onChangeGraphType?: (graphType: GraphType) => void;
-    onChangeStackingType?: (stackingType: StackingType) => void;
-    stackingControlsShown: boolean;
-    stackingType: StackingType;
-};
+declare module "styled-components" {
+  // rome-ignore lint/suspicious/noEmptyInterface: <explanation>
+  export interface DefaultTheme extends ChartTheme {}
+}
 
 type CoreChartProps<S, P> = {
     /**
@@ -451,7 +402,7 @@ type CoreChartProps<S, P> = {
     /**
      * Functions for formatting the ticks that are displayed along the axes.
      */
-    tickFormatters: TickFormatters;
+    tickFormatters: TickFormatters | TimeFormattersFactory;
     /**
      * The time range for which to display the data.
      *
@@ -470,6 +421,7 @@ type TickFormatters = {
      */
     yFormatter(value: number): string;
 };
+type TimeFormattersFactory = (xAxis: Axis, yAxis: Axis) => TickFormatters;
 type ShowTooltipFn$1<S, P> = (anchor: TooltipAnchor, closestSource: [S, P]) => CloseTooltipFn;
 /**
  * Function to invoke to close the tooltip.
@@ -484,6 +436,55 @@ type TooltipAnchor = HTMLElement | VirtualElement;
 type VirtualElement = {
     getBoundingClientRect: () => DOMRect;
     contextElement: Element;
+};
+
+type TimeseriesLegendProps<S extends Timeseries, P> = {
+    getShapeListColor: (shapeList: ShapeList<S, P>) => string;
+    /**
+     * Handler that is invoked when the focused shape list is changed.
+     */
+    onFocusedShapeListChange?: (shapeList: ShapeList<S, P> | null) => void;
+    /**
+     * Handler that is invoked when the user toggles the visibility of a
+     * timeseries.
+     *
+     * If no handler is specified, no UI for toggling the visibility of timeseries
+     * is presented.
+     */
+    onToggleTimeseriesVisibility?: (event: ToggleTimeseriesEvent) => void;
+    /**
+     * Whether the chart is read-only.
+     *
+     * Set to `true` to disable interactive controls.
+     */
+    readOnly?: boolean;
+    /**
+     * Show the footer with the expand button & results text (default: true).
+     */
+    footerShown?: boolean;
+    /**
+     * Array of shape lists for the timeseries data to display in the legend.
+     */
+    shapeLists: Array<ShapeList<S, P>>;
+};
+type ToggleTimeseriesEvent = {
+    /**
+     * The timeseries that was toggled.
+     */
+    timeseries: Timeseries;
+    /**
+     * If `true`, the visibility should be toggled of all timeseries *except* the
+     * one specified.
+     */
+    toggleOthers: boolean;
+};
+
+type ChartControlsProps = {
+    graphType: GraphType;
+    onChangeGraphType?: (graphType: GraphType) => void;
+    onChangeStackingType?: (stackingType: StackingType) => void;
+    stackingControlsShown: boolean;
+    stackingType: StackingType;
 };
 
 type MetricsChartProps = Omit<CoreChartProps<SeriesSource, Metric | ProviderEvent>, "chart" | "colors" | "focusedShapeList" | "getShapeListColor" | "onFocusedShapeListChange"> & Pick<TimeseriesLegendProps<Timeseries, Metric>, "footerShown" | "onToggleTimeseriesVisibility"> & Omit<ChartControlsProps, "stackingControlsShown"> & TimeseriesSourceData & {
@@ -537,4 +538,4 @@ type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange"> & Tim
 };
 declare function SparkChart({ colors, graphType, stackingType, timeRange, timeseriesData, onChangeTimeRange, }: Props): JSX.Element;
 
-export { ChartTheme, CloseTooltipFn, GraphType, Metric, MetricsChart, MetricsChartProps, OtelMetadata, ProviderEvent, SeriesSource, ShowTooltipFn, SparkChart, StackingType, TimeRange, Timeseries, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement };
+export { Axis, ChartTheme, CloseTooltipFn, GraphType, Metric, MetricsChart, MetricsChartProps, OtelMetadata, ProviderEvent, SeriesSource, ShowTooltipFn, SparkChart, StackingType, TickFormatters, TimeFormattersFactory, TimeRange, Timeseries, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement };

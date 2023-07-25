@@ -1826,6 +1826,12 @@ function CoreChart({ chart , getShapeListColor , gridShown =true , onChangeTimeR
     const clipPathId = useId();
     const cursor = getCursorFromState(interactiveControls);
     const scales = useScales(dimensions, mouseInteraction);
+    const tickFormatters = useMemo(()=>{
+        return typeof props.tickFormatters === "function" ? props.tickFormatters(chart.xAxis, chart.yAxis) : props.tickFormatters;
+    }, [
+        chart,
+        props.tickFormatters
+    ]);
     useEffect(()=>{
         const wheelListenerOptions = {
             passive: false
@@ -1872,7 +1878,8 @@ function CoreChart({ chart , getShapeListColor , gridShown =true , onChangeTimeR
                     gridShown && /*#__PURE__*/ jsx(GridWithAxes, {
                         ...props,
                         chart: chart,
-                        scales: scales
+                        scales: scales,
+                        tickFormatters: tickFormatters
                     }),
                     /*#__PURE__*/ jsx("g", {
                         clipPath: `url(#${clipPathId})`,
