@@ -109,7 +109,7 @@ export function metricEntryToTimeseries(entry: unknown): Timeseries {
  * @param round The rounding function to use. Use `Math.floor` for the start
  *              of the time range, and `Math.ceil` for the end.
  */
-function roundToGrid(
+export function roundToGrid(
   timestamp: Timestamp,
   stepSeconds: number,
   round: typeof Math.round,

@@ -123,5 +123,5 @@ function isObject(maybeObject) {
     return typeof maybeObject === "object" && maybeObject != null;
 }
 
-export { getStepFromTimeRange, metricEntryToTimeseries, querySeries };
+export { getStepFromTimeRange, metricEntryToTimeseries, querySeries, roundToGrid };
 //# sourceMappingURL=index.js.map

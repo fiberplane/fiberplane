@@ -66,6 +66,18 @@ declare function querySeries(query: string, timeRange: TimeRange, { baseUrl, mod
  */
 declare function metricEntryToTimeseries(entry: unknown): Timeseries;
 /**
+ * Rounds the timestamp to a "grid" with intervals defined by the step size.
+ * This assures that when we scroll a chart forward or backward in time, we
+ * "snap" to the same grid, to avoid the issue of bucket realignment, giving
+ * unexpected jumps in the graph.
+ *
+ * @param timestamp The timestamp to round.
+ * @param stepSeconds The amount of seconds used for the step size.
+ * @param round The rounding function to use. Use `Math.floor` for the start
+ *              of the time range, and `Math.ceil` for the end.
+ */
+declare function roundToGrid(timestamp: Timestamp, stepSeconds: number, round: typeof Math.round): Timestamp;
+/**
  * Calculates the step size to be used in Prometheus queries.
  *
  * @returns Step size, both as a string to use with Prometheus, and a number of
@@ -73,4 +85,4 @@ declare function metricEntryToTimeseries(entry: unknown): Timeseries;
  */
 declare function getStepFromTimeRange(timeRange: TimeRange): [string, number];
 
-export { Metric, OtelMetadata, OtelSpanId, OtelTraceId, QueryPrometheusOptions, TimeRange, Timeseries, Timestamp, getStepFromTimeRange, metricEntryToTimeseries, querySeries };
+export { Metric, OtelMetadata, OtelSpanId, OtelTraceId, QueryPrometheusOptions, TimeRange, Timeseries, Timestamp, getStepFromTimeRange, metricEntryToTimeseries, querySeries, roundToGrid };
