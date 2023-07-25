@@ -1,15 +1,10 @@
 import type { Metric, TimeRange, Timeseries, Timestamp } from "./providerTypes";
 
-export type QueryPrometheusOptions = {
+export type QueryPrometheusOptions = RequestInit & {
   /**
    * Base URL to the Prometheus service, without trailing slash.
    */
   baseUrl: string;
-
-  /**
-   * Optional headers to pass along the request.
-   */
-  headers?: HeadersInit;
 };
 
 /**
@@ -21,7 +16,7 @@ export type QueryPrometheusOptions = {
 export async function querySeries(
   query: string,
   timeRange: TimeRange,
-  { baseUrl, headers }: QueryPrometheusOptions,
+  { baseUrl, mode = "cors", ...requestInit }: QueryPrometheusOptions,
 ): Promise<Array<Timeseries>> {
   const [stepParam, stepSeconds] = getStepFromTimeRange(timeRange);
 
@@ -32,7 +27,7 @@ export async function querySeries(
   params.append("step", stepParam);
 
   const url = `${baseUrl}/prometheus/api/v1/query_range?${params.toString()}`;
-  const response = await fetch(url, { mode: "cors", headers });
+  const response = await fetch(url, { mode, ...requestInit });
   if (!response.ok) {
     throw new Error("Error fetching prometheus data");
   }
@@ -61,7 +56,7 @@ export async function querySeries(
  *
  * @param entry An entry returned by the Prometheus `query_range` API.
  */
-function metricEntryToTimeseries(entry: unknown): Timeseries {
+export function metricEntryToTimeseries(entry: unknown): Timeseries {
   if (!isObject(entry)) {
     throw new Error("Unexpected entry in Prometheus response");
   }
@@ -76,7 +71,7 @@ function metricEntryToTimeseries(entry: unknown): Timeseries {
     throw new Error("Invalid or missing name in Prometheus response");
   }
 
-  if (!hasStringValues(labels)) {
+  if (!hasOnlyStringValues(labels)) {
     throw new Error("Invalid or missing label value in Prometheus response");
   }
 
@@ -126,13 +121,12 @@ function roundToGrid(
 }
 
 /**
- * Create a step size string from a time range, to be used in Prometheus queries
- * This logic was translated from the Rust provider codebase
+ * Calculates the step size to be used in Prometheus queries.
  *
  * @returns Step size, both as a string to use with Prometheus, and a number of
  *          seconds.
  */
-function getStepFromTimeRange(timeRange: TimeRange): [string, number] {
+export function getStepFromTimeRange(timeRange: TimeRange): [string, number] {
   const from = getSecondsFromTimestamp(timeRange.from);
   const to = getSecondsFromTimestamp(timeRange.to);
 
@@ -160,7 +154,7 @@ function getSecondsFromTimestamp(timestamp: Timestamp): number {
   return +new Date(timestamp) / 1000;
 }
 
-function hasStringValues(
+function hasOnlyStringValues(
   object: Record<string, unknown>,
 ): object is Record<string, string> {
   return Object.values(object).every((label) => typeof label === "string");

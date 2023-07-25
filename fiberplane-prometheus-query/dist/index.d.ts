@@ -45,15 +45,11 @@ type Timeseries = {
 } & OtelMetadata;
 type Timestamp = string;
 
-type QueryPrometheusOptions = {
+type QueryPrometheusOptions = RequestInit & {
     /**
      * Base URL to the Prometheus service, without trailing slash.
      */
     baseUrl: string;
-    /**
-     * Optional headers to pass along the request.
-     */
-    headers?: HeadersInit;
 };
 /**
  * Fetches timeseries data from the Prometheus `query_range` endpoint.
@@ -61,6 +57,20 @@ type QueryPrometheusOptions = {
  * @param query Prometheus query string.
  * @param timeRange Time range to fetch the data for.
  */
-declare function querySeries(query: string, timeRange: TimeRange, { baseUrl, headers }: QueryPrometheusOptions): Promise<Array<Timeseries>>;
+declare function querySeries(query: string, timeRange: TimeRange, { baseUrl, mode, ...requestInit }: QueryPrometheusOptions): Promise<Array<Timeseries>>;
+/**
+ * Maps an entry from the result array returned by the Prometheus API to a
+ * Timeseries object.
+ *
+ * @param entry An entry returned by the Prometheus `query_range` API.
+ */
+declare function metricEntryToTimeseries(entry: unknown): Timeseries;
+/**
+ * Calculates the step size to be used in Prometheus queries.
+ *
+ * @returns Step size, both as a string to use with Prometheus, and a number of
+ *          seconds.
+ */
+declare function getStepFromTimeRange(timeRange: TimeRange): [string, number];
 
-export { Metric, OtelMetadata, OtelSpanId, OtelTraceId, QueryPrometheusOptions, TimeRange, Timeseries, Timestamp, querySeries };
+export { Metric, OtelMetadata, OtelSpanId, OtelTraceId, QueryPrometheusOptions, TimeRange, Timeseries, Timestamp, getStepFromTimeRange, metricEntryToTimeseries, querySeries };

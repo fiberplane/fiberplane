@@ -3,7 +3,7 @@
  *
  * @param query Prometheus query string.
  * @param timeRange Time range to fetch the data for.
- */ async function querySeries(query, timeRange, { baseUrl , headers  }) {
+ */ async function querySeries(query, timeRange, { baseUrl , mode ="cors" , ...requestInit }) {
     const [stepParam, stepSeconds] = getStepFromTimeRange(timeRange);
     const params = new URLSearchParams();
     params.append("query", query);
@@ -12,8 +12,8 @@
     params.append("step", stepParam);
     const url = `${baseUrl}/prometheus/api/v1/query_range?${params.toString()}`;
     const response = await fetch(url, {
-        mode: "cors",
-        headers
+        mode,
+        ...requestInit
     });
     if (!response.ok) {
         throw new Error("Error fetching prometheus data");
@@ -49,7 +49,7 @@
     if (typeof name !== "string") {
         throw new Error("Invalid or missing name in Prometheus response");
     }
-    if (!hasStringValues(labels)) {
+    if (!hasOnlyStringValues(labels)) {
         throw new Error("Invalid or missing label value in Prometheus response");
     }
     const metrics = values.map((value)=>{
@@ -87,8 +87,7 @@
     return new Date(round(seconds / stepSeconds) * stepSeconds * 1000).toISOString();
 }
 /**
- * Create a step size string from a time range, to be used in Prometheus queries
- * This logic was translated from the Rust provider codebase
+ * Calculates the step size to be used in Prometheus queries.
  *
  * @returns Step size, both as a string to use with Prometheus, and a number of
  *          seconds.
@@ -117,12 +116,12 @@
 function getSecondsFromTimestamp(timestamp) {
     return +new Date(timestamp) / 1000;
 }
-function hasStringValues(object) {
+function hasOnlyStringValues(object) {
     return Object.values(object).every((label)=>typeof label === "string");
 }
 function isObject(maybeObject) {
     return typeof maybeObject === "object" && maybeObject != null;
 }
 
-export { querySeries };
+export { getStepFromTimeRange, metricEntryToTimeseries, querySeries };
 //# sourceMappingURL=index.js.map
