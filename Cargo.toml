@@ -11,6 +11,7 @@ members = [
     "fiberplane-provider-protocol/fiberplane-provider-bindings",
     "fiberplane-provider-protocol/fiberplane-provider-runtime",
     "fiberplane-templates",
+    "mondrian-charts",
     "xtask",
 ]
 
