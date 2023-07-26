@@ -1149,6 +1149,15 @@ function getTicks(axis, max, scale, numTicks, getMaxAllowedTick) {
 }
 function getTicksFromRange(minValue, maxValue, numTicks) {
     const interval = (maxValue - minValue) / numTicks;
+    // NOTE - We need to handle the case where the interval is less than EPSILON,
+    //        which is the smallest interval we can represent with javascript's floating point precision
+    //        (see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/EPSILON)
+    if (interval < Number.EPSILON) {
+        return [
+            minValue,
+            maxValue
+        ];
+    }
     const ticks = [
         minValue
     ];

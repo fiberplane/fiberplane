@@ -126,6 +126,13 @@ function getTicksFromRange(
 ): Array<number> {
   const interval = (maxValue - minValue) / numTicks;
 
+  // NOTE - We need to handle the case where the interval is less than EPSILON,
+  //        which is the smallest interval we can represent with javascript's floating point precision
+  //        (see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/EPSILON)
+  if (interval < Number.EPSILON) {
+    return [minValue, maxValue];
+  }
+
   const ticks = [minValue];
   let tick = minValue + interval;
 
