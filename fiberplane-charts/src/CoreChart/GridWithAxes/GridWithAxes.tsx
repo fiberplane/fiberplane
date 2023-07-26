@@ -42,11 +42,11 @@ export const GridWithAxes = memo(function GridWithAxes({
   const animatedScale = yScale.copy().domain([minValue, maxValue]);
 
   const xTicks = useMemo(
-    () => getTicks(xAxis, xMax, xScale, 12),
+    () => getTicks(xAxis, xMax, xScale, 12, getMaxXTickValue),
     [xAxis, xMax, xScale],
   );
   const yTicks = useMemo(
-    () => getTicks(yAxis, yMax, animatedScale, 8),
+    () => getTicks(yAxis, yMax, animatedScale, 8, getMaxYTickValue),
     [yAxis, yMax, animatedScale],
   );
 
@@ -106,6 +106,7 @@ function getTicks(
   max: number,
   scale: Scale,
   numTicks: number,
+  getMaxAllowedTick: (ticks: Array<number>, maxValue: number) => number,
 ): Array<number> {
   const suggestions = axis.tickSuggestions;
   const ticks = suggestions
@@ -113,6 +114,7 @@ function getTicks(
     : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
 
   extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks);
+  removeLastTickIfTooCloseToMax(ticks, axis.maxValue, getMaxAllowedTick);
 
   return ticks;
 }
@@ -126,6 +128,7 @@ function getTicksFromRange(
 
   const ticks = [minValue];
   let tick = minValue + interval;
+
   while (tick < maxValue) {
     ticks.push(tick);
     tick += interval;
@@ -226,3 +229,66 @@ function useCustomSpring(value: number) {
 
   return current;
 }
+
+/**
+ * When rendering our svg charts, we want to avoid cutting off tick labels.
+ * The way we can do this (simiar to visx's solution) is by not rendering ticks,
+ * if they are too close to the axis's max value.
+ *
+ * The definition of what is "too close" to the max value
+ * is determined by the `getMaxTickValue` function.
+ *
+ * @note This function mutates the input ticks.
+ */
+const removeLastTickIfTooCloseToMax = (
+  ticks: Array<number>,
+  maxValue: number,
+  getMaxAllowedTick: (ticks: Array<number>, maxValue: number) => number,
+) => {
+  if (ticks.length < 2) {
+    return;
+  }
+
+  const maxTickValue = getMaxAllowedTick(ticks, maxValue);
+
+  const lastTick = ticks[ticks.length - 1];
+  if (lastTick > maxTickValue) {
+    ticks.pop();
+  }
+};
+
+/**
+ * Returns a maximum allowed tick value for the x-axis.
+ *
+ * Heuristic:
+ *   If a tick's distance to the maxValue is within 1/2 the size of the tick-interval,
+ *   the tick will get dropped.
+ *
+ * Note that the heuristic was determined by trial and error.
+ */
+const getMaxXTickValue = (ticks: Array<number>, maxValue: number) => {
+  if (ticks.length < 2) {
+    return maxValue;
+  }
+
+  const interval = ticks[1] - ticks[0];
+  return maxValue - interval / 2;
+};
+
+/**
+ * Returns a maximum allowed tick value for the x-axis.
+ *
+ * Heuristic:
+ *   If a tick's distance to the maxValue is within 1/3 the size of the tick-interval,
+ *   the tick will get dropped.
+ *
+ * Note that the heuristic was determined by trial and error.
+ */
+const getMaxYTickValue = (ticks: Array<number>, maxValue: number) => {
+  if (ticks.length < 2) {
+    return maxValue;
+  }
+
+  const interval = ticks[1] - ticks[0];
+  return maxValue - interval / 3;
+};

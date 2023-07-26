@@ -12,6 +12,7 @@ import {
   useTooltip,
 } from "./hooks";
 import { ZoomBar } from "./ZoomBar";
+import { CHART_SHAPE_OVERFLOW_MARGIN } from "./constants";
 
 export function CoreChart<S, P>({
   chart,
@@ -83,11 +84,17 @@ export function CoreChart<S, P>({
     };
   }, [onWheel, updatePressedKeys]);
 
+  const clipPathYStart = -1 * CHART_SHAPE_OVERFLOW_MARGIN;
+  const clipPathHeight = yMax + 2 * CHART_SHAPE_OVERFLOW_MARGIN;
+  // HACK - For spark charts, the clip path can be larger than the chart itself,
+  //        which leads to points getting cut off
+  const svgHeight = height > clipPathHeight ? height : clipPathHeight;
+
   return (
     // rome-ignore lint/a11y/noSvgWithoutTitle: title would interfere with tooltip
     <svg
       width={width}
-      height={height}
+      height={svgHeight}
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
@@ -96,7 +103,7 @@ export function CoreChart<S, P>({
     >
       <defs>
         <clipPath id={clipPathId}>
-          <rect x={0} y={0} width={xMax} height={yMax} />
+          <rect x={0} y={clipPathYStart} width={xMax} height={clipPathHeight} />
         </clipPath>
       </defs>
       <g transform={`translate(${marginLeft}, ${marginTop})`}>

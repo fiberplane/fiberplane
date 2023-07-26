@@ -897,11 +897,26 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , color , f
     });
 });
 
+// Dimensions of the chart
+const HEIGHT = 275;
+const MARGINS = {
+    top: 0,
+    bottom: 20,
+    left: 38,
+    right: 0
+};
+// Dimensions of points on the chart
+const POINT_RADIUS = 1;
+const POINT_RADIUS_FOCUSED = 2;
+// If a point is directly on the edge of the chart, it can be cut off.
+// This overflow margin ensures that the point is still visible.
+const CHART_SHAPE_OVERFLOW_MARGIN = POINT_RADIUS_FOCUSED;
+
 const PointShape = /*#__PURE__*/ memo(function PointShape({ color , focused , point , scales  }) {
     return /*#__PURE__*/ jsx("circle", {
         cx: scales.xScale(point.x),
         cy: scales.yScale(point.y),
-        r: focused ? 2 : 1,
+        r: focused ? POINT_RADIUS_FOCUSED : POINT_RADIUS,
         stroke: color,
         fill: color
     });
@@ -1068,12 +1083,12 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
         minValue,
         maxValue
     ]);
-    const xTicks = useMemo(()=>getTicks(xAxis, xMax, xScale, 12), [
+    const xTicks = useMemo(()=>getTicks(xAxis, xMax, xScale, 12, getMaxXTickValue), [
         xAxis,
         xMax,
         xScale
     ]);
-    const yTicks = useMemo(()=>getTicks(yAxis, yMax, animatedScale, 8), [
+    const yTicks = useMemo(()=>getTicks(yAxis, yMax, animatedScale, 8, getMaxYTickValue), [
         yAxis,
         yMax,
         animatedScale
@@ -1125,10 +1140,11 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
         ]
     });
 });
-function getTicks(axis, max, scale, numTicks) {
+function getTicks(axis, max, scale, numTicks, getMaxAllowedTick) {
     const suggestions = axis.tickSuggestions;
     const ticks = suggestions ? getTicksFromSuggestions(axis, suggestions, numTicks) : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
     extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks);
+    removeLastTickIfTooCloseToMax(ticks, axis.maxValue, getMaxAllowedTick);
     return ticks;
 }
 function getTicksFromRange(minValue, maxValue, numTicks) {
@@ -1217,6 +1233,55 @@ function useCustomSpring(value) {
     ]);
     return current;
 }
+/**
+ * When rendering our svg charts, we want to avoid cutting off tick labels.
+ * The way we can do this (simiar to visx's solution) is by not rendering ticks,
+ * if they are too close to the axis's max value.
+ *
+ * The definition of what is "too close" to the max value
+ * is determined by the `getMaxTickValue` function.
+ *
+ * @note This function mutates the input ticks.
+ */ const removeLastTickIfTooCloseToMax = (ticks, maxValue, getMaxAllowedTick)=>{
+    if (ticks.length < 2) {
+        return;
+    }
+    const maxTickValue = getMaxAllowedTick(ticks, maxValue);
+    const lastTick = ticks[ticks.length - 1];
+    if (lastTick > maxTickValue) {
+        ticks.pop();
+    }
+};
+/**
+ * Returns a maximum allowed tick value for the x-axis.
+ *
+ * Heuristic:
+ *   If a tick's distance to the maxValue is within 1/2 the size of the tick-interval,
+ *   the tick will get dropped.
+ *
+ * Note that the heuristic was determined by trial and error.
+ */ const getMaxXTickValue = (ticks, maxValue)=>{
+    if (ticks.length < 2) {
+        return maxValue;
+    }
+    const interval = ticks[1] - ticks[0];
+    return maxValue - interval / 2;
+};
+/**
+ * Returns a maximum allowed tick value for the x-axis.
+ *
+ * Heuristic:
+ *   If a tick's distance to the maxValue is within 1/3 the size of the tick-interval,
+ *   the tick will get dropped.
+ *
+ * Note that the heuristic was determined by trial and error.
+ */ const getMaxYTickValue = (ticks, maxValue)=>{
+    if (ticks.length < 2) {
+        return maxValue;
+    }
+    const interval = ticks[1] - ticks[0];
+    return maxValue - interval / 3;
+};
 
 const defaultState = {
     mouseInteraction: {
@@ -1326,15 +1391,6 @@ function dragKeyPressed(event) {
 function zoomKeyPressed(event) {
     return isMac ? event.metaKey : event.ctrlKey;
 }
-
-// Dimensions.
-const HEIGHT = 275;
-const MARGINS = {
-    top: 0,
-    bottom: 20,
-    left: 38,
-    right: 0
-};
 
 function getCoordinatesForEvent(event, { xMax , yMax  }) {
     const svg = getTarget(event);
@@ -1848,10 +1904,15 @@ function CoreChart({ chart , getShapeListColor , gridShown =true , onChangeTimeR
         onWheel,
         updatePressedKeys
     ]);
+    const clipPathYStart = -1 * CHART_SHAPE_OVERFLOW_MARGIN;
+    const clipPathHeight = yMax + 2 * CHART_SHAPE_OVERFLOW_MARGIN;
+    // HACK - For spark charts, the clip path can be larger than the chart itself,
+    //        which leads to points getting cut off
+    const svgHeight = height > clipPathHeight ? height : clipPathHeight;
     return(// rome-ignore lint/a11y/noSvgWithoutTitle: title would interfere with tooltip
     /*#__PURE__*/ jsxs("svg", {
         width: width,
-        height: height,
+        height: svgHeight,
         onMouseDown: onMouseDown,
         onMouseMove: onMouseMove,
         onMouseUp: onMouseUp,
@@ -1866,9 +1927,9 @@ function CoreChart({ chart , getShapeListColor , gridShown =true , onChangeTimeR
                     id: clipPathId,
                     children: /*#__PURE__*/ jsx("rect", {
                         x: 0,
-                        y: 0,
+                        y: clipPathYStart,
                         width: xMax,
-                        height: yMax
+                        height: clipPathHeight
                     })
                 })
             }),
