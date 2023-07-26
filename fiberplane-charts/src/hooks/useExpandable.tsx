@@ -197,8 +197,9 @@ const Gradient = styled.div`
   background-image: linear-gradient(
     to bottom,
     transparent,
-    rgb(255 255 255 / 75%) 50%
+    var(--fp-expandable-fade-color, rgb(255 255 255 / 75%)) 50%
   );
+
   border-bottom-right-radius: 6px;
   pointer-events: none;
 `;

@@ -646,8 +646,9 @@ const Gradient = styled.div`
   background-image: linear-gradient(
     to bottom,
     transparent,
-    rgb(255 255 255 / 75%) 50%
+    var(--fp-expandable-fade-color, rgb(255 255 255 / 75%)) 50%
   );
+
   border-bottom-right-radius: 6px;
   pointer-events: none;
 `;
@@ -2658,7 +2659,8 @@ const ColorBlock = styled.div`
     border-radius: ${({ theme  })=>theme.borderRadius400};
 `;
 const Emphasis = styled.span`
-  background-color: ${({ theme  })=>theme.colorBase200};
+  background-color: var(--fp-chart-legend-emphasis-bg, ${({ theme  })=>theme.colorBase200});
+  color: var(--fp-chart-legend-emphasis-color, currentColor);
   /* TODO (Jacco): we should try and find out what to do with this styling */
   /* stylelint-disable-next-line scale-unlimited/declaration-strict-value */
   font-weight: 600;
@@ -2670,7 +2672,8 @@ const InteractiveItemStyling = css`
     cursor: pointer;
 
     &:hover {
-        background: ${({ theme  })=>theme.colorPrimaryAlpha100};
+        background: var(--fp-chart-legend-hover-bg, ${({ theme  })=>theme.colorPrimaryAlpha100});
+        color: var(--fp-chart-legend-hover-color, currentColor);
     }
 `;
 const LegendItemContainer = styled(Container)`
