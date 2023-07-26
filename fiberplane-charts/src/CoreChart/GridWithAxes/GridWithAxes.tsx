@@ -263,6 +263,10 @@ const removeLastTickIfTooCloseToMax = (
  * Note that the heuristic was determined by trial and error.
  */
 const getMaxXTickValue = (ticks: Array<number>, maxValue: number) => {
+  if (ticks.length < 2) {
+    return maxValue;
+  }
+
   const interval = ticks[1] - ticks[0];
   return maxValue - interval / 2;
 };
@@ -277,6 +281,10 @@ const getMaxXTickValue = (ticks: Array<number>, maxValue: number) => {
  * Note that the heuristic was determined by trial and error.
  */
 const getMaxYTickValue = (ticks: Array<number>, maxValue: number) => {
+  if (ticks.length < 2) {
+    return maxValue;
+  }
+
   const interval = ticks[1] - ticks[0];
   return maxValue - interval / 3;
 };

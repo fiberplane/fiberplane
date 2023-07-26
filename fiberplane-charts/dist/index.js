@@ -1286,6 +1286,9 @@ function useCustomSpring(value) {
  *
  * Note that the heuristic was determined by trial and error.
  */ const getMaxXTickValue = (ticks, maxValue)=>{
+    if (ticks.length < 2) {
+        return maxValue;
+    }
     const interval = ticks[1] - ticks[0];
     return maxValue - interval / 2;
 };
@@ -1298,6 +1301,9 @@ function useCustomSpring(value) {
  *
  * Note that the heuristic was determined by trial and error.
  */ const getMaxYTickValue = (ticks, maxValue)=>{
+    if (ticks.length < 2) {
+        return maxValue;
+    }
     const interval = ticks[1] - ticks[0];
     return maxValue - interval / 3;
 };
