@@ -116,6 +116,7 @@ const ColorBlock = styled.div<{ color: string; selected: boolean }>`
 `;
 
 const Emphasis = styled.span`
+  /* FIXME: These vars are to support style overrides for dark mode */
   background-color: var(--fp-chart-legend-emphasis-bg, ${({ theme }) =>
     theme.colorBase200});
   color: var(--fp-chart-legend-emphasis-color, currentColor);
@@ -131,6 +132,7 @@ const InteractiveItemStyling = css`
     cursor: pointer;
 
     &:hover {
+        /* FIXME: These vars are to support style overrides for dark mode */
         background: var(--fp-chart-legend-hover-bg, ${({ theme }) =>
           theme.colorPrimaryAlpha100});
         color: var(--fp-chart-legend-hover-color, currentColor);
