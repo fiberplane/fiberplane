@@ -10,7 +10,7 @@
     params.append("start", roundToGrid(timeRange.from, stepSeconds, Math.floor));
     params.append("end", roundToGrid(timeRange.to, stepSeconds, Math.ceil));
     params.append("step", stepParam);
-    const url = `${baseUrl}/prometheus/api/v1/query_range?${params.toString()}`;
+    const url = `${baseUrl}/api/v1/query_range?${params.toString()}`;
     const response = await fetch(url, {
         mode,
         ...requestInit
