@@ -857,11 +857,12 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , color , f
     const fillColor = `url(#${gradientId})`;
     const getX = (point)=>scales.xScale(point.x);
     const getY = (point)=>scales.yScale(point.y);
+    const areaGradientShown = useContext(ChartAreaGradientContext);
     return /*#__PURE__*/ jsxs("g", {
         opacity: focused || !anyFocused ? 1 : 0.2,
         children: [
             /*#__PURE__*/ jsx("defs", {
-                children: /*#__PURE__*/ jsxs("linearGradient", {
+                children: areaGradientShown ? /*#__PURE__*/ jsxs("linearGradient", {
                     id: gradientId,
                     children: [
                         /*#__PURE__*/ jsx("stop", {
@@ -875,7 +876,7 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , color , f
                             stopOpacity: 0.03
                         })
                     ]
-                })
+                }) : null
             }),
             /*#__PURE__*/ jsx(Threshold, {
                 id: id,

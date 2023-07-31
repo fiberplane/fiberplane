@@ -10,7 +10,7 @@ export type ChartCoordinates = { x: number; y: number };
 
 export type CoreChartProps<S, P> = {
   /**
-   * Show a gradient under lines in the chart
+   * Show a gradient under Line or Area shapes in the chart
    */
   areaGradientShown?: boolean;
 

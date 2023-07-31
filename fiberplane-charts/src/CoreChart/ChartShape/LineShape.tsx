@@ -1,9 +1,10 @@
 import { Area } from "@visx/shape";
-import { memo, useId } from "react";
+import { memo, useContext, useId } from "react";
 import { Threshold } from "@visx/threshold";
 
 import type { CommonShapeProps } from "./types";
 import type { Line, Point } from "../../Mondrian";
+import { ChartAreaGradientContext } from "../ChartAreaGradientContext";
 
 type Props<P> = CommonShapeProps & {
   line: Line<P>;
@@ -23,13 +24,17 @@ export const LineShape = memo(function LineShape<P>({
   const getX = (point: { x: number }) => scales.xScale(point.x);
   const getY = (point: { y: number }) => scales.yScale(point.y);
 
+  const areaGradientShown = useContext(ChartAreaGradientContext);
+
   return (
     <g opacity={focused || !anyFocused ? 1 : 0.2}>
       <defs>
-        <linearGradient id={gradientId}>
-          <stop offset="0%" stopColor={color} stopOpacity={0.15} />
-          <stop offset="23%" stopColor={color} stopOpacity={0.03} />
-        </linearGradient>
+        {areaGradientShown ? (
+          <linearGradient id={gradientId}>
+            <stop offset="0%" stopColor={color} stopOpacity={0.15} />
+            <stop offset="23%" stopColor={color} stopOpacity={0.03} />
+          </linearGradient>
+        ) : null}
       </defs>
       <Threshold<Point<P>>
         id={id}
