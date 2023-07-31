@@ -47,3 +47,96 @@ pub(crate) fn split_into_continuous_lines(
 
     lines
 }
+
+#[cfg(test)]
+mod tests {
+    use super::split_into_continuous_lines;
+    use crate::types::{Metric, Timestamp};
+    use std::str::FromStr;
+
+    #[test]
+    fn test_it_splits_metrics_that_are_spaced_too_far_apart() {
+        assert_eq!(
+            split_into_continuous_lines(
+                &[get_metric(0, 10.), get_metric(1, 15.), get_metric(2, 20.)],
+                Some(30_000.), // ms,
+            ),
+            vec![
+                vec![&get_metric(0, 10.)],
+                vec![&get_metric(1, 15.)],
+                vec![&get_metric(2, 20.)]
+            ]
+        );
+    }
+
+    #[test]
+    fn test_it_doesnt_split_when_the_metrics_are_close_to_one_another() {
+        assert_eq!(
+            split_into_continuous_lines(
+                &[get_metric(0, 10.), get_metric(1, 15.), get_metric(2, 20.)],
+                Some(300_000.), // ms,
+            ),
+            vec![vec![
+                &get_metric(0, 10.),
+                &get_metric(1, 15.),
+                &get_metric(2, 20.)
+            ]]
+        );
+    }
+
+    #[test]
+    fn test_it_handles_unevenly_spaced_metrics() {
+        assert_eq!(
+            split_into_continuous_lines(
+                &[
+                    get_metric(0, 10.),
+                    get_metric(1, 15.),
+                    get_metric(3, 20.),
+                    get_metric(4, 25.)
+                ],
+                Some(60_000.), // ms,
+            ),
+            vec![
+                vec![&get_metric(0, 10.), &get_metric(1, 15.)],
+                vec![&get_metric(3, 20.), &get_metric(4, 25.)],
+            ]
+        );
+    }
+
+    #[test]
+    fn test_it_doesnt_split_when_no_interval_is_given() {
+        assert_eq!(
+            split_into_continuous_lines(
+                &[get_metric(0, 10.), get_metric(1, 15.), get_metric(2, 20.),],
+                None
+            ),
+            vec![vec![
+                &get_metric(0, 10.),
+                &get_metric(1, 15.),
+                &get_metric(2, 20.)
+            ]]
+        );
+    }
+
+    #[test]
+    fn test_it_splits_metrics_when_it_finds_a_nan_value() {
+        assert_eq!(
+            split_into_continuous_lines(
+                &[
+                    get_metric(0, 10.),
+                    get_metric(1, f64::NAN),
+                    get_metric(2, 20.)
+                ],
+                Some(300000.), // ms,
+            ),
+            vec![vec![&get_metric(0, 10.)], vec![&get_metric(2, 20.)]]
+        );
+    }
+
+    fn get_metric(minute: u8, value: f64) -> Metric {
+        Metric::builder()
+            .time(Timestamp::from_str(&format!("2023-07-18T16:{minute:02}:00.000Z")).unwrap())
+            .value(value)
+            .build()
+    }
+}
