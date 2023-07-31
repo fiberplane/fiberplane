@@ -338,7 +338,7 @@ declare module "styled-components" {
 
 type CoreChartProps<S, P> = {
     /**
-     * Show a gradient under Line or Area shapes in the chart
+     * Show a gradient under Line or Area shapes in the chart. (default: true)
      */
     areaGradientShown?: boolean;
     /**
