@@ -1,0 +1,309 @@
+---
+source: mondrian-charts/src/tests/test_generate_stacked_bar_chart_from_timeseries.rs
+expression: chart
+---
+xAxis:
+  minValue: 1689695970000
+  maxValue: 1689696630000
+  tickSuggestions:
+    - 1689696000000
+    - 1689696060000
+    - 1689696120000
+    - 1689696180000
+    - 1689696240000
+    - 1689696300000
+    - 1689696360000
+    - 1689696420000
+    - 1689696480000
+    - 1689696540000
+    - 1689696600000
+yAxis:
+  minValue: 0
+  maxValue: 80
+  tickSuggestions: ~
+shapeLists:
+  - shapes:
+      - type: rectangle
+        x: 0.010732323232323232
+        y: 0
+        width: 0.06944444444444445
+        height: 0.125
+        source:
+          time: "2023-07-18T16:00:00Z"
+          attributes: {}
+          resource: {}
+          value: 10
+      - type: rectangle
+        x: 0.10164141414141413
+        y: 0
+        width: 0.06944444444444445
+        height: 0.1875
+        source:
+          time: "2023-07-18T16:01:00Z"
+          attributes: {}
+          resource: {}
+          value: 15
+      - type: rectangle
+        x: 0.19255050505050503
+        y: 0
+        width: 0.06944444444444445
+        height: 0.25
+        source:
+          time: "2023-07-18T16:02:00Z"
+          attributes: {}
+          resource: {}
+          value: 20
+      - type: rectangle
+        x: 0.3743686868686869
+        y: 0
+        width: 0.06944444444444445
+        height: 0.3125
+        source:
+          time: "2023-07-18T16:04:00Z"
+          attributes: {}
+          resource: {}
+          value: 25
+      - type: rectangle
+        x: 0.4652777777777778
+        y: 0
+        width: 0.06944444444444445
+        height: 0.375
+        source:
+          time: "2023-07-18T16:05:00Z"
+          attributes: {}
+          resource: {}
+          value: 30
+      - type: rectangle
+        x: 0.5561868686868687
+        y: 0
+        width: 0.06944444444444445
+        height: 0.3125
+        source:
+          time: "2023-07-18T16:06:00Z"
+          attributes: {}
+          resource: {}
+          value: 25
+      - type: rectangle
+        x: 0.6470959595959596
+        y: 0
+        width: 0.06944444444444445
+        height: 0.25
+        source:
+          time: "2023-07-18T16:07:00Z"
+          attributes: {}
+          resource: {}
+          value: 20
+      - type: rectangle
+        x: 0.7380050505050505
+        y: 0
+        width: 0.06944444444444445
+        height: 0.1875
+        source:
+          time: "2023-07-18T16:08:00Z"
+          attributes: {}
+          resource: {}
+          value: 15
+      - type: rectangle
+        x: 0.8289141414141414
+        y: 0
+        width: 0.06944444444444445
+        height: 0.125
+        source:
+          time: "2023-07-18T16:09:00Z"
+          attributes: {}
+          resource: {}
+          value: 10
+    source:
+      name: dummy_data
+      labels:
+        timeseries: A
+      metrics:
+        - time: "2023-07-18T16:00:00Z"
+          attributes: {}
+          resource: {}
+          value: 10
+        - time: "2023-07-18T16:01:00Z"
+          attributes: {}
+          resource: {}
+          value: 15
+        - time: "2023-07-18T16:02:00Z"
+          attributes: {}
+          resource: {}
+          value: 20
+        - time: "2023-07-18T16:04:00Z"
+          attributes: {}
+          resource: {}
+          value: 25
+        - time: "2023-07-18T16:05:00Z"
+          attributes: {}
+          resource: {}
+          value: 30
+        - time: "2023-07-18T16:06:00Z"
+          attributes: {}
+          resource: {}
+          value: 25
+        - time: "2023-07-18T16:07:00Z"
+          attributes: {}
+          resource: {}
+          value: 20
+        - time: "2023-07-18T16:08:00Z"
+          attributes: {}
+          resource: {}
+          value: 15
+        - time: "2023-07-18T16:09:00Z"
+          attributes: {}
+          resource: {}
+          value: 10
+      attributes: {}
+      resource: {}
+      visible: true
+  - shapes:
+      - type: rectangle
+        x: 0.010732323232323232
+        y: 0.125
+        width: 0.06944444444444445
+        height: 0.5
+        source:
+          time: "2023-07-18T16:00:00Z"
+          attributes: {}
+          resource: {}
+          value: 40
+      - type: rectangle
+        x: 0.10164141414141413
+        y: 0.1875
+        width: 0.06944444444444445
+        height: 0.375
+        source:
+          time: "2023-07-18T16:01:00Z"
+          attributes: {}
+          resource: {}
+          value: 30
+      - type: rectangle
+        x: 0.19255050505050503
+        y: 0.25
+        width: 0.06944444444444445
+        height: 0.25
+        source:
+          time: "2023-07-18T16:02:00Z"
+          attributes: {}
+          resource: {}
+          value: 20
+      - type: rectangle
+        x: 0.28345959595959597
+        y: 0
+        width: 0.06944444444444445
+        height: 0.125
+        source:
+          time: "2023-07-18T16:03:00Z"
+          attributes: {}
+          resource: {}
+          value: 10
+      - type: rectangle
+        x: 0.3743686868686869
+        y: 0.3125
+        width: 0.06944444444444445
+        height: 0.25
+        source:
+          time: "2023-07-18T16:04:00Z"
+          attributes: {}
+          resource: {}
+          value: 20
+      - type: rectangle
+        x: 0.4652777777777778
+        y: 0.375
+        width: 0.06944444444444445
+        height: 0.375
+        source:
+          time: "2023-07-18T16:05:00Z"
+          attributes: {}
+          resource: {}
+          value: 30
+      - type: rectangle
+        x: 0.5561868686868687
+        y: 0.3125
+        width: 0.06944444444444445
+        height: 0.5
+        source:
+          time: "2023-07-18T16:06:00Z"
+          attributes: {}
+          resource: {}
+          value: 40
+      - type: rectangle
+        x: 0.6470959595959596
+        y: 0.25
+        width: 0.06944444444444445
+        height: 0.625
+        source:
+          time: "2023-07-18T16:07:00Z"
+          attributes: {}
+          resource: {}
+          value: 50
+      - type: rectangle
+        x: 0.7380050505050505
+        y: 0.1875
+        width: 0.06944444444444445
+        height: 0.75
+        source:
+          time: "2023-07-18T16:08:00Z"
+          attributes: {}
+          resource: {}
+          value: 60
+      - type: rectangle
+        x: 0.8289141414141414
+        y: 0.125
+        width: 0.06944444444444445
+        height: 0.875
+        source:
+          time: "2023-07-18T16:09:00Z"
+          attributes: {}
+          resource: {}
+          value: 70
+    source:
+      name: dummy_data
+      labels:
+        timeseries: B
+      metrics:
+        - time: "2023-07-18T16:00:00Z"
+          attributes: {}
+          resource: {}
+          value: 40
+        - time: "2023-07-18T16:01:00Z"
+          attributes: {}
+          resource: {}
+          value: 30
+        - time: "2023-07-18T16:02:00Z"
+          attributes: {}
+          resource: {}
+          value: 20
+        - time: "2023-07-18T16:03:00Z"
+          attributes: {}
+          resource: {}
+          value: 10
+        - time: "2023-07-18T16:04:00Z"
+          attributes: {}
+          resource: {}
+          value: 20
+        - time: "2023-07-18T16:05:00Z"
+          attributes: {}
+          resource: {}
+          value: 30
+        - time: "2023-07-18T16:06:00Z"
+          attributes: {}
+          resource: {}
+          value: 40
+        - time: "2023-07-18T16:07:00Z"
+          attributes: {}
+          resource: {}
+          value: 50
+        - time: "2023-07-18T16:08:00Z"
+          attributes: {}
+          resource: {}
+          value: 60
+        - time: "2023-07-18T16:09:00Z"
+          attributes: {}
+          resource: {}
+          value: 70
+      attributes: {}
+      resource: {}
+      visible: true
+

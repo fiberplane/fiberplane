@@ -8,13 +8,13 @@ use crate::{
 };
 use std::convert::identity;
 
-pub(crate) fn generate_line_chart_from_timeseries(
-    input: TimeseriesSourceData,
-) -> AbstractChart<&Timeseries, &Metric> {
+pub(crate) fn generate_line_chart_from_timeseries<'source>(
+    input: TimeseriesSourceData<'source, '_>,
+) -> AbstractChart<&'source Timeseries, &'source Metric> {
     let buckets = create_metric_buckets(input.timeseries_data, |min_max, value| {
         min_max
-            .map(|min_map: MinMax| min_map.extend_with_value(value as f32))
-            .unwrap_or_else(|| MinMax::from_value(value as f32))
+            .map(|min_map: MinMax| min_map.extend_with_value(value))
+            .unwrap_or_else(|| MinMax::from_value(value))
     });
 
     let mut x_axis = get_x_axis_from_time_range(&input.time_range);
@@ -49,7 +49,7 @@ fn create_shapes<'source>(
     metrics: &'source [Metric],
     x_axis: &Axis,
     y_axis: &Axis,
-    interval: Option<f32>,
+    interval: Option<f64>,
 ) -> Vec<Shape<&'source Metric>> {
     match metrics.len() {
         0 => Vec::new(),
@@ -94,7 +94,7 @@ fn create_point_for_metric<'source>(
 
     Point {
         x: normalize_along_linear_axis(time, x_axis),
-        y: normalize_along_linear_axis(metric.value as f32, y_axis),
+        y: normalize_along_linear_axis(metric.value, y_axis),
         source: metric,
     }
 }

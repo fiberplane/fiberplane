@@ -4,9 +4,9 @@ use crate::types::{
     Timeseries, TimeseriesSourceData,
 };
 
-pub(crate) fn generate_stacked_line_chart_from_timeseries(
-    input: TimeseriesSourceData,
-) -> AbstractChart<&Timeseries, &Metric> {
+pub(crate) fn generate_stacked_line_chart_from_timeseries<'source>(
+    input: TimeseriesSourceData<'source, '_>,
+) -> AbstractChart<&'source Timeseries, &'source Metric> {
     let BucketsAndAxes {
         mut buckets,
         is_percentage,
@@ -55,7 +55,7 @@ struct BarArgs<'axes, 'buckets> {
 
 fn create_shapes<'source>(
     metrics: &'source [Metric],
-    interval: Option<f32>,
+    interval: Option<f64>,
     args: &mut BarArgs,
 ) -> Vec<Shape<&'source Metric>> {
     split_into_continuous_lines(metrics, interval)
@@ -81,9 +81,9 @@ fn create_point_for_metric<'source>(
 
     let time = get_time_from_timestamp(metric.time);
     let value = if args.is_percentage {
-        metric.value as f32 / bucket_value.total
+        metric.value / bucket_value.total
     } else {
-        metric.value as f32
+        metric.value
     };
 
     let y_min = bucket_value.current_y;

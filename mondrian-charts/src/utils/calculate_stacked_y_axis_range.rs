@@ -8,7 +8,7 @@ use crate::types::{Axis, Buckets, MinMax};
 /// [`super::calculate_y_axis_range()`] instead.
 pub(super) fn calculate_stacked_y_axis_range<T: Clone>(
     buckets: &Buckets<T>,
-    get_total_value: impl Fn(T) -> f32,
+    get_total_value: impl Fn(T) -> f64,
 ) -> Axis {
     if buckets.is_empty() {
         return get_y_axis_for_constant_value(0.);

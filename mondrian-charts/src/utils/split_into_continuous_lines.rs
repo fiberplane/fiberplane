@@ -8,11 +8,11 @@ use crate::types::Metric;
 /// after the previous metric is considered to introduce a gap in the metrics.
 pub(crate) fn split_into_continuous_lines(
     metrics: &[Metric],
-    interval: Option<f32>,
+    interval: Option<f64>,
 ) -> Vec<Vec<&Metric>> {
     let mut lines = Vec::new();
     let mut current_line = Vec::new();
-    let mut previous_time: Option<f32> = None;
+    let mut previous_time: Option<f64> = None;
 
     for metric in metrics {
         if metric.value.is_nan() {

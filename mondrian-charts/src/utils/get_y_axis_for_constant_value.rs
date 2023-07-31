@@ -6,7 +6,7 @@ use crate::types::Axis;
 /// along the Y axis. For values closer to zero, the zero value is kept at the
 /// bottom (for zero and positive values) or top (for negative values) of the
 /// axis.
-pub(super) fn get_y_axis_for_constant_value(value: f32) -> Axis {
+pub(super) fn get_y_axis_for_constant_value(value: f64) -> Axis {
     let tick_suggestions = Some(vec![value]);
 
     if (-1. ..=1.).contains(&value) {

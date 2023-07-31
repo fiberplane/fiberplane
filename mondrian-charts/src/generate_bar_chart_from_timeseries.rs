@@ -5,9 +5,9 @@ use crate::types::{
 };
 use std::convert::identity;
 
-pub(crate) fn generate_bar_chart_from_timeseries(
-    input: TimeseriesSourceData,
-) -> AbstractChart<&Timeseries, &Metric> {
+pub(crate) fn generate_bar_chart_from_timeseries<'source>(
+    input: TimeseriesSourceData<'source, '_>,
+) -> AbstractChart<&'source Timeseries, &'source Metric> {
     let visible_timeseries_data: Vec<_> = input
         .timeseries_data
         .iter()
@@ -17,8 +17,8 @@ pub(crate) fn generate_bar_chart_from_timeseries(
 
     let buckets = create_metric_buckets(&visible_timeseries_data, |min_max, value| {
         min_max
-            .map(|min_max: MinMax| min_max.extend_with_value(value as f32))
-            .unwrap_or_else(|| MinMax::from_value(value as f32))
+            .map(|min_max: MinMax| min_max.extend_with_value(value))
+            .unwrap_or_else(|| MinMax::from_value(value))
     });
 
     let mut x_axis = get_x_axis_from_time_range(&input.time_range);
@@ -69,7 +69,7 @@ pub(crate) fn generate_bar_chart_from_timeseries(
 }
 
 struct BarArgs<'axes> {
-    bar_width: f32,
+    bar_width: f64,
     num_shape_lists: usize,
     x_axis: &'axes Axis,
     y_axis: &'axes Axis,
@@ -89,7 +89,7 @@ fn create_bar_shape<'source>(
         x: calculate_bar_x(group_x, args.bar_width, bar_index, args.num_shape_lists),
         width: args.bar_width,
         y: 0.,
-        height: normalize_along_linear_axis(metric.value as f32, args.y_axis),
+        height: normalize_along_linear_axis(metric.value, args.y_axis),
         source: metric,
     }))
 }

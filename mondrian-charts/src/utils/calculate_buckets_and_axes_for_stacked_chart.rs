@@ -16,9 +16,12 @@ pub(crate) fn calculate_buckets_and_axes_for_stacked_chart(
     let buckets = create_metric_buckets(input.timeseries_data, |acc, value| {
         acc.map(|acc: StackedChartBucketValue| StackedChartBucketValue {
             current_y: acc.current_y,
-            total: acc.total + value as f32,
+            total: acc.total + value,
         })
-        .unwrap_or_default()
+        .unwrap_or(StackedChartBucketValue {
+            current_y: 0.,
+            total: value,
+        })
     });
 
     let is_percentage = input.stacking_type == StackingType::Percentage;

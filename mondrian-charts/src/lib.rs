@@ -7,22 +7,25 @@ mod generate_stacked_line_chart_from_timeseries;
 mod types;
 mod utils;
 
+#[cfg(test)]
+mod tests;
+
 use generate_bar_chart_from_timeseries::generate_bar_chart_from_timeseries;
 use generate_line_chart_from_timeseries::generate_line_chart_from_timeseries;
 use generate_shape_list_from_events::generate_shape_list_from_events;
 use generate_stacked_bar_chart_from_timeseries::generate_stacked_bar_chart_from_timeseries;
 use generate_stacked_line_chart_from_timeseries::generate_stacked_line_chart_from_timeseries;
-use types::{
-    AbstractChart, GraphType, Metric, PointSource, SeriesSource, StackingType, Timeseries,
+pub use types::{
+    AbstractChart, Axis, GraphType, Metric, PointSource, SeriesSource, StackingType, Timeseries,
     TimeseriesAndEventsSourceData, TimeseriesSourceData,
 };
 
 /// Generates an abstract chart from the given timeseries data.
 ///
 /// May return `None` if the graph type is unrecognized.
-pub fn generate_from_timeseries(
-    input: TimeseriesSourceData,
-) -> Option<AbstractChart<&Timeseries, &Metric>> {
+pub fn generate_from_timeseries<'source>(
+    input: TimeseriesSourceData<'source, '_>,
+) -> Option<AbstractChart<&'source Timeseries, &'source Metric>> {
     let abstract_chart = match (input.graph_type, input.stacking_type) {
         (GraphType::Line, StackingType::None) => generate_line_chart_from_timeseries(input),
         (GraphType::Line, _) => generate_stacked_line_chart_from_timeseries(input),
@@ -41,9 +44,9 @@ pub fn generate_from_timeseries(
 /// the events will be ignored.
 ///
 /// May return `None` if the graph type is unrecognized altogether.
-pub fn generate_from_timeseries_and_events(
-    input: TimeseriesAndEventsSourceData,
-) -> Option<AbstractChart<SeriesSource, PointSource>> {
+pub fn generate_from_timeseries_and_events<'source>(
+    input: TimeseriesAndEventsSourceData<'source, '_>,
+) -> Option<AbstractChart<SeriesSource<'source>, PointSource<'source>>> {
     let TimeseriesAndEventsSourceData {
         graph_type,
         stacking_type,

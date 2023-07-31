@@ -6,7 +6,7 @@ use crate::types::Buckets;
 ///
 /// Returns `None` if there are insufficient timestamps to calculate an
 /// interval.
-pub(crate) fn calculate_smallest_time_interval<T>(buckets: &Buckets<T>) -> Option<f32> {
+pub(crate) fn calculate_smallest_time_interval<T>(buckets: &Buckets<T>) -> Option<f64> {
     if buckets.len() < 2 {
         return None;
     }
@@ -14,7 +14,7 @@ pub(crate) fn calculate_smallest_time_interval<T>(buckets: &Buckets<T>) -> Optio
     let mut timestamps: Vec<_> = buckets.keys().cloned().collect();
     timestamps.sort();
 
-    let mut smallest_interval = f32::INFINITY;
+    let mut smallest_interval = f64::INFINITY;
     for i in 1..timestamps.len() {
         let interval =
             get_time_from_timestamp(timestamps[i]) - get_time_from_timestamp(timestamps[i - 1]);

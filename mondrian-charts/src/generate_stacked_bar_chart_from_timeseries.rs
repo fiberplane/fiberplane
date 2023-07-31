@@ -4,9 +4,9 @@ use crate::types::{
     TimeseriesSourceData,
 };
 
-pub(crate) fn generate_stacked_bar_chart_from_timeseries(
-    input: TimeseriesSourceData,
-) -> AbstractChart<&Timeseries, &Metric> {
+pub(crate) fn generate_stacked_bar_chart_from_timeseries<'source>(
+    input: TimeseriesSourceData<'source, '_>,
+) -> AbstractChart<&'source Timeseries, &'source Metric> {
     let BucketsAndAxes {
         mut buckets,
         is_percentage,
@@ -53,7 +53,7 @@ pub(crate) fn generate_stacked_bar_chart_from_timeseries(
 }
 
 struct BarArgs<'axes, 'buckets> {
-    bar_width: f32,
+    bar_width: f64,
     buckets: &'buckets mut StackedChartBuckets,
     is_percentage: bool,
     x_axis: &'axes Axis,
@@ -74,9 +74,9 @@ fn create_bar_shape<'source>(
 
     let time = get_time_from_timestamp(metric.time);
     let value = if args.is_percentage {
-        metric.value as f32 / bucket_value.total
+        metric.value / bucket_value.total
     } else {
-        metric.value as f32
+        metric.value
     };
 
     let x = normalize_along_linear_axis(time, args.x_axis) - 0.5 * args.bar_width;

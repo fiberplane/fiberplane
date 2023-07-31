@@ -1,0 +1,276 @@
+---
+source: mondrian-charts/src/tests/test_generate_stacked_line_chart_from_timeseries.rs
+expression: chart
+---
+xAxis:
+  minValue: 1689696000000
+  maxValue: 1689696600000
+  tickSuggestions:
+    - 1689696000000
+    - 1689696060000
+    - 1689696120000
+    - 1689696180000
+    - 1689696240000
+    - 1689696300000
+    - 1689696360000
+    - 1689696420000
+    - 1689696480000
+    - 1689696540000
+yAxis:
+  minValue: 0
+  maxValue: 80
+  tickSuggestions: ~
+shapeLists:
+  - shapes:
+      - type: area
+        points:
+          - x: 0
+            yMin: 0
+            yMax: 0.125
+            source:
+              time: "2023-07-18T16:00:00Z"
+              attributes: {}
+              resource: {}
+              value: 10
+          - x: 0.1
+            yMin: 0
+            yMax: 0.1875
+            source:
+              time: "2023-07-18T16:01:00Z"
+              attributes: {}
+              resource: {}
+              value: 15
+          - x: 0.2
+            yMin: 0
+            yMax: 0.25
+            source:
+              time: "2023-07-18T16:02:00Z"
+              attributes: {}
+              resource: {}
+              value: 20
+      - type: area
+        points:
+          - x: 0.4
+            yMin: 0
+            yMax: 0.3125
+            source:
+              time: "2023-07-18T16:04:00Z"
+              attributes: {}
+              resource: {}
+              value: 25
+          - x: 0.5
+            yMin: 0
+            yMax: 0.375
+            source:
+              time: "2023-07-18T16:05:00Z"
+              attributes: {}
+              resource: {}
+              value: 30
+          - x: 0.6
+            yMin: 0
+            yMax: 0.3125
+            source:
+              time: "2023-07-18T16:06:00Z"
+              attributes: {}
+              resource: {}
+              value: 25
+          - x: 0.7
+            yMin: 0
+            yMax: 0.25
+            source:
+              time: "2023-07-18T16:07:00Z"
+              attributes: {}
+              resource: {}
+              value: 20
+          - x: 0.8
+            yMin: 0
+            yMax: 0.1875
+            source:
+              time: "2023-07-18T16:08:00Z"
+              attributes: {}
+              resource: {}
+              value: 15
+          - x: 0.9
+            yMin: 0
+            yMax: 0.125
+            source:
+              time: "2023-07-18T16:09:00Z"
+              attributes: {}
+              resource: {}
+              value: 10
+    source:
+      name: dummy_data
+      labels:
+        timeseries: A
+      metrics:
+        - time: "2023-07-18T16:00:00Z"
+          attributes: {}
+          resource: {}
+          value: 10
+        - time: "2023-07-18T16:01:00Z"
+          attributes: {}
+          resource: {}
+          value: 15
+        - time: "2023-07-18T16:02:00Z"
+          attributes: {}
+          resource: {}
+          value: 20
+        - time: "2023-07-18T16:04:00Z"
+          attributes: {}
+          resource: {}
+          value: 25
+        - time: "2023-07-18T16:05:00Z"
+          attributes: {}
+          resource: {}
+          value: 30
+        - time: "2023-07-18T16:06:00Z"
+          attributes: {}
+          resource: {}
+          value: 25
+        - time: "2023-07-18T16:07:00Z"
+          attributes: {}
+          resource: {}
+          value: 20
+        - time: "2023-07-18T16:08:00Z"
+          attributes: {}
+          resource: {}
+          value: 15
+        - time: "2023-07-18T16:09:00Z"
+          attributes: {}
+          resource: {}
+          value: 10
+      attributes: {}
+      resource: {}
+      visible: true
+  - shapes:
+      - type: area
+        points:
+          - x: 0
+            yMin: 0.125
+            yMax: 0.625
+            source:
+              time: "2023-07-18T16:00:00Z"
+              attributes: {}
+              resource: {}
+              value: 40
+          - x: 0.1
+            yMin: 0.1875
+            yMax: 0.5625
+            source:
+              time: "2023-07-18T16:01:00Z"
+              attributes: {}
+              resource: {}
+              value: 30
+          - x: 0.2
+            yMin: 0.25
+            yMax: 0.5
+            source:
+              time: "2023-07-18T16:02:00Z"
+              attributes: {}
+              resource: {}
+              value: 20
+          - x: 0.3
+            yMin: 0
+            yMax: 0.125
+            source:
+              time: "2023-07-18T16:03:00Z"
+              attributes: {}
+              resource: {}
+              value: 10
+          - x: 0.4
+            yMin: 0.3125
+            yMax: 0.5625
+            source:
+              time: "2023-07-18T16:04:00Z"
+              attributes: {}
+              resource: {}
+              value: 20
+          - x: 0.5
+            yMin: 0.375
+            yMax: 0.75
+            source:
+              time: "2023-07-18T16:05:00Z"
+              attributes: {}
+              resource: {}
+              value: 30
+          - x: 0.6
+            yMin: 0.3125
+            yMax: 0.8125
+            source:
+              time: "2023-07-18T16:06:00Z"
+              attributes: {}
+              resource: {}
+              value: 40
+          - x: 0.7
+            yMin: 0.25
+            yMax: 0.875
+            source:
+              time: "2023-07-18T16:07:00Z"
+              attributes: {}
+              resource: {}
+              value: 50
+          - x: 0.8
+            yMin: 0.1875
+            yMax: 0.9375
+            source:
+              time: "2023-07-18T16:08:00Z"
+              attributes: {}
+              resource: {}
+              value: 60
+          - x: 0.9
+            yMin: 0.125
+            yMax: 1
+            source:
+              time: "2023-07-18T16:09:00Z"
+              attributes: {}
+              resource: {}
+              value: 70
+    source:
+      name: dummy_data
+      labels:
+        timeseries: B
+      metrics:
+        - time: "2023-07-18T16:00:00Z"
+          attributes: {}
+          resource: {}
+          value: 40
+        - time: "2023-07-18T16:01:00Z"
+          attributes: {}
+          resource: {}
+          value: 30
+        - time: "2023-07-18T16:02:00Z"
+          attributes: {}
+          resource: {}
+          value: 20
+        - time: "2023-07-18T16:03:00Z"
+          attributes: {}
+          resource: {}
+          value: 10
+        - time: "2023-07-18T16:04:00Z"
+          attributes: {}
+          resource: {}
+          value: 20
+        - time: "2023-07-18T16:05:00Z"
+          attributes: {}
+          resource: {}
+          value: 30
+        - time: "2023-07-18T16:06:00Z"
+          attributes: {}
+          resource: {}
+          value: 40
+        - time: "2023-07-18T16:07:00Z"
+          attributes: {}
+          resource: {}
+          value: 50
+        - time: "2023-07-18T16:08:00Z"
+          attributes: {}
+          resource: {}
+          value: 60
+        - time: "2023-07-18T16:09:00Z"
+          attributes: {}
+          resource: {}
+          value: 70
+      attributes: {}
+      resource: {}
+      visible: true
+
