@@ -9,12 +9,8 @@ repository = { workspace = true }
 rust-version = { workspace = true }
 version = "0.1.0"
 
-[features]
-fp-bindgen = ["dep:fp-bindgen"]
-
 [dependencies]
 fiberplane-models = { workspace = true }
-fp-bindgen = { workspace = true, optional = true }
 serde = { workspace = true }
 
 [dev-dependencies]

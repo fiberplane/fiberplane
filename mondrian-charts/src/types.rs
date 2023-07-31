@@ -1,8 +1,6 @@
 pub use fiberplane_models::notebooks::{GraphType, StackingType};
 pub use fiberplane_models::providers::{Metric, ProviderEvent, Timeseries};
 pub use fiberplane_models::timestamps::{TimeRange, Timestamp};
-#[cfg(feature = "fp-bindgen")]
-use fp_bindgen::prelude::Serializable;
 use serde::Serialize;
 use std::collections::BTreeMap;
 
@@ -57,11 +55,6 @@ pub struct TimeseriesAndEventsSourceData<'source, 'slice> {
 
 /// Source type for series in charts that contain combined data sources.
 #[derive(Serialize)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "mondrian_charts")
-)]
 #[non_exhaustive]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum SeriesSource<'source> {
@@ -77,11 +70,6 @@ impl<'source> From<&'source Timeseries> for SeriesSource<'source> {
 
 /// Source type for points in charts that contain combined data sources.
 #[derive(Serialize)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "mondrian_charts")
-)]
 #[non_exhaustive]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum PointSource<'source> {
@@ -107,11 +95,6 @@ impl<'source> From<&'source Metric> for PointSource<'source> {
 /// points. When generating charts from timeseries data, these will be
 /// [Timeseries] and [Metric], respectively.
 #[derive(Default, Serialize)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "mondrian_charts")
-)]
 #[serde(rename_all = "camelCase")]
 pub struct AbstractChart<S, P> {
     pub x_axis: Axis,
@@ -133,11 +116,6 @@ impl<'source> From<AbstractChart<&'source Timeseries, &'source Metric>>
 
 /// Defines the range of values that are displayed along a given axis.
 #[derive(Default, Serialize)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "mondrian_charts")
-)]
 #[serde(rename_all = "camelCase")]
 pub struct Axis {
     /// The value to display at the chart origin.
@@ -211,11 +189,6 @@ impl MinMax {
 ///
 /// These should be rendered in the same color.
 #[derive(Serialize)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "mondrian_charts")
-)]
 #[serde(rename_all = "camelCase")]
 pub struct ShapeList<S, P> {
     pub shapes: Vec<Shape<P>>,
@@ -239,11 +212,6 @@ impl<'source> From<ShapeList<&'source Timeseries, &'source Metric>>
 }
 
 #[derive(Serialize)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "mondrian_charts")
-)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum Shape<P> {
     Area(Area<P>),
@@ -267,11 +235,6 @@ impl<'source> From<Shape<&'source Metric>> for Shape<PointSource<'source>> {
 ///
 /// Area points move from left to right.
 #[derive(Serialize)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "mondrian_charts")
-)]
 #[serde(rename_all = "camelCase")]
 pub struct Area<P> {
     pub points: Vec<AreaPoint<P>>,
@@ -287,11 +250,6 @@ impl<'source> From<Area<&'source Metric>> for Area<PointSource<'source>> {
 
 /// A single data point in an area shape.
 #[derive(Serialize)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "mondrian_charts")
-)]
 #[serde(rename_all = "camelCase")]
 pub struct AreaPoint<P> {
     /// X coordinate between 0.0 and 1.0.
@@ -322,11 +280,6 @@ impl<'source> From<AreaPoint<&'source Metric>> for AreaPoint<PointSource<'source
 
 /// A line to be drawn between two or more points.
 #[derive(Serialize)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "mondrian_charts")
-)]
 #[serde(rename_all = "camelCase")]
 pub struct Line<P> {
     pub points: Vec<Point<P>>,
@@ -345,11 +298,6 @@ impl<'source> From<Line<&'source Metric>> for Line<PointSource<'source>> {
 /// Points can be rendered independently as a dot, or can be used to draw lines
 /// between them.
 #[derive(Serialize)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "mondrian_charts")
-)]
 #[serde(rename_all = "camelCase")]
 pub struct Point<P> {
     /// X coordinate between 0.0 and 1.0.
@@ -376,11 +324,6 @@ impl<'source> From<Point<&'source Metric>> for Point<PointSource<'source>> {
 
 /// A rectangle to be rendered inside the chart.
 #[derive(Serialize)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "mondrian_charts")
-)]
 #[serde(rename_all = "camelCase")]
 pub struct Rectangle<P> {
     pub x: f64,
