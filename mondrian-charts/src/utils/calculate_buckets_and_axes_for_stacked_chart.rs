@@ -11,9 +11,9 @@ pub(crate) struct BucketsAndAxes {
 /// Wrapper around [`create_metric_buckets()`] and axes creation specialized for
 /// usage with stacked charts.
 pub(crate) fn calculate_buckets_and_axes_for_stacked_chart(
-    input: TimeseriesSourceData,
+    input: &TimeseriesSourceData,
 ) -> BucketsAndAxes {
-    let mut buckets = create_metric_buckets(input.timeseries_data.iter(), |acc, value| {
+    let buckets = create_metric_buckets(input.timeseries_data, |acc, value| {
         acc.map(|acc: StackedChartBucketValue| StackedChartBucketValue {
             current_y: acc.current_y,
             total: acc.total + value as f32,
@@ -23,7 +23,7 @@ pub(crate) fn calculate_buckets_and_axes_for_stacked_chart(
 
     let is_percentage = input.stacking_type == StackingType::Percentage;
 
-    let x_axis = get_x_axis_from_time_range(input.time_range);
+    let x_axis = get_x_axis_from_time_range(&input.time_range);
     let y_axis = if is_percentage {
         Axis {
             min_value: 0.,
@@ -31,7 +31,7 @@ pub(crate) fn calculate_buckets_and_axes_for_stacked_chart(
             ..Default::default()
         }
     } else {
-        calculate_stacked_y_axis_range(buckets, |value| value.total)
+        calculate_stacked_y_axis_range(&buckets, |value| value.total)
     };
 
     BucketsAndAxes {

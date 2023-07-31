@@ -6,7 +6,7 @@ use fiberplane_models::formatting::{Annotation, AnnotationWithOffset, Formatting
 use fiberplane_models::names::Name;
 use fiberplane_models::notebooks::*;
 use fiberplane_models::timestamps::{NewTimeRange, RelativeTimeRange, Timestamp};
-use once_cell::unsync::Lazy;
+use once_cell::sync::Lazy;
 use pretty_assertions::assert_eq;
 use serde_json::{json, Map, Value};
 use std::collections::{BTreeMap, HashMap};
@@ -15,7 +15,7 @@ use std::iter::FromIterator;
 use std::path::PathBuf;
 use time::macros::datetime;
 
-const CELLS: Lazy<Vec<Cell>> = Lazy::new(|| {
+static CELLS: Lazy<Vec<Cell>> = Lazy::new(|| {
     vec![
         Cell::Text(
             TextCell::builder()
@@ -147,7 +147,8 @@ let b = \"c\";",
         ),
     ]
 });
-const NOTEBOOK: Lazy<NewNotebook> = Lazy::new(|| {
+
+static NOTEBOOK: Lazy<NewNotebook> = Lazy::new(|| {
     NewNotebook::builder()
         .title("Incident: 'API Outage'")
         .time_range(NewTimeRange::Relative(RelativeTimeRange::from_minutes(-60)))

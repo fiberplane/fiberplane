@@ -22,7 +22,7 @@ use types::{
 /// May return `None` if the graph type is unrecognized.
 pub fn generate_from_timeseries(
     input: TimeseriesSourceData,
-) -> Option<AbstractChart<Timeseries, Metric>> {
+) -> Option<AbstractChart<&Timeseries, &Metric>> {
     let abstract_chart = match (input.graph_type, input.stacking_type) {
         (GraphType::Line, StackingType::None) => generate_line_chart_from_timeseries(input),
         (GraphType::Line, _) => generate_stacked_line_chart_from_timeseries(input),
@@ -61,12 +61,12 @@ pub fn generate_from_timeseries_and_events(
         return None;
     };
 
-    let chart: AbstractChart<SeriesSource, PointSource> = chart.into();
+    let mut chart: AbstractChart<SeriesSource, PointSource> = chart.into();
 
-    if !input.events.is_empty() {
+    if !events.is_empty() {
         chart
             .shape_lists
-            .push(generate_shape_list_from_events(chart.x_axis, events));
+            .push(generate_shape_list_from_events(&chart.x_axis, events));
     }
 
     Some(chart)

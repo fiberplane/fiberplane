@@ -9,22 +9,24 @@ use crate::types::Axis;
 pub(super) fn get_y_axis_for_constant_value(value: f32) -> Axis {
     let tick_suggestions = Some(vec![value]);
 
-    if value > 1. || value < -1. {
-        Axis {
-            min_value: value - 1.,
-            max_value: value + 1.,
-            tick_suggestions,
-        }
-    } else if value >= 0. {
-        Axis {
-            min_value: 0.,
-            max_value: value + 1.,
-            tick_suggestions,
+    if (-1. ..=1.).contains(&value) {
+        if value >= 0. {
+            Axis {
+                min_value: 0.,
+                max_value: value + 1.,
+                tick_suggestions,
+            }
+        } else {
+            Axis {
+                min_value: value - 1.,
+                max_value: 0.,
+                tick_suggestions,
+            }
         }
     } else {
         Axis {
             min_value: value - 1.,
-            max_value: 0.,
+            max_value: value + 1.,
             tick_suggestions,
         }
     }

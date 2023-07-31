@@ -5,7 +5,7 @@ use crate::types::{Axis, Buckets};
 /// the interval between buckets.
 pub(crate) fn attach_suggestions_to_x_axis<T>(
     x_axis: &mut Axis,
-    buckets: Buckets<T>,
+    buckets: &Buckets<T>,
     interval: f32,
 ) {
     if interval <= 0. {
@@ -29,7 +29,7 @@ pub(crate) fn attach_suggestions_to_x_axis<T>(
     x_axis.tick_suggestions = Some(suggestions);
 }
 
-fn get_first_bucket_time<T>(buckets: Buckets<T>) -> Option<f32> {
+fn get_first_bucket_time<T>(buckets: &Buckets<T>) -> Option<f32> {
     let mut first_bucket_timestamp = None;
     for timestamp in buckets.keys() {
         if first_bucket_timestamp

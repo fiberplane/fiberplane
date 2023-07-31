@@ -6,43 +6,42 @@ use crate::types::{
 
 pub(crate) fn generate_stacked_bar_chart_from_timeseries(
     input: TimeseriesSourceData,
-) -> AbstractChart<Timeseries, Metric> {
+) -> AbstractChart<&Timeseries, &Metric> {
     let BucketsAndAxes {
         mut buckets,
         is_percentage,
         mut x_axis,
         y_axis,
-    } = calculate_buckets_and_axes_for_stacked_chart(input);
+    } = calculate_buckets_and_axes_for_stacked_chart(&input);
 
-    let interval = calculate_smallest_time_interval(buckets);
+    let interval = calculate_smallest_time_interval(&buckets);
     if let Some(interval) = interval {
-        x_axis.extend_with_interval(interval);
-        attach_suggestions_to_x_axis(&mut x_axis, buckets, interval);
+        x_axis = x_axis.extend_with_interval(interval);
+        attach_suggestions_to_x_axis(&mut x_axis, &buckets, interval);
     }
 
-    let bar_width = calculate_bar_width(x_axis, interval, 1);
-    let bar_args = BarArgs {
-        bar_width,
+    let mut bar_args = BarArgs {
+        bar_width: calculate_bar_width(&x_axis, interval, 1),
         buckets: &mut buckets,
         is_percentage,
-        x_axis,
-        y_axis,
+        x_axis: &x_axis,
+        y_axis: &y_axis,
     };
 
-    let shape_lists: Vec<ShapeList<Timeseries, Metric>> = input
+    let shape_lists: Vec<_> = input
         .timeseries_data
-        .into_iter()
+        .iter()
         .map(|timeseries| ShapeList {
             shapes: if timeseries.visible {
                 timeseries
                     .metrics
-                    .into_iter()
-                    .filter_map(|metric| create_bar_shape(metric, bar_args))
+                    .iter()
+                    .filter_map(|metric| create_bar_shape(metric, &mut bar_args))
                     .collect()
             } else {
                 Vec::new()
             },
-            source: timeseries,
+            source: *timeseries,
         })
         .collect();
 
@@ -53,15 +52,18 @@ pub(crate) fn generate_stacked_bar_chart_from_timeseries(
     }
 }
 
-struct BarArgs<'a> {
+struct BarArgs<'axes, 'buckets> {
     bar_width: f32,
-    buckets: &'a mut StackedChartBuckets,
+    buckets: &'buckets mut StackedChartBuckets,
     is_percentage: bool,
-    x_axis: Axis,
-    y_axis: Axis,
+    x_axis: &'axes Axis,
+    y_axis: &'axes Axis,
 }
 
-fn create_bar_shape(metric: Metric, args: BarArgs) -> Option<Shape<Metric>> {
+fn create_bar_shape<'source>(
+    metric: &'source Metric,
+    args: &mut BarArgs,
+) -> Option<Shape<&'source Metric>> {
     if metric.value.is_nan() {
         return None;
     };

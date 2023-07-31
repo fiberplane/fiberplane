@@ -3,13 +3,13 @@ use crate::types::{
     Area, AreaPoint, Axis, PointSource, ProviderEvent, SeriesSource, Shape, ShapeList,
 };
 
-pub(crate) fn generate_shape_list_from_events(
-    axis: Axis,
-    events: Vec<ProviderEvent>,
-) -> ShapeList<SeriesSource, PointSource> {
+pub(crate) fn generate_shape_list_from_events<'source>(
+    axis: &Axis,
+    events: &[&'source ProviderEvent],
+) -> ShapeList<SeriesSource<'source>, PointSource<'source>> {
     ShapeList {
         shapes: events
-            .into_iter()
+            .iter()
             .map(|event| {
                 Shape::Area(Area {
                     points: vec![AreaPoint {

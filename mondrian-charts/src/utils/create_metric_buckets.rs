@@ -7,8 +7,8 @@ use std::collections::BTreeMap;
 /// For each unique timestamp encountered among the metrics, we create a new
 /// bucket, while the value inside each bucket represents the reduced value for
 /// all metrics matching that timestamp.
-pub(crate) fn create_metric_buckets<'a, T: Clone>(
-    timeseries_data: impl Iterator<Item = &'a Timeseries>,
+pub(crate) fn create_metric_buckets<T: Clone>(
+    timeseries_data: &[&Timeseries],
     reducer: impl Fn(Option<T>, f64) -> T,
 ) -> Buckets<T> {
     let mut buckets = BTreeMap::new();
@@ -18,9 +18,9 @@ pub(crate) fn create_metric_buckets<'a, T: Clone>(
             continue;
         }
 
-        for Metric { time, value, .. } in timeseries.metrics {
+        for Metric { time, value, .. } in &timeseries.metrics {
             if !value.is_nan() {
-                buckets.insert(time, reducer(buckets.get(&time).cloned(), value));
+                buckets.insert(*time, reducer(buckets.get(time).cloned(), *value));
             }
         }
     }

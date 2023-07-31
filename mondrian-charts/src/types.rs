@@ -6,7 +6,7 @@ pub use fiberplane_models::timestamps::{TimeRange, Timestamp};
 
 /// All the data necessary to generate an abstract chart from an array of
 /// timeseries.
-pub struct TimeseriesSourceData {
+pub struct TimeseriesSourceData<'source> {
     /// The type of chart to display.
     pub graph_type: GraphType,
 
@@ -17,7 +17,7 @@ pub struct TimeseriesSourceData {
     ///
     /// Make sure the timeseries contains data for the given time range, or you
     /// may not see any results.
-    pub timeseries_data: Vec<Timeseries>,
+    pub timeseries_data: &'source [&'source Timeseries],
 
     /// The time range to be displayed.
     pub time_range: TimeRange,
@@ -29,7 +29,7 @@ pub struct TimeseriesSourceData {
 /// Note we only support generating line charts from combined timeseries and
 /// events data. If `graph_type` is anything other than [`GraphType::Line`],
 /// the events will be ignored.
-pub struct TimeseriesAndEventsSourceData {
+pub struct TimeseriesAndEventsSourceData<'source> {
     /// The type of stacking to apply to the chart.
     ///
     /// **Warning:** This property is accepted for consistency, but setting it
@@ -44,25 +44,37 @@ pub struct TimeseriesAndEventsSourceData {
     ///
     /// Make sure the timeseries contains data for the given time range, or you
     /// may not see any results.
-    pub timeseries_data: Vec<Timeseries>,
+    pub timeseries_data: &'source [&'source Timeseries],
 
     /// Array of events to display in the chart.
-    pub events: Vec<ProviderEvent>,
+    pub events: &'source [&'source ProviderEvent],
 
     /// The time range to be displayed.
     pub time_range: TimeRange,
 }
 
 /// Source type for series in charts that contain combined data sources.
-pub enum SeriesSource {
-    Timeseries(Timeseries),
+pub enum SeriesSource<'source> {
+    Timeseries(&'source Timeseries),
     Events,
 }
 
+impl<'source> From<&'source Timeseries> for SeriesSource<'source> {
+    fn from(value: &'source Timeseries) -> Self {
+        Self::Timeseries(value)
+    }
+}
+
 /// Source type for points in charts that contain combined data sources.
-pub enum PointSource {
-    Metric(Metric),
-    Event(ProviderEvent),
+pub enum PointSource<'source> {
+    Metric(&'source Metric),
+    Event(&'source ProviderEvent),
+}
+
+impl<'source> From<&'source Metric> for PointSource<'source> {
+    fn from(value: &'source Metric) -> Self {
+        Self::Metric(value)
+    }
 }
 
 /// An abstract chart with information about what to render and where to render
@@ -81,6 +93,18 @@ pub struct AbstractChart<S, P> {
     pub x_axis: Axis,
     pub y_axis: Axis,
     pub shape_lists: Vec<ShapeList<S, P>>,
+}
+
+impl<'source> From<AbstractChart<&'source Timeseries, &'source Metric>>
+    for AbstractChart<SeriesSource<'source>, PointSource<'source>>
+{
+    fn from(value: AbstractChart<&'source Timeseries, &'source Metric>) -> Self {
+        Self {
+            shape_lists: value.shape_lists.into_iter().map(ShapeList::into).collect(),
+            x_axis: value.x_axis,
+            y_axis: value.y_axis,
+        }
+    }
 }
 
 /// Defines the range of values that are displayed along a given axis.
@@ -105,10 +129,12 @@ impl Axis {
     /// The range of the interval is divided among ends of the axis. This can be
     /// used to extend the axis with enough space to display the bars for the
     /// first and last buckets displayed on a bar chart.
-    pub fn extend_with_interval(&mut self, interval: f32) {
+    #[must_use]
+    pub fn extend_with_interval(mut self, interval: f32) -> Self {
         let half_interval = 0.5 * interval;
         self.min_value -= half_interval;
         self.max_value += half_interval;
+        self
     }
 }
 
@@ -127,6 +153,7 @@ impl MinMax {
         Self(value, value)
     }
 
+    #[must_use]
     pub fn extend_with_other(mut self, other: Self) -> Self {
         if other.0 < self.0 {
             self.0 = other.0;
@@ -138,6 +165,7 @@ impl MinMax {
         self
     }
 
+    #[must_use]
     pub fn extend_with_value(mut self, value: f32) -> Self {
         if value < self.0 {
             self.0 = value;
@@ -147,27 +175,30 @@ impl MinMax {
 
         self
     }
-
-    pub fn max(&self) -> f32 {
-        self.1
-    }
-
-    pub fn min(&self) -> f32 {
-        self.0
-    }
 }
 
 /// List of shapes that belongs together.
 ///
 /// These should be rendered in the same color.
 pub struct ShapeList<S, P> {
-    shapes: Vec<Shape<P>>,
+    pub shapes: Vec<Shape<P>>,
 
     /// The original source this shape list belongs to.
     ///
     /// This would be the type of input data the chart was generated from, such
     /// as [Timeseries].
-    source: S,
+    pub source: S,
+}
+
+impl<'source> From<ShapeList<&'source Timeseries, &'source Metric>>
+    for ShapeList<SeriesSource<'source>, PointSource<'source>>
+{
+    fn from(value: ShapeList<&'source Timeseries, &'source Metric>) -> Self {
+        Self {
+            shapes: value.shapes.into_iter().map(Shape::into).collect(),
+            source: value.source.into(),
+        }
+    }
 }
 
 pub enum Shape<P> {
@@ -177,11 +208,30 @@ pub enum Shape<P> {
     Rectangle(Rectangle<P>),
 }
 
+impl<'source> From<Shape<&'source Metric>> for Shape<PointSource<'source>> {
+    fn from(other: Shape<&'source Metric>) -> Self {
+        match other {
+            Shape::Area(area) => Shape::Area(area.into()),
+            Shape::Line(line) => Shape::Line(line.into()),
+            Shape::Point(point) => Shape::Point(point.into()),
+            Shape::Rectangle(rectangle) => Shape::Rectangle(rectangle.into()),
+        }
+    }
+}
+
 /// An area to be drawn between two lines that share their X coordinates.
 ///
 /// Area points move from left to right.
 pub struct Area<P> {
-    points: Vec<AreaPoint<P>>,
+    pub points: Vec<AreaPoint<P>>,
+}
+
+impl<'source> From<Area<&'source Metric>> for Area<PointSource<'source>> {
+    fn from(value: Area<&'source Metric>) -> Self {
+        Self {
+            points: value.points.into_iter().map(AreaPoint::into).collect(),
+        }
+    }
 }
 
 /// A single data point in an area shape.
@@ -201,9 +251,28 @@ pub struct AreaPoint<P> {
     pub source: P,
 }
 
+impl<'source> From<AreaPoint<&'source Metric>> for AreaPoint<PointSource<'source>> {
+    fn from(value: AreaPoint<&'source Metric>) -> Self {
+        Self {
+            x: value.x,
+            y_min: value.y_min,
+            y_max: value.y_max,
+            source: value.source.into(),
+        }
+    }
+}
+
 /// A line to be drawn between two or more points.
 pub struct Line<P> {
-    points: Vec<Point<P>>,
+    pub points: Vec<Point<P>>,
+}
+
+impl<'source> From<Line<&'source Metric>> for Line<PointSource<'source>> {
+    fn from(value: Line<&'source Metric>) -> Self {
+        Self {
+            points: value.points.into_iter().map(Point::into).collect(),
+        }
+    }
 }
 
 /// A single point in the chart.
@@ -212,15 +281,25 @@ pub struct Line<P> {
 /// between them.
 pub struct Point<P> {
     /// X coordinate between 0.0 and 1.0.
-    x: f32,
+    pub x: f32,
 
     /// Y coordinate between 0.0 and 1.0.
-    y: f32,
+    pub y: f32,
 
     /// The source this point was generated from.
     ///
     /// This would be a [Metric] if the chart was generated from [Timeseries].
-    source: P,
+    pub source: P,
+}
+
+impl<'source> From<Point<&'source Metric>> for Point<PointSource<'source>> {
+    fn from(value: Point<&'source Metric>) -> Self {
+        Self {
+            x: value.x,
+            y: value.y,
+            source: value.source.into(),
+        }
+    }
 }
 
 /// A rectangle to be rendered inside the chart.
@@ -234,6 +313,18 @@ pub struct Rectangle<P> {
     ///
     /// This would be a [Metric] if the chart was generated from [Timeseries].
     pub source: P,
+}
+
+impl<'source> From<Rectangle<&'source Metric>> for Rectangle<PointSource<'source>> {
+    fn from(value: Rectangle<&'source Metric>) -> Self {
+        Self {
+            x: value.x,
+            y: value.y,
+            width: value.width,
+            height: value.height,
+            source: value.source.into(),
+        }
+    }
 }
 
 pub(crate) type StackedChartBuckets = Buckets<StackedChartBucketValue>;

@@ -7,9 +7,9 @@ use crate::types::Metric;
 /// Any metric that has a `NaN` value, or that follows more than `1.5 * interval`
 /// after the previous metric is considered to introduce a gap in the metrics.
 pub(crate) fn split_into_continuous_lines(
-    metrics: Vec<Metric>,
+    metrics: &[Metric],
     interval: Option<f32>,
-) -> Vec<Vec<Metric>> {
+) -> Vec<Vec<&Metric>> {
     let mut lines = Vec::new();
     let mut current_line = Vec::new();
     let mut previous_time: Option<f32> = None;

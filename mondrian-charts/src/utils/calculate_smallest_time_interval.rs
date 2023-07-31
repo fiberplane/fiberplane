@@ -6,7 +6,7 @@ use crate::types::Buckets;
 ///
 /// Returns `None` if there are insufficient timestamps to calculate an
 /// interval.
-pub(crate) fn calculate_smallest_time_interval<T>(buckets: Buckets<T>) -> Option<f32> {
+pub(crate) fn calculate_smallest_time_interval<T>(buckets: &Buckets<T>) -> Option<f32> {
     if buckets.len() < 2 {
         return None;
     }

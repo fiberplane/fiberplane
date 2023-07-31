@@ -10,31 +10,31 @@ use std::convert::identity;
 
 pub(crate) fn generate_line_chart_from_timeseries(
     input: TimeseriesSourceData,
-) -> AbstractChart<Timeseries, Metric> {
-    let buckets = create_metric_buckets(input.timeseries_data.iter(), |min_max, value| {
+) -> AbstractChart<&Timeseries, &Metric> {
+    let buckets = create_metric_buckets(input.timeseries_data, |min_max, value| {
         min_max
             .map(|min_map: MinMax| min_map.extend_with_value(value as f32))
             .unwrap_or_else(|| MinMax::from_value(value as f32))
     });
 
-    let mut x_axis = get_x_axis_from_time_range(input.time_range);
-    let y_axis = calculate_y_axis_range(buckets, identity);
+    let mut x_axis = get_x_axis_from_time_range(&input.time_range);
+    let y_axis = calculate_y_axis_range(&buckets, identity);
 
-    let interval = calculate_smallest_time_interval(buckets);
+    let interval = calculate_smallest_time_interval(&buckets);
     if let Some(interval) = interval {
-        attach_suggestions_to_x_axis(&mut x_axis, buckets, interval);
+        attach_suggestions_to_x_axis(&mut x_axis, &buckets, interval);
     }
 
     let shape_lists: Vec<_> = input
         .timeseries_data
-        .into_iter()
+        .iter()
         .map(|timeseries| ShapeList {
             shapes: if timeseries.visible {
-                create_shapes(timeseries.metrics, x_axis, y_axis, interval)
+                create_shapes(&timeseries.metrics, &x_axis, &y_axis, interval)
             } else {
                 Vec::new()
             },
-            source: timeseries,
+            source: *timeseries,
         })
         .collect();
 
@@ -45,16 +45,16 @@ pub(crate) fn generate_line_chart_from_timeseries(
     }
 }
 
-fn create_shapes(
-    metrics: Vec<Metric>,
-    x_axis: Axis,
-    y_axis: Axis,
+fn create_shapes<'source>(
+    metrics: &'source [Metric],
+    x_axis: &Axis,
+    y_axis: &Axis,
     interval: Option<f32>,
-) -> Vec<Shape<Metric>> {
+) -> Vec<Shape<&'source Metric>> {
     match metrics.len() {
         0 => Vec::new(),
         1 => {
-            let metric = metrics[0];
+            let metric = &metrics[0];
             if metric.value.is_nan() {
                 Vec::new()
             } else {
@@ -85,7 +85,11 @@ fn create_shapes(
     }
 }
 
-fn create_point_for_metric(metric: Metric, x_axis: Axis, y_axis: Axis) -> Point<Metric> {
+fn create_point_for_metric<'source>(
+    metric: &'source Metric,
+    x_axis: &Axis,
+    y_axis: &Axis,
+) -> Point<&'source Metric> {
     let time = get_time_from_timestamp(metric.time);
 
     Point {

@@ -6,30 +6,36 @@ use crate::types::{
 
 pub(crate) fn generate_stacked_line_chart_from_timeseries(
     input: TimeseriesSourceData,
-) -> AbstractChart<Timeseries, Metric> {
-    let buckets_and_axes = calculate_buckets_and_axes_for_stacked_chart(input);
+) -> AbstractChart<&Timeseries, &Metric> {
     let BucketsAndAxes {
-        buckets,
+        mut buckets,
+        is_percentage,
         mut x_axis,
         y_axis,
-        ..
-    } = buckets_and_axes;
+    } = calculate_buckets_and_axes_for_stacked_chart(&input);
 
-    let interval = calculate_smallest_time_interval(buckets);
+    let interval = calculate_smallest_time_interval(&buckets);
     if let Some(interval) = interval {
-        attach_suggestions_to_x_axis(&mut x_axis, buckets, interval);
+        attach_suggestions_to_x_axis(&mut x_axis, &buckets, interval);
     }
+
+    let mut args = BarArgs {
+        buckets: &mut buckets,
+        is_percentage,
+        x_axis: &x_axis,
+        y_axis: &y_axis,
+    };
 
     let shape_lists: Vec<_> = input
         .timeseries_data
-        .into_iter()
+        .iter()
         .map(|timeseries| ShapeList {
             shapes: if timeseries.visible {
-                create_shapes(timeseries.metrics, buckets_and_axes, interval)
+                create_shapes(&timeseries.metrics, interval, &mut args)
             } else {
                 Vec::new()
             },
-            source: timeseries,
+            source: *timeseries,
         })
         .collect();
 
@@ -40,31 +46,24 @@ pub(crate) fn generate_stacked_line_chart_from_timeseries(
     }
 }
 
-fn create_shapes(
-    metrics: Vec<Metric>,
-    buckets_and_axes: BucketsAndAxes,
+struct BarArgs<'axes, 'buckets> {
+    buckets: &'buckets mut StackedChartBuckets,
+    is_percentage: bool,
+    x_axis: &'axes Axis,
+    y_axis: &'axes Axis,
+}
+
+fn create_shapes<'source>(
+    metrics: &'source [Metric],
     interval: Option<f32>,
-) -> Vec<Shape<Metric>> {
-    let BucketsAndAxes {
-        mut buckets,
-        is_percentage,
-        x_axis,
-        y_axis,
-    } = buckets_and_axes;
-
-    let args = BarArgs {
-        buckets: &mut buckets,
-        is_percentage,
-        x_axis,
-        y_axis,
-    };
-
+    args: &mut BarArgs,
+) -> Vec<Shape<&'source Metric>> {
     split_into_continuous_lines(metrics, interval)
-        .into_iter()
+        .iter()
         .map(|line| {
             Shape::Area(Area {
                 points: line
-                    .into_iter()
+                    .iter()
                     .filter_map(|metric| create_point_for_metric(metric, args))
                     .collect(),
             })
@@ -72,14 +71,10 @@ fn create_shapes(
         .collect()
 }
 
-struct BarArgs<'a> {
-    buckets: &'a mut StackedChartBuckets,
-    is_percentage: bool,
-    x_axis: Axis,
-    y_axis: Axis,
-}
-
-fn create_point_for_metric(metric: Metric, args: BarArgs) -> Option<AreaPoint<Metric>> {
+fn create_point_for_metric<'source>(
+    metric: &'source Metric,
+    args: &mut BarArgs,
+) -> Option<AreaPoint<&'source Metric>> {
     let Some(bucket_value) = args.buckets.get_mut(&metric.time) else {
         return None;
     };

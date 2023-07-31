@@ -3,7 +3,7 @@ use crate::types::Axis;
 
 /// Calculates the width of bars in bar charts.
 pub(crate) fn calculate_bar_width(
-    x_axis: Axis,
+    x_axis: &Axis,
     interval: Option<f32>,
     num_bars_per_group: usize,
 ) -> f32 {
