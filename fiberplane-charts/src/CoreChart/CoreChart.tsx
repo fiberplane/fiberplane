@@ -13,8 +13,10 @@ import {
 } from "./hooks";
 import { ZoomBar } from "./ZoomBar";
 import { CHART_SHAPE_OVERFLOW_MARGIN } from "./constants";
+import { ChartAreaGradientContext } from "./ChartAreaGradientContext";
 
 export function CoreChart<S, P>({
+  areaGradientShown = true,
   chart,
   getShapeListColor,
   gridShown = true,
@@ -116,12 +118,14 @@ export function CoreChart<S, P>({
           />
         )}
         <g clipPath={`url(#${clipPathId})`}>
-          <ChartContent
-            {...props}
-            chart={chart}
-            getShapeListColor={getShapeListColor}
-            scales={scales}
-          />
+          <ChartAreaGradientContext.Provider value={areaGradientShown}>
+            <ChartContent
+              {...props}
+              chart={chart}
+              getShapeListColor={getShapeListColor}
+              scales={scales}
+            />
+          </ChartAreaGradientContext.Provider>
         </g>
         <ZoomBar dimensions={dimensions} mouseInteraction={mouseInteraction} />
       </g>

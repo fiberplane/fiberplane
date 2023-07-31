@@ -338,6 +338,10 @@ declare module "styled-components" {
 
 type CoreChartProps<S, P> = {
     /**
+     * Show a gradient under lines in the chart
+     */
+    areaGradientShown?: boolean;
+    /**
      * The chart to render.
      */
     chart: AbstractChart<S, P>;

@@ -646,6 +646,7 @@ const Gradient = styled.div`
   background-image: linear-gradient(
     to bottom,
     transparent,
+  /* FIXME: This var supports style overrides for dark mode */
     var(--fp-expandable-fade-color, rgb(255 255 255 / 75%)) 50%
   );
 
@@ -788,6 +789,11 @@ const intersectionOptions = {
     threshold: 0
 };
 
+/**
+ * Context for tracking whether or not the chart should render a gradient for Area shapes
+ * Defaults to `true` to maintain backwards compatibility
+ */ const ChartAreaGradientContext = createContext(true);
+
 const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , area , color , focused , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
@@ -795,11 +801,12 @@ const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , area , co
     const getX = (point)=>scales.xScale(point.x);
     const getY0 = (point)=>scales.yScale(point.yMin);
     const getY1 = (point)=>scales.yScale(point.yMax);
+    const areaGradientShown = useContext(ChartAreaGradientContext);
     return /*#__PURE__*/ jsxs("g", {
         opacity: focused || !anyFocused ? 1 : 0.2,
         children: [
             /*#__PURE__*/ jsx("defs", {
-                children: /*#__PURE__*/ jsxs("linearGradient", {
+                children: areaGradientShown ? /*#__PURE__*/ jsxs("linearGradient", {
                     id: gradientId,
                     children: [
                         /*#__PURE__*/ jsx("stop", {
@@ -813,7 +820,7 @@ const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , area , co
                             stopOpacity: 0.03
                         })
                     ]
-                })
+                }) : null
             }),
             /*#__PURE__*/ jsx(Threshold, {
                 id: id,
@@ -1864,7 +1871,7 @@ function ZoomBar({ dimensions: { xMax , yMax  } , mouseInteraction  }) {
     });
 }
 
-function CoreChart({ chart , getShapeListColor , gridShown =true , onChangeTimeRange , readOnly =false , showTooltip , timeRange , ...props }) {
+function CoreChart({ areaGradientShown =true , chart , getShapeListColor , gridShown =true , onChangeTimeRange , readOnly =false , showTooltip , timeRange , ...props }) {
     const interactiveControls = useInteractiveControls(readOnly);
     const { mouseInteraction , updatePressedKeys  } = interactiveControls;
     const { width , height , xMax , yMax , marginTop , marginLeft  } = useContext(ChartSizeContext);
@@ -1954,11 +1961,14 @@ function CoreChart({ chart , getShapeListColor , gridShown =true , onChangeTimeR
                     }),
                     /*#__PURE__*/ jsx("g", {
                         clipPath: `url(#${clipPathId})`,
-                        children: /*#__PURE__*/ jsx(ChartContent, {
-                            ...props,
-                            chart: chart,
-                            getShapeListColor: getShapeListColor,
-                            scales: scales
+                        children: /*#__PURE__*/ jsx(ChartAreaGradientContext.Provider, {
+                            value: areaGradientShown,
+                            children: /*#__PURE__*/ jsx(ChartContent, {
+                                ...props,
+                                chart: chart,
+                                getShapeListColor: getShapeListColor,
+                                scales: scales
+                            })
                         })
                     }),
                     /*#__PURE__*/ jsx(ZoomBar, {
@@ -2659,6 +2669,7 @@ const ColorBlock = styled.div`
     border-radius: ${({ theme  })=>theme.borderRadius400};
 `;
 const Emphasis = styled.span`
+  /* FIXME: These vars are to support style overrides for dark mode */
   background-color: var(--fp-chart-legend-emphasis-bg, ${({ theme  })=>theme.colorBase200});
   color: var(--fp-chart-legend-emphasis-color, currentColor);
   /* TODO (Jacco): we should try and find out what to do with this styling */
@@ -2672,6 +2683,7 @@ const InteractiveItemStyling = css`
     cursor: pointer;
 
     &:hover {
+        /* FIXME: These vars are to support style overrides for dark mode */
         background: var(--fp-chart-legend-hover-bg, ${({ theme  })=>theme.colorPrimaryAlpha100});
         color: var(--fp-chart-legend-hover-color, currentColor);
     }
@@ -2824,7 +2836,7 @@ function MetricsChart(props) {
 }
 const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
     const theme = useTheme();
-    const { chartControlsShown =true , colors , events , eventColor =theme.colorPrimary400 , graphType , legendShown =true , readOnly , stackingControlsShown =true , stackingType , timeRange , timeseriesData  } = props;
+    const { areaGradientShown =true , chartControlsShown =true , colors , events , eventColor =theme.colorPrimary400 , graphType , legendShown =true , readOnly , stackingControlsShown =true , stackingType , timeRange , timeseriesData  } = props;
     const chart = useMemo(()=>generateFromTimeseriesAndEvents({
             events: events ?? [],
             graphType,
@@ -2880,6 +2892,7 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
             }),
             /*#__PURE__*/ jsx(CoreChart, {
                 ...props,
+                areaGradientShown: areaGradientShown,
                 chart: chart,
                 focusedShapeList: focusedShapeList,
                 getShapeListColor: getShapeListColor,
