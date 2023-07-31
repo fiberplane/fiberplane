@@ -2,7 +2,7 @@ pub use fiberplane_models::notebooks::{GraphType, StackingType};
 pub use fiberplane_models::providers::{Metric, ProviderEvent, Timeseries};
 pub use fiberplane_models::timestamps::{TimeRange, Timestamp};
 #[cfg(feature = "fp-bindgen")]
-use fp_bindgen::Serializable;
+use fp_bindgen::prelude::Serializable;
 use serde::Serialize;
 use std::collections::BTreeMap;
 
