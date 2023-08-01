@@ -1,9 +1,9 @@
-import { Area } from "@visx/shape";
 import { memo, useId } from "react";
-import { Threshold } from "@visx/threshold";
 
 import type { CommonShapeProps } from "./types";
 import type { Line, Point } from "../../Mondrian";
+import { Threshold } from "./Threshold";
+import { createLinePathDef } from "./paths";
 
 type Props<P> = CommonShapeProps & {
   line: Line<P>;
@@ -37,19 +37,13 @@ export const LineShape = memo(function LineShape<P>({
       <Threshold<Point<P>>
         id={id}
         data={line.points}
+        fillColor={fillColor}
         x={getX}
         y0={getY}
         y1={scales.yScale(0)}
-        clipAboveTo={0}
-        clipBelowTo={scales.yMax}
-        aboveAreaProps={{ fill: fillColor }}
-        // Keep this one around to spot any incorrect threshold computations.
-        belowAreaProps={{ fill: "violet" }}
       />
-      <Area
-        data={line.points}
-        x={getX}
-        y={getY}
+      <path
+        d={createLinePathDef(line.points, { x: getX, y: getY })}
         stroke={color}
         strokeWidth={focused ? 1.5 : 1}
         fill={fillColor}

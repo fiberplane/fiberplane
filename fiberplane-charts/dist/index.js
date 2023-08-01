@@ -3,10 +3,8 @@ import * as React from 'react';
 import { forwardRef, createContext, useRef, useCallback, useState, useEffect, useReducer, useMemo, useLayoutEffect, memo, useId, useContext, Fragment as Fragment$1 } from 'react';
 import styled, { css, useTheme } from 'styled-components';
 import { debounce } from 'throttle-debounce';
-import { Area } from '@visx/shape';
-import { Threshold } from '@visx/threshold';
 import { useMotionValue, animate } from 'framer-motion';
-import { scaleLinear } from '@visx/scale';
+import { scaleLinear } from 'd3-scale';
 import { VariableSizeList } from 'react-window';
 
 const ButtonGroup = styled.span`
@@ -789,6 +787,103 @@ const intersectionOptions = {
     threshold: 0
 };
 
+function toFactory(coordinate) {
+    return typeof coordinate === "function" ? coordinate : constantFactory(coordinate);
+}
+function constantFactory(value) {
+    return ()=>value;
+}
+
+/**
+ * Creates the SVG path definition for an area shape.
+ *
+ * @param data The data points for the area.
+ * @param coordinates The factories and/or constants to produce the coordinates
+ *                    from each data point.
+ *
+ * See also: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
+ */ function createAreaPathDef(data, coordinates) {
+    const len = data.length;
+    if (len === 0) {
+        return "";
+    }
+    const x = toFactory(coordinates.x);
+    const y0 = toFactory(coordinates.y0);
+    const y1 = toFactory(coordinates.y1);
+    const start = data[0];
+    let path = `M${x(start)},${y0(start)}`;
+    // Draw a line along the y0 coordinates.
+    for(let i = 1; i < len; ++i){
+        const next = data[i];
+        path += `L${x(next)},${y0(next)}`;
+    }
+    // Draw a line backwards along the y1 coordinates.
+    for(let i = len - 1; i >= 0; --i){
+        const previous = data[i];
+        path += `L${x(previous)},${y1(previous)}`;
+    }
+    // Done.
+    path += "Z";
+    return path;
+}
+
+/**
+ * Creates the SVG path definition for a line shape.
+ *
+ * @param data The data points for the line.
+ * @param coordinates The factories and/or constants to produce the coordinates
+ *                    from each data point.
+ *
+ * See also: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
+ */ function createLinePathDef(data, coordinates) {
+    const len = data.length;
+    if (len === 0) {
+        return "";
+    }
+    const x = toFactory(coordinates.x);
+    const y = toFactory(coordinates.y);
+    const start = data[0];
+    let path = `M${x(start)},${y(start)}`;
+    // Draw a line along the data points.
+    for(let i = 1; i < len; ++i){
+        const next = data[i];
+        path += `L${x(next)},${y(next)}`;
+    }
+    // Done.
+    path += "Z";
+    return path;
+}
+
+function Threshold({ id , data , fillColor , x , y0 , y1  }) {
+    const clipPathId = `threshold-clip-above-${id}`;
+    return /*#__PURE__*/ jsxs(Fragment, {
+        children: [
+            /*#__PURE__*/ jsx("defs", {
+                children: /*#__PURE__*/ jsx("clipPath", {
+                    id: clipPathId,
+                    children: /*#__PURE__*/ jsx("path", {
+                        d: createAreaPathDef(data, {
+                            x,
+                            y0: 0,
+                            y1
+                        })
+                    })
+                })
+            }),
+            /*#__PURE__*/ jsx("path", {
+                d: createAreaPathDef(data, {
+                    x,
+                    y0,
+                    y1
+                }),
+                clipPath: `url(#${clipPathId})`,
+                strokeWidth: 0,
+                fill: fillColor
+            })
+        ]
+    });
+}
+
 const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradientShown , area , color , focused , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
@@ -819,24 +914,17 @@ const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradi
             /*#__PURE__*/ jsx(Threshold, {
                 id: id,
                 data: area.points,
+                fillColor: fillColor,
                 x: getX,
                 y0: getY0,
-                y1: getY1,
-                clipAboveTo: 0,
-                clipBelowTo: getY1,
-                aboveAreaProps: {
-                    fill: fillColor
-                },
-                // Keep this one around to spot any incorrect threshold computations.
-                belowAreaProps: {
-                    fill: "violet"
-                }
+                y1: getY1
             }),
-            /*#__PURE__*/ jsx(Area, {
-                data: area.points,
-                x: getX,
-                y0: getY0,
-                y1: getY1,
+            /*#__PURE__*/ jsx("path", {
+                d: createAreaPathDef(area.points, {
+                    x: getX,
+                    y0: getY0,
+                    y1: getY1
+                }),
                 stroke: color,
                 strokeWidth: focused ? 1.5 : 1,
                 fill: fillColor
@@ -874,23 +962,16 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradi
             /*#__PURE__*/ jsx(Threshold, {
                 id: id,
                 data: line.points,
+                fillColor: fillColor,
                 x: getX,
                 y0: getY,
-                y1: scales.yScale(0),
-                clipAboveTo: 0,
-                clipBelowTo: scales.yMax,
-                aboveAreaProps: {
-                    fill: fillColor
-                },
-                // Keep this one around to spot any incorrect threshold computations.
-                belowAreaProps: {
-                    fill: "violet"
-                }
+                y1: scales.yScale(0)
             }),
-            /*#__PURE__*/ jsx(Area, {
-                data: line.points,
-                x: getX,
-                y: getY,
+            /*#__PURE__*/ jsx("path", {
+                d: createLinePathDef(line.points, {
+                    x: getX,
+                    y: getY
+                }),
                 stroke: color,
                 strokeWidth: focused ? 1.5 : 1,
                 fill: fillColor
@@ -1558,7 +1639,7 @@ function coordinateToTimestamp(timeRange, x) {
 }
 
 /**
- * Returns the scales to use for rendering VisX components.
+ * Returns the scales to use for rendering SVG components.
  *
  * Fortunately for us, our abstract charts are normalized along both axes to
  * values from 0.0 to 1.0, meaning we can suffice with trivial linear scales.
@@ -1567,39 +1648,28 @@ function coordinateToTimestamp(timeRange, x) {
  * is applied.
  */ function useScales({ xMax , yMax  }, mouseInteraction) {
     // rome-ignore lint/nursery/useHookAtTopLevel: https://github.com/rome/tools/issues/4483
-    return useMemo(()=>{
-        const xScale = scaleLinear({
-            range: translatedRange(xMax, mouseInteraction),
-            round: false,
-            nice: false,
-            domain: [
-                0,
-                1
-            ]
-        });
-        const yScale = scaleLinear({
-            range: [
+    return useMemo(()=>({
+            xMax,
+            yMax,
+            xScale: createLinearScaleForRange(translatedRange(xMax, mouseInteraction)),
+            yScale: createLinearScaleForRange([
                 yMax,
                 0
-            ],
-            round: false,
-            nice: false,
-            domain: [
-                0,
-                1
-            ]
-        });
-        return {
-            xMax,
-            xScale,
-            yMax,
-            yScale
-        };
-    }, [
+            ])
+        }), [
         mouseInteraction,
         xMax,
         yMax
     ]);
+}
+function createLinearScaleForRange(range) {
+    const scale = scaleLinear();
+    scale.domain([
+        0,
+        1
+    ]);
+    scale.range(range);
+    return scale;
 }
 function translatedRange(xMax, mouseInteraction) {
     if (mouseInteraction.type === "drag") {

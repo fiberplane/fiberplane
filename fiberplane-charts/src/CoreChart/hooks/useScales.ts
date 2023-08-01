@@ -1,11 +1,11 @@
-import { scaleLinear } from "@visx/scale";
+import { scaleLinear } from "d3-scale";
 import { useMemo } from "react";
 
-import type { Dimensions, Scales } from "../types";
+import type { Dimensions, Scale, Scales } from "../types";
 import type { MouseInteractionState } from "./useInteractiveControls";
 
 /**
- * Returns the scales to use for rendering VisX components.
+ * Returns the scales to use for rendering SVG components.
  *
  * Fortunately for us, our abstract charts are normalized along both axes to
  * values from 0.0 to 1.0, meaning we can suffice with trivial linear scales.
@@ -18,29 +18,32 @@ export function useScales(
   mouseInteraction: MouseInteractionState,
 ): Scales {
   // rome-ignore lint/nursery/useHookAtTopLevel: https://github.com/rome/tools/issues/4483
-  return useMemo(() => {
-    const xScale = scaleLinear({
-      range: translatedRange(xMax, mouseInteraction),
-      round: false,
-      nice: false,
-      domain: [0, 1],
-    });
+  return useMemo(
+    () => ({
+      xMax,
+      yMax,
+      xScale: createLinearScaleForRange(
+        translatedRange(xMax, mouseInteraction),
+      ),
+      yScale: createLinearScaleForRange([yMax, 0]),
+    }),
+    [mouseInteraction, xMax, yMax],
+  );
+}
 
-    const yScale = scaleLinear({
-      range: [yMax, 0],
-      round: false,
-      nice: false,
-      domain: [0, 1],
-    });
+type Range = [min: number, max: number];
 
-    return { xMax, xScale, yMax, yScale };
-  }, [mouseInteraction, xMax, yMax]);
+function createLinearScaleForRange(range: Range): Scale {
+  const scale = scaleLinear();
+  scale.domain([0, 1]);
+  scale.range(range);
+  return scale;
 }
 
 function translatedRange(
   xMax: number,
   mouseInteraction: MouseInteractionState,
-): [min: number, max: number] {
+): Range {
   if (mouseInteraction.type === "drag") {
     const { start, end } = mouseInteraction;
     if (end !== undefined && start !== end) {

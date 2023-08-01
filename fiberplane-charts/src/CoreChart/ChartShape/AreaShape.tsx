@@ -1,9 +1,9 @@
-import { Area as VisxArea } from "@visx/shape";
 import { memo, useId } from "react";
-import { Threshold } from "@visx/threshold";
 
 import type { Area, AreaPoint } from "../../Mondrian";
 import type { CommonShapeProps } from "./types";
+import { createAreaPathDef } from "./paths/createAreaPathDef";
+import { Threshold } from "./Threshold";
 
 type Props<P> = CommonShapeProps & {
   area: Area<P>;
@@ -38,20 +38,13 @@ export const AreaShape = memo(function AreaShape<P>({
       <Threshold<AreaPoint<P>>
         id={id}
         data={area.points}
+        fillColor={fillColor}
         x={getX}
         y0={getY0}
         y1={getY1}
-        clipAboveTo={0}
-        clipBelowTo={getY1}
-        aboveAreaProps={{ fill: fillColor }}
-        // Keep this one around to spot any incorrect threshold computations.
-        belowAreaProps={{ fill: "violet" }}
       />
-      <VisxArea
-        data={area.points}
-        x={getX}
-        y0={getY0}
-        y1={getY1}
+      <path
+        d={createAreaPathDef(area.points, { x: getX, y0: getY0, y1: getY1 })}
         stroke={color}
         strokeWidth={focused ? 1.5 : 1}
         fill={fillColor}
