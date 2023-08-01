@@ -31,12 +31,12 @@ export function createLinePathDef<P>(
   const y = toFactory(coordinates.y);
 
   const start = data[0];
-  let path = `M${x(start)},${y(start)}`;
+  let path = `M${x(start).toFixed(1)},${y(start).toFixed(1)}`;
 
   // Draw a line along the data points.
   for (let i = 1; i < len; ++i) {
     const next = data[i];
-    path += `L${x(next)},${y(next)}`;
+    path += `L${x(next).toFixed(1)},${y(next).toFixed(1)}`;
   }
 
   // Done.

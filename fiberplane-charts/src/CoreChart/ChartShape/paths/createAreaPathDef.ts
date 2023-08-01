@@ -36,18 +36,18 @@ export function createAreaPathDef<P>(
   const y1 = toFactory(coordinates.y1);
 
   const start = data[0];
-  let path = `M${x(start)},${y0(start)}`;
+  let path = `M${x(start).toFixed(1)},${y0(start).toFixed(1)}`;
 
   // Draw a line along the y0 coordinates.
   for (let i = 1; i < len; ++i) {
     const next = data[i];
-    path += `L${x(next)},${y0(next)}`;
+    path += `L${x(next).toFixed(1)},${y0(next).toFixed(1)}`;
   }
 
   // Draw a line backwards along the y1 coordinates.
   for (let i = len - 1; i >= 0; --i) {
     const previous = data[i];
-    path += `L${x(previous)},${y1(previous)}`;
+    path += `L${x(previous).toFixed(1)},${y1(previous).toFixed(1)}`;
   }
 
   // Done.
