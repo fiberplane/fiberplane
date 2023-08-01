@@ -26,7 +26,7 @@ export async function querySeries(
   params.append("end", roundToGrid(timeRange.to, stepSeconds, Math.ceil));
   params.append("step", stepParam);
 
-  const url = `${baseUrl}/prometheus/api/v1/query_range?${params.toString()}`;
+  const url = `${baseUrl}/api/v1/query_range?${params.toString()}`;
   const response = await fetch(url, { mode, ...requestInit });
   if (!response.ok) {
     throw new Error("Error fetching prometheus data");

@@ -29,7 +29,7 @@ test("it rounds the time range", () => {
 
   const { baseUrl, headers } = options;
   expect(mockedFetch).toHaveBeenCalledWith(
-    `${baseUrl}/prometheus/api/v1/query_range?${expectedParams.toString()}`,
+    `${baseUrl}/api/v1/query_range?${expectedParams.toString()}`,
     { mode: "cors", headers },
   );
 });
