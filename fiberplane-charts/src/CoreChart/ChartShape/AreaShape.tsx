@@ -1,10 +1,9 @@
 import { Area as VisxArea } from "@visx/shape";
-import { memo, useContext, useId } from "react";
+import { memo, useId } from "react";
 import { Threshold } from "@visx/threshold";
 
 import type { Area, AreaPoint } from "../../Mondrian";
 import type { CommonShapeProps } from "./types";
-import { ChartAreaGradientContext } from "../ChartAreaGradientContext";
 
 type Props<P> = CommonShapeProps & {
   area: Area<P>;
@@ -12,6 +11,7 @@ type Props<P> = CommonShapeProps & {
 
 export const AreaShape = memo(function AreaShape<P>({
   anyFocused,
+  areaGradientShown,
   area,
   color,
   focused,
@@ -24,8 +24,6 @@ export const AreaShape = memo(function AreaShape<P>({
   const getX = (point: { x: number }) => scales.xScale(point.x);
   const getY0 = (point: { yMin: number }) => scales.yScale(point.yMin);
   const getY1 = (point: { yMax: number }) => scales.yScale(point.yMax);
-
-  const areaGradientShown = useContext(ChartAreaGradientContext);
 
   return (
     <g opacity={focused || !anyFocused ? 1 : 0.2}>

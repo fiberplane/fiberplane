@@ -789,19 +789,13 @@ const intersectionOptions = {
     threshold: 0
 };
 
-/**
- * Context for tracking whether or not the chart should render a gradient for Area shapes
- * Defaults to `true` to maintain backwards compatibility
- */ const ChartAreaGradientContext = createContext(true);
-
-const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , area , color , focused , scales  }) {
+const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradientShown , area , color , focused , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
     const fillColor = `url(#${gradientId})`;
     const getX = (point)=>scales.xScale(point.x);
     const getY0 = (point)=>scales.yScale(point.yMin);
     const getY1 = (point)=>scales.yScale(point.yMax);
-    const areaGradientShown = useContext(ChartAreaGradientContext);
     return /*#__PURE__*/ jsxs("g", {
         opacity: focused || !anyFocused ? 1 : 0.2,
         children: [
@@ -851,13 +845,12 @@ const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , area , co
     });
 });
 
-const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , color , focused , line , scales  }) {
+const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradientShown , color , focused , line , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
     const fillColor = `url(#${gradientId})`;
     const getX = (point)=>scales.xScale(point.x);
     const getY = (point)=>scales.yScale(point.y);
-    const areaGradientShown = useContext(ChartAreaGradientContext);
     return /*#__PURE__*/ jsxs("g", {
         opacity: focused || !anyFocused ? 1 : 0.2,
         children: [
@@ -970,10 +963,11 @@ function ChartShape({ shape , ...props }) {
     }
 }
 
-function ChartContent({ chart , focusedShapeList , getShapeListColor , scales  }) {
+function ChartContent({ areaGradientShown , chart , focusedShapeList , getShapeListColor , scales  }) {
     return /*#__PURE__*/ jsx(Fragment, {
         children: chart.shapeLists.flatMap((shapeList, listIndex)=>shapeList.shapes.map((shape, shapeIndex)=>/*#__PURE__*/ jsx(ChartShape, {
                     anyFocused: !!focusedShapeList,
+                    areaGradientShown: areaGradientShown,
                     color: getShapeListColor(shapeList),
                     focused: shapeList === focusedShapeList,
                     scales: scales,
@@ -1962,14 +1956,12 @@ function CoreChart({ areaGradientShown =true , chart , getShapeListColor , gridS
                     }),
                     /*#__PURE__*/ jsx("g", {
                         clipPath: `url(#${clipPathId})`,
-                        children: /*#__PURE__*/ jsx(ChartAreaGradientContext.Provider, {
-                            value: areaGradientShown,
-                            children: /*#__PURE__*/ jsx(ChartContent, {
-                                ...props,
-                                chart: chart,
-                                getShapeListColor: getShapeListColor,
-                                scales: scales
-                            })
+                        children: /*#__PURE__*/ jsx(ChartContent, {
+                            ...props,
+                            areaGradientShown: areaGradientShown,
+                            chart: chart,
+                            getShapeListColor: getShapeListColor,
+                            scales: scales
                         })
                     }),
                     /*#__PURE__*/ jsx(ZoomBar, {
@@ -2917,7 +2909,7 @@ function isTimeseriesShapeList(shapeList) {
     return shapeList.source.type === "timeseries";
 }
 
-function SparkChart({ colors , graphType , stackingType , timeRange , timeseriesData , onChangeTimeRange  }) {
+function SparkChart({ areaGradientShown =false , colors , graphType , stackingType , timeRange , timeseriesData , onChangeTimeRange  }) {
     const theme = useTheme();
     const chart = useMemo(()=>generateFromTimeseries({
             graphType,
@@ -2955,6 +2947,7 @@ function SparkChart({ colors , graphType , stackingType , timeRange , timeseries
     ]);
     return /*#__PURE__*/ jsx(StyledChartSizeContainerProvider, {
         children: /*#__PURE__*/ jsx(CoreChart, {
+            areaGradientShown: areaGradientShown,
             chart: chart,
             focusedShapeList: null,
             getShapeListColor: getShapeListColor,
