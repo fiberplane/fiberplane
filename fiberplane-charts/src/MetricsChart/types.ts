@@ -60,15 +60,4 @@ export type MetricsChartProps = Omit<
     stackingControlsShown?: boolean;
   };
 
-/**
- * Function to display a tooltip relative to the given anchor containing the
- * given React content.
- *
- * Should return a function to close the tooltip.
- */
-export type ShowTooltipFn = (
-  anchor: TooltipAnchor,
-  content: React.ReactNode,
-) => CloseTooltipFn;
-
 export type { CloseTooltipFn, TooltipAnchor, VirtualElement };
