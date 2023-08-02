@@ -1,3 +1,4 @@
+mod chart_to_svg;
 mod constants;
 mod generate_bar_chart_from_timeseries;
 mod generate_line_chart_from_timeseries;
@@ -66,7 +67,7 @@ pub fn generate_from_timeseries_and_events<'source>(
 
     let mut chart: AbstractChart<SeriesSource, PointSource> = chart.into();
 
-    if !events.is_empty() {
+    if graph_type == GraphType::Line && !events.is_empty() {
         chart
             .shape_lists
             .push(generate_shape_list_from_events(&chart.x_axis, events));

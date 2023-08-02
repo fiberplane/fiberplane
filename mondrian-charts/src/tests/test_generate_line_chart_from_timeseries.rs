@@ -1,3 +1,4 @@
+use crate::chart_to_svg::*;
 use crate::generate_line_chart_from_timeseries;
 use crate::types::{
     GraphType, Metric, StackingType, TimeRange, Timeseries, TimeseriesSourceData, Timestamp,
@@ -33,6 +34,19 @@ fn test_generate_line_chart_from_timeseries() {
     });
 
     insta::assert_yaml_snapshot!(chart);
+
+    let svg = chart_to_svg(
+        &chart,
+        ChartOptions {
+            width: 640,
+            height: 480,
+            area_gradient_shown: true,
+            grid_shown: false,
+            shape_list_colors: vec!["#c00eae".to_owned()],
+        },
+    );
+
+    insta::assert_debug_snapshot!(svg);
 }
 
 fn get_metric_at_minute(minute: u8, value: f64) -> Metric {
