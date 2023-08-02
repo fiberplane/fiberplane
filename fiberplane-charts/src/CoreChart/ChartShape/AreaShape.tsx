@@ -18,7 +18,7 @@ export const AreaShape = memo(function AreaShape<P>({
 }: Props<P>): JSX.Element {
   const id = useId();
   const gradientId = `line-${id}`;
-  const fillColor = `url(#${gradientId})`;
+  const gradientRef = `url(#${gradientId})`;
   const clipPathId = `threshold-clip-above-${id}`;
 
   const x = (point: { x: number }) => scales.xScale(point.x);
@@ -44,13 +44,13 @@ export const AreaShape = memo(function AreaShape<P>({
         d={pathDef}
         clipPath={`url(#${clipPathId})`}
         strokeWidth={0}
-        fill={fillColor}
+        fill={gradientRef}
       />
       <path
         d={pathDef}
         stroke={color}
         strokeWidth={focused ? 1.5 : 1}
-        fill={fillColor}
+        fill={gradientRef}
       />
     </g>
   );

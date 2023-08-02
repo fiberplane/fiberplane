@@ -829,7 +829,7 @@ function constantFactory(value) {
 const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradientShown , area , color , focused , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
-    const fillColor = `url(#${gradientId})`;
+    const gradientRef = `url(#${gradientId})`;
     const clipPathId = `threshold-clip-above-${id}`;
     const x = (point)=>scales.xScale(point.x);
     const y0 = (point)=>scales.yScale(point.yMin);
@@ -875,13 +875,13 @@ const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradi
                 d: pathDef,
                 clipPath: `url(#${clipPathId})`,
                 strokeWidth: 0,
-                fill: fillColor
+                fill: gradientRef
             }),
             /*#__PURE__*/ jsx("path", {
                 d: pathDef,
                 stroke: color,
                 strokeWidth: focused ? 1.5 : 1,
-                fill: fillColor
+                fill: gradientRef
             })
         ]
     });
@@ -915,7 +915,7 @@ const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradi
 const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradientShown , color , focused , line , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
-    const fillColor = `url(#${gradientId})`;
+    const gradiantRef = `url(#${gradientId})`;
     const x = (point)=>scales.xScale(point.x);
     const y = (point)=>scales.yScale(point.y);
     const clipY1 = scales.yScale(0);
@@ -946,7 +946,7 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradi
                     y1: clipY1
                 }),
                 strokeWidth: 0,
-                fill: fillColor
+                fill: gradiantRef
             }) : null,
             /*#__PURE__*/ jsx("path", {
                 d: createLinePathDef(line.points, {
@@ -954,7 +954,8 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradi
                     y
                 }),
                 stroke: color,
-                strokeWidth: focused ? 1.5 : 1
+                strokeWidth: focused ? 1.5 : 1,
+                fill: areaGradientShown ? gradiantRef : "transparent"
             })
         ]
     });
