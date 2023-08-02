@@ -39,7 +39,5 @@ export function createLinePathDef<P>(
     path += `L${x(next).toFixed(1)},${y(next).toFixed(1)}`;
   }
 
-  // Done.
-  path += "Z";
   return path;
 }

@@ -826,6 +826,67 @@ function constantFactory(value) {
     return path;
 }
 
+const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradientShown , area , color , focused , scales  }) {
+    const id = useId();
+    const gradientId = `line-${id}`;
+    const fillColor = `url(#${gradientId})`;
+    const clipPathId = `threshold-clip-above-${id}`;
+    const x = (point)=>scales.xScale(point.x);
+    const y0 = (point)=>scales.yScale(point.yMin);
+    const y1 = (point)=>scales.yScale(point.yMax);
+    const pathDef = createAreaPathDef(area.points, {
+        x,
+        y0,
+        y1
+    });
+    return /*#__PURE__*/ jsxs("g", {
+        opacity: focused || !anyFocused ? 1 : 0.2,
+        children: [
+            /*#__PURE__*/ jsxs("defs", {
+                children: [
+                    areaGradientShown ? /*#__PURE__*/ jsxs("linearGradient", {
+                        id: gradientId,
+                        children: [
+                            /*#__PURE__*/ jsx("stop", {
+                                offset: "0%",
+                                stopColor: color,
+                                stopOpacity: 0.15
+                            }),
+                            /*#__PURE__*/ jsx("stop", {
+                                offset: "80%",
+                                stopColor: color,
+                                stopOpacity: 0.03
+                            })
+                        ]
+                    }) : null,
+                    /*#__PURE__*/ jsx("clipPath", {
+                        id: clipPathId,
+                        children: /*#__PURE__*/ jsx("path", {
+                            d: createAreaPathDef(area.points, {
+                                x,
+                                y0: 0,
+                                y1
+                            })
+                        })
+                    })
+                ]
+            }),
+            /*#__PURE__*/ jsx("path", {
+                d: pathDef,
+                clipPath: `url(#${clipPathId})`,
+                strokeWidth: 0,
+                fill: fillColor
+            }),
+            /*#__PURE__*/ jsx("path", {
+                d: pathDef,
+                stroke: color,
+                strokeWidth: focused ? 1.5 : 1,
+                fill: fillColor
+            })
+        ]
+    });
+});
+
 /**
  * Creates the SVG path definition for a line shape.
  *
@@ -848,101 +909,21 @@ function constantFactory(value) {
         const next = data[i];
         path += `L${x(next).toFixed(1)},${y(next).toFixed(1)}`;
     }
-    // Done.
-    path += "Z";
     return path;
 }
-
-function Threshold({ id , data , fillColor , x , y0 , y1  }) {
-    const clipPathId = `threshold-clip-above-${id}`;
-    return /*#__PURE__*/ jsxs(Fragment, {
-        children: [
-            /*#__PURE__*/ jsx("defs", {
-                children: /*#__PURE__*/ jsx("clipPath", {
-                    id: clipPathId,
-                    children: /*#__PURE__*/ jsx("path", {
-                        d: createAreaPathDef(data, {
-                            x,
-                            y0: 0,
-                            y1
-                        })
-                    })
-                })
-            }),
-            /*#__PURE__*/ jsx("path", {
-                d: createAreaPathDef(data, {
-                    x,
-                    y0,
-                    y1
-                }),
-                clipPath: `url(#${clipPathId})`,
-                strokeWidth: 0,
-                fill: fillColor
-            })
-        ]
-    });
-}
-
-const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradientShown , area , color , focused , scales  }) {
-    const id = useId();
-    const gradientId = `line-${id}`;
-    const fillColor = `url(#${gradientId})`;
-    const getX = (point)=>scales.xScale(point.x);
-    const getY0 = (point)=>scales.yScale(point.yMin);
-    const getY1 = (point)=>scales.yScale(point.yMax);
-    return /*#__PURE__*/ jsxs("g", {
-        opacity: focused || !anyFocused ? 1 : 0.2,
-        children: [
-            /*#__PURE__*/ jsx("defs", {
-                children: areaGradientShown ? /*#__PURE__*/ jsxs("linearGradient", {
-                    id: gradientId,
-                    children: [
-                        /*#__PURE__*/ jsx("stop", {
-                            offset: "0%",
-                            stopColor: color,
-                            stopOpacity: 0.15
-                        }),
-                        /*#__PURE__*/ jsx("stop", {
-                            offset: "80%",
-                            stopColor: color,
-                            stopOpacity: 0.03
-                        })
-                    ]
-                }) : null
-            }),
-            /*#__PURE__*/ jsx(Threshold, {
-                id: id,
-                data: area.points,
-                fillColor: fillColor,
-                x: getX,
-                y0: getY0,
-                y1: getY1
-            }),
-            /*#__PURE__*/ jsx("path", {
-                d: createAreaPathDef(area.points, {
-                    x: getX,
-                    y0: getY0,
-                    y1: getY1
-                }),
-                stroke: color,
-                strokeWidth: focused ? 1.5 : 1,
-                fill: fillColor
-            })
-        ]
-    });
-});
 
 const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradientShown , color , focused , line , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
     const fillColor = `url(#${gradientId})`;
-    const getX = (point)=>scales.xScale(point.x);
-    const getY = (point)=>scales.yScale(point.y);
+    const x = (point)=>scales.xScale(point.x);
+    const y = (point)=>scales.yScale(point.y);
+    const clipY1 = scales.yScale(0);
     return /*#__PURE__*/ jsxs("g", {
         opacity: focused || !anyFocused ? 1 : 0.2,
         children: [
-            /*#__PURE__*/ jsx("defs", {
-                children: areaGradientShown ? /*#__PURE__*/ jsxs("linearGradient", {
+            areaGradientShown ? /*#__PURE__*/ jsx("defs", {
+                children: /*#__PURE__*/ jsxs("linearGradient", {
                     id: gradientId,
                     children: [
                         /*#__PURE__*/ jsx("stop", {
@@ -956,24 +937,24 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradi
                             stopOpacity: 0.03
                         })
                     ]
-                }) : null
-            }),
-            /*#__PURE__*/ jsx(Threshold, {
-                id: id,
-                data: line.points,
-                fillColor: fillColor,
-                x: getX,
-                y0: getY,
-                y1: scales.yScale(0)
-            }),
+                })
+            }) : null,
+            areaGradientShown ? /*#__PURE__*/ jsx("path", {
+                d: createAreaPathDef(line.points, {
+                    x,
+                    y0: y,
+                    y1: clipY1
+                }),
+                strokeWidth: 0,
+                fill: fillColor
+            }) : null,
             /*#__PURE__*/ jsx("path", {
                 d: createLinePathDef(line.points, {
-                    x: getX,
-                    y: getY
+                    x,
+                    y
                 }),
                 stroke: color,
-                strokeWidth: focused ? 1.5 : 1,
-                fill: fillColor
+                strokeWidth: focused ? 1.5 : 1
             })
         ]
     });

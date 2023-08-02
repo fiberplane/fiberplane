@@ -1,9 +1,8 @@
 import { memo, useId } from "react";
 
-import type { Area, AreaPoint } from "../../Mondrian";
+import type { Area } from "../../Mondrian";
 import type { CommonShapeProps } from "./types";
 import { createAreaPathDef } from "./paths/createAreaPathDef";
-import { Threshold } from "./Threshold";
 
 type Props<P> = CommonShapeProps & {
   area: Area<P>;
@@ -20,10 +19,13 @@ export const AreaShape = memo(function AreaShape<P>({
   const id = useId();
   const gradientId = `line-${id}`;
   const fillColor = `url(#${gradientId})`;
+  const clipPathId = `threshold-clip-above-${id}`;
 
-  const getX = (point: { x: number }) => scales.xScale(point.x);
-  const getY0 = (point: { yMin: number }) => scales.yScale(point.yMin);
-  const getY1 = (point: { yMax: number }) => scales.yScale(point.yMax);
+  const x = (point: { x: number }) => scales.xScale(point.x);
+  const y0 = (point: { yMin: number }) => scales.yScale(point.yMin);
+  const y1 = (point: { yMax: number }) => scales.yScale(point.yMax);
+
+  const pathDef = createAreaPathDef(area.points, { x, y0, y1 });
 
   return (
     <g opacity={focused || !anyFocused ? 1 : 0.2}>
@@ -34,17 +36,18 @@ export const AreaShape = memo(function AreaShape<P>({
             <stop offset="80%" stopColor={color} stopOpacity={0.03} />
           </linearGradient>
         ) : null}
+        <clipPath id={clipPathId}>
+          <path d={createAreaPathDef(area.points, { x, y0: 0, y1 })} />
+        </clipPath>
       </defs>
-      <Threshold<AreaPoint<P>>
-        id={id}
-        data={area.points}
-        fillColor={fillColor}
-        x={getX}
-        y0={getY0}
-        y1={getY1}
+      <path
+        d={pathDef}
+        clipPath={`url(#${clipPathId})`}
+        strokeWidth={0}
+        fill={fillColor}
       />
       <path
-        d={createAreaPathDef(area.points, { x: getX, y0: getY0, y1: getY1 })}
+        d={pathDef}
         stroke={color}
         strokeWidth={focused ? 1.5 : 1}
         fill={fillColor}
