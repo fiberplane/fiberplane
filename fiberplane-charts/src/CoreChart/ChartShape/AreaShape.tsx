@@ -19,7 +19,6 @@ export const AreaShape = memo(function AreaShape<P>({
   const id = useId();
   const gradientId = `line-${id}`;
   const gradientRef = `url(#${gradientId})`;
-  const clipPathId = `threshold-clip-above-${id}`;
 
   const x = (point: { x: number }) => scales.xScale(point.x);
   const y0 = (point: { yMin: number }) => scales.yScale(point.yMin);
@@ -29,28 +28,22 @@ export const AreaShape = memo(function AreaShape<P>({
 
   return (
     <g opacity={focused || !anyFocused ? 1 : 0.2}>
-      <defs>
-        {areaGradientShown ? (
-          <linearGradient id={gradientId}>
+      {areaGradientShown && (
+        <defs>
+          <linearGradient id={gradientId} x1={0} y1={0} x2={0} y2={1}>
             <stop offset="0%" stopColor={color} stopOpacity={0.15} />
             <stop offset="80%" stopColor={color} stopOpacity={0.03} />
           </linearGradient>
-        ) : null}
-        <clipPath id={clipPathId}>
-          <path d={createAreaPathDef(area.points, { x, y0: 0, y1 })} />
-        </clipPath>
-      </defs>
-      <path
-        d={pathDef}
-        clipPath={`url(#${clipPathId})`}
-        strokeWidth={0}
-        fill={gradientRef}
-      />
+        </defs>
+      )}
+      {areaGradientShown && (
+        <path d={pathDef} strokeWidth={0} fill={gradientRef} />
+      )}
       <path
         d={pathDef}
         stroke={color}
         strokeWidth={focused ? 1.5 : 1}
-        fill={gradientRef}
+        fill={areaGradientShown ? gradientRef : "transparent"}
       />
     </g>
   );

@@ -26,21 +26,21 @@ export const LineShape = memo(function LineShape<P>({
 
   return (
     <g opacity={focused || !anyFocused ? 1 : 0.2}>
-      {areaGradientShown ? (
+      {areaGradientShown && (
         <defs>
-          <linearGradient id={gradientId}>
+          <linearGradient id={gradientId} x1={0} y1={0} x2={0} y2={1}>
             <stop offset="0%" stopColor={color} stopOpacity={0.15} />
             <stop offset="23%" stopColor={color} stopOpacity={0.03} />
           </linearGradient>
         </defs>
-      ) : null}
-      {areaGradientShown ? (
+      )}
+      {areaGradientShown && (
         <path
           d={createAreaPathDef(line.points, { x, y0: y, y1: clipY1 })}
           strokeWidth={0}
           fill={gradiantRef}
         />
-      ) : null}
+      )}
       <path
         d={createLinePathDef(line.points, { x, y })}
         stroke={color}
