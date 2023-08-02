@@ -39,6 +39,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
   const theme = useTheme();
 
   const {
+    areaGradientShown = true,
     chartControlsShown = true,
     colors,
     events,
@@ -110,6 +111,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
       )}
       <CoreChart
         {...props}
+        areaGradientShown={areaGradientShown}
         chart={chart}
         focusedShapeList={focusedShapeList}
         getShapeListColor={getShapeListColor}

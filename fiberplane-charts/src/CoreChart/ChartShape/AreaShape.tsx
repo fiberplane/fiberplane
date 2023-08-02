@@ -11,6 +11,7 @@ type Props<P> = CommonShapeProps & {
 
 export const AreaShape = memo(function AreaShape<P>({
   anyFocused,
+  areaGradientShown,
   area,
   color,
   focused,
@@ -27,10 +28,12 @@ export const AreaShape = memo(function AreaShape<P>({
   return (
     <g opacity={focused || !anyFocused ? 1 : 0.2}>
       <defs>
-        <linearGradient id={gradientId}>
-          <stop offset="0%" stopColor={color} stopOpacity={0.15} />
-          <stop offset="80%" stopColor={color} stopOpacity={0.03} />
-        </linearGradient>
+        {areaGradientShown ? (
+          <linearGradient id={gradientId}>
+            <stop offset="0%" stopColor={color} stopOpacity={0.15} />
+            <stop offset="80%" stopColor={color} stopOpacity={0.03} />
+          </linearGradient>
+        ) : null}
       </defs>
       <Threshold<AreaPoint<P>>
         id={id}

@@ -15,6 +15,7 @@ import { ZoomBar } from "./ZoomBar";
 import { CHART_SHAPE_OVERFLOW_MARGIN } from "./constants";
 
 export function CoreChart<S, P>({
+  areaGradientShown = true,
   chart,
   getShapeListColor,
   gridShown = true,
@@ -118,6 +119,7 @@ export function CoreChart<S, P>({
         <g clipPath={`url(#${clipPathId})`}>
           <ChartContent
             {...props}
+            areaGradientShown={areaGradientShown}
             chart={chart}
             getShapeListColor={getShapeListColor}
             scales={scales}

@@ -338,6 +338,10 @@ declare module "styled-components" {
 
 type CoreChartProps<S, P> = {
     /**
+     * Show a gradient under Line or Area shapes in the chart. (default: true)
+     */
+    areaGradientShown?: boolean;
+    /**
      * The chart to render.
      */
     chart: AbstractChart<S, P>;
@@ -529,13 +533,13 @@ type ShowTooltipFn = (anchor: TooltipAnchor, content: React.ReactNode) => CloseT
 
 declare function MetricsChart(props: MetricsChartProps): JSX.Element;
 
-type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange"> & TimeseriesSourceData & {
+type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange" | "areaGradientShown"> & TimeseriesSourceData & {
     /**
      * Override the colors for the timeseries. If not specified several colors
      * of the theme are used.
      */
     colors?: Array<string>;
 };
-declare function SparkChart({ colors, graphType, stackingType, timeRange, timeseriesData, onChangeTimeRange, }: Props): JSX.Element;
+declare function SparkChart({ areaGradientShown, colors, graphType, stackingType, timeRange, timeseriesData, onChangeTimeRange, }: Props): JSX.Element;
 
 export { Axis, ChartTheme, CloseTooltipFn, GraphType, Metric, MetricsChart, MetricsChartProps, OtelMetadata, ProviderEvent, SeriesSource, ShowTooltipFn, SparkChart, StackingType, TickFormatters, TickFormattersFactory, TimeRange, Timeseries, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement };

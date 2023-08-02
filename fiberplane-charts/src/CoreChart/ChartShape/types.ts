@@ -11,6 +11,11 @@ export type CommonShapeProps = {
   anyFocused: boolean;
 
   /**
+   * Show a gradient under Line or Area shapes in the chart.
+   */
+  areaGradientShown: boolean;
+
+  /**
    * The shape's color, based on the shape list it belongs to.
    */
   color: string;

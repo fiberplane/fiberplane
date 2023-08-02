@@ -10,6 +10,11 @@ export type ChartCoordinates = { x: number; y: number };
 
 export type CoreChartProps<S, P> = {
   /**
+   * Show a gradient under Line or Area shapes in the chart. (default: true)
+   */
+  areaGradientShown?: boolean;
+
+  /**
    * The chart to render.
    */
   chart: AbstractChart<S, P>;

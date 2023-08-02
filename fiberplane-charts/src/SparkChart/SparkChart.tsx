@@ -14,7 +14,10 @@ import {
   generateFromTimeseries,
 } from "../Mondrian";
 
-type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange"> &
+type Props = Pick<
+  CoreChartProps<Timeseries, Metric>,
+  "onChangeTimeRange" | "areaGradientShown"
+> &
   TimeseriesSourceData & {
     /**
      * Override the colors for the timeseries. If not specified several colors
@@ -24,6 +27,7 @@ type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange"> &
   };
 
 export function SparkChart({
+  areaGradientShown = false,
   colors,
   graphType,
   stackingType,
@@ -68,6 +72,7 @@ export function SparkChart({
   return (
     <StyledChartSizeContainerProvider>
       <CoreChart
+        areaGradientShown={areaGradientShown}
         chart={chart}
         focusedShapeList={null}
         getShapeListColor={getShapeListColor}

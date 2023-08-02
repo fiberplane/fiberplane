@@ -3,6 +3,7 @@ import { ChartShape } from "./ChartShape";
 import type { Scales } from "./types";
 
 type Props<S, P> = {
+  areaGradientShown: boolean;
   chart: AbstractChart<S, P>;
   focusedShapeList: ShapeList<S, P> | null;
   getShapeListColor: (shapeList: ShapeList<S, P>) => string;
@@ -10,6 +11,7 @@ type Props<S, P> = {
 };
 
 export function ChartContent<S, P>({
+  areaGradientShown,
   chart,
   focusedShapeList,
   getShapeListColor,
@@ -21,6 +23,7 @@ export function ChartContent<S, P>({
         shapeList.shapes.map((shape, shapeIndex) => (
           <ChartShape
             anyFocused={!!focusedShapeList}
+            areaGradientShown={areaGradientShown}
             color={getShapeListColor(shapeList)}
             focused={shapeList === focusedShapeList}
             key={`${listIndex}-${shapeIndex}`}
