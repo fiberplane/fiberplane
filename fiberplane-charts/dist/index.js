@@ -4,7 +4,6 @@ import { forwardRef, createContext, useRef, useCallback, useState, useEffect, us
 import styled, { css, useTheme } from 'styled-components';
 import { debounce } from 'throttle-debounce';
 import { useMotionValue, animate } from 'framer-motion';
-import { scaleLinear } from 'd3-scale';
 import { VariableSizeList } from 'react-window';
 
 const ButtonGroup = styled.span`
@@ -1088,6 +1087,47 @@ function BottomAxis({ formatter , scales: { xMax , xScale , yMax  } , strokeColo
     });
 }
 
+/**
+ * Creates a linear scale function for the given range.
+ *
+ * Assumes a domain of `[0.0..1.0]` as used for our abstract chart coordinates.
+ */ function createLinearScaleForRange([from, to]) {
+    return (value)=>from + value * (to - from);
+}
+function getCoordinatesForEvent(event, { xMax , yMax  }) {
+    const svg = getTarget(event);
+    if (!svg) {
+        return null;
+    }
+    const rect = svg.getBoundingClientRect();
+    const x = event.clientX - rect.left - MARGINS.left;
+    const y = event.clientY - rect.top - MARGINS.top;
+    if (x < 0 || x > xMax || y < 0 || y > yMax) {
+        return null;
+    }
+    return {
+        x: x / xMax,
+        y: 1 - y / yMax
+    };
+}
+/**
+ * Finds the root `<svg>` element we use as target. Most event listeners are
+ * directly attached to it, but some may be attached elsewhere and we need to
+ * travel from the `event.target` to find it.
+ */ function getTarget(event) {
+    if (event.currentTarget instanceof SVGSVGElement) {
+        return event.currentTarget;
+    }
+    let target = event.target;
+    while(target){
+        if (target instanceof SVGSVGElement) {
+            return target;
+        }
+        target = target.parentElement;
+    }
+    return null;
+}
+
 function GridColumns({ scales: { xScale , yMax  } , xAxis: { maxValue , minValue  } , xTicks , ...lineProps }) {
     return /*#__PURE__*/ jsx("g", {
         children: xTicks.map((time, index)=>{
@@ -1157,13 +1197,16 @@ function LeftAxis({ formatter , scales: { yMax , yScale  } , strokeColor , strok
 }
 
 const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDashArray , gridStrokeColor , scales , tickFormatters  }) {
-    const { xMax , xScale , yMax , yScale  } = scales;
+    const { xMax , xScale , yMax  } = scales;
     const { colorBase300  } = useTheme();
     const strokeColor = gridStrokeColor || colorBase300;
     const { xAxis , yAxis  } = chart;
     const minValue = useCustomSpring(yAxis.minValue);
     const maxValue = useCustomSpring(yAxis.maxValue);
-    const animatedScale = yScale.copy().domain([
+    const animatedScale = createLinearScaleForRangeWithCustomDomain([
+        yMax,
+        0
+    ], [
         minValue,
         maxValue
     ]);
@@ -1224,6 +1267,13 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
         ]
     });
 });
+/**
+ * Creates a linear scale function for the given range, but uses a custom
+ * domain.
+ */ function createLinearScaleForRangeWithCustomDomain(range, [min, max]) {
+    const linearScale = createLinearScaleForRange(range);
+    return (value)=>linearScale((value - min) / (max - min));
+}
 function getTicks(axis, max, scale, numTicks, getMaxAllowedTick) {
     const suggestions = axis.tickSuggestions;
     const ticks = suggestions ? getTicksFromSuggestions(axis, suggestions, numTicks) : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
@@ -1485,40 +1535,6 @@ function zoomKeyPressed(event) {
     return isMac ? event.metaKey : event.ctrlKey;
 }
 
-function getCoordinatesForEvent(event, { xMax , yMax  }) {
-    const svg = getTarget(event);
-    if (!svg) {
-        return null;
-    }
-    const rect = svg.getBoundingClientRect();
-    const x = event.clientX - rect.left - MARGINS.left;
-    const y = event.clientY - rect.top - MARGINS.top;
-    if (x < 0 || x > xMax || y < 0 || y > yMax) {
-        return null;
-    }
-    return {
-        x: x / xMax,
-        y: 1 - y / yMax
-    };
-}
-/**
- * Finds the root `<svg>` element we use as target. Most event listeners are
- * directly attached to it, but some may be attached elsewhere and we need to
- * travel from the `event.target` to find it.
- */ function getTarget(event) {
-    if (event.currentTarget instanceof SVGSVGElement) {
-        return event.currentTarget;
-    }
-    let target = event.target;
-    while(target){
-        if (target instanceof SVGSVGElement) {
-            return target;
-        }
-        target = target.parentElement;
-    }
-    return null;
-}
-
 const MIN_DURATION = 60; // in seconds
 /**
  * Hook for setting up mouse handlers to control dragging & zoom
@@ -1661,15 +1677,6 @@ function coordinateToTimestamp(timeRange, x) {
         xMax,
         yMax
     ]);
-}
-function createLinearScaleForRange(range) {
-    const scale = scaleLinear();
-    scale.domain([
-        0,
-        1
-    ]);
-    scale.range(range);
-    return scale;
 }
 function translatedRange(xMax, mouseInteraction) {
     if (mouseInteraction.type === "drag") {

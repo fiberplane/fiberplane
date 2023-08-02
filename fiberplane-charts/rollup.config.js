@@ -9,7 +9,6 @@ export default {
     sourcemap: true,
   },
   external: [
-    "d3-scale",
     "framer-motion",
     "react",
     "react/jsx-runtime",

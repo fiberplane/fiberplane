@@ -1,7 +1,7 @@
-import { scaleLinear } from "d3-scale";
 import { useMemo } from "react";
 
-import type { Dimensions, Scale, Scales } from "../types";
+import { createLinearScaleForRange, Range } from "../utils";
+import type { Dimensions, Scales } from "../types";
 import type { MouseInteractionState } from "./useInteractiveControls";
 
 /**
@@ -29,15 +29,6 @@ export function useScales(
     }),
     [mouseInteraction, xMax, yMax],
   );
-}
-
-type Range = [min: number, max: number];
-
-function createLinearScaleForRange(range: Range): Scale {
-  const scale = scaleLinear();
-  scale.domain([0, 1]);
-  scale.range(range);
-  return scale;
 }
 
 function translatedRange(
