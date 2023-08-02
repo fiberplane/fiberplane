@@ -2604,7 +2604,7 @@ function getPointForMetric(metric, { buckets , isPercentage , xAxis , yAxis  }) 
 /**
  * Generates an abstract chart from the given timeseries data.
  */ function generateFromTimeseriesAndEvents(input) {
-    const timeseriesChart = input.stackingType === "none" ? generateLineChartFromTimeseries(input) : generateStackedLineChartFromTimeseries(input);
+    const timeseriesChart = generateFromTimeseries(input);
     const chart = {
         ...timeseriesChart,
         shapeLists: timeseriesChart.shapeLists.map((list)=>({
@@ -2615,7 +2615,7 @@ function getPointForMetric(metric, { buckets , isPercentage , xAxis , yAxis  }) 
                 }
             }))
     };
-    if (input.events.length > 0) {
+    if (input.graphType === "line" && input.events.length > 0) {
         chart.shapeLists.push(generateShapeListFromEvents(chart.xAxis, input.events));
     }
     return chart;
