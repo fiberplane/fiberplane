@@ -1,7 +1,7 @@
 // Based on: https://raw.githubusercontent.com/yuankunzhang/charming/main/charming/src/renderer/image_renderer.rs
 // License: MIT/Apache 2
 
-use crate::{chart_to_svg::*, AbstractChart};
+use crate::{chart_to_svg, AbstractChart, ChartOptions};
 use image::RgbaImage;
 use resvg::{
     tiny_skia::Pixmap,
@@ -55,9 +55,9 @@ impl ImageRenderer {
         // give buf initial capacity of: width * height * num of channels for RGBA + room for headers/metadata
         let estimated_capacity =
             self.options.width as usize * self.options.height as usize * 4 + 1024;
-        let mut buf = Vec::with_capacity(estimated_capacity as usize);
+        let mut buf = Vec::with_capacity(estimated_capacity);
         img.write_to(&mut Cursor::new(&mut buf), image_format)
-            .map_err(|error| ImageRenderingError::ImageError(error))?;
+            .map_err(ImageRenderingError::ImageError)?;
         Ok(buf)
     }
 

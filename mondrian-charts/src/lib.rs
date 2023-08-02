@@ -22,6 +22,9 @@ pub use types::{
     TimeseriesAndEventsSourceData, TimeseriesSourceData,
 };
 
+pub use chart_to_image::*;
+pub use chart_to_svg::*;
+
 /// Generates an abstract chart from the given timeseries data.
 ///
 /// May return `None` if the graph type is unrecognized.
