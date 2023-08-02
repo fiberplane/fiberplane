@@ -11,7 +11,10 @@ version = "0.1.0"
 
 [dependencies]
 fiberplane-models = { workspace = true }
+image = "0.24"
+resvg = "0.35"
 serde = { workspace = true }
+thiserror = { workspace = true }
 
 [dev-dependencies]
 insta = { workspace = true, features = ["yaml"] }

@@ -1,3 +1,4 @@
+use crate::chart_to_image::*;
 use crate::chart_to_svg::*;
 use crate::generate_stacked_line_chart_from_timeseries;
 use crate::types::{
@@ -57,7 +58,7 @@ fn test_generate_stacked_line_chart_from_timeseries() {
 
     let svg = chart_to_svg(
         &chart,
-        ChartOptions {
+        &ChartOptions {
             width: 640,
             height: 480,
             area_gradient_shown: true,

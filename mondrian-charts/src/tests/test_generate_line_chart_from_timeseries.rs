@@ -37,7 +37,7 @@ fn test_generate_line_chart_from_timeseries() {
 
     let svg = chart_to_svg(
         &chart,
-        ChartOptions {
+        &ChartOptions {
             width: 640,
             height: 480,
             area_gradient_shown: true,

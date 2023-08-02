@@ -1,3 +1,4 @@
+mod chart_to_image;
 mod chart_to_svg;
 mod constants;
 mod generate_bar_chart_from_timeseries;

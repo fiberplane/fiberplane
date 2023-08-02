@@ -21,7 +21,7 @@ pub struct ChartOptions {
     pub shape_list_colors: Vec<String>,
 }
 
-pub fn chart_to_svg<S, P>(chart: &AbstractChart<S, P>, options: ChartOptions) -> String {
+pub fn chart_to_svg<S, P>(chart: &AbstractChart<S, P>, options: &ChartOptions) -> String {
     let ChartOptions { width, height, .. } = options;
 
     let x_max = width - MARGIN_LEFT - MARGIN_RIGHT;
@@ -34,15 +34,15 @@ pub fn chart_to_svg<S, P>(chart: &AbstractChart<S, P>, options: ChartOptions) ->
     let clip_path_height = y_max + 2 * CHART_SHAPE_OVERFLOW_MARGIN;
 
     let grid = if options.grid_shown {
-        Cow::Owned(generate_grid_with_axes_svg(chart, &scales, &options))
+        Cow::Owned(generate_grid_with_axes_svg(chart, &scales, options))
     } else {
         Cow::Borrowed("")
     };
 
-    let chart_content = generate_chart_content_svg(chart, &scales, &options);
+    let chart_content = generate_chart_content_svg(chart, &scales, options);
 
     format!(
-        "<svg width=\"{width}\" height=\"{height}\">\
+        "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"{width}\" height=\"{height}\">\
             <defs>\
                 <clipPath id=\"{clip_path_id}\">\
                   <rect x=\"0\" y=\"{clip_path_y_start}\" width=\"{x_max}\" height=\"{clip_path_height}\" />\
