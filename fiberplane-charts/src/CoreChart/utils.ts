@@ -1,5 +1,16 @@
-import type { ChartCoordinates, Dimensions } from "./types";
+import type { ChartCoordinates, Dimensions, Scale } from "./types";
 import { MARGINS } from "./constants";
+
+export type Range = [from: number, to: number];
+
+/**
+ * Creates a linear scale function for the given range.
+ *
+ * Assumes a domain of `[0.0..1.0]` as used for our abstract chart coordinates.
+ */
+export function createLinearScaleForRange([from, to]: Range): Scale {
+  return (value) => from + value * (to - from);
+}
 
 export function getCoordinatesForEvent(
   event: React.MouseEvent<SVGElement> | WheelEvent,

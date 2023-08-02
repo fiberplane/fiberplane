@@ -4,6 +4,7 @@ import { useTheme } from "styled-components";
 
 import type { AbstractChart, Axis } from "../../Mondrian";
 import { BottomAxis } from "./BottomAxis";
+import { createLinearScaleForRange, Range } from "../utils";
 import { GridColumns } from "./GridColumns";
 import { GridRows } from "./GridRows";
 import { LeftAxis } from "./LeftAxis";
@@ -30,7 +31,7 @@ export const GridWithAxes = memo(function GridWithAxes({
   scales,
   tickFormatters,
 }: Props) {
-  const { xMax, xScale, yMax, yScale } = scales;
+  const { xMax, xScale, yMax } = scales;
 
   const { colorBase300 } = useTheme();
   const strokeColor = gridStrokeColor || colorBase300;
@@ -39,7 +40,10 @@ export const GridWithAxes = memo(function GridWithAxes({
   const minValue = useCustomSpring(yAxis.minValue);
   const maxValue = useCustomSpring(yAxis.maxValue);
 
-  const animatedScale = yScale.copy().domain([minValue, maxValue]);
+  const animatedScale = createLinearScaleForRangeWithCustomDomain(
+    [yMax, 0],
+    [minValue, maxValue],
+  );
 
   const xTicks = useMemo(
     () => getTicks(xAxis, xMax, xScale, 12, getMaxXTickValue),
@@ -100,6 +104,20 @@ export const GridWithAxes = memo(function GridWithAxes({
     </>
   );
 });
+
+type Domain = [min: number, max: number];
+
+/**
+ * Creates a linear scale function for the given range, but uses a custom
+ * domain.
+ */
+function createLinearScaleForRangeWithCustomDomain(
+  range: Range,
+  [min, max]: Domain,
+): Scale {
+  const linearScale = createLinearScaleForRange(range);
+  return (value) => linearScale((value - min) / (max - min));
+}
 
 function getTicks(
   axis: Axis,

@@ -34,10 +34,7 @@ export function generateFromTimeseries(
 export function generateFromTimeseriesAndEvents(
   input: TimeseriesAndEventsSourceData,
 ): AbstractChart<SeriesSource, Metric | ProviderEvent> {
-  const timeseriesChart =
-    input.stackingType === "none"
-      ? generateLineChartFromTimeseries(input)
-      : generateStackedLineChartFromTimeseries(input);
+  const timeseriesChart = generateFromTimeseries(input);
 
   const chart: AbstractChart<SeriesSource, Metric | ProviderEvent> = {
     ...timeseriesChart,
@@ -47,7 +44,7 @@ export function generateFromTimeseriesAndEvents(
     })),
   };
 
-  if (input.events.length > 0) {
+  if (input.graphType === "line" && input.events.length > 0) {
     chart.shapeLists.push(
       generateShapeListFromEvents(chart.xAxis, input.events),
     );

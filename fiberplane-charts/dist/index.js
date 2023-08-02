@@ -3,10 +3,7 @@ import * as React from 'react';
 import { forwardRef, createContext, useRef, useCallback, useState, useEffect, useReducer, useMemo, useLayoutEffect, memo, useId, useContext, Fragment as Fragment$1 } from 'react';
 import styled, { css, useTheme } from 'styled-components';
 import { debounce } from 'throttle-debounce';
-import { Area } from '@visx/shape';
-import { Threshold } from '@visx/threshold';
 import { useMotionValue, animate } from 'framer-motion';
-import { scaleLinear } from '@visx/scale';
 import { VariableSizeList } from 'react-window';
 
 const ButtonGroup = styled.span`
@@ -789,74 +786,132 @@ const intersectionOptions = {
     threshold: 0
 };
 
+function toFactory(coordinate) {
+    return typeof coordinate === "function" ? coordinate : constantFactory(coordinate);
+}
+function constantFactory(value) {
+    return ()=>value;
+}
+
+/**
+ * Creates the SVG path definition for an area shape.
+ *
+ * @param data The data points for the area.
+ * @param coordinates The factories and/or constants to produce the coordinates
+ *                    from each data point.
+ *
+ * See also: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
+ */ function createAreaPathDef(data, coordinates) {
+    const len = data.length;
+    if (len === 0) {
+        return "";
+    }
+    const x = toFactory(coordinates.x);
+    const y0 = toFactory(coordinates.y0);
+    const y1 = toFactory(coordinates.y1);
+    const start = data[0];
+    let path = `M${x(start).toFixed(1)},${y0(start).toFixed(1)}`;
+    // Draw a line along the y0 coordinates.
+    for(let i = 1; i < len; ++i){
+        const next = data[i];
+        path += `L${x(next).toFixed(1)},${y0(next).toFixed(1)}`;
+    }
+    // Draw a line backwards along the y1 coordinates.
+    for(let i = len - 1; i >= 0; --i){
+        const previous = data[i];
+        path += `L${x(previous).toFixed(1)},${y1(previous).toFixed(1)}`;
+    }
+    // Done.
+    path += "Z";
+    return path;
+}
+
 const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradientShown , area , color , focused , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
-    const fillColor = `url(#${gradientId})`;
-    const getX = (point)=>scales.xScale(point.x);
-    const getY0 = (point)=>scales.yScale(point.yMin);
-    const getY1 = (point)=>scales.yScale(point.yMax);
+    const gradientRef = `url(#${gradientId})`;
+    const x = (point)=>scales.xScale(point.x);
+    const y0 = (point)=>scales.yScale(point.yMin);
+    const y1 = (point)=>scales.yScale(point.yMax);
     return /*#__PURE__*/ jsxs("g", {
         opacity: focused || !anyFocused ? 1 : 0.2,
         children: [
-            /*#__PURE__*/ jsx("defs", {
-                children: areaGradientShown ? /*#__PURE__*/ jsxs("linearGradient", {
+            areaGradientShown && /*#__PURE__*/ jsx("defs", {
+                children: /*#__PURE__*/ jsxs("linearGradient", {
                     id: gradientId,
+                    x1: 0,
+                    y1: 0,
+                    x2: 0,
+                    y2: 1,
                     children: [
                         /*#__PURE__*/ jsx("stop", {
                             offset: "0%",
                             stopColor: color,
-                            stopOpacity: 0.15
+                            stopOpacity: 0.3
                         }),
                         /*#__PURE__*/ jsx("stop", {
                             offset: "80%",
                             stopColor: color,
-                            stopOpacity: 0.03
+                            stopOpacity: 0.06
                         })
                     ]
-                }) : null
+                })
             }),
-            /*#__PURE__*/ jsx(Threshold, {
-                id: id,
-                data: area.points,
-                x: getX,
-                y0: getY0,
-                y1: getY1,
-                clipAboveTo: 0,
-                clipBelowTo: getY1,
-                aboveAreaProps: {
-                    fill: fillColor
-                },
-                // Keep this one around to spot any incorrect threshold computations.
-                belowAreaProps: {
-                    fill: "violet"
-                }
-            }),
-            /*#__PURE__*/ jsx(Area, {
-                data: area.points,
-                x: getX,
-                y0: getY0,
-                y1: getY1,
+            /*#__PURE__*/ jsx("path", {
+                d: createAreaPathDef(area.points, {
+                    x,
+                    y0,
+                    y1
+                }),
                 stroke: color,
                 strokeWidth: focused ? 1.5 : 1,
-                fill: fillColor
+                fill: areaGradientShown ? gradientRef : "transparent"
             })
         ]
     });
 });
 
+/**
+ * Creates the SVG path definition for a line shape.
+ *
+ * @param data The data points for the line.
+ * @param coordinates The factories and/or constants to produce the coordinates
+ *                    from each data point.
+ *
+ * See also: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
+ */ function createLinePathDef(data, coordinates) {
+    const len = data.length;
+    if (len === 0) {
+        return "";
+    }
+    const x = toFactory(coordinates.x);
+    const y = toFactory(coordinates.y);
+    const start = data[0];
+    let path = `M${x(start).toFixed(1)},${y(start).toFixed(1)}`;
+    // Draw a line along the data points.
+    for(let i = 1; i < len; ++i){
+        const next = data[i];
+        path += `L${x(next).toFixed(1)},${y(next).toFixed(1)}`;
+    }
+    return path;
+}
+
 const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradientShown , color , focused , line , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
-    const fillColor = `url(#${gradientId})`;
-    const getX = (point)=>scales.xScale(point.x);
-    const getY = (point)=>scales.yScale(point.y);
+    const gradiantRef = `url(#${gradientId})`;
+    const x = (point)=>scales.xScale(point.x);
+    const y = (point)=>scales.yScale(point.y);
     return /*#__PURE__*/ jsxs("g", {
         opacity: focused || !anyFocused ? 1 : 0.2,
         children: [
-            /*#__PURE__*/ jsx("defs", {
-                children: areaGradientShown ? /*#__PURE__*/ jsxs("linearGradient", {
+            areaGradientShown && /*#__PURE__*/ jsx("defs", {
+                children: /*#__PURE__*/ jsxs("linearGradient", {
                     id: gradientId,
+                    x1: 0,
+                    y1: 0,
+                    x2: 0,
+                    y2: 1,
                     children: [
                         /*#__PURE__*/ jsx("stop", {
                             offset: "0%",
@@ -869,31 +924,25 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradi
                             stopOpacity: 0.03
                         })
                     ]
-                }) : null
+                })
             }),
-            /*#__PURE__*/ jsx(Threshold, {
-                id: id,
-                data: line.points,
-                x: getX,
-                y0: getY,
-                y1: scales.yScale(0),
-                clipAboveTo: 0,
-                clipBelowTo: scales.yMax,
-                aboveAreaProps: {
-                    fill: fillColor
-                },
-                // Keep this one around to spot any incorrect threshold computations.
-                belowAreaProps: {
-                    fill: "violet"
-                }
+            areaGradientShown && /*#__PURE__*/ jsx("path", {
+                d: createAreaPathDef(line.points, {
+                    x,
+                    y0: y,
+                    y1: scales.yScale(0)
+                }),
+                strokeWidth: 0,
+                fill: gradiantRef
             }),
-            /*#__PURE__*/ jsx(Area, {
-                data: line.points,
-                x: getX,
-                y: getY,
+            /*#__PURE__*/ jsx("path", {
+                d: createLinePathDef(line.points, {
+                    x,
+                    y
+                }),
                 stroke: color,
                 strokeWidth: focused ? 1.5 : 1,
-                fill: fillColor
+                fill: "transparent"
             })
         ]
     });
@@ -1007,6 +1056,47 @@ function BottomAxis({ formatter , scales: { xMax , xScale , yMax  } , strokeColo
     });
 }
 
+/**
+ * Creates a linear scale function for the given range.
+ *
+ * Assumes a domain of `[0.0..1.0]` as used for our abstract chart coordinates.
+ */ function createLinearScaleForRange([from, to]) {
+    return (value)=>from + value * (to - from);
+}
+function getCoordinatesForEvent(event, { xMax , yMax  }) {
+    const svg = getTarget(event);
+    if (!svg) {
+        return null;
+    }
+    const rect = svg.getBoundingClientRect();
+    const x = event.clientX - rect.left - MARGINS.left;
+    const y = event.clientY - rect.top - MARGINS.top;
+    if (x < 0 || x > xMax || y < 0 || y > yMax) {
+        return null;
+    }
+    return {
+        x: x / xMax,
+        y: 1 - y / yMax
+    };
+}
+/**
+ * Finds the root `<svg>` element we use as target. Most event listeners are
+ * directly attached to it, but some may be attached elsewhere and we need to
+ * travel from the `event.target` to find it.
+ */ function getTarget(event) {
+    if (event.currentTarget instanceof SVGSVGElement) {
+        return event.currentTarget;
+    }
+    let target = event.target;
+    while(target){
+        if (target instanceof SVGSVGElement) {
+            return target;
+        }
+        target = target.parentElement;
+    }
+    return null;
+}
+
 function GridColumns({ scales: { xScale , yMax  } , xAxis: { maxValue , minValue  } , xTicks , ...lineProps }) {
     return /*#__PURE__*/ jsx("g", {
         children: xTicks.map((time, index)=>{
@@ -1076,13 +1166,16 @@ function LeftAxis({ formatter , scales: { yMax , yScale  } , strokeColor , strok
 }
 
 const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDashArray , gridStrokeColor , scales , tickFormatters  }) {
-    const { xMax , xScale , yMax , yScale  } = scales;
+    const { xMax , xScale , yMax  } = scales;
     const { colorBase300  } = useTheme();
     const strokeColor = gridStrokeColor || colorBase300;
     const { xAxis , yAxis  } = chart;
     const minValue = useCustomSpring(yAxis.minValue);
     const maxValue = useCustomSpring(yAxis.maxValue);
-    const animatedScale = yScale.copy().domain([
+    const animatedScale = createLinearScaleForRangeWithCustomDomain([
+        yMax,
+        0
+    ], [
         minValue,
         maxValue
     ]);
@@ -1143,6 +1236,13 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
         ]
     });
 });
+/**
+ * Creates a linear scale function for the given range, but uses a custom
+ * domain.
+ */ function createLinearScaleForRangeWithCustomDomain(range, [min, max]) {
+    const linearScale = createLinearScaleForRange(range);
+    return (value)=>linearScale((value - min) / (max - min));
+}
 function getTicks(axis, max, scale, numTicks, getMaxAllowedTick) {
     const suggestions = axis.tickSuggestions;
     const ticks = suggestions ? getTicksFromSuggestions(axis, suggestions, numTicks) : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
@@ -1404,40 +1504,6 @@ function zoomKeyPressed(event) {
     return isMac ? event.metaKey : event.ctrlKey;
 }
 
-function getCoordinatesForEvent(event, { xMax , yMax  }) {
-    const svg = getTarget(event);
-    if (!svg) {
-        return null;
-    }
-    const rect = svg.getBoundingClientRect();
-    const x = event.clientX - rect.left - MARGINS.left;
-    const y = event.clientY - rect.top - MARGINS.top;
-    if (x < 0 || x > xMax || y < 0 || y > yMax) {
-        return null;
-    }
-    return {
-        x: x / xMax,
-        y: 1 - y / yMax
-    };
-}
-/**
- * Finds the root `<svg>` element we use as target. Most event listeners are
- * directly attached to it, but some may be attached elsewhere and we need to
- * travel from the `event.target` to find it.
- */ function getTarget(event) {
-    if (event.currentTarget instanceof SVGSVGElement) {
-        return event.currentTarget;
-    }
-    let target = event.target;
-    while(target){
-        if (target instanceof SVGSVGElement) {
-            return target;
-        }
-        target = target.parentElement;
-    }
-    return null;
-}
-
 const MIN_DURATION = 60; // in seconds
 /**
  * Hook for setting up mouse handlers to control dragging & zoom
@@ -1558,7 +1624,7 @@ function coordinateToTimestamp(timeRange, x) {
 }
 
 /**
- * Returns the scales to use for rendering VisX components.
+ * Returns the scales to use for rendering SVG components.
  *
  * Fortunately for us, our abstract charts are normalized along both axes to
  * values from 0.0 to 1.0, meaning we can suffice with trivial linear scales.
@@ -1567,35 +1633,15 @@ function coordinateToTimestamp(timeRange, x) {
  * is applied.
  */ function useScales({ xMax , yMax  }, mouseInteraction) {
     // rome-ignore lint/nursery/useHookAtTopLevel: https://github.com/rome/tools/issues/4483
-    return useMemo(()=>{
-        const xScale = scaleLinear({
-            range: translatedRange(xMax, mouseInteraction),
-            round: false,
-            nice: false,
-            domain: [
-                0,
-                1
-            ]
-        });
-        const yScale = scaleLinear({
-            range: [
+    return useMemo(()=>({
+            xMax,
+            yMax,
+            xScale: createLinearScaleForRange(translatedRange(xMax, mouseInteraction)),
+            yScale: createLinearScaleForRange([
                 yMax,
                 0
-            ],
-            round: false,
-            nice: false,
-            domain: [
-                0,
-                1
-            ]
-        });
-        return {
-            xMax,
-            xScale,
-            yMax,
-            yScale
-        };
-    }, [
+            ])
+        }), [
         mouseInteraction,
         xMax,
         yMax
@@ -2558,7 +2604,7 @@ function getPointForMetric(metric, { buckets , isPercentage , xAxis , yAxis  }) 
 /**
  * Generates an abstract chart from the given timeseries data.
  */ function generateFromTimeseriesAndEvents(input) {
-    const timeseriesChart = input.stackingType === "none" ? generateLineChartFromTimeseries(input) : generateStackedLineChartFromTimeseries(input);
+    const timeseriesChart = generateFromTimeseries(input);
     const chart = {
         ...timeseriesChart,
         shapeLists: timeseriesChart.shapeLists.map((list)=>({
@@ -2569,7 +2615,7 @@ function getPointForMetric(metric, { buckets , isPercentage , xAxis , yAxis  }) 
                 }
             }))
     };
-    if (input.events.length > 0) {
+    if (input.graphType === "line" && input.events.length > 0) {
         chart.shapeLists.push(generateShapeListFromEvents(chart.xAxis, input.events));
     }
     return chart;

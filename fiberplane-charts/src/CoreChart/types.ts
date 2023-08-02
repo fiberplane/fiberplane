@@ -1,5 +1,3 @@
-import type { ScaleLinear } from "d3-scale";
-
 import type { AbstractChart, Axis, ShapeList } from "../Mondrian";
 import type { TimeRange } from "../providerTypes";
 
@@ -105,7 +103,13 @@ export type CoreChartProps<S, P> = {
 
 export type Dimensions = { xMax: number; yMax: number };
 
-export type Scale = ScaleLinear<number, number>;
+/**
+ * A scale function that scales a value from one coordinate system to another.
+ *
+ * The values are usually abstract chart coordinates normalized to `[0.0..1.0]`,
+ * which the scale function will scale to chart coordinates in pixels.
+ */
+export type Scale = (value: number) => number;
 
 export type Scales = Dimensions & {
   xScale: Scale;
