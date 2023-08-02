@@ -24,23 +24,18 @@ export const AreaShape = memo(function AreaShape<P>({
   const y0 = (point: { yMin: number }) => scales.yScale(point.yMin);
   const y1 = (point: { yMax: number }) => scales.yScale(point.yMax);
 
-  const pathDef = createAreaPathDef(area.points, { x, y0, y1 });
-
   return (
     <g opacity={focused || !anyFocused ? 1 : 0.2}>
       {areaGradientShown && (
         <defs>
           <linearGradient id={gradientId} x1={0} y1={0} x2={0} y2={1}>
-            <stop offset="0%" stopColor={color} stopOpacity={0.15} />
-            <stop offset="80%" stopColor={color} stopOpacity={0.03} />
+            <stop offset="0%" stopColor={color} stopOpacity={0.3} />
+            <stop offset="80%" stopColor={color} stopOpacity={0.06} />
           </linearGradient>
         </defs>
       )}
-      {areaGradientShown && (
-        <path d={pathDef} strokeWidth={0} fill={gradientRef} />
-      )}
       <path
-        d={pathDef}
+        d={createAreaPathDef(area.points, { x, y0, y1 })}
         stroke={color}
         strokeWidth={focused ? 1.5 : 1}
         fill={areaGradientShown ? gradientRef : "transparent"}

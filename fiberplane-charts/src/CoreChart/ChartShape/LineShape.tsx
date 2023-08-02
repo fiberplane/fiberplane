@@ -22,7 +22,6 @@ export const LineShape = memo(function LineShape<P>({
 
   const x = (point: { x: number }) => scales.xScale(point.x);
   const y = (point: { y: number }) => scales.yScale(point.y);
-  const clipY1 = scales.yScale(0);
 
   return (
     <g opacity={focused || !anyFocused ? 1 : 0.2}>
@@ -36,7 +35,7 @@ export const LineShape = memo(function LineShape<P>({
       )}
       {areaGradientShown && (
         <path
-          d={createAreaPathDef(line.points, { x, y0: y, y1: clipY1 })}
+          d={createAreaPathDef(line.points, { x, y0: y, y1: scales.yScale(0) })}
           strokeWidth={0}
           fill={gradiantRef}
         />

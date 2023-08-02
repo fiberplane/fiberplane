@@ -833,11 +833,6 @@ const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradi
     const x = (point)=>scales.xScale(point.x);
     const y0 = (point)=>scales.yScale(point.yMin);
     const y1 = (point)=>scales.yScale(point.yMax);
-    const pathDef = createAreaPathDef(area.points, {
-        x,
-        y0,
-        y1
-    });
     return /*#__PURE__*/ jsxs("g", {
         opacity: focused || !anyFocused ? 1 : 0.2,
         children: [
@@ -852,23 +847,22 @@ const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradi
                         /*#__PURE__*/ jsx("stop", {
                             offset: "0%",
                             stopColor: color,
-                            stopOpacity: 0.15
+                            stopOpacity: 0.3
                         }),
                         /*#__PURE__*/ jsx("stop", {
                             offset: "80%",
                             stopColor: color,
-                            stopOpacity: 0.03
+                            stopOpacity: 0.06
                         })
                     ]
                 })
             }),
-            areaGradientShown && /*#__PURE__*/ jsx("path", {
-                d: pathDef,
-                strokeWidth: 0,
-                fill: gradientRef
-            }),
             /*#__PURE__*/ jsx("path", {
-                d: pathDef,
+                d: createAreaPathDef(area.points, {
+                    x,
+                    y0,
+                    y1
+                }),
                 stroke: color,
                 strokeWidth: focused ? 1.5 : 1,
                 fill: areaGradientShown ? gradientRef : "transparent"
@@ -908,7 +902,6 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradi
     const gradiantRef = `url(#${gradientId})`;
     const x = (point)=>scales.xScale(point.x);
     const y = (point)=>scales.yScale(point.y);
-    const clipY1 = scales.yScale(0);
     return /*#__PURE__*/ jsxs("g", {
         opacity: focused || !anyFocused ? 1 : 0.2,
         children: [
@@ -937,7 +930,7 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradi
                 d: createAreaPathDef(line.points, {
                     x,
                     y0: y,
-                    y1: clipY1
+                    y1: scales.yScale(0)
                 }),
                 strokeWidth: 0,
                 fill: gradiantRef
