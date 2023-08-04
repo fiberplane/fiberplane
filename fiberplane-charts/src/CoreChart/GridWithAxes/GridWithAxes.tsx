@@ -127,28 +127,30 @@ function getTicks(
   getMaxAllowedTick: (ticks: Array<number>, maxValue: number) => number,
 ): Array<number> {
   const suggestions = axis.tickSuggestions;
-  const ticks = suggestions
-    ? getTicksFromSuggestions(axis, suggestions, numTicks)
-    : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
+  const { ticks, interval } = suggestions
+    ? getTicksAndIntervalFromSuggestions(axis, suggestions, numTicks)
+    : getTicksAndIntervalFromRange(axis.minValue, axis.maxValue, numTicks);
 
-  extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks);
+  extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks, interval);
   removeLastTickIfTooCloseToMax(ticks, axis.maxValue, getMaxAllowedTick);
 
   return ticks;
 }
 
-function getTicksFromRange(
+function getTicksAndIntervalFromRange(
   minValue: number,
   maxValue: number,
   numTicks: number,
-): Array<number> {
+): { ticks: Array<number>; interval?: number } {
   const interval = (maxValue - minValue) / numTicks;
 
   // NOTE - We need to handle the case where the interval is less than EPSILON,
   //        which is the smallest interval we can represent with javascript's floating point precision
   //        (see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/EPSILON)
   if (interval < Number.EPSILON) {
-    return [minValue, maxValue];
+    return {
+      ticks: [minValue, maxValue],
+    };
   }
 
   const ticks = [minValue];
@@ -159,42 +161,35 @@ function getTicksFromRange(
     tick += interval;
   }
 
-  return ticks;
+  return { ticks, interval };
 }
 
-function getTicksFromSuggestions(
+function getTicksAndIntervalFromSuggestions(
   axis: Axis,
   suggestions: Array<number>,
   numTicks: number,
-): Array<number> {
+): { ticks: Array<number>; interval?: number } {
   const len = suggestions.length;
   if (len < 2) {
-    return suggestions;
+    return { ticks: suggestions };
   }
 
   const suggestionInterval = suggestions[1] - suggestions[0];
   const axisRange = axis.maxValue - axis.minValue;
   const ticksPerRange = axisRange / suggestionInterval;
   if (ticksPerRange < numTicks) {
-    return suggestions;
+    return { ticks: suggestions, interval: suggestionInterval };
   }
 
   const ticks = [];
   const divisionFactor = Math.ceil(ticksPerRange / numTicks);
-
   for (let i = 0; i < len; i++) {
     if (i % divisionFactor === 0) {
       ticks.push(suggestions[i]);
     }
   }
 
-  // This will happen when the division factor is greater than the number of suggestions
-  // (which is typically when we only have a small slice of data for the axis' actual range)
-  if (ticks.length < 2) {
-    return getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
-  }
-
-  return ticks;
+  return { ticks, interval: divisionFactor * suggestionInterval };
 }
 
 /**
@@ -213,12 +208,14 @@ function extendTicksToFitAxis(
   max: number,
   scale: Scale,
   maxTicks: number,
+  fallbackInterval?: number,
 ) {
-  if (ticks.length < 2) {
+  const interval = ticks.length > 1 ? ticks[1] - ticks[0] : fallbackInterval;
+
+  if (!interval) {
     return;
   }
 
-  const interval = ticks[1] - ticks[0];
   const scaleToAxis = (value: number) =>
     scale((value - axis.minValue) / (axis.maxValue - axis.minValue));
 
