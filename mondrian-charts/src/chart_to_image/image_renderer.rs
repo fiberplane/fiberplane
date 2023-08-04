@@ -1,7 +1,7 @@
 // Based on: https://raw.githubusercontent.com/yuankunzhang/charming/main/charming/src/renderer/image_renderer.rs
 // License: MIT/Apache 2
 
-use crate::{chart_to_svg, AbstractChart, ChartOptions, ImageOptions};
+use crate::{chart_to_svg, ChartOptions, ImageOptions, MondrianChart};
 use image::RgbaImage;
 use resvg::tiny_skia::{Color, Pixmap};
 use resvg::usvg::{self, TreeTextToPath};
@@ -45,7 +45,7 @@ impl ImageRenderer {
     /// Render a chart to a given image format in bytes.
     pub fn render_format<S, P>(
         &self,
-        chart: &AbstractChart<S, P>,
+        chart: &MondrianChart<S, P>,
         options: ImageOptions,
     ) -> Result<Vec<u8>, ImageRenderingError> {
         let background_color = parse_color(&options.background_color)?;

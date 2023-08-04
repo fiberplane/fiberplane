@@ -1,7 +1,6 @@
 use super::utils::*;
-use crate::types::{
-    Area, AreaPoint, Axis, PointSource, ProviderEvent, SeriesSource, Shape, ShapeList,
-};
+use crate::fiberplane::{PointSource, ProviderEvent, SeriesSource};
+use crate::types::{Area, AreaPoint, Axis, Shape, ShapeList};
 
 pub(crate) fn generate_shape_list_from_events<'source>(
     axis: &Axis,

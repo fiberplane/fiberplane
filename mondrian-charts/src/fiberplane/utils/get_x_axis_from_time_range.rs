@@ -1,5 +1,6 @@
 use super::get_time_from_timestamp;
-use crate::types::{Axis, TimeRange};
+use crate::fiberplane::TimeRange;
+use crate::types::Axis;
 
 /// Returns the X axis to display results for the given time range.
 pub(crate) fn get_x_axis_from_time_range(time_range: &TimeRange) -> Axis {

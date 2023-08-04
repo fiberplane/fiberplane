@@ -1,7 +1,7 @@
 mod image_renderer;
 
 use crate::chart_to_svg::*;
-use crate::AbstractChart;
+use crate::MondrianChart;
 
 pub use image_renderer::*;
 
@@ -15,7 +15,7 @@ pub struct ImageOptions {
 }
 
 pub fn chart_to_image<S, P>(
-    chart: &AbstractChart<S, P>,
+    chart: &MondrianChart<S, P>,
     chart_options: ChartOptions,
     image_options: ImageOptions,
 ) -> Result<Vec<u8>, ImageRenderingError> {

@@ -1,5 +1,5 @@
 use super::get_time_from_timestamp;
-use crate::types::Buckets;
+use crate::fiberplane::Buckets;
 
 /// Calculates the smallest interval between any two timestamps present in the
 /// given buckets.

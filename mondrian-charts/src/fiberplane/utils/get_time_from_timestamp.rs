@@ -1,4 +1,4 @@
-use crate::types::Timestamp;
+use crate::fiberplane::Timestamp;
 
 /// Converts an [Timestamp] to a time value expressed in milliseconds.
 pub(crate) fn get_time_from_timestamp(timestamp: Timestamp) -> f64 {

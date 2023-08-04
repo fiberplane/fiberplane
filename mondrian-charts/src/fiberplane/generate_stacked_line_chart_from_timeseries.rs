@@ -1,12 +1,10 @@
 use super::utils::*;
-use crate::types::{
-    AbstractChart, Axis, Metric, Rectangle, Shape, ShapeList, StackedChartBuckets, Timeseries,
-    TimeseriesSourceData,
-};
+use crate::fiberplane::{Metric, StackedChartBuckets, Timeseries, TimeseriesSourceData};
+use crate::types::{Area, AreaPoint, Axis, MondrianChart, Shape, ShapeList};
 
-pub(crate) fn generate_stacked_bar_chart_from_timeseries<'source>(
+pub(crate) fn generate_stacked_line_chart_from_timeseries<'source>(
     input: TimeseriesSourceData<'source, '_>,
-) -> AbstractChart<&'source Timeseries, &'source Metric> {
+) -> MondrianChart<&'source Timeseries, &'source Metric> {
     let BucketsAndAxes {
         mut buckets,
         is_percentage,
@@ -16,12 +14,10 @@ pub(crate) fn generate_stacked_bar_chart_from_timeseries<'source>(
 
     let interval = calculate_smallest_time_interval(&buckets);
     if let Some(interval) = interval {
-        x_axis = x_axis.extend_with_interval(interval);
         attach_suggestions_to_x_axis(&mut x_axis, &buckets, interval);
     }
 
-    let mut bar_args = BarArgs {
-        bar_width: calculate_bar_width(&x_axis, interval, 1),
+    let mut args = BarArgs {
         buckets: &mut buckets,
         is_percentage,
         x_axis: &x_axis,
@@ -33,11 +29,7 @@ pub(crate) fn generate_stacked_bar_chart_from_timeseries<'source>(
         .iter()
         .map(|timeseries| ShapeList {
             shapes: if timeseries.visible {
-                timeseries
-                    .metrics
-                    .iter()
-                    .filter_map(|metric| create_bar_shape(metric, &mut bar_args))
-                    .collect()
+                create_shapes(&timeseries.metrics, interval, &mut args)
             } else {
                 Vec::new()
             },
@@ -45,7 +37,7 @@ pub(crate) fn generate_stacked_bar_chart_from_timeseries<'source>(
         })
         .collect();
 
-    AbstractChart {
+    MondrianChart {
         shape_lists,
         x_axis,
         y_axis,
@@ -53,21 +45,34 @@ pub(crate) fn generate_stacked_bar_chart_from_timeseries<'source>(
 }
 
 struct BarArgs<'axes, 'buckets> {
-    bar_width: f64,
     buckets: &'buckets mut StackedChartBuckets,
     is_percentage: bool,
     x_axis: &'axes Axis,
     y_axis: &'axes Axis,
 }
 
-fn create_bar_shape<'source>(
+fn create_shapes<'source>(
+    metrics: &'source [Metric],
+    interval: Option<f64>,
+    args: &mut BarArgs,
+) -> Vec<Shape<&'source Metric>> {
+    split_into_continuous_lines(metrics, interval)
+        .iter()
+        .map(|line| {
+            Shape::Area(Area {
+                points: line
+                    .iter()
+                    .filter_map(|metric| create_point_for_metric(metric, args))
+                    .collect(),
+            })
+        })
+        .collect()
+}
+
+fn create_point_for_metric<'source>(
     metric: &'source Metric,
     args: &mut BarArgs,
-) -> Option<Shape<&'source Metric>> {
-    if metric.value.is_nan() {
-        return None;
-    };
-
+) -> Option<AreaPoint<&'source Metric>> {
     let Some(bucket_value) = args.buckets.get_mut(&metric.time) else {
         return None;
     };
@@ -79,17 +84,14 @@ fn create_bar_shape<'source>(
         metric.value
     };
 
-    let x = normalize_along_linear_axis(time, args.x_axis) - 0.5 * args.bar_width;
-    let y = bucket_value.current_y;
+    let y_min = bucket_value.current_y;
+    let y_max = y_min + normalize_along_linear_axis(value, args.y_axis);
+    bucket_value.current_y = y_max;
 
-    let height = normalize_along_linear_axis(value, args.y_axis);
-    bucket_value.current_y += height;
-
-    Some(Shape::Rectangle(Rectangle {
-        x,
-        y,
-        width: args.bar_width,
-        height,
+    Some(AreaPoint {
+        x: normalize_along_linear_axis(time, args.x_axis),
+        y_min,
+        y_max,
         source: metric,
-    }))
+    })
 }

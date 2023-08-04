@@ -1,7 +1,7 @@
 use crate::chart_to_svg::*;
-use crate::generate_stacked_line_chart_from_timeseries;
-use crate::types::{
-    GraphType, Metric, StackingType, TimeRange, Timeseries, TimeseriesSourceData, Timestamp,
+use crate::fiberplane::{
+    generate_stacked_line_chart_from_timeseries, GraphType, Metric, StackingType, TimeRange,
+    Timeseries, TimeseriesSourceData, Timestamp,
 };
 use std::collections::BTreeMap;
 use std::str::FromStr;

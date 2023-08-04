@@ -5,7 +5,7 @@ mod generate_chart_content_svg;
 mod generate_grid_with_axes_svg;
 mod scales;
 
-use crate::AbstractChart;
+use crate::MondrianChart;
 use constants::*;
 use generate_chart_content_svg::generate_chart_content_svg;
 use generate_grid_with_axes_svg::generate_grid_with_axes_svg;
@@ -21,7 +21,7 @@ pub struct ChartOptions {
     pub shape_list_colors: Vec<String>,
 }
 
-pub fn chart_to_svg<S, P>(chart: &AbstractChart<S, P>, options: &ChartOptions) -> String {
+pub fn chart_to_svg<S, P>(chart: &MondrianChart<S, P>, options: &ChartOptions) -> String {
     let ChartOptions { width, height, .. } = options;
 
     let x_max = width - MARGIN_LEFT - MARGIN_RIGHT;

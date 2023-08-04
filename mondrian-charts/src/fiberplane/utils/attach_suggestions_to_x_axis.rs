@@ -1,5 +1,6 @@
 use super::get_time_from_timestamp;
-use crate::types::{Axis, Buckets};
+use crate::fiberplane::Buckets;
+use crate::types::Axis;
 
 /// Adds suggestions to the axis based on the position of the first bucket and
 /// the interval between buckets.
@@ -45,9 +46,10 @@ fn get_first_bucket_time<T>(buckets: &Buckets<T>) -> Option<f64> {
 
 #[cfg(test)]
 mod tests {
+    use super::super::get_time_from_timestamp;
     use super::attach_suggestions_to_x_axis;
-    use crate::types::{Axis, Buckets, Timestamp};
-    use crate::utils::get_time_from_timestamp;
+    use crate::fiberplane::types::{Buckets, Timestamp};
+    use crate::types::Axis;
     use std::str::FromStr;
 
     #[test]

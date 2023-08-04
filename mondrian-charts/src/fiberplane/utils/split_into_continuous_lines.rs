@@ -1,5 +1,5 @@
 use super::get_time_from_timestamp;
-use crate::types::Metric;
+use crate::fiberplane::Metric;
 
 /// Takes an array of metrics and divides it into a lines of metrics without
 /// gaps.
@@ -51,7 +51,7 @@ pub(crate) fn split_into_continuous_lines(
 #[cfg(test)]
 mod tests {
     use super::split_into_continuous_lines;
-    use crate::types::{Metric, Timestamp};
+    use crate::fiberplane::{Metric, Timestamp};
     use std::str::FromStr;
 
     #[test]

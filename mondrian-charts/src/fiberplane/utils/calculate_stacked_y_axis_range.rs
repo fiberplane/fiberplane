@@ -1,5 +1,6 @@
 use super::get_y_axis_for_constant_value;
-use crate::types::{Axis, Buckets, MinMax};
+use crate::fiberplane::{Buckets, MinMax};
+use crate::types::Axis;
 
 /// Detects the range to display along the Y axis by looking at all the totals
 /// inside the buckets.

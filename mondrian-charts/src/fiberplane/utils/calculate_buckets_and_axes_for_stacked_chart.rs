@@ -1,5 +1,6 @@
 use super::{calculate_stacked_y_axis_range, create_metric_buckets, get_x_axis_from_time_range};
-use crate::types::{Axis, Buckets, StackedChartBucketValue, StackingType, TimeseriesSourceData};
+use crate::fiberplane::{Buckets, StackedChartBucketValue, StackingType, TimeseriesSourceData};
+use crate::types::Axis;
 
 pub(crate) struct BucketsAndAxes {
     pub buckets: Buckets<StackedChartBucketValue>,

@@ -1,4 +1,4 @@
-use crate::types::{Buckets, Metric, Timeseries};
+use crate::fiberplane::{Buckets, Metric, Timeseries};
 use std::collections::BTreeMap;
 
 /// Creates buckets from timeseries, and reduces the metrics to calculated

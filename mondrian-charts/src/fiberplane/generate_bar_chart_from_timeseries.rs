@@ -1,13 +1,11 @@
 use super::utils::*;
-use crate::types::{
-    AbstractChart, Axis, Metric, MinMax, Rectangle, Shape, ShapeList, Timeseries,
-    TimeseriesSourceData,
-};
+use crate::fiberplane::{Metric, MinMax, Timeseries, TimeseriesSourceData};
+use crate::types::{Axis, MondrianChart, Rectangle, Shape, ShapeList};
 use std::convert::identity;
 
 pub(crate) fn generate_bar_chart_from_timeseries<'source>(
     input: TimeseriesSourceData<'source, '_>,
-) -> AbstractChart<&'source Timeseries, &'source Metric> {
+) -> MondrianChart<&'source Timeseries, &'source Metric> {
     let visible_timeseries_data: Vec<_> = input
         .timeseries_data
         .iter()
@@ -61,7 +59,7 @@ pub(crate) fn generate_bar_chart_from_timeseries<'source>(
         })
         .collect();
 
-    AbstractChart {
+    MondrianChart {
         shape_lists,
         x_axis,
         y_axis,

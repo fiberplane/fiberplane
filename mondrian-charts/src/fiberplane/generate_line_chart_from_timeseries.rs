@@ -1,16 +1,11 @@
 use super::utils::*;
-use crate::{
-    types::{
-        AbstractChart, Axis, Line, Metric, MinMax, Point, Shape, ShapeList, Timeseries,
-        TimeseriesSourceData,
-    },
-    utils::get_time_from_timestamp,
-};
+use crate::fiberplane::{Metric, MinMax, Timeseries, TimeseriesSourceData};
+use crate::types::{Axis, Line, MondrianChart, Point, Shape, ShapeList};
 use std::convert::identity;
 
 pub(crate) fn generate_line_chart_from_timeseries<'source>(
     input: TimeseriesSourceData<'source, '_>,
-) -> AbstractChart<&'source Timeseries, &'source Metric> {
+) -> MondrianChart<&'source Timeseries, &'source Metric> {
     let buckets = create_metric_buckets(input.timeseries_data, |min_max, value| {
         min_max
             .map(|min_map: MinMax| min_map.extend_with_value(value))
@@ -38,7 +33,7 @@ pub(crate) fn generate_line_chart_from_timeseries<'source>(
         })
         .collect();
 
-    AbstractChart {
+    MondrianChart {
         shape_lists,
         x_axis,
         y_axis,

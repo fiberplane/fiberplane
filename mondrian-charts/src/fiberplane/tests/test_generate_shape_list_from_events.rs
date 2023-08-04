@@ -1,6 +1,6 @@
-use crate::generate_shape_list_from_events;
-use crate::types::{Axis, ProviderEvent, Timestamp};
-use crate::utils::get_time_from_timestamp;
+use crate::fiberplane::utils::get_time_from_timestamp;
+use crate::fiberplane::{generate_shape_list_from_events, ProviderEvent, Timestamp};
+use crate::types::Axis;
 use std::str::FromStr;
 
 #[test]

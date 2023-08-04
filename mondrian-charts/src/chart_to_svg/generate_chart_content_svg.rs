@@ -1,11 +1,11 @@
 use super::create_area_path_def::create_area_path_def;
 use super::create_line_path_def::create_line_path_def;
 use super::{ChartOptions, Scales, POINT_RADIUS};
-use crate::types::{AbstractChart, Area, Line, Point, Rectangle, Shape};
+use crate::types::{Area, Line, MondrianChart, Point, Rectangle, Shape};
 use std::borrow::Cow;
 
 pub(super) fn generate_chart_content_svg<S, P>(
-    chart: &AbstractChart<S, P>,
+    chart: &MondrianChart<S, P>,
     scales: &Scales,
     options: &ChartOptions,
 ) -> String {
