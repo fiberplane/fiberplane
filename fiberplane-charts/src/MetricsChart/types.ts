@@ -38,6 +38,12 @@ export type MetricsChartProps = Omit<
     colors?: Array<string>;
 
     /**
+     * Optional custom controls to show in the controls toolbar, in addition to
+     * the built-in controls (such as for toggling chart type).
+     */
+    customChartControls?: JSX.Element;
+
+    /**
      * Optional events to display on the chart.
      */
     events?: Array<ProviderEvent>;

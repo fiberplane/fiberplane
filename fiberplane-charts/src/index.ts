@@ -1,3 +1,10 @@
+export {
+  ButtonGroup,
+  ControlsSet,
+  ControlsSetLabel,
+  Icon,
+  IconButton,
+} from "./BaseComponents";
 export type { ChartTheme } from "./styled-components";
 export type {
   GraphType,

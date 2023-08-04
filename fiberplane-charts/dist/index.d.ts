@@ -1,3 +1,45 @@
+import * as styled_components from 'styled-components';
+import * as react from 'react';
+
+declare const ButtonGroup: styled_components.StyledComponent<"span", styled_components.DefaultTheme, {}, never>;
+
+declare const ControlsSet: styled_components.StyledComponent<"div", styled_components.DefaultTheme, {}, never>;
+declare const ControlsSetLabel: styled_components.StyledComponent<"span", styled_components.DefaultTheme, {}, never>;
+
+declare const ICON_MAP: {
+    readonly chart_bar: react.FunctionComponent<react.SVGProps<SVGSVGElement> & {
+        title?: string | undefined;
+    }>;
+    readonly chart_line: react.FunctionComponent<react.SVGProps<SVGSVGElement> & {
+        title?: string | undefined;
+    }>;
+    readonly check: react.FunctionComponent<react.SVGProps<SVGSVGElement> & {
+        title?: string | undefined;
+    }>;
+    readonly combined: react.FunctionComponent<react.SVGProps<SVGSVGElement> & {
+        title?: string | undefined;
+    }>;
+    readonly percentage: react.FunctionComponent<react.SVGProps<SVGSVGElement> & {
+        title?: string | undefined;
+    }>;
+    readonly stacked: react.FunctionComponent<react.SVGProps<SVGSVGElement> & {
+        title?: string | undefined;
+    }>;
+    readonly triangle_down: react.FunctionComponent<react.SVGProps<SVGSVGElement> & {
+        title?: string | undefined;
+    }>;
+};
+
+type IconType = keyof typeof ICON_MAP;
+type Props$1 = React.SVGProps<SVGSVGElement> & {
+    type: IconType;
+};
+declare function Icon({ type, ...svgProps }: Props$1): JSX.Element;
+
+declare const IconButton: react.ForwardRefExoticComponent<react.ButtonHTMLAttributes<HTMLButtonElement> & {
+    active?: boolean | undefined;
+} & react.RefAttributes<HTMLButtonElement>>;
+
 interface ChartTheme {
   colorBackground: string;
   colorForeground: string;
@@ -529,6 +571,7 @@ type ToggleTimeseriesEvent = {
 };
 
 type ChartControlsProps = {
+    children?: JSX.Element;
     graphType: GraphType;
     onChangeGraphType?: (graphType: GraphType) => void;
     onChangeStackingType?: (stackingType: StackingType) => void;
@@ -549,6 +592,11 @@ type MetricsChartProps = Omit<CoreChartProps<SeriesSource, Metric | ProviderEven
      * If not specified, several colors from the theme are used.
      */
     colors?: Array<string>;
+    /**
+     * Optional custom controls to show in the controls toolbar, in addition to
+     * the built-in controls (such as for toggling chart type).
+     */
+    customChartControls?: JSX.Element;
     /**
      * Optional events to display on the chart.
      */
@@ -580,4 +628,4 @@ type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange" | "are
 };
 declare function SparkChart({ areaGradientShown, colors, graphType, stackingType, timeRange, timeseriesData, onChangeTimeRange, }: Props): JSX.Element;
 
-export { AbstractChart, Area, AreaPoint, Axis, ChartTheme, CloseTooltipFn, GraphType, Line, Metric, MetricsChart, MetricsChartProps, OtelMetadata, Point, ProviderEvent, Rectangle, SeriesSource, Shape, ShapeList, SparkChart, StackingType, TickFormatters, TickFormattersFactory, TimeRange, Timeseries, TimeseriesAndEventsSourceData, TimeseriesSourceData, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement, generateFromTimeseries, generateFromTimeseriesAndEvents };
+export { AbstractChart, Area, AreaPoint, Axis, ButtonGroup, ChartTheme, CloseTooltipFn, ControlsSet, ControlsSetLabel, GraphType, Icon, IconButton, Line, Metric, MetricsChart, MetricsChartProps, OtelMetadata, Point, ProviderEvent, Rectangle, SeriesSource, Shape, ShapeList, SparkChart, StackingType, TickFormatters, TickFormattersFactory, TimeRange, Timeseries, TimeseriesAndEventsSourceData, TimeseriesSourceData, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement, generateFromTimeseries, generateFromTimeseriesAndEvents };

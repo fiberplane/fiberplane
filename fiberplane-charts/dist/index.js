@@ -1,7 +1,7 @@
+import styled, { css, useTheme } from 'styled-components';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import * as React from 'react';
 import { forwardRef, createContext, useRef, useCallback, useState, useEffect, useReducer, useMemo, useLayoutEffect, memo, useId, useContext, Fragment as Fragment$1 } from 'react';
-import styled, { css, useTheme } from 'styled-components';
 import { debounce } from 'throttle-debounce';
 import { useMotionValue, animate } from 'framer-motion';
 import { VariableSizeList } from 'react-window';
@@ -392,7 +392,7 @@ const isMac = os === "mac";
 
 /**
  * Control what kind fo chart you're viewing (and more)
- */ function ChartControls({ graphType , onChangeGraphType , onChangeStackingType , stackingControlsShown , stackingType  }) {
+ */ function ChartControls({ children , graphType , onChangeGraphType , onChangeStackingType , stackingControlsShown , stackingType  }) {
     if (!onChangeGraphType && !onChangeStackingType) {
         return null;
     }
@@ -484,8 +484,10 @@ const isMac = os === "mac";
                         ]
                     })
                 ]
-            }, "core"),
-            /*#__PURE__*/ jsx(ControlsGroup, {}, "meta")
+            }, "built_in"),
+            children && /*#__PURE__*/ jsx(ControlsGroup, {
+                children: children
+            }, "custom")
         ]
     });
 }
@@ -2874,7 +2876,7 @@ function MetricsChart(props) {
 }
 const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
     const theme = useTheme();
-    const { areaGradientShown =true , chartControlsShown =true , colors , events , eventColor =theme.colorPrimary400 , graphType , legendShown =true , readOnly , stackingControlsShown =true , stackingType , timeRange , timeseriesData  } = props;
+    const { areaGradientShown =true , chartControlsShown =true , colors , customChartControls , events , eventColor =theme.colorPrimary400 , graphType , legendShown =true , readOnly , stackingControlsShown =true , stackingType , timeRange , timeseriesData  } = props;
     const chart = useMemo(()=>generateFromTimeseriesAndEvents({
             events: events ?? [],
             graphType,
@@ -2926,7 +2928,8 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
         children: [
             chartControlsShown && !readOnly && /*#__PURE__*/ jsx(ChartControls, {
                 ...props,
-                stackingControlsShown: stackingControlsShown
+                stackingControlsShown: stackingControlsShown,
+                children: customChartControls
             }),
             /*#__PURE__*/ jsx(CoreChart, {
                 ...props,
@@ -3013,5 +3016,5 @@ const tickFormatters = {
     yFormatter: ()=>""
 };
 
-export { MetricsChart, SparkChart, generateFromTimeseries, generateFromTimeseriesAndEvents };
+export { ButtonGroup, ControlsSet, ControlsSetLabel, Icon, IconButton, MetricsChart, SparkChart, generateFromTimeseries, generateFromTimeseriesAndEvents };
 //# sourceMappingURL=index.js.map
