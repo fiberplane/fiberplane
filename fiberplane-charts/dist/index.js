@@ -3013,5 +3013,5 @@ const tickFormatters = {
     yFormatter: ()=>""
 };
 
-export { MetricsChart, SparkChart };
+export { MetricsChart, SparkChart, generateFromTimeseries, generateFromTimeseriesAndEvents };
 //# sourceMappingURL=index.js.map
