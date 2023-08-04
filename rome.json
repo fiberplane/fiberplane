@@ -19,10 +19,10 @@
         "ignore": [
             ".vscode/**",
             "dist/**",
-            "fiberplane-charts/src/providerTypes.ts",
             "fiberplane-provider-protocol/ts-runtime/**",
             "node_modules/**",
             "target/**",
+            "**/providerTypes.ts",
             "**/*.json"
         ]
     }

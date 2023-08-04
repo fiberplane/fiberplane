@@ -3,11 +3,7 @@ import * as React from 'react';
 import { forwardRef, createContext, useRef, useCallback, useState, useEffect, useReducer, useMemo, useLayoutEffect, memo, useId, useContext, Fragment as Fragment$1 } from 'react';
 import styled, { css, useTheme } from 'styled-components';
 import { debounce } from 'throttle-debounce';
-import { Area } from '@visx/shape';
-import { Threshold } from '@visx/threshold';
 import { useMotionValue, animate } from 'framer-motion';
-import { utcFormat } from 'd3-time-format';
-import { scaleLinear } from '@visx/scale';
 import { VariableSizeList } from 'react-window';
 
 const ButtonGroup = styled.span`
@@ -647,8 +643,10 @@ const Gradient = styled.div`
   background-image: linear-gradient(
     to bottom,
     transparent,
-    rgb(255 255 255 / 75%) 50%
+  /* FIXME: This var supports style overrides for dark mode */
+    var(--fp-expandable-fade-color, rgb(255 255 255 / 75%)) 50%
   );
+
   border-bottom-right-radius: 6px;
   pointer-events: none;
 `;
@@ -788,74 +786,132 @@ const intersectionOptions = {
     threshold: 0
 };
 
-const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , area , color , focused , scales  }) {
+function toFactory(coordinate) {
+    return typeof coordinate === "function" ? coordinate : constantFactory(coordinate);
+}
+function constantFactory(value) {
+    return ()=>value;
+}
+
+/**
+ * Creates the SVG path definition for an area shape.
+ *
+ * @param data The data points for the area.
+ * @param coordinates The factories and/or constants to produce the coordinates
+ *                    from each data point.
+ *
+ * See also: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
+ */ function createAreaPathDef(data, coordinates) {
+    const len = data.length;
+    if (len === 0) {
+        return "";
+    }
+    const x = toFactory(coordinates.x);
+    const y0 = toFactory(coordinates.y0);
+    const y1 = toFactory(coordinates.y1);
+    const start = data[0];
+    let path = `M${x(start).toFixed(1)},${y0(start).toFixed(1)}`;
+    // Draw a line along the y0 coordinates.
+    for(let i = 1; i < len; ++i){
+        const next = data[i];
+        path += `L${x(next).toFixed(1)},${y0(next).toFixed(1)}`;
+    }
+    // Draw a line backwards along the y1 coordinates.
+    for(let i = len - 1; i >= 0; --i){
+        const previous = data[i];
+        path += `L${x(previous).toFixed(1)},${y1(previous).toFixed(1)}`;
+    }
+    // Done.
+    path += "Z";
+    return path;
+}
+
+const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradientShown , area , color , focused , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
-    const fillColor = `url(#${gradientId})`;
-    const getX = (point)=>scales.xScale(point.x);
-    const getY0 = (point)=>scales.yScale(point.yMin);
-    const getY1 = (point)=>scales.yScale(point.yMax);
+    const gradientRef = `url(#${gradientId})`;
+    const x = (point)=>scales.xScale(point.x);
+    const y0 = (point)=>scales.yScale(point.yMin);
+    const y1 = (point)=>scales.yScale(point.yMax);
     return /*#__PURE__*/ jsxs("g", {
         opacity: focused || !anyFocused ? 1 : 0.2,
         children: [
-            /*#__PURE__*/ jsx("defs", {
+            areaGradientShown && /*#__PURE__*/ jsx("defs", {
                 children: /*#__PURE__*/ jsxs("linearGradient", {
                     id: gradientId,
+                    x1: 0,
+                    y1: 0,
+                    x2: 0,
+                    y2: 1,
                     children: [
                         /*#__PURE__*/ jsx("stop", {
                             offset: "0%",
                             stopColor: color,
-                            stopOpacity: 0.15
+                            stopOpacity: 0.3
                         }),
                         /*#__PURE__*/ jsx("stop", {
                             offset: "80%",
                             stopColor: color,
-                            stopOpacity: 0.03
+                            stopOpacity: 0.06
                         })
                     ]
                 })
             }),
-            /*#__PURE__*/ jsx(Threshold, {
-                id: id,
-                data: area.points,
-                x: getX,
-                y0: getY0,
-                y1: getY1,
-                clipAboveTo: 0,
-                clipBelowTo: getY1,
-                aboveAreaProps: {
-                    fill: fillColor
-                },
-                // Keep this one around to spot any incorrect threshold computations.
-                belowAreaProps: {
-                    fill: "violet"
-                }
-            }),
-            /*#__PURE__*/ jsx(Area, {
-                data: area.points,
-                x: getX,
-                y0: getY0,
-                y1: getY1,
+            /*#__PURE__*/ jsx("path", {
+                d: createAreaPathDef(area.points, {
+                    x,
+                    y0,
+                    y1
+                }),
                 stroke: color,
                 strokeWidth: focused ? 1.5 : 1,
-                fill: fillColor
+                fill: areaGradientShown ? gradientRef : "transparent"
             })
         ]
     });
 });
 
-const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , color , focused , line , scales  }) {
+/**
+ * Creates the SVG path definition for a line shape.
+ *
+ * @param data The data points for the line.
+ * @param coordinates The factories and/or constants to produce the coordinates
+ *                    from each data point.
+ *
+ * See also: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
+ */ function createLinePathDef(data, coordinates) {
+    const len = data.length;
+    if (len === 0) {
+        return "";
+    }
+    const x = toFactory(coordinates.x);
+    const y = toFactory(coordinates.y);
+    const start = data[0];
+    let path = `M${x(start).toFixed(1)},${y(start).toFixed(1)}`;
+    // Draw a line along the data points.
+    for(let i = 1; i < len; ++i){
+        const next = data[i];
+        path += `L${x(next).toFixed(1)},${y(next).toFixed(1)}`;
+    }
+    return path;
+}
+
+const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradientShown , color , focused , line , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
-    const fillColor = `url(#${gradientId})`;
-    const getX = (point)=>scales.xScale(point.x);
-    const getY = (point)=>scales.yScale(point.y);
+    const gradiantRef = `url(#${gradientId})`;
+    const x = (point)=>scales.xScale(point.x);
+    const y = (point)=>scales.yScale(point.y);
     return /*#__PURE__*/ jsxs("g", {
         opacity: focused || !anyFocused ? 1 : 0.2,
         children: [
-            /*#__PURE__*/ jsx("defs", {
+            areaGradientShown && /*#__PURE__*/ jsx("defs", {
                 children: /*#__PURE__*/ jsxs("linearGradient", {
                     id: gradientId,
+                    x1: 0,
+                    y1: 0,
+                    x2: 0,
+                    y2: 1,
                     children: [
                         /*#__PURE__*/ jsx("stop", {
                             offset: "0%",
@@ -870,39 +926,48 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , color , f
                     ]
                 })
             }),
-            /*#__PURE__*/ jsx(Threshold, {
-                id: id,
-                data: line.points,
-                x: getX,
-                y0: getY,
-                y1: scales.yScale(0),
-                clipAboveTo: 0,
-                clipBelowTo: scales.yMax,
-                aboveAreaProps: {
-                    fill: fillColor
-                },
-                // Keep this one around to spot any incorrect threshold computations.
-                belowAreaProps: {
-                    fill: "violet"
-                }
+            areaGradientShown && /*#__PURE__*/ jsx("path", {
+                d: createAreaPathDef(line.points, {
+                    x,
+                    y0: y,
+                    y1: scales.yScale(0)
+                }),
+                strokeWidth: 0,
+                fill: gradiantRef
             }),
-            /*#__PURE__*/ jsx(Area, {
-                data: line.points,
-                x: getX,
-                y: getY,
+            /*#__PURE__*/ jsx("path", {
+                d: createLinePathDef(line.points, {
+                    x,
+                    y
+                }),
                 stroke: color,
                 strokeWidth: focused ? 1.5 : 1,
-                fill: fillColor
+                fill: "transparent"
             })
         ]
     });
 });
 
+// Dimensions of the chart
+const HEIGHT = 275;
+const MARGINS = {
+    top: 0,
+    bottom: 20,
+    left: 38,
+    right: 0
+};
+// Dimensions of points on the chart
+const POINT_RADIUS = 1;
+const POINT_RADIUS_FOCUSED = 2;
+// If a point is directly on the edge of the chart, it can be cut off.
+// This overflow margin ensures that the point is still visible.
+const CHART_SHAPE_OVERFLOW_MARGIN = POINT_RADIUS_FOCUSED;
+
 const PointShape = /*#__PURE__*/ memo(function PointShape({ color , focused , point , scales  }) {
     return /*#__PURE__*/ jsx("circle", {
         cx: scales.xScale(point.x),
         cy: scales.yScale(point.y),
-        r: focused ? 2 : 1,
+        r: focused ? POINT_RADIUS_FOCUSED : POINT_RADIUS,
         stroke: color,
         fill: color
     });
@@ -947,10 +1012,11 @@ function ChartShape({ shape , ...props }) {
     }
 }
 
-function ChartContent({ chart , focusedShapeList , getShapeListColor , scales  }) {
+function ChartContent({ areaGradientShown , chart , focusedShapeList , getShapeListColor , scales  }) {
     return /*#__PURE__*/ jsx(Fragment, {
         children: chart.shapeLists.flatMap((shapeList, listIndex)=>shapeList.shapes.map((shape, shapeIndex)=>/*#__PURE__*/ jsx(ChartShape, {
                     anyFocused: !!focusedShapeList,
+                    areaGradientShown: areaGradientShown,
                     color: getShapeListColor(shapeList),
                     focused: shapeList === focusedShapeList,
                     scales: scales,
@@ -960,9 +1026,8 @@ function ChartContent({ chart , focusedShapeList , getShapeListColor , scales  }
 }
 
 const LABEL_OFFSET = 8;
-function BottomAxis({ scales: { xMax , xScale , yMax  } , strokeColor , strokeDasharray , ticks , xAxis: { maxValue , minValue  }  }) {
+function BottomAxis({ formatter , scales: { xMax , xScale , yMax  } , strokeColor , strokeDasharray , ticks , xAxis: { maxValue , minValue  }  }) {
     const { colorBase500 , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing  } = useTheme();
-    const formatter = getTimeFormatter(ticks);
     return /*#__PURE__*/ jsxs("g", {
         transform: `translate(0, ${yMax})`,
         children: [
@@ -990,42 +1055,46 @@ function BottomAxis({ scales: { xMax , xScale , yMax  } , strokeColor , strokeDa
         ]
     });
 }
-function getTimeFormatter(ticks) {
-    if (ticks.length < 2) {
-        // If there's only a single tick, just display the full timestamp.
-        return (time)=>new Date(time).toISOString();
-    }
-    const timeScale = getTimeScale(ticks[0], ticks[1]);
-    const formatter = getFormatter(timeScale);
-    return (time)=>formatter(new Date(time));
+
+/**
+ * Creates a linear scale function for the given range.
+ *
+ * Assumes a domain of `[0.0..1.0]` as used for our abstract chart coordinates.
+ */ function createLinearScaleForRange([from, to]) {
+    return (value)=>from + value * (to - from);
 }
-function getTimeScale(time1, time2) {
-    const delta = time2 - time1;
-    if (delta < 1000) {
-        return "milliseconds";
-    } else if (delta < 60 * 1000) {
-        return "seconds";
-    } else if (delta < 60 * 60 * 1000) {
-        return "minutes";
-    } else if (delta < 24 * 60 * 60 * 1000) {
-        return "hours";
-    } else {
-        return "days";
+function getCoordinatesForEvent(event, { xMax , yMax  }) {
+    const svg = getTarget(event);
+    if (!svg) {
+        return null;
     }
+    const rect = svg.getBoundingClientRect();
+    const x = event.clientX - rect.left - MARGINS.left;
+    const y = event.clientY - rect.top - MARGINS.top;
+    if (x < 0 || x > xMax || y < 0 || y > yMax) {
+        return null;
+    }
+    return {
+        x: x / xMax,
+        y: 1 - y / yMax
+    };
 }
-function getFormatter(unit) {
-    switch(unit){
-        case "milliseconds":
-            return utcFormat(".%L");
-        case "seconds":
-            return utcFormat("%M:%S");
-        case "minutes":
-            return utcFormat("%I:%M");
-        case "hours":
-            return utcFormat("%I %p");
-        case "days":
-            return utcFormat("%a %d");
+/**
+ * Finds the root `<svg>` element we use as target. Most event listeners are
+ * directly attached to it, but some may be attached elsewhere and we need to
+ * travel from the `event.target` to find it.
+ */ function getTarget(event) {
+    if (event.currentTarget instanceof SVGSVGElement) {
+        return event.currentTarget;
     }
+    let target = event.target;
+    while(target){
+        if (target instanceof SVGSVGElement) {
+            return target;
+        }
+        target = target.parentElement;
+    }
+    return null;
 }
 
 function GridColumns({ scales: { xScale , yMax  } , xAxis: { maxValue , minValue  } , xTicks , ...lineProps }) {
@@ -1060,7 +1129,7 @@ function GridRows({ xMax , yScale , yTicks , ...lineProps }) {
     });
 }
 
-function LeftAxis({ scales: { yMax , yScale  } , strokeColor , strokeDasharray , strokeWidth , ticks  }) {
+function LeftAxis({ formatter , scales: { yMax , yScale  } , strokeColor , strokeDasharray , strokeWidth , ticks  }) {
     const { colorBase500 , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing  } = useTheme();
     const tickLabelProps = {
         dx: "-0.45em",
@@ -1074,7 +1143,6 @@ function LeftAxis({ scales: { yMax , yScale  } , strokeColor , strokeDasharray ,
         fill: colorBase500
     };
     const numTicks = ticks.length - 1;
-    const formatter = yScale.tickFormat(numTicks, "~s");
     return /*#__PURE__*/ jsxs("g", {
         children: [
             /*#__PURE__*/ jsx("line", {
@@ -1097,23 +1165,26 @@ function LeftAxis({ scales: { yMax , yScale  } , strokeColor , strokeDasharray ,
     });
 }
 
-const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDashArray , gridStrokeColor , scales  }) {
-    const { xMax , xScale , yMax , yScale  } = scales;
+const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDashArray , gridStrokeColor , scales , tickFormatters  }) {
+    const { xMax , xScale , yMax  } = scales;
     const { colorBase300  } = useTheme();
     const strokeColor = gridStrokeColor || colorBase300;
     const { xAxis , yAxis  } = chart;
     const minValue = useCustomSpring(yAxis.minValue);
     const maxValue = useCustomSpring(yAxis.maxValue);
-    const animatedScale = yScale.copy().domain([
+    const animatedScale = createLinearScaleForRangeWithCustomDomain([
+        yMax,
+        0
+    ], [
         minValue,
         maxValue
     ]);
-    const xTicks = useMemo(()=>getTicks(xAxis, xMax, xScale, 12), [
+    const xTicks = useMemo(()=>getTicks(xAxis, xMax, xScale, 12, getMaxXTickValue), [
         xAxis,
         xMax,
         xScale
     ]);
-    const yTicks = useMemo(()=>getTicks(yAxis, yMax, animatedScale, 8), [
+    const yTicks = useMemo(()=>getTicks(yAxis, yMax, animatedScale, 8, getMaxYTickValue), [
         yAxis,
         yMax,
         animatedScale
@@ -1144,6 +1215,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
                 xTicks: xTicks
             }),
             /*#__PURE__*/ jsx(BottomAxis, {
+                formatter: tickFormatters.xFormatter,
                 scales: scales,
                 strokeColor: strokeColor,
                 strokeDasharray: gridDashArray,
@@ -1151,6 +1223,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
                 xAxis: xAxis
             }),
             /*#__PURE__*/ jsx(LeftAxis, {
+                formatter: tickFormatters.yFormatter,
                 scales: {
                     ...scales,
                     yScale: animatedScale
@@ -1163,14 +1236,31 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
         ]
     });
 });
-function getTicks(axis, max, scale, numTicks) {
+/**
+ * Creates a linear scale function for the given range, but uses a custom
+ * domain.
+ */ function createLinearScaleForRangeWithCustomDomain(range, [min, max]) {
+    const linearScale = createLinearScaleForRange(range);
+    return (value)=>linearScale((value - min) / (max - min));
+}
+function getTicks(axis, max, scale, numTicks, getMaxAllowedTick) {
     const suggestions = axis.tickSuggestions;
     const ticks = suggestions ? getTicksFromSuggestions(axis, suggestions, numTicks) : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
     extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks);
+    removeLastTickIfTooCloseToMax(ticks, axis.maxValue, getMaxAllowedTick);
     return ticks;
 }
 function getTicksFromRange(minValue, maxValue, numTicks) {
     const interval = (maxValue - minValue) / numTicks;
+    // NOTE - We need to handle the case where the interval is less than EPSILON,
+    //        which is the smallest interval we can represent with javascript's floating point precision
+    //        (see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/EPSILON)
+    if (interval < Number.EPSILON) {
+        return [
+            minValue,
+            maxValue
+        ];
+    }
     const ticks = [
         minValue
     ];
@@ -1255,6 +1345,55 @@ function useCustomSpring(value) {
     ]);
     return current;
 }
+/**
+ * When rendering our svg charts, we want to avoid cutting off tick labels.
+ * The way we can do this (simiar to visx's solution) is by not rendering ticks,
+ * if they are too close to the axis's max value.
+ *
+ * The definition of what is "too close" to the max value
+ * is determined by the `getMaxTickValue` function.
+ *
+ * @note This function mutates the input ticks.
+ */ const removeLastTickIfTooCloseToMax = (ticks, maxValue, getMaxAllowedTick)=>{
+    if (ticks.length < 2) {
+        return;
+    }
+    const maxTickValue = getMaxAllowedTick(ticks, maxValue);
+    const lastTick = ticks[ticks.length - 1];
+    if (lastTick > maxTickValue) {
+        ticks.pop();
+    }
+};
+/**
+ * Returns a maximum allowed tick value for the x-axis.
+ *
+ * Heuristic:
+ *   If a tick's distance to the maxValue is within 1/2 the size of the tick-interval,
+ *   the tick will get dropped.
+ *
+ * Note that the heuristic was determined by trial and error.
+ */ const getMaxXTickValue = (ticks, maxValue)=>{
+    if (ticks.length < 2) {
+        return maxValue;
+    }
+    const interval = ticks[1] - ticks[0];
+    return maxValue - interval / 2;
+};
+/**
+ * Returns a maximum allowed tick value for the x-axis.
+ *
+ * Heuristic:
+ *   If a tick's distance to the maxValue is within 1/3 the size of the tick-interval,
+ *   the tick will get dropped.
+ *
+ * Note that the heuristic was determined by trial and error.
+ */ const getMaxYTickValue = (ticks, maxValue)=>{
+    if (ticks.length < 2) {
+        return maxValue;
+    }
+    const interval = ticks[1] - ticks[0];
+    return maxValue - interval / 3;
+};
 
 const defaultState = {
     mouseInteraction: {
@@ -1363,49 +1502,6 @@ function dragKeyPressed(event) {
 }
 function zoomKeyPressed(event) {
     return isMac ? event.metaKey : event.ctrlKey;
-}
-
-// Dimensions.
-const HEIGHT = 275;
-const MARGINS = {
-    top: 0,
-    bottom: 20,
-    left: 38,
-    right: 0
-};
-
-function getCoordinatesForEvent(event, { xMax , yMax  }) {
-    const svg = getTarget(event);
-    if (!svg) {
-        return null;
-    }
-    const rect = svg.getBoundingClientRect();
-    const x = event.clientX - rect.left - MARGINS.left;
-    const y = event.clientY - rect.top - MARGINS.top;
-    if (x < 0 || x > xMax || y < 0 || y > yMax) {
-        return null;
-    }
-    return {
-        x: x / xMax,
-        y: 1 - y / yMax
-    };
-}
-/**
- * Finds the root `<svg>` element we use as target. Most event listeners are
- * directly attached to it, but some may be attached elsewhere and we need to
- * travel from the `event.target` to find it.
- */ function getTarget(event) {
-    if (event.currentTarget instanceof SVGSVGElement) {
-        return event.currentTarget;
-    }
-    let target = event.target;
-    while(target){
-        if (target instanceof SVGSVGElement) {
-            return target;
-        }
-        target = target.parentElement;
-    }
-    return null;
 }
 
 const MIN_DURATION = 60; // in seconds
@@ -1528,7 +1624,7 @@ function coordinateToTimestamp(timeRange, x) {
 }
 
 /**
- * Returns the scales to use for rendering VisX components.
+ * Returns the scales to use for rendering SVG components.
  *
  * Fortunately for us, our abstract charts are normalized along both axes to
  * values from 0.0 to 1.0, meaning we can suffice with trivial linear scales.
@@ -1537,35 +1633,15 @@ function coordinateToTimestamp(timeRange, x) {
  * is applied.
  */ function useScales({ xMax , yMax  }, mouseInteraction) {
     // rome-ignore lint/nursery/useHookAtTopLevel: https://github.com/rome/tools/issues/4483
-    return useMemo(()=>{
-        const xScale = scaleLinear({
-            range: translatedRange(xMax, mouseInteraction),
-            round: false,
-            nice: false,
-            domain: [
-                0,
-                1
-            ]
-        });
-        const yScale = scaleLinear({
-            range: [
+    return useMemo(()=>({
+            xMax,
+            yMax,
+            xScale: createLinearScaleForRange(translatedRange(xMax, mouseInteraction)),
+            yScale: createLinearScaleForRange([
                 yMax,
                 0
-            ],
-            round: false,
-            nice: false,
-            domain: [
-                0,
-                1
-            ]
-        });
-        return {
-            xMax,
-            xScale,
-            yMax,
-            yScale
-        };
-    }, [
+            ])
+        }), [
         mouseInteraction,
         xMax,
         yMax
@@ -1836,7 +1912,7 @@ function ZoomBar({ dimensions: { xMax , yMax  } , mouseInteraction  }) {
     });
 }
 
-function CoreChart({ chart , getShapeListColor , gridShown =true , onChangeTimeRange , readOnly =false , showTooltip , timeRange , ...props }) {
+function CoreChart({ areaGradientShown =true , chart , getShapeListColor , gridShown =true , onChangeTimeRange , readOnly =false , showTooltip , timeRange , ...props }) {
     const interactiveControls = useInteractiveControls(readOnly);
     const { mouseInteraction , updatePressedKeys  } = interactiveControls;
     const { width , height , xMax , yMax , marginTop , marginLeft  } = useContext(ChartSizeContext);
@@ -1864,6 +1940,12 @@ function CoreChart({ chart , getShapeListColor , gridShown =true , onChangeTimeR
     const clipPathId = useId();
     const cursor = getCursorFromState(interactiveControls);
     const scales = useScales(dimensions, mouseInteraction);
+    const tickFormatters = useMemo(()=>{
+        return typeof props.tickFormatters === "function" ? props.tickFormatters(chart.xAxis, chart.yAxis) : props.tickFormatters;
+    }, [
+        chart,
+        props.tickFormatters
+    ]);
     useEffect(()=>{
         const wheelListenerOptions = {
             passive: false
@@ -1880,10 +1962,15 @@ function CoreChart({ chart , getShapeListColor , gridShown =true , onChangeTimeR
         onWheel,
         updatePressedKeys
     ]);
+    const clipPathYStart = -1 * CHART_SHAPE_OVERFLOW_MARGIN;
+    const clipPathHeight = yMax + 2 * CHART_SHAPE_OVERFLOW_MARGIN;
+    // HACK - For spark charts, the clip path can be larger than the chart itself,
+    //        which leads to points getting cut off
+    const svgHeight = height > clipPathHeight ? height : clipPathHeight;
     return(// rome-ignore lint/a11y/noSvgWithoutTitle: title would interfere with tooltip
     /*#__PURE__*/ jsxs("svg", {
         width: width,
-        height: height,
+        height: svgHeight,
         onMouseDown: onMouseDown,
         onMouseMove: onMouseMove,
         onMouseUp: onMouseUp,
@@ -1898,9 +1985,9 @@ function CoreChart({ chart , getShapeListColor , gridShown =true , onChangeTimeR
                     id: clipPathId,
                     children: /*#__PURE__*/ jsx("rect", {
                         x: 0,
-                        y: 0,
+                        y: clipPathYStart,
                         width: xMax,
-                        height: yMax
+                        height: clipPathHeight
                     })
                 })
             }),
@@ -1910,12 +1997,14 @@ function CoreChart({ chart , getShapeListColor , gridShown =true , onChangeTimeR
                     gridShown && /*#__PURE__*/ jsx(GridWithAxes, {
                         ...props,
                         chart: chart,
-                        scales: scales
+                        scales: scales,
+                        tickFormatters: tickFormatters
                     }),
                     /*#__PURE__*/ jsx("g", {
                         clipPath: `url(#${clipPathId})`,
                         children: /*#__PURE__*/ jsx(ChartContent, {
                             ...props,
+                            areaGradientShown: areaGradientShown,
                             chart: chart,
                             getShapeListColor: getShapeListColor,
                             scales: scales
@@ -1969,76 +2058,6 @@ function getCursorFromState(state) {
         case "zoom":
             return "zoom-in";
     }
-}
-
-function TooltipBody({ labels  }) {
-    return /*#__PURE__*/ jsx("tbody", {
-        children: Object.entries(labels).map(([key, value])=>/*#__PURE__*/ jsxs("tr", {
-                children: [
-                    /*#__PURE__*/ jsxs(LabelTd, {
-                        children: [
-                            key,
-                            ":"
-                        ]
-                    }),
-                    /*#__PURE__*/ jsx(LabelTd, {
-                        children: value
-                    })
-                ]
-            }, key))
-    });
-}
-const LabelTd = styled.td`
-  word-wrap: anywhere;
-`;
-
-const TooltipCaption = styled.caption`
-  font-weight: bold;
-  text-align: center;
-  padding: 0 0 6px;
-  color: ${({ theme  })=>theme.colorBase400};
-`;
-
-function EventTooltip({ event  }) {
-    return /*#__PURE__*/ jsxs("table", {
-        children: [
-            /*#__PURE__*/ jsxs(TooltipCaption, {
-                children: [
-                    event.title,
-                    " @ ",
-                    event.time
-                ]
-            }),
-            /*#__PURE__*/ jsx(TooltipBody, {
-                labels: event.labels
-            })
-        ]
-    });
-}
-
-function TimeseriesTooltip({ timeseries , metric  }) {
-    return /*#__PURE__*/ jsxs("table", {
-        children: [
-            /*#__PURE__*/ jsx(TooltipCaption, {
-                children: metric.time
-            }),
-            /*#__PURE__*/ jsx("thead", {
-                children: /*#__PURE__*/ jsxs("tr", {
-                    children: [
-                        /*#__PURE__*/ jsx("th", {
-                            children: timeseries.name || "value"
-                        }),
-                        /*#__PURE__*/ jsx("th", {
-                            children: metric.value
-                        })
-                    ]
-                })
-            }),
-            /*#__PURE__*/ jsx(TooltipBody, {
-                labels: timeseries.labels
-            })
-        ]
-    });
 }
 
 /**
@@ -2585,7 +2604,7 @@ function getPointForMetric(metric, { buckets , isPercentage , xAxis , yAxis  }) 
 /**
  * Generates an abstract chart from the given timeseries data.
  */ function generateFromTimeseriesAndEvents(input) {
-    const timeseriesChart = input.stackingType === "none" ? generateLineChartFromTimeseries(input) : generateStackedLineChartFromTimeseries(input);
+    const timeseriesChart = generateFromTimeseries(input);
     const chart = {
         ...timeseriesChart,
         shapeLists: timeseriesChart.shapeLists.map((list)=>({
@@ -2596,7 +2615,7 @@ function getPointForMetric(metric, { buckets , isPercentage , xAxis , yAxis  }) 
                 }
             }))
     };
-    if (input.events.length > 0) {
+    if (input.graphType === "line" && input.events.length > 0) {
         chart.shapeLists.push(generateShapeListFromEvents(chart.xAxis, input.events));
     }
     return chart;
@@ -2689,7 +2708,9 @@ const ColorBlock = styled.div`
     border-radius: ${({ theme  })=>theme.borderRadius400};
 `;
 const Emphasis = styled.span`
-  background-color: ${({ theme  })=>theme.colorBase200};
+  /* FIXME: These vars are to support style overrides for dark mode */
+  background-color: var(--fp-chart-legend-emphasis-bg, ${({ theme  })=>theme.colorBase200});
+  color: var(--fp-chart-legend-emphasis-color, currentColor);
   /* TODO (Jacco): we should try and find out what to do with this styling */
   /* stylelint-disable-next-line scale-unlimited/declaration-strict-value */
   font-weight: 600;
@@ -2701,7 +2722,9 @@ const InteractiveItemStyling = css`
     cursor: pointer;
 
     &:hover {
-        background: ${({ theme  })=>theme.colorPrimaryAlpha100};
+        /* FIXME: These vars are to support style overrides for dark mode */
+        background: var(--fp-chart-legend-hover-bg, ${({ theme  })=>theme.colorPrimaryAlpha100});
+        color: var(--fp-chart-legend-hover-color, currentColor);
     }
 `;
 const LegendItemContainer = styled(Container)`
@@ -2852,7 +2875,7 @@ function MetricsChart(props) {
 }
 const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
     const theme = useTheme();
-    const { chartControlsShown =true , colors , events , eventColor =theme.colorPrimary400 , graphType , legendShown =true , readOnly , stackingControlsShown =true , stackingType , timeRange , timeseriesData  } = props;
+    const { areaGradientShown =true , chartControlsShown =true , colors , events , eventColor =theme.colorPrimary400 , graphType , legendShown =true , readOnly , stackingControlsShown =true , stackingType , timeRange , timeseriesData  } = props;
     const chart = useMemo(()=>generateFromTimeseriesAndEvents({
             events: events ?? [],
             graphType,
@@ -2900,12 +2923,6 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
             setFocusedShapeList(shapeList);
         }
     });
-    const showTooltip = useHandler((anchor, [series, point])=>props.showTooltip?.(anchor, series.type === "events" ? /*#__PURE__*/ jsx(EventTooltip, {
-            event: point
-        }) : /*#__PURE__*/ jsx(TimeseriesTooltip, {
-            timeseries: series,
-            metric: point
-        })) ?? noop);
     return /*#__PURE__*/ jsxs(Fragment, {
         children: [
             chartControlsShown && !readOnly && /*#__PURE__*/ jsx(ChartControls, {
@@ -2914,11 +2931,11 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
             }),
             /*#__PURE__*/ jsx(CoreChart, {
                 ...props,
+                areaGradientShown: areaGradientShown,
                 chart: chart,
                 focusedShapeList: focusedShapeList,
                 getShapeListColor: getShapeListColor,
-                onFocusedShapeListChange: onFocusedShapeListChange,
-                showTooltip: showTooltip
+                onFocusedShapeListChange: onFocusedShapeListChange
             }),
             legendShown && /*#__PURE__*/ jsx(TimeseriesLegend, {
                 ...props,
@@ -2938,7 +2955,7 @@ function isTimeseriesShapeList(shapeList) {
     return shapeList.source.type === "timeseries";
 }
 
-function SparkChart({ colors , graphType , stackingType , timeRange , timeseriesData , onChangeTimeRange  }) {
+function SparkChart({ areaGradientShown =false , colors , graphType , stackingType , timeRange , timeseriesData , onChangeTimeRange  }) {
     const theme = useTheme();
     const chart = useMemo(()=>generateFromTimeseries({
             graphType,
@@ -2976,11 +2993,13 @@ function SparkChart({ colors , graphType , stackingType , timeRange , timeseries
     ]);
     return /*#__PURE__*/ jsx(StyledChartSizeContainerProvider, {
         children: /*#__PURE__*/ jsx(CoreChart, {
+            areaGradientShown: areaGradientShown,
             chart: chart,
             focusedShapeList: null,
             getShapeListColor: getShapeListColor,
             gridShown: false,
             onChangeTimeRange: onChangeTimeRange,
+            tickFormatters: tickFormatters,
             timeRange: timeRange
         })
     });
@@ -2989,6 +3008,11 @@ const StyledChartSizeContainerProvider = styled(ChartSizeContainerProvider)`
   width: 100%;
   height: 100%;
 `;
+// Dummy formatters, since we don't display axes in a spark chart anyway.
+const tickFormatters = {
+    xFormatter: ()=>"",
+    yFormatter: ()=>""
+};
 
 export { MetricsChart, SparkChart };
 //# sourceMappingURL=index.js.map

@@ -197,8 +197,10 @@ const Gradient = styled.div`
   background-image: linear-gradient(
     to bottom,
     transparent,
-    rgb(255 255 255 / 75%) 50%
+  /* FIXME: This var supports style overrides for dark mode */
+    var(--fp-expandable-fade-color, rgb(255 255 255 / 75%)) 50%
   );
+
   border-bottom-right-radius: 6px;
   pointer-events: none;
 `;

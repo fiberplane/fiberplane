@@ -116,7 +116,10 @@ const ColorBlock = styled.div<{ color: string; selected: boolean }>`
 `;
 
 const Emphasis = styled.span`
-  background-color: ${({ theme }) => theme.colorBase200};
+  /* FIXME: These vars are to support style overrides for dark mode */
+  background-color: var(--fp-chart-legend-emphasis-bg, ${({ theme }) =>
+    theme.colorBase200});
+  color: var(--fp-chart-legend-emphasis-color, currentColor);
   /* TODO (Jacco): we should try and find out what to do with this styling */
   /* stylelint-disable-next-line scale-unlimited/declaration-strict-value */
   font-weight: 600;
@@ -129,7 +132,10 @@ const InteractiveItemStyling = css`
     cursor: pointer;
 
     &:hover {
-        background: ${({ theme }) => theme.colorPrimaryAlpha100};
+        /* FIXME: These vars are to support style overrides for dark mode */
+        background: var(--fp-chart-legend-hover-bg, ${({ theme }) =>
+          theme.colorPrimaryAlpha100});
+        color: var(--fp-chart-legend-hover-color, currentColor);
     }
 `;
 

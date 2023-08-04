@@ -5,6 +5,7 @@ import {
   ChartSizeContainerProvider,
   CoreChart,
   CoreChartProps,
+  TickFormatters,
 } from "../CoreChart";
 import { Metric, Timeseries } from "../providerTypes";
 import {
@@ -13,7 +14,10 @@ import {
   generateFromTimeseries,
 } from "../Mondrian";
 
-type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange"> &
+type Props = Pick<
+  CoreChartProps<Timeseries, Metric>,
+  "onChangeTimeRange" | "areaGradientShown"
+> &
   TimeseriesSourceData & {
     /**
      * Override the colors for the timeseries. If not specified several colors
@@ -23,6 +27,7 @@ type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange"> &
   };
 
 export function SparkChart({
+  areaGradientShown = false,
   colors,
   graphType,
   stackingType,
@@ -67,11 +72,13 @@ export function SparkChart({
   return (
     <StyledChartSizeContainerProvider>
       <CoreChart
+        areaGradientShown={areaGradientShown}
         chart={chart}
         focusedShapeList={null}
         getShapeListColor={getShapeListColor}
         gridShown={false}
         onChangeTimeRange={onChangeTimeRange}
+        tickFormatters={tickFormatters}
         timeRange={timeRange}
       />
     </StyledChartSizeContainerProvider>
@@ -82,3 +89,9 @@ const StyledChartSizeContainerProvider = styled(ChartSizeContainerProvider)`
   width: 100%;
   height: 100%;
 `;
+
+// Dummy formatters, since we don't display axes in a spark chart anyway.
+const tickFormatters: TickFormatters = {
+  xFormatter: () => "",
+  yFormatter: () => "",
+};

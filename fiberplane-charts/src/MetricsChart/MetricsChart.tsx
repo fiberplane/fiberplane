@@ -3,9 +3,7 @@ import styled, { useTheme } from "styled-components";
 
 import { ChartControls } from "./ChartControls";
 import { ChartSizeContainerProvider } from "../CoreChart";
-import type { CloseTooltipFn, MetricsChartProps, TooltipAnchor } from "./types";
 import { CoreChart } from "../CoreChart";
-import { EventTooltip, TimeseriesTooltip } from "./Tooltips";
 import {
   generateFromTimeseriesAndEvents,
   SeriesSource,
@@ -13,7 +11,7 @@ import {
 } from "../Mondrian";
 import { HEIGHT, MARGINS } from "../CoreChart/constants";
 import type { Metric, ProviderEvent, Timeseries } from "../providerTypes";
-import { noop } from "../utils";
+import type { MetricsChartProps } from "./types";
 import { TimeseriesLegend } from "../TimeseriesLegend";
 import { useHandler } from "../hooks";
 
@@ -41,6 +39,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
   const theme = useTheme();
 
   const {
+    areaGradientShown = true,
     chartControlsShown = true,
     colors,
     events,
@@ -67,7 +66,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
   );
 
   const [focusedShapeList, setFocusedShapeList] =
-    useState<TimeseriesShapeList | null>(null);
+    useState<GenericShapeList | null>(null);
 
   const getShapeListColor = useMemo(() => {
     const shapeListColors = colors || [
@@ -102,21 +101,6 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
     },
   );
 
-  const showTooltip = useHandler(
-    (
-      anchor: TooltipAnchor,
-      [series, point]: [SeriesSource, Metric | ProviderEvent],
-    ): CloseTooltipFn =>
-      props.showTooltip?.(
-        anchor,
-        series.type === "events" ? (
-          <EventTooltip event={point as ProviderEvent} />
-        ) : (
-          <TimeseriesTooltip timeseries={series} metric={point as Metric} />
-        ),
-      ) ?? noop,
-  );
-
   return (
     <>
       {chartControlsShown && !readOnly && (
@@ -127,11 +111,11 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
       )}
       <CoreChart
         {...props}
+        areaGradientShown={areaGradientShown}
         chart={chart}
-        focusedShapeList={focusedShapeList as GenericShapeList | null}
+        focusedShapeList={focusedShapeList}
         getShapeListColor={getShapeListColor}
         onFocusedShapeListChange={onFocusedShapeListChange}
-        showTooltip={showTooltip}
       />
       {legendShown && (
         <TimeseriesLegend

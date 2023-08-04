@@ -5,8 +5,8 @@ on:
     branches: ["**"]
     paths:
       - ".github/workflows/*_typescript.yml"
-      - "fiberplane-charts/**.ts"
-      - "fiberplane-charts/**.tsx"
+      - "fiberplane-charts/**"
+      - "fiberplane-prometheus-query/**"
       - "package.json"
       - "rome.json"
       - "yarn.lock"
@@ -31,6 +31,5 @@ jobs:
       - name: Type-checking
         run: yarn type-check
 
-      # Disabled because there are no TS tests currently.
-      #- name: Run tests
-      #  run: yarn workspaces foreach run test
+      - name: Run tests
+        run: yarn test

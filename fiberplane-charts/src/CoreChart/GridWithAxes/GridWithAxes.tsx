@@ -4,10 +4,11 @@ import { useTheme } from "styled-components";
 
 import type { AbstractChart, Axis } from "../../Mondrian";
 import { BottomAxis } from "./BottomAxis";
+import { createLinearScaleForRange, Range } from "../utils";
 import { GridColumns } from "./GridColumns";
 import { GridRows } from "./GridRows";
 import { LeftAxis } from "./LeftAxis";
-import type { Scale, Scales } from "../types";
+import type { Scale, Scales, TickFormatters } from "../types";
 
 type Props = {
   chart: AbstractChart<unknown, unknown>;
@@ -17,6 +18,7 @@ type Props = {
   gridDashArray?: string;
   gridStrokeColor?: string;
   scales: Scales;
+  tickFormatters: TickFormatters;
 };
 
 export const GridWithAxes = memo(function GridWithAxes({
@@ -27,8 +29,9 @@ export const GridWithAxes = memo(function GridWithAxes({
   gridDashArray,
   gridStrokeColor,
   scales,
+  tickFormatters,
 }: Props) {
-  const { xMax, xScale, yMax, yScale } = scales;
+  const { xMax, xScale, yMax } = scales;
 
   const { colorBase300 } = useTheme();
   const strokeColor = gridStrokeColor || colorBase300;
@@ -37,14 +40,17 @@ export const GridWithAxes = memo(function GridWithAxes({
   const minValue = useCustomSpring(yAxis.minValue);
   const maxValue = useCustomSpring(yAxis.maxValue);
 
-  const animatedScale = yScale.copy().domain([minValue, maxValue]);
+  const animatedScale = createLinearScaleForRangeWithCustomDomain(
+    [yMax, 0],
+    [minValue, maxValue],
+  );
 
   const xTicks = useMemo(
-    () => getTicks(xAxis, xMax, xScale, 12),
+    () => getTicks(xAxis, xMax, xScale, 12, getMaxXTickValue),
     [xAxis, xMax, xScale],
   );
   const yTicks = useMemo(
-    () => getTicks(yAxis, yMax, animatedScale, 8),
+    () => getTicks(yAxis, yMax, animatedScale, 8, getMaxYTickValue),
     [yAxis, yMax, animatedScale],
   );
 
@@ -80,6 +86,7 @@ export const GridWithAxes = memo(function GridWithAxes({
         />
       )}
       <BottomAxis
+        formatter={tickFormatters.xFormatter}
         scales={scales}
         strokeColor={strokeColor}
         strokeDasharray={gridDashArray}
@@ -87,6 +94,7 @@ export const GridWithAxes = memo(function GridWithAxes({
         xAxis={xAxis}
       />
       <LeftAxis
+        formatter={tickFormatters.yFormatter}
         scales={{ ...scales, yScale: animatedScale }}
         strokeColor={strokeColor}
         strokeDasharray={gridDashArray}
@@ -97,11 +105,26 @@ export const GridWithAxes = memo(function GridWithAxes({
   );
 });
 
+type Domain = [min: number, max: number];
+
+/**
+ * Creates a linear scale function for the given range, but uses a custom
+ * domain.
+ */
+function createLinearScaleForRangeWithCustomDomain(
+  range: Range,
+  [min, max]: Domain,
+): Scale {
+  const linearScale = createLinearScaleForRange(range);
+  return (value) => linearScale((value - min) / (max - min));
+}
+
 function getTicks(
   axis: Axis,
   max: number,
   scale: Scale,
   numTicks: number,
+  getMaxAllowedTick: (ticks: Array<number>, maxValue: number) => number,
 ): Array<number> {
   const suggestions = axis.tickSuggestions;
   const ticks = suggestions
@@ -109,6 +132,7 @@ function getTicks(
     : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
 
   extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks);
+  removeLastTickIfTooCloseToMax(ticks, axis.maxValue, getMaxAllowedTick);
 
   return ticks;
 }
@@ -120,8 +144,16 @@ function getTicksFromRange(
 ): Array<number> {
   const interval = (maxValue - minValue) / numTicks;
 
+  // NOTE - We need to handle the case where the interval is less than EPSILON,
+  //        which is the smallest interval we can represent with javascript's floating point precision
+  //        (see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/EPSILON)
+  if (interval < Number.EPSILON) {
+    return [minValue, maxValue];
+  }
+
   const ticks = [minValue];
   let tick = minValue + interval;
+
   while (tick < maxValue) {
     ticks.push(tick);
     tick += interval;
@@ -222,3 +254,66 @@ function useCustomSpring(value: number) {
 
   return current;
 }
+
+/**
+ * When rendering our svg charts, we want to avoid cutting off tick labels.
+ * The way we can do this (simiar to visx's solution) is by not rendering ticks,
+ * if they are too close to the axis's max value.
+ *
+ * The definition of what is "too close" to the max value
+ * is determined by the `getMaxTickValue` function.
+ *
+ * @note This function mutates the input ticks.
+ */
+const removeLastTickIfTooCloseToMax = (
+  ticks: Array<number>,
+  maxValue: number,
+  getMaxAllowedTick: (ticks: Array<number>, maxValue: number) => number,
+) => {
+  if (ticks.length < 2) {
+    return;
+  }
+
+  const maxTickValue = getMaxAllowedTick(ticks, maxValue);
+
+  const lastTick = ticks[ticks.length - 1];
+  if (lastTick > maxTickValue) {
+    ticks.pop();
+  }
+};
+
+/**
+ * Returns a maximum allowed tick value for the x-axis.
+ *
+ * Heuristic:
+ *   If a tick's distance to the maxValue is within 1/2 the size of the tick-interval,
+ *   the tick will get dropped.
+ *
+ * Note that the heuristic was determined by trial and error.
+ */
+const getMaxXTickValue = (ticks: Array<number>, maxValue: number) => {
+  if (ticks.length < 2) {
+    return maxValue;
+  }
+
+  const interval = ticks[1] - ticks[0];
+  return maxValue - interval / 2;
+};
+
+/**
+ * Returns a maximum allowed tick value for the x-axis.
+ *
+ * Heuristic:
+ *   If a tick's distance to the maxValue is within 1/3 the size of the tick-interval,
+ *   the tick will get dropped.
+ *
+ * Note that the heuristic was determined by trial and error.
+ */
+const getMaxYTickValue = (ticks: Array<number>, maxValue: number) => {
+  if (ticks.length < 2) {
+    return maxValue;
+  }
+
+  const interval = ticks[1] - ticks[0];
+  return maxValue - interval / 3;
+};

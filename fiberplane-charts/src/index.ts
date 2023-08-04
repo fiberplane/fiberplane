@@ -1,3 +1,4 @@
+export type { Axis, SeriesSource } from "./Mondrian";
 export type { ChartTheme } from "./styled-components";
 export type {
   GraphType,
@@ -9,6 +10,7 @@ export type {
   Timeseries,
   Timestamp,
 } from "./providerTypes";
+export type { TickFormatters, TickFormattersFactory } from "./CoreChart";
 export type { ToggleTimeseriesEvent } from "./TimeseriesLegend";
 
 export * from "./MetricsChart";

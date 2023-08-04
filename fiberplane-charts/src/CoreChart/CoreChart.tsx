@@ -1,4 +1,4 @@
-import { useContext, useEffect, useId } from "react";
+import { useContext, useEffect, useId, useMemo } from "react";
 
 import { ChartContent } from "./ChartContent";
 import { ChartSizeContext } from "./ChartSizeContext";
@@ -12,8 +12,10 @@ import {
   useTooltip,
 } from "./hooks";
 import { ZoomBar } from "./ZoomBar";
+import { CHART_SHAPE_OVERFLOW_MARGIN } from "./constants";
 
 export function CoreChart<S, P>({
+  areaGradientShown = true,
   chart,
   getShapeListColor,
   gridShown = true,
@@ -65,6 +67,12 @@ export function CoreChart<S, P>({
 
   const scales = useScales(dimensions, mouseInteraction);
 
+  const tickFormatters = useMemo(() => {
+    return typeof props.tickFormatters === "function"
+      ? props.tickFormatters(chart.xAxis, chart.yAxis)
+      : props.tickFormatters;
+  }, [chart, props.tickFormatters]);
+
   useEffect(() => {
     const wheelListenerOptions: AddEventListenerOptions = { passive: false };
     window.addEventListener("keydown", updatePressedKeys);
@@ -77,11 +85,17 @@ export function CoreChart<S, P>({
     };
   }, [onWheel, updatePressedKeys]);
 
+  const clipPathYStart = -1 * CHART_SHAPE_OVERFLOW_MARGIN;
+  const clipPathHeight = yMax + 2 * CHART_SHAPE_OVERFLOW_MARGIN;
+  // HACK - For spark charts, the clip path can be larger than the chart itself,
+  //        which leads to points getting cut off
+  const svgHeight = height > clipPathHeight ? height : clipPathHeight;
+
   return (
     // rome-ignore lint/a11y/noSvgWithoutTitle: title would interfere with tooltip
     <svg
       width={width}
-      height={height}
+      height={svgHeight}
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
@@ -90,14 +104,22 @@ export function CoreChart<S, P>({
     >
       <defs>
         <clipPath id={clipPathId}>
-          <rect x={0} y={0} width={xMax} height={yMax} />
+          <rect x={0} y={clipPathYStart} width={xMax} height={clipPathHeight} />
         </clipPath>
       </defs>
       <g transform={`translate(${marginLeft}, ${marginTop})`}>
-        {gridShown && <GridWithAxes {...props} chart={chart} scales={scales} />}
+        {gridShown && (
+          <GridWithAxes
+            {...props}
+            chart={chart}
+            scales={scales}
+            tickFormatters={tickFormatters}
+          />
+        )}
         <g clipPath={`url(#${clipPathId})`}>
           <ChartContent
             {...props}
+            areaGradientShown={areaGradientShown}
             chart={chart}
             getShapeListColor={getShapeListColor}
             scales={scales}

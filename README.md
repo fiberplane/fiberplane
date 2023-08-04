@@ -25,6 +25,8 @@ packages may be found as well.
 - [fiberplane-openapi-rust-gen](fiberplane-openapi-rust-gen/) - Our custom
   generator for generating the [fiberplane-api-client](fiberplane-api-client/)
   crate.
+- [fiberplane-prometheus-query](fiberplane-prometheus-query/) - TypeScript
+  package for querying Prometheus.
 - [fiberplane-provider-protocol](fiberplane-provider-protocol/) - The definition
   for our low-level provider protocol and the bindings that are generated from
   it.

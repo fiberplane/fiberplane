@@ -1,6 +1,4 @@
-import type { ScaleLinear } from "d3-scale";
-
-import type { AbstractChart, ShapeList } from "../Mondrian";
+import type { AbstractChart, Axis, ShapeList } from "../Mondrian";
 import type { TimeRange } from "../providerTypes";
 
 /**
@@ -9,6 +7,11 @@ import type { TimeRange } from "../providerTypes";
 export type ChartCoordinates = { x: number; y: number };
 
 export type CoreChartProps<S, P> = {
+  /**
+   * Show a gradient under Line or Area shapes in the chart. (default: true)
+   */
+  areaGradientShown?: boolean;
+
   /**
    * The chart to render.
    */
@@ -85,6 +88,11 @@ export type CoreChartProps<S, P> = {
   showTooltip?: ShowTooltipFn<S, P>;
 
   /**
+   * Functions for formatting the ticks that are displayed along the axes.
+   */
+  tickFormatters: TickFormatters | TickFormattersFactory;
+
+  /**
    * The time range for which to display the data.
    *
    * Make sure the timeseries contains data for the given time range, or you
@@ -95,12 +103,35 @@ export type CoreChartProps<S, P> = {
 
 export type Dimensions = { xMax: number; yMax: number };
 
-export type Scale = ScaleLinear<number, number>;
+/**
+ * A scale function that scales a value from one coordinate system to another.
+ *
+ * The values are usually abstract chart coordinates normalized to `[0.0..1.0]`,
+ * which the scale function will scale to chart coordinates in pixels.
+ */
+export type Scale = (value: number) => number;
 
 export type Scales = Dimensions & {
   xScale: Scale;
   yScale: Scale;
 };
+
+export type TickFormatters = {
+  /**
+   * Formats the ticks displayed along the X axis.
+   */
+  xFormatter(value: number): string;
+
+  /**
+   * Formats the ticks displayed along the Y axis.
+   */
+  yFormatter(value: number): string;
+};
+
+export type TickFormattersFactory = (
+  xAxis: Axis,
+  yAxis: Axis,
+) => TickFormatters;
 
 export type ShowTooltipFn<S, P> = (
   anchor: TooltipAnchor,
