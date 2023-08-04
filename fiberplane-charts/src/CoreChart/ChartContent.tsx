@@ -1,4 +1,4 @@
-import type { AbstractChart, SeriesSource, ShapeList } from "../Mondrian";
+import type { AbstractChart, ShapeList } from "../Mondrian";
 import { ChartShape } from "./ChartShape";
 import type { Scales } from "./types";
 
