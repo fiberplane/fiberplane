@@ -9,10 +9,15 @@ repository = { workspace = true }
 rust-version = { workspace = true }
 version = "0.1.0"
 
+[features]
+default = ["image"]
+image = ["dep:csscolorparser", "dep:image", "dep:resvg"]
+
 [dependencies]
+csscolorparser = { version = "0.6", optional = true }
 fiberplane-models = { workspace = true }
-image = "0.24"
-resvg = "0.35"
+image = { version = "0.24", optional = true }
+resvg = { version = "0.35", optional = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 
