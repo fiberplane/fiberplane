@@ -1253,21 +1253,25 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
 }
 function getTicks(axis, max, scale, numTicks, getMaxAllowedTick) {
     const suggestions = axis.tickSuggestions;
-    const ticks = suggestions ? getTicksFromSuggestions(axis, suggestions, numTicks) : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
-    extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks);
+    const { ticks , interval  } = suggestions ? getTicksAndIntervalFromSuggestions(axis, suggestions, numTicks) : getTicksAndIntervalFromRange(axis.minValue, axis.maxValue, numTicks);
+    if (interval !== undefined) {
+        extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks, interval);
+    }
     removeLastTickIfTooCloseToMax(ticks, axis.maxValue, getMaxAllowedTick);
     return ticks;
 }
-function getTicksFromRange(minValue, maxValue, numTicks) {
+function getTicksAndIntervalFromRange(minValue, maxValue, numTicks) {
     const interval = (maxValue - minValue) / numTicks;
     // NOTE - We need to handle the case where the interval is less than EPSILON,
     //        which is the smallest interval we can represent with javascript's floating point precision
     //        (see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/EPSILON)
     if (interval < Number.EPSILON) {
-        return [
-            minValue,
-            maxValue
-        ];
+        return {
+            ticks: [
+                minValue,
+                maxValue
+            ]
+        };
     }
     const ticks = [
         minValue
@@ -1277,18 +1281,26 @@ function getTicksFromRange(minValue, maxValue, numTicks) {
         ticks.push(tick);
         tick += interval;
     }
-    return ticks;
+    return {
+        ticks,
+        interval
+    };
 }
-function getTicksFromSuggestions(axis, suggestions, numTicks) {
+function getTicksAndIntervalFromSuggestions(axis, suggestions, numTicks) {
     const len = suggestions.length;
     if (len < 2) {
-        return suggestions;
+        return {
+            ticks: suggestions
+        };
     }
     const suggestionInterval = suggestions[1] - suggestions[0];
     const axisRange = axis.maxValue - axis.minValue;
     const ticksPerRange = axisRange / suggestionInterval;
     if (ticksPerRange < numTicks) {
-        return suggestions;
+        return {
+            ticks: suggestions,
+            interval: suggestionInterval
+        };
     }
     const ticks = [];
     const divisionFactor = Math.ceil(ticksPerRange / numTicks);
@@ -1297,7 +1309,10 @@ function getTicksFromSuggestions(axis, suggestions, numTicks) {
             ticks.push(suggestions[i]);
         }
     }
-    return ticks;
+    return {
+        ticks,
+        interval: divisionFactor * suggestionInterval
+    };
 }
 /**
  * Extends the ticks to cover the full range of the axis.
@@ -1308,11 +1323,7 @@ function getTicksFromSuggestions(axis, suggestions, numTicks) {
  * appearing tick labels from the right edge.
  *
  * @note This function mutates the input ticks.
- */ function extendTicksToFitAxis(ticks, axis, max, scale, maxTicks) {
-    if (ticks.length < 2) {
-        return;
-    }
-    const interval = ticks[1] - ticks[0];
+ */ function extendTicksToFitAxis(ticks, axis, max, scale, maxTicks, interval) {
     const scaleToAxis = (value)=>scale((value - axis.minValue) / (axis.maxValue - axis.minValue));
     // Trim ticks from the start if the user has dragged them beyond the Y axis.
     while(ticks.length && scaleToAxis(ticks[0]) < 0){
