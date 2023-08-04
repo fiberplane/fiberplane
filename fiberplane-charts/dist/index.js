@@ -1289,6 +1289,11 @@ function getTicksFromSuggestions(axis, suggestions, numTicks) {
             ticks.push(suggestions[i]);
         }
     }
+    // This will happen when the division factor is greater than the number of suggestions
+    // (which is typically when we only have a small slice of data for the axis' actual range)
+    if (ticks.length < 2) {
+        return getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
+    }
     return ticks;
 }
 /**
