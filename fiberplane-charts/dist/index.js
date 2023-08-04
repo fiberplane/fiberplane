@@ -826,6 +826,31 @@ function constantFactory(value) {
     return path;
 }
 
+/**
+ * Creates the SVG path definition for a line shape.
+ *
+ * @param data The data points for the line.
+ * @param coordinates The factories and/or constants to produce the coordinates
+ *                    from each data point.
+ *
+ * See also: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
+ */ function createLinePathDef(data, coordinates) {
+    const len = data.length;
+    if (len === 0) {
+        return "";
+    }
+    const x = toFactory(coordinates.x);
+    const y = toFactory(coordinates.y);
+    const start = data[0];
+    let path = `M${x(start).toFixed(1)},${y(start).toFixed(1)}`;
+    // Draw a line along the data points.
+    for(let i = 1; i < len; ++i){
+        const next = data[i];
+        path += `L${x(next).toFixed(1)},${y(next).toFixed(1)}`;
+    }
+    return path;
+}
+
 const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradientShown , area , color , focused , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
@@ -871,35 +896,9 @@ const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradi
     });
 });
 
-/**
- * Creates the SVG path definition for a line shape.
- *
- * @param data The data points for the line.
- * @param coordinates The factories and/or constants to produce the coordinates
- *                    from each data point.
- *
- * See also: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
- */ function createLinePathDef(data, coordinates) {
-    const len = data.length;
-    if (len === 0) {
-        return "";
-    }
-    const x = toFactory(coordinates.x);
-    const y = toFactory(coordinates.y);
-    const start = data[0];
-    let path = `M${x(start).toFixed(1)},${y(start).toFixed(1)}`;
-    // Draw a line along the data points.
-    for(let i = 1; i < len; ++i){
-        const next = data[i];
-        path += `L${x(next).toFixed(1)},${y(next).toFixed(1)}`;
-    }
-    return path;
-}
-
 const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradientShown , color , focused , line , scales  }) {
     const id = useId();
     const gradientId = `line-${id}`;
-    const gradiantRef = `url(#${gradientId})`;
     const x = (point)=>scales.xScale(point.x);
     const y = (point)=>scales.yScale(point.y);
     return /*#__PURE__*/ jsxs("g", {
@@ -933,7 +932,7 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradi
                     y1: scales.yScale(0)
                 }),
                 strokeWidth: 0,
-                fill: gradiantRef
+                fill: `url(#${gradientId})`
             }),
             /*#__PURE__*/ jsx("path", {
                 d: createLinePathDef(line.points, {
