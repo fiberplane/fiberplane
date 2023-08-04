@@ -40,7 +40,7 @@ export const AreaShape = memo(function AreaShape<P>({
         stroke={color}
         strokeWidth={focused ? 1.5 : 1}
         fill={areaGradientShown ? gradientRef : "transparent"}
-        strokeDasharray={sourceType === "events" ? "4 4" : undefined}
+        strokeDasharray={sourceType === "events" ? "2" : undefined}
       />
     </g>
   );
