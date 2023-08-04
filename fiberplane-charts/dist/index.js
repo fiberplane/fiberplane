@@ -826,7 +826,7 @@ function constantFactory(value) {
     return path;
 }
 
-const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradientShown , area , color , focused , scales  }) {
+const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradientShown , area , color , focused , scales , sourceType  }) {
     const id = useId();
     const gradientId = `line-${id}`;
     const gradientRef = `url(#${gradientId})`;
@@ -865,7 +865,8 @@ const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradi
                 }),
                 stroke: color,
                 strokeWidth: focused ? 1.5 : 1,
-                fill: areaGradientShown ? gradientRef : "transparent"
+                fill: areaGradientShown ? gradientRef : "transparent",
+                strokeDasharray: sourceType === "events" ? "4 4" : undefined
             })
         ]
     });
@@ -1020,9 +1021,16 @@ function ChartContent({ areaGradientShown , chart , focusedShapeList , getShapeL
                     color: getShapeListColor(shapeList),
                     focused: shapeList === focusedShapeList,
                     scales: scales,
-                    shape: shape
+                    shape: shape,
+                    sourceType: getSourceTypeIfExists(shapeList.source)
                 }, `${listIndex}-${shapeIndex}`)))
     });
+}
+function getSourceTypeIfExists(source) {
+    if (typeof source === "object" && source !== null && "type" in source) {
+        return typeof source.type === "string" ? source.type : "";
+    }
+    return "";
 }
 
 const LABEL_OFFSET = 8;

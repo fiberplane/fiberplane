@@ -15,6 +15,7 @@ export const AreaShape = memo(function AreaShape<P>({
   color,
   focused,
   scales,
+  sourceType,
 }: Props<P>): JSX.Element {
   const id = useId();
   const gradientId = `line-${id}`;
@@ -39,6 +40,7 @@ export const AreaShape = memo(function AreaShape<P>({
         stroke={color}
         strokeWidth={focused ? 1.5 : 1}
         fill={areaGradientShown ? gradientRef : "transparent"}
+        strokeDasharray={sourceType === "events" ? "4 4" : undefined}
       />
     </g>
   );

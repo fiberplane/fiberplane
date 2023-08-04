@@ -1,4 +1,4 @@
-import type { AbstractChart, ShapeList } from "../Mondrian";
+import type { AbstractChart, SeriesSource, ShapeList } from "../Mondrian";
 import { ChartShape } from "./ChartShape";
 import type { Scales } from "./types";
 
@@ -29,9 +29,18 @@ export function ChartContent<S, P>({
             key={`${listIndex}-${shapeIndex}`}
             scales={scales}
             shape={shape}
+            sourceType={getSourceTypeIfExists(shapeList.source)}
           />
         )),
       )}
     </>
   );
+}
+
+function getSourceTypeIfExists(source: unknown): string {
+  if (typeof source === "object" && source !== null && "type" in source) {
+    return typeof source.type === "string" ? source.type : "";
+  }
+
+  return "";
 }

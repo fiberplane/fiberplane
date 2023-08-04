@@ -29,4 +29,9 @@ export type CommonShapeProps = {
    * Chart scales for converting abstract coordinates to pixel values.
    */
   scales: Scales;
+
+  /**
+   * Where the source data for the shape comes from.
+   */
+  sourceType: string;
 };
