@@ -131,7 +131,9 @@ function getTicks(
     ? getTicksAndIntervalFromSuggestions(axis, suggestions, numTicks)
     : getTicksAndIntervalFromRange(axis.minValue, axis.maxValue, numTicks);
 
-  extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks, interval);
+  if (interval !== undefined) {
+    extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks, interval);
+  }
   removeLastTickIfTooCloseToMax(ticks, axis.maxValue, getMaxAllowedTick);
 
   return ticks;
@@ -208,14 +210,8 @@ function extendTicksToFitAxis(
   max: number,
   scale: Scale,
   maxTicks: number,
-  fallbackInterval?: number,
+  interval: number,
 ) {
-  const interval = ticks.length > 1 ? ticks[1] - ticks[0] : fallbackInterval;
-
-  if (!interval) {
-    return;
-  }
-
   const scaleToAxis = (value: number) =>
     scale((value - axis.minValue) / (axis.maxValue - axis.minValue));
 

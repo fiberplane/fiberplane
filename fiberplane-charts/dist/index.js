@@ -1246,7 +1246,9 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
 function getTicks(axis, max, scale, numTicks, getMaxAllowedTick) {
     const suggestions = axis.tickSuggestions;
     const { ticks , interval  } = suggestions ? getTicksAndIntervalFromSuggestions(axis, suggestions, numTicks) : getTicksAndIntervalFromRange(axis.minValue, axis.maxValue, numTicks);
-    extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks, interval);
+    if (interval !== undefined) {
+        extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks, interval);
+    }
     removeLastTickIfTooCloseToMax(ticks, axis.maxValue, getMaxAllowedTick);
     return ticks;
 }
@@ -1313,11 +1315,7 @@ function getTicksAndIntervalFromSuggestions(axis, suggestions, numTicks) {
  * appearing tick labels from the right edge.
  *
  * @note This function mutates the input ticks.
- */ function extendTicksToFitAxis(ticks, axis, max, scale, maxTicks, fallbackInterval) {
-    const interval = ticks.length > 1 ? ticks[1] - ticks[0] : fallbackInterval;
-    if (!interval) {
-        return;
-    }
+ */ function extendTicksToFitAxis(ticks, axis, max, scale, maxTicks, interval) {
     const scaleToAxis = (value)=>scale((value - axis.minValue) / (axis.maxValue - axis.minValue));
     // Trim ticks from the start if the user has dragged them beyond the Y axis.
     while(ticks.length && scaleToAxis(ticks[0]) < 0){
