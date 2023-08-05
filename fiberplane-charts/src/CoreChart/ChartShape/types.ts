@@ -31,7 +31,7 @@ export type CommonShapeProps = {
   scales: Scales;
 
   /**
-   * Where the source data for the shape comes from.
+   * What kind of data does this shape represent (e.g., "events" or "timeseries")
    */
   sourceType: string;
 };
