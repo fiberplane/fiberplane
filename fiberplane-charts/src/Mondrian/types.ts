@@ -157,6 +157,20 @@ export type Shape<P> =
  */
 export type Area<P> = {
   points: Array<AreaPoint<P>>;
+
+  /**
+   * Optional array specifying the pattern of dashes and gaps used to draw the
+   * outline surrounding the area.
+   *
+   * The interpretation of this property corresponds to the SVG
+   * `stroke-dasharray` attribute: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray
+   *
+   * This property only supports unitless numbers, leaving the exact
+   * interpretation of values to the renderer.
+   *
+   * If omitted, the outline is drawn as a solid line.
+   */
+  strokeDasharray?: Array<number>;
 };
 
 /**
@@ -191,6 +205,20 @@ export type AreaPoint<P> = {
  */
 export type Line<P> = {
   points: Array<Point<P>>;
+
+  /**
+   * Optional array specifying the pattern of dashes and gaps used to draw the
+   * line.
+   *
+   * The interpretation of this property corresponds to the SVG
+   * `stroke-dasharray` attribute: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray
+   *
+   * This property only supports unitless numbers, leaving the exact
+   * interpretation of values to the renderer.
+   *
+   * If omitted, the line is drawn as a solid line.
+   */
+  strokeDasharray?: Array<number>;
 };
 
 /**

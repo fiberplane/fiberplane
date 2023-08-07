@@ -18,6 +18,9 @@ exports[`it generates shapes from events 1`] = `
           "yMin": 0,
         },
       ],
+      "strokeDasharray": [
+        2,
+      ],
       "type": "area",
     },
     {
@@ -34,6 +37,9 @@ exports[`it generates shapes from events 1`] = `
           "yMax": 1,
           "yMin": 0,
         },
+      ],
+      "strokeDasharray": [
+        2,
       ],
       "type": "area",
     },
