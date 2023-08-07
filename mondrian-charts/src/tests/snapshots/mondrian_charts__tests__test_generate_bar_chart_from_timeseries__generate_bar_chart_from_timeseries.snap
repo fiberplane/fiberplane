@@ -1,0 +1,159 @@
+---
+source: mondrian-charts/src/tests/test_generate_bar_chart_from_timeseries.rs
+expression: chart
+---
+xAxis:
+  minValue: 1689695970000
+  maxValue: 1689696630000
+  tickSuggestions:
+    - 1689696000000
+    - 1689696060000
+    - 1689696120000
+    - 1689696180000
+    - 1689696240000
+    - 1689696300000
+    - 1689696360000
+    - 1689696420000
+    - 1689696480000
+    - 1689696540000
+    - 1689696600000
+yAxis:
+  minValue: 9
+  maxValue: 31
+  tickSuggestions: ~
+shapeLists:
+  - shapes:
+      - type: rectangle
+        x: -0.0031565656565656535
+        y: 0
+        width: 0.06944444444444445
+        height: 0.045454545454545456
+        source:
+          time: "2023-07-18T16:00:00Z"
+          attributes: {}
+          resource: {}
+          value: 10
+      - type: rectangle
+        x: 0.08775252525252525
+        y: 0
+        width: 0.06944444444444445
+        height: 0.2727272727272727
+        source:
+          time: "2023-07-18T16:01:00Z"
+          attributes: {}
+          resource: {}
+          value: 15
+      - type: rectangle
+        x: 0.17866161616161616
+        y: 0
+        width: 0.06944444444444445
+        height: 0.5
+        source:
+          time: "2023-07-18T16:02:00Z"
+          attributes: {}
+          resource: {}
+          value: 20
+      - type: rectangle
+        x: 0.360479797979798
+        y: 0
+        width: 0.06944444444444445
+        height: 0.7272727272727273
+        source:
+          time: "2023-07-18T16:04:00Z"
+          attributes: {}
+          resource: {}
+          value: 25
+      - type: rectangle
+        x: 0.4513888888888889
+        y: 0
+        width: 0.06944444444444445
+        height: 0.9545454545454546
+        source:
+          time: "2023-07-18T16:05:00Z"
+          attributes: {}
+          resource: {}
+          value: 30
+      - type: rectangle
+        x: 0.5422979797979799
+        y: 0
+        width: 0.06944444444444445
+        height: 0.7272727272727273
+        source:
+          time: "2023-07-18T16:06:00Z"
+          attributes: {}
+          resource: {}
+          value: 25
+      - type: rectangle
+        x: 0.6332070707070707
+        y: 0
+        width: 0.06944444444444445
+        height: 0.5
+        source:
+          time: "2023-07-18T16:07:00Z"
+          attributes: {}
+          resource: {}
+          value: 20
+      - type: rectangle
+        x: 0.7241161616161617
+        y: 0
+        width: 0.06944444444444445
+        height: 0.2727272727272727
+        source:
+          time: "2023-07-18T16:08:00Z"
+          attributes: {}
+          resource: {}
+          value: 15
+      - type: rectangle
+        x: 0.8150252525252526
+        y: 0
+        width: 0.06944444444444445
+        height: 0.045454545454545456
+        source:
+          time: "2023-07-18T16:09:00Z"
+          attributes: {}
+          resource: {}
+          value: 10
+    source:
+      name: dummy_data
+      labels: {}
+      metrics:
+        - time: "2023-07-18T16:00:00Z"
+          attributes: {}
+          resource: {}
+          value: 10
+        - time: "2023-07-18T16:01:00Z"
+          attributes: {}
+          resource: {}
+          value: 15
+        - time: "2023-07-18T16:02:00Z"
+          attributes: {}
+          resource: {}
+          value: 20
+        - time: "2023-07-18T16:04:00Z"
+          attributes: {}
+          resource: {}
+          value: 25
+        - time: "2023-07-18T16:05:00Z"
+          attributes: {}
+          resource: {}
+          value: 30
+        - time: "2023-07-18T16:06:00Z"
+          attributes: {}
+          resource: {}
+          value: 25
+        - time: "2023-07-18T16:07:00Z"
+          attributes: {}
+          resource: {}
+          value: 20
+        - time: "2023-07-18T16:08:00Z"
+          attributes: {}
+          resource: {}
+          value: 15
+        - time: "2023-07-18T16:09:00Z"
+          attributes: {}
+          resource: {}
+          value: 10
+      attributes: {}
+      resource: {}
+      visible: true
+

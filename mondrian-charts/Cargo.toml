@@ -1,0 +1,17 @@
+[package]
+name = "mondrian-charts"
+description = "Abstract chart generator"
+readme = "README.md"
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+rust-version = { workspace = true }
+version = "0.1.0"
+
+[dependencies]
+fiberplane-models = { workspace = true }
+serde = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true, features = ["yaml"] }

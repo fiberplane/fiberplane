@@ -61,6 +61,7 @@ pub struct ProviderEvent {
 pub struct Metric {
     pub time: Timestamp,
 
+    #[builder(default)]
     #[serde(flatten)]
     pub otel: OtelMetadata,
 
@@ -199,6 +200,7 @@ pub struct Timeseries {
     #[builder(default)]
     pub metrics: Vec<Metric>,
 
+    #[builder(default)]
     #[serde(flatten)]
     pub otel: OtelMetadata,
 

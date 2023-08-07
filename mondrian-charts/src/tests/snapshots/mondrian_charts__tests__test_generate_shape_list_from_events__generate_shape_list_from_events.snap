@@ -1,0 +1,32 @@
+---
+source: mondrian-charts/src/tests/test_generate_shape_list_from_events.rs
+expression: shape_list
+---
+shapes:
+  - type: area
+    points:
+      - x: 0.2
+        yMin: 0
+        yMax: 1
+        source:
+          type: event
+          time: "2023-07-18T16:02:00Z"
+          attributes: {}
+          resource: {}
+          title: deploy 1
+          labels: {}
+  - type: area
+    points:
+      - x: 0.7
+        yMin: 0
+        yMax: 1
+        source:
+          type: event
+          time: "2023-07-18T16:07:00Z"
+          attributes: {}
+          resource: {}
+          title: deploy 2
+          labels: {}
+source:
+  type: events
+
