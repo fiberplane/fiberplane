@@ -4,6 +4,7 @@ mod create_line_path_def;
 mod generate_chart_content_svg;
 mod generate_grid_with_axes_svg;
 mod scales;
+mod tick_formatters;
 
 use crate::MondrianChart;
 use constants::*;
