@@ -247,12 +247,12 @@ fn get_ticks_and_interval_from_suggestions(
 
     let suggestion_interval = suggestions[1] - suggestions[0];
     let axis_range = axis.max_value - axis.min_value;
-    let ticks_per_range = (axis_range / suggestion_interval).round() as usize;
-    if ticks_per_range < num_ticks {
+    let ticks_per_range = axis_range / suggestion_interval;
+    if ticks_per_range < num_ticks as f64 {
         return (suggestions.to_vec(), Some(suggestion_interval));
     }
 
-    let division_factor = ticks_per_range / num_ticks;
+    let division_factor = (ticks_per_range / num_ticks as f64).ceil() as usize;
     let ticks = suggestions
         .iter()
         .enumerate()
