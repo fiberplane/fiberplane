@@ -37,6 +37,7 @@ export const AreaShape = memo(function AreaShape<P>({
       <path
         d={createAreaPathDef(area.points, { x, y0, y1 })}
         stroke={color}
+        strokeDasharray={area.strokeDasharray?.join(" ")}
         strokeWidth={focused ? 1.5 : 1}
         fill={areaGradientShown ? gradientRef : "transparent"}
       />

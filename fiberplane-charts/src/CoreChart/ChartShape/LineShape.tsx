@@ -43,6 +43,7 @@ export const LineShape = memo(function LineShape<P>({
       <path
         d={createLinePathDef(line.points, { x, y })}
         stroke={color}
+        strokeDasharray={line.strokeDasharray?.join(" ")}
         strokeWidth={focused ? 1.5 : 1}
         fill="transparent"
       />

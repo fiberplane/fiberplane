@@ -13,6 +13,7 @@ export function generateShapeListFromEvents(
       return {
         type: "area",
         points: [{ x, yMin: 0, yMax: 1, source: event }],
+        strokeDasharray: [2],
       };
     }),
     source: { type: "events" },

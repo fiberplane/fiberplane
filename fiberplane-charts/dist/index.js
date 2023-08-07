@@ -864,6 +864,7 @@ const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradi
                     y1
                 }),
                 stroke: color,
+                strokeDasharray: area.strokeDasharray?.join(" "),
                 strokeWidth: focused ? 1.5 : 1,
                 fill: areaGradientShown ? gradientRef : "transparent"
             })
@@ -941,6 +942,7 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradi
                     y
                 }),
                 stroke: color,
+                strokeDasharray: line.strokeDasharray?.join(" "),
                 strokeWidth: focused ? 1.5 : 1,
                 fill: "transparent"
             })
@@ -2506,6 +2508,9 @@ function generateShapeListFromEvents({ minValue , maxValue  }, events) {
                         yMax: 1,
                         source: event
                     }
+                ],
+                strokeDasharray: [
+                    2
                 ]
             };
         }),
