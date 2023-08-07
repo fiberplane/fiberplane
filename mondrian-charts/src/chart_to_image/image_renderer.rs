@@ -103,29 +103,9 @@ fn parse_color(string: &str) -> Result<Color, ImageRenderingError> {
 
 #[cfg(all(unix, not(any(target_os = "macos", target_os = "android"))))]
 fn set_default_fonts(fontdb: &mut usvg::fontdb::Database) {
-    let sans_serif_fonts = vec![
-        "DejaVu Sans",
-        "FreeSans",
-        "Liberation Sans",
-        "Arimo",
-        "Cantarell",
-        "Nimbus Sans",
-    ];
-
-    let serif_fonts = vec![
-        "DejaVu Serif",
-        "FreeSerif",
-        "Liberation Serif",
-        "Tinos",
-        "Nimbus Roman",
-    ];
-
-    let monospace_fonts = vec![
-        "DejaVu Sans Mono",
-        "FreeMono",
-        "Liberation Mono",
-        "Nimbus Mono",
-    ];
+    let sans_serif_fonts = ["Inter"];
+    let serif_fonts = [];
+    let monospace_fonts = [];
 
     for font in sans_serif_fonts {
         if font_exists(fontdb, font) {

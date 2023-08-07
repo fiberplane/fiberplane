@@ -1,5 +1,5 @@
 ---
-source: mondrian-charts/src/tests/test_generate_shape_list_from_events.rs
+source: mondrian-charts/src/fiberplane/tests/test_generate_shape_list_from_events.rs
 expression: shape_list
 ---
 shapes:

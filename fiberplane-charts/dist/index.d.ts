@@ -452,9 +452,9 @@ type CoreChartProps<S, P> = {
     gridColumnsShown?: boolean;
     /**
      * Customize the grid line style. (defaults to a solid line). This parameter is passed
-     * directly to the svg's stroke-dasharray attribute for several of the lines in the chart.
+     * directly to the SVG `stroke-dasharray` attribute for several of the lines in the chart.
      */
-    gridDashArray?: string;
+    gridDasharray?: string;
     /**
      * Show the grid row (horizontal) lines. (default: true)
      */

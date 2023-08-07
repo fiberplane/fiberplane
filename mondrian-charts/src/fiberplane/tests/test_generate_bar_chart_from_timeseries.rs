@@ -41,8 +41,12 @@ fn test_generate_bar_chart_from_timeseries() {
             width: 640,
             height: 480,
             area_gradient_shown: true,
+            grid_borders_shown: true,
             grid_shown: true,
+            grid_stroke_color: "#e7e7e7".to_owned(),
+            grid_stroke_dasharray: Default::default(),
             shape_list_colors: vec!["#c00eae".to_owned()],
+            tick_color: "#a4a4a4".to_owned(),
         },
     );
 

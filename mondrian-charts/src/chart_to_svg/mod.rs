@@ -17,8 +17,12 @@ pub struct ChartOptions {
     pub height: u16,
 
     pub area_gradient_shown: bool,
+    pub grid_borders_shown: bool,
     pub grid_shown: bool,
+    pub grid_stroke_color: String,
+    pub grid_stroke_dasharray: Vec<f32>,
     pub shape_list_colors: Vec<String>,
+    pub tick_color: String,
 }
 
 pub fn chart_to_svg<S, P>(chart: &MondrianChart<S, P>, options: &ChartOptions) -> String {

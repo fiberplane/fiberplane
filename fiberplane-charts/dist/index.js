@@ -1166,7 +1166,7 @@ function LeftAxis({ formatter , scales: { yMax , yScale  } , strokeColor , strok
     });
 }
 
-const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDashArray , gridStrokeColor , scales , tickFormatters  }) {
+const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDasharray , gridStrokeColor , scales , tickFormatters  }) {
     const { xMax , xScale , yMax  } = scales;
     const { colorBase300  } = useTheme();
     const strokeColor = gridStrokeColor || colorBase300;
@@ -1194,7 +1194,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
         children: [
             gridRowsShown && /*#__PURE__*/ jsx(GridRows, {
                 stroke: strokeColor,
-                strokeDasharray: gridDashArray,
+                strokeDasharray: gridDasharray,
                 xMax: xMax,
                 yScale: animatedScale,
                 yTicks: yTicks
@@ -1206,12 +1206,12 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
                 y2: yMax,
                 stroke: strokeColor,
                 strokeWidth: 1,
-                strokeDasharray: gridDashArray
+                strokeDasharray: gridDasharray
             }),
             gridColumnsShown && /*#__PURE__*/ jsx(GridColumns, {
                 scales: scales,
                 stroke: strokeColor,
-                strokeDasharray: gridDashArray,
+                strokeDasharray: gridDasharray,
                 xAxis: xAxis,
                 xTicks: xTicks
             }),
@@ -1219,7 +1219,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
                 formatter: tickFormatters.xFormatter,
                 scales: scales,
                 strokeColor: strokeColor,
-                strokeDasharray: gridDashArray,
+                strokeDasharray: gridDasharray,
                 ticks: xTicks,
                 xAxis: xAxis
             }),
@@ -1230,7 +1230,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
                     yScale: animatedScale
                 },
                 strokeColor: strokeColor,
-                strokeDasharray: gridDashArray,
+                strokeDasharray: gridDasharray,
                 strokeWidth: gridBordersShown ? 1 : 0,
                 ticks: yTicks
             })

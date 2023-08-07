@@ -2,6 +2,7 @@ use super::create_area_path_def::create_area_path_def;
 use super::create_line_path_def::create_line_path_def;
 use super::{ChartOptions, Scales, POINT_RADIUS};
 use crate::types::{Area, Line, MondrianChart, Point, Rectangle, Shape};
+use itertools::join;
 use std::borrow::Cow;
 
 pub(super) fn generate_chart_content_svg<S, P>(
@@ -9,7 +10,7 @@ pub(super) fn generate_chart_content_svg<S, P>(
     scales: &Scales,
     options: &ChartOptions,
 ) -> String {
-    chart
+    let shapes = chart
         .shape_lists
         .iter()
         .enumerate()
@@ -21,9 +22,9 @@ pub(super) fn generate_chart_content_svg<S, P>(
                     ShapeOptions::from_chart_options_with_shape_list_index(options, i),
                 )
             })
-        })
-        .collect::<Vec<_>>()
-        .join("")
+        });
+
+    join(shapes, "")
 }
 
 struct ShapeOptions<'a> {

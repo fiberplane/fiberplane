@@ -1,5 +1,5 @@
 ---
-source: mondrian-charts/src/tests/test_generate_stacked_line_chart_from_timeseries.rs
+source: mondrian-charts/src/fiberplane/tests/test_generate_stacked_line_chart_from_timeseries.rs
 expression: chart
 ---
 xAxis:
