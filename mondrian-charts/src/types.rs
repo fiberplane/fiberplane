@@ -109,6 +109,7 @@ pub struct AreaPoint<P> {
 pub struct Line<P> {
     pub points: Vec<Point<P>>,
 }
+
 /// A single point in the chart.
 ///
 /// Points can be rendered independently as a dot, or can be used to draw lines
