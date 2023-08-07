@@ -4,19 +4,19 @@ import type { Scales, TickFormatters } from "../types";
 
 type Props = {
   formatter: TickFormatters["yFormatter"];
+  gridBordersShown: boolean;
   scales: Scales;
   strokeColor: string;
   strokeDasharray?: string;
-  strokeWidth: number;
   ticks: Array<number>;
 };
 
 export function LeftAxis({
   formatter,
+  gridBordersShown,
   scales: { yMax, yScale },
   strokeColor,
   strokeDasharray,
-  strokeWidth,
   ticks,
 }: Props) {
   const {
@@ -44,15 +44,16 @@ export function LeftAxis({
 
   return (
     <g>
-      <line
-        x1={0}
-        y1={0}
-        x2={0}
-        y2={yMax}
-        stroke={strokeColor}
-        strokeDasharray={strokeDasharray}
-        strokeWidth={strokeWidth}
-      />
+      {gridBordersShown && (
+        <line
+          x1={0}
+          y1={0}
+          x2={0}
+          y2={yMax}
+          stroke={strokeColor}
+          strokeDasharray={strokeDasharray}
+        />
+      )}
 
       {ticks.map((value, index) =>
         (index > 0 || index < numTicks - 1) && value.valueOf() !== 0 ? (

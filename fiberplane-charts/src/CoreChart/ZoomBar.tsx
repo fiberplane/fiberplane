@@ -24,7 +24,6 @@ export function ZoomBar({
   return (
     <rect
       stroke="#4797ff"
-      strokeWidth={1}
       fill="#a3cbff"
       fillOpacity="10%"
       x={(reverseZoom ? end : start) * xMax}

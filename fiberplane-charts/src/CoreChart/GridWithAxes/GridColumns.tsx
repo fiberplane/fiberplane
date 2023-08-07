@@ -27,7 +27,6 @@ export function GridColumns({
             y1={0}
             x2={x}
             y2={yMax}
-            strokeWidth={1}
             {...lineProps}
           />
         );

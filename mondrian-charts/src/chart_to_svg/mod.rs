@@ -54,7 +54,7 @@ pub fn chart_to_svg<S, P>(chart: &MondrianChart<S, P>, options: &ChartOptions) -
             </defs>\
             <g transform=\"translate({MARGIN_LEFT}, {MARGIN_TOP})\">\
               {grid}\
-              <g clipPath=\"url(#{clip_path_id})\">{chart_content}</g>\
+              <g clip-path=\"url(#{clip_path_id})\">{chart_content}</g>\
             </g>\
         </svg>"
     )

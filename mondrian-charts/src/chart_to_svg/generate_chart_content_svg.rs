@@ -78,7 +78,7 @@ fn generate_area_svg<P>(area: &Area<P>, scales: &Scales, options: ShapeOptions) 
 
         (Cow::Owned(defs), Cow::Owned(format!("url(#{gradient_id})")))
     } else {
-        (Cow::Borrowed(""), Cow::Borrowed("transparent"))
+        (Cow::Borrowed(""), Cow::Borrowed("none"))
     };
 
     let path_def = create_area_path_def(
@@ -114,7 +114,7 @@ fn generate_line_svg<P>(line: &Line<P>, scales: &Scales, options: ShapeOptions) 
                     <stop offset=\"23%\" stop-color=\"{color}\" stop-opacity=\"0.03\" />\
                 </linearGradient>\
             </defs>\
-            <path d=\"{path_def}\" stroke-width=\"0\" fill=\"url(#{gradient_id})\" />"
+            <path d=\"{path_def}\" stroke=\"none\" fill=\"url(#{gradient_id})\" />"
         ))
     } else {
         Cow::Borrowed("")
@@ -126,9 +126,7 @@ fn generate_line_svg<P>(line: &Line<P>, scales: &Scales, options: ShapeOptions) 
         |point| scales.y(point.y),
     );
 
-    format!(
-        r#"{gradient}<path d="{path_def}" stroke="{color}" stroke-width="1" fill="transparent" />"#
-    )
+    format!(r#"{gradient}<path d="{path_def}" stroke="{color}" stroke-width="1" fill="none" />"#)
 }
 
 fn generate_point_svg<P>(point: &Point<P>, scales: &Scales, options: ShapeOptions) -> String {

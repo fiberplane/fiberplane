@@ -135,7 +135,6 @@ export function CoreChart<S, P>({
             x2={graphTooltip.left}
             y2={yMax}
             stroke={graphTooltip.color}
-            strokeWidth={1}
             pointerEvents="none"
             strokeDasharray="1 1"
           />

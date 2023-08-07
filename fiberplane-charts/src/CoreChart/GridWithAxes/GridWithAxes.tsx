@@ -72,7 +72,6 @@ export const GridWithAxes = memo(function GridWithAxes({
           y1={0}
           y2={yMax}
           stroke={strokeColor}
-          strokeWidth={1}
           strokeDasharray={gridDasharray}
         />
       )}
@@ -95,10 +94,10 @@ export const GridWithAxes = memo(function GridWithAxes({
       />
       <LeftAxis
         formatter={tickFormatters.yFormatter}
+        gridBordersShown={gridBordersShown}
         scales={{ ...scales, yScale: animatedScale }}
         strokeColor={strokeColor}
         strokeDasharray={gridDasharray}
-        strokeWidth={gridBordersShown ? 1 : 0}
         ticks={yTicks}
       />
     </>

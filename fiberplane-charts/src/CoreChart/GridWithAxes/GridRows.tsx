@@ -26,7 +26,6 @@ export function GridRows({
             y1={y}
             x2={xMax}
             y2={y}
-            strokeWidth={1}
             {...lineProps}
           />
         );
