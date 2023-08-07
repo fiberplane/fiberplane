@@ -4,6 +4,7 @@ import { useTheme } from "styled-components";
 
 import type { AbstractChart, Axis } from "../../Mondrian";
 import { BottomAxis } from "./BottomAxis";
+import { createLinearScaleForRange, Range } from "../utils";
 import { GridColumns } from "./GridColumns";
 import { GridRows } from "./GridRows";
 import { LeftAxis } from "./LeftAxis";
@@ -30,7 +31,7 @@ export const GridWithAxes = memo(function GridWithAxes({
   scales,
   tickFormatters,
 }: Props) {
-  const { xMax, xScale, yMax, yScale } = scales;
+  const { xMax, xScale, yMax } = scales;
 
   const { colorBase300 } = useTheme();
   const strokeColor = gridStrokeColor || colorBase300;
@@ -39,7 +40,10 @@ export const GridWithAxes = memo(function GridWithAxes({
   const minValue = useCustomSpring(yAxis.minValue);
   const maxValue = useCustomSpring(yAxis.maxValue);
 
-  const animatedScale = yScale.copy().domain([minValue, maxValue]);
+  const animatedScale = createLinearScaleForRangeWithCustomDomain(
+    [yMax, 0],
+    [minValue, maxValue],
+  );
 
   const xTicks = useMemo(
     () => getTicks(xAxis, xMax, xScale, 12, getMaxXTickValue),
@@ -101,6 +105,20 @@ export const GridWithAxes = memo(function GridWithAxes({
   );
 });
 
+type Domain = [min: number, max: number];
+
+/**
+ * Creates a linear scale function for the given range, but uses a custom
+ * domain.
+ */
+function createLinearScaleForRangeWithCustomDomain(
+  range: Range,
+  [min, max]: Domain,
+): Scale {
+  const linearScale = createLinearScaleForRange(range);
+  return (value) => linearScale((value - min) / (max - min));
+}
+
 function getTicks(
   axis: Axis,
   max: number,
@@ -109,28 +127,32 @@ function getTicks(
   getMaxAllowedTick: (ticks: Array<number>, maxValue: number) => number,
 ): Array<number> {
   const suggestions = axis.tickSuggestions;
-  const ticks = suggestions
-    ? getTicksFromSuggestions(axis, suggestions, numTicks)
-    : getTicksFromRange(axis.minValue, axis.maxValue, numTicks);
+  const { ticks, interval } = suggestions
+    ? getTicksAndIntervalFromSuggestions(axis, suggestions, numTicks)
+    : getTicksAndIntervalFromRange(axis.minValue, axis.maxValue, numTicks);
 
-  extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks);
+  if (interval !== undefined) {
+    extendTicksToFitAxis(ticks, axis, max, scale, 2 * numTicks, interval);
+  }
   removeLastTickIfTooCloseToMax(ticks, axis.maxValue, getMaxAllowedTick);
 
   return ticks;
 }
 
-function getTicksFromRange(
+function getTicksAndIntervalFromRange(
   minValue: number,
   maxValue: number,
   numTicks: number,
-): Array<number> {
+): { ticks: Array<number>; interval?: number } {
   const interval = (maxValue - minValue) / numTicks;
 
   // NOTE - We need to handle the case where the interval is less than EPSILON,
   //        which is the smallest interval we can represent with javascript's floating point precision
   //        (see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/EPSILON)
   if (interval < Number.EPSILON) {
-    return [minValue, maxValue];
+    return {
+      ticks: [minValue, maxValue],
+    };
   }
 
   const ticks = [minValue];
@@ -141,24 +163,24 @@ function getTicksFromRange(
     tick += interval;
   }
 
-  return ticks;
+  return { ticks, interval };
 }
 
-function getTicksFromSuggestions(
+function getTicksAndIntervalFromSuggestions(
   axis: Axis,
   suggestions: Array<number>,
   numTicks: number,
-): Array<number> {
+): { ticks: Array<number>; interval?: number } {
   const len = suggestions.length;
   if (len < 2) {
-    return suggestions;
+    return { ticks: suggestions };
   }
 
   const suggestionInterval = suggestions[1] - suggestions[0];
   const axisRange = axis.maxValue - axis.minValue;
   const ticksPerRange = axisRange / suggestionInterval;
   if (ticksPerRange < numTicks) {
-    return suggestions;
+    return { ticks: suggestions, interval: suggestionInterval };
   }
 
   const ticks = [];
@@ -169,7 +191,7 @@ function getTicksFromSuggestions(
     }
   }
 
-  return ticks;
+  return { ticks, interval: divisionFactor * suggestionInterval };
 }
 
 /**
@@ -188,12 +210,8 @@ function extendTicksToFitAxis(
   max: number,
   scale: Scale,
   maxTicks: number,
+  interval: number,
 ) {
-  if (ticks.length < 2) {
-    return;
-  }
-
-  const interval = ticks[1] - ticks[0];
   const scaleToAxis = (value: number) =>
     scale((value - axis.minValue) / (axis.maxValue - axis.minValue));
 

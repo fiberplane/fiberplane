@@ -402,7 +402,7 @@ type CoreChartProps<S, P> = {
      *
      * If no callback is provided, no tooltips will be shown.
      */
-    showTooltip?: ShowTooltipFn$1<S, P>;
+    showTooltip?: ShowTooltipFn<S, P>;
     /**
      * Functions for formatting the ticks that are displayed along the axes.
      */
@@ -426,7 +426,7 @@ type TickFormatters = {
     yFormatter(value: number): string;
 };
 type TickFormattersFactory = (xAxis: Axis, yAxis: Axis) => TickFormatters;
-type ShowTooltipFn$1<S, P> = (anchor: TooltipAnchor, closestSource: [S, P]) => CloseTooltipFn;
+type ShowTooltipFn<S, P> = (anchor: TooltipAnchor, closestSource: [S, P]) => CloseTooltipFn;
 /**
  * Function to invoke to close the tooltip.
  */
@@ -523,13 +523,6 @@ type MetricsChartProps = Omit<CoreChartProps<SeriesSource, Metric | ProviderEven
      */
     stackingControlsShown?: boolean;
 };
-/**
- * Function to display a tooltip relative to the given anchor containing the
- * given React content.
- *
- * Should return a function to close the tooltip.
- */
-type ShowTooltipFn = (anchor: TooltipAnchor, content: React.ReactNode) => CloseTooltipFn;
 
 declare function MetricsChart(props: MetricsChartProps): JSX.Element;
 
@@ -542,4 +535,4 @@ type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange" | "are
 };
 declare function SparkChart({ areaGradientShown, colors, graphType, stackingType, timeRange, timeseriesData, onChangeTimeRange, }: Props): JSX.Element;
 
-export { Axis, ChartTheme, CloseTooltipFn, GraphType, Metric, MetricsChart, MetricsChartProps, OtelMetadata, ProviderEvent, SeriesSource, ShowTooltipFn, SparkChart, StackingType, TickFormatters, TickFormattersFactory, TimeRange, Timeseries, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement };
+export { Axis, ChartTheme, CloseTooltipFn, GraphType, Metric, MetricsChart, MetricsChartProps, OtelMetadata, ProviderEvent, SeriesSource, SparkChart, StackingType, TickFormatters, TickFormattersFactory, TimeRange, Timeseries, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement };

@@ -9,9 +9,6 @@ export default {
     sourcemap: true,
   },
   external: [
-    "@visx/scale",
-    "@visx/shape",
-    "@visx/threshold",
     "framer-motion",
     "react",
     "react/jsx-runtime",
