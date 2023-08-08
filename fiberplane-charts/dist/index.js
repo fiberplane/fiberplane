@@ -3137,7 +3137,7 @@ function getScientificFormatterForAxis(axis) {
     let minimumUnit = ScientificUnit.forValue(axis.minValue);
     // It just looks awkward if we go into too much detail on an axis that
     // also has large numbers.
-    if (largestUnit > ScientificUnit.None && minimumUnit < ScientificUnit.None) {
+    if (largestUnit.isBiggerThan(ScientificUnit.None) && minimumUnit.isSmallerThan(ScientificUnit.None)) {
         minimumUnit = ScientificUnit.None;
     }
     return getScientificFormatterForUnits(largestUnit, minimumUnit);
@@ -3146,7 +3146,7 @@ function getScientificFormatterForUnits(largestUnit, minimumUnit) {
     return (value)=>{
         let unit = largestUnit;
         let adjusted = value * unit.multiplier();
-        while(Math.abs(adjusted) < 0.05 && unit > minimumUnit){
+        while(Math.abs(adjusted) < 0.05 && unit.isBiggerThan(minimumUnit)){
             const nextUnit = unit.nextLargest();
             if (nextUnit) {
                 unit = nextUnit;
@@ -3297,6 +3297,12 @@ class ScientificUnit {
         } else {
             return ScientificUnit.Pico;
         }
+    }
+    isBiggerThan(other) {
+        return this.step > other.step;
+    }
+    isSmallerThan(other) {
+        return this.step < other.step;
     }
     /**
      * The multiplier to apply to a value if it is to be formatted with this
