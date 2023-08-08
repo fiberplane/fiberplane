@@ -3027,5 +3027,367 @@ const tickFormatters = {
     yFormatter: ()=>""
 };
 
-export { ButtonGroup, ControlsSet, ControlsSetLabel, Icon, IconButton, MetricsChart, SparkChart, generateFromTimeseries, generateFromTimeseriesAndEvents };
+function _define_property(obj, key, value) {
+    if (key in obj) {
+        Object.defineProperty(obj, key, {
+            value: value,
+            enumerable: true,
+            configurable: true,
+            writable: true
+        });
+    } else {
+        obj[key] = value;
+    }
+    return obj;
+}
+function getFormatterForAxis(axis, kind) {
+    switch(kind){
+        case 'bytes':
+            return getBytesFormatterForAxis(axis);
+        case "duration":
+            return getDurationFormatterForAxis(axis);
+        case "exponent":
+            return getExponentFormatter();
+        case "percentage":
+            return getPercentageFormatter();
+        case "scientific":
+            return getScientificFormatterForAxis(axis);
+        case "time":
+            return getTimeFormatterForAxis(axis);
+    }
+}
+function getBytesFormatterForAxis(axis) {
+    const largestUnit = ScientificUnit.forValue(axis.maxValue);
+    const minimumUnit = ScientificUnit.None;
+    const scientificFormatter = getScientificFormatterForUnits(largestUnit, minimumUnit);
+    return (value)=>{
+        return `${scientificFormatter(value)}B`;
+    };
+}
+function getDurationFormatterForAxis(axis) {
+    const largestUnit = DurationUnit.forValue(axis.maxValue);
+    return (value)=>{
+        let unit = largestUnit;
+        let adjusted = value * unit.multiplier();
+        while(Math.abs(adjusted) < 1){
+            const nextUnitWithAmount = unit.nextLargest();
+            if (nextUnitWithAmount) {
+                adjusted *= nextUnitWithAmount[0];
+                unit = nextUnitWithAmount[1];
+            } else {
+                break;
+            }
+        }
+        if (Math.abs(adjusted) >= 10) {
+            return `${adjusted.toFixed(1)}${unit}`;
+        }
+        const nextUnitWithAmount = unit.nextLargest();
+        if (nextUnitWithAmount) {
+            const first = Math.floor(adjusted);
+            const second = Math.round((adjusted - first) * nextUnitWithAmount[0]);
+            const nextUnit = nextUnitWithAmount[1];
+            return `${first}${unit}${second}${nextUnit}`;
+        }
+        // unit must be seconds (or smaller)
+        const formatter = getScientificFormatterForUnits(ScientificUnit.None, ScientificUnit.Pico);
+        return `${formatter(adjusted)}s`;
+    };
+}
+function getExponentFormatter() {
+    return (value)=>{
+        const absoluteValue = Math.abs(value);
+        if (absoluteValue >= 10000) {
+            let adjusted = value * 0.0001;
+            let exponent = 4;
+            while(Math.abs(adjusted) > 10){
+                adjusted *= 0.1;
+                exponent += 1;
+            }
+            return `${adjusted.toFixed(1)}e${exponent}`;
+        } else if (absoluteValue < Number.EPSILON) {
+            return "0";
+        } else if (absoluteValue < 0.01) {
+            let adjusted = value * 1000;
+            let exponent = -3;
+            while(Math.abs(adjusted) < 1){
+                adjusted *= 10.;
+                exponent -= 1;
+            }
+            return `${adjusted.toFixed(1)}e${exponent}`;
+        } else if (absoluteValue < 0.1) {
+            return value.toFixed(2);
+        } else if (value === Math.round(value)) {
+            return value.toString();
+        } else {
+            return value.toFixed(1);
+        }
+    };
+}
+function getPercentageFormatter() {
+    return (value)=>{
+        if (value === Math.round(value)) {
+            return `${value}%`;
+        } else {
+            return `${value.toFixed(1)}%`;
+        }
+    };
+}
+function getScientificFormatterForAxis(axis) {
+    const largestUnit = ScientificUnit.forValue(axis.maxValue);
+    let minimumUnit = ScientificUnit.forValue(axis.minValue);
+    // It just looks awkward if we go into too much detail on an axis that
+    // also has large numbers.
+    if (largestUnit > ScientificUnit.None && minimumUnit < ScientificUnit.None) {
+        minimumUnit = ScientificUnit.None;
+    }
+    return getScientificFormatterForUnits(largestUnit, minimumUnit);
+}
+function getScientificFormatterForUnits(largestUnit, minimumUnit) {
+    return (value)=>{
+        let unit = largestUnit;
+        let adjusted = value * unit.multiplier();
+        while(Math.abs(adjusted) < 0.05 && unit > minimumUnit){
+            const nextUnit = unit.nextLargest();
+            if (nextUnit) {
+                unit = nextUnit;
+            } else {
+                break;
+            }
+            adjusted *= 1000;
+        }
+        if (Math.abs(adjusted) === 0) {
+            return "0";
+        } else if (adjusted >= 10 || adjusted === Math.round(adjusted)) {
+            return `${adjusted}${unit}`; // avoid unnecessary `.0` suffix
+        } else {
+            return `${adjusted.toFixed(1)}${unit}`;
+        }
+    };
+}
+const WEEKDAYS = [
+    "Sun",
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat"
+];
+function getTimeFormatterForAxis(axis) {
+    const scale = getTimeScaleForAxis(axis);
+    return (value)=>{
+        const date = new Date(value * 1000);
+        if (Number.isNaN(date.getTime())) {
+            return "-";
+        }
+        switch(scale){
+            case "day_in_month":
+                return `${WEEKDAYS[date.getUTCDay()]} ${date.getUTCDate()}`;
+            case "day_in_week":
+                return `${WEEKDAYS[date.getUTCDay()]} ${date.getUTCHours()}h`;
+            case "hours":
+                return `${date.getUTCHours()}:${date.getUTCMinutes().toString().padStart(2, "0")}`;
+            case "minutes":
+                return `${date.getUTCMinutes()}:${date.getUTCSeconds().toString().padStart(2, "0")}`;
+            case "seconds":
+                return `${date.getUTCSeconds()}.${date.getUTCMilliseconds().toString().padStart(3, "0")}`;
+            case "milliseconds":
+                return `.${date.getUTCMilliseconds().toString().padStart(3, "0")}`;
+        }
+    };
+}
+class DurationUnit {
+    /**
+     * Returns the most appropriate unit to use for formatting the given
+     * duration, without assuming any other context.
+     */ static forValue(value) {
+        if (value >= 24 * 3600) {
+            return DurationUnit.Days;
+        } else if (value >= 3600) {
+            return DurationUnit.Hours;
+        } else if (value >= 60) {
+            return DurationUnit.Minutes;
+        } else {
+            return DurationUnit.Seconds;
+        }
+    }
+    /**
+     * The multiplier to apply to a duration if it is to be formatted with this
+     * unit.
+     */ multiplier() {
+        switch(this.unit){
+            case "days":
+                return 1 / (24 * 3600);
+            case "hours":
+                return 1 / 3600;
+            case "minutes":
+                return 1 / 60;
+            case "seconds":
+                return 1;
+        }
+    }
+    /**
+     * Returns the next largest unit smaller than this unit, as well as the
+     * amount of that unit that fit into this unit, if any.
+     */ nextLargest() {
+        switch(this.unit){
+            case "days":
+                return [
+                    24,
+                    DurationUnit.Hours
+                ];
+            case "hours":
+                return [
+                    60,
+                    DurationUnit.Minutes
+                ];
+            case "minutes":
+                return [
+                    60,
+                    DurationUnit.Seconds
+                ];
+            case "seconds":
+                return null;
+        }
+    }
+    toString() {
+        switch(this.unit){
+            case "days":
+                return "d";
+            case "hours":
+                return "h";
+            case "minutes":
+                return "m";
+            case "seconds":
+                return "s";
+        }
+    }
+    constructor(unit){
+        _define_property(this, "unit", void 0);
+        this.unit = unit;
+    }
+}
+_define_property(DurationUnit, "Days", new DurationUnit("days"));
+_define_property(DurationUnit, "Hours", new DurationUnit("hours"));
+_define_property(DurationUnit, "Minutes", new DurationUnit("minutes"));
+_define_property(DurationUnit, "Seconds", new DurationUnit("seconds"));
+class ScientificUnit {
+    /**
+     * Returns the most appropriate unit to use for formatting the given
+     * value, without assuming any other context.
+     */ static forValue(value) {
+        if (value >= 1e12) {
+            return ScientificUnit.Tera;
+        } else if (value >= 1e9) {
+            return ScientificUnit.Giga;
+        } else if (value >= 1e6) {
+            return ScientificUnit.Mega;
+        } else if (value >= 1e3) {
+            return ScientificUnit.Kilo;
+        } else if (value >= 1e3) {
+            return ScientificUnit.Kilo;
+        } else if (value >= 1) {
+            return ScientificUnit.None;
+        } else if (value >= 1e-3) {
+            return ScientificUnit.Milli;
+        } else if (value >= 1e-6) {
+            return ScientificUnit.Micro;
+        } else if (value >= 1e-9) {
+            return ScientificUnit.Nano;
+        } else {
+            return ScientificUnit.Pico;
+        }
+    }
+    /**
+     * The multiplier to apply to a value if it is to be formatted with this
+     * unit.
+     */ multiplier() {
+        switch(this.step){
+            case 4:
+                return 1e-12;
+            case 3:
+                return 1e-9;
+            case 2:
+                return 1e-6;
+            case 1:
+                return 1e-3;
+            case 0:
+                return 1;
+            case -1:
+                return 1e3;
+            case -2:
+                return 1e6;
+            case -3:
+                return 1e9;
+            case -4:
+                return 1e12;
+            default:
+                throw new Error(`Unsupported step: ${this.step}`);
+        }
+    }
+    /**
+     * Returns the next largest unit smaller than this unit, if any.
+     */ nextLargest() {
+        if (this.step > -4) {
+            return new ScientificUnit(this.step - 1);
+        } else {
+            return null;
+        }
+    }
+    toString() {
+        switch(this.step){
+            case 4:
+                return "T";
+            case 3:
+                return "G";
+            case 2:
+                return "M";
+            case 1:
+                return "k";
+            case 0:
+                return "";
+            case -1:
+                return "m";
+            case -2:
+                return 'μ';
+            case -3:
+                return "n";
+            case -4:
+                return "p";
+            default:
+                throw new Error(`Unsupported step: ${this.step}`);
+        }
+    }
+    constructor(step){
+        _define_property(this, "step", void 0);
+        this.step = step;
+    }
+}
+_define_property(ScientificUnit, "Tera", new ScientificUnit(4));
+_define_property(ScientificUnit, "Giga", new ScientificUnit(3));
+_define_property(ScientificUnit, "Mega", new ScientificUnit(2));
+_define_property(ScientificUnit, "Kilo", new ScientificUnit(1));
+_define_property(ScientificUnit, "None", new ScientificUnit(0));
+_define_property(ScientificUnit, "Milli", new ScientificUnit(-1));
+_define_property(ScientificUnit, "Micro", new ScientificUnit(-2));
+_define_property(ScientificUnit, "Nano", new ScientificUnit(-3));
+_define_property(ScientificUnit, "Pico", new ScientificUnit(-4));
+function getTimeScaleForAxis(axis) {
+    const delta = Math.abs(axis.maxValue - axis.minValue);
+    if (delta > 10 * 24 * 3600) {
+        return "day_in_month";
+    } else if (delta > 24 * 3600) {
+        return "day_in_week";
+    } else if (delta > 3600) {
+        return "hours";
+    } else if (delta > 60) {
+        return "minutes";
+    } else if (delta > 1) {
+        return "seconds";
+    } else {
+        return "milliseconds";
+    }
+}
+
+export { ButtonGroup, ControlsSet, ControlsSetLabel, Icon, IconButton, MetricsChart, SparkChart, generateFromTimeseries, generateFromTimeseriesAndEvents, getBytesFormatterForAxis, getDurationFormatterForAxis, getExponentFormatter, getFormatterForAxis, getPercentageFormatter, getScientificFormatterForAxis, getTimeFormatterForAxis };
 //# sourceMappingURL=index.js.map

@@ -55,7 +55,7 @@ pub enum FormatterKind {
     ///
     /// ## Examples
     ///
-    /// `08-07`, `17:15`, `57.200`
+    /// `Fri 13`, `17:15`, `57.200`
     Time,
 }
 
@@ -443,9 +443,27 @@ impl TimeScale {
             day
         };
 
-        const HOUR: Hour = Hour::default();
-        const MINUTE: Minute = Minute::default();
-        const SECOND: Second = Second::default();
+        const HOUR: Hour = {
+            let mut hour = Hour::default();
+            hour.padding = Padding::None;
+            hour
+        };
+
+        const MINUTE_PADDED: Minute = Minute::default();
+
+        const MINUTE: Minute = {
+            let mut minute = Minute::default();
+            minute.padding = Padding::None;
+            minute
+        };
+
+        const SECOND_PADDED: Second = Second::default();
+
+        const SECOND: Second = {
+            let mut second = Second::default();
+            second.padding = Padding::None;
+            second
+        };
 
         const SUBSECOND: Subsecond = {
             let mut subsecond = Subsecond::default();
@@ -474,12 +492,12 @@ impl TimeScale {
             TimeScale::Hours => FormatItem::Compound(&[
                 FormatItem::Component(Component::Hour(HOUR)),
                 FormatItem::Literal(b":"),
-                FormatItem::Component(Component::Minute(MINUTE)),
+                FormatItem::Component(Component::Minute(MINUTE_PADDED)),
             ]),
             TimeScale::Minutes => FormatItem::Compound(&[
                 FormatItem::Component(Component::Minute(MINUTE)),
                 FormatItem::Literal(b":"),
-                FormatItem::Component(Component::Second(SECOND)),
+                FormatItem::Component(Component::Second(SECOND_PADDED)),
             ]),
             TimeScale::Seconds => FormatItem::Compound(&[
                 FormatItem::Component(Component::Second(SECOND)),

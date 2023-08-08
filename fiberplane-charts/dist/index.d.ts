@@ -654,4 +654,68 @@ type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange" | "are
 };
 declare function SparkChart({ areaGradientShown, colors, graphType, stackingType, timeRange, timeseriesData, onChangeTimeRange, }: Props): JSX.Element;
 
-export { AbstractChart, Area, AreaPoint, Axis, ButtonGroup, ChartTheme, CloseTooltipFn, ControlsSet, ControlsSetLabel, GraphType, Icon, IconButton, Line, Metric, MetricsChart, MetricsChartProps, OtelMetadata, Point, ProviderEvent, Rectangle, SeriesSource, Shape, ShapeList, SparkChart, StackingType, TickFormatters, TickFormattersFactory, TimeRange, Timeseries, TimeseriesAndEventsSourceData, TimeseriesSourceData, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement, generateFromTimeseries, generateFromTimeseriesAndEvents };
+type FormatterKind = 
+/**
+ * Formats a number of bytes.
+ *
+ * ## Examples
+ *
+ * `0.1B`, `10B`, `10kB`.
+ */
+"bytes"
+/**
+ * Formats a duration expressed in seconds.
+ *
+ * ## Examples
+ *
+ * `0.1s`, `10s`, `2h47`.
+ */
+ | "duration"
+/**
+ * Formats a value with an optional exponent component, also referred to as
+ * "E notation".
+ *
+ * ## Examples
+ *
+ * `0.1`, `10`, `1.0e4`.
+ */
+ | "exponent"
+/**
+ * Formats a percentage value.
+ *
+ * ## Examples
+ *
+ * `0.1%`, `10%`, `10000%`.
+ */
+ | "percentage"
+/**
+ * Formats a value using scientific notation.
+ *
+ * ## Examples
+ *
+ * `100m`, `10`, `10k`.
+ */
+ | "scientific"
+/**
+ * Formats a time stamp expressed in seconds since the UNIX epoch.
+ *
+ * For brevity, the formatter omits the most significant parts of the time
+ * that are constant across the axis.
+ *
+ * Currently, only UTC formatting is supported.
+ *
+ * ## Examples
+ *
+ * `Fri 13`, `17:15`, `57.200`
+ */
+ | "time";
+type TickFormatter = (value: number) => string;
+declare function getFormatterForAxis(axis: Axis, kind: FormatterKind): TickFormatter;
+declare function getBytesFormatterForAxis(axis: Axis): TickFormatter;
+declare function getDurationFormatterForAxis(axis: Axis): TickFormatter;
+declare function getExponentFormatter(): TickFormatter;
+declare function getPercentageFormatter(): TickFormatter;
+declare function getScientificFormatterForAxis(axis: Axis): TickFormatter;
+declare function getTimeFormatterForAxis(axis: Axis): TickFormatter;
+
+export { AbstractChart, Area, AreaPoint, Axis, ButtonGroup, ChartTheme, CloseTooltipFn, ControlsSet, ControlsSetLabel, FormatterKind, GraphType, Icon, IconButton, Line, Metric, MetricsChart, MetricsChartProps, OtelMetadata, Point, ProviderEvent, Rectangle, SeriesSource, Shape, ShapeList, SparkChart, StackingType, TickFormatter, TickFormatters, TickFormattersFactory, TimeRange, Timeseries, TimeseriesAndEventsSourceData, TimeseriesSourceData, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement, generateFromTimeseries, generateFromTimeseriesAndEvents, getBytesFormatterForAxis, getDurationFormatterForAxis, getExponentFormatter, getFormatterForAxis, getPercentageFormatter, getScientificFormatterForAxis, getTimeFormatterForAxis };

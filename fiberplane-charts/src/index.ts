@@ -22,3 +22,4 @@ export type { ToggleTimeseriesEvent } from "./TimeseriesLegend";
 export * from "./MetricsChart";
 export * from "./Mondrian";
 export * from "./SparkChart";
+export * from "./tickFormatters";
