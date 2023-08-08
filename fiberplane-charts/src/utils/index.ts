@@ -1,5 +1,4 @@
 export * from "./compact";
-export * from "./convert";
 export * from "./findUniqueKeys";
 export * from "./identity";
 export * from "./mergeRefs";

@@ -893,7 +893,7 @@ const AreaShape = /*#__PURE__*/ memo(function AreaShape({ anyFocused , areaGradi
                 stroke: color,
                 strokeDasharray: area.strokeDasharray?.join(" "),
                 strokeWidth: focused ? 1.5 : 1,
-                fill: areaGradientShown ? gradientRef : "transparent"
+                fill: areaGradientShown ? gradientRef : "none"
             })
         ]
     });
@@ -934,7 +934,7 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradi
                     y0: y,
                     y1: scales.yScale(0)
                 }),
-                strokeWidth: 0,
+                stroke: "none",
                 fill: `url(#${gradientId})`
             }),
             /*#__PURE__*/ jsx("path", {
@@ -945,7 +945,7 @@ const LineShape = /*#__PURE__*/ memo(function LineShape({ anyFocused , areaGradi
                 stroke: color,
                 strokeDasharray: line.strokeDasharray?.join(" "),
                 strokeWidth: focused ? 1.5 : 1,
-                fill: "transparent"
+                fill: "none"
             })
         ]
     });
@@ -1109,7 +1109,6 @@ function GridColumns({ scales: { xScale , yMax  } , xAxis: { maxValue , minValue
                 y1: 0,
                 x2: x,
                 y2: yMax,
-                strokeWidth: 1,
                 ...lineProps
             }, index);
         })
@@ -1125,14 +1124,13 @@ function GridRows({ xMax , yScale , yTicks , ...lineProps }) {
                 y1: y,
                 x2: xMax,
                 y2: y,
-                strokeWidth: 1,
                 ...lineProps
             }, index);
         })
     });
 }
 
-function LeftAxis({ formatter , scales: { yMax , yScale  } , strokeColor , strokeDasharray , strokeWidth , ticks  }) {
+function LeftAxis({ formatter , gridBordersShown , scales: { yMax , yScale  } , strokeColor , strokeDasharray , ticks  }) {
     const { colorBase500 , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing  } = useTheme();
     const tickLabelProps = {
         dx: "-0.45em",
@@ -1148,14 +1146,13 @@ function LeftAxis({ formatter , scales: { yMax , yScale  } , strokeColor , strok
     const numTicks = ticks.length - 1;
     return /*#__PURE__*/ jsxs("g", {
         children: [
-            /*#__PURE__*/ jsx("line", {
+            gridBordersShown && /*#__PURE__*/ jsx("line", {
                 x1: 0,
                 y1: 0,
                 x2: 0,
                 y2: yMax,
                 stroke: strokeColor,
-                strokeDasharray: strokeDasharray,
-                strokeWidth: strokeWidth
+                strokeDasharray: strokeDasharray
             }),
             ticks.map((value, index)=>(index > 0 || index < numTicks - 1) && value.valueOf() !== 0 ? // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
                 /*#__PURE__*/ jsx("text", {
@@ -1207,7 +1204,6 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
                 y1: 0,
                 y2: yMax,
                 stroke: strokeColor,
-                strokeWidth: 1,
                 strokeDasharray: gridDasharray
             }),
             gridColumnsShown && /*#__PURE__*/ jsx(GridColumns, {
@@ -1227,13 +1223,13 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
             }),
             /*#__PURE__*/ jsx(LeftAxis, {
                 formatter: tickFormatters.yFormatter,
+                gridBordersShown: gridBordersShown,
                 scales: {
                     ...scales,
                     yScale: animatedScale
                 },
                 strokeColor: strokeColor,
                 strokeDasharray: gridDasharray,
-                strokeWidth: gridBordersShown ? 1 : 0,
                 ticks: yTicks
             })
         ]
@@ -1916,7 +1912,6 @@ function ZoomBar({ dimensions: { xMax , yMax  } , mouseInteraction  }) {
     const reverseZoom = end < start;
     return /*#__PURE__*/ jsx("rect", {
         stroke: "#4797ff",
-        strokeWidth: 1,
         fill: "#a3cbff",
         fillOpacity: "10%",
         x: (reverseZoom ? end : start) * xMax,
@@ -2038,7 +2033,6 @@ function CoreChart({ areaGradientShown =true , chart , getShapeListColor , gridS
                         x2: graphTooltip.left,
                         y2: yMax,
                         stroke: graphTooltip.color,
-                        strokeWidth: 1,
                         pointerEvents: "none",
                         strokeDasharray: "1 1"
                     }),
@@ -2075,9 +2069,10 @@ function getCursorFromState(state) {
 }
 
 /**
- * Converts an RFC 3339-formatted timestamp to a time expressed in milliseconds.
+ * Converts an RFC 3339-formatted timestamp to a time expressed in seconds since
+ * the UNIX epoch.
  */ function getTimeFromTimestamp(timestamp) {
-    const time = new Date(timestamp).getTime();
+    const time = new Date(timestamp).getTime() / 1000;
     if (Number.isNaN(time)) {
         throw new TypeError(`Invalid timestamp: ${timestamp}`);
     }

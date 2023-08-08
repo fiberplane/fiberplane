@@ -5,7 +5,7 @@ test("it splits metrics that are spaced too far apart", () => {
   expect(
     splitIntoContinuousLines(
       [getMetric(0, 10), getMetric(1, 15), getMetric(2, 20)],
-      30_000, // ms,
+      30, // s,
     ),
   ).toEqual([[getMetric(0, 10)], [getMetric(1, 15)], [getMetric(2, 20)]]);
 });
@@ -14,7 +14,7 @@ test("it doesn't split when the metrics are close to one another", () => {
   expect(
     splitIntoContinuousLines(
       [getMetric(0, 10), getMetric(1, 15), getMetric(2, 20)],
-      300_000, // ms,
+      300, // s,
     ),
   ).toEqual([[getMetric(0, 10), getMetric(1, 15), getMetric(2, 20)]]);
 });
@@ -23,7 +23,7 @@ test("it handles unevenly spaced metrics", () => {
   expect(
     splitIntoContinuousLines(
       [getMetric(0, 10), getMetric(1, 15), getMetric(3, 20), getMetric(4, 25)],
-      60_000, // ms,
+      60, // s,
     ),
   ).toEqual([
     [getMetric(0, 10), getMetric(1, 15)],
@@ -45,7 +45,7 @@ test("it splits metrics when it finds a NaN value", () => {
   expect(
     splitIntoContinuousLines(
       [getMetric(0, 10), getMetric(1, NaN), getMetric(2, 20)],
-      300000, // ms,
+      300, // s,
     ),
   ).toEqual([[getMetric(0, 10)], [getMetric(2, 20)]]);
 });

@@ -1,5 +1,7 @@
 use super::constants::{TICK_FONT_FAMILY, TICK_FONT_SIZE, TICK_FONT_WEIGHT, TICK_LABEL_OFFSET};
+use super::tick_formatters::TickFormatter;
 use super::{ChartOptions, Scales};
+use crate::chart_to_svg::tick_formatters::get_formatter_for_axis;
 use crate::{Axis, MondrianChart};
 use itertools::join;
 use std::borrow::Cow;
@@ -32,9 +34,9 @@ pub(super) fn generate_grid_with_axes_svg<S, P>(
 
     let grid_columns = generate_grid_columns_svg(x_axis, x_scale, &x_ticks, y_max, &stroke_attrs);
 
-    let x_formatter = |value: f64| value.to_string(); // FIXME
+    let x_formatter = get_formatter_for_axis(x_axis, options.x_formatter);
     let bottom_axis = generate_bottom_axis_svg(
-        x_formatter,
+        x_formatter.as_ref(),
         scales,
         x_axis,
         &x_ticks,
@@ -42,9 +44,9 @@ pub(super) fn generate_grid_with_axes_svg<S, P>(
         options,
     );
 
-    let y_formatter = |value: f64| value.to_string(); // FIXME
+    let y_formatter = get_formatter_for_axis(y_axis, options.y_formatter);
     let left_axis = generate_left_axis_svg(
-        y_formatter,
+        y_formatter.as_ref(),
         scales,
         y_axis,
         &y_ticks,
@@ -98,7 +100,7 @@ fn generate_grid_columns_svg(
 }
 
 fn generate_bottom_axis_svg(
-    formatter: impl Fn(f64) -> String,
+    formatter: &dyn TickFormatter,
     scales: &Scales,
     x_axis: &Axis,
     x_ticks: &[f64],
@@ -127,7 +129,7 @@ fn generate_bottom_axis_svg(
     );
 
     let ticks = x_ticks.iter().map(|&value| {
-        let label = formatter(value);
+        let label = formatter.format(value);
         let x = scales.x((value - min_value) / (max_value - min_value));
 
         format!("<text x=\"{x:.1}\" {tick_label_attrs}>{label}</text>")
@@ -140,7 +142,7 @@ fn generate_bottom_axis_svg(
 }
 
 fn generate_left_axis_svg(
-    formatter: impl Fn(f64) -> String,
+    formatter: &dyn TickFormatter,
     scales: &Scales,
     y_axis: &Axis,
     y_ticks: &[f64],
@@ -180,7 +182,7 @@ fn generate_left_axis_svg(
         .enumerate()
         .filter(|&(index, &value)| index > 0 && index < num_ticks - 1 && value != 0.)
         .map(|(_, &value)| {
-            let label = formatter(value);
+            let label = formatter.format(value);
             let y = scales.y((value - min_value) / (max_value - min_value));
 
             format!("<text x=\"0\" y=\"{y:.1}\" {tick_label_attrs}>{label}</text>")

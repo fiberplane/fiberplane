@@ -1,4 +1,4 @@
-use crate::constants::{BAR_PADDING, BAR_PLUS_PADDING};
+use crate::fiberplane::constants::{BAR_PADDING, BAR_PLUS_PADDING};
 
 const HALF_PADDING: f64 = 0.5 * BAR_PADDING;
 

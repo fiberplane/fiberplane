@@ -13,6 +13,8 @@ use generate_grid_with_axes_svg::generate_grid_with_axes_svg;
 use scales::Scales;
 use std::borrow::Cow;
 
+pub use self::tick_formatters::FormatterKind;
+
 pub struct ChartOptions {
     pub width: u16,
     pub height: u16,
@@ -24,6 +26,8 @@ pub struct ChartOptions {
     pub grid_stroke_dasharray: Vec<f32>,
     pub shape_list_colors: Vec<String>,
     pub tick_color: String,
+    pub x_formatter: FormatterKind,
+    pub y_formatter: FormatterKind,
 }
 
 pub fn chart_to_svg<S, P>(chart: &MondrianChart<S, P>, options: &ChartOptions) -> String {

@@ -12,16 +12,18 @@ version = "0.1.0"
 [features]
 default = ["fiberplane", "image"]
 fiberplane = ["dep:fiberplane-models"]
-image = ["dep:csscolorparser", "dep:image", "dep:resvg"]
+image = ["dep:csscolorparser", "dep:image", "dep:resvg", "svg"]
+svg = ["dep:itertools", "dep:time"]
 
 [dependencies]
 csscolorparser = { version = "0.6", optional = true }
 fiberplane-models = { workspace = true, optional = true }
 image = { version = "0.24", optional = true }
-itertools = "0.11"
+itertools = { version = "0.11", optional = true }
 resvg = { version = "0.35", optional = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
+time = { workspace = true, optional = true }
 
 [dev-dependencies]
 insta = { workspace = true, features = ["yaml"] }

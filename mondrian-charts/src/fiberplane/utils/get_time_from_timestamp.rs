@@ -1,6 +1,7 @@
 use crate::fiberplane::Timestamp;
 
-/// Converts an [Timestamp] to a time value expressed in milliseconds.
+/// Converts a [Timestamp] to a time value expressed in seconds since the UNIX
+/// epoch.
 pub(crate) fn get_time_from_timestamp(timestamp: Timestamp) -> f64 {
-    timestamp.unix_timestamp() as f64 * 1000.
+    timestamp.unix_timestamp() as f64
 }

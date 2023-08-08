@@ -59,7 +59,7 @@ mod tests {
         assert_eq!(
             split_into_continuous_lines(
                 &[get_metric(0, 10.), get_metric(1, 15.), get_metric(2, 20.)],
-                Some(30_000.), // ms,
+                Some(30.), // s
             ),
             vec![
                 vec![&get_metric(0, 10.)],
@@ -74,7 +74,7 @@ mod tests {
         assert_eq!(
             split_into_continuous_lines(
                 &[get_metric(0, 10.), get_metric(1, 15.), get_metric(2, 20.)],
-                Some(300_000.), // ms,
+                Some(300.), // s
             ),
             vec![vec![
                 &get_metric(0, 10.),
@@ -94,7 +94,7 @@ mod tests {
                     get_metric(3, 20.),
                     get_metric(4, 25.)
                 ],
-                Some(60_000.), // ms,
+                Some(60.), // s
             ),
             vec![
                 vec![&get_metric(0, 10.), &get_metric(1, 15.)],
@@ -127,7 +127,7 @@ mod tests {
                     get_metric(1, f64::NAN),
                     get_metric(2, 20.)
                 ],
-                Some(300000.), // ms,
+                Some(300.), // s
             ),
             vec![vec![&get_metric(0, 10.)], vec![&get_metric(2, 20.)]]
         );

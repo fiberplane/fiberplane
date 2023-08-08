@@ -10,8 +10,8 @@ test("it generates shapes from events", () => {
   expect(
     generateShapeListFromEvents(
       {
-        minValue: getDateAtMinute(0).getTime(),
-        maxValue: getDateAtMinute(10).getTime(),
+        minValue: getDateAtMinute(0).getTime() / 1000,
+        maxValue: getDateAtMinute(10).getTime() / 1000,
       },
       events,
     ),

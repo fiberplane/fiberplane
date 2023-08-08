@@ -65,7 +65,7 @@ mod tests {
             max_value: get_time_from_timestamp(get_date_at_minute_and_second(4, 23)),
             tick_suggestions: None,
         };
-        attach_suggestions_to_x_axis(&mut axis, &buckets, 60_000.);
+        attach_suggestions_to_x_axis(&mut axis, &buckets, 60.);
 
         assert_eq!(
             axis.tick_suggestions,
@@ -94,7 +94,7 @@ mod tests {
             max_value: get_time_from_timestamp(get_date_at_minute_and_second(4, 23)),
             tick_suggestions: None,
         };
-        attach_suggestions_to_x_axis(&mut axis, &buckets, 60_000.);
+        attach_suggestions_to_x_axis(&mut axis, &buckets, 60.);
 
         assert_eq!(
             axis.tick_suggestions,

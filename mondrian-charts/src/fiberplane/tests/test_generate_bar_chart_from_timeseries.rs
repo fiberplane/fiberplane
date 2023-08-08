@@ -47,6 +47,8 @@ fn test_generate_bar_chart_from_timeseries() {
             grid_stroke_dasharray: Default::default(),
             shape_list_colors: vec!["#c00eae".to_owned()],
             tick_color: "#a4a4a4".to_owned(),
+            x_formatter: FormatterKind::Time,
+            y_formatter: FormatterKind::Bytes,
         },
     );
 

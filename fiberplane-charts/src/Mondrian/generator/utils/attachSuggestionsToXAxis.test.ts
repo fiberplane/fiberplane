@@ -8,16 +8,16 @@ test("it attaches the right suggestions", () => {
   buckets.set(getDateAtMinuteAndSecond(3, 0).toISOString(), 20);
 
   const axis: Axis = {
-    minValue: getDateAtMinuteAndSecond(0, 23).getTime(),
-    maxValue: getDateAtMinuteAndSecond(4, 23).getTime(),
+    minValue: getDateAtMinuteAndSecond(0, 23).getTime() / 1000,
+    maxValue: getDateAtMinuteAndSecond(4, 23).getTime() / 1000,
   };
-  attachSuggestionsToXAxis(axis, buckets, 60_000);
+  attachSuggestionsToXAxis(axis, buckets, 60);
 
   expect(axis.tickSuggestions).toEqual([
-    getDateAtMinuteAndSecond(1, 0).getTime(),
-    getDateAtMinuteAndSecond(2, 0).getTime(),
-    getDateAtMinuteAndSecond(3, 0).getTime(),
-    getDateAtMinuteAndSecond(4, 0).getTime(),
+    getDateAtMinuteAndSecond(1, 0).getTime() / 1000,
+    getDateAtMinuteAndSecond(2, 0).getTime() / 1000,
+    getDateAtMinuteAndSecond(3, 0).getTime() / 1000,
+    getDateAtMinuteAndSecond(4, 0).getTime() / 1000,
   ]);
 });
 
@@ -31,16 +31,16 @@ test("it doesn't return suggestions outside the min-max", () => {
   buckets.set(getDateAtMinuteAndSecond(5, 0).toISOString(), 30);
 
   const axis: Axis = {
-    minValue: getDateAtMinuteAndSecond(0, 23).getTime(),
-    maxValue: getDateAtMinuteAndSecond(4, 23).getTime(),
+    minValue: getDateAtMinuteAndSecond(0, 23).getTime() / 1000,
+    maxValue: getDateAtMinuteAndSecond(4, 23).getTime() / 1000,
   };
-  attachSuggestionsToXAxis(axis, buckets, 60_000);
+  attachSuggestionsToXAxis(axis, buckets, 60);
 
   expect(axis.tickSuggestions).toEqual([
-    getDateAtMinuteAndSecond(1, 0).getTime(),
-    getDateAtMinuteAndSecond(2, 0).getTime(),
-    getDateAtMinuteAndSecond(3, 0).getTime(),
-    getDateAtMinuteAndSecond(4, 0).getTime(),
+    getDateAtMinuteAndSecond(1, 0).getTime() / 1000,
+    getDateAtMinuteAndSecond(2, 0).getTime() / 1000,
+    getDateAtMinuteAndSecond(3, 0).getTime() / 1000,
+    getDateAtMinuteAndSecond(4, 0).getTime() / 1000,
   ]);
 });
 

@@ -1,4 +1,4 @@
-use crate::constants::BAR_PLUS_PADDING;
+use crate::fiberplane::constants::BAR_PLUS_PADDING;
 use crate::types::Axis;
 
 /// Calculates the width of bars in bar charts.
