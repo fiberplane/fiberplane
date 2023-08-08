@@ -8,14 +8,14 @@ pub enum FormatterKind {
     ///
     /// ## Examples
     ///
-    /// `0.1B`, `10B`, `10MB`.
+    /// `0.1B`, `10B`, `10kB`.
     Bytes,
 
     /// Formats a duration expressed in seconds.
     ///
     /// ## Examples
     ///
-    /// `0.1s`, `10s`, `2h47m`.
+    /// `0.1s`, `10s`, `2h47`.
     Duration,
 
     /// Formats a percentage value.
@@ -53,7 +53,11 @@ pub enum FormatterKind {
     Value,
 }
 
-pub fn get_formatter_for_axis(axis: &Axis, kind: FormatterKind) -> impl Fn(f64) -> String {
+pub trait TickFormatter {
+    fn format(&self, value: f64) -> String;
+}
+
+pub fn get_formatter_for_axis(axis: &Axis, kind: FormatterKind) -> Box<dyn TickFormatter> {
     match kind {
         FormatterKind::Bytes => get_bytes_formatter_for_axis(axis),
         FormatterKind::Duration => get_duration_formatter_for_axis(axis),
@@ -64,102 +68,322 @@ pub fn get_formatter_for_axis(axis: &Axis, kind: FormatterKind) -> impl Fn(f64) 
     }
 }
 
-pub fn get_bytes_formatter_for_axis(axis: &Axis) -> impl Fn(f64) -> String {}
-
-pub fn get_duration_formatter_for_axis(axis: &Axis) -> impl Fn(f64) -> String {}
-
-pub fn get_percentage_formatter_for_axis(axis: &Axis) -> impl Fn(f64) -> String {}
-
-pub fn get_scientific_formatter_for_axis(axis: &Axis) -> impl Fn(f64) -> String {}
-
-pub fn get_time_formatter_for_axis(axis: &Axis) -> impl Fn(f64) -> String {}
-
-pub fn get_value_formatter_for_axis(axis: &Axis) -> impl Fn(f64) -> String {}
-
-enum Prefix {
-    Tera,
-    Giga,
-    Mega,
-    Kilo,
-    None,
-    Milli,
-    Micro,
-    Nano,
-    Pico,
+pub fn get_bytes_formatter_for_axis(axis: &Axis) -> Box<dyn TickFormatter> {
+    Box::new(BytesFormatter(ScientificFormatter {
+        minimum_suffix: ScientificSuffix::None,
+        largest_suffix: ScientificSuffix::for_number(axis.max_value),
+    }))
 }
 
-impl Prefix {
+pub fn get_duration_formatter_for_axis(axis: &Axis) -> Box<dyn TickFormatter> {
+    Box::new(DurationFormatter {
+        largest_suffix: DurationSuffix::for_number(axis.max_value),
+    })
+}
+
+pub fn get_percentage_formatter_for_axis(axis: &Axis) -> Box<dyn TickFormatter> {
+    Box::new(PercentageFormatter)
+}
+
+pub fn get_scientific_formatter_for_axis(axis: &Axis) -> Box<dyn TickFormatter> {
+    Box::new(ScientificFormatter {
+        minimum_suffix: ScientificSuffix::Pico,
+        largest_suffix: ScientificSuffix::for_number(axis.max_value),
+    })
+}
+
+pub fn get_time_formatter_for_axis(axis: &Axis) -> Box<dyn TickFormatter> {
+    todo!()
+}
+
+pub fn get_value_formatter_for_axis(axis: &Axis) -> Box<dyn TickFormatter> {
+    Box::new(ValueFormatter)
+}
+
+pub struct BytesFormatter(ScientificFormatter);
+
+impl TickFormatter for BytesFormatter {
+    fn format(&self, value: f64) -> String {
+        format!("{}B", self.0.format(value))
+    }
+}
+
+pub struct DurationFormatter {
+    largest_suffix: DurationSuffix,
+}
+
+impl TickFormatter for DurationFormatter {
+    fn format(&self, value: f64) -> String {
+        let mut suffix = self.largest_suffix;
+        let mut value = value / suffix.divisor();
+        while value.abs() < 1. {
+            if let Some((amount, next_suffix)) = suffix.next_units() {
+                value *= amount;
+                suffix = next_suffix;
+            } else {
+                break;
+            }
+        }
+
+        if let Some((amount, next_suffix)) = suffix.next_units() {
+            let first = value.floor();
+            let second = (value - first) * amount;
+            format!("{first:.0}{suffix}{second:.0}{next_suffix}")
+        } else {
+            // suffix must be seconds (or smaller)
+            let scientific = ScientificFormatter {
+                minimum_suffix: ScientificSuffix::Pico,
+                largest_suffix: ScientificSuffix::None,
+            };
+            let mut formatted = scientific.format(value);
+            formatted.push('s');
+            formatted
+        }
+    }
+}
+
+pub struct PercentageFormatter;
+
+impl TickFormatter for PercentageFormatter {
+    fn format(&self, value: f64) -> String {
+        format!("{value:.1}%")
+    }
+}
+
+pub struct ScientificFormatter {
+    minimum_suffix: ScientificSuffix,
+    largest_suffix: ScientificSuffix,
+}
+
+impl TickFormatter for ScientificFormatter {
+    fn format(&self, value: f64) -> String {
+        let mut suffix = self.largest_suffix;
+        let mut value = value / suffix.divisor();
+        while value.abs() < 0.05 && suffix > self.minimum_suffix {
+            if let Some(next_suffix) = suffix.next_largest() {
+                suffix = next_suffix;
+            } else {
+                break;
+            }
+
+            value *= 1000.;
+        }
+
+        if suffix == ScientificSuffix::None && value == value.round() {
+            value.to_string() // avoid unnecessary `.0` suffix
+        } else {
+            format!("{value:.1}{suffix}")
+        }
+    }
+}
+
+pub struct ValueFormatter;
+
+impl TickFormatter for ValueFormatter {
+    fn format(&self, value: f64) -> String {
+        if value.abs() > 1000. {
+            let mut value = value * 0.001;
+            let mut exponent = 3;
+            while value > 10. {
+                value *= 0.1;
+                exponent += 1;
+            }
+            format!("{value:.1}e{exponent}")
+        } else if value.abs() < 0.1 {
+            let mut value = value * 100.;
+            let mut exponent = -2;
+            while value < 10. {
+                value *= 10.;
+                exponent -= 1;
+            }
+            format!("{value:.1}e{exponent}")
+        } else {
+            format!("{value:.1}")
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+enum DurationSuffix {
+    Days,
+    Hours,
+    Minutes,
+    Seconds,
+}
+
+impl DurationSuffix {
     pub fn divisor(&self) -> f64 {
         match self {
-            Prefix::Tera => 1e12,
-            Prefix::Giga => 1e9,
-            Prefix::Mega => 1e6,
-            Prefix::Kilo => 1e3,
-            Prefix::None => 0.,
-            Prefix::Milli => 1e-3,
-            Prefix::Micro => 1e-6,
-            Prefix::Nano => 1e-9,
-            Prefix::Pico => 1e-12,
+            DurationSuffix::Days => 24. * 3600.,
+            DurationSuffix::Hours => 3600.,
+            DurationSuffix::Minutes => 60.,
+            DurationSuffix::Seconds => 1.,
+        }
+    }
+
+    pub fn for_number(number: f64) -> Self {
+        if number >= 24. * 3600. {
+            DurationSuffix::Days
+        } else if number >= 3600. {
+            DurationSuffix::Hours
+        } else if number >= 60. {
+            DurationSuffix::Minutes
+        } else {
+            DurationSuffix::Seconds
+        }
+    }
+
+    pub fn next_units(&self) -> Option<(f64, Self)> {
+        match self {
+            DurationSuffix::Days => Some((24., DurationSuffix::Hours)),
+            DurationSuffix::Hours => Some((60., DurationSuffix::Minutes)),
+            DurationSuffix::Minutes => Some((60., DurationSuffix::Seconds)),
+            DurationSuffix::Seconds => None,
+        }
+    }
+}
+
+impl Display for DurationSuffix {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DurationSuffix::Days => f.write_char('d'),
+            DurationSuffix::Hours => f.write_char('h'),
+            DurationSuffix::Minutes => f.write_char('m'),
+            DurationSuffix::Seconds => f.write_char('s'),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+enum ScientificSuffix {
+    Tera = 4,
+    Giga = 3,
+    Mega = 2,
+    Kilo = 1,
+    None = 0,
+    Milli = -1,
+    Micro = -2,
+    Nano = -3,
+    Pico = -4,
+}
+
+impl ScientificSuffix {
+    pub fn divisor(&self) -> f64 {
+        match self {
+            ScientificSuffix::Tera => 1e12,
+            ScientificSuffix::Giga => 1e9,
+            ScientificSuffix::Mega => 1e6,
+            ScientificSuffix::Kilo => 1e3,
+            ScientificSuffix::None => 1.,
+            ScientificSuffix::Milli => 1e-3,
+            ScientificSuffix::Micro => 1e-6,
+            ScientificSuffix::Nano => 1e-9,
+            ScientificSuffix::Pico => 1e-12,
         }
     }
 
     pub fn for_number(number: f64) -> Self {
         if number >= 1e12 {
-            Prefix::Tera
+            ScientificSuffix::Tera
         } else if number >= 1e9 {
-            Prefix::Giga
+            ScientificSuffix::Giga
         } else if number >= 1e6 {
-            Prefix::Mega
+            ScientificSuffix::Mega
         } else if number >= 1e3 {
-            Prefix::Kilo
+            ScientificSuffix::Kilo
         } else if number >= 0. {
-            Prefix::None
+            ScientificSuffix::None
         } else if number >= 1e-3 {
-            Prefix::Milli
+            ScientificSuffix::Milli
         } else if number >= 1e-6 {
-            Prefix::Micro
+            ScientificSuffix::Micro
         } else if number >= 1e-9 {
-            Prefix::Nano
+            ScientificSuffix::Nano
         } else {
-            Prefix::Pico
+            ScientificSuffix::Pico
+        }
+    }
+
+    pub fn next_largest(&self) -> Option<Self> {
+        match self {
+            ScientificSuffix::Tera => Some(ScientificSuffix::Giga),
+            ScientificSuffix::Giga => Some(ScientificSuffix::Mega),
+            ScientificSuffix::Mega => Some(ScientificSuffix::Kilo),
+            ScientificSuffix::Kilo => Some(ScientificSuffix::None),
+            ScientificSuffix::None => Some(ScientificSuffix::Milli),
+            ScientificSuffix::Milli => Some(ScientificSuffix::Micro),
+            ScientificSuffix::Micro => Some(ScientificSuffix::Nano),
+            ScientificSuffix::Nano => Some(ScientificSuffix::Pico),
+            ScientificSuffix::Pico => None,
         }
     }
 }
 
-impl Display for Prefix {
+impl Display for ScientificSuffix {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Prefix::Tera => f.write_char('T'),
-            Prefix::Giga => f.write_char('G'),
-            Prefix::Mega => f.write_char('M'),
-            Prefix::Kilo => f.write_char('k'),
-            Prefix::None => Ok(()),
-            Prefix::Milli => f.write_char('m'),
-            Prefix::Micro => f.write_char('μ'),
-            Prefix::Nano => f.write_char('n'),
-            Prefix::Pico => f.write_char('p'),
+            ScientificSuffix::Tera => f.write_char('T'),
+            ScientificSuffix::Giga => f.write_char('G'),
+            ScientificSuffix::Mega => f.write_char('M'),
+            ScientificSuffix::Kilo => f.write_char('k'),
+            ScientificSuffix::None => Ok(()),
+            ScientificSuffix::Milli => f.write_char('m'),
+            ScientificSuffix::Micro => f.write_char('μ'),
+            ScientificSuffix::Nano => f.write_char('n'),
+            ScientificSuffix::Pico => f.write_char('p'),
         }
     }
 }
 
-trait TickFormatter {
-    fn format(value: f64) -> String;
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_bytes_formatter() {
+        let axis = Axis {
+            min_value: 0.,
+            max_value: 123456789.,
+            tick_suggestions: None,
+        };
+        let formatter = get_bytes_formatter_for_axis(&axis);
+        assert_eq!(formatter.format(123456789.), "123.5MB");
+        assert_eq!(formatter.format(12345678.), "12.3MB");
+        assert_eq!(formatter.format(1234567.), "1.2MB");
+        assert_eq!(formatter.format(123456.), "0.1MB");
+        assert_eq!(formatter.format(12345.), "12.3kB");
+        assert_eq!(formatter.format(1234.), "1.2kB");
+        assert_eq!(formatter.format(123.), "0.1kB");
+        assert_eq!(formatter.format(12.), "12B");
+        assert_eq!(formatter.format(1.), "1B");
+        assert_eq!(formatter.format(0.), "0B");
+        assert_eq!(formatter.format(0.1), "0.1B");
+        assert_eq!(formatter.format(0.01), "0.0B");
+
+        assert_eq!(formatter.format(-1234567.), "-1.2MB");
+    }
+
+    #[test]
+    fn test_scientific_formatter() {
+        let axis = Axis {
+            min_value: 0.,
+            max_value: 123456789.,
+            tick_suggestions: None,
+        };
+        let formatter = get_scientific_formatter_for_axis(&axis);
+        assert_eq!(formatter.format(123456789.), "123.5M");
+        assert_eq!(formatter.format(12345678.), "12.3M");
+        assert_eq!(formatter.format(1234567.), "1.2M");
+        assert_eq!(formatter.format(123456.), "0.1M");
+        assert_eq!(formatter.format(12345.), "12.3k");
+        assert_eq!(formatter.format(1234.), "1.2k");
+        assert_eq!(formatter.format(123.), "0.1k");
+        assert_eq!(formatter.format(12.), "12");
+        assert_eq!(formatter.format(1.), "1");
+        assert_eq!(formatter.format(0.), "0");
+        assert_eq!(formatter.format(0.1), "0.1");
+        assert_eq!(formatter.format(0.01), "10m");
+
+        assert_eq!(formatter.format(-1234567.), "-1.2M");
+    }
 }
-
-pub struct ValueFormatter {
-    max_value: f64,
-}
-
-impl TickFormatter for ValueFormatter {
-    fn format(value: f64) -> String {}
-}
-
-pub fn format_duration(value: f64) -> String {}
-
-pub fn format_percentage(value: f64) -> String {}
-
-pub fn format_time(value: f64) -> String {}
-
-pub fn format_scientific_value(value: f64) -> String {}
-
-pub fn format_value(value: f64) -> String {}
