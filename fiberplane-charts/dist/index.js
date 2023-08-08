@@ -3042,7 +3042,7 @@ function _define_property(obj, key, value) {
 }
 function getFormatterForAxis(axis, kind) {
     switch(kind){
-        case 'bytes':
+        case "bytes":
             return getBytesFormatterForAxis(axis);
         case "duration":
             return getDurationFormatterForAxis(axis);
@@ -3110,7 +3110,7 @@ function getExponentFormatter() {
             let adjusted = value * 1000;
             let exponent = -3;
             while(Math.abs(adjusted) < 1){
-                adjusted *= 10.;
+                adjusted *= 10;
                 exponent -= 1;
             }
             return `${adjusted.toFixed(1)}e${exponent}`;
@@ -3158,7 +3158,7 @@ function getScientificFormatterForUnits(largestUnit, minimumUnit) {
         if (Math.abs(adjusted) === 0) {
             return "0";
         } else if (adjusted >= 10 || adjusted === Math.round(adjusted)) {
-            return `${adjusted}${unit}`; // avoid unnecessary `.0` suffix
+            return `${adjusted.toFixed(0)}${unit}`; // avoid unnecessary `.0` suffix
         } else {
             return `${adjusted.toFixed(1)}${unit}`;
         }
@@ -3198,9 +3198,9 @@ function getTimeFormatterForAxis(axis) {
 }
 class DurationUnit {
     /**
-     * Returns the most appropriate unit to use for formatting the given
-     * duration, without assuming any other context.
-     */ static forValue(value) {
+   * Returns the most appropriate unit to use for formatting the given
+   * duration, without assuming any other context.
+   */ static forValue(value) {
         if (value >= 24 * 3600) {
             return DurationUnit.Days;
         } else if (value >= 3600) {
@@ -3212,9 +3212,9 @@ class DurationUnit {
         }
     }
     /**
-     * The multiplier to apply to a duration if it is to be formatted with this
-     * unit.
-     */ multiplier() {
+   * The multiplier to apply to a duration if it is to be formatted with this
+   * unit.
+   */ multiplier() {
         switch(this.unit){
             case "days":
                 return 1 / (24 * 3600);
@@ -3227,9 +3227,9 @@ class DurationUnit {
         }
     }
     /**
-     * Returns the next largest unit smaller than this unit, as well as the
-     * amount of that unit that fit into this unit, if any.
-     */ nextLargest() {
+   * Returns the next largest unit smaller than this unit, as well as the
+   * amount of that unit that fit into this unit, if any.
+   */ nextLargest() {
         switch(this.unit){
             case "days":
                 return [
@@ -3273,9 +3273,9 @@ _define_property(DurationUnit, "Minutes", new DurationUnit("minutes"));
 _define_property(DurationUnit, "Seconds", new DurationUnit("seconds"));
 class ScientificUnit {
     /**
-     * Returns the most appropriate unit to use for formatting the given
-     * value, without assuming any other context.
-     */ static forValue(value) {
+   * Returns the most appropriate unit to use for formatting the given
+   * value, without assuming any other context.
+   */ static forValue(value) {
         if (value >= 1e12) {
             return ScientificUnit.Tera;
         } else if (value >= 1e9) {
@@ -3305,9 +3305,9 @@ class ScientificUnit {
         return this.step < other.step;
     }
     /**
-     * The multiplier to apply to a value if it is to be formatted with this
-     * unit.
-     */ multiplier() {
+   * The multiplier to apply to a value if it is to be formatted with this
+   * unit.
+   */ multiplier() {
         switch(this.step){
             case 4:
                 return 1e-12;
@@ -3332,8 +3332,8 @@ class ScientificUnit {
         }
     }
     /**
-     * Returns the next largest unit smaller than this unit, if any.
-     */ nextLargest() {
+   * Returns the next largest unit smaller than this unit, if any.
+   */ nextLargest() {
         if (this.step > -4) {
             return new ScientificUnit(this.step - 1);
         } else {
@@ -3355,7 +3355,7 @@ class ScientificUnit {
             case -1:
                 return "m";
             case -2:
-                return 'μ';
+                return "μ";
             case -3:
                 return "n";
             case -4:
