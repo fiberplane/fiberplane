@@ -1020,7 +1020,7 @@ function ChartContent({ areaGradientShown , chart , focusedShapeList , getShapeL
         children: chart.shapeLists.flatMap((shapeList, listIndex)=>shapeList.shapes.map((shape, shapeIndex)=>/*#__PURE__*/ jsx(ChartShape, {
                     anyFocused: !!focusedShapeList,
                     areaGradientShown: areaGradientShown,
-                    color: getShapeListColor(shapeList),
+                    color: getShapeListColor(shapeList.source, listIndex),
                     focused: shapeList === focusedShapeList,
                     scales: scales,
                     shape: shape
@@ -1725,8 +1725,8 @@ function translatedRange(xMax, mouseInteraction) {
             }
             const [series, point, coords] = closest;
             const { chart , dimensions , getShapeListColor  } = props;
-            const seriesIndex = chart.shapeLists.findIndex((shapeList)=>shapeList.source === series);
-            const color = getShapeListColor(chart.shapeLists[seriesIndex]);
+            const shapeListIndex = chart.shapeLists.findIndex((shapeList)=>shapeList.source === series);
+            const color = getShapeListColor(series, shapeListIndex);
             showTooltip({
                 color,
                 element: event.currentTarget,
@@ -2349,6 +2349,22 @@ function getBucketsMinMax(buckets, getMinMax) {
 }
 
 /**
+ * Extends the range of the axis with the given value.
+ *
+ * If the given value is outside the range of the axis, the range is
+ * extended to include the value. Otherwise, nothing happens.
+ *
+ * @note This function mutates its input axis.
+ */ function extendAxisWithValue(axis, value) {
+    if (value < axis.minValue) {
+        axis.minValue = value;
+    } else if (value > axis.maxValue) {
+        axis.maxValue = value;
+    }
+    return axis;
+}
+
+/**
  * Takes an absolute value and normalizes it to a value between 0.0 and 1.0 for
  * the given axis.
  */ function normalizeAlongLinearAxis(value, axis) {
@@ -2397,6 +2413,9 @@ function generateBarChartFromTimeseries(input) {
     const buckets = createMetricBuckets(visibleTimeseriesData, (maybeMinMax, value)=>maybeMinMax ? extendMinMax(maybeMinMax, value) : getInitialMinMax(value));
     const xAxis = getXAxisFromTimeRange(input.timeRange);
     const yAxis = calculateYAxisRange(buckets, identity);
+    for (const value of input.additionalValues){
+        extendAxisWithValue(yAxis, value);
+    }
     const numShapeLists = visibleTimeseriesData.length;
     const interval = calculateSmallestTimeInterval(buckets);
     if (interval) {
@@ -2439,6 +2458,9 @@ function generateLineChartFromTimeseries(input) {
     const buckets = createMetricBuckets(input.timeseriesData, (maybeMinMax, value)=>maybeMinMax ? extendMinMax(maybeMinMax, value) : getInitialMinMax(value));
     const xAxis = getXAxisFromTimeRange(input.timeRange);
     const yAxis = calculateYAxisRange(buckets, identity);
+    for (const value of input.additionalValues){
+        extendAxisWithValue(yAxis, value);
+    }
     const interval = calculateSmallestTimeInterval(buckets);
     if (interval) {
         attachSuggestionsToXAxis(xAxis, buckets, interval);
@@ -2516,8 +2538,36 @@ function generateShapeListFromEvents({ minValue , maxValue  }, events) {
     };
 }
 
+function generateShapeListFromTargetLatency(yAxis, value) {
+    return {
+        shapes: [
+            {
+                type: "line",
+                points: [
+                    {
+                        x: 0,
+                        y: normalizeAlongLinearAxis(value, yAxis),
+                        source: null
+                    },
+                    {
+                        x: 1,
+                        y: normalizeAlongLinearAxis(value, yAxis),
+                        source: null
+                    }
+                ]
+            }
+        ],
+        source: {
+            type: "target_latency"
+        }
+    };
+}
+
 function generateStackedBarChartFromTimeseries(input) {
     const { buckets , isPercentage , xAxis , yAxis  } = calculateBucketsAndAxesForStackedChart(input);
+    for (const value of input.additionalValues){
+        extendAxisWithValue(yAxis, value);
+    }
     const interval = calculateSmallestTimeInterval(buckets);
     if (interval) {
         extendAxisWithInterval(xAxis, interval);
@@ -2565,6 +2615,9 @@ function getBarShape(metric, { xAxis , yAxis , barWidth , isPercentage , buckets
 function generateStackedLineChartFromTimeseries(input) {
     const axesAndBuckets = calculateBucketsAndAxesForStackedChart(input);
     const { buckets , xAxis , yAxis  } = axesAndBuckets;
+    for (const value of input.additionalValues){
+        extendAxisWithValue(yAxis, value);
+    }
     const interval = calculateSmallestTimeInterval(buckets);
     if (interval) {
         attachSuggestionsToXAxis(xAxis, buckets, interval);
@@ -2605,18 +2658,18 @@ function getPointForMetric(metric, { buckets , isPercentage , xAxis , yAxis  }) 
 }
 
 /**
- * Generates an abstract chart from the given timeseries data.
- */ function generateFromTimeseries(input) {
-    if (input.graphType === "line") {
-        return input.stackingType === "none" ? generateLineChartFromTimeseries(input) : generateStackedLineChartFromTimeseries(input);
-    } else {
-        return input.stackingType === "none" ? generateBarChartFromTimeseries(input) : generateStackedBarChartFromTimeseries(input);
-    }
-}
-/**
- * Generates an abstract chart from the given timeseries data.
- */ function generateFromTimeseriesAndEvents(input) {
-    const timeseriesChart = generateFromTimeseries(input);
+ * Generates an abstract chart from a combination of timeseries data, events and
+ * an optional target latency.
+ */ function generate({ graphType , stackingType , timeseriesData , events , targetLatency , timeRange  }) {
+    const timeseriesChart = generateFromTimeseries({
+        graphType,
+        stackingType,
+        timeseriesData,
+        timeRange,
+        additionalValues: targetLatency ? [
+            targetLatency
+        ] : []
+    });
     const chart = {
         ...timeseriesChart,
         shapeLists: timeseriesChart.shapeLists.map((list)=>({
@@ -2627,10 +2680,22 @@ function getPointForMetric(metric, { buckets , isPercentage , xAxis , yAxis  }) 
                 }
             }))
     };
-    if (input.graphType === "line" && input.events.length > 0) {
-        chart.shapeLists.push(generateShapeListFromEvents(chart.xAxis, input.events));
+    if (graphType === "line" && events.length > 0) {
+        chart.shapeLists.push(generateShapeListFromEvents(chart.xAxis, events));
+    }
+    if (targetLatency) {
+        chart.shapeLists.push(generateShapeListFromTargetLatency(chart.yAxis, targetLatency));
     }
     return chart;
+}
+/**
+ * Generates an abstract chart from the given timeseries data.
+ */ function generateFromTimeseries(input) {
+    if (input.graphType === "line") {
+        return input.stackingType === "none" ? generateLineChartFromTimeseries(input) : generateStackedLineChartFromTimeseries(input);
+    } else {
+        return input.stackingType === "none" ? generateBarChartFromTimeseries(input) : generateStackedBarChartFromTimeseries(input);
+    }
 }
 
 function TimeseriesLegendItem({ color , onHover , onToggleTimeseriesVisibility , readOnly , index , setSize , timeseries , uniqueKeys  }) {
@@ -2805,7 +2870,7 @@ function TimeseriesLegend({ footerShown =true , getShapeListColor , onFocusedSha
         return /*#__PURE__*/ jsx("div", {
             style: style,
             children: timeseries && /*#__PURE__*/ jsx(TimeseriesLegendItem, {
-                color: getShapeListColor(shapeList),
+                color: getShapeListColor(shapeList.source, index),
                 onHover: ()=>setFocusedTimeseries(timeseries),
                 onToggleTimeseriesVisibility: onToggleTimeseriesVisibility,
                 readOnly: readOnly,
@@ -2887,17 +2952,19 @@ function MetricsChart(props) {
 }
 const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
     const theme = useTheme();
-    const { areaGradientShown =true , chartControlsShown =true , colors , customChartControls , events , eventColor =theme.colorPrimary400 , graphType , legendShown =true , readOnly , stackingControlsShown =true , stackingType , timeRange , timeseriesData  } = props;
-    const chart = useMemo(()=>generateFromTimeseriesAndEvents({
+    const { areaGradientShown =true , chartControlsShown =true , colors , customChartControls , events , eventColor =theme.colorPrimary400 , graphType , legendShown =true , readOnly , stackingControlsShown =true , stackingType , targetLatency , targetLatencyColor , timeRange , timeseriesData  } = props;
+    const chart = useMemo(()=>generate({
             events: events ?? [],
             graphType,
             stackingType,
+            targetLatency,
             timeRange,
             timeseriesData
         }), [
         events,
         graphType,
         stackingType,
+        targetLatency,
         timeRange,
         timeseriesData
     ]);
@@ -2916,18 +2983,20 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
             theme["colorSupport10400"],
             theme["colorSupport11400"]
         ];
-        return (shapeList)=>{
-            if (isTimeseriesShapeList(shapeList)) {
-                const index = chart.shapeLists.indexOf(shapeList);
-                return shapeListColors[index % shapeListColors.length];
-            } else {
-                return eventColor;
+        return (source, index)=>{
+            switch(source.type){
+                case "timeseries":
+                    return shapeListColors[index % shapeListColors.length];
+                case "events":
+                    return eventColor;
+                case "target_latency":
+                    return targetLatencyColor || "transparent";
             }
         };
     }, [
-        chart,
         colors,
         eventColor,
+        targetLatencyColor,
         theme
     ]);
     const onFocusedShapeListChange = useHandler((shapeList)=>{
@@ -2974,7 +3043,8 @@ function SparkChart({ areaGradientShown =false , colors , graphType , stackingTy
             graphType,
             stackingType,
             timeRange,
-            timeseriesData
+            timeseriesData,
+            additionalValues: []
         }), [
         graphType,
         stackingType,
@@ -2995,12 +3065,8 @@ function SparkChart({ areaGradientShown =false , colors , graphType , stackingTy
             theme["colorSupport10400"],
             theme["colorSupport11400"]
         ];
-        return (shapeList)=>{
-            const index = chart.shapeLists.indexOf(shapeList);
-            return shapeListColors[index % shapeListColors.length];
-        };
+        return (_source, index)=>shapeListColors[index % shapeListColors.length];
     }, [
-        chart,
         colors,
         theme
     ]);
@@ -3395,5 +3461,5 @@ function getTimeScaleForAxis(axis) {
     }
 }
 
-export { ButtonGroup, ControlsSet, ControlsSetLabel, Icon, IconButton, MetricsChart, SparkChart, generateFromTimeseries, generateFromTimeseriesAndEvents, getBytesFormatterForAxis, getDurationFormatterForAxis, getExponentFormatter, getFormatterForAxis, getPercentageFormatter, getScientificFormatterForAxis, getTimeFormatterForAxis };
+export { ButtonGroup, ControlsSet, ControlsSetLabel, Icon, IconButton, MetricsChart, SparkChart, generate, generateFromTimeseries, getBytesFormatterForAxis, getDurationFormatterForAxis, getExponentFormatter, getFormatterForAxis, getPercentageFormatter, getScientificFormatterForAxis, getTimeFormatterForAxis };
 //# sourceMappingURL=index.js.map
