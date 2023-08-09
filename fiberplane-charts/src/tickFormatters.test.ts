@@ -1,6 +1,9 @@
-import { getScientificFormatterForAxis } from "./tickFormatters";
+import {
+  getScientificFormatterForAxis,
+  getTimeFormatterForAxis,
+} from "./tickFormatters";
 
-test("it can format with scientific notation", () => {
+test("it can format large numbers with scientific notation", () => {
   const formatter = getScientificFormatterForAxis({
     minValue: 0,
     maxValue: 123456789,
@@ -22,7 +25,7 @@ test("it can format with scientific notation", () => {
   expect(formatter(-1234567)).toBe("-1.2M");
 });
 
-test("it can format with scientific notation (cont'd)", () => {
+test("it can format small numbers with scientific notation", () => {
   const formatter = getScientificFormatterForAxis({
     minValue: 0,
     maxValue: 123.456789,
@@ -40,4 +43,42 @@ test("it can format with scientific notation (cont'd)", () => {
   expect(formatter(0)).toBe("0");
 
   expect(formatter(-1.23456789)).toBe("-1.2");
+});
+
+test("it can format time values", () => {
+  const dayInMonthFormatter = getTimeFormatterForAxis({
+    minValue: 1691496477.932,
+    maxValue: 1692446877.932,
+  });
+  expect(dayInMonthFormatter(1691496477.932)).toBe("Tue 8");
+
+  const dayInWeekFormatter = getTimeFormatterForAxis({
+    minValue: 1691496477.932,
+    maxValue: 1691928477.932,
+  });
+  expect(dayInWeekFormatter(1691496477.932)).toBe("Tue 12h");
+
+  const hourFormatter = getTimeFormatterForAxis({
+    minValue: 1691496477.932,
+    maxValue: 1691579277.932,
+  });
+  expect(hourFormatter(1691496477.932)).toBe("12:07");
+
+  const minuteFormatter = getTimeFormatterForAxis({
+    minValue: 1691496477.932,
+    maxValue: 1691496837.932,
+  });
+  expect(minuteFormatter(1691496477.932)).toBe("7:57");
+
+  const secondFormatter = getTimeFormatterForAxis({
+    minValue: 1691496477.932,
+    maxValue: 1691496489.932,
+  });
+  expect(secondFormatter(1691496477.932)).toBe("57.932");
+
+  const millisecondFormatter = getTimeFormatterForAxis({
+    minValue: 1691496477.932,
+    maxValue: 1691496478.932,
+  });
+  expect(millisecondFormatter(1691496477.932)).toBe(".932");
 });
