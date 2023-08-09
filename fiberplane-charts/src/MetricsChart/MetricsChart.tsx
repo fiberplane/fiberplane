@@ -105,10 +105,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
   return (
     <>
       {chartControlsShown && !readOnly && (
-        <ChartControls
-          {...props}
-          stackingControlsShown={stackingControlsShown}
-        >
+        <ChartControls {...props} stackingControlsShown={stackingControlsShown}>
           {customChartControls}
         </ChartControls>
       )}
