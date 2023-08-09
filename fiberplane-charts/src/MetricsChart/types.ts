@@ -22,7 +22,7 @@ export type MetricsChartProps = Omit<
     "footerShown" | "onToggleTimeseriesVisibility"
   > &
   Omit<ChartControlsProps, "stackingControlsShown"> &
-  TimeseriesSourceData & {
+  Omit<TimeseriesSourceData, "additionalValues"> & {
     /**
      * Show the chart controls. (default: true)
      *

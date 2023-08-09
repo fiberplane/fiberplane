@@ -617,7 +617,7 @@ type ChartControlsProps = {
     stackingType: StackingType;
 };
 
-type MetricsChartProps = Omit<CoreChartProps<SeriesSource, Metric | ProviderEvent | null>, "chart" | "colors" | "focusedShapeList" | "getShapeListColor" | "onFocusedShapeListChange"> & Pick<TimeseriesLegendProps<Timeseries, Metric>, "footerShown" | "onToggleTimeseriesVisibility"> & Omit<ChartControlsProps, "stackingControlsShown"> & TimeseriesSourceData & {
+type MetricsChartProps = Omit<CoreChartProps<SeriesSource, Metric | ProviderEvent | null>, "chart" | "colors" | "focusedShapeList" | "getShapeListColor" | "onFocusedShapeListChange"> & Pick<TimeseriesLegendProps<Timeseries, Metric>, "footerShown" | "onToggleTimeseriesVisibility"> & Omit<ChartControlsProps, "stackingControlsShown"> & Omit<TimeseriesSourceData, "additionalValues"> & {
     /**
      * Show the chart controls. (default: true)
      *
@@ -670,7 +670,7 @@ type MetricsChartProps = Omit<CoreChartProps<SeriesSource, Metric | ProviderEven
 
 declare function MetricsChart(props: MetricsChartProps): JSX.Element;
 
-type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange" | "areaGradientShown"> & TimeseriesSourceData & {
+type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange" | "areaGradientShown"> & Omit<TimeseriesSourceData, "additionalValues"> & {
     /**
      * Override the colors for the timeseries. If not specified several colors
      * of the theme are used.

@@ -14,7 +14,7 @@ type Props = Pick<
   CoreChartProps<Timeseries, Metric>,
   "onChangeTimeRange" | "areaGradientShown"
 > &
-  TimeseriesSourceData & {
+  Omit<TimeseriesSourceData, "additionalValues"> & {
     /**
      * Override the colors for the timeseries. If not specified several colors
      * of the theme are used.
