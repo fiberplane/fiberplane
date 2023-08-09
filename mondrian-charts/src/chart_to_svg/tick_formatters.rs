@@ -700,7 +700,7 @@ mod tests {
             tick_suggestions: None,
         };
         let formatter = TimeFormatter::for_axis(&axis);
-        assert_eq!(formatter.format(1691496477.932), "07:57");
+        assert_eq!(formatter.format(1691496477.932), "7:57");
 
         let axis = Axis {
             min_value: 1691496477.932,

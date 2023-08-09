@@ -1,3 +1,5 @@
+use std::fmt::Write;
+
 /// Creates the SVG path definition for a line path.
 ///
 /// `data` should contain the data points for the line.
@@ -16,13 +18,16 @@ pub(super) fn create_line_path_def<P>(
     }
 
     let start = &data[0];
-    let mut path = format!("M{x:.1},{y:.1}", x = x(start), y = y(start));
+    let mut path = String::with_capacity(12 * data.len());
+    write!(&mut path, "M{x:.1},{y:.1}", x = x(start), y = y(start))
+        .expect("Could not format line path");
 
     // Draw a line along the y0 coordinates.
     let mut i = 1;
     while i < len {
         let next = &data[i];
-        path.push_str(&format!("L{x:.1},{y:.1}", x = x(next), y = y(next)));
+        write!(&mut path, "L{x:.1},{y:.1}", x = x(next), y = y(next))
+            .expect("Could not format line path");
         i += 1;
     }
 

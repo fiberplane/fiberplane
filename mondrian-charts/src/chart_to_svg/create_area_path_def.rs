@@ -1,3 +1,5 @@
+use std::fmt::Write;
+
 /// Creates the SVG path definition for an area shape.
 ///
 /// `data` should contain the data points for the area.
@@ -20,13 +22,16 @@ pub(super) fn create_area_path_def<P>(
     }
 
     let start = &data[0];
-    let mut path = format!("M{x:.1},{y:.1}", x = x(start), y = y0(start));
+    let mut path = String::with_capacity(24 * data.len());
+    write!(&mut path, "M{x:.1},{y:.1}", x = x(start), y = y0(start))
+        .expect("Could not format area path");
 
     // Draw a line along the y0 coordinates.
     let mut i = 1;
     while i < len {
         let next = &data[i];
-        path.push_str(&format!("L{x:.1},{y:.1}", x = x(next), y = y0(next)));
+        write!(&mut path, "L{x:.1},{y:.1}", x = x(next), y = y0(next))
+            .expect("Could not format area path");
         i += 1;
     }
 
@@ -34,7 +39,8 @@ pub(super) fn create_area_path_def<P>(
     i = len - 1;
     loop {
         let prev = &data[i];
-        path.push_str(&format!("L{x:.1},{y:.1}", x = x(prev), y = y1(prev)));
+        write!(&mut path, "L{x:.1},{y:.1}", x = x(prev), y = y1(prev))
+            .expect("Could not format area path");
         if i == 0 {
             break;
         } else {
