@@ -27,25 +27,15 @@ pub(super) fn create_area_path_def<P>(
         .expect("Could not format area path");
 
     // Draw a line along the y0 coordinates.
-    let mut i = 1;
-    while i < len {
-        let next = &data[i];
-        write!(&mut path, "L{x:.1},{y:.1}", x = x(next), y = y0(next))
+    for point in data.iter().skip(1) {
+        write!(&mut path, "L{x:.1},{y:.1}", x = x(point), y = y0(point))
             .expect("Could not format area path");
-        i += 1;
     }
 
     // Draw a line backwards along the y1 coordinates.
-    i = len - 1;
-    loop {
-        let prev = &data[i];
-        write!(&mut path, "L{x:.1},{y:.1}", x = x(prev), y = y1(prev))
+    for point in data.iter().rev() {
+        write!(&mut path, "L{x:.1},{y:.1}", x = x(point), y = y1(point))
             .expect("Could not format area path");
-        if i == 0 {
-            break;
-        } else {
-            i -= 1;
-        }
     }
 
     // Done.

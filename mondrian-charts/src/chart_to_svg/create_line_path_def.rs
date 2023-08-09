@@ -23,12 +23,9 @@ pub(super) fn create_line_path_def<P>(
         .expect("Could not format line path");
 
     // Draw a line along the y0 coordinates.
-    let mut i = 1;
-    while i < len {
-        let next = &data[i];
-        write!(&mut path, "L{x:.1},{y:.1}", x = x(next), y = y(next))
+    for point in data.iter().skip(1) {
+        write!(&mut path, "L{x:.1},{y:.1}", x = x(point), y = y(point))
             .expect("Could not format line path");
-        i += 1;
     }
 
     path
