@@ -1,5 +1,5 @@
 import { memo, useMemo, useState } from "react";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 
 import { ChartControls } from "./ChartControls";
 import { ChartSizeContainerProvider } from "../CoreChart";
@@ -36,20 +36,17 @@ export function MetricsChart(props: MetricsChartProps) {
 const InnerMetricsChart = memo(function InnerMetricsChart(
   props: MetricsChartProps,
 ) {
-  const theme = useTheme();
-
   const {
     areaGradientShown = true,
     chartControlsShown = true,
-    colors,
     customChartControls,
     events,
-    eventColor = theme.colorPrimary400,
     graphType,
     legendShown = true,
     readOnly,
     stackingControlsShown = true,
     stackingType,
+    theme,
     timeRange,
     timeseriesData,
   } = props;
@@ -66,24 +63,12 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
     [events, graphType, stackingType, timeRange, timeseriesData],
   );
 
+  const { eventColor, shapeListColors } = theme;
+
   const [focusedShapeList, setFocusedShapeList] =
     useState<GenericShapeList | null>(null);
 
   const getShapeListColor = useMemo(() => {
-    const shapeListColors = colors || [
-      theme["colorSupport1400"],
-      theme["colorSupport2400"],
-      theme["colorSupport3400"],
-      theme["colorSupport4400"],
-      theme["colorSupport5400"],
-      theme["colorSupport6400"],
-      theme["colorSupport7400"],
-      theme["colorSupport8400"],
-      theme["colorSupport9400"],
-      theme["colorSupport10400"],
-      theme["colorSupport11400"],
-    ];
-
     return (shapeList: GenericShapeList): string => {
       if (isTimeseriesShapeList(shapeList)) {
         const index = chart.shapeLists.indexOf(shapeList);
@@ -92,7 +77,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
         return eventColor;
       }
     };
-  }, [chart, colors, eventColor, theme]);
+  }, [chart, eventColor, shapeListColors]);
 
   const onFocusedShapeListChange = useHandler(
     (shapeList: GenericShapeList | null) => {

@@ -18,7 +18,7 @@ export const ControlsSet = styled.div`
 `;
 
 export const ControlsSetLabel = styled.span`
-  font: ${({ theme }) => theme.fontControlsShortHand};
-  letter-spacing: ${({ theme }) => theme.fontControlsLetterSpacing};
-  color: ${({ theme }) => theme.colorBase500};
+  font: ${({ theme }) => theme.controlsFont};
+  letter-spacing: ${({ theme }) => theme.controlsLetterSpacing};
+  color: ${({ theme }) => theme.controlsColor};
 `;

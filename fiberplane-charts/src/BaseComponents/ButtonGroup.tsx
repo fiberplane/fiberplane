@@ -5,6 +5,6 @@ export const ButtonGroup = styled.span`
   gap: 8px;
   align-items: center;
   padding: 4px 8px;
-  background: ${({ theme }) => theme.colorBase200};
-  border-radius: ${({ theme }) => theme.borderRadius500};
+  background: ${({ theme }) => theme.buttonBackground};
+  border-radius: ${({ theme }) => theme.buttonBorderRadius};
 `;

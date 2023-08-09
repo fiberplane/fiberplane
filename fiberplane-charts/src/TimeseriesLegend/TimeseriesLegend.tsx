@@ -144,8 +144,8 @@ const Footer = styled.div`
 
 const ChartLegendContainer = styled(Container)`
     flex-direction: column;
-    font: ${({ theme }) => theme.fontLegendShortHand};
-    letter-spacing: ${({ theme }) => theme.fontLegendLetterSpacing};
+    font: ${({ theme }) => theme.legendFont};
+    letter-spacing: ${({ theme }) => theme.legendLetterSpacing};
     letter-spacing: 0.02em;
     padding: 10px 0 0;
     position: relative;
@@ -153,7 +153,7 @@ const ChartLegendContainer = styled(Container)`
 `;
 
 const Results = styled.span`
-    font: ${({ theme }) => theme.fontResultsSummaryShortHand};
-    letter-spacing: ${({ theme }) => theme.fontResultsSummaryLetterSpacing};
+    font: ${({ theme }) => theme.resultsFont};
+    letter-spacing: ${({ theme }) => theme.resultsLetterSpacing};
     color: ${({ theme }) => theme.colorBase400};
 `;

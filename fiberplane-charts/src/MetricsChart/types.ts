@@ -1,4 +1,5 @@
 import type { ChartControlsProps } from "./ChartControls";
+import type { ChartTheme } from "../styled-components";
 import type {
   CloseTooltipFn,
   CoreChartProps,
@@ -31,13 +32,6 @@ export type MetricsChartProps = Omit<
     chartControlsShown?: boolean;
 
     /**
-     * Override the colors to use for the timeseries.
-     *
-     * If not specified, several colors from the theme are used.
-     */
-    colors?: Array<string>;
-
-    /**
      * Optional custom controls to show in the controls toolbar, in addition to
      * the built-in controls (such as for toggling chart type).
      */
@@ -49,13 +43,6 @@ export type MetricsChartProps = Omit<
     events?: Array<ProviderEvent>;
 
     /**
-     * Override for the color to use for events.
-     *
-     * If not specified, a color from the theme is used.
-     */
-    eventColor?: string;
-
-    /**
      * Show the legend. (default: true)
      */
     legendShown?: boolean;
@@ -64,6 +51,8 @@ export type MetricsChartProps = Omit<
      * Show the stacking controls. (default: true)
      */
     stackingControlsShown?: boolean;
+
+    theme: ChartTheme;
   };
 
 export type { CloseTooltipFn, TooltipAnchor, VirtualElement };

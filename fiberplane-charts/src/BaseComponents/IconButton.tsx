@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import styled, { css, DefaultTheme, useTheme } from "styled-components";
+import styled, { css, useTheme } from "styled-components";
 
 export const buttonStyling = css`
     --color: var(--button-normal-color);
@@ -63,44 +63,6 @@ export const buttonStyling = css`
     }
   `;
 
-type IconButtonColorSet = {
-  color: string;
-  backgroundColor: string;
-};
-
-type IconButtonTheme = {
-  normal: IconButtonColorSet;
-  hover: IconButtonColorSet;
-  active: IconButtonColorSet;
-  focus: IconButtonColorSet;
-  disabled: IconButtonColorSet;
-};
-
-function useIconButtonTheme(theme: DefaultTheme): IconButtonTheme {
-  return {
-    normal: {
-      color: theme.colorBase800,
-      backgroundColor: "transparent",
-    },
-    hover: {
-      color: theme.colorBase800,
-      backgroundColor: theme.colorBase300,
-    },
-    active: {
-      color: theme.colorBackground,
-      backgroundColor: theme.colorBase600,
-    },
-    focus: {
-      color: theme.colorBase600,
-      backgroundColor: theme.colorBackground,
-    },
-    disabled: {
-      color: theme.colorBase500,
-      backgroundColor: "transparent",
-    },
-  };
-}
-
 const StyledButton = styled.button`
   ${buttonStyling}
 `;
@@ -128,8 +90,7 @@ export const IconButton = forwardRef(function IconButton(
     ...otherProps
   } = props;
 
-  const theme = useTheme();
-  const iconButtonTheme = useIconButtonTheme(theme);
+  const iconButtonTheme = useTheme().iconButton;
 
   const newStyle = {
     ...style,
