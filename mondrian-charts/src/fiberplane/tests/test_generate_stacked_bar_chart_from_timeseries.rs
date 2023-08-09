@@ -72,7 +72,13 @@ fn test_generate_stacked_bar_chart_from_timeseries() {
         },
     );
 
-    insta::assert_debug_snapshot!(svg);
+    let svg_lines = svg
+        .replace('>', ">\n")
+        .split('\n')
+        .filter(|line| !line.is_empty())
+        .map(str::to_owned)
+        .collect::<Vec<_>>();
+    insta::assert_debug_snapshot!(svg_lines);
 }
 
 fn get_metric_at_minute(minute: u8, value: f64) -> Metric {
