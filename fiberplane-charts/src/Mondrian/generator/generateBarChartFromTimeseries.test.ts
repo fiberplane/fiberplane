@@ -30,6 +30,7 @@ test("it generates a bar chart", () => {
         to: getDateAtMinute(10).toISOString(),
       },
       timeseriesData: [timeseries],
+      additionalValues: [],
     }),
   ).toMatchSnapshot();
 });

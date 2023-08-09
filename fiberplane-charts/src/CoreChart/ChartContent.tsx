@@ -6,7 +6,7 @@ type Props<S, P> = {
   areaGradientShown: boolean;
   chart: AbstractChart<S, P>;
   focusedShapeList: ShapeList<S, P> | null;
-  getShapeListColor: (shapeList: ShapeList<S, P>) => string;
+  getShapeListColor: (source: S, index: number) => string;
   scales: Scales;
 };
 
@@ -24,7 +24,7 @@ export function ChartContent<S, P>({
           <ChartShape
             anyFocused={!!focusedShapeList}
             areaGradientShown={areaGradientShown}
-            color={getShapeListColor(shapeList)}
+            color={getShapeListColor(shapeList.source, listIndex)}
             focused={shapeList === focusedShapeList}
             key={`${listIndex}-${shapeIndex}`}
             scales={scales}

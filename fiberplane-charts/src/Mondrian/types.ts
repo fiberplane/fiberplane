@@ -35,17 +35,20 @@ export type TimeseriesSourceData = {
    * The time range to be displayed.
    */
   timeRange: TimeRange;
+
+  /**
+   * Additional values that will be plotted on the chart, but which are not
+   * part of any timeseries. These are not plotted, but are taken into
+   * account when deciding the range of the Y axis.
+   */
+  additionalValues: Array<number>;
 };
 
 /**
- * All the data necessary to generate an abstract chart from an array of
- * timeseries.
- *
- * Note we only support generating line charts from combined timeseries and
- * events data. If `graphType` is anything other than `"line"`, the events will
- * be ignored.
+ * All the data necessary to generate an abstract chart from a combination of
+ * timeseries data, events and an optional target latency.
  */
-export type TimeseriesAndEventsSourceData = {
+export type CombinedSourceData = {
   /**
    * The type of stacking to apply to the chart.
    *
@@ -69,8 +72,16 @@ export type TimeseriesAndEventsSourceData = {
 
   /**
    * Array of events to display in the chart.
+   *
+   * Note that events will not be displayed if the `graphType` is anything other
+   * than `"line"`.
    */
   events: Array<ProviderEvent>;
+
+  /**
+   * Optional target latency to display on the chart, in seconds.
+   */
+  targetLatency?: number;
 
   /**
    * The time range to be displayed.
@@ -83,7 +94,8 @@ export type TimeseriesAndEventsSourceData = {
  */
 export type SeriesSource =
   | ({ type: "timeseries" } & Timeseries)
-  | { type: "events" };
+  | { type: "events" }
+  | { type: "target_latency" };
 
 /**
  * An abstract chart with information about what to render and where to render

@@ -88,7 +88,7 @@ export function TimeseriesLegend<S extends Timeseries, P>({
       <div style={style}>
         {timeseries && (
           <TimeseriesLegendItem
-            color={getShapeListColor(shapeList)}
+            color={getShapeListColor(shapeList.source, index)}
             onHover={() => setFocusedTimeseries(timeseries)}
             onToggleTimeseriesVisibility={onToggleTimeseriesVisibility}
             readOnly={readOnly}

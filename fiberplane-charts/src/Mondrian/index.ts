@@ -1,6 +1,6 @@
 export type * from "./types";
 
 export {
+  generate,
   generateFromTimeseries,
-  generateFromTimeseriesAndEvents,
 } from "./generator";

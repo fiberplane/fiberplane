@@ -8,11 +8,7 @@ import {
   TickFormatters,
 } from "../CoreChart";
 import { Metric, Timeseries } from "../providerTypes";
-import {
-  ShapeList,
-  TimeseriesSourceData,
-  generateFromTimeseries,
-} from "../Mondrian";
+import { TimeseriesSourceData, generateFromTimeseries } from "../Mondrian";
 
 type Props = Pick<
   CoreChartProps<Timeseries, Metric>,
@@ -44,6 +40,7 @@ export function SparkChart({
         stackingType,
         timeRange,
         timeseriesData,
+        additionalValues: [],
       }),
     [graphType, stackingType, timeRange, timeseriesData],
   );
@@ -63,11 +60,9 @@ export function SparkChart({
       theme["colorSupport11400"],
     ];
 
-    return (shapeList: ShapeList<Timeseries, Metric>): string => {
-      const index = chart.shapeLists.indexOf(shapeList);
-      return shapeListColors[index % shapeListColors.length];
-    };
-  }, [chart, colors, theme]);
+    return (_source: Timeseries, index: number): string =>
+      shapeListColors[index % shapeListColors.length];
+  }, [colors, theme]);
 
   return (
     <StyledChartSizeContainerProvider>

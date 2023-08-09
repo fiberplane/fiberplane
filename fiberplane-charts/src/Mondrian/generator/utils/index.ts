@@ -6,6 +6,7 @@ export * from "./calculateSmallestTimeInterval";
 export * from "./calculateYAxisRange";
 export * from "./createMetricBuckets";
 export * from "./extendAxisWithInterval";
+export * from "./extendAxisWithValue";
 export * from "./extendMinMax";
 export * from "./getInitialMinMax";
 export * from "./getTimeFromTimestamp";

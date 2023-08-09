@@ -10,7 +10,7 @@ import type { SeriesSource, TimeseriesSourceData } from "../Mondrian";
 import type { TimeseriesLegendProps } from "../TimeseriesLegend";
 
 export type MetricsChartProps = Omit<
-  CoreChartProps<SeriesSource, Metric | ProviderEvent>,
+  CoreChartProps<SeriesSource, Metric | ProviderEvent | null>,
   | "chart"
   | "colors"
   | "focusedShapeList"
@@ -64,6 +64,21 @@ export type MetricsChartProps = Omit<
      * Show the stacking controls. (default: true)
      */
     stackingControlsShown?: boolean;
+
+    /**
+     * Optional target latency to draw on the chart, in seconds.
+     *
+     * You will also need to specify the `targetLatencyColor` for the latency
+     * to appear.
+     */
+    targetLatency?: number;
+
+    /**
+     * The color to use for drawing target latencies.
+     *
+     * If not specified, no target latency can be drawn.
+     */
+    targetLatencyColor?: string;
   };
 
 export type { CloseTooltipFn, TooltipAnchor, VirtualElement };

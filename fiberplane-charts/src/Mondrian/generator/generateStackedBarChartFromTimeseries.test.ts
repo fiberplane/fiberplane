@@ -50,6 +50,7 @@ test("it generates a stacked bar chart", () => {
         to: getDateAtMinute(10).toISOString(),
       },
       timeseriesData: [timeseriesA, timeseriesB],
+      additionalValues: [40],
     }),
   ).toMatchSnapshot();
 });
