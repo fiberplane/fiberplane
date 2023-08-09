@@ -7,7 +7,7 @@ use std::collections::BTreeMap;
 
 /// All the data necessary to generate an abstract chart from an array of
 /// timeseries.
-pub struct TimeseriesSourceData<'source, 'slice> {
+pub struct TimeseriesSourceData<'source, 'slice, 'value> {
     /// The type of chart to display.
     pub graph_type: GraphType,
 
@@ -22,15 +22,16 @@ pub struct TimeseriesSourceData<'source, 'slice> {
 
     /// The time range to be displayed.
     pub time_range: TimeRange,
+
+    /// Additional values that will be plotted on the chart, but which are not
+    /// part of any timeseries. These are not plotted, but are taken into
+    /// account when deciding the range of the Y axis.
+    pub additional_values: &'value [f64],
 }
 
-/// All the data necessary to generate an abstract chart from an array of
-/// timeseries and an array of events.
-///
-/// Note we only support generating line charts from combined timeseries and
-/// events data. If `graph_type` is anything other than [`GraphType::Line`],
-/// the events will be ignored.
-pub struct TimeseriesAndEventsSourceData<'source, 'slice> {
+/// All the data necessary to generate an abstract chart from a combination of
+/// timeseries data, events and an optional target latency.
+pub struct CombinedSourceData<'source, 'slice> {
     /// The type of stacking to apply to the chart.
     ///
     /// **Warning:** This property is accepted for consistency, but setting it
@@ -48,7 +49,13 @@ pub struct TimeseriesAndEventsSourceData<'source, 'slice> {
     pub timeseries_data: &'slice [&'source Timeseries],
 
     /// Array of events to display in the chart.
+    ///
+    /// Note that events will not be displayed if the `graph_type` is anything
+    /// other than [`GraphType::Line`].
     pub events: &'slice [&'source ProviderEvent],
+
+    /// Optional target latency to display on the chart, in seconds.
+    pub target_latency: Option<f64>,
 
     /// The time range to be displayed.
     pub time_range: TimeRange,
@@ -61,6 +68,7 @@ pub struct TimeseriesAndEventsSourceData<'source, 'slice> {
 pub enum SeriesSource<'source> {
     Timeseries(&'source Timeseries),
     Events,
+    TargetLatency,
 }
 
 impl<'source> From<&'source Timeseries> for SeriesSource<'source> {
@@ -76,6 +84,7 @@ impl<'source> From<&'source Timeseries> for SeriesSource<'source> {
 pub enum PointSource<'source> {
     Metric(&'source Metric),
     Event(&'source ProviderEvent),
+    None,
 }
 
 impl<'source> From<&'source Metric> for PointSource<'source> {

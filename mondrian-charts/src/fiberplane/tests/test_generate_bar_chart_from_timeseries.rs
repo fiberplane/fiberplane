@@ -31,6 +31,7 @@ fn test_generate_bar_chart_from_timeseries() {
             to: get_date_at_minute(10),
         },
         timeseries_data: &[&timeseries],
+        additional_values: &[],
     });
 
     insta::assert_yaml_snapshot!(chart);
@@ -45,7 +46,7 @@ fn test_generate_bar_chart_from_timeseries() {
             grid_shown: true,
             grid_stroke_color: "#e7e7e7".to_owned(),
             grid_stroke_dasharray: Default::default(),
-            shape_list_colors: vec!["#c00eae".to_owned()],
+            get_shape_list_color: &|_, _| "#c00eae",
             tick_color: "#a4a4a4".to_owned(),
             x_formatter: FormatterKind::Time,
             y_formatter: FormatterKind::Bytes,

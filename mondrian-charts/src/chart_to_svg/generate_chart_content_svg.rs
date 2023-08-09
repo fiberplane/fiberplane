@@ -5,21 +5,25 @@ use crate::types::{Area, Line, MondrianChart, Point, Rectangle, Shape};
 use itertools::join;
 use std::borrow::Cow;
 
-pub(super) fn generate_chart_content_svg<S, P>(
-    chart: &MondrianChart<S, P>,
+pub(super) fn generate_chart_content_svg<'a, S, P>(
+    chart: &'a MondrianChart<S, P>,
     scales: &Scales,
-    options: &ChartOptions,
+    options: &ChartOptions<'a, S>,
 ) -> String {
     let shapes = chart
         .shape_lists
         .iter()
         .enumerate()
-        .flat_map(|(i, shape_list)| {
+        .flat_map(|(index, shape_list)| {
             shape_list.shapes.iter().map(move |shape| {
                 generate_shape_svg(
                     shape,
                     scales,
-                    ShapeOptions::from_chart_options_with_shape_list_index(options, i),
+                    ShapeOptions::from_chart_options_with_shape_list_index(
+                        &shape_list.source,
+                        options,
+                        index,
+                    ),
                 )
             })
         });
@@ -34,16 +38,20 @@ struct ShapeOptions<'a> {
 }
 
 impl<'a> ShapeOptions<'a> {
-    fn from_chart_options_with_shape_list_index(options: &'a ChartOptions, index: usize) -> Self {
+    fn from_chart_options_with_shape_list_index<S>(
+        source: &'a S,
+        options: &ChartOptions<'a, S>,
+        index: usize,
+    ) -> Self {
         let ChartOptions {
             area_gradient_shown,
-            shape_list_colors,
+            get_shape_list_color,
             ..
         } = options;
 
         Self {
             area_gradient_shown: *area_gradient_shown,
-            color: &shape_list_colors[index % shape_list_colors.len()],
+            color: get_shape_list_color(source, index),
             index,
         }
     }
@@ -66,17 +74,16 @@ fn generate_area_svg<P>(area: &Area<P>, scales: &Scales, options: ShapeOptions) 
     } = options;
 
     let (defs, fill) = if area_gradient_shown {
-        let gradient_id = format!("line-{index}");
         let defs = format!(
             "<defs>\
-                <linearGradient id=\"{gradient_id}\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\
+                <linearGradient id=\"line-{index}\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\
                     <stop offset=\"0%\" stop-color=\"{color}\" stop-opacity=\"0.3\" />\
                     <stop offset=\"80%\" stop-color=\"{color}\" stop-opacity=\"0.06\" />\
                 </linearGradient>\
             </defs>"
         );
 
-        (Cow::Owned(defs), Cow::Owned(format!("url(#{gradient_id})")))
+        (Cow::Owned(defs), Cow::Owned(format!("url(#line-{index})")))
     } else {
         (Cow::Borrowed(""), Cow::Borrowed("none"))
     };
@@ -99,7 +106,6 @@ fn generate_line_svg<P>(line: &Line<P>, scales: &Scales, options: ShapeOptions) 
     } = options;
 
     let gradient = if area_gradient_shown {
-        let gradient_id = format!("line-{index}");
         let path_def = create_area_path_def(
             &line.points,
             |point| scales.x(point.x),
@@ -109,12 +115,12 @@ fn generate_line_svg<P>(line: &Line<P>, scales: &Scales, options: ShapeOptions) 
 
         Cow::Owned(format!(
             "<defs>\
-                <linearGradient id=\"{gradient_id}\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\
+                <linearGradient id=\"line-{index}\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\
                     <stop offset=\"0%\" stop-color=\"{color}\" stop-opacity=\"0.15\" />\
                     <stop offset=\"23%\" stop-color=\"{color}\" stop-opacity=\"0.03\" />\
                 </linearGradient>\
             </defs>\
-            <path d=\"{path_def}\" stroke=\"none\" fill=\"url(#{gradient_id})\" />"
+            <path d=\"{path_def}\" stroke=\"none\" fill=\"url(#line-{index})\" />"
         ))
     } else {
         Cow::Borrowed("")

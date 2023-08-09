@@ -15,7 +15,7 @@ use std::borrow::Cow;
 
 pub use self::tick_formatters::FormatterKind;
 
-pub struct ChartOptions {
+pub struct ChartOptions<'a, S> {
     pub width: u16,
     pub height: u16,
 
@@ -24,13 +24,16 @@ pub struct ChartOptions {
     pub grid_shown: bool,
     pub grid_stroke_color: String,
     pub grid_stroke_dasharray: Vec<f32>,
-    pub shape_list_colors: Vec<String>,
+    pub get_shape_list_color: &'a dyn Fn(&'a S, usize) -> &'a str,
     pub tick_color: String,
     pub x_formatter: FormatterKind,
     pub y_formatter: FormatterKind,
 }
 
-pub fn chart_to_svg<S, P>(chart: &MondrianChart<S, P>, options: &ChartOptions) -> String {
+pub fn chart_to_svg<'a, S, P>(
+    chart: &'a MondrianChart<S, P>,
+    options: &ChartOptions<'a, S>,
+) -> String {
     let ChartOptions { width, height, .. } = options;
 
     let x_max = width - MARGIN_LEFT - MARGIN_RIGHT;

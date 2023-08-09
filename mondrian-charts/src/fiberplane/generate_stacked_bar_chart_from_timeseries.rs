@@ -3,14 +3,18 @@ use crate::fiberplane::{Metric, StackedChartBuckets, Timeseries, TimeseriesSourc
 use crate::types::{Axis, MondrianChart, Rectangle, Shape, ShapeList};
 
 pub(crate) fn generate_stacked_bar_chart_from_timeseries<'source>(
-    input: TimeseriesSourceData<'source, '_>,
+    input: TimeseriesSourceData<'source, '_, '_>,
 ) -> MondrianChart<&'source Timeseries, &'source Metric> {
     let BucketsAndAxes {
         mut buckets,
         is_percentage,
         mut x_axis,
-        y_axis,
+        mut y_axis,
     } = calculate_buckets_and_axes_for_stacked_chart(&input);
+
+    for &value in input.additional_values {
+        y_axis = y_axis.extend_with_value(value);
+    }
 
     let interval = calculate_smallest_time_interval(&buckets);
     if let Some(interval) = interval {

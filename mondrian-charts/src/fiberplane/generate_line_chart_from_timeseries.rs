@@ -4,7 +4,7 @@ use crate::types::{Axis, Line, MondrianChart, Point, Shape, ShapeList};
 use std::convert::identity;
 
 pub(crate) fn generate_line_chart_from_timeseries<'source>(
-    input: TimeseriesSourceData<'source, '_>,
+    input: TimeseriesSourceData<'source, '_, '_>,
 ) -> MondrianChart<&'source Timeseries, &'source Metric> {
     let buckets = create_metric_buckets(input.timeseries_data, |min_max, value| {
         min_max
@@ -13,7 +13,11 @@ pub(crate) fn generate_line_chart_from_timeseries<'source>(
     });
 
     let mut x_axis = get_x_axis_from_time_range(&input.time_range);
-    let y_axis = calculate_y_axis_range(&buckets, identity);
+    let mut y_axis = calculate_y_axis_range(&buckets, identity);
+
+    for &value in input.additional_values {
+        y_axis = y_axis.extend_with_value(value);
+    }
 
     let interval = calculate_smallest_time_interval(&buckets);
     if let Some(interval) = interval {

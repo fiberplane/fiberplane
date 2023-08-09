@@ -1,5 +1,5 @@
 ---
-source: mondrian-charts/src/fiberplane/tests/test_generate_line_chart_from_timeseries.rs
+source: mondrian-charts/src/fiberplane/tests/test_generate_combined_chart.rs
 expression: chart
 ---
 xAxis:
@@ -27,6 +27,7 @@ shapeLists:
           - x: 0
             y: 0.03225806451612903
             source:
+              type: metric
               time: "2023-07-18T16:00:00Z"
               attributes: {}
               resource: {}
@@ -34,6 +35,7 @@ shapeLists:
           - x: 0.1
             y: 0.1935483870967742
             source:
+              type: metric
               time: "2023-07-18T16:01:00Z"
               attributes: {}
               resource: {}
@@ -41,6 +43,7 @@ shapeLists:
           - x: 0.2
             y: 0.3548387096774194
             source:
+              type: metric
               time: "2023-07-18T16:02:00Z"
               attributes: {}
               resource: {}
@@ -50,6 +53,7 @@ shapeLists:
           - x: 0.4
             y: 0.5161290322580645
             source:
+              type: metric
               time: "2023-07-18T16:04:00Z"
               attributes: {}
               resource: {}
@@ -57,6 +61,7 @@ shapeLists:
           - x: 0.5
             y: 0.6774193548387096
             source:
+              type: metric
               time: "2023-07-18T16:05:00Z"
               attributes: {}
               resource: {}
@@ -64,6 +69,7 @@ shapeLists:
           - x: 0.6
             y: 0.5161290322580645
             source:
+              type: metric
               time: "2023-07-18T16:06:00Z"
               attributes: {}
               resource: {}
@@ -71,6 +77,7 @@ shapeLists:
           - x: 0.7
             y: 0.3548387096774194
             source:
+              type: metric
               time: "2023-07-18T16:07:00Z"
               attributes: {}
               resource: {}
@@ -78,6 +85,7 @@ shapeLists:
           - x: 0.8
             y: 0.1935483870967742
             source:
+              type: metric
               time: "2023-07-18T16:08:00Z"
               attributes: {}
               resource: {}
@@ -85,11 +93,13 @@ shapeLists:
           - x: 0.9
             y: 0.03225806451612903
             source:
+              type: metric
               time: "2023-07-18T16:09:00Z"
               attributes: {}
               resource: {}
               value: 10
     source:
+      type: timeseries
       name: dummy_data
       labels: {}
       metrics:
@@ -132,4 +142,44 @@ shapeLists:
       attributes: {}
       resource: {}
       visible: true
+  - shapes:
+      - type: area
+        points:
+          - x: 0.2
+            yMin: 0
+            yMax: 1
+            source:
+              type: event
+              time: "2023-07-18T16:02:00Z"
+              attributes: {}
+              resource: {}
+              title: deploy 1
+              labels: {}
+      - type: area
+        points:
+          - x: 0.7
+            yMin: 0
+            yMax: 1
+            source:
+              type: event
+              time: "2023-07-18T16:07:00Z"
+              attributes: {}
+              resource: {}
+              title: deploy 2
+              labels: {}
+    source:
+      type: events
+  - shapes:
+      - type: line
+        points:
+          - x: 0
+            y: 1
+            source:
+              type: none
+          - x: 1
+            y: 1
+            source:
+              type: none
+    source:
+      type: target_latency
 
