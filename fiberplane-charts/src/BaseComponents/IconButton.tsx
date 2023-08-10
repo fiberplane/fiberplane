@@ -1,10 +1,15 @@
-import { forwardRef } from "react";
-import styled, { css, useTheme } from "styled-components";
+import { forwardRef, useContext } from "react";
+import styled, { css } from "styled-components";
 
-export const buttonStyling = css`
+import { ThemeContext } from "../theme";
+
+export const buttonStyling = css(() => {
+  const theme = useContext(ThemeContext);
+
+  return css`
     --color: var(--button-normal-color);
     --backgroundColor: var(--button-normal-backgroundColor);
-  
+
     outline: none;
     cursor: pointer;
     display: inline-flex;
@@ -13,7 +18,7 @@ export const buttonStyling = css`
     transition-property: background-color, border-color;
     transition-duration: 0.2s;
     transition-timing-function: linear;
-    border-radius: ${({ theme }) => theme.borderRadius500};
+    border-radius: ${theme.borderRadius500};
     box-sizing: border-box;
     height: var(--icon-button-height, 20px);
     width: var(--icon-button-width, 20px);
@@ -21,50 +26,51 @@ export const buttonStyling = css`
     color: var(--color);
     background-color: var(--background);
     border: 1px solid var(--background);
-  
+
     :focus,
     :hover,
     :active,
     .active {
       cursor: pointer;
     }
-  
+
     :focus {
-      border-color: ${({ theme }) => theme.colorPrimary500};
-      outline: ${({ theme }) => theme.effectFocusOutline};
-  
+      border-color: ${theme.colorPrimary500};
+      outline: ${theme.effectFocusOutline};
+
       --background: var(--button-focus-backgroundColor);
       --color: var(--button-focus-color);
     }
-  
+
     &:disabled {
       cursor: default;
-  
+
       --color: var(--button-disabled-color);
       --background: var(--button-disabled-backgroundColor);
     }
-  
+
     &.active,
     &:active:not([data-dragging], [disabled]) {
       --background: var(--button-active-backgroundColor);
       --color: var(--button-active-color);
     }
-  
+
     :hover:not([data-disabled][data-dragging], [disabled]) {
       --background: var(--button-hover-backgroundColor);
       --color: var(--button-hover-color);
       border: none;
     }
-  
+
     & svg {
       flex: 0 0 var(--icon-button-icon-size);
       width: var(--icon-button-icon-size);
       height: var(--icon-button-icon-size);
     }
   `;
+});
 
 const StyledButton = styled.button`
-  ${buttonStyling}
+    ${buttonStyling}
 `;
 
 const buttonSize = {
@@ -90,7 +96,7 @@ export const IconButton = forwardRef(function IconButton(
     ...otherProps
   } = props;
 
-  const iconButtonTheme = useTheme().iconButton;
+  const { iconButton } = useContext(ThemeContext);
 
   const newStyle = {
     ...style,
@@ -99,17 +105,16 @@ export const IconButton = forwardRef(function IconButton(
     "--icon-button-height": buttonSize.height,
     "--icon-button-icon-size": buttonSize.iconSize,
 
-    "--button-normal-color": iconButtonTheme.normal.color,
-    "--button-normal-backgroundColor": iconButtonTheme.normal.backgroundColor,
-    "--button-hover-color": iconButtonTheme.hover.color,
-    "--button-hover-backgroundColor": iconButtonTheme.hover.backgroundColor,
-    "--button-active-color": iconButtonTheme.active.color,
-    "--button-active-backgroundColor": iconButtonTheme.active.backgroundColor,
-    "--button-focus-color": iconButtonTheme.focus.color,
-    "--button-focus-backgroundColor": iconButtonTheme.focus.backgroundColor,
-    "--button-disabled-color": iconButtonTheme.disabled.color,
-    "--button-disabled-backgroundColor":
-      iconButtonTheme.disabled.backgroundColor,
+    "--button-normal-color": iconButton.normal.color,
+    "--button-normal-backgroundColor": iconButton.normal.backgroundColor,
+    "--button-hover-color": iconButton.hover.color,
+    "--button-hover-backgroundColor": iconButton.hover.backgroundColor,
+    "--button-active-color": iconButton.active.color,
+    "--button-active-backgroundColor": iconButton.active.backgroundColor,
+    "--button-focus-color": iconButton.focus.color,
+    "--button-focus-backgroundColor": iconButton.focus.backgroundColor,
+    "--button-disabled-color": iconButton.disabled.color,
+    "--button-disabled-backgroundColor": iconButton.disabled.backgroundColor,
   };
 
   const elementProps = {

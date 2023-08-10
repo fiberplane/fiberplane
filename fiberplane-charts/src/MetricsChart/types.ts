@@ -1,5 +1,5 @@
 import type { ChartControlsProps } from "./ChartControls";
-import type { ChartTheme } from "../styled-components";
+import type { ChartTheme } from "../theme";
 import type {
   CloseTooltipFn,
   CoreChartProps,

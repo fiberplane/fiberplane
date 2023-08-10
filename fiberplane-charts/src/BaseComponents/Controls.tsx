@@ -1,4 +1,7 @@
-import styled from "styled-components";
+import { useContext } from "react";
+import styled, { css } from "styled-components";
+
+import { ThemeContext } from "../theme";
 
 export const ControlsContainer = styled.div`
   display: flex;
@@ -17,8 +20,12 @@ export const ControlsSet = styled.div`
   align-items: center;
 `;
 
-export const ControlsSetLabel = styled.span`
-  font: ${({ theme }) => theme.controlsFont};
-  letter-spacing: ${({ theme }) => theme.controlsLetterSpacing};
-  color: ${({ theme }) => theme.controlsColor};
-`;
+export const ControlsSetLabel = styled.span(() => {
+  const theme = useContext(ThemeContext);
+
+  return css`
+    font: ${theme.controlsFont};
+    letter-spacing: ${theme.controlsLetterSpacing};
+    color: ${theme.controlsColor};
+  `;
+});

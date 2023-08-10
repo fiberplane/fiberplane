@@ -14,6 +14,7 @@ import type { Metric, ProviderEvent, Timeseries } from "../providerTypes";
 import type { MetricsChartProps } from "./types";
 import { TimeseriesLegend } from "../TimeseriesLegend";
 import { useHandler } from "../hooks";
+import { ThemeContext } from "../theme";
 
 type GenericShapeList = ShapeList<SeriesSource, Metric | ProviderEvent>;
 
@@ -21,15 +22,18 @@ type TimeseriesShapeList = ShapeList<Timeseries, Metric>;
 
 export function MetricsChart(props: MetricsChartProps) {
   return (
-    <StyledChartSizeContainerProvider
-      overrideHeight={HEIGHT}
-      marginTop={MARGINS.top}
-      marginRight={MARGINS.right}
-      marginBottom={MARGINS.bottom}
-      marginLeft={MARGINS.left}
-    >
-      <InnerMetricsChart {...props} />
-    </StyledChartSizeContainerProvider>
+    <ThemeContext.Provider value={props.theme}>
+      <StyledChartSizeContainerProvider
+        overrideHeight={HEIGHT}
+        marginTop={MARGINS.top}
+        marginRight={MARGINS.right}
+        marginBottom={MARGINS.bottom}
+        marginLeft={MARGINS.left}
+      >
+        <InnerMetricsChart {...props} />
+      </StyledChartSizeContainerProvider>
+
+    </ThemeContext.Provider>
   );
 }
 
