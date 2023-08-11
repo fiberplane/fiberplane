@@ -9,26 +9,45 @@ const defaultTheme: ChartTheme = {
   controlsFont: "sans-serif",
   controlsLetterSpacing: "0.5px",
   eventColor: "#000",
-  iconButton: {
-    active: {
-      color: "#000",
-      backgroundColor: "#fff",
+  button: {
+    backgroundColor: "#fff",
+    borderRadius: "4px",
+    color: "#000",
+    border: "1px solid #000",
+    font: "sans-serif",
+    on: {
+      active: {
+        border: "1px solid #000",
+        color: "#000",
+        backgroundColor: "#fff",
+      },
+      disabled: {
+        border: "1px solid #000",
+        color: "#000",
+        backgroundColor: "#fff",
+      },
+      focus: {
+        border: "1px solid #000",
+        color: "#000",
+        backgroundColor: "#fff",
+      },
+      hover: {
+        border: "1px solid #000",
+        color: "#000",
+        backgroundColor: "#fff",
+      },
     },
-    disabled: {
-      color: "#000",
-      backgroundColor: "#fff",
-    },
-    focus: {
-      color: "#000",
-      backgroundColor: "#fff",
-    },
-    hover: {
-      color: "#000",
-      backgroundColor: "#fff",
-    },
-    normal: {
-      color: "#000",
-      backgroundColor: "#fff",
+  },
+  legendItem: {
+    borderRadius: "6px",
+    checkboxBorderRadius: "4px",
+    checkboxColor: "#000",
+    emphasisBackgroundColor: "#000",
+    font: "sans-serif",
+    on: {
+      hover: {
+        backgroundColor: "#000",
+      },
     },
   },
   legendFont: "sans-serif",

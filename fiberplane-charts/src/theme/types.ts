@@ -1,37 +1,57 @@
 export interface ChartTheme {
-    buttonBackground: string;
-    buttonBorderRadius: string;
-    controlsColor: string;
-    controlsFont: string;
-    controlsLetterSpacing: string;
-    iconButton: IconButtonTheme;
-    legendFont: string;
-    legendLetterSpacing: string;
-    resultsFont: string;
-    resultsLetterSpacing: string;
+  buttonBackground: string;
+  buttonBorderRadius: string;
+  controlsColor: string;
+  controlsFont: string;
+  controlsLetterSpacing: string;
+  button: Button;
+  legendFont: string;
+  legendLetterSpacing: string;
+  resultsFont: string;
+  resultsLetterSpacing: string;
 
-    /**
-     * The color to use for rendering events.
-     */
-    eventColor: string;
+  /**
+   * The color to use for rendering events.
+   */
+  eventColor: string;
 
-    /**
-     * The colors to use for other shape lists (usually timeseries).
-     */
-    shapeListColors: Array<string>;
+  /**
+   * The colors to use for other shape lists (usually timeseries).
+   */
+  shapeListColors: Array<string>;
+
+  legendItem: {
+    borderRadius: string;
+    checkboxBorderRadius: string;
+    checkboxColor: string;
+    emphasisBackgroundColor: string;
+    font: string;
+    on: {
+      hover: {
+        backgroundColor: string;
+      }
+    }
+  }
 }
 
-export type IconButtonColorSet = {
-    color: string;
-    backgroundColor: string;
+type Button = {
+  backgroundColor: string;
+  borderRadius: string;
+  color: string;
+  border: string;
+  font: string;
+  on: {
+    hover: ButtonStyle;
+    active: ButtonStyle;
+    focus: ButtonStyle;
+    disabled: ButtonStyle;
+  };
 };
 
-export type IconButtonTheme = {
-    normal: IconButtonColorSet;
-    hover: IconButtonColorSet;
-    active: IconButtonColorSet;
-    focus: IconButtonColorSet;
-    disabled: IconButtonColorSet;
+type ButtonStyle = {
+  backgroundColor: string;
+  color: string;
+  border: string;
 };
 
 export type WithChartTheme = { theme: ChartTheme };

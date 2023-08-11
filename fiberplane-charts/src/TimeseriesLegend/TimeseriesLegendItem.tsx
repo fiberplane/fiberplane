@@ -128,21 +128,21 @@ const ColorBlock = styled.div<{
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${({ $chartTheme }) => $chartTheme.colorBackground};
-  border-radius: ${({ $chartTheme }) => $chartTheme.borderRadius400};
+  color: ${({ $chartTheme }) => $chartTheme.legendItem.checkboxColor};
+  border-radius: ${({ $chartTheme }) => $chartTheme.legendItem.borderRadius};
 `;
 
 const Emphasis = styled.span<{ $chartTheme: ChartTheme }>`
   /* FIXME: These vars are to support style overrides for dark mode */
   background-color: var(
       --fp-chart-legend-emphasis-bg,
-      ${({ $chartTheme }) => $chartTheme.colorBase200}
+      ${({ $chartTheme }) => $chartTheme.legendItem.emphasisBackgroundColor}
   );
   color: var(--fp-chart-legend-emphasis-color, currentColor);
   /* TODO (Jacco): we should try and find out what to do with this styling */
   /* stylelint-disable-next-line scale-unlimited/declaration-strict-value */
   font-weight: 600;
-  border-radius: ${({ $chartTheme }) => $chartTheme.borderRadius500};
+  /* TODO (Oscar): add border-radius */
   padding: 1px 4px;
   display: inline-block;
 `;
@@ -152,10 +152,10 @@ const LegendItemContainer = styled(Container)<{
   interactive: boolean;
 }>(
   ({ $chartTheme, interactive }) => css`
-    border-radius: ${$chartTheme.borderRadius500};
+    border-radius: ${$chartTheme.legendItem.borderRadius};
     display: flex;
     align-items: center;
-    font: ${$chartTheme.fontAxisShortHand};
+    font: ${$chartTheme.legendItem.font};
     padding: 8px 8px 8px 14px;
     gap: 10px;
     word-wrap: anywhere;
@@ -169,7 +169,7 @@ const LegendItemContainer = styled(Container)<{
           /* FIXME: These vars are to support style overrides for dark mode */
           background: var(
               --fp-chart-legend-hover-bg,
-              ${$chartTheme.colorPrimaryAlpha100}
+              ${$chartTheme.legendItem.on.hover.backgroundColor}
           );
           color: var(--fp-chart-legend-hover-color, currentColor);
         }

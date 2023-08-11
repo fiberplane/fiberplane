@@ -18,7 +18,7 @@ export const buttonStyling = css(() => {
     transition-property: background-color, border-color;
     transition-duration: 0.2s;
     transition-timing-function: linear;
-    border-radius: ${theme.borderRadius500};
+    border-radius: ${theme.buttonBorderRadius};
     box-sizing: border-box;
     height: var(--icon-button-height, 20px);
     width: var(--icon-button-width, 20px);
@@ -35,8 +35,8 @@ export const buttonStyling = css(() => {
     }
 
     :focus {
-      border-color: ${theme.colorPrimary500};
-      outline: ${theme.effectFocusOutline};
+      border-color: ${theme.button.on.focus.border};
+      /* TODO (Oscar): add outline */
 
       --background: var(--button-focus-backgroundColor);
       --color: var(--button-focus-color);
@@ -96,7 +96,7 @@ export const IconButton = forwardRef(function IconButton(
     ...otherProps
   } = props;
 
-  const { iconButton } = useContext(ThemeContext);
+  const { button } = useContext(ThemeContext);
 
   const newStyle = {
     ...style,
@@ -105,16 +105,16 @@ export const IconButton = forwardRef(function IconButton(
     "--icon-button-height": buttonSize.height,
     "--icon-button-icon-size": buttonSize.iconSize,
 
-    "--button-normal-color": iconButton.normal.color,
-    "--button-normal-backgroundColor": iconButton.normal.backgroundColor,
-    "--button-hover-color": iconButton.hover.color,
-    "--button-hover-backgroundColor": iconButton.hover.backgroundColor,
-    "--button-active-color": iconButton.active.color,
-    "--button-active-backgroundColor": iconButton.active.backgroundColor,
-    "--button-focus-color": iconButton.focus.color,
-    "--button-focus-backgroundColor": iconButton.focus.backgroundColor,
-    "--button-disabled-color": iconButton.disabled.color,
-    "--button-disabled-backgroundColor": iconButton.disabled.backgroundColor,
+    "--button-normal-color": button.color,
+    "--button-normal-backgroundColor": button.backgroundColor,
+    "--button-hover-color": button.on.hover.color,
+    "--button-hover-backgroundColor": button.on.hover.backgroundColor,
+    "--button-active-color": button.on.active.color,
+    "--button-active-backgroundColor": button.on.active.backgroundColor,
+    "--button-focus-color": button.on.focus.color,
+    "--button-focus-backgroundColor": button.on.focus.backgroundColor,
+    "--button-disabled-color": button.on.disabled.color,
+    "--button-disabled-backgroundColor": button.on.disabled.backgroundColor,
   };
 
   const elementProps = {

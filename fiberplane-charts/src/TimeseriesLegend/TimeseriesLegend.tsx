@@ -163,6 +163,6 @@ const Results = styled.span(() => {
   return css`
     font: ${theme.resultsFont};
     letter-spacing: ${theme.resultsLetterSpacing};
-    color: ${theme.colorBase400};
+    /* TODO (Oscar): add text color */
   `;
 });

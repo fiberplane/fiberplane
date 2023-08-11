@@ -1,19 +1,81 @@
+import * as React from 'react';
+import { createContext, useContext, forwardRef, useRef, useCallback, useState, useEffect, useReducer, useMemo, useLayoutEffect, memo, useId, Fragment as Fragment$1 } from 'react';
 import styled, { css, useTheme } from 'styled-components';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import * as React from 'react';
-import { forwardRef, createContext, useRef, useCallback, useState, useEffect, useReducer, useMemo, useLayoutEffect, memo, useId, useContext, Fragment as Fragment$1 } from 'react';
 import { debounce } from 'throttle-debounce';
 import { useMotionValue, animate } from 'framer-motion';
 import { VariableSizeList } from 'react-window';
 
-const ButtonGroup = styled.span`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  padding: 4px 8px;
-  background: ${({ theme  })=>theme.colorBase200};
-  border-radius: ${({ theme  })=>theme.borderRadius500};
-`;
+// TODO (Oscar): Update with proper initial colors
+const defaultTheme = {
+    buttonBackground: "#fff",
+    buttonBorderRadius: "4px",
+    controlsColor: "#000",
+    controlsFont: "sans-serif",
+    controlsLetterSpacing: "0.5px",
+    eventColor: "#000",
+    button: {
+        backgroundColor: "#fff",
+        borderRadius: "4px",
+        color: "#000",
+        border: "1px solid #000",
+        font: "sans-serif",
+        on: {
+            active: {
+                border: "1px solid #000",
+                color: "#000",
+                backgroundColor: "#fff"
+            },
+            disabled: {
+                border: "1px solid #000",
+                color: "#000",
+                backgroundColor: "#fff"
+            },
+            focus: {
+                border: "1px solid #000",
+                color: "#000",
+                backgroundColor: "#fff"
+            },
+            hover: {
+                border: "1px solid #000",
+                color: "#000",
+                backgroundColor: "#fff"
+            }
+        }
+    },
+    legendItem: {
+        borderRadius: "6px",
+        checkboxBorderRadius: "4px",
+        checkboxColor: "#000",
+        emphasisBackgroundColor: "#000",
+        font: "sans-serif",
+        on: {
+            hover: {
+                backgroundColor: "#000"
+            }
+        }
+    },
+    legendFont: "sans-serif",
+    legendLetterSpacing: "0.5px",
+    resultsFont: "sans-serif",
+    resultsLetterSpacing: "0.5px",
+    shapeListColors: [
+        "#000"
+    ]
+};
+const ThemeContext = createContext(defaultTheme);
+
+const ButtonGroup = styled.span(()=>{
+    const theme = useContext(ThemeContext);
+    return css`
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 4px 8px;
+    background: ${theme.buttonBackground};
+    border-radius: ${theme.buttonBorderRadius};
+  `;
+});
 
 const Box = styled.div`
   box-sizing: border-box;
@@ -38,11 +100,14 @@ const ControlsSet = styled.div`
   gap: 8px;
   align-items: center;
 `;
-const ControlsSetLabel = styled.span`
-  font: ${({ theme  })=>theme.fontControlsShortHand};
-  letter-spacing: ${({ theme  })=>theme.fontControlsLetterSpacing};
-  color: ${({ theme  })=>theme.colorBase500};
-`;
+const ControlsSetLabel = styled.span(()=>{
+    const theme = useContext(ThemeContext);
+    return css`
+    font: ${theme.controlsFont};
+    letter-spacing: ${theme.controlsLetterSpacing};
+    color: ${theme.controlsColor};
+  `;
+});
 
 var _path$6;
 function _extends$6() { _extends$6 = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$6.apply(this, arguments); }
@@ -172,10 +237,12 @@ function Icon({ type , ...svgProps }) {
     });
 }
 
-const buttonStyling = css`
+const buttonStyling = css(()=>{
+    const theme = useContext(ThemeContext);
+    return css`
     --color: var(--button-normal-color);
     --backgroundColor: var(--button-normal-backgroundColor);
-  
+
     outline: none;
     cursor: pointer;
     display: inline-flex;
@@ -184,7 +251,7 @@ const buttonStyling = css`
     transition-property: background-color, border-color;
     transition-duration: 0.2s;
     transition-timing-function: linear;
-    border-radius: ${({ theme  })=>theme.borderRadius500};
+    border-radius: ${theme.buttonBorderRadius};
     box-sizing: border-box;
     height: var(--icon-button-height, 20px);
     width: var(--icon-button-width, 20px);
@@ -192,73 +259,50 @@ const buttonStyling = css`
     color: var(--color);
     background-color: var(--background);
     border: 1px solid var(--background);
-  
+
     :focus,
     :hover,
     :active,
     .active {
       cursor: pointer;
     }
-  
+
     :focus {
-      border-color: ${({ theme  })=>theme.colorPrimary500};
-      outline: ${({ theme  })=>theme.effectFocusOutline};
-  
+      border-color: ${theme.button.on.focus.border};
+      /* TODO (Oscar): add outline */
+
       --background: var(--button-focus-backgroundColor);
       --color: var(--button-focus-color);
     }
-  
+
     &:disabled {
       cursor: default;
-  
+
       --color: var(--button-disabled-color);
       --background: var(--button-disabled-backgroundColor);
     }
-  
+
     &.active,
     &:active:not([data-dragging], [disabled]) {
       --background: var(--button-active-backgroundColor);
       --color: var(--button-active-color);
     }
-  
+
     :hover:not([data-disabled][data-dragging], [disabled]) {
       --background: var(--button-hover-backgroundColor);
       --color: var(--button-hover-color);
       border: none;
     }
-  
+
     & svg {
       flex: 0 0 var(--icon-button-icon-size);
       width: var(--icon-button-icon-size);
       height: var(--icon-button-icon-size);
     }
   `;
-function useIconButtonTheme(theme) {
-    return {
-        normal: {
-            color: theme.colorBase800,
-            backgroundColor: "transparent"
-        },
-        hover: {
-            color: theme.colorBase800,
-            backgroundColor: theme.colorBase300
-        },
-        active: {
-            color: theme.colorBackground,
-            backgroundColor: theme.colorBase600
-        },
-        focus: {
-            color: theme.colorBase600,
-            backgroundColor: theme.colorBackground
-        },
-        disabled: {
-            color: theme.colorBase500,
-            backgroundColor: "transparent"
-        }
-    };
-}
+});
 const StyledButton = styled.button`
-  ${buttonStyling}
+    ${buttonStyling}
 `;
 const buttonSize = {
     padding: "6px",
@@ -268,24 +312,23 @@ const buttonSize = {
 };
 const IconButton = /*#__PURE__*/ forwardRef(function IconButton(props, ref) {
     const { className ="" , style ={} , active =false , children , ...otherProps } = props;
-    const theme = useTheme();
-    const iconButtonTheme = useIconButtonTheme(theme);
+    const { button  } = useContext(ThemeContext);
     const newStyle = {
         ...style,
         "--icon-button-padding": buttonSize.padding,
         "--icon-button-width": buttonSize.width,
         "--icon-button-height": buttonSize.height,
         "--icon-button-icon-size": buttonSize.iconSize,
-        "--button-normal-color": iconButtonTheme.normal.color,
-        "--button-normal-backgroundColor": iconButtonTheme.normal.backgroundColor,
-        "--button-hover-color": iconButtonTheme.hover.color,
-        "--button-hover-backgroundColor": iconButtonTheme.hover.backgroundColor,
-        "--button-active-color": iconButtonTheme.active.color,
-        "--button-active-backgroundColor": iconButtonTheme.active.backgroundColor,
-        "--button-focus-color": iconButtonTheme.focus.color,
-        "--button-focus-backgroundColor": iconButtonTheme.focus.backgroundColor,
-        "--button-disabled-color": iconButtonTheme.disabled.color,
-        "--button-disabled-backgroundColor": iconButtonTheme.disabled.backgroundColor
+        "--button-normal-color": button.color,
+        "--button-normal-backgroundColor": button.backgroundColor,
+        "--button-hover-color": button.on.hover.color,
+        "--button-hover-backgroundColor": button.on.hover.backgroundColor,
+        "--button-active-color": button.on.active.color,
+        "--button-active-backgroundColor": button.on.active.backgroundColor,
+        "--button-focus-color": button.on.focus.color,
+        "--button-focus-backgroundColor": button.on.focus.backgroundColor,
+        "--button-disabled-color": button.on.disabled.color,
+        "--button-disabled-backgroundColor": button.on.disabled.backgroundColor
     };
     const elementProps = {
         ...otherProps,
@@ -2657,15 +2700,18 @@ function TimeseriesLegendItem({ color , onHover , onToggleTimeseriesVisibility ,
             toggleTimeseriesVisibility(event);
         }
     };
+    const chartTheme = useContext(ThemeContext);
     return /*#__PURE__*/ jsx("div", {
         ref: ref,
         onClick: toggleTimeseriesVisibility,
         onKeyDown: onKeyDown,
         children: /*#__PURE__*/ jsxs(LegendItemContainer, {
+            $chartTheme: chartTheme,
             onMouseOver: timeseries.visible ? onHover : noop,
             interactive: !readOnly && onToggleTimeseriesVisibility !== undefined,
             children: [
                 /*#__PURE__*/ jsx(ColorBlock, {
+                    $chartTheme: chartTheme,
                     color: color,
                     selected: timeseries.visible,
                     children: timeseries.visible && /*#__PURE__*/ jsx(Icon, {
@@ -2685,6 +2731,7 @@ function TimeseriesLegendItem({ color , onHover , onToggleTimeseriesVisibility ,
 const FormattedTimeseries = /*#__PURE__*/ memo(function FormattedTimeseries({ metric , emphasizedKeys =[]  }) {
     const { name , labels  } = metric;
     const labelEntries = sortBy(Object.entries(labels), ([key])=>key);
+    const chartTheme = useContext(ThemeContext);
     return /*#__PURE__*/ jsxs(Text, {
         children: [
             name && `${name}: `,
@@ -2698,6 +2745,7 @@ const FormattedTimeseries = /*#__PURE__*/ memo(function FormattedTimeseries({ me
                                 value && [
                                     ": ",
                                     emphasizedKeys.includes(key) ? /*#__PURE__*/ jsx(Emphasis, {
+                                        $chartTheme: chartTheme,
                                         children: value
                                     }, key) : value
                                 ]
@@ -2709,47 +2757,52 @@ const FormattedTimeseries = /*#__PURE__*/ memo(function FormattedTimeseries({ me
     });
 });
 const ColorBlock = styled.div`
-    background: ${({ color , selected  })=>selected ? color : "transparent"};
-    border: 2px solid ${({ color  })=>color};
-    width: 14px;
-    height: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: ${({ theme  })=>theme.colorBackground};
-    border-radius: ${({ theme  })=>theme.borderRadius400};
+  background: ${({ color , selected  })=>selected ? color : "transparent"};
+  border: 2px solid ${({ color  })=>color};
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${({ $chartTheme  })=>$chartTheme.legendItem.checkboxColor};
+  border-radius: ${({ $chartTheme  })=>$chartTheme.legendItem.borderRadius};
 `;
 const Emphasis = styled.span`
   /* FIXME: These vars are to support style overrides for dark mode */
-  background-color: var(--fp-chart-legend-emphasis-bg, ${({ theme  })=>theme.colorBase200});
+  background-color: var(
+      --fp-chart-legend-emphasis-bg,
+      ${({ $chartTheme  })=>$chartTheme.legendItem.emphasisBackgroundColor}
+  );
   color: var(--fp-chart-legend-emphasis-color, currentColor);
   /* TODO (Jacco): we should try and find out what to do with this styling */
   /* stylelint-disable-next-line scale-unlimited/declaration-strict-value */
   font-weight: 600;
-  border-radius: ${({ theme  })=>theme.borderRadius500};
+  /* TODO (Oscar): add border-radius */
   padding: 1px 4px;
   display: inline-block;
 `;
-const InteractiveItemStyling = css`
-    cursor: pointer;
-
-    &:hover {
-        /* FIXME: These vars are to support style overrides for dark mode */
-        background: var(--fp-chart-legend-hover-bg, ${({ theme  })=>theme.colorPrimaryAlpha100});
-        color: var(--fp-chart-legend-hover-color, currentColor);
-    }
-`;
-const LegendItemContainer = styled(Container)`
-    border-radius: ${({ theme  })=>theme.borderRadius500};
+const LegendItemContainer = styled(Container)(({ $chartTheme , interactive  })=>css`
+    border-radius: ${$chartTheme.legendItem.borderRadius};
     display: flex;
     align-items: center;
-    font: ${({ theme  })=>theme.fontAxisShortHand};
+    font: ${$chartTheme.legendItem.font};
     padding: 8px 8px 8px 14px;
     gap: 10px;
     word-wrap: anywhere;
 
-    ${({ interactive  })=>interactive && InteractiveItemStyling}
-`;
+    ${interactive && css`
+        cursor: pointer;
+
+        &:hover {
+          /* FIXME: These vars are to support style overrides for dark mode */
+          background: var(
+              --fp-chart-legend-hover-bg,
+              ${$chartTheme.legendItem.on.hover.backgroundColor}
+          );
+          color: var(--fp-chart-legend-hover-color, currentColor);
+        }
+      `}
+  `);
 const Text = styled.div`
     flex: 1;
 `;
@@ -2858,36 +2911,44 @@ const Footer = styled.div`
     align-items: center;
     justify-content: space-between;
 `;
-const ChartLegendContainer = styled(Container)`
+const ChartLegendContainer = styled(Container)(()=>{
+    const theme = useContext(ThemeContext);
+    return css`
     flex-direction: column;
-    font: ${({ theme  })=>theme.fontLegendShortHand};
-    letter-spacing: ${({ theme  })=>theme.fontLegendLetterSpacing};
+    font: ${theme.legendFont};
+    letter-spacing: ${theme.legendLetterSpacing};
     letter-spacing: 0.02em;
     padding: 10px 0 0;
     position: relative;
     word-wrap: break-word;
-`;
-const Results = styled.span`
-    font: ${({ theme  })=>theme.fontResultsSummaryShortHand};
-    letter-spacing: ${({ theme  })=>theme.fontResultsSummaryLetterSpacing};
-    color: ${({ theme  })=>theme.colorBase400};
-`;
+  `;
+});
+const Results = styled.span(()=>{
+    const theme = useContext(ThemeContext);
+    return css`
+    font: ${theme.resultsFont};
+    letter-spacing: ${theme.resultsLetterSpacing};
+    /* TODO (Oscar): add text color */
+  `;
+});
 
 function MetricsChart(props) {
-    return /*#__PURE__*/ jsx(StyledChartSizeContainerProvider$1, {
-        overrideHeight: HEIGHT,
-        marginTop: MARGINS.top,
-        marginRight: MARGINS.right,
-        marginBottom: MARGINS.bottom,
-        marginLeft: MARGINS.left,
-        children: /*#__PURE__*/ jsx(InnerMetricsChart, {
-            ...props
+    return /*#__PURE__*/ jsx(ThemeContext.Provider, {
+        value: props.theme,
+        children: /*#__PURE__*/ jsx(StyledChartSizeContainerProvider$1, {
+            overrideHeight: HEIGHT,
+            marginTop: MARGINS.top,
+            marginRight: MARGINS.right,
+            marginBottom: MARGINS.bottom,
+            marginLeft: MARGINS.left,
+            children: /*#__PURE__*/ jsx(InnerMetricsChart, {
+                ...props
+            })
         })
     });
 }
 const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
-    const theme = useTheme();
-    const { areaGradientShown =true , chartControlsShown =true , colors , customChartControls , events , eventColor =theme.colorPrimary400 , graphType , legendShown =true , readOnly , stackingControlsShown =true , stackingType , timeRange , timeseriesData  } = props;
+    const { areaGradientShown =true , chartControlsShown =true , customChartControls , events , graphType , legendShown =true , readOnly , stackingControlsShown =true , stackingType , theme , timeRange , timeseriesData  } = props;
     const chart = useMemo(()=>generateFromTimeseriesAndEvents({
             events: events ?? [],
             graphType,
@@ -2901,21 +2962,9 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
         timeRange,
         timeseriesData
     ]);
+    const { eventColor , shapeListColors  } = theme;
     const [focusedShapeList, setFocusedShapeList] = useState(null);
     const getShapeListColor = useMemo(()=>{
-        const shapeListColors = colors || [
-            theme["colorSupport1400"],
-            theme["colorSupport2400"],
-            theme["colorSupport3400"],
-            theme["colorSupport4400"],
-            theme["colorSupport5400"],
-            theme["colorSupport6400"],
-            theme["colorSupport7400"],
-            theme["colorSupport8400"],
-            theme["colorSupport9400"],
-            theme["colorSupport10400"],
-            theme["colorSupport11400"]
-        ];
         return (shapeList)=>{
             if (isTimeseriesShapeList(shapeList)) {
                 const index = chart.shapeLists.indexOf(shapeList);
@@ -2926,9 +2975,8 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
         };
     }, [
         chart,
-        colors,
         eventColor,
-        theme
+        shapeListColors
     ]);
     const onFocusedShapeListChange = useHandler((shapeList)=>{
         if (!shapeList || isTimeseriesShapeList(shapeList)) {
@@ -2969,7 +3017,6 @@ function isTimeseriesShapeList(shapeList) {
 }
 
 function SparkChart({ areaGradientShown =false , colors , graphType , stackingType , timeRange , timeseriesData , onChangeTimeRange  }) {
-    const theme = useTheme();
     const chart = useMemo(()=>generateFromTimeseries({
             graphType,
             stackingType,
@@ -2982,27 +3029,13 @@ function SparkChart({ areaGradientShown =false , colors , graphType , stackingTy
         timeseriesData
     ]);
     const getShapeListColor = useMemo(()=>{
-        const shapeListColors = colors || [
-            theme["colorSupport1400"],
-            theme["colorSupport2400"],
-            theme["colorSupport3400"],
-            theme["colorSupport4400"],
-            theme["colorSupport5400"],
-            theme["colorSupport6400"],
-            theme["colorSupport7400"],
-            theme["colorSupport8400"],
-            theme["colorSupport9400"],
-            theme["colorSupport10400"],
-            theme["colorSupport11400"]
-        ];
         return (shapeList)=>{
             const index = chart.shapeLists.indexOf(shapeList);
-            return shapeListColors[index % shapeListColors.length];
+            return colors[index % colors.length];
         };
     }, [
         chart,
-        colors,
-        theme
+        colors
     ]);
     return /*#__PURE__*/ jsx(StyledChartSizeContainerProvider, {
         children: /*#__PURE__*/ jsx(CoreChart, {
