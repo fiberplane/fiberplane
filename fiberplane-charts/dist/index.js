@@ -3191,10 +3191,11 @@ function getExponentFormatter() {
 }
 function getPercentageFormatter() {
     return (value)=>{
-        if (value === Math.round(value)) {
-            return `${value}%`;
+        const percentageValue = value * 100;
+        if (percentageValue === Math.round(percentageValue)) {
+            return `${percentageValue}%`;
         } else {
-            return `${value.toFixed(1)}%`;
+            return `${percentageValue.toFixed(1)}%`;
         }
     };
 }
@@ -3254,7 +3255,7 @@ function getTimeFormatterForAxis(axis) {
             case "hours":
                 return `${date.getUTCHours()}:${date.getUTCMinutes().toString().padStart(2, "0")}`;
             case "minutes":
-                return `${date.getUTCMinutes()}:${date.getUTCSeconds().toString().padStart(2, "0")}`;
+                return `${date.getUTCHours()}:${date.getUTCMinutes().toString().padStart(2, "0")}:${date.getUTCSeconds().toString().padStart(2, "0")}`;
             case "seconds":
                 return `${date.getUTCSeconds()}.${date.getUTCMilliseconds().toString().padStart(3, "0")}`;
             case "milliseconds":
