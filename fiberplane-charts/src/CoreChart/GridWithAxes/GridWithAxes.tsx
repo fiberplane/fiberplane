@@ -1,5 +1,12 @@
 import { animate, Tween, useMotionValue } from "framer-motion";
-import { memo, useContext, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import {
+  memo,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import type { AbstractChart, Axis } from "../../Mondrian";
 import { BottomAxis } from "./BottomAxis";
