@@ -1,4 +1,4 @@
-import { Fragment, memo, useEffect } from "react";
+import { Fragment, memo, useLayoutEffect } from "react";
 import styled, { css } from "styled-components";
 
 import { Container, Icon } from "../BaseComponents";
@@ -14,6 +14,7 @@ type Props = {
   onToggleTimeseriesVisibility?: (event: ToggleTimeseriesEvent) => void;
   readOnly: boolean;
   setSize: (index: number, value: number) => void;
+  style: React.CSSProperties;
   timeseries: Timeseries;
   uniqueKeys: Array<string>;
 };
@@ -25,12 +26,13 @@ export function TimeseriesLegendItem({
   readOnly,
   index,
   setSize,
+  style,
   timeseries,
   uniqueKeys,
 }: Props): JSX.Element {
   const [ref, { height }] = useMeasure<HTMLDivElement>();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (height) {
       setSize(index, height);
     }
@@ -55,7 +57,12 @@ export function TimeseriesLegendItem({
   };
 
   return (
-    <div ref={ref} onClick={toggleTimeseriesVisibility} onKeyDown={onKeyDown}>
+    <div
+      ref={ref}
+      style={style}
+      onClick={toggleTimeseriesVisibility}
+      onKeyDown={onKeyDown}
+    >
       <LegendItemContainer
         onMouseOver={timeseries.visible ? onHover : noop}
         interactive={!readOnly && onToggleTimeseriesVisibility !== undefined}
@@ -116,16 +123,18 @@ const ColorBlock = styled.div<{ color: string; selected: boolean }>`
 `;
 
 const Emphasis = styled.span`
-  /* FIXME: These vars are to support style overrides for dark mode */
-  background-color: var(--fp-chart-legend-emphasis-bg, ${({ theme }) =>
-    theme.colorBase200});
-  color: var(--fp-chart-legend-emphasis-color, currentColor);
-  /* TODO (Jacco): we should try and find out what to do with this styling */
-  /* stylelint-disable-next-line scale-unlimited/declaration-strict-value */
-  font-weight: 600;
-  border-radius: ${({ theme }) => theme.borderRadius500};
-  padding: 1px 4px;
-  display: inline-block;
+    /* FIXME: These vars are to support style overrides for dark mode */
+    background-color: var(
+        --fp-chart-legend-emphasis-bg,
+        ${({ theme }) => theme.colorBase200}
+    );
+    color: var(--fp-chart-legend-emphasis-color, currentColor);
+    /* TODO (Jacco): we should try and find out what to do with this styling */
+    /* stylelint-disable-next-line scale-unlimited/declaration-strict-value */
+    font-weight: 600;
+    border-radius: ${({ theme }) => theme.borderRadius500};
+    padding: 1px 4px;
+    display: inline-block;
 `;
 
 const InteractiveItemStyling = css`
@@ -133,8 +142,10 @@ const InteractiveItemStyling = css`
 
     &:hover {
         /* FIXME: These vars are to support style overrides for dark mode */
-        background: var(--fp-chart-legend-hover-bg, ${({ theme }) =>
-          theme.colorPrimaryAlpha100});
+        background: var(
+            --fp-chart-legend-hover-bg,
+            ${({ theme }) => theme.colorPrimaryAlpha100}
+        );
         color: var(--fp-chart-legend-hover-color, currentColor);
     }
 `;

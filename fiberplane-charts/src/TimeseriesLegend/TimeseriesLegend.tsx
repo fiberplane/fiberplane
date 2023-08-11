@@ -11,7 +11,7 @@ import type { Timeseries } from "../providerTypes";
 import { useExpandable, useForceUpdate, useHandler } from "../hooks";
 
 const DEFAULT_HEIGHT = 293;
-const DEFAULT_SIZE = 50;
+const DEFAULT_SIZE = 30;
 const EXPANDED_HEIGHT = 592;
 
 export function TimeseriesLegend<S extends Timeseries, P>({
@@ -53,6 +53,10 @@ export function TimeseriesLegend<S extends Timeseries, P>({
 
   const setSize = useHandler((index: number, size: number) => {
     const oldSize = getSize(index);
+    if (oldSize === size) {
+      return;
+    }
+
     sizeMap.current.set(index, size);
     listRef.current?.resetAfterIndex(index);
     heightRef.current += size - oldSize;
@@ -85,38 +89,38 @@ export function TimeseriesLegend<S extends Timeseries, P>({
     const shapeList = data[index];
     const timeseries = shapeList.source;
     return (
-      <div style={style}>
-        {timeseries && (
-          <TimeseriesLegendItem
-            color={getShapeListColor(shapeList.source, index)}
-            onHover={() => setFocusedTimeseries(timeseries)}
-            onToggleTimeseriesVisibility={onToggleTimeseriesVisibility}
-            readOnly={readOnly}
-            timeseries={timeseries}
-            uniqueKeys={uniqueKeys}
-            index={index}
-            setSize={setSize}
-          />
-        )}
-      </div>
+      timeseries && (
+        <TimeseriesLegendItem
+          color={getShapeListColor(shapeList.source, index)}
+          onHover={() => setFocusedTimeseries(timeseries)}
+          onToggleTimeseriesVisibility={onToggleTimeseriesVisibility}
+          readOnly={readOnly}
+          timeseries={timeseries}
+          uniqueKeys={uniqueKeys}
+          index={index}
+          setSize={setSize}
+          style={style}
+        />
+      )
     );
   });
 
   return (
-    <ChartLegendContainer onMouseOut={onMouseOut} ref={ref}>
-      <ExpandableContainer maxHeight={`${maxHeight}px`} onScroll={onScroll}>
-        <VariableSizeList
-          height={Math.min(heightRef.current, maxHeight)}
-          width="100%"
-          ref={listRef}
-          itemCount={shapeLists.length}
-          itemData={shapeLists}
-          itemSize={getSize}
-        >
-          {render}
-        </VariableSizeList>
-        {gradient}
-      </ExpandableContainer>
+    <ChartLegendContainer onMouseOut={onMouseOut}>
+      <VariableSizeList
+        estimatedItemSize={DEFAULT_HEIGHT}
+        height={Math.min(heightRef.current, maxHeight)}
+        onScroll={onScroll}
+        outerRef={ref}
+        width="100%"
+        ref={listRef}
+        itemCount={shapeLists.length}
+        itemData={shapeLists}
+        itemSize={getSize}
+      >
+        {render}
+      </VariableSizeList>
+      {gradient}
       {footerShown && (
         <Footer>
           <Results>{resultsText}</Results>
@@ -126,13 +130,6 @@ export function TimeseriesLegend<S extends Timeseries, P>({
     </ChartLegendContainer>
   );
 }
-
-const ExpandableContainer = styled.div<{
-  maxHeight: Exclude<React.CSSProperties["height"], undefined>;
-}>`
-    max-height: ${({ maxHeight }) => maxHeight};
-    overflow: auto;
-`;
 
 const Footer = styled.div`
     width: 100%;
