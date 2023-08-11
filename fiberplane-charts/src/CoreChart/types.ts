@@ -56,11 +56,6 @@ export type CoreChartProps<S, P> = {
   gridShown?: boolean;
 
   /**
-   * Override the color of the grid lines. (defaults to the theme's grid color)
-   */
-  gridStrokeColor?: string;
-
-  /**
    * Handler that is invoked when the time range is changed.
    *
    * If no handler is specified, no UI for changing the time range is

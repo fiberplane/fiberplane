@@ -1,6 +1,6 @@
-import { useTheme } from "styled-components";
-
 import type { Scales, TickFormatters } from "../types";
+import { useContext } from "react";
+import { ThemeContext } from "../../theme";
 
 type Props = {
   formatter: TickFormatters["yFormatter"];
@@ -20,13 +20,13 @@ export function LeftAxis({
   ticks,
 }: Props) {
   const {
-    colorBase500,
+    fontAxisColor,
     fontAxisFontSize,
     fontAxisFontFamily,
     fontAxisFontStyle,
     fontAxisFontWeight,
     fontAxisLetterSpacing,
-  } = useTheme();
+  } = useContext(ThemeContext);
 
   const tickLabelProps = {
     dx: "-0.45em",
@@ -37,7 +37,7 @@ export function LeftAxis({
     fontWeight: fontAxisFontWeight,
     fontSize: fontAxisFontSize,
     letterSpacing: fontAxisLetterSpacing,
-    fill: colorBase500,
+    fill: fontAxisColor,
   };
 
   const numTicks = ticks.length - 1;

@@ -1,7 +1,7 @@
-import { useTheme } from "styled-components";
-
 import type { Axis } from "../../Mondrian";
 import type { Scales, TickFormatters } from "../types";
+import { ThemeContext } from "../../theme";
+import { useContext } from "react";
 
 const LABEL_OFFSET = 8;
 
@@ -23,13 +23,13 @@ export function BottomAxis({
   xAxis: { maxValue, minValue },
 }: Props) {
   const {
-    colorBase500,
+    fontAxisColor,
     fontAxisFontSize,
     fontAxisFontFamily,
     fontAxisFontStyle,
     fontAxisFontWeight,
     fontAxisLetterSpacing,
-  } = useTheme();
+  } = useContext(ThemeContext);
 
   return (
     <g transform={`translate(0, ${yMax})`}>
@@ -49,7 +49,7 @@ export function BottomAxis({
           x={xScale((time - minValue) / (maxValue - minValue))}
           y={fontAxisFontSize}
           dy={LABEL_OFFSET}
-          fill={colorBase500}
+          fill={fontAxisColor}
           fontFamily={fontAxisFontFamily}
           fontStyle={fontAxisFontStyle}
           fontWeight={fontAxisFontWeight}

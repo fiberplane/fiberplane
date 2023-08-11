@@ -35,6 +35,13 @@ export interface ChartTheme {
   };
 
   gridStrokeColor: string;
+
+  fontAxisColor: string;
+  fontAxisFontSize: string;
+  fontAxisFontFamily: string;
+  fontAxisFontStyle: string;
+  fontAxisFontWeight: string;
+  fontAxisLetterSpacing: string;
 }
 
 type Button = {
