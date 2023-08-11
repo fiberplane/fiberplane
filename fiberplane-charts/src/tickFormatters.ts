@@ -245,7 +245,10 @@ export function getTimeFormatterForAxis(axis: Axis): TickFormatter {
           .padStart(2, "0")}`;
 
       case "minutes":
-        return `${date.getUTCMinutes()}:${date
+        return `${date.getUTCHours()}:${date
+          .getUTCMinutes()
+          .toString()
+          .padStart(2, "0")}:${date
           .getUTCSeconds()
           .toString()
           .padStart(2, "0")}`;

@@ -451,12 +451,6 @@ impl TimeScale {
 
         const MINUTE_PADDED: Minute = Minute::default();
 
-        const MINUTE: Minute = {
-            let mut minute = Minute::default();
-            minute.padding = Padding::None;
-            minute
-        };
-
         const SECOND_PADDED: Second = Second::default();
 
         const SECOND: Second = {
@@ -495,7 +489,9 @@ impl TimeScale {
                 FormatItem::Component(Component::Minute(MINUTE_PADDED)),
             ]),
             TimeScale::Minutes => FormatItem::Compound(&[
-                FormatItem::Component(Component::Minute(MINUTE)),
+                FormatItem::Component(Component::Hour(HOUR)),
+                FormatItem::Literal(b":"),
+                FormatItem::Component(Component::Minute(MINUTE_PADDED)),
                 FormatItem::Literal(b":"),
                 FormatItem::Component(Component::Second(SECOND_PADDED)),
             ]),
@@ -700,7 +696,7 @@ mod tests {
             tick_suggestions: None,
         };
         let formatter = TimeFormatter::for_axis(&axis);
-        assert_eq!(formatter.format(1691496477.932), "7:57");
+        assert_eq!(formatter.format(1691496477.932), "12:07:57");
 
         let axis = Axis {
             min_value: 1691496477.932,

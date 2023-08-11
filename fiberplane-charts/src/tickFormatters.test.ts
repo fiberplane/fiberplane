@@ -68,7 +68,7 @@ test("it can format time values", () => {
     minValue: 1691496477.932,
     maxValue: 1691496837.932,
   });
-  expect(minuteFormatter(1691496477.932)).toBe("7:57");
+  expect(minuteFormatter(1691496477.932)).toBe("12:07:57");
 
   const secondFormatter = getTimeFormatterForAxis({
     minValue: 1691496477.932,
