@@ -1,5 +1,5 @@
 {
-    "name": "fiberplane-charts",
+    "name": "@fiberplane/fiberplane-charts",
     "version": "0.1.0",
     "description": "Charts for rendering metrics",
     "module": "dist/index.js",
