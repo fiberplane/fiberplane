@@ -168,10 +168,11 @@ export function getExponentFormatter(): TickFormatter {
 
 export function getPercentageFormatter(): TickFormatter {
   return (value: number): string => {
-    if (value === Math.round(value)) {
-      return `${value}%`;
+    const percentageValue = value * 100;
+    if (percentageValue === Math.round(percentageValue)) {
+      return `${percentageValue}%`;
     } else {
-      return `${value.toFixed(1)}%`;
+      return `${percentageValue.toFixed(1)}%`;
     }
   };
 }
@@ -245,7 +246,10 @@ export function getTimeFormatterForAxis(axis: Axis): TickFormatter {
           .padStart(2, "0")}`;
 
       case "minutes":
-        return `${date.getUTCMinutes()}:${date
+        return `${date.getUTCHours()}:${date
+          .getUTCMinutes()
+          .toString()
+          .padStart(2, "0")}:${date
           .getUTCSeconds()
           .toString()
           .padStart(2, "0")}`;
