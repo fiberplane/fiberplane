@@ -51,6 +51,7 @@ const defaultTheme = {
         font: "sans-serif",
         on: {
             hover: {
+                color: "#FFF",
                 backgroundColor: "#000"
             }
         }
@@ -61,7 +62,8 @@ const defaultTheme = {
     resultsLetterSpacing: "0.5px",
     shapeListColors: [
         "#000"
-    ]
+    ],
+    gridStrokeColor: "#000"
 };
 const ThemeContext = createContext(defaultTheme);
 
@@ -1210,8 +1212,8 @@ function LeftAxis({ formatter , gridBordersShown , scales: { yMax , yScale  } , 
 
 const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDasharray , gridStrokeColor , scales , tickFormatters  }) {
     const { xMax , xScale , yMax  } = scales;
-    const { colorBase300  } = useTheme();
-    const strokeColor = gridStrokeColor || colorBase300;
+    const theme = useContext(ThemeContext);
+    const strokeColor = gridStrokeColor || theme.gridStrokeColor;
     const { xAxis , yAxis  } = chart;
     const minValue = useCustomSpring(yAxis.minValue);
     const maxValue = useCustomSpring(yAxis.maxValue);
@@ -2795,11 +2797,10 @@ const LegendItemContainer = styled(Container)(({ $chartTheme , interactive  })=>
 
         &:hover {
           /* FIXME: These vars are to support style overrides for dark mode */
-          background: var(
-              --fp-chart-legend-hover-bg,
-              ${$chartTheme.legendItem.on.hover.backgroundColor}
-          );
-          color: var(--fp-chart-legend-hover-color, currentColor);
+          /* --fp-chart-legend-hover-bg */
+          /* --fp-chart-legend-hover-color */
+          background: ${$chartTheme.legendItem.on.hover.backgroundColor};
+          color: ${$chartTheme.legendItem.on.hover.color};
         }
       `}
   `);

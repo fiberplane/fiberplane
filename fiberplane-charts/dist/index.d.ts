@@ -67,10 +67,12 @@ interface ChartTheme {
         font: string;
         on: {
             hover: {
+                color: string;
                 backgroundColor: string;
             };
         };
     };
+    gridStrokeColor: string;
 }
 type Button = {
     backgroundColor: string;

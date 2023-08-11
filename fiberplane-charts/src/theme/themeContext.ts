@@ -56,6 +56,7 @@ const defaultTheme: ChartTheme = {
   resultsFont: "sans-serif",
   resultsLetterSpacing: "0.5px",
   shapeListColors: ["#000"],
+  gridStrokeColor: "#000",
 };
 
 export const ThemeContext = createContext<ChartTheme>(defaultTheme);

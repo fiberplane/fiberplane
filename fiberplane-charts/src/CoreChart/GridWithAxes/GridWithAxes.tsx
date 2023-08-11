@@ -1,6 +1,5 @@
 import { animate, Tween, useMotionValue } from "framer-motion";
-import { memo, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { useTheme } from "styled-components";
+import { memo, useContext, useEffect, useLayoutEffect, useMemo, useState } from "react";
 
 import type { AbstractChart, Axis } from "../../Mondrian";
 import { BottomAxis } from "./BottomAxis";
@@ -9,6 +8,7 @@ import { GridColumns } from "./GridColumns";
 import { GridRows } from "./GridRows";
 import { LeftAxis } from "./LeftAxis";
 import type { Scale, Scales, TickFormatters } from "../types";
+import { ThemeContext } from "../../theme";
 
 type Props = {
   chart: AbstractChart<unknown, unknown>;
@@ -33,8 +33,9 @@ export const GridWithAxes = memo(function GridWithAxes({
 }: Props) {
   const { xMax, xScale, yMax } = scales;
 
-  const { colorBase300 } = useTheme();
-  const strokeColor = gridStrokeColor || colorBase300;
+  const theme = useContext(ThemeContext);
+
+  const strokeColor = gridStrokeColor || theme.gridStrokeColor;
 
   const { xAxis, yAxis } = chart;
   const minValue = useCustomSpring(yAxis.minValue);

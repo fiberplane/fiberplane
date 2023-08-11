@@ -33,6 +33,8 @@ export interface ChartTheme {
       };
     };
   };
+
+  gridStrokeColor: string;
 }
 
 type Button = {
