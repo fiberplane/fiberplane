@@ -73,6 +73,12 @@ interface ChartTheme {
         };
     };
     gridStrokeColor: string;
+    fontAxisColor: string;
+    fontAxisFontSize: string;
+    fontAxisFontFamily: string;
+    fontAxisFontStyle: string;
+    fontAxisFontWeight: string;
+    fontAxisLetterSpacing: string;
 }
 type Button = {
     backgroundColor: string;
@@ -443,10 +449,6 @@ type CoreChartProps<S, P> = {
      * Whether the grid is shown at all. (default: true)
      */
     gridShown?: boolean;
-    /**
-     * Override the color of the grid lines. (defaults to the theme's grid color)
-     */
-    gridStrokeColor?: string;
     /**
      * Handler that is invoked when the time range is changed.
      *

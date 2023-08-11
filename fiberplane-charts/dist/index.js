@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createContext, useContext, forwardRef, useRef, useCallback, useState, useEffect, useReducer, useMemo, useLayoutEffect, memo, useId, Fragment as Fragment$1 } from 'react';
-import styled, { css, useTheme } from 'styled-components';
+import styled, { css } from 'styled-components';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { debounce } from 'throttle-debounce';
 import { useMotionValue, animate } from 'framer-motion';
@@ -63,7 +63,13 @@ const defaultTheme = {
     shapeListColors: [
         "#000"
     ],
-    gridStrokeColor: "#000"
+    gridStrokeColor: "#000",
+    fontAxisColor: "#000",
+    fontAxisFontSize: "12px",
+    fontAxisFontFamily: "sans-serif",
+    fontAxisFontStyle: "normal",
+    fontAxisFontWeight: "normal",
+    fontAxisLetterSpacing: "0"
 };
 const ThemeContext = createContext(defaultTheme);
 
@@ -1075,7 +1081,7 @@ function ChartContent({ areaGradientShown , chart , focusedShapeList , getShapeL
 
 const LABEL_OFFSET = 8;
 function BottomAxis({ formatter , scales: { xMax , xScale , yMax  } , strokeColor , strokeDasharray , ticks , xAxis: { maxValue , minValue  }  }) {
-    const { colorBase500 , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing  } = useTheme();
+    const { fontAxisColor , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing  } = useContext(ThemeContext);
     return /*#__PURE__*/ jsxs("g", {
         transform: `translate(0, ${yMax})`,
         children: [
@@ -1091,7 +1097,7 @@ function BottomAxis({ formatter , scales: { xMax , xScale , yMax  } , strokeColo
                     x: xScale((time - minValue) / (maxValue - minValue)),
                     y: fontAxisFontSize,
                     dy: LABEL_OFFSET,
-                    fill: colorBase500,
+                    fill: fontAxisColor,
                     fontFamily: fontAxisFontFamily,
                     fontStyle: fontAxisFontStyle,
                     fontWeight: fontAxisFontWeight,
@@ -1176,7 +1182,7 @@ function GridRows({ xMax , yScale , yTicks , ...lineProps }) {
 }
 
 function LeftAxis({ formatter , gridBordersShown , scales: { yMax , yScale  } , strokeColor , strokeDasharray , ticks  }) {
-    const { colorBase500 , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing  } = useTheme();
+    const { fontAxisColor , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing  } = useContext(ThemeContext);
     const tickLabelProps = {
         dx: "-0.45em",
         dy: "0.25em",
@@ -1186,7 +1192,7 @@ function LeftAxis({ formatter , gridBordersShown , scales: { yMax , yScale  } , 
         fontWeight: fontAxisFontWeight,
         fontSize: fontAxisFontSize,
         letterSpacing: fontAxisLetterSpacing,
-        fill: colorBase500
+        fill: fontAxisColor
     };
     const numTicks = ticks.length - 1;
     return /*#__PURE__*/ jsxs("g", {
