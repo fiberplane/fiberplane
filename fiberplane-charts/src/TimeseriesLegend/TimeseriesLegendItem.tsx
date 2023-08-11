@@ -129,15 +129,15 @@ const ColorBlock = styled.div<{
   align-items: center;
   justify-content: center;
   color: ${({ $chartTheme }) => $chartTheme.legendItem.checkboxColor};
-  border-radius: ${({ $chartTheme }) => $chartTheme.legendItem.borderRadius};
+  border-radius: ${({ $chartTheme }) =>
+    $chartTheme.legendItem.checkboxBorderRadius};
 `;
 
 const Emphasis = styled.span<{ $chartTheme: ChartTheme }>`
   /* FIXME: These vars are to support style overrides for dark mode */
-  background-color: var(
-      --fp-chart-legend-emphasis-bg,
-      ${({ $chartTheme }) => $chartTheme.legendItem.emphasisBackgroundColor}
-  );
+  /* --fp-chart-legend-emphasis-bg, */
+  background-color: ${({ $chartTheme }) =>
+    $chartTheme.legendItem.emphasisBackgroundColor};
   color: var(--fp-chart-legend-emphasis-color, currentColor);
   /* TODO (Jacco): we should try and find out what to do with this styling */
   /* stylelint-disable-next-line scale-unlimited/declaration-strict-value */
