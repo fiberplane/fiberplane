@@ -30,6 +30,7 @@ test("it generates a line chart", () => {
         to: getDateAtMinute(10).toISOString(),
       },
       timeseriesData: [timeseries],
+      additionalValues: [40],
     }),
   ).toMatchSnapshot();
 });

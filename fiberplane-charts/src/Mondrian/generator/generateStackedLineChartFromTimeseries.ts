@@ -9,6 +9,7 @@ import {
   attachSuggestionsToXAxis,
   calculateBucketsAndAxesForStackedChart,
   calculateSmallestTimeInterval,
+  extendAxisWithValue,
   getTimeFromTimestamp,
   normalizeAlongLinearAxis,
   splitIntoContinuousLines,
@@ -23,6 +24,10 @@ export function generateStackedLineChartFromTimeseries(
 ): AbstractChart<Timeseries, Metric> {
   const axesAndBuckets = calculateBucketsAndAxesForStackedChart(input);
   const { buckets, xAxis, yAxis } = axesAndBuckets;
+
+  for (const value of input.additionalValues) {
+    extendAxisWithValue(yAxis, value);
+  }
 
   const interval = calculateSmallestTimeInterval(buckets);
   if (interval) {

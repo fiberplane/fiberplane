@@ -1,10 +1,10 @@
 import * as styled_components from 'styled-components';
 import * as react from 'react';
 
-declare const ButtonGroup: styled_components.StyledComponent<"span", any, {}, never>;
+declare const ButtonGroup: styled_components.StyledComponent<"span", styled_components.DefaultTheme, {}, never>;
 
-declare const ControlsSet: styled_components.StyledComponent<"div", any, {}, never>;
-declare const ControlsSetLabel: styled_components.StyledComponent<"span", any, {}, never>;
+declare const ControlsSet: styled_components.StyledComponent<"div", styled_components.DefaultTheme, {}, never>;
+declare const ControlsSetLabel: styled_components.StyledComponent<"span", styled_components.DefaultTheme, {}, never>;
 
 declare const ICON_MAP: {
     readonly chart_bar: react.FunctionComponent<react.SVGProps<SVGSVGElement> & {
@@ -192,16 +192,18 @@ type TimeseriesSourceData = {
      * The time range to be displayed.
      */
     timeRange: TimeRange;
+    /**
+     * Additional values that will be plotted on the chart, but which are not
+     * part of any timeseries. These are not plotted, but are taken into
+     * account when deciding the range of the Y axis.
+     */
+    additionalValues: Array<number>;
 };
 /**
- * All the data necessary to generate an abstract chart from an array of
- * timeseries.
- *
- * Note we only support generating line charts from combined timeseries and
- * events data. If `graphType` is anything other than `"line"`, the events will
- * be ignored.
+ * All the data necessary to generate an abstract chart from a combination of
+ * timeseries data, events and an optional target latency.
  */
-type TimeseriesAndEventsSourceData = {
+type CombinedSourceData = {
     /**
      * The type of stacking to apply to the chart.
      *
@@ -222,8 +224,15 @@ type TimeseriesAndEventsSourceData = {
     timeseriesData: Array<Timeseries>;
     /**
      * Array of events to display in the chart.
+     *
+     * Note that events will not be displayed if the `graphType` is anything other
+     * than `"line"`.
      */
     events: Array<ProviderEvent>;
+    /**
+     * Optional target latency to display on the chart, in seconds.
+     */
+    targetLatency?: number;
     /**
      * The time range to be displayed.
      */
@@ -236,6 +245,8 @@ type SeriesSource = ({
     type: "timeseries";
 } & Timeseries) | {
     type: "events";
+} | {
+    type: "target_latency";
 };
 /**
  * An abstract chart with information about what to render and where to render
@@ -401,13 +412,14 @@ type Rectangle<P> = {
 };
 
 /**
- * Generates an abstract chart from the given timeseries data.
+ * Generates an abstract chart from a combination of timeseries data, events and
+ * an optional target latency.
  */
-declare function generateFromTimeseries(input: TimeseriesSourceData): AbstractChart<Timeseries, Metric>;
+declare function generate({ graphType, stackingType, timeseriesData, events, targetLatency, timeRange, }: CombinedSourceData): AbstractChart<SeriesSource, Metric | ProviderEvent | null>;
 /**
  * Generates an abstract chart from the given timeseries data.
  */
-declare function generateFromTimeseriesAndEvents(input: TimeseriesAndEventsSourceData): AbstractChart<SeriesSource, Metric | ProviderEvent>;
+declare function generateFromTimeseries(input: TimeseriesSourceData): AbstractChart<Timeseries, Metric>;
 
 type CoreChartProps<S, P> = {
     /**
@@ -427,7 +439,7 @@ type CoreChartProps<S, P> = {
     /**
      * Callback used to determine the color for a shape list.
      */
-    getShapeListColor: (shapeList: ShapeList<S, P>) => string;
+    getShapeListColor: (source: S, index: number) => string;
     /**
      * Show the line/border at the outer edge of the chart. (default: true)
      */
@@ -512,7 +524,7 @@ type VirtualElement = {
 };
 
 type TimeseriesLegendProps<S extends Timeseries, P> = {
-    getShapeListColor: (shapeList: ShapeList<S, P>) => string;
+    getShapeListColor: (source: S, index: number) => string;
     /**
      * Handler that is invoked when the focused shape list is changed.
      */
@@ -561,7 +573,7 @@ type ChartControlsProps = {
     stackingType: StackingType;
 };
 
-type MetricsChartProps = Omit<CoreChartProps<SeriesSource, Metric | ProviderEvent>, "chart" | "colors" | "focusedShapeList" | "getShapeListColor" | "onFocusedShapeListChange"> & Pick<TimeseriesLegendProps<Timeseries, Metric>, "footerShown" | "onToggleTimeseriesVisibility"> & Omit<ChartControlsProps, "stackingControlsShown"> & TimeseriesSourceData & {
+type MetricsChartProps = Omit<CoreChartProps<SeriesSource, Metric | ProviderEvent | null>, "chart" | "colors" | "focusedShapeList" | "getShapeListColor" | "onFocusedShapeListChange"> & Pick<TimeseriesLegendProps<Timeseries, Metric>, "footerShown" | "onToggleTimeseriesVisibility"> & Omit<ChartControlsProps, "stackingControlsShown"> & Omit<TimeseriesSourceData, "additionalValues"> & {
     /**
      * Show the chart controls. (default: true)
      *
@@ -586,11 +598,24 @@ type MetricsChartProps = Omit<CoreChartProps<SeriesSource, Metric | ProviderEven
      */
     stackingControlsShown?: boolean;
     theme: ChartTheme;
+    /**
+     * Optional target latency to draw on the chart, in seconds.
+     *
+     * You will also need to specify the `targetLatencyColor` for the latency
+     * to appear.
+     */
+    targetLatency?: number;
+    /**
+     * The color to use for drawing target latencies.
+     *
+     * If not specified, no target latency can be drawn.
+     */
+    targetLatencyColor?: string;
 };
 
 declare function MetricsChart(props: MetricsChartProps): JSX.Element;
 
-type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange" | "areaGradientShown"> & TimeseriesSourceData & {
+type Props = Pick<CoreChartProps<Timeseries, Metric>, "onChangeTimeRange" | "areaGradientShown"> & Omit<TimeseriesSourceData, "additionalValues"> & {
     /**
      * Override the colors for the timeseries. If not specified several colors
      * of the theme are used.
@@ -663,4 +688,4 @@ declare function getPercentageFormatter(): TickFormatter;
 declare function getScientificFormatterForAxis(axis: Axis): TickFormatter;
 declare function getTimeFormatterForAxis(axis: Axis): TickFormatter;
 
-export { AbstractChart, Area, AreaPoint, Axis, ButtonGroup, ChartTheme, CloseTooltipFn, ControlsSet, ControlsSetLabel, FormatterKind, GraphType, Icon, IconButton, Line, Metric, MetricsChart, MetricsChartProps, OtelMetadata, Point, ProviderEvent, Rectangle, SeriesSource, Shape, ShapeList, SparkChart, StackingType, TickFormatter, TickFormatters, TickFormattersFactory, TimeRange, Timeseries, TimeseriesAndEventsSourceData, TimeseriesSourceData, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement, generateFromTimeseries, generateFromTimeseriesAndEvents, getBytesFormatterForAxis, getDurationFormatterForAxis, getExponentFormatter, getFormatterForAxis, getPercentageFormatter, getScientificFormatterForAxis, getTimeFormatterForAxis };
+export { AbstractChart, Area, AreaPoint, Axis, ButtonGroup, ChartTheme, CloseTooltipFn, CombinedSourceData, ControlsSet, ControlsSetLabel, FormatterKind, GraphType, Icon, IconButton, Line, Metric, MetricsChart, MetricsChartProps, OtelMetadata, Point, ProviderEvent, Rectangle, SeriesSource, Shape, ShapeList, SparkChart, StackingType, TickFormatter, TickFormatters, TickFormattersFactory, TimeRange, Timeseries, TimeseriesSourceData, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement, generate, generateFromTimeseries, getBytesFormatterForAxis, getDurationFormatterForAxis, getExponentFormatter, getFormatterForAxis, getPercentageFormatter, getScientificFormatterForAxis, getTimeFormatterForAxis };

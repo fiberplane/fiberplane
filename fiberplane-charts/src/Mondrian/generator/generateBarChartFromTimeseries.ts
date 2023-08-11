@@ -13,6 +13,7 @@ import {
   calculateYAxisRange,
   createMetricBuckets,
   extendAxisWithInterval,
+  extendAxisWithValue,
   extendMinMax,
   getInitialMinMax,
   getTimeFromTimestamp,
@@ -38,6 +39,10 @@ export function generateBarChartFromTimeseries(
 
   const xAxis = getXAxisFromTimeRange(input.timeRange);
   const yAxis = calculateYAxisRange(buckets, identity);
+
+  for (const value of input.additionalValues) {
+    extendAxisWithValue(yAxis, value);
+  }
 
   const numShapeLists = visibleTimeseriesData.length;
 

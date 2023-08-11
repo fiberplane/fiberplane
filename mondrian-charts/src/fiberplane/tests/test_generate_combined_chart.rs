@@ -1,12 +1,17 @@
 use crate::chart_to_svg::*;
 use crate::fiberplane::{
-    generate_line_chart_from_timeseries, GraphType, Metric, StackingType, TimeRange, Timeseries,
-    TimeseriesSourceData, Timestamp,
+    generate, CombinedSourceData, GraphType, Metric, ProviderEvent, SeriesSource, StackingType,
+    TimeRange, Timeseries, Timestamp,
 };
 use std::str::FromStr;
 
 #[test]
 fn test_generate_line_chart_from_timeseries() {
+    let events = vec![
+        get_event_at_minute(2, "deploy 1"),
+        get_event_at_minute(7, "deploy 2"),
+    ];
+
     let timeseries = Timeseries::builder()
         .name("dummy_data")
         .metrics(vec![
@@ -23,7 +28,9 @@ fn test_generate_line_chart_from_timeseries() {
         .visible(true)
         .build();
 
-    let chart = generate_line_chart_from_timeseries(TimeseriesSourceData {
+    let target_latency = 40.;
+
+    let chart = generate(CombinedSourceData {
         graph_type: GraphType::Line,
         stacking_type: StackingType::None,
         time_range: TimeRange {
@@ -31,8 +38,10 @@ fn test_generate_line_chart_from_timeseries() {
             to: get_date_at_minute(10),
         },
         timeseries_data: &[&timeseries],
-        additional_values: &[40.],
-    });
+        events: &events.iter().collect::<Vec<_>>(),
+        target_latency: Some(target_latency),
+    })
+    .unwrap();
 
     insta::assert_yaml_snapshot!(chart);
 
@@ -46,7 +55,11 @@ fn test_generate_line_chart_from_timeseries() {
             grid_shown: false,
             grid_stroke_color: "#e7e7e7".to_owned(),
             grid_stroke_dasharray: Default::default(),
-            get_shape_list_color: &|_, _| "#c00eae",
+            get_shape_list_color: &|source, _| match source {
+                SeriesSource::Timeseries(_) => "#c00eae",
+                SeriesSource::Events => "#4c7aff",
+                SeriesSource::TargetLatency => "#63eaad",
+            },
             tick_color: "#a4a4a4".to_owned(),
             x_formatter: FormatterKind::Time,
             y_formatter: FormatterKind::Duration,
@@ -71,4 +84,11 @@ fn get_metric_at_minute(minute: u8, value: f64) -> Metric {
 
 fn get_date_at_minute(minute: u8) -> Timestamp {
     Timestamp::from_str(&format!("2023-07-18T16:{minute:02}:00.000Z")).unwrap()
+}
+
+fn get_event_at_minute(minute: u8, title: &str) -> ProviderEvent {
+    ProviderEvent::builder()
+        .time(get_date_at_minute(minute))
+        .title(title)
+        .build()
 }

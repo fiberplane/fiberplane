@@ -8,17 +8,13 @@ import {
   TickFormatters,
 } from "../CoreChart";
 import { Metric, Timeseries } from "../providerTypes";
-import {
-  ShapeList,
-  TimeseriesSourceData,
-  generateFromTimeseries,
-} from "../Mondrian";
+import { TimeseriesSourceData, generateFromTimeseries } from "../Mondrian";
 
 type Props = Pick<
   CoreChartProps<Timeseries, Metric>,
   "onChangeTimeRange" | "areaGradientShown"
 > &
-  TimeseriesSourceData & {
+  Omit<TimeseriesSourceData, "additionalValues"> & {
     /**
      * Override the colors for the timeseries. If not specified several colors
      * of the theme are used.
@@ -42,16 +38,15 @@ export function SparkChart({
         stackingType,
         timeRange,
         timeseriesData,
+        additionalValues: [],
       }),
     [graphType, stackingType, timeRange, timeseriesData],
   );
 
   const getShapeListColor = useMemo(() => {
-    return (shapeList: ShapeList<Timeseries, Metric>): string => {
-      const index = chart.shapeLists.indexOf(shapeList);
-      return colors[index % colors.length];
-    };
-  }, [chart, colors]);
+    return (_source: Timeseries, index: number): string =>
+      colors[index % colors.length];
+  }, [colors]);
 
   return (
     <StyledChartSizeContainerProvider>

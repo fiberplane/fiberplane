@@ -184,10 +184,11 @@ impl PercentageFormatter {
 
 impl TickFormatter for PercentageFormatter {
     fn format(&self, value: f64) -> String {
-        if value == value.round() {
-            format!("{value:.0}%")
+        let percentage_value = value * 100.;
+        if percentage_value == percentage_value.round() {
+            format!("{percentage_value:.0}%")
         } else {
-            format!("{value:.1}%")
+            format!("{percentage_value:.1}%")
         }
     }
 }
@@ -451,12 +452,6 @@ impl TimeScale {
 
         const MINUTE_PADDED: Minute = Minute::default();
 
-        const MINUTE: Minute = {
-            let mut minute = Minute::default();
-            minute.padding = Padding::None;
-            minute
-        };
-
         const SECOND_PADDED: Second = Second::default();
 
         const SECOND: Second = {
@@ -495,7 +490,9 @@ impl TimeScale {
                 FormatItem::Component(Component::Minute(MINUTE_PADDED)),
             ]),
             TimeScale::Minutes => FormatItem::Compound(&[
-                FormatItem::Component(Component::Minute(MINUTE)),
+                FormatItem::Component(Component::Hour(HOUR)),
+                FormatItem::Literal(b":"),
+                FormatItem::Component(Component::Minute(MINUTE_PADDED)),
                 FormatItem::Literal(b":"),
                 FormatItem::Component(Component::Second(SECOND_PADDED)),
             ]),
@@ -610,19 +607,24 @@ mod tests {
     #[test]
     fn test_percentage_formatter() {
         let formatter = PercentageFormatter::new();
-        assert_eq!(formatter.format(123456.), "123456%");
-        assert_eq!(formatter.format(12345.), "12345%");
-        assert_eq!(formatter.format(1234.), "1234%");
-        assert_eq!(formatter.format(123.), "123%");
-        assert_eq!(formatter.format(12.), "12%");
-        assert_eq!(formatter.format(1.), "1%");
+        assert_eq!(formatter.format(1.), "100%");
         assert_eq!(formatter.format(0.), "0%");
-        assert_eq!(formatter.format(0.12345678), "0.1%");
-        assert_eq!(formatter.format(0.01234567), "0.0%");
-        assert_eq!(formatter.format(0.00123456), "0.0%");
 
-        assert_eq!(formatter.format(-1234567.), "-1234567%");
-        assert_eq!(formatter.format(-1.23456789), "-1.2%");
+        assert_eq!(formatter.format(1234.56), "123456%");
+        assert_eq!(formatter.format(123.45), "12345%");
+        assert_eq!(formatter.format(12.34), "1234%");
+        assert_eq!(formatter.format(1.23), "123%");
+
+        assert_eq!(formatter.format(0.1234), "12.3%");
+        assert_eq!(formatter.format(0.0123), "1.2%");
+        assert_eq!(formatter.format(0.012), "1.2%");
+        assert_eq!(formatter.format(0.01), "1%");
+        assert_eq!(formatter.format(0.0012345678), "0.1%");
+        assert_eq!(formatter.format(0.0001234567), "0.0%");
+        assert_eq!(formatter.format(0.0000123456), "0.0%");
+
+        assert_eq!(formatter.format(-12345.67), "-1234567%");
+        assert_eq!(formatter.format(-0.0123456789), "-1.2%");
     }
 
     #[test]
@@ -700,7 +702,7 @@ mod tests {
             tick_suggestions: None,
         };
         let formatter = TimeFormatter::for_axis(&axis);
-        assert_eq!(formatter.format(1691496477.932), "7:57");
+        assert_eq!(formatter.format(1691496477.932), "12:07:57");
 
         let axis = Axis {
             min_value: 1691496477.932,

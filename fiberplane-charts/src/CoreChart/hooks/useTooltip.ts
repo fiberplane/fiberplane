@@ -8,7 +8,6 @@ import {
   Point,
   Rectangle,
   Shape,
-  ShapeList,
 } from "../../Mondrian";
 import type {
   ChartCoordinates,
@@ -33,7 +32,7 @@ export type GraphTooltip<S, P> = {
 type Props<S, P> = {
   chart: AbstractChart<S, P>;
   dimensions: Dimensions;
-  getShapeListColor: (shapeList: ShapeList<S, P>) => string;
+  getShapeListColor: (source: S, index: number) => string;
   showTooltip: ShowTooltipFn<S, P> | undefined;
 };
 
@@ -102,10 +101,10 @@ export function useTooltip<S, P>(props: Props<S, P>) {
       const [series, point, coords] = closest;
 
       const { chart, dimensions, getShapeListColor } = props;
-      const seriesIndex = chart.shapeLists.findIndex(
+      const shapeListIndex = chart.shapeLists.findIndex(
         (shapeList) => shapeList.source === series,
       );
-      const color = getShapeListColor(chart.shapeLists[seriesIndex]);
+      const color = getShapeListColor(series, shapeListIndex);
 
       showTooltip({
         color,

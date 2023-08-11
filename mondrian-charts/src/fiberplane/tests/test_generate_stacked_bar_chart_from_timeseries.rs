@@ -51,6 +51,7 @@ fn test_generate_stacked_bar_chart_from_timeseries() {
             to: get_date_at_minute(10),
         },
         timeseries_data: &[&timeseries_a, &timeseries_b],
+        additional_values: &[40.],
     });
 
     insta::assert_yaml_snapshot!(chart);
@@ -65,7 +66,7 @@ fn test_generate_stacked_bar_chart_from_timeseries() {
             grid_shown: true,
             grid_stroke_color: "#e7e7e7".to_owned(),
             grid_stroke_dasharray: Default::default(),
-            shape_list_colors: vec!["#c00eae".to_owned()],
+            get_shape_list_color: &|_, index| if index % 2 == 0 { "#c00eae" } else { "#23304a" },
             tick_color: "#a4a4a4".to_owned(),
             x_formatter: FormatterKind::Time,
             y_formatter: FormatterKind::Exponent,

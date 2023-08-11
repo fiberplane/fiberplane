@@ -4,7 +4,7 @@ use crate::types::{Axis, MondrianChart, Rectangle, Shape, ShapeList};
 use std::convert::identity;
 
 pub(crate) fn generate_bar_chart_from_timeseries<'source>(
-    input: TimeseriesSourceData<'source, '_>,
+    input: TimeseriesSourceData<'source, '_, '_>,
 ) -> MondrianChart<&'source Timeseries, &'source Metric> {
     let visible_timeseries_data: Vec<_> = input
         .timeseries_data
@@ -20,7 +20,11 @@ pub(crate) fn generate_bar_chart_from_timeseries<'source>(
     });
 
     let mut x_axis = get_x_axis_from_time_range(&input.time_range);
-    let y_axis = calculate_y_axis_range(&buckets, identity);
+    let mut y_axis = calculate_y_axis_range(&buckets, identity);
+
+    for &value in input.additional_values {
+        y_axis = y_axis.extend_with_value(value);
+    }
 
     let num_shape_lists = visible_timeseries_data.len();
 

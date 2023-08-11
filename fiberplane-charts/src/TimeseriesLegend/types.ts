@@ -2,7 +2,7 @@ import type { ShapeList } from "../Mondrian";
 import type { Timeseries } from "../providerTypes";
 
 export type TimeseriesLegendProps<S extends Timeseries, P> = {
-  getShapeListColor: (shapeList: ShapeList<S, P>) => string;
+  getShapeListColor: (source: S, index: number) => string;
 
   /**
    * Handler that is invoked when the focused shape list is changed.

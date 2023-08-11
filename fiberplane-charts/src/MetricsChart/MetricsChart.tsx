@@ -4,11 +4,7 @@ import styled from "styled-components";
 import { ChartControls } from "./ChartControls";
 import { ChartSizeContainerProvider } from "../CoreChart";
 import { CoreChart } from "../CoreChart";
-import {
-  generateFromTimeseriesAndEvents,
-  SeriesSource,
-  ShapeList,
-} from "../Mondrian";
+import { generate, SeriesSource, ShapeList } from "../Mondrian";
 import { HEIGHT, MARGINS } from "../CoreChart/constants";
 import type { Metric, ProviderEvent, Timeseries } from "../providerTypes";
 import type { MetricsChartProps } from "./types";
@@ -16,7 +12,7 @@ import { TimeseriesLegend } from "../TimeseriesLegend";
 import { useHandler } from "../hooks";
 import { ThemeContext } from "../theme";
 
-type GenericShapeList = ShapeList<SeriesSource, Metric | ProviderEvent>;
+type GenericShapeList = ShapeList<SeriesSource, Metric | ProviderEvent | null>;
 
 type TimeseriesShapeList = ShapeList<Timeseries, Metric>;
 
@@ -50,20 +46,23 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
     stackingControlsShown = true,
     stackingType,
     theme,
+    targetLatency,
+    targetLatencyColor,
     timeRange,
     timeseriesData,
   } = props;
 
   const chart = useMemo(
     () =>
-      generateFromTimeseriesAndEvents({
+      generate({
         events: events ?? [],
         graphType,
         stackingType,
+        targetLatency,
         timeRange,
         timeseriesData,
       }),
-    [events, graphType, stackingType, timeRange, timeseriesData],
+    [events, graphType, stackingType, targetLatency, timeRange, timeseriesData],
   );
 
   const { eventColor, shapeListColors } = theme;
@@ -72,15 +71,17 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
     useState<GenericShapeList | null>(null);
 
   const getShapeListColor = useMemo(() => {
-    return (shapeList: GenericShapeList): string => {
-      if (isTimeseriesShapeList(shapeList)) {
-        const index = chart.shapeLists.indexOf(shapeList);
-        return shapeListColors[index % shapeListColors.length];
-      } else {
-        return eventColor;
+    return (source: SeriesSource, index: number): string => {
+      switch (source.type) {
+        case "timeseries":
+          return shapeListColors[index % shapeListColors.length];
+        case "events":
+          return eventColor;
+        case "target_latency":
+          return targetLatencyColor || "transparent";
       }
     };
-  }, [chart, eventColor, shapeListColors]);
+  }, [eventColor, shapeListColors, targetLatencyColor]);
 
   const onFocusedShapeListChange = useHandler(
     (shapeList: GenericShapeList | null) => {

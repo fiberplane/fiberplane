@@ -36,9 +36,9 @@ pub struct ImageOptions {
     pub background_color: String,
 }
 
-pub fn chart_to_image<S, P>(
-    chart: &MondrianChart<S, P>,
-    chart_options: &ChartOptions,
+pub fn chart_to_image<'a, S, P>(
+    chart: &'a MondrianChart<S, P>,
+    chart_options: &ChartOptions<'a, S>,
     image_options: &ImageOptions,
 ) -> Result<Vec<u8>, ImageRenderingError> {
     let svg = chart_to_svg(chart, chart_options);
@@ -56,9 +56,9 @@ pub fn chart_to_image<S, P>(
     Ok(buffer)
 }
 
-fn render_svg_to_buffer(
+fn render_svg_to_buffer<S>(
     svg: &str,
-    chart_options: &ChartOptions,
+    chart_options: &ChartOptions<S>,
     image_options: &ImageOptions,
 ) -> Result<image::RgbaImage, ImageRenderingError> {
     let &ChartOptions { width, height, .. } = chart_options;

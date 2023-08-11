@@ -49,6 +49,21 @@ impl Axis {
         self.max_value += half_interval;
         self
     }
+
+    /// Extends the range of the axis with the given value.
+    ///
+    /// If the given value is outside the range of the axis, the range is
+    /// extended to include the value. Otherwise, nothing happens.
+    #[must_use]
+    pub fn extend_with_value(mut self, value: f64) -> Self {
+        if value < self.min_value {
+            self.min_value = value;
+        } else if value > self.max_value {
+            self.max_value = value;
+        }
+
+        self
+    }
 }
 
 /// List of shapes that belongs together.

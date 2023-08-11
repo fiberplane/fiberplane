@@ -27,7 +27,7 @@ export type CoreChartProps<S, P> = {
   /**
    * Callback used to determine the color for a shape list.
    */
-  getShapeListColor: (shapeList: ShapeList<S, P>) => string;
+  getShapeListColor: (source: S, index: number) => string;
 
   /**
    * Show the line/border at the outer edge of the chart. (default: true)

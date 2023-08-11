@@ -10,6 +10,7 @@ import {
   calculateBarWidth,
   calculateSmallestTimeInterval,
   extendAxisWithInterval,
+  extendAxisWithValue,
   getTimeFromTimestamp,
   normalizeAlongLinearAxis,
   attachSuggestionsToXAxis,
@@ -23,6 +24,10 @@ export function generateStackedBarChartFromTimeseries(
 ): AbstractChart<Timeseries, Metric> {
   const { buckets, isPercentage, xAxis, yAxis } =
     calculateBucketsAndAxesForStackedChart(input);
+
+  for (const value of input.additionalValues) {
+    extendAxisWithValue(yAxis, value);
+  }
 
   const interval = calculateSmallestTimeInterval(buckets);
   if (interval) {

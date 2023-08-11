@@ -12,6 +12,7 @@ import {
   calculateYAxisRange,
   createMetricBuckets,
   extendMinMax,
+  extendAxisWithValue,
   getInitialMinMax,
   getTimeFromTimestamp,
   getXAxisFromTimeRange,
@@ -33,6 +34,10 @@ export function generateLineChartFromTimeseries(
 
   const xAxis = getXAxisFromTimeRange(input.timeRange);
   const yAxis = calculateYAxisRange(buckets, identity);
+
+  for (const value of input.additionalValues) {
+    extendAxisWithValue(yAxis, value);
+  }
 
   const interval = calculateSmallestTimeInterval(buckets);
   if (interval) {

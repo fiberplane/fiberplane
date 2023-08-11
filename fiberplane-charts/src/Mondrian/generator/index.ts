@@ -1,15 +1,60 @@
 import type {
   AbstractChart,
   SeriesSource,
-  TimeseriesAndEventsSourceData,
+  CombinedSourceData,
   TimeseriesSourceData,
 } from "../types";
 import { generateBarChartFromTimeseries } from "./generateBarChartFromTimeseries";
 import { generateLineChartFromTimeseries } from "./generateLineChartFromTimeseries";
 import { generateShapeListFromEvents } from "./generateShapeListFromEvents";
+import { generateShapeListFromTargetLatency } from "./generateShapeListFromTargetLatency";
 import { generateStackedBarChartFromTimeseries } from "./generateStackedBarChartFromTimeseries";
 import { generateStackedLineChartFromTimeseries } from "./generateStackedLineChartFromTimeseries";
 import type { Timeseries, Metric, ProviderEvent } from "../../providerTypes";
+
+/**
+ * Generates an abstract chart from a combination of timeseries data, events and
+ * an optional target latency.
+ */
+export function generate({
+  graphType,
+  stackingType,
+  timeseriesData,
+  events,
+  targetLatency,
+  timeRange,
+}: CombinedSourceData): AbstractChart<
+  SeriesSource,
+  Metric | ProviderEvent | null
+> {
+  const timeseriesChart = generateFromTimeseries({
+    graphType,
+    stackingType,
+    timeseriesData,
+    timeRange,
+    additionalValues: targetLatency ? [targetLatency] : [],
+  });
+
+  const chart: AbstractChart<SeriesSource, Metric | ProviderEvent | null> = {
+    ...timeseriesChart,
+    shapeLists: timeseriesChart.shapeLists.map((list) => ({
+      ...list,
+      source: { ...list.source, type: "timeseries" },
+    })),
+  };
+
+  if (graphType === "line" && events.length > 0) {
+    chart.shapeLists.push(generateShapeListFromEvents(chart.xAxis, events));
+  }
+
+  if (targetLatency) {
+    chart.shapeLists.push(
+      generateShapeListFromTargetLatency(chart.yAxis, targetLatency),
+    );
+  }
+
+  return chart;
+}
 
 /**
  * Generates an abstract chart from the given timeseries data.
@@ -26,29 +71,4 @@ export function generateFromTimeseries(
       ? generateBarChartFromTimeseries(input)
       : generateStackedBarChartFromTimeseries(input);
   }
-}
-
-/**
- * Generates an abstract chart from the given timeseries data.
- */
-export function generateFromTimeseriesAndEvents(
-  input: TimeseriesAndEventsSourceData,
-): AbstractChart<SeriesSource, Metric | ProviderEvent> {
-  const timeseriesChart = generateFromTimeseries(input);
-
-  const chart: AbstractChart<SeriesSource, Metric | ProviderEvent> = {
-    ...timeseriesChart,
-    shapeLists: timeseriesChart.shapeLists.map((list) => ({
-      ...list,
-      source: { ...list.source, type: "timeseries" },
-    })),
-  };
-
-  if (input.graphType === "line" && input.events.length > 0) {
-    chart.shapeLists.push(
-      generateShapeListFromEvents(chart.xAxis, input.events),
-    );
-  }
-
-  return chart;
 }

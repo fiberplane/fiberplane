@@ -50,6 +50,7 @@ test("it generates a stacked line chart", () => {
         to: getDateAtMinute(10).toISOString(),
       },
       timeseriesData: [timeseriesA, timeseriesB],
+      additionalValues: [],
     }),
   ).toMatchSnapshot();
 });

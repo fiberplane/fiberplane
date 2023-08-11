@@ -9,7 +9,7 @@ use std::borrow::Cow;
 pub(super) fn generate_grid_with_axes_svg<S, P>(
     MondrianChart { x_axis, y_axis, .. }: &MondrianChart<S, P>,
     scales: &Scales,
-    options: &ChartOptions,
+    options: &ChartOptions<S>,
 ) -> String {
     let &Scales { x_max, y_max } = scales;
 
@@ -99,13 +99,13 @@ fn generate_grid_columns_svg(
     format!("<g>{ticks}</g>", ticks = join(ticks, ""))
 }
 
-fn generate_bottom_axis_svg(
+fn generate_bottom_axis_svg<S>(
     formatter: &dyn TickFormatter,
     scales: &Scales,
     x_axis: &Axis,
     x_ticks: &[f64],
     stroke_attrs: &str,
-    options: &ChartOptions,
+    options: &ChartOptions<S>,
 ) -> String {
     let Scales { x_max, y_max } = scales;
     let Axis {
@@ -141,13 +141,13 @@ fn generate_bottom_axis_svg(
     )
 }
 
-fn generate_left_axis_svg(
+fn generate_left_axis_svg<S>(
     formatter: &dyn TickFormatter,
     scales: &Scales,
     y_axis: &Axis,
     y_ticks: &[f64],
     stroke_attrs: &str,
-    options: &ChartOptions,
+    options: &ChartOptions<S>,
 ) -> String {
     let Scales { y_max, .. } = scales;
     let Axis {
@@ -305,12 +305,12 @@ fn extend_ticks_to_fit_axis(
     }
 }
 
-fn format_stroke_attrs(
+fn format_stroke_attrs<S>(
     ChartOptions {
         grid_stroke_color,
         grid_stroke_dasharray,
         ..
-    }: &ChartOptions,
+    }: &ChartOptions<S>,
 ) -> String {
     if grid_stroke_dasharray.is_empty() {
         format!("stroke=\"{grid_stroke_color}\"")
