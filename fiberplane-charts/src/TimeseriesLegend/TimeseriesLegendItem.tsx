@@ -167,11 +167,10 @@ const LegendItemContainer = styled(Container)<{
 
         &:hover {
           /* FIXME: These vars are to support style overrides for dark mode */
-          background: var(
-              --fp-chart-legend-hover-bg,
-              ${$chartTheme.legendItem.on.hover.backgroundColor}
-          );
-          color: var(--fp-chart-legend-hover-color, currentColor);
+          /* --fp-chart-legend-hover-bg */
+          /* --fp-chart-legend-hover-color */
+          background: ${$chartTheme.legendItem.on.hover.backgroundColor};
+          color: ${$chartTheme.legendItem.on.hover.color};
         }
       `
     }

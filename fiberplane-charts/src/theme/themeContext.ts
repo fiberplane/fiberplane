@@ -46,6 +46,7 @@ const defaultTheme: ChartTheme = {
     font: "sans-serif",
     on: {
       hover: {
+        color: "#FFF",
         backgroundColor: "#000",
       },
     },

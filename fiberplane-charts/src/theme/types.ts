@@ -28,6 +28,7 @@ export interface ChartTheme {
     font: string;
     on: {
       hover: {
+        color: string;
         backgroundColor: string;
       };
     };
