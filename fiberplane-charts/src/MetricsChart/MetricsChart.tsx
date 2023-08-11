@@ -32,7 +32,6 @@ export function MetricsChart(props: MetricsChartProps) {
       >
         <InnerMetricsChart {...props} />
       </StyledChartSizeContainerProvider>
-
     </ThemeContext.Provider>
   );
 }

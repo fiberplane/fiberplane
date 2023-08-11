@@ -29,9 +29,9 @@ export interface ChartTheme {
     on: {
       hover: {
         backgroundColor: string;
-      }
-    }
-  }
+      };
+    };
+  };
 }
 
 type Button = {

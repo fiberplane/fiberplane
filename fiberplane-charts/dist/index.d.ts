@@ -1,10 +1,10 @@
 import * as styled_components from 'styled-components';
 import * as react from 'react';
 
-declare const ButtonGroup: styled_components.StyledComponent<"span", styled_components.DefaultTheme, {}, never>;
+declare const ButtonGroup: styled_components.StyledComponent<"span", any, {}, never>;
 
-declare const ControlsSet: styled_components.StyledComponent<"div", styled_components.DefaultTheme, {}, never>;
-declare const ControlsSetLabel: styled_components.StyledComponent<"span", styled_components.DefaultTheme, {}, never>;
+declare const ControlsSet: styled_components.StyledComponent<"div", any, {}, never>;
+declare const ControlsSetLabel: styled_components.StyledComponent<"span", any, {}, never>;
 
 declare const ICON_MAP: {
     readonly chart_bar: react.FunctionComponent<react.SVGProps<SVGSVGElement> & {
