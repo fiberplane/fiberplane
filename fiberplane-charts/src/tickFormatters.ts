@@ -168,10 +168,11 @@ export function getExponentFormatter(): TickFormatter {
 
 export function getPercentageFormatter(): TickFormatter {
   return (value: number): string => {
-    if (value === Math.round(value)) {
-      return `${value}%`;
+    const percentageValue = value * 100;
+    if (percentageValue === Math.round(percentageValue)) {
+      return `${percentageValue}%`;
     } else {
-      return `${value.toFixed(1)}%`;
+      return `${percentageValue.toFixed(1)}%`;
     }
   };
 }

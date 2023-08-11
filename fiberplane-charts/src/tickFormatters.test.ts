@@ -1,6 +1,7 @@
 import {
   getScientificFormatterForAxis,
   getTimeFormatterForAxis,
+  getPercentageFormatter,
 } from "./tickFormatters";
 
 test("it can format large numbers with scientific notation", () => {
@@ -81,4 +82,16 @@ test("it can format time values", () => {
     maxValue: 1691496478.932,
   });
   expect(millisecondFormatter(1691496477.932)).toBe(".932");
+});
+
+test("it can format percentages", () => {
+  const percentageFormatter = getPercentageFormatter();
+  expect(percentageFormatter(0)).toBe("0%");
+  expect(percentageFormatter(0.005)).toBe("0.5%");
+  expect(percentageFormatter(0.01)).toBe("1%");
+  expect(percentageFormatter(0.0101)).toBe("1.0%");
+  expect(percentageFormatter(0.0106)).toBe("1.1%");
+  expect(percentageFormatter(0.1)).toBe("10%");
+  expect(percentageFormatter(0.999)).toBe("99.9%");
+  expect(percentageFormatter(1)).toBe("100%");
 });
