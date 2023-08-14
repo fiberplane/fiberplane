@@ -580,7 +580,7 @@ type MetricsChartProps = Omit<CoreChartProps<SeriesSource, Metric | ProviderEven
      * Show the stacking controls. (default: true)
      */
     stackingControlsShown?: boolean;
-    chartTheme: Theme;
+    chartTheme?: ChartTheme;
     /**
      * Optional target latency to draw on the chart, in seconds.
      *
