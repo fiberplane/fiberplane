@@ -32,7 +32,7 @@ type Result<T> = {
   /**
    * Scroll event listener to attach to the container.
    */
-  onScroll: (event: React.UIEvent<T, UIEvent>) => void;
+  onScroll: () => void;
 
   /**
    * Ref to attach to the container.
@@ -60,19 +60,17 @@ export function useExpandable<T extends HTMLElement = HTMLDivElement>({
       setShowGradient(false);
     } else {
       setShowExpandButton(true);
-      setShowGradient(scrollHeight - scrollTop >= clientHeight);
+      setShowGradient(scrollHeight - scrollTop > clientHeight);
     }
   });
 
   // This calls update function with a tiny delay. This fixes
   // errors with the ResizeObserver loop taking too long
-  const asyncUpdate = useHandler((element: Element) => {
+  const asyncUpdate = useHandler(() => {
     setTimeout(() => {
-      if (ref.current !== element) {
-        return;
+      if (ref.current) {
+        update(ref.current);
       }
-
-      update(element);
     }, 0);
   });
 
@@ -106,10 +104,6 @@ export function useExpandable<T extends HTMLElement = HTMLDivElement>({
     setIsExpanded(!isExpanded);
   });
 
-  const onScroll = useHandler((event: React.UIEvent<T, UIEvent>) => {
-    asyncUpdate(event.currentTarget);
-  });
-
   return {
     expandButton: showExpandButton ? (
       <Expand onClick={onClickExpand} revert={isExpanded}>
@@ -122,12 +116,12 @@ export function useExpandable<T extends HTMLElement = HTMLDivElement>({
       </GradientContainer>
     ) : undefined,
     isExpanded: isExpanded || !showExpandButton,
-    onScroll,
+    onScroll: asyncUpdate,
     ref: setRef,
   };
 }
 
-type Listener = (node: Element) => void;
+type Listener = () => void;
 
 const listenerMap: WeakMap<Element, Set<Listener>> = new WeakMap();
 
@@ -138,7 +132,7 @@ function observerCallback(entries: ResizeObserverEntry[]) {
     const listeners = listenerMap.get(entry.target);
     if (listeners) {
       for (const listener of listeners) {
-        listener(entry.target);
+        listener();
       }
     }
   }
