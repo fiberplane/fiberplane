@@ -35,6 +35,9 @@ const defaultChartTheme = {
     legendItemCheckboxBorderRadius: "0",
     legendItemCheckboxColor: "#000",
     legendItemEmphasisBackgroundColor: "#000",
+    legendItemEmphasisBorderRadius: "0",
+    legendItemEmphasisColor: "",
+    legendItemEmphasisFont: "",
     legendItemFont: "sans-serif",
     legendItemOnHoverBackgroundColor: "#000",
     legendItemOnHoverColor: "#000",
@@ -550,17 +553,16 @@ function useHandler(handler) {
             setShowGradient(false);
         } else {
             setShowExpandButton(true);
-            setShowGradient(scrollHeight - scrollTop >= clientHeight);
+            setShowGradient(scrollHeight - scrollTop > clientHeight);
         }
     });
     // This calls update function with a tiny delay. This fixes
     // errors with the ResizeObserver loop taking too long
-    const asyncUpdate = useHandler((element)=>{
+    const asyncUpdate = useHandler(()=>{
         setTimeout(()=>{
-            if (ref.current !== element) {
-                return;
+            if (ref.current) {
+                update(ref.current);
             }
-            update(element);
         }, 0);
     });
     useEffect(()=>{
@@ -589,9 +591,6 @@ function useHandler(handler) {
     const onClickExpand = useHandler(()=>{
         setIsExpanded(!isExpanded);
     });
-    const onScroll = useHandler((event)=>{
-        asyncUpdate(event.currentTarget);
-    });
     return {
         expandButton: showExpandButton ? /*#__PURE__*/ jsx(Expand, {
             onClick: onClickExpand,
@@ -604,7 +603,7 @@ function useHandler(handler) {
             children: /*#__PURE__*/ jsx(Gradient, {})
         }) : undefined,
         isExpanded: isExpanded || !showExpandButton,
-        onScroll,
+        onScroll: asyncUpdate,
         ref: setRef
     };
 }
@@ -615,7 +614,7 @@ function observerCallback(entries) {
         const listeners = listenerMap.get(entry.target);
         if (listeners) {
             for (const listener of listeners){
-                listener(entry.target);
+                listener();
             }
         }
     }
@@ -2720,9 +2719,9 @@ function getPointForMetric(metric, { buckets , isPercentage , xAxis , yAxis  }) 
     }
 }
 
-function TimeseriesLegendItem({ color , onHover , onToggleTimeseriesVisibility , readOnly , index , setSize , timeseries , uniqueKeys  }) {
+function TimeseriesLegendItem({ color , onHover , onToggleTimeseriesVisibility , readOnly , index , setSize , style , timeseries , uniqueKeys  }) {
     const [ref, { height  }] = useMeasure();
-    useEffect(()=>{
+    useLayoutEffect(()=>{
         if (height) {
             setSize(index, height);
         }
@@ -2747,6 +2746,7 @@ function TimeseriesLegendItem({ color , onHover , onToggleTimeseriesVisibility ,
     const chartTheme = useContext(ChartThemeContext);
     return /*#__PURE__*/ jsx("div", {
         ref: ref,
+        style: style,
         onClick: toggleTimeseriesVisibility,
         onKeyDown: onKeyDown,
         children: /*#__PURE__*/ jsxs(LegendItemContainer, {
@@ -2800,29 +2800,25 @@ const FormattedTimeseries = /*#__PURE__*/ memo(function FormattedTimeseries({ me
         ]
     });
 });
-const ColorBlock = styled.div`
-  background: ${({ color , selected  })=>selected ? color : "transparent"};
-  border: 2px solid ${({ color  })=>color};
-  width: 14px;
-  height: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${({ $chartTheme  })=>$chartTheme.legendItemCheckboxColor};
-  border-radius: ${({ $chartTheme  })=>$chartTheme.legendItemBorderRadius};
-`;
-const Emphasis = styled.span`
-  /* FIXME: These vars are to support style overrides for dark mode */
-  /* --fp-chart-legend-emphasis-bg, */
-  background-color: ${({ $chartTheme  })=>$chartTheme.legendItemEmphasisBackgroundColor};
-  color: var(--fp-chart-legend-emphasis-color, currentColor);
-  /* TODO (Jacco): we should try and find out what to do with this styling */
-  /* stylelint-disable-next-line scale-unlimited/declaration-strict-value */
-  font-weight: 600;
-  /* TODO (Oscar): add border-radius */
+const ColorBlock = styled.div(({ $chartTheme , color , selected  })=>css`
+    background: ${selected ? color : "transparent"};
+    border: 2px solid ${color};
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: ${$chartTheme.legendItemCheckboxColor};
+    border-radius: ${$chartTheme.legendItemCheckboxBorderRadius};
+  `);
+const Emphasis = styled.span(({ $chartTheme  })=>css`
+  background-color: ${$chartTheme.legendItemEmphasisBackgroundColor};
+  color: ${$chartTheme.legendItemEmphasisColor};
+  font: ${$chartTheme.legendItemEmphasisFont};
+  border-radius: ${$chartTheme.legendItemEmphasisBorderRadius};
   padding: 1px 4px;
   display: inline-block;
-`;
+`);
 const LegendItemContainer = styled(Container)(({ $chartTheme , interactive  })=>css`
     border-radius: ${$chartTheme.legendItemBorderRadius};
     display: flex;
@@ -2836,20 +2832,17 @@ const LegendItemContainer = styled(Container)(({ $chartTheme , interactive  })=>
         cursor: pointer;
 
         &:hover {
-          /* FIXME: These vars are to support style overrides for dark mode */
-          /* --fp-chart-legend-hover-bg */
-          /* --fp-chart-legend-hover-color */
           background: ${$chartTheme.legendItemOnHoverBackgroundColor};
           color: ${$chartTheme.legendItemOnHoverColor};
         }
       `}
   `);
 const Text = styled.div`
-    flex: 1;
+  flex: 1;
 `;
 
 const DEFAULT_HEIGHT = 293;
-const DEFAULT_SIZE = 50;
+const DEFAULT_SIZE = 30;
 const EXPANDED_HEIGHT = 592;
 function TimeseriesLegend({ footerShown =true , getShapeListColor , onFocusedShapeListChange , onToggleTimeseriesVisibility , readOnly =false , shapeLists  }) {
     const { expandButton , gradient , isExpanded , onScroll , ref  } = useExpandable({
@@ -2879,6 +2872,9 @@ function TimeseriesLegend({ footerShown =true , getShapeListColor , onFocusedSha
     const getSize = (index)=>sizeMap.current.get(index) ?? DEFAULT_SIZE;
     const setSize = useHandler((index, size)=>{
         const oldSize = getSize(index);
+        if (oldSize === size) {
+            return;
+        }
         sizeMap.current.set(index, size);
         listRef.current?.resetAfterIndex(index);
         heightRef.current += size - oldSize;
@@ -2896,40 +2892,34 @@ function TimeseriesLegend({ footerShown =true , getShapeListColor , onFocusedSha
     const render = useHandler(({ data , index , style  })=>{
         const shapeList = data[index];
         const timeseries = shapeList.source;
-        return /*#__PURE__*/ jsx("div", {
-            style: style,
-            children: timeseries && /*#__PURE__*/ jsx(TimeseriesLegendItem, {
-                color: getShapeListColor(shapeList.source, index),
-                onHover: ()=>setFocusedTimeseries(timeseries),
-                onToggleTimeseriesVisibility: onToggleTimeseriesVisibility,
-                readOnly: readOnly,
-                timeseries: timeseries,
-                uniqueKeys: uniqueKeys,
-                index: index,
-                setSize: setSize
-            })
+        return timeseries && /*#__PURE__*/ jsx(TimeseriesLegendItem, {
+            color: getShapeListColor(shapeList.source, index),
+            onHover: ()=>setFocusedTimeseries(timeseries),
+            onToggleTimeseriesVisibility: onToggleTimeseriesVisibility,
+            readOnly: readOnly,
+            timeseries: timeseries,
+            uniqueKeys: uniqueKeys,
+            index: index,
+            setSize: setSize,
+            style: style
         });
     });
     return /*#__PURE__*/ jsxs(ChartLegendContainer, {
         onMouseOut: onMouseOut,
-        ref: ref,
         children: [
-            /*#__PURE__*/ jsxs(ExpandableContainer, {
-                maxHeight: `${maxHeight}px`,
+            /*#__PURE__*/ jsx(VariableSizeList, {
+                estimatedItemSize: DEFAULT_HEIGHT,
+                height: Math.min(heightRef.current, maxHeight),
                 onScroll: onScroll,
-                children: [
-                    /*#__PURE__*/ jsx(VariableSizeList, {
-                        height: Math.min(heightRef.current, maxHeight),
-                        width: "100%",
-                        ref: listRef,
-                        itemCount: shapeLists.length,
-                        itemData: shapeLists,
-                        itemSize: getSize,
-                        children: render
-                    }),
-                    gradient
-                ]
+                outerRef: ref,
+                width: "100%",
+                ref: listRef,
+                itemCount: shapeLists.length,
+                itemData: shapeLists,
+                itemSize: getSize,
+                children: render
             }),
+            gradient,
             footerShown && /*#__PURE__*/ jsxs(Footer, {
                 children: [
                     /*#__PURE__*/ jsx(Results, {
@@ -2941,10 +2931,6 @@ function TimeseriesLegend({ footerShown =true , getShapeListColor , onFocusedSha
         ]
     });
 }
-const ExpandableContainer = styled.div`
-    max-height: ${({ maxHeight  })=>maxHeight};
-    overflow: auto;
-`;
 const Footer = styled.div`
     width: 100%;
     height: 50px;

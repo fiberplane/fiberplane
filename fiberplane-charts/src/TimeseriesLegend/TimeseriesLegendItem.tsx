@@ -1,4 +1,4 @@
-import { Fragment, memo, useContext, useEffect } from "react";
+import { Fragment, memo, useContext, useLayoutEffect } from "react";
 import styled, { css } from "styled-components";
 
 import { Container, Icon } from "../BaseComponents";
@@ -15,6 +15,7 @@ type Props = {
   onToggleTimeseriesVisibility?: (event: ToggleTimeseriesEvent) => void;
   readOnly: boolean;
   setSize: (index: number, value: number) => void;
+  style: React.CSSProperties;
   timeseries: Timeseries;
   uniqueKeys: Array<string>;
 };
@@ -26,12 +27,13 @@ export function TimeseriesLegendItem({
   readOnly,
   index,
   setSize,
+  style,
   timeseries,
   uniqueKeys,
 }: Props): JSX.Element {
   const [ref, { height }] = useMeasure<HTMLDivElement>();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (height) {
       setSize(index, height);
     }
@@ -58,7 +60,12 @@ export function TimeseriesLegendItem({
   const chartTheme = useContext(ChartThemeContext);
 
   return (
-    <div ref={ref} onClick={toggleTimeseriesVisibility} onKeyDown={onKeyDown}>
+    <div
+      ref={ref}
+      style={style}
+      onClick={toggleTimeseriesVisibility}
+      onKeyDown={onKeyDown}
+    >
       <LegendItemContainer
         $chartTheme={chartTheme}
         onMouseOver={timeseries.visible ? onHover : noop}
