@@ -2982,7 +2982,7 @@ function MetricsChart(props) {
     });
 }
 const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
-    const { areaGradientShown =true , chartControlsShown =true , customChartControls , events , graphType , legendShown =true , readOnly , stackingControlsShown =true , stackingType , chartTheme , targetLatency , timeRange , timeseriesData  } = props;
+    const { areaGradientShown =true , chartControlsShown =true , customChartControls , events , graphType , legendShown =true , readOnly , stackingControlsShown =true , stackingType , targetLatency , timeRange , timeseriesData  } = props;
     const chart = useMemo(()=>generate({
             events: events ?? [],
             graphType,
@@ -2998,7 +2998,7 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
         timeRange,
         timeseriesData
     ]);
-    const { eventColor , shapeListColors , targetLatencyColor  } = chartTheme;
+    const { eventColor , shapeListColors , targetLatencyColor  } = useContext(ChartThemeContext);
     const [focusedShapeList, setFocusedShapeList] = useState(null);
     const getShapeListColor = useMemo(()=>{
         return (source, index)=>{

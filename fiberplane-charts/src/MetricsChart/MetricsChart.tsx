@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { ChartControls } from "./ChartControls";
@@ -53,7 +53,6 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
     readOnly,
     stackingControlsShown = true,
     stackingType,
-    chartTheme,
     targetLatency,
     timeRange,
     timeseriesData,
@@ -72,7 +71,8 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
     [events, graphType, stackingType, targetLatency, timeRange, timeseriesData],
   );
 
-  const { eventColor, shapeListColors, targetLatencyColor } = chartTheme;
+  const { eventColor, shapeListColors, targetLatencyColor } =
+    useContext(ChartThemeContext);
 
   const [focusedShapeList, setFocusedShapeList] =
     useState<GenericShapeList | null>(null);

@@ -1,5 +1,5 @@
 import type { ChartControlsProps } from "./ChartControls";
-import type { Theme } from "../theme";
+import type { ChartTheme } from "../theme";
 import type {
   CloseTooltipFn,
   CoreChartProps,
@@ -52,7 +52,7 @@ export type MetricsChartProps = Omit<
      */
     stackingControlsShown?: boolean;
 
-    chartTheme: Theme;
+    chartTheme?: ChartTheme;
 
     /**
      * Optional target latency to draw on the chart, in seconds.
