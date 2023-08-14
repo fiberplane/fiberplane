@@ -15,7 +15,7 @@ import { GridColumns } from "./GridColumns";
 import { GridRows } from "./GridRows";
 import { LeftAxis } from "./LeftAxis";
 import type { Scale, Scales, TickFormatters } from "../types";
-import { ThemeContext } from "../../theme";
+import { ChartThemeContext } from "../../theme";
 
 type Props = {
   chart: AbstractChart<unknown, unknown>;
@@ -40,7 +40,7 @@ export const GridWithAxes = memo(function GridWithAxes({
 }: Props) {
   const { xMax, xScale, yMax } = scales;
 
-  const theme = useContext(ThemeContext);
+  const theme = useContext(ChartThemeContext);
 
   const strokeColor = gridStrokeColor || theme.gridStrokeColor;
 

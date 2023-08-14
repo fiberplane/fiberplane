@@ -1,15 +1,4 @@
 export interface ChartTheme {
-  buttonBackground: string;
-  buttonBorderRadius: string;
-  controlsColor: string;
-  controlsFont: string;
-  controlsLetterSpacing: string;
-  button: Button;
-  legendFont: string;
-  legendLetterSpacing: string;
-  resultsFont: string;
-  resultsLetterSpacing: string;
-
   /**
    * The color to use for rendering events.
    */
@@ -20,21 +9,13 @@ export interface ChartTheme {
    */
   shapeListColors: Array<string>;
 
-  legendItem: {
-    borderRadius: string;
-    checkboxBorderRadius: string;
-    checkboxColor: string;
-    emphasisBackgroundColor: string;
-    font: string;
-    on: {
-      hover: {
-        color: string;
-        backgroundColor: string;
-      };
-    };
-  };
-
-  gridStrokeColor: string;
+  legendItemBorderRadius: string;
+  legendItemCheckboxBorderRadius: string;
+  legendItemCheckboxColor: string;
+  legendItemEmphasisBackgroundColor: string;
+  legendItemFont: string;
+  legendItemOnHoverColor: string;
+  legendItemOnHoverBackgroundColor: string;
 
   fontAxisColor: string;
   fontAxisFontSize: string;
@@ -42,26 +23,26 @@ export interface ChartTheme {
   fontAxisFontStyle: string;
   fontAxisFontWeight: string;
   fontAxisLetterSpacing: string;
+
+  gridStrokeColor: string;
+
+  targetLatencyColor: string;
+
+  buttonActiveBackgroundColor: string;
+  buttonActiveColor: string;
+  buttonBackgroundColor: string;
+  buttonBackgroundColorActive: string;
+  buttonBackgroundColorDisabled: string;
+  buttonBorderRadius: string;
+  buttonColor: string;
+  buttonDisabledBackgroundColor: string;
+  buttonDisabledColor: string;
+  buttonFocusBackgroundColor: string;
+  buttonFocusBorderColor: string;
+  buttonFocusColor: string;
+  buttonFont: string;
+  buttonHoverBackgroundColor: string;
+  buttonHoverColor: string;
 }
 
-type Button = {
-  backgroundColor: string;
-  borderRadius: string;
-  color: string;
-  border: string;
-  font: string;
-  on: {
-    hover: ButtonStyle;
-    active: ButtonStyle;
-    focus: ButtonStyle;
-    disabled: ButtonStyle;
-  };
-};
-
-type ButtonStyle = {
-  backgroundColor: string;
-  color: string;
-  border: string;
-};
-
-export type WithChartTheme = { theme: ChartTheme };
+export type WithChartTheme = { $chartTheme: ChartTheme };

@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import styled, { css } from "styled-components";
 
-import { ThemeContext } from "../theme";
+import { ChartThemeContext } from "../theme";
 
 export const ControlsContainer = styled.div`
   display: flex;
@@ -21,11 +21,10 @@ export const ControlsSet = styled.div`
 `;
 
 export const ControlsSetLabel = styled.span(() => {
-  const theme = useContext(ThemeContext);
+  const theme = useContext(ChartThemeContext);
 
   return css`
-    font: ${theme.controlsFont};
-    letter-spacing: ${theme.controlsLetterSpacing};
-    color: ${theme.controlsColor};
+    font: ${theme.buttonFont};
+    color: ${theme.buttonColor};
   `;
 });

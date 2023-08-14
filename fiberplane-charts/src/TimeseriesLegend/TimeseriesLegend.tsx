@@ -1,5 +1,5 @@
-import styled, { css } from "styled-components";
-import { useContext, useEffect, useMemo, useRef } from "react";
+import styled from "styled-components";
+import { useEffect, useMemo, useRef } from "react";
 import { VariableSizeList } from "react-window";
 
 import { TimeseriesLegendItem } from "./TimeseriesLegendItem";
@@ -9,7 +9,6 @@ import { findUniqueKeys, noop } from "../utils";
 import type { ShapeList } from "../Mondrian";
 import type { Timeseries } from "../providerTypes";
 import { useExpandable, useForceUpdate, useHandler } from "../hooks";
-import { ThemeContext } from "../theme";
 
 const DEFAULT_HEIGHT = 293;
 const DEFAULT_SIZE = 50;
@@ -143,26 +142,11 @@ const Footer = styled.div`
     justify-content: space-between;
 `;
 
-const ChartLegendContainer = styled(Container)(() => {
-  const theme = useContext(ThemeContext);
-
-  return css`
+const ChartLegendContainer = styled(Container)`
     flex-direction: column;
-    font: ${theme.legendFont};
-    letter-spacing: ${theme.legendLetterSpacing};
-    letter-spacing: 0.02em;
     padding: 10px 0 0;
     position: relative;
     word-wrap: break-word;
-  `;
-});
+`;
 
-const Results = styled.span(() => {
-  const theme = useContext(ThemeContext);
-
-  return css`
-    font: ${theme.resultsFont};
-    letter-spacing: ${theme.resultsLetterSpacing};
-    /* TODO (Oscar): add text color */
-  `;
-});
+const Results = styled.span``;

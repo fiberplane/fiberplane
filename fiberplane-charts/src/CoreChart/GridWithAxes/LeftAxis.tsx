@@ -1,6 +1,6 @@
 import type { Scales, TickFormatters } from "../types";
 import { useContext } from "react";
-import { ThemeContext } from "../../theme";
+import { ChartThemeContext } from "../../theme";
 
 type Props = {
   formatter: TickFormatters["yFormatter"];
@@ -26,7 +26,7 @@ export function LeftAxis({
     fontAxisFontStyle,
     fontAxisFontWeight,
     fontAxisLetterSpacing,
-  } = useContext(ThemeContext);
+  } = useContext(ChartThemeContext);
 
   const tickLabelProps = {
     dx: "-0.45em",

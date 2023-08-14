@@ -1,6 +1,6 @@
 import type { Axis } from "../../Mondrian";
 import type { Scales, TickFormatters } from "../types";
-import { ThemeContext } from "../../theme";
+import { ChartThemeContext } from "../../theme";
 import { useContext } from "react";
 
 const LABEL_OFFSET = 8;
@@ -29,7 +29,7 @@ export function BottomAxis({
     fontAxisFontStyle,
     fontAxisFontWeight,
     fontAxisLetterSpacing,
-  } = useContext(ThemeContext);
+  } = useContext(ChartThemeContext);
 
   return (
     <g transform={`translate(0, ${yMax})`}>

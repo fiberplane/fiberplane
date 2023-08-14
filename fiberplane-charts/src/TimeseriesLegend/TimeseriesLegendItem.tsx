@@ -6,8 +6,7 @@ import { isMac, noop, preventDefault, sortBy } from "../utils";
 import type { Timeseries } from "../providerTypes";
 import type { ToggleTimeseriesEvent } from "./types";
 import { useMeasure } from "../hooks";
-import { ThemeContext } from "../theme";
-import { ChartTheme } from "..";
+import { ChartThemeContext, WithChartTheme } from "../theme";
 
 type Props = {
   color: string;
@@ -56,7 +55,7 @@ export function TimeseriesLegendItem({
     }
   };
 
-  const chartTheme = useContext(ThemeContext);
+  const chartTheme = useContext(ChartThemeContext);
 
   return (
     <div ref={ref} onClick={toggleTimeseriesVisibility} onKeyDown={onKeyDown}>
@@ -89,7 +88,7 @@ const FormattedTimeseries = memo(function FormattedTimeseries({
 
   const labelEntries = sortBy(Object.entries(labels), ([key]) => key);
 
-  const chartTheme = useContext(ThemeContext);
+  const chartTheme = useContext(ChartThemeContext);
 
   return (
     <Text>
@@ -116,11 +115,12 @@ const FormattedTimeseries = memo(function FormattedTimeseries({
   );
 });
 
-const ColorBlock = styled.div<{
-  $chartTheme: ChartTheme;
-  color: string;
-  selected: boolean;
-}>`
+const ColorBlock = styled.div<
+  WithChartTheme & {
+    color: string;
+    selected: boolean;
+  }
+>`
   background: ${({ color, selected }) => (selected ? color : "transparent")};
   border: 2px solid ${({ color }) => color};
   width: 14px;
@@ -128,16 +128,15 @@ const ColorBlock = styled.div<{
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${({ $chartTheme }) => $chartTheme.legendItem.checkboxColor};
-  border-radius: ${({ $chartTheme }) =>
-    $chartTheme.legendItem.checkboxBorderRadius};
+  color: ${({ $chartTheme }) => $chartTheme.legendItemCheckboxColor};
+  border-radius: ${({ $chartTheme }) => $chartTheme.legendItemBorderRadius};
 `;
 
-const Emphasis = styled.span<{ $chartTheme: ChartTheme }>`
+const Emphasis = styled.span<WithChartTheme>`
   /* FIXME: These vars are to support style overrides for dark mode */
   /* --fp-chart-legend-emphasis-bg, */
   background-color: ${({ $chartTheme }) =>
-    $chartTheme.legendItem.emphasisBackgroundColor};
+    $chartTheme.legendItemEmphasisBackgroundColor};
   color: var(--fp-chart-legend-emphasis-color, currentColor);
   /* TODO (Jacco): we should try and find out what to do with this styling */
   /* stylelint-disable-next-line scale-unlimited/declaration-strict-value */
@@ -147,15 +146,16 @@ const Emphasis = styled.span<{ $chartTheme: ChartTheme }>`
   display: inline-block;
 `;
 
-const LegendItemContainer = styled(Container)<{
-  $chartTheme: ChartTheme;
-  interactive: boolean;
-}>(
+const LegendItemContainer = styled(Container)<
+  WithChartTheme & {
+    interactive: boolean;
+  }
+>(
   ({ $chartTheme, interactive }) => css`
-    border-radius: ${$chartTheme.legendItem.borderRadius};
+    border-radius: ${$chartTheme.legendItemBorderRadius};
     display: flex;
     align-items: center;
-    font: ${$chartTheme.legendItem.font};
+    font: ${$chartTheme.legendItemFont};
     padding: 8px 8px 8px 14px;
     gap: 10px;
     word-wrap: anywhere;
@@ -169,8 +169,8 @@ const LegendItemContainer = styled(Container)<{
           /* FIXME: These vars are to support style overrides for dark mode */
           /* --fp-chart-legend-hover-bg */
           /* --fp-chart-legend-hover-color */
-          background: ${$chartTheme.legendItem.on.hover.backgroundColor};
-          color: ${$chartTheme.legendItem.on.hover.color};
+          background: ${$chartTheme.legendItemOnHoverBackgroundColor};
+          color: ${$chartTheme.legendItemOnHoverColor};
         }
       `
     }

@@ -1,10 +1,10 @@
 import { forwardRef, useContext } from "react";
 import styled, { css } from "styled-components";
 
-import { ThemeContext } from "../theme";
+import { ChartThemeContext } from "../theme";
 
 export const buttonStyling = css(() => {
-  const theme = useContext(ThemeContext);
+  const theme = useContext(ChartThemeContext);
 
   return css`
     --color: var(--button-normal-color);
@@ -35,7 +35,7 @@ export const buttonStyling = css(() => {
     }
 
     :focus {
-      border-color: ${theme.button.on.focus.border};
+      border-color: ${theme.buttonFocusBorderColor};
       /* TODO (Oscar): add outline */
 
       --background: var(--button-focus-backgroundColor);
@@ -96,7 +96,7 @@ export const IconButton = forwardRef(function IconButton(
     ...otherProps
   } = props;
 
-  const { button } = useContext(ThemeContext);
+  const theme = useContext(ChartThemeContext);
 
   const newStyle = {
     ...style,
@@ -105,16 +105,16 @@ export const IconButton = forwardRef(function IconButton(
     "--icon-button-height": buttonSize.height,
     "--icon-button-icon-size": buttonSize.iconSize,
 
-    "--button-normal-color": button.color,
-    "--button-normal-backgroundColor": button.backgroundColor,
-    "--button-hover-color": button.on.hover.color,
-    "--button-hover-backgroundColor": button.on.hover.backgroundColor,
-    "--button-active-color": button.on.active.color,
-    "--button-active-backgroundColor": button.on.active.backgroundColor,
-    "--button-focus-color": button.on.focus.color,
-    "--button-focus-backgroundColor": button.on.focus.backgroundColor,
-    "--button-disabled-color": button.on.disabled.color,
-    "--button-disabled-backgroundColor": button.on.disabled.backgroundColor,
+    "--button-normal-color": theme.buttonColor,
+    "--button-normal-backgroundColor": theme.buttonBackgroundColor,
+    "--button-hover-color": theme.buttonHoverColor,
+    "--button-hover-backgroundColor": theme.buttonHoverBackgroundColor,
+    "--button-active-color": theme.buttonActiveColor,
+    "--button-active-backgroundColor": theme.buttonActiveBackgroundColor,
+    "--button-focus-color": theme.buttonFocusColor,
+    "--button-focus-backgroundColor": theme.buttonFocusBackgroundColor,
+    "--button-disabled-color": theme.buttonDisabledColor,
+    "--button-disabled-backgroundColor": theme.buttonDisabledBackgroundColor,
   };
 
   const elementProps = {
