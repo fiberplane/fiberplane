@@ -20,24 +20,24 @@ export function LeftAxis({
   ticks,
 }: Props) {
   const {
-    fontAxisColor,
-    fontAxisFontSize,
-    fontAxisFontFamily,
-    fontAxisFontStyle,
-    fontAxisFontWeight,
-    fontAxisLetterSpacing,
+    axisColor,
+    axisFontSize,
+    axisFontFamily,
+    axisFontStyle,
+    axisFontWeight,
+    axisLetterSpacing,
   } = useContext(ChartThemeContext);
 
   const tickLabelProps = {
     dx: "-0.45em",
     dy: "0.25em",
     textAnchor: "end" as const,
-    fontFamily: fontAxisFontFamily,
-    fontStyle: fontAxisFontStyle,
-    fontWeight: fontAxisFontWeight,
-    fontSize: fontAxisFontSize,
-    letterSpacing: fontAxisLetterSpacing,
-    fill: fontAxisColor,
+    fontFamily: axisFontFamily,
+    fontStyle: axisFontStyle,
+    fontWeight: axisFontWeight,
+    fontSize: axisFontSize,
+    letterSpacing: axisLetterSpacing,
+    fill: axisColor,
   };
 
   const numTicks = ticks.length - 1;

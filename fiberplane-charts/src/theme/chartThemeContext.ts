@@ -1,8 +1,14 @@
 import { createContext } from "react";
 import { Theme } from "..";
 
-// expand this to include all the theme properties
+// TODO (Oscar): add default values for all the theme properties
 export const defaultChartTheme: Theme = {
+  axisColor: "#000",
+  axisFontFamily: "sans-serif",
+  axisFontSize: "12px",
+  axisFontStyle: "normal",
+  axisFontWeight: "normal",
+  axisLetterSpacing: "0",
   buttonActiveBackgroundColor: "",
   buttonActiveColor: "",
   buttonBackgroundColor: "",
@@ -19,16 +25,11 @@ export const defaultChartTheme: Theme = {
   buttonHoverBackgroundColor: "",
   buttonHoverColor: "",
   eventColor: "#000",
-  fontAxisColor: "#000",
-  fontAxisFontFamily: "sans-serif",
-  fontAxisFontSize: "12px",
-  fontAxisFontStyle: "normal",
-  fontAxisFontWeight: "normal",
-  fontAxisLetterSpacing: "0",
   gridStrokeColor: "#000",
   legendItemBorderRadius: "0",
   legendItemCheckboxBorderRadius: "0",
   legendItemCheckboxColor: "#000",
+  legendItemColor: "",
   legendItemEmphasisBackgroundColor: "#000",
   legendItemEmphasisBorderRadius: "0",
   legendItemEmphasisColor: "",

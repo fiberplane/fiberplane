@@ -159,6 +159,7 @@ const LegendItemContainer = styled(Container)<
     display: flex;
     align-items: center;
     font: ${$chartTheme.legendItemFont};
+    color: ${$chartTheme.legendItemColor};
     padding: 8px 8px 8px 14px;
     gap: 10px;
     word-wrap: anywhere;

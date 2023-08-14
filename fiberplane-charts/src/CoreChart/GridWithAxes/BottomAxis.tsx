@@ -23,12 +23,12 @@ export function BottomAxis({
   xAxis: { maxValue, minValue },
 }: Props) {
   const {
-    fontAxisColor,
-    fontAxisFontSize,
-    fontAxisFontFamily,
-    fontAxisFontStyle,
-    fontAxisFontWeight,
-    fontAxisLetterSpacing,
+    axisColor,
+    axisFontSize,
+    axisFontFamily,
+    axisFontStyle,
+    axisFontWeight,
+    axisLetterSpacing,
   } = useContext(ChartThemeContext);
 
   return (
@@ -47,14 +47,14 @@ export function BottomAxis({
           // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
           key={index}
           x={xScale((time - minValue) / (maxValue - minValue))}
-          y={fontAxisFontSize}
+          y={axisFontSize}
           dy={LABEL_OFFSET}
-          fill={fontAxisColor}
-          fontFamily={fontAxisFontFamily}
-          fontStyle={fontAxisFontStyle}
-          fontWeight={fontAxisFontWeight}
-          fontSize={fontAxisFontSize}
-          letterSpacing={fontAxisLetterSpacing}
+          fill={axisColor}
+          fontFamily={axisFontFamily}
+          fontStyle={axisFontStyle}
+          fontWeight={axisFontWeight}
+          fontSize={axisFontSize}
+          letterSpacing={axisLetterSpacing}
           textAnchor="middle"
         >
           {formatter(time)}

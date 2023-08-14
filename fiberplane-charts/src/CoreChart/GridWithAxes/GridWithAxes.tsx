@@ -23,7 +23,6 @@ type Props = {
   gridRowsShown?: boolean;
   gridBordersShown?: boolean;
   gridDasharray?: string;
-  gridStrokeColor?: string;
   scales: Scales;
   tickFormatters: TickFormatters;
 };
@@ -34,15 +33,12 @@ export const GridWithAxes = memo(function GridWithAxes({
   gridRowsShown = true,
   gridBordersShown = true,
   gridDasharray,
-  gridStrokeColor,
   scales,
   tickFormatters,
 }: Props) {
   const { xMax, xScale, yMax } = scales;
 
-  const theme = useContext(ChartThemeContext);
-
-  const strokeColor = gridStrokeColor || theme.gridStrokeColor;
+  const { gridStrokeColor } = useContext(ChartThemeContext);
 
   const { xAxis, yAxis } = chart;
   const minValue = useCustomSpring(yAxis.minValue);
@@ -66,7 +62,7 @@ export const GridWithAxes = memo(function GridWithAxes({
     <>
       {gridRowsShown && (
         <GridRows
-          stroke={strokeColor}
+          stroke={gridStrokeColor}
           strokeDasharray={gridDasharray}
           xMax={xMax}
           yScale={animatedScale}
@@ -79,14 +75,14 @@ export const GridWithAxes = memo(function GridWithAxes({
           x2={xMax}
           y1={0}
           y2={yMax}
-          stroke={strokeColor}
+          stroke={gridStrokeColor}
           strokeDasharray={gridDasharray}
         />
       )}
       {gridColumnsShown && (
         <GridColumns
           scales={scales}
-          stroke={strokeColor}
+          stroke={gridStrokeColor}
           strokeDasharray={gridDasharray}
           xAxis={xAxis}
           xTicks={xTicks}
@@ -95,7 +91,7 @@ export const GridWithAxes = memo(function GridWithAxes({
       <BottomAxis
         formatter={tickFormatters.xFormatter}
         scales={scales}
-        strokeColor={strokeColor}
+        strokeColor={gridStrokeColor}
         strokeDasharray={gridDasharray}
         ticks={xTicks}
         xAxis={xAxis}
@@ -104,7 +100,7 @@ export const GridWithAxes = memo(function GridWithAxes({
         formatter={tickFormatters.yFormatter}
         gridBordersShown={gridBordersShown}
         scales={{ ...scales, yScale: animatedScale }}
-        strokeColor={strokeColor}
+        strokeColor={gridStrokeColor}
         strokeDasharray={gridDasharray}
         ticks={yTicks}
       />

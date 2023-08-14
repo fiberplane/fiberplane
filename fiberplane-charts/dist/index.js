@@ -6,8 +6,14 @@ import { debounce } from 'throttle-debounce';
 import { useMotionValue, animate } from 'framer-motion';
 import { VariableSizeList } from 'react-window';
 
-// expand this to include all the theme properties
+// TODO (Oscar): add default values for all the theme properties
 const defaultChartTheme = {
+    axisColor: "#000",
+    axisFontFamily: "sans-serif",
+    axisFontSize: "12px",
+    axisFontStyle: "normal",
+    axisFontWeight: "normal",
+    axisLetterSpacing: "0",
     buttonActiveBackgroundColor: "",
     buttonActiveColor: "",
     buttonBackgroundColor: "",
@@ -24,16 +30,11 @@ const defaultChartTheme = {
     buttonHoverBackgroundColor: "",
     buttonHoverColor: "",
     eventColor: "#000",
-    fontAxisColor: "#000",
-    fontAxisFontFamily: "sans-serif",
-    fontAxisFontSize: "12px",
-    fontAxisFontStyle: "normal",
-    fontAxisFontWeight: "normal",
-    fontAxisLetterSpacing: "0",
     gridStrokeColor: "#000",
     legendItemBorderRadius: "0",
     legendItemCheckboxBorderRadius: "0",
     legendItemCheckboxColor: "#000",
+    legendItemColor: "",
     legendItemEmphasisBackgroundColor: "#000",
     legendItemEmphasisBorderRadius: "0",
     legendItemEmphasisColor: "",
@@ -1051,7 +1052,7 @@ function ChartContent({ areaGradientShown , chart , focusedShapeList , getShapeL
 
 const LABEL_OFFSET = 8;
 function BottomAxis({ formatter , scales: { xMax , xScale , yMax  } , strokeColor , strokeDasharray , ticks , xAxis: { maxValue , minValue  }  }) {
-    const { fontAxisColor , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing  } = useContext(ChartThemeContext);
+    const { axisColor , axisFontSize , axisFontFamily , axisFontStyle , axisFontWeight , axisLetterSpacing  } = useContext(ChartThemeContext);
     return /*#__PURE__*/ jsxs("g", {
         transform: `translate(0, ${yMax})`,
         children: [
@@ -1065,14 +1066,14 @@ function BottomAxis({ formatter , scales: { xMax , xScale , yMax  } , strokeColo
             }),
             ticks.map((time, index)=>/*#__PURE__*/ jsx("text", {
                     x: xScale((time - minValue) / (maxValue - minValue)),
-                    y: fontAxisFontSize,
+                    y: axisFontSize,
                     dy: LABEL_OFFSET,
-                    fill: fontAxisColor,
-                    fontFamily: fontAxisFontFamily,
-                    fontStyle: fontAxisFontStyle,
-                    fontWeight: fontAxisFontWeight,
-                    fontSize: fontAxisFontSize,
-                    letterSpacing: fontAxisLetterSpacing,
+                    fill: axisColor,
+                    fontFamily: axisFontFamily,
+                    fontStyle: axisFontStyle,
+                    fontWeight: axisFontWeight,
+                    fontSize: axisFontSize,
+                    letterSpacing: axisLetterSpacing,
                     textAnchor: "middle",
                     children: formatter(time)
                 }, index))
@@ -1152,17 +1153,17 @@ function GridRows({ xMax , yScale , yTicks , ...lineProps }) {
 }
 
 function LeftAxis({ formatter , gridBordersShown , scales: { yMax , yScale  } , strokeColor , strokeDasharray , ticks  }) {
-    const { fontAxisColor , fontAxisFontSize , fontAxisFontFamily , fontAxisFontStyle , fontAxisFontWeight , fontAxisLetterSpacing  } = useContext(ChartThemeContext);
+    const { axisColor , axisFontSize , axisFontFamily , axisFontStyle , axisFontWeight , axisLetterSpacing  } = useContext(ChartThemeContext);
     const tickLabelProps = {
         dx: "-0.45em",
         dy: "0.25em",
         textAnchor: "end",
-        fontFamily: fontAxisFontFamily,
-        fontStyle: fontAxisFontStyle,
-        fontWeight: fontAxisFontWeight,
-        fontSize: fontAxisFontSize,
-        letterSpacing: fontAxisLetterSpacing,
-        fill: fontAxisColor
+        fontFamily: axisFontFamily,
+        fontStyle: axisFontStyle,
+        fontWeight: axisFontWeight,
+        fontSize: axisFontSize,
+        letterSpacing: axisLetterSpacing,
+        fill: axisColor
     };
     const numTicks = ticks.length - 1;
     return /*#__PURE__*/ jsxs("g", {
@@ -1186,10 +1187,9 @@ function LeftAxis({ formatter , gridBordersShown , scales: { yMax , yScale  } , 
     });
 }
 
-const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDasharray , gridStrokeColor , scales , tickFormatters  }) {
+const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDasharray , scales , tickFormatters  }) {
     const { xMax , xScale , yMax  } = scales;
-    const theme = useContext(ChartThemeContext);
-    const strokeColor = gridStrokeColor || theme.gridStrokeColor;
+    const { gridStrokeColor  } = useContext(ChartThemeContext);
     const { xAxis , yAxis  } = chart;
     const minValue = useCustomSpring(yAxis.minValue);
     const maxValue = useCustomSpring(yAxis.maxValue);
@@ -1213,7 +1213,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
     return /*#__PURE__*/ jsxs(Fragment, {
         children: [
             gridRowsShown && /*#__PURE__*/ jsx(GridRows, {
-                stroke: strokeColor,
+                stroke: gridStrokeColor,
                 strokeDasharray: gridDasharray,
                 xMax: xMax,
                 yScale: animatedScale,
@@ -1224,12 +1224,12 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
                 x2: xMax,
                 y1: 0,
                 y2: yMax,
-                stroke: strokeColor,
+                stroke: gridStrokeColor,
                 strokeDasharray: gridDasharray
             }),
             gridColumnsShown && /*#__PURE__*/ jsx(GridColumns, {
                 scales: scales,
-                stroke: strokeColor,
+                stroke: gridStrokeColor,
                 strokeDasharray: gridDasharray,
                 xAxis: xAxis,
                 xTicks: xTicks
@@ -1237,7 +1237,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
             /*#__PURE__*/ jsx(BottomAxis, {
                 formatter: tickFormatters.xFormatter,
                 scales: scales,
-                strokeColor: strokeColor,
+                strokeColor: gridStrokeColor,
                 strokeDasharray: gridDasharray,
                 ticks: xTicks,
                 xAxis: xAxis
@@ -1249,7 +1249,7 @@ const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColu
                     ...scales,
                     yScale: animatedScale
                 },
-                strokeColor: strokeColor,
+                strokeColor: gridStrokeColor,
                 strokeDasharray: gridDasharray,
                 ticks: yTicks
             })
@@ -2824,6 +2824,7 @@ const LegendItemContainer = styled(Container)(({ $chartTheme , interactive  })=>
     display: flex;
     align-items: center;
     font: ${$chartTheme.legendItemFont};
+    color: ${$chartTheme.legendItemColor};
     padding: 8px 8px 8px 14px;
     gap: 10px;
     word-wrap: anywhere;
