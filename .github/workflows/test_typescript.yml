@@ -22,6 +22,9 @@ jobs:
       - name: Install dependencies
         run: yarn --immutable
 
+      - name: Verify dist/ folders are not checked in
+        run: yarn test-dist
+
       - name: Linting and formatting
         # Skip on main, since it's not critical and should've already been
         # checked before merging

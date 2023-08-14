@@ -59,6 +59,7 @@
         "lint": "cd .. && yarn lint",
         "prepublish": "yarn build",
         "test": "jest",
+        "test-dist": "test ! -d dist",
         "type-check": "tsc -p tsconfig.json"
     }
 }

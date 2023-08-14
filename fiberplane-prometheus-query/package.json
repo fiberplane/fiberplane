@@ -34,6 +34,7 @@
         "build": "rollup -c && rollup -c rollup.config.dts.js",
         "lint": "cd .. && yarn lint",
         "test": "jest",
+        "test-dist": "test ! -d dist",
         "type-check": "tsc -p tsconfig.json"
     }
 }
