@@ -1,8 +1,8 @@
 import { createContext } from "react";
-import { ChartTheme } from "..";
+import { Theme } from "..";
 
 // expand this to include all the theme properties
-export const defaultChartTheme: ChartTheme = {
+export const defaultChartTheme: Theme = {
   buttonActiveBackgroundColor: "",
   buttonActiveColor: "",
   buttonBackgroundColor: "",
@@ -37,4 +37,4 @@ export const defaultChartTheme: ChartTheme = {
   targetLatencyColor: "#000",
 };
 
-export const ChartThemeContext = createContext<ChartTheme>(defaultChartTheme);
+export const ChartThemeContext = createContext<Theme>(defaultChartTheme);

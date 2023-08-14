@@ -10,15 +10,23 @@ import type { Metric, ProviderEvent, Timeseries } from "../providerTypes";
 import type { MetricsChartProps } from "./types";
 import { TimeseriesLegend } from "../TimeseriesLegend";
 import { useHandler } from "../hooks";
-import { ChartThemeContext, defaultChartTheme } from "../theme";
+import { ChartThemeContext, defaultChartTheme, Theme } from "../theme";
 
 type GenericShapeList = ShapeList<SeriesSource, Metric | ProviderEvent | null>;
 
 type TimeseriesShapeList = ShapeList<Timeseries, Metric>;
 
 export function MetricsChart(props: MetricsChartProps) {
+  const activeTheme: Theme = useMemo(
+    () => ({
+      ...defaultChartTheme,
+      ...props.chartTheme,
+    }),
+    [props.chartTheme],
+  );
+
   return (
-    <ChartThemeContext.Provider value={props.chartTheme ?? defaultChartTheme}>
+    <ChartThemeContext.Provider value={activeTheme}>
       <StyledChartSizeContainerProvider
         overrideHeight={HEIGHT}
         marginTop={MARGINS.top}

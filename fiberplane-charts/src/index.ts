@@ -5,7 +5,7 @@ export {
   Icon,
   IconButton,
 } from "./BaseComponents";
-export type { ChartTheme } from "./theme";
+export type { ChartTheme, Theme } from "./theme";
 export type {
   GraphType,
   Metric,
