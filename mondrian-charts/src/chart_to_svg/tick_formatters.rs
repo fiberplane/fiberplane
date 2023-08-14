@@ -20,7 +20,7 @@ pub enum FormatterKind {
     ///
     /// ## Examples
     ///
-    /// `0.1s`, `10s`, `2h47`.
+    /// `0.1s`, `10s`, `2:47`.
     Duration,
 
     /// Formats a value with an optional exponent component, also referred to as

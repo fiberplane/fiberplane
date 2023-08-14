@@ -3,18 +3,18 @@ import { memo, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useTheme } from "styled-components";
 
 import type { AbstractChart, Axis } from "../../Mondrian";
-import { BottomAxis } from "./BottomAxis";
 import { createLinearScaleForRange, Range } from "../utils";
 import { GridColumns } from "./GridColumns";
 import { GridRows } from "./GridRows";
-import { LeftAxis } from "./LeftAxis";
 import type { Scale, Scales, TickFormatters } from "../types";
+import { XAxis } from "./XAxis";
+import { YAxis } from "./YAxis";
 
 type Props = {
   chart: AbstractChart<unknown, unknown>;
+  axisLinesShown?: boolean;
   gridColumnsShown?: boolean;
   gridRowsShown?: boolean;
-  gridBordersShown?: boolean;
   gridDasharray?: string;
   gridStrokeColor?: string;
   scales: Scales;
@@ -25,7 +25,7 @@ export const GridWithAxes = memo(function GridWithAxes({
   chart,
   gridColumnsShown = true,
   gridRowsShown = true,
-  gridBordersShown = true,
+  axisLinesShown = true,
   gridDasharray,
   gridStrokeColor,
   scales,
@@ -65,16 +65,6 @@ export const GridWithAxes = memo(function GridWithAxes({
           yTicks={yTicks}
         />
       )}
-      {gridBordersShown && (
-        <line
-          x1={xMax}
-          x2={xMax}
-          y1={0}
-          y2={yMax}
-          stroke={strokeColor}
-          strokeDasharray={gridDasharray}
-        />
-      )}
       {gridColumnsShown && (
         <GridColumns
           scales={scales}
@@ -84,22 +74,27 @@ export const GridWithAxes = memo(function GridWithAxes({
           xTicks={xTicks}
         />
       )}
-      <BottomAxis
-        formatter={tickFormatters.xFormatter}
-        scales={scales}
-        strokeColor={strokeColor}
-        strokeDasharray={gridDasharray}
-        ticks={xTicks}
-        xAxis={xAxis}
-      />
-      <LeftAxis
-        formatter={tickFormatters.yFormatter}
-        gridBordersShown={gridBordersShown}
-        scales={{ ...scales, yScale: animatedScale }}
-        strokeColor={strokeColor}
-        strokeDasharray={gridDasharray}
-        ticks={yTicks}
-      />
+      {axisLinesShown || tickFormatters.xFormatter ? (
+        <XAxis
+          formatter={tickFormatters.xFormatter}
+          axisLinesShown={axisLinesShown}
+          scales={scales}
+          strokeColor={strokeColor}
+          strokeDasharray={gridDasharray}
+          ticks={xTicks}
+          xAxis={xAxis}
+        />
+      ) : null}
+      {axisLinesShown || tickFormatters.yFormatter ? (
+        <YAxis
+          formatter={tickFormatters.yFormatter}
+          axisLinesShown={axisLinesShown}
+          scales={{ ...scales, yScale: animatedScale }}
+          strokeColor={strokeColor}
+          strokeDasharray={gridDasharray}
+          ticks={yTicks}
+        />
+      ) : null}
     </>
   );
 });

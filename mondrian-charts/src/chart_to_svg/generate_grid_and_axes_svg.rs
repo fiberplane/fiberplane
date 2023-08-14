@@ -1,19 +1,17 @@
 use super::constants::{TICK_FONT_FAMILY, TICK_FONT_SIZE, TICK_FONT_WEIGHT, TICK_LABEL_OFFSET};
-use super::tick_formatters::TickFormatter;
 use super::{ChartOptions, Scales};
 use crate::chart_to_svg::tick_formatters::get_formatter_for_axis;
 use crate::{Axis, MondrianChart};
 use itertools::join;
-use std::borrow::Cow;
+use std::fmt::Write;
 
-pub(super) fn generate_grid_with_axes_svg<S, P>(
+pub(super) fn generate_grid_and_axes_svg<S, P>(
     MondrianChart { x_axis, y_axis, .. }: &MondrianChart<S, P>,
     scales: &Scales,
     options: &ChartOptions<S>,
 ) -> String {
     let &Scales { x_max, y_max } = scales;
 
-    let grid_borders_shown = options.grid_borders_shown;
     let stroke_attrs = format_stroke_attrs(options);
 
     let x_scale = |value| scales.x(value);
@@ -22,173 +20,174 @@ pub(super) fn generate_grid_with_axes_svg<S, P>(
     let x_ticks = get_ticks(x_axis, x_max, x_scale, 12, get_max_x_tick_value);
     let y_ticks = get_ticks(y_axis, y_max, y_scale, 8, get_max_y_tick_value);
 
-    let grid_rows = generate_grid_rows_svg(x_max, y_axis, y_scale, &y_ticks, &stroke_attrs);
+    let mut svg = String::new();
 
-    let grid_border = if grid_borders_shown {
-        Cow::Owned(format!(
-            "<line x1=\"{x_max}\" x2=\"{x_max}\" y1=\"0\" y2=\"{y_max}\" {stroke_attrs} />"
-        ))
-    } else {
-        Cow::Borrowed("")
-    };
+    if options.grid_rows_shown {
+        write_grid_rows_svg(&mut svg, x_max, y_axis, y_scale, &y_ticks, &stroke_attrs);
+    }
 
-    let grid_columns = generate_grid_columns_svg(x_axis, x_scale, &x_ticks, y_max, &stroke_attrs);
+    if options.grid_columns_shown {
+        write_grid_columns_svg(&mut svg, x_axis, x_scale, &x_ticks, y_max, &stroke_attrs);
+    }
 
-    let x_formatter = get_formatter_for_axis(x_axis, options.x_formatter);
-    let bottom_axis = generate_bottom_axis_svg(
-        x_formatter.as_ref(),
-        scales,
-        x_axis,
-        &x_ticks,
-        &stroke_attrs,
-        options,
-    );
+    if options.axis_lines_shown || options.x_formatter.is_some() {
+        write_x_axis_svg(&mut svg, scales, x_axis, &x_ticks, &stroke_attrs, options);
+    }
 
-    let y_formatter = get_formatter_for_axis(y_axis, options.y_formatter);
-    let left_axis = generate_left_axis_svg(
-        y_formatter.as_ref(),
-        scales,
-        y_axis,
-        &y_ticks,
-        &stroke_attrs,
-        options,
-    );
+    if options.axis_lines_shown || options.y_formatter.is_some() {
+        write_y_axis_svg(&mut svg, scales, y_axis, &y_ticks, &stroke_attrs, options);
+    }
 
-    format!("{grid_rows}{grid_border}{grid_columns}{bottom_axis}{left_axis}")
+    svg
 }
 
-fn generate_grid_rows_svg(
+fn write_grid_rows_svg(
+    svg: &mut String,
     x_max: f64,
     y_axis: &Axis,
     y_scale: impl Fn(f64) -> f64,
     y_ticks: &[f64],
     stroke_attrs: &str,
-) -> String {
-    let Axis {
-        min_value,
-        max_value,
-        ..
-    } = y_axis;
+) {
+    svg.push_str("<g>");
 
-    let ticks = y_ticks.iter().map(|&value| {
-        let y = y_scale((value - min_value) / (max_value - min_value));
-        format!("<line x1=\"0\" y1=\"{y:.1}\" x2=\"{x_max}\" y2=\"{y}\" {stroke_attrs} />")
-    });
+    for &value in y_ticks {
+        let y = y_scale((value - y_axis.min_value) / (y_axis.max_value - y_axis.min_value));
+        write!(
+            svg,
+            "<line x1=\"0\" y1=\"{y:.1}\" x2=\"{x_max}\" y2=\"{y}\" {stroke_attrs} />"
+        )
+        .expect("Could not write grid row line");
+    }
 
-    format!("<g>{ticks}</g>", ticks = join(ticks, ""))
+    svg.push_str("</g>");
 }
 
-fn generate_grid_columns_svg(
+fn write_grid_columns_svg(
+    svg: &mut String,
     x_axis: &Axis,
     x_scale: impl Fn(f64) -> f64,
     x_ticks: &[f64],
     y_max: f64,
     stroke_attrs: &str,
-) -> String {
-    let Axis {
-        min_value,
-        max_value,
-        ..
-    } = x_axis;
+) {
+    svg.push_str("<g>");
 
-    let ticks = x_ticks.iter().map(|&value| {
-        let x = x_scale((value - min_value) / (max_value - min_value));
-        format!("<line x1=\"{x:.1}\" y1=\"0\" x2=\"{x:.1}\" y2=\"{y_max}\" {stroke_attrs} />")
-    });
+    for &value in x_ticks {
+        let x = x_scale((value - x_axis.min_value) / (x_axis.max_value - x_axis.min_value));
+        write!(
+            svg,
+            "<line x1=\"{x:.1}\" y1=\"0\" x2=\"{x:.1}\" y2=\"{y_max}\" {stroke_attrs} />"
+        )
+        .expect("Could not write grid column line");
+    }
 
-    format!("<g>{ticks}</g>", ticks = join(ticks, ""))
+    svg.push_str("</g>");
 }
 
-fn generate_bottom_axis_svg<S>(
-    formatter: &dyn TickFormatter,
+fn write_x_axis_svg<S>(
+    svg: &mut String,
     scales: &Scales,
     x_axis: &Axis,
     x_ticks: &[f64],
     stroke_attrs: &str,
     options: &ChartOptions<S>,
-) -> String {
+) {
     let Scales { x_max, y_max } = scales;
-    let Axis {
-        min_value,
-        max_value,
-        ..
-    } = x_axis;
 
-    let line = format!("<line x1=\"0\" y1=\"0\" x2=\"{x_max}\" y2=\"0\" {stroke_attrs} />");
+    write!(svg, "<g transform=\"translate(0, {y_max})\">").expect("Could not write axis group");
 
-    let tick_color = &options.tick_color;
-    let tick_label_attrs = format!(
-        "y=\"{TICK_FONT_SIZE}\" \
-        dy=\"{TICK_LABEL_OFFSET}\" \
-        fill=\"{tick_color}\" \
-        font-family=\"{TICK_FONT_FAMILY}\" \
-        font-size=\"{TICK_FONT_SIZE}\" \
-        font-weight=\"{TICK_FONT_WEIGHT}\" \
-        letter-spacing=\"0\" \
-        text-anchor=\"middle\""
-    );
+    if options.axis_lines_shown {
+        write!(
+            svg,
+            "<line x1=\"0\" y1=\"0\" x2=\"{x_max}\" y2=\"0\" {stroke_attrs} />"
+        )
+        .expect("Could not write axis line");
+    }
 
-    let ticks = x_ticks.iter().map(|&value| {
-        let label = formatter.format(value);
-        let x = scales.x((value - min_value) / (max_value - min_value));
+    if let Some(formatter) = options
+        .x_formatter
+        .map(|formatter| get_formatter_for_axis(x_axis, formatter))
+    {
+        let tick_color = &options.tick_color;
+        let tick_label_attrs = format!(
+            "y=\"{TICK_FONT_SIZE}\" \
+            dy=\"{TICK_LABEL_OFFSET}\" \
+            fill=\"{tick_color}\" \
+            font-family=\"{TICK_FONT_FAMILY}\" \
+            font-size=\"{TICK_FONT_SIZE}\" \
+            font-weight=\"{TICK_FONT_WEIGHT}\" \
+            letter-spacing=\"0\" \
+            text-anchor=\"middle\""
+        );
 
-        format!("<text x=\"{x:.1}\" {tick_label_attrs}>{label}</text>")
-    });
+        for &value in x_ticks {
+            let label = formatter.format(value);
+            let x = scales.x((value - x_axis.min_value) / (x_axis.max_value - x_axis.min_value));
 
-    format!(
-        "<g transform=\"translate(0, {y_max})\">{line}{ticks}</g>",
-        ticks = join(ticks, "")
-    )
+            write!(svg, "<text x=\"{x:.1}\" {tick_label_attrs}>{label}</text>")
+                .expect("Could not write tick");
+        }
+    }
+
+    svg.push_str("</g>");
 }
 
-fn generate_left_axis_svg<S>(
-    formatter: &dyn TickFormatter,
+fn write_y_axis_svg<S>(
+    svg: &mut String,
     scales: &Scales,
     y_axis: &Axis,
     y_ticks: &[f64],
     stroke_attrs: &str,
     options: &ChartOptions<S>,
-) -> String {
-    let Scales { y_max, .. } = scales;
-    let Axis {
-        min_value,
-        max_value,
-        ..
-    } = y_axis;
+) {
+    let Scales { x_max, y_max, .. } = scales;
 
-    let line = if options.grid_borders_shown {
-        Cow::Owned(format!(
-            "<line x1=\"0\" y1=\"0\" x2=\"0\" y2=\"{y_max}\" {stroke_attrs} />"
-        ))
-    } else {
-        Cow::Borrowed("")
-    };
+    svg.push_str("<g>");
 
-    let tick_color = &options.tick_color;
-    let tick_label_attrs = format!(
-        "dx=\"-0.45em\" \
-        dy=\"0.25em\" \
-        text-anchor=\"end\" \
-        font-family=\"{TICK_FONT_FAMILY}\" \
-        font-size=\"{TICK_FONT_SIZE}\" \
-        font-weight=\"{TICK_FONT_WEIGHT}\" \
-        letter-spacing=\"0\" \
-        fill=\"{tick_color}\""
-    );
+    if options.axis_lines_shown {
+        write!(
+            svg,
+            "<line x1=\"0\" y1=\"0\" x2=\"0\" y2=\"{y_max}\" {stroke_attrs} />\
+            <line x1=\"{x_max}\" x2=\"{x_max}\" y1=\"0\" y2=\"{y_max}\" {stroke_attrs} />"
+        )
+        .expect("Could not write axis line");
+    }
 
-    let num_ticks = y_ticks.len();
-    let ticks = y_ticks
-        .iter()
-        .enumerate()
-        .filter(|&(index, &value)| index > 0 && index < num_ticks - 1 && value != 0.)
-        .map(|(_, &value)| {
+    if let Some(formatter) = options
+        .y_formatter
+        .map(|formatter| get_formatter_for_axis(y_axis, formatter))
+    {
+        let tick_color = &options.tick_color;
+        let tick_label_attrs = format!(
+            "dx=\"-0.45em\" \
+            dy=\"0.25em\" \
+            text-anchor=\"end\" \
+            font-family=\"{TICK_FONT_FAMILY}\" \
+            font-size=\"{TICK_FONT_SIZE}\" \
+            font-weight=\"{TICK_FONT_WEIGHT}\" \
+            letter-spacing=\"0\" \
+            fill=\"{tick_color}\""
+        );
+
+        let num_ticks = y_ticks.len();
+        for (index, &value) in y_ticks.iter().enumerate() {
+            if value == 0. || index == 0 || index >= num_ticks - 1 {
+                continue;
+            }
+
             let label = formatter.format(value);
-            let y = scales.y((value - min_value) / (max_value - min_value));
+            let y = scales.y((value - y_axis.min_value) / (y_axis.max_value - y_axis.min_value));
 
-            format!("<text x=\"0\" y=\"{y:.1}\" {tick_label_attrs}>{label}</text>")
-        });
+            write!(
+                svg,
+                "<text x=\"0\" y=\"{y:.1}\" {tick_label_attrs}>{label}</text>"
+            )
+            .expect("Could not write tick");
+        }
+    }
 
-    format!("<g>{line}{ticks}</g>", ticks = join(ticks, ""))
+    svg.push_str("</g>");
 }
 
 fn get_ticks(
