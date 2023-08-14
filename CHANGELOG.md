@@ -15,6 +15,10 @@ changes if the major version hasn't changed.
 
 TBD
 
+## [v1.0.0-beta.5] - 2023-06-14
+
+- `fiberplane-models`: Added #[builder(default)] to Metric and OtelMetaData models
+
 ## [v1.0.0-beta.3] - 2023-06-14
 
 **Breaking changes!** Some breaking changes occurred between beta versions.
