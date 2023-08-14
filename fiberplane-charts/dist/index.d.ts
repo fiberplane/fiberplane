@@ -59,6 +59,7 @@ interface ChartTheme {
     buttonFocusBackgroundColor?: string;
     buttonFocusBorderColor?: string;
     buttonFocusColor?: string;
+    buttonFocusOutline?: string;
     buttonFont?: string;
     buttonHoverBackgroundColor?: string;
     buttonHoverColor?: string;
@@ -81,6 +82,9 @@ interface ChartTheme {
     legendItemFont?: string;
     legendItemOnHoverBackgroundColor?: string;
     legendItemOnHoverColor?: string;
+    legendResultsColor?: string;
+    legendResultsFont?: string;
+    legendResultsLetterSpacing?: string;
     /**
      * The colors to use for other shape lists (usually timeseries).
      */
@@ -587,6 +591,11 @@ type MetricsChartProps = Omit<CoreChartProps<SeriesSource, Metric | ProviderEven
      * Show the stacking controls. (default: true)
      */
     stackingControlsShown?: boolean;
+    /**
+     * Optional object containing theme overrides for the chart colors, fonts
+     * and button styles. If a property is not specified, the default value
+     * will be used.
+     */
     chartTheme?: ChartTheme;
     /**
      * Optional target latency to draw on the chart, in seconds.

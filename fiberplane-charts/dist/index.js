@@ -26,6 +26,7 @@ const defaultChartTheme = {
     buttonFocusBackgroundColor: "",
     buttonFocusBorderColor: "",
     buttonFocusColor: "",
+    buttonFocusOutline: "",
     buttonFont: "",
     buttonHoverBackgroundColor: "",
     buttonHoverColor: "",
@@ -42,6 +43,9 @@ const defaultChartTheme = {
     legendItemFont: "sans-serif",
     legendItemOnHoverBackgroundColor: "#000",
     legendItemOnHoverColor: "#000",
+    legendResultsColor: "",
+    legendResultsFont: "",
+    legendResultsLetterSpacing: "",
     shapeListColors: [
         "#000"
     ],
@@ -252,7 +256,7 @@ const buttonStyling = css(()=>{
 
     :focus {
       border-color: ${theme.buttonFocusBorderColor};
-      /* TODO (Oscar): add outline */
+      outline: ${theme.buttonFocusOutline};
 
       --background: var(--button-focus-backgroundColor);
       --color: var(--button-focus-color);
@@ -285,7 +289,7 @@ const buttonStyling = css(()=>{
   `;
 });
 const StyledButton = styled.button`
-    ${buttonStyling}
+  ${buttonStyling}
 `;
 const buttonSize = {
     padding: "6px",
@@ -2812,13 +2816,13 @@ const ColorBlock = styled.div(({ $chartTheme , color , selected  })=>css`
     border-radius: ${$chartTheme.legendItemCheckboxBorderRadius};
   `);
 const Emphasis = styled.span(({ $chartTheme  })=>css`
-  background-color: ${$chartTheme.legendItemEmphasisBackgroundColor};
-  color: ${$chartTheme.legendItemEmphasisColor};
-  font: ${$chartTheme.legendItemEmphasisFont};
-  border-radius: ${$chartTheme.legendItemEmphasisBorderRadius};
-  padding: 1px 4px;
-  display: inline-block;
-`);
+    background-color: ${$chartTheme.legendItemEmphasisBackgroundColor};
+    color: ${$chartTheme.legendItemEmphasisColor};
+    font: ${$chartTheme.legendItemEmphasisFont};
+    border-radius: ${$chartTheme.legendItemEmphasisBorderRadius};
+    padding: 1px 4px;
+    display: inline-block;
+  `);
 const LegendItemContainer = styled(Container)(({ $chartTheme , interactive  })=>css`
     border-radius: ${$chartTheme.legendItemBorderRadius};
     display: flex;
@@ -2833,8 +2837,8 @@ const LegendItemContainer = styled(Container)(({ $chartTheme , interactive  })=>
         cursor: pointer;
 
         &:hover {
-          background: ${$chartTheme.legendItemOnHoverBackgroundColor};
-          color: ${$chartTheme.legendItemOnHoverColor};
+            background: ${$chartTheme.legendItemOnHoverBackgroundColor};
+            color: ${$chartTheme.legendItemOnHoverColor};
         }
       `}
   `);
@@ -2933,29 +2937,36 @@ function TimeseriesLegend({ footerShown =true , getShapeListColor , onFocusedSha
     });
 }
 const Footer = styled.div`
-    width: 100%;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 const ChartLegendContainer = styled(Container)`
-    flex-direction: column;
-    padding: 10px 0 0;
-    position: relative;
-    word-wrap: break-word;
+  flex-direction: column;
+  padding: 10px 0 0;
+  position: relative;
+  word-wrap: break-word;
 `;
-const Results = styled.span``;
+const Results = styled.span(()=>{
+    const theme = useContext(ChartThemeContext);
+    return css`
+    font: ${theme.legendResultsFont};
+    letter-spacing: ${theme.legendResultsLetterSpacing};
+    color: ${theme.legendResultsColor};
+  `;
+});
 
 function MetricsChart(props) {
-    const activeTheme = useMemo(()=>({
+    const chartTheme = useMemo(()=>({
             ...defaultChartTheme,
             ...props.chartTheme
         }), [
         props.chartTheme
     ]);
     return /*#__PURE__*/ jsx(ChartThemeContext.Provider, {
-        value: activeTheme,
+        value: chartTheme,
         children: /*#__PURE__*/ jsx(StyledChartSizeContainerProvider$1, {
             overrideHeight: HEIGHT,
             marginTop: MARGINS.top,
