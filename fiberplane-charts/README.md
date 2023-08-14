@@ -21,7 +21,7 @@ like so:
 yarn build
 git add -f dist
 git commit -m "WIP"
-git push -u origin <branch_name>
+git push -u origin branch_name
 ```
 
 Then point your dependency in the downstream project to the custom branch using
@@ -39,8 +39,3 @@ If you want to update `fiberplane-charts` while using the above syntax, you may
 use `yarn up "@fiberplane/fiberplane-charts@<full-dependency-url>"`.
 
 Make sure to remove the `dist/` folder before opening a PR.
-
-### Building
-
-From the root of `fiberplane-charts`:
-
