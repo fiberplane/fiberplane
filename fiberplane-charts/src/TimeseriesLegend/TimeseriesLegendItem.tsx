@@ -116,35 +116,31 @@ const FormattedTimeseries = memo(function FormattedTimeseries({
 });
 
 const ColorBlock = styled.div<
-  WithChartTheme & {
-    color: string;
-    selected: boolean;
-  }
->`
-  background: ${({ color, selected }) => (selected ? color : "transparent")};
-  border: 2px solid ${({ color }) => color};
-  width: 14px;
-  height: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${({ $chartTheme }) => $chartTheme.legendItemCheckboxColor};
-  border-radius: ${({ $chartTheme }) => $chartTheme.legendItemBorderRadius};
-`;
+  { color: string; selected: boolean } & WithChartTheme
+>(
+  ({ $chartTheme, color, selected }) => css`
+    background: ${selected ? color : "transparent"};
+    border: 2px solid ${color};
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: ${$chartTheme.legendItemCheckboxColor};
+    border-radius: ${$chartTheme.legendItemCheckboxBorderRadius};
+  `,
+);
 
-const Emphasis = styled.span<WithChartTheme>`
-  /* FIXME: These vars are to support style overrides for dark mode */
-  /* --fp-chart-legend-emphasis-bg, */
-  background-color: ${({ $chartTheme }) =>
-    $chartTheme.legendItemEmphasisBackgroundColor};
-  color: var(--fp-chart-legend-emphasis-color, currentColor);
-  /* TODO (Jacco): we should try and find out what to do with this styling */
-  /* stylelint-disable-next-line scale-unlimited/declaration-strict-value */
-  font-weight: 600;
-  /* TODO (Oscar): add border-radius */
+const Emphasis = styled.span<WithChartTheme>(
+  ({ $chartTheme }) => css`
+  background-color: ${$chartTheme.legendItemEmphasisBackgroundColor};
+  color: ${$chartTheme.legendItemEmphasisColor};
+  font: ${$chartTheme.legendItemEmphasisFont};
+  border-radius: ${$chartTheme.legendItemEmphasisBorderRadius};
   padding: 1px 4px;
   display: inline-block;
-`;
+`,
+);
 
 const LegendItemContainer = styled(Container)<
   WithChartTheme & {
@@ -166,9 +162,6 @@ const LegendItemContainer = styled(Container)<
         cursor: pointer;
 
         &:hover {
-          /* FIXME: These vars are to support style overrides for dark mode */
-          /* --fp-chart-legend-hover-bg */
-          /* --fp-chart-legend-hover-color */
           background: ${$chartTheme.legendItemOnHoverBackgroundColor};
           color: ${$chartTheme.legendItemOnHoverColor};
         }
@@ -178,5 +171,5 @@ const LegendItemContainer = styled(Container)<
 );
 
 const Text = styled.div`
-    flex: 1;
+  flex: 1;
 `;

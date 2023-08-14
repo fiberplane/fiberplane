@@ -16,6 +16,9 @@ export interface ChartTheme {
   legendItemFont?: string;
   legendItemOnHoverColor?: string;
   legendItemOnHoverBackgroundColor?: string;
+  legendItemEmphasisColor?: string;
+  legendItemEmphasisFont?: string;
+  legendItemEmphasisBorderRadius?: string;
 
   fontAxisColor?: string;
   fontAxisFontSize?: string;
