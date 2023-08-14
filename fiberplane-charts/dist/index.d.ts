@@ -1,10 +1,10 @@
 import * as styled_components from 'styled-components';
 import * as react from 'react';
 
-declare const ButtonGroup: styled_components.StyledComponent<"span", styled_components.DefaultTheme, {}, never>;
+declare const ButtonGroup: styled_components.StyledComponent<"span", any, {}, never>;
 
-declare const ControlsSet: styled_components.StyledComponent<"div", styled_components.DefaultTheme, {}, never>;
-declare const ControlsSetLabel: styled_components.StyledComponent<"span", styled_components.DefaultTheme, {}, never>;
+declare const ControlsSet: styled_components.StyledComponent<"div", any, {}, never>;
+declare const ControlsSetLabel: styled_components.StyledComponent<"span", any, {}, never>;
 
 declare const ICON_MAP: {
     readonly chart_bar: react.FunctionComponent<react.SVGProps<SVGSVGElement> & {
@@ -41,63 +41,46 @@ declare const IconButton: react.ForwardRefExoticComponent<react.ButtonHTMLAttrib
 } & react.RefAttributes<HTMLButtonElement>>;
 
 interface ChartTheme {
-    buttonBackground: string;
-    buttonBorderRadius: string;
-    controlsColor: string;
-    controlsFont: string;
-    controlsLetterSpacing: string;
-    button: Button;
-    legendFont: string;
-    legendLetterSpacing: string;
-    resultsFont: string;
-    resultsLetterSpacing: string;
     /**
      * The color to use for rendering events.
      */
-    eventColor: string;
+    eventColor?: string;
     /**
      * The colors to use for other shape lists (usually timeseries).
      */
-    shapeListColors: Array<string>;
-    legendItem: {
-        borderRadius: string;
-        checkboxBorderRadius: string;
-        checkboxColor: string;
-        emphasisBackgroundColor: string;
-        font: string;
-        on: {
-            hover: {
-                color: string;
-                backgroundColor: string;
-            };
-        };
-    };
-    gridStrokeColor: string;
-    fontAxisColor: string;
-    fontAxisFontSize: string;
-    fontAxisFontFamily: string;
-    fontAxisFontStyle: string;
-    fontAxisFontWeight: string;
-    fontAxisLetterSpacing: string;
+    shapeListColors?: Array<string>;
+    legendItemBorderRadius?: string;
+    legendItemCheckboxBorderRadius?: string;
+    legendItemCheckboxColor?: string;
+    legendItemEmphasisBackgroundColor?: string;
+    legendItemFont?: string;
+    legendItemOnHoverColor?: string;
+    legendItemOnHoverBackgroundColor?: string;
+    fontAxisColor?: string;
+    fontAxisFontSize?: string;
+    fontAxisFontFamily?: string;
+    fontAxisFontStyle?: string;
+    fontAxisFontWeight?: string;
+    fontAxisLetterSpacing?: string;
+    gridStrokeColor?: string;
+    targetLatencyColor?: string;
+    buttonActiveBackgroundColor?: string;
+    buttonActiveColor?: string;
+    buttonBackgroundColor?: string;
+    buttonBackgroundColorActive?: string;
+    buttonBackgroundColorDisabled?: string;
+    buttonBorderRadius?: string;
+    buttonColor?: string;
+    buttonDisabledBackgroundColor?: string;
+    buttonDisabledColor?: string;
+    buttonFocusBackgroundColor?: string;
+    buttonFocusBorderColor?: string;
+    buttonFocusColor?: string;
+    buttonFont?: string;
+    buttonHoverBackgroundColor?: string;
+    buttonHoverColor?: string;
 }
-type Button = {
-    backgroundColor: string;
-    borderRadius: string;
-    color: string;
-    border: string;
-    font: string;
-    on: {
-        hover: ButtonStyle;
-        active: ButtonStyle;
-        focus: ButtonStyle;
-        disabled: ButtonStyle;
-    };
-};
-type ButtonStyle = {
-    backgroundColor: string;
-    color: string;
-    border: string;
-};
+type Theme = Required<ChartTheme>;
 
 type GraphType = "bar" | "line";
 /**
@@ -597,20 +580,14 @@ type MetricsChartProps = Omit<CoreChartProps<SeriesSource, Metric | ProviderEven
      * Show the stacking controls. (default: true)
      */
     stackingControlsShown?: boolean;
-    theme: ChartTheme;
+    chartTheme: Theme;
     /**
      * Optional target latency to draw on the chart, in seconds.
      *
-     * You will also need to specify the `targetLatencyColor` for the latency
-     * to appear.
+     * You will also need to specify the `targetLatencyColor` in `ChartTheme`
+     * for the latency to appear.
      */
     targetLatency?: number;
-    /**
-     * The color to use for drawing target latencies.
-     *
-     * If not specified, no target latency can be drawn.
-     */
-    targetLatencyColor?: string;
 };
 
 declare function MetricsChart(props: MetricsChartProps): JSX.Element;
@@ -688,4 +665,4 @@ declare function getPercentageFormatter(): TickFormatter;
 declare function getScientificFormatterForAxis(axis: Axis): TickFormatter;
 declare function getTimeFormatterForAxis(axis: Axis): TickFormatter;
 
-export { AbstractChart, Area, AreaPoint, Axis, ButtonGroup, ChartTheme, CloseTooltipFn, CombinedSourceData, ControlsSet, ControlsSetLabel, FormatterKind, GraphType, Icon, IconButton, Line, Metric, MetricsChart, MetricsChartProps, OtelMetadata, Point, ProviderEvent, Rectangle, SeriesSource, Shape, ShapeList, SparkChart, StackingType, TickFormatter, TickFormatters, TickFormattersFactory, TimeRange, Timeseries, TimeseriesSourceData, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement, generate, generateFromTimeseries, getBytesFormatterForAxis, getDurationFormatterForAxis, getExponentFormatter, getFormatterForAxis, getPercentageFormatter, getScientificFormatterForAxis, getTimeFormatterForAxis };
+export { AbstractChart, Area, AreaPoint, Axis, ButtonGroup, ChartTheme, CloseTooltipFn, CombinedSourceData, ControlsSet, ControlsSetLabel, FormatterKind, GraphType, Icon, IconButton, Line, Metric, MetricsChart, MetricsChartProps, OtelMetadata, Point, ProviderEvent, Rectangle, SeriesSource, Shape, ShapeList, SparkChart, StackingType, Theme, TickFormatter, TickFormatters, TickFormattersFactory, TimeRange, Timeseries, TimeseriesSourceData, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement, generate, generateFromTimeseries, getBytesFormatterForAxis, getDurationFormatterForAxis, getExponentFormatter, getFormatterForAxis, getPercentageFormatter, getScientificFormatterForAxis, getTimeFormatterForAxis };
