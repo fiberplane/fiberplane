@@ -123,7 +123,7 @@ const FormattedTimeseries = memo(function FormattedTimeseries({
 });
 
 const ColorBlock = styled.div<
-  { color: string; selected: boolean } & WithChartTheme
+  WithChartTheme & { color: string; selected: boolean }
 >(
   ({ $chartTheme, color, selected }) => css`
     background: ${selected ? color : "transparent"};
@@ -140,19 +140,17 @@ const ColorBlock = styled.div<
 
 const Emphasis = styled.span<WithChartTheme>(
   ({ $chartTheme }) => css`
-  background-color: ${$chartTheme.legendItemEmphasisBackgroundColor};
-  color: ${$chartTheme.legendItemEmphasisColor};
-  font: ${$chartTheme.legendItemEmphasisFont};
-  border-radius: ${$chartTheme.legendItemEmphasisBorderRadius};
-  padding: 1px 4px;
-  display: inline-block;
-`,
+    background-color: ${$chartTheme.legendItemEmphasisBackgroundColor};
+    color: ${$chartTheme.legendItemEmphasisColor};
+    font: ${$chartTheme.legendItemEmphasisFont};
+    border-radius: ${$chartTheme.legendItemEmphasisBorderRadius};
+    padding: 1px 4px;
+    display: inline-block;
+  `,
 );
 
 const LegendItemContainer = styled(Container)<
-  WithChartTheme & {
-    interactive: boolean;
-  }
+  WithChartTheme & { interactive: boolean }
 >(
   ({ $chartTheme, interactive }) => css`
     border-radius: ${$chartTheme.legendItemBorderRadius};
@@ -170,8 +168,8 @@ const LegendItemContainer = styled(Container)<
         cursor: pointer;
 
         &:hover {
-          background: ${$chartTheme.legendItemOnHoverBackgroundColor};
-          color: ${$chartTheme.legendItemOnHoverColor};
+            background: ${$chartTheme.legendItemOnHoverBackgroundColor};
+            color: ${$chartTheme.legendItemOnHoverColor};
         }
       `
     }

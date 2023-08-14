@@ -36,7 +36,7 @@ export const buttonStyling = css(() => {
 
     :focus {
       border-color: ${theme.buttonFocusBorderColor};
-      /* TODO (Oscar): add outline */
+      outline: ${theme.buttonFocusOutline};
 
       --background: var(--button-focus-backgroundColor);
       --color: var(--button-focus-color);
@@ -70,7 +70,7 @@ export const buttonStyling = css(() => {
 });
 
 const StyledButton = styled.button`
-    ${buttonStyling}
+  ${buttonStyling}
 `;
 
 const buttonSize = {

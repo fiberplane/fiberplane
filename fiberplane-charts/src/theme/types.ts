@@ -18,6 +18,7 @@ export interface ChartTheme {
   buttonFocusBackgroundColor?: string;
   buttonFocusBorderColor?: string;
   buttonFocusColor?: string;
+  buttonFocusOutline?: string;
   buttonFont?: string;
   buttonHoverBackgroundColor?: string;
   buttonHoverColor?: string;
@@ -43,6 +44,10 @@ export interface ChartTheme {
   legendItemFont?: string;
   legendItemOnHoverBackgroundColor?: string;
   legendItemOnHoverColor?: string;
+
+  legendResultsColor?: string;
+  legendResultsFont?: string;
+  legendResultsLetterSpacing?: string;
 
   /**
    * The colors to use for other shape lists (usually timeseries).

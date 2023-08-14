@@ -17,7 +17,7 @@ type GenericShapeList = ShapeList<SeriesSource, Metric | ProviderEvent | null>;
 type TimeseriesShapeList = ShapeList<Timeseries, Metric>;
 
 export function MetricsChart(props: MetricsChartProps) {
-  const activeTheme: Theme = useMemo(
+  const chartTheme: Theme = useMemo(
     () => ({
       ...defaultChartTheme,
       ...props.chartTheme,
@@ -26,7 +26,7 @@ export function MetricsChart(props: MetricsChartProps) {
   );
 
   return (
-    <ChartThemeContext.Provider value={activeTheme}>
+    <ChartThemeContext.Provider value={chartTheme}>
       <StyledChartSizeContainerProvider
         overrideHeight={HEIGHT}
         marginTop={MARGINS.top}

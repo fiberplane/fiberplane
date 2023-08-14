@@ -21,6 +21,7 @@ export const defaultChartTheme: Theme = {
   buttonFocusBackgroundColor: "",
   buttonFocusBorderColor: "",
   buttonFocusColor: "",
+  buttonFocusOutline: "",
   buttonFont: "",
   buttonHoverBackgroundColor: "",
   buttonHoverColor: "",
@@ -37,6 +38,9 @@ export const defaultChartTheme: Theme = {
   legendItemFont: "sans-serif",
   legendItemOnHoverBackgroundColor: "#000",
   legendItemOnHoverColor: "#000",
+  legendResultsColor: "",
+  legendResultsFont: "",
+  legendResultsLetterSpacing: "",
   shapeListColors: ["#000"],
   targetLatencyColor: "#000",
 };

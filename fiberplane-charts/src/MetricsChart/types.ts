@@ -52,6 +52,11 @@ export type MetricsChartProps = Omit<
      */
     stackingControlsShown?: boolean;
 
+    /**
+     * Optional object containing theme overrides for the chart colors, fonts
+     * and button styles. If a property is not specified, the default value
+     * will be used.
+     */
     chartTheme?: ChartTheme;
 
     /**
