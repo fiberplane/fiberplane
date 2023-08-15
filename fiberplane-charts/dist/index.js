@@ -17,8 +17,6 @@ const defaultChartTheme = {
     buttonActiveBackgroundColor: "",
     buttonActiveColor: "",
     buttonBackgroundColor: "",
-    buttonBackgroundColorActive: "",
-    buttonBackgroundColorDisabled: "",
     buttonBorderRadius: "",
     buttonColor: "",
     buttonDisabledBackgroundColor: "",
@@ -28,9 +26,12 @@ const defaultChartTheme = {
     buttonFocusColor: "",
     buttonFocusOutline: "",
     buttonFont: "",
+    buttonGroupBackgroundColor: "",
+    buttonGroupBorderRadius: "",
     buttonHoverBackgroundColor: "",
     buttonHoverColor: "",
     eventColor: "#000",
+    expendableGradientColor: "rgb(255 255 255 / 75%)",
     gridStrokeColor: "#000",
     legendItemBorderRadius: "0",
     legendItemCheckboxBorderRadius: "0",
@@ -60,8 +61,8 @@ const ButtonGroup = styled.span(()=>{
     gap: 8px;
     align-items: center;
     padding: 4px 8px;
-    background: ${theme.buttonBackgroundColor};
-    border-radius: ${theme.buttonBorderRadius};
+    background: ${theme.buttonGroupBackgroundColor};
+    border-radius: ${theme.buttonGroupBorderRadius};
   `;
 });
 
@@ -663,21 +664,23 @@ const Expand = styled.div`
     background: rgba(71, 151, 255, 30%);
   }
 `;
-const Gradient = styled.div`
-  width: 100%;
-  position: absolute;
-  bottom: 0;
-  height: 39px;
-  background-image: linear-gradient(
-    to bottom,
-    transparent,
-  /* FIXME: This var supports style overrides for dark mode */
-    var(--fp-expandable-fade-color, rgb(255 255 255 / 75%)) 50%
-  );
+const Gradient = styled.div(()=>{
+    const theme = useContext(ChartThemeContext);
+    return css`
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    height: 39px;
+    background-image: linear-gradient(
+      to bottom,
+      transparent,
+      ${theme.expendableGradientColor} 50%
+    );
 
-  border-bottom-right-radius: 6px;
-  pointer-events: none;
-`;
+    border-bottom-right-radius: 6px;
+    pointer-events: none;
+  `;
+});
 // The container is sticky, but zero height to prevent the gradient itself
 // from reserving any space.
 const GradientContainer = styled.div`

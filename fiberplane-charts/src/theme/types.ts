@@ -21,10 +21,18 @@ export interface ChartTheme {
   buttonHoverBackgroundColor?: string;
   buttonHoverColor?: string;
 
+  buttonGroupBackgroundColor?: string;
+  buttonGroupBorderRadius?: string;
+
   /**
    * The color to use for rendering events.
    */
   eventColor?: string;
+
+  /**
+   * The color to use for the gradient applied to an expendable event.
+   */
+  expendableGradientColor?: string;
 
   /**
    * The color applied to the grid lines.

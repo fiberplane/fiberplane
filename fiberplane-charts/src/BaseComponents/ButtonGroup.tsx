@@ -11,7 +11,7 @@ export const ButtonGroup = styled.span(() => {
     gap: 8px;
     align-items: center;
     padding: 4px 8px;
-    background: ${theme.buttonBackgroundColor};
-    border-radius: ${theme.buttonBorderRadius};
+    background: ${theme.buttonGroupBackgroundColor};
+    border-radius: ${theme.buttonGroupBorderRadius};
   `;
 });
