@@ -12,8 +12,6 @@ export const defaultChartTheme: Theme = {
   buttonActiveBackgroundColor: "",
   buttonActiveColor: "",
   buttonBackgroundColor: "",
-  buttonBackgroundColorActive: "",
-  buttonBackgroundColorDisabled: "",
   buttonBorderRadius: "",
   buttonColor: "",
   buttonDisabledBackgroundColor: "",

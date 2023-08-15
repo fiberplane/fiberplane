@@ -9,8 +9,6 @@ export interface ChartTheme {
   buttonActiveBackgroundColor?: string;
   buttonActiveColor?: string;
   buttonBackgroundColor?: string;
-  buttonBackgroundColorActive?: string;
-  buttonBackgroundColorDisabled?: string;
   buttonBorderRadius?: string;
   buttonColor?: string;
   buttonDisabledBackgroundColor?: string;
