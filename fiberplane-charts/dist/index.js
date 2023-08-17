@@ -30,7 +30,7 @@ const defaultChartTheme = {
     buttonHoverBackgroundColor: "#e7e7e7",
     buttonHoverColor: "#1f2023",
     eventColor: "#285fff",
-    expendableGradientColor: "rgb(255 255 255 / 75%)",
+    expandableGradientColor: "rgb(255 255 255 / 75%)",
     gridStrokeColor: "#e7e7e7",
     legendItemBorderRadius: "6px",
     legendItemCheckboxBorderRadius: "4px",
@@ -675,7 +675,7 @@ const Gradient = styled.div(()=>{
     background-image: linear-gradient(
       to bottom,
       transparent,
-      ${theme.expendableGradientColor} 50%
+      ${theme.expandableGradientColor} 50%
     );
 
     border-bottom-right-radius: 6px;

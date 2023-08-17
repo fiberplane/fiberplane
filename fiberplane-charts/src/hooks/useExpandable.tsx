@@ -195,7 +195,7 @@ const Gradient = styled.div(() => {
     background-image: linear-gradient(
       to bottom,
       transparent,
-      ${theme.expendableGradientColor} 50%
+      ${theme.expandableGradientColor} 50%
     );
 
     border-bottom-right-radius: 6px;

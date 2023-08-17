@@ -68,9 +68,9 @@ interface ChartTheme {
      */
     eventColor?: string;
     /**
-     * The color to use for the gradient applied to an expendable event.
+     * The color to use for the gradient applied to an expandable event.
      */
-    expendableGradientColor?: string;
+    expandableGradientColor?: string;
     /**
      * The color applied to the grid lines.
      */

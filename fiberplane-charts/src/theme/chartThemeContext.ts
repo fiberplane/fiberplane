@@ -25,7 +25,7 @@ export const defaultChartTheme: Theme = {
   buttonHoverBackgroundColor: "#e7e7e7",
   buttonHoverColor: "#1f2023",
   eventColor: "#285fff",
-  expendableGradientColor: "rgb(255 255 255 / 75%)",
+  expandableGradientColor: "rgb(255 255 255 / 75%)",
   gridStrokeColor: "#e7e7e7",
   legendItemBorderRadius: "6px",
   legendItemCheckboxBorderRadius: "4px",
