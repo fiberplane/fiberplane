@@ -221,6 +221,21 @@ function getScientificFormatterForUnits(
   };
 }
 
+export function getSignificantDigitsFormatter(
+  significantDigits: number,
+): TickFormatter {
+  return (value: number): string => {
+    if (value === 0) {
+      return "0";
+    }
+
+    const magnitude = Math.floor(Math.log10(Math.abs(value)));
+    const factor = 10 ** (significantDigits - 1 - magnitude);
+
+    return (Math.round(value * factor) / factor).toString();
+  };
+}
+
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export function getTimeFormatterForAxis(axis: Axis): TickFormatter {

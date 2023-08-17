@@ -2,6 +2,7 @@ import {
   getScientificFormatterForAxis,
   getTimeFormatterForAxis,
   getPercentageFormatter,
+  getSignificantDigitsFormatter,
 } from "./tickFormatters";
 
 test("it can format large numbers with scientific notation", () => {
@@ -94,4 +95,20 @@ test("it can format percentages", () => {
   expect(percentageFormatter(0.1)).toBe("10%");
   expect(percentageFormatter(0.999)).toBe("99.9%");
   expect(percentageFormatter(1)).toBe("100%");
+});
+
+test("it can format 3 significant digits", () => {
+  const significantDigitsFormatter = getSignificantDigitsFormatter(3);
+
+  expect(significantDigitsFormatter(0)).toBe("0");
+  expect(significantDigitsFormatter(0.005)).toBe("0.005");
+  expect(significantDigitsFormatter(0.01)).toBe("0.01");
+  expect(significantDigitsFormatter(0.0101)).toBe("0.0101");
+  expect(significantDigitsFormatter(0.0106)).toBe("0.0106");
+  expect(significantDigitsFormatter(0.1)).toBe("0.1");
+  expect(significantDigitsFormatter(0.999)).toBe("0.999");
+  expect(significantDigitsFormatter(1)).toBe("1");
+  expect(significantDigitsFormatter(1.234)).toBe("1.23");
+  expect(significantDigitsFormatter(1.2345)).toBe("1.23");
+  expect(significantDigitsFormatter(12.345)).toBe("12.3");
 });

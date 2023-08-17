@@ -46,6 +46,13 @@ pub enum FormatterKind {
     /// `100m`, `10`, `10k`.
     Scientific,
 
+    /// Formats a value using significant figures.
+    /// 
+    /// ## Examples (3 significant figures)
+    /// 
+    /// `12.3`, `0.123`, `0.00123`
+    SignificantFigures,
+
     /// Formats a time stamp expressed in seconds since the UNIX epoch.
     ///
     /// For brevity, the formatter omits the most significant parts of the time
@@ -70,6 +77,7 @@ pub fn get_formatter_for_axis(axis: &Axis, kind: FormatterKind) -> Box<dyn TickF
         FormatterKind::Exponent => Box::new(ExponentFormatter::new()),
         FormatterKind::Percentage => Box::new(PercentageFormatter::new()),
         FormatterKind::Scientific => Box::new(ScientificFormatter::for_axis(axis)),
+        FormatterKind::SignificantFigures => Box::new(SignificantFiguresFormatter::new(3)),
         FormatterKind::Time => Box::new(TimeFormatter::for_axis(axis)),
     }
 }
@@ -239,6 +247,37 @@ impl TickFormatter for ScientificFormatter {
         }
     }
 }
+
+pub struct SignificantFiguresFormatter {
+    significant_figures: i32,
+}
+
+impl SignificantFiguresFormatter {
+    pub fn new(significant_figures: i32) -> Self {
+        Self {
+            significant_figures,
+        }
+    }
+}
+
+impl TickFormatter for SignificantFiguresFormatter {
+    fn format(&self, value: f64) -> String {
+        if value == 0.0 {
+            "0".to_string();
+        }
+
+        let magnitude = (value.abs().log10()).floor() as i32;
+        let factor_exponent = self.significant_figures.checked_sub(1).and_then(|sf| sf.checked_sub(magnitude));
+        
+        // If there's an underflow or any other issue, default to 0 for the exponent
+        let factor = 10f64.powi(factor_exponent.unwrap_or(0));
+        
+        let result = (value * factor).round() / factor;
+
+        result.to_string()
+    }
+}
+
 
 pub struct TimeFormatter {
     scale: TimeScale,
@@ -668,6 +707,23 @@ mod tests {
         assert_eq!(formatter.format(0.), "0");
 
         assert_eq!(formatter.format(-1.23456789), "-1.2");
+    }
+
+    #[test]
+    fn test_significant_figures_formatter() {
+        let formatter = SignificantFiguresFormatter::new(3);
+
+        assert_eq!(formatter.format(0.0), "0");
+        assert_eq!(formatter.format(0.005), "0.005");
+        assert_eq!(formatter.format(0.01), "0.01");
+        assert_eq!(formatter.format(0.0101), "0.0101");
+        assert_eq!(formatter.format(0.0106), "0.0106");
+        assert_eq!(formatter.format(0.1), "0.1");
+        assert_eq!(formatter.format(0.999), "0.999");
+        assert_eq!(formatter.format(1.0), "1");
+        assert_eq!(formatter.format(1.234), "1.23");
+        assert_eq!(formatter.format(1.2345), "1.23");
+        assert_eq!(formatter.format(12.345), "12.3");
     }
 
     #[test]
