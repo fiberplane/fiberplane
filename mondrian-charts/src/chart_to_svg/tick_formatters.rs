@@ -47,9 +47,9 @@ pub enum FormatterKind {
     Scientific,
 
     /// Formats a value using significant figures.
-    /// 
+    ///
     /// ## Examples (3 significant figures)
-    /// 
+    ///
     /// `12.3`, `0.123`, `0.00123`
     SignificantFigures,
 
@@ -267,17 +267,19 @@ impl TickFormatter for SignificantFiguresFormatter {
         }
 
         let magnitude = (value.abs().log10()).floor() as i32;
-        let factor_exponent = self.significant_figures.checked_sub(1).and_then(|sf| sf.checked_sub(magnitude));
-        
+        let factor_exponent = self
+            .significant_figures
+            .checked_sub(1)
+            .and_then(|sf| sf.checked_sub(magnitude));
+
         // If there's an underflow or any other issue, default to 0 for the exponent
         let factor = 10f64.powi(factor_exponent.unwrap_or(0));
-        
+
         let result = (value * factor).round() / factor;
 
         result.to_string()
     }
 }
-
 
 pub struct TimeFormatter {
     scale: TimeScale,
