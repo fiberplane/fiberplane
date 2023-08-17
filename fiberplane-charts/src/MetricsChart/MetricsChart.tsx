@@ -10,7 +10,8 @@ import type { Metric, ProviderEvent, Timeseries } from "../providerTypes";
 import type { MetricsChartProps } from "./types";
 import { TimeseriesLegend } from "../TimeseriesLegend";
 import { useHandler } from "../hooks";
-import { ChartThemeContext, defaultChartTheme, Theme } from "../theme";
+import { ChartThemeContext, defaultChartTheme } from "../theme";
+import { Theme } from "../chartThemeTypes";
 
 type GenericShapeList = ShapeList<SeriesSource, Metric | ProviderEvent | null>;
 

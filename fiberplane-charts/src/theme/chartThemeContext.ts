@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { Theme } from "..";
+import { Theme } from "../chartThemeTypes";
 
 export const defaultChartTheme: Theme = {
   axisColor: "#a4a4a4",

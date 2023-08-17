@@ -6,7 +6,8 @@ import { isMac, noop, preventDefault, sortBy } from "../utils";
 import type { Timeseries } from "../providerTypes";
 import type { ToggleTimeseriesEvent } from "./types";
 import { useMeasure } from "../hooks";
-import { ChartThemeContext, WithChartTheme } from "../theme";
+import { ChartThemeContext } from "../theme";
+import { WithChartTheme } from "../chartThemeTypes";
 
 type Props = {
   color: string;

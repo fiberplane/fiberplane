@@ -62,7 +62,3 @@ export interface ChartTheme {
 
   targetLatencyColor?: string;
 }
-
-export type Theme = Required<ChartTheme>;
-
-export type WithChartTheme = { $chartTheme: Theme };

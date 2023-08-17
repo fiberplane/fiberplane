@@ -95,7 +95,6 @@ interface ChartTheme {
     shapeListColors?: Array<string>;
     targetLatencyColor?: string;
 }
-type Theme = Required<ChartTheme>;
 
 type GraphType = "bar" | "line";
 /**
@@ -685,4 +684,4 @@ declare function getPercentageFormatter(): TickFormatter;
 declare function getScientificFormatterForAxis(axis: Axis): TickFormatter;
 declare function getTimeFormatterForAxis(axis: Axis): TickFormatter;
 
-export { AbstractChart, Area, AreaPoint, Axis, ButtonGroup, ChartTheme, CloseTooltipFn, CombinedSourceData, ControlsSet, ControlsSetLabel, FormatterKind, GraphType, Icon, IconButton, Line, Metric, MetricsChart, MetricsChartProps, OtelMetadata, Point, ProviderEvent, Rectangle, SeriesSource, Shape, ShapeList, SparkChart, StackingType, Theme, TickFormatter, TickFormatters, TickFormattersFactory, TimeRange, Timeseries, TimeseriesSourceData, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement, generate, generateFromTimeseries, getBytesFormatterForAxis, getDurationFormatterForAxis, getExponentFormatter, getFormatterForAxis, getPercentageFormatter, getScientificFormatterForAxis, getTimeFormatterForAxis };
+export { AbstractChart, Area, AreaPoint, Axis, ButtonGroup, ChartTheme, CloseTooltipFn, CombinedSourceData, ControlsSet, ControlsSetLabel, FormatterKind, GraphType, Icon, IconButton, Line, Metric, MetricsChart, MetricsChartProps, OtelMetadata, Point, ProviderEvent, Rectangle, SeriesSource, Shape, ShapeList, SparkChart, StackingType, TickFormatter, TickFormatters, TickFormattersFactory, TimeRange, Timeseries, TimeseriesSourceData, Timestamp, ToggleTimeseriesEvent, TooltipAnchor, VirtualElement, generate, generateFromTimeseries, getBytesFormatterForAxis, getDurationFormatterForAxis, getExponentFormatter, getFormatterForAxis, getPercentageFormatter, getScientificFormatterForAxis, getTimeFormatterForAxis };
