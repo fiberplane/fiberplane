@@ -13,7 +13,7 @@ changes if the major version hasn't changed.
 
 ## [Unreleased]
 
-TBD
+- `fiberplane-charts`: updated with `chartTheme` prop allowing extending styles of the charts (#95)
 
 ## [v1.0.0-beta.5] - 2023-06-14
 
