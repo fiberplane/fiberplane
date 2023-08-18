@@ -476,6 +476,10 @@ type CoreChartProps<S, P> = {
      */
     readOnly?: boolean;
     /**
+     * Whether the Y scale should be animated across changes.
+     */
+    shouldAnimateYScale?: boolean;
+    /**
      * Callback for showing tooltips.
      *
      * If no callback is provided, no tooltips will be shown.

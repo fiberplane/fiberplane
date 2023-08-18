@@ -1195,12 +1195,12 @@ function LeftAxis({ formatter , gridBordersShown , scales: { yMax , yScale  } , 
     });
 }
 
-const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDasharray , scales , tickFormatters  }) {
+const GridWithAxes = /*#__PURE__*/ memo(function GridWithAxes({ chart , gridColumnsShown =true , gridRowsShown =true , gridBordersShown =true , gridDasharray , scales , shouldAnimateYScale , tickFormatters  }) {
     const { xMax , xScale , yMax  } = scales;
     const { gridStrokeColor  } = useContext(ChartThemeContext);
     const { xAxis , yAxis  } = chart;
-    const minValue = useCustomSpring(yAxis.minValue);
-    const maxValue = useCustomSpring(yAxis.maxValue);
+    const minValue = useCustomSpring(yAxis.minValue, shouldAnimateYScale);
+    const maxValue = useCustomSpring(yAxis.maxValue, shouldAnimateYScale);
     const animatedScale = createLinearScaleForRangeWithCustomDomain([
         yMax,
         0
@@ -1367,7 +1367,7 @@ const spring = {
         "anticipate"
     ]
 };
-function useCustomSpring(value) {
+function useCustomSpring(value, shouldAnimate = true) {
     const motionValue = useMotionValue(value);
     const [current, setCurrent] = useState(value);
     useLayoutEffect(()=>{
@@ -1376,11 +1376,16 @@ function useCustomSpring(value) {
         motionValue
     ]);
     useEffect(()=>{
-        const controls = animate(motionValue, value, spring);
-        return controls.stop;
+        if (shouldAnimate) {
+            const controls = animate(motionValue, value, spring);
+            return controls.stop;
+        }
+        setCurrent(value);
+        return ()=>{};
     }, [
         motionValue,
-        value
+        value,
+        shouldAnimate
     ]);
     return current;
 }
