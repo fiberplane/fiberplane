@@ -1381,7 +1381,7 @@ function useCustomSpring(value, shouldAnimate = true) {
             return controls.stop;
         }
         setCurrent(value);
-        return ()=>{};
+        return noop;
     }, [
         motionValue,
         value,

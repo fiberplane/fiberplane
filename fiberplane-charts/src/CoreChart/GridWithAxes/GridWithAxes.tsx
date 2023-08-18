@@ -16,6 +16,7 @@ import { GridRows } from "./GridRows";
 import { LeftAxis } from "./LeftAxis";
 import type { Scale, Scales, TickFormatters } from "../types";
 import { ChartThemeContext } from "../../theme";
+import { noop } from "../../utils";
 
 type Props = {
   chart: AbstractChart<unknown, unknown>;
@@ -259,7 +260,8 @@ function useCustomSpring(value: number, shouldAnimate = true) {
     }
 
     setCurrent(value);
-    return () => {};
+
+    return noop;
   }, [motionValue, value, shouldAnimate]);
 
   return current;
