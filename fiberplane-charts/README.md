@@ -37,9 +37,19 @@ const MyComponent = () => {
 
 ## Contributing
 
-If you want to test a work-in-progress in a downstream project while working in
-a custom branch, you can manually generate the `dist/` folder and check it in
-like so:
+If you want to test a work-in-progress in a downstream project, you can use
+`yarn build && yarn pack` to create a tarball you can reference like such:
+
+```json
+  "dependencies": {
+    "@fiberplane/fiberplane-charts": "/path/to/package.tgz"
+  }
+```
+
+### Sharing a custom branch
+
+If you want to share a WIP branch with others, it might be more convenient to
+forcibly check in the `dist/` folder, which you can do like so:
 
 ```sh
 yarn build
@@ -57,9 +67,8 @@ the following syntax:
   }
 ```
 
-Run `yarn` to install as usual.
-
 If you want to update `fiberplane-charts` while using the above syntax, you may
 use `yarn up "@fiberplane/fiberplane-charts@<full-dependency-url>"`.
 
-Make sure to remove the `dist/` folder before opening a PR.
+Make sure to remove the `dist/` folder before opening a PR. CI will fail if you
+don't, so you'll be reminded if you forget :)
