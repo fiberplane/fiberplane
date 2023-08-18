@@ -295,10 +295,10 @@ const removeLastTickIfTooCloseToMax = (
 };
 
 /**
- * Returns a maximum allowed tick value for the x-axis.
+ * Returns a maximum allowed tick value for the X axis.
  *
  * Heuristic:
- *   If a tick's distance to the maxValue is within 1/2 the size of the tick-interval,
+ *   If a tick's distance to the maxValue is within 1/2 the size of the tick interval,
  *   the tick will get dropped.
  *
  * Note that the heuristic was determined by trial and error.
@@ -313,10 +313,10 @@ const getMaxXTickValue = (ticks: Array<number>, maxValue: number) => {
 };
 
 /**
- * Returns a maximum allowed tick value for the x-axis.
+ * Returns a maximum allowed tick value for the Y axis.
  *
  * Heuristic:
- *   If a tick's distance to the maxValue is within 1/3 the size of the tick-interval,
+ *   If a tick's distance to the maxValue is within 1/3 the size of the tick interval,
  *   the tick will get dropped.
  *
  * Note that the heuristic was determined by trial and error.

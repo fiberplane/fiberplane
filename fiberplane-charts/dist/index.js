@@ -1409,10 +1409,10 @@ function useCustomSpring(value, shouldAnimate = true) {
     }
 };
 /**
- * Returns a maximum allowed tick value for the x-axis.
+ * Returns a maximum allowed tick value for the X axis.
  *
  * Heuristic:
- *   If a tick's distance to the maxValue is within 1/2 the size of the tick-interval,
+ *   If a tick's distance to the maxValue is within 1/2 the size of the tick interval,
  *   the tick will get dropped.
  *
  * Note that the heuristic was determined by trial and error.
@@ -1424,10 +1424,10 @@ function useCustomSpring(value, shouldAnimate = true) {
     return maxValue - interval / 2;
 };
 /**
- * Returns a maximum allowed tick value for the x-axis.
+ * Returns a maximum allowed tick value for the Y axis.
  *
  * Heuristic:
- *   If a tick's distance to the maxValue is within 1/3 the size of the tick-interval,
+ *   If a tick's distance to the maxValue is within 1/3 the size of the tick interval,
  *   the tick will get dropped.
  *
  * Note that the heuristic was determined by trial and error.
@@ -2200,28 +2200,34 @@ const HALF_PADDING = 0.5 * BAR_PADDING;
  * bottom (for zero and positive values) or top (for negative values) of the
  * axis.
  */ function getYAxisForConstantValue(value) {
+    let axis;
+    if (value > 1 || value < -1) {
+        axis = {
+            minValue: value - 1,
+            maxValue: value + 1
+        };
+    } else if (value >= 0) {
+        axis = {
+            minValue: 0,
+            maxValue: value + 1
+        };
+    } else {
+        axis = {
+            minValue: value - 1,
+            maxValue: 0
+        };
+    }
     const tickSuggestions = [
         value
     ];
-    if (value > 1 || value < -1) {
-        return {
-            minValue: value - 1,
-            maxValue: value + 1,
-            tickSuggestions
-        };
-    } else if (value >= 0) {
-        return {
-            minValue: 0,
-            maxValue: value + 1,
-            tickSuggestions
-        };
-    } else {
-        return {
-            minValue: value - 1,
-            maxValue: 0,
-            tickSuggestions
-        };
+    if (axis.minValue !== value) {
+        tickSuggestions.unshift(axis.minValue);
     }
+    if (axis.maxValue !== value) {
+        tickSuggestions.push(axis.maxValue);
+    }
+    axis.tickSuggestions = tickSuggestions;
+    return axis;
 }
 
 /**

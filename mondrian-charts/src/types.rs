@@ -20,7 +20,7 @@ pub struct MondrianChart<S, P> {
 }
 
 /// Defines the range of values that are displayed along a given axis.
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Axis {
     /// The value to display at the chart origin.
