@@ -1,4 +1,5 @@
 import type { ChartControlsProps } from "./ChartControls";
+import type { ChartTheme } from "../theme";
 import type {
   CloseTooltipFn,
   CoreChartProps,
@@ -31,13 +32,6 @@ export type MetricsChartProps = Omit<
     chartControlsShown?: boolean;
 
     /**
-     * Override the colors to use for the timeseries.
-     *
-     * If not specified, several colors from the theme are used.
-     */
-    colors?: Array<string>;
-
-    /**
      * Optional custom controls to show in the controls toolbar, in addition to
      * the built-in controls (such as for toggling chart type).
      */
@@ -47,13 +41,6 @@ export type MetricsChartProps = Omit<
      * Optional events to display on the chart.
      */
     events?: Array<ProviderEvent>;
-
-    /**
-     * Override for the color to use for events.
-     *
-     * If not specified, a color from the theme is used.
-     */
-    eventColor?: string;
 
     /**
      * Show the legend. (default: true)
@@ -66,19 +53,19 @@ export type MetricsChartProps = Omit<
     stackingControlsShown?: boolean;
 
     /**
-     * Optional target latency to draw on the chart, in seconds.
-     *
-     * You will also need to specify the `targetLatencyColor` for the latency
-     * to appear.
+     * Optional object containing theme overrides for the chart colors, fonts
+     * and button styles. If a property is not specified, the default value
+     * will be used.
      */
-    targetLatency?: number;
+    chartTheme?: ChartTheme;
 
     /**
-     * The color to use for drawing target latencies.
+     * Optional target latency to draw on the chart, in seconds.
      *
-     * If not specified, no target latency can be drawn.
+     * You will also need to specify the `targetLatencyColor` in `ChartTheme`
+     * for the latency to appear.
      */
-    targetLatencyColor?: string;
+    targetLatency?: number;
   };
 
 export type { CloseTooltipFn, TooltipAnchor, VirtualElement };

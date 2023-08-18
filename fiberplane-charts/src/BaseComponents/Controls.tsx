@@ -1,4 +1,7 @@
-import styled from "styled-components";
+import { useContext } from "react";
+import styled, { css } from "styled-components";
+
+import { ChartThemeContext } from "../theme";
 
 export const ControlsContainer = styled.div`
   display: flex;
@@ -17,8 +20,11 @@ export const ControlsSet = styled.div`
   align-items: center;
 `;
 
-export const ControlsSetLabel = styled.span`
-  font: ${({ theme }) => theme.fontControlsShortHand};
-  letter-spacing: ${({ theme }) => theme.fontControlsLetterSpacing};
-  color: ${({ theme }) => theme.colorBase500};
-`;
+export const ControlsSetLabel = styled.span(() => {
+  const theme = useContext(ChartThemeContext);
+
+  return css`
+    font: ${theme.buttonFont};
+    color: ${theme.buttonColor};
+  `;
+});

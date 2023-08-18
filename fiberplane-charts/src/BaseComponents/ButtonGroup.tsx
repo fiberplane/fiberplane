@@ -1,10 +1,17 @@
-import styled from "styled-components";
+import { useContext } from "react";
+import styled, { css } from "styled-components";
 
-export const ButtonGroup = styled.span`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  padding: 4px 8px;
-  background: ${({ theme }) => theme.colorBase200};
-  border-radius: ${({ theme }) => theme.borderRadius500};
-`;
+import { ChartThemeContext } from "../theme";
+
+export const ButtonGroup = styled.span(() => {
+  const theme = useContext(ChartThemeContext);
+
+  return css`
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 4px 8px;
+    background: ${theme.buttonGroupBackgroundColor};
+    border-radius: ${theme.buttonGroupBorderRadius};
+  `;
+});

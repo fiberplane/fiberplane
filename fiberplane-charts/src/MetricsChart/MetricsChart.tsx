@@ -1,5 +1,5 @@
-import { memo, useMemo, useState } from "react";
-import styled, { useTheme } from "styled-components";
+import { memo, useContext, useMemo, useState } from "react";
+import styled from "styled-components";
 
 import { ChartControls } from "./ChartControls";
 import { ChartSizeContainerProvider } from "../CoreChart";
@@ -10,44 +10,51 @@ import type { Metric, ProviderEvent, Timeseries } from "../providerTypes";
 import type { MetricsChartProps } from "./types";
 import { TimeseriesLegend } from "../TimeseriesLegend";
 import { useHandler } from "../hooks";
+import { ChartThemeContext, defaultChartTheme } from "../theme";
+import { Theme } from "../chartThemeTypes";
 
 type GenericShapeList = ShapeList<SeriesSource, Metric | ProviderEvent | null>;
 
 type TimeseriesShapeList = ShapeList<Timeseries, Metric>;
 
 export function MetricsChart(props: MetricsChartProps) {
+  const chartTheme: Theme = useMemo(
+    () => ({
+      ...defaultChartTheme,
+      ...props.chartTheme,
+    }),
+    [props.chartTheme],
+  );
+
   return (
-    <StyledChartSizeContainerProvider
-      overrideHeight={HEIGHT}
-      marginTop={MARGINS.top}
-      marginRight={MARGINS.right}
-      marginBottom={MARGINS.bottom}
-      marginLeft={MARGINS.left}
-    >
-      <InnerMetricsChart {...props} />
-    </StyledChartSizeContainerProvider>
+    <ChartThemeContext.Provider value={chartTheme}>
+      <StyledChartSizeContainerProvider
+        overrideHeight={HEIGHT}
+        marginTop={MARGINS.top}
+        marginRight={MARGINS.right}
+        marginBottom={MARGINS.bottom}
+        marginLeft={MARGINS.left}
+      >
+        <InnerMetricsChart {...props} />
+      </StyledChartSizeContainerProvider>
+    </ChartThemeContext.Provider>
   );
 }
 
 const InnerMetricsChart = memo(function InnerMetricsChart(
   props: MetricsChartProps,
 ) {
-  const theme = useTheme();
-
   const {
     areaGradientShown = true,
     chartControlsShown = true,
-    colors,
     customChartControls,
     events,
-    eventColor = theme.colorPrimary400,
     graphType,
     legendShown = true,
     readOnly,
     stackingControlsShown = true,
     stackingType,
     targetLatency,
-    targetLatencyColor,
     timeRange,
     timeseriesData,
   } = props;
@@ -65,24 +72,13 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
     [events, graphType, stackingType, targetLatency, timeRange, timeseriesData],
   );
 
+  const { eventColor, shapeListColors, targetLatencyColor } =
+    useContext(ChartThemeContext);
+
   const [focusedShapeList, setFocusedShapeList] =
     useState<GenericShapeList | null>(null);
 
   const getShapeListColor = useMemo(() => {
-    const shapeListColors = colors || [
-      theme["colorSupport1400"],
-      theme["colorSupport2400"],
-      theme["colorSupport3400"],
-      theme["colorSupport4400"],
-      theme["colorSupport5400"],
-      theme["colorSupport6400"],
-      theme["colorSupport7400"],
-      theme["colorSupport8400"],
-      theme["colorSupport9400"],
-      theme["colorSupport10400"],
-      theme["colorSupport11400"],
-    ];
-
     return (source: SeriesSource, index: number): string => {
       switch (source.type) {
         case "timeseries":
@@ -93,7 +89,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
           return targetLatencyColor || "transparent";
       }
     };
-  }, [colors, eventColor, targetLatencyColor, theme]);
+  }, [eventColor, shapeListColors, targetLatencyColor]);
 
   const onFocusedShapeListChange = useHandler(
     (shapeList: GenericShapeList | null) => {

@@ -1,4 +1,4 @@
-import { Fragment, memo, useLayoutEffect } from "react";
+import { Fragment, memo, useContext, useLayoutEffect } from "react";
 import styled, { css } from "styled-components";
 
 import { Container, Icon } from "../BaseComponents";
@@ -6,6 +6,8 @@ import { isMac, noop, preventDefault, sortBy } from "../utils";
 import type { Timeseries } from "../providerTypes";
 import type { ToggleTimeseriesEvent } from "./types";
 import { useMeasure } from "../hooks";
+import { ChartThemeContext } from "../theme";
+import { WithChartTheme } from "../chartThemeTypes";
 
 type Props = {
   color: string;
@@ -56,6 +58,8 @@ export function TimeseriesLegendItem({
     }
   };
 
+  const chartTheme = useContext(ChartThemeContext);
+
   return (
     <div
       ref={ref}
@@ -64,10 +68,15 @@ export function TimeseriesLegendItem({
       onKeyDown={onKeyDown}
     >
       <LegendItemContainer
+        $chartTheme={chartTheme}
         onMouseOver={timeseries.visible ? onHover : noop}
         interactive={!readOnly && onToggleTimeseriesVisibility !== undefined}
       >
-        <ColorBlock color={color} selected={timeseries.visible}>
+        <ColorBlock
+          $chartTheme={chartTheme}
+          color={color}
+          selected={timeseries.visible}
+        >
           {timeseries.visible && <Icon type="check" width="12" height="12" />}
         </ColorBlock>
         <FormattedTimeseries metric={timeseries} emphasizedKeys={uniqueKeys} />
@@ -87,6 +96,8 @@ const FormattedTimeseries = memo(function FormattedTimeseries({
 
   const labelEntries = sortBy(Object.entries(labels), ([key]) => key);
 
+  const chartTheme = useContext(ChartThemeContext);
+
   return (
     <Text>
       {name && `${name}: `}
@@ -98,7 +109,9 @@ const FormattedTimeseries = memo(function FormattedTimeseries({
             {value && [
               ": ",
               emphasizedKeys.includes(key) ? (
-                <Emphasis key={key}>{value}</Emphasis>
+                <Emphasis $chartTheme={chartTheme} key={key}>
+                  {value}
+                </Emphasis>
               ) : (
                 value
               ),
@@ -110,58 +123,60 @@ const FormattedTimeseries = memo(function FormattedTimeseries({
   );
 });
 
-const ColorBlock = styled.div<{ color: string; selected: boolean }>`
-    background: ${({ color, selected }) => (selected ? color : "transparent")};
-    border: 2px solid ${({ color }) => color};
+const ColorBlock = styled.div<
+  WithChartTheme & { color: string; selected: boolean }
+>(
+  ({ $chartTheme, color, selected }) => css`
+    background: ${selected ? color : "transparent"};
+    border: 2px solid ${color};
     width: 14px;
     height: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: ${({ theme }) => theme.colorBackground};
-    border-radius: ${({ theme }) => theme.borderRadius400};
-`;
+    color: ${$chartTheme.legendItemCheckboxColor};
+    border-radius: ${$chartTheme.legendItemCheckboxBorderRadius};
+  `,
+);
 
-const Emphasis = styled.span`
-    /* FIXME: These vars are to support style overrides for dark mode */
-    background-color: var(
-        --fp-chart-legend-emphasis-bg,
-        ${({ theme }) => theme.colorBase200}
-    );
-    color: var(--fp-chart-legend-emphasis-color, currentColor);
-    /* TODO (Jacco): we should try and find out what to do with this styling */
-    /* stylelint-disable-next-line scale-unlimited/declaration-strict-value */
-    font-weight: 600;
-    border-radius: ${({ theme }) => theme.borderRadius500};
+const Emphasis = styled.span<WithChartTheme>(
+  ({ $chartTheme }) => css`
+    background-color: ${$chartTheme.legendItemEmphasisBackgroundColor};
+    color: ${$chartTheme.legendItemEmphasisColor};
+    font: ${$chartTheme.legendItemEmphasisFont};
+    border-radius: ${$chartTheme.legendItemEmphasisBorderRadius};
     padding: 1px 4px;
     display: inline-block;
-`;
+  `,
+);
 
-const InteractiveItemStyling = css`
-    cursor: pointer;
-
-    &:hover {
-        /* FIXME: These vars are to support style overrides for dark mode */
-        background: var(
-            --fp-chart-legend-hover-bg,
-            ${({ theme }) => theme.colorPrimaryAlpha100}
-        );
-        color: var(--fp-chart-legend-hover-color, currentColor);
-    }
-`;
-
-const LegendItemContainer = styled(Container)<{ interactive: boolean }>`
-    border-radius: ${({ theme }) => theme.borderRadius500};
+const LegendItemContainer = styled(Container)<
+  WithChartTheme & { interactive: boolean }
+>(
+  ({ $chartTheme, interactive }) => css`
+    border-radius: ${$chartTheme.legendItemBorderRadius};
     display: flex;
     align-items: center;
-    font: ${({ theme }) => theme.fontAxisShortHand};
+    font: ${$chartTheme.legendItemFont};
+    color: ${$chartTheme.legendItemColor};
     padding: 8px 8px 8px 14px;
     gap: 10px;
     word-wrap: anywhere;
 
-    ${({ interactive }) => interactive && InteractiveItemStyling}
-`;
+    ${
+      interactive &&
+      css`
+        cursor: pointer;
+
+        &:hover {
+            background: ${$chartTheme.legendItemOnHoverBackgroundColor};
+            color: ${$chartTheme.legendItemOnHoverColor};
+        }
+      `
+    }
+  `,
+);
 
 const Text = styled.div`
-    flex: 1;
+  flex: 1;
 `;

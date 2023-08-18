@@ -1,8 +1,9 @@
-import styled from "styled-components";
-import { useRef, useState, useEffect } from "react";
+import styled, { css } from "styled-components";
+import { useRef, useState, useEffect, useContext } from "react";
 
 import { Icon } from "../BaseComponents";
 import { useHandler } from "./useHandler";
+import { ChartThemeContext } from "../theme";
 
 type Options = {
   /**
@@ -183,21 +184,24 @@ const Expand = styled.div<{ revert: boolean }>`
   }
 `;
 
-const Gradient = styled.div`
-  width: 100%;
-  position: absolute;
-  bottom: 0;
-  height: 39px;
-  background-image: linear-gradient(
-    to bottom,
-    transparent,
-  /* FIXME: This var supports style overrides for dark mode */
-    var(--fp-expandable-fade-color, rgb(255 255 255 / 75%)) 50%
-  );
+const Gradient = styled.div(() => {
+  const theme = useContext(ChartThemeContext);
 
-  border-bottom-right-radius: 6px;
-  pointer-events: none;
-`;
+  return css`
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    height: 39px;
+    background-image: linear-gradient(
+      to bottom,
+      transparent,
+      ${theme.expandableGradientColor} 50%
+    );
+
+    border-bottom-right-radius: 6px;
+    pointer-events: none;
+  `;
+});
 
 // The container is sticky, but zero height to prevent the gradient itself
 // from reserving any space.

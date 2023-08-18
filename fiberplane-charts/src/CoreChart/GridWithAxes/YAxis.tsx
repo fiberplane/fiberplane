@@ -1,5 +1,6 @@
-import { useTheme } from "styled-components";
+import { useContext } from "react";
 
+import { ChartThemeContext } from "../../theme";
 import type { Scales, TickFormatters } from "../types";
 
 type Props = {
@@ -20,24 +21,24 @@ export function YAxis({
   ticks,
 }: Props) {
   const {
-    colorBase500,
-    fontAxisFontSize,
-    fontAxisFontFamily,
-    fontAxisFontStyle,
-    fontAxisFontWeight,
-    fontAxisLetterSpacing,
-  } = useTheme();
+    axisColor,
+    axisFontSize,
+    axisFontFamily,
+    axisFontStyle,
+    axisFontWeight,
+    axisLetterSpacing,
+  } = useContext(ChartThemeContext);
 
   const tickLabelProps = {
     dx: "-0.45em",
     dy: "0.25em",
     textAnchor: "end" as const,
-    fontFamily: fontAxisFontFamily,
-    fontStyle: fontAxisFontStyle,
-    fontWeight: fontAxisFontWeight,
-    fontSize: fontAxisFontSize,
-    letterSpacing: fontAxisLetterSpacing,
-    fill: colorBase500,
+    fontFamily: axisFontFamily,
+    fontStyle: axisFontStyle,
+    fontWeight: axisFontWeight,
+    fontSize: axisFontSize,
+    letterSpacing: axisLetterSpacing,
+    fill: axisColor,
   };
 
   const numTicks = ticks.length - 1;

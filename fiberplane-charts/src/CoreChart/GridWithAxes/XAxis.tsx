@@ -1,6 +1,7 @@
-import { useTheme } from "styled-components";
+import { useContext } from "react";
 
 import type { Axis } from "../../Mondrian";
+import { ChartThemeContext } from "../../theme";
 import type { Scales, TickFormatters } from "../types";
 
 const LABEL_OFFSET = 8;
@@ -25,13 +26,13 @@ export function XAxis({
   xAxis: { maxValue, minValue },
 }: Props) {
   const {
-    colorBase500,
-    fontAxisFontSize,
-    fontAxisFontFamily,
-    fontAxisFontStyle,
-    fontAxisFontWeight,
-    fontAxisLetterSpacing,
-  } = useTheme();
+    axisColor,
+    axisFontSize,
+    axisFontFamily,
+    axisFontStyle,
+    axisFontWeight,
+    axisLetterSpacing,
+  } = useContext(ChartThemeContext);
 
   return (
     <g transform={`translate(0, ${yMax})`}>
@@ -52,14 +53,14 @@ export function XAxis({
             // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
             key={index}
             x={xScale((time - minValue) / (maxValue - minValue))}
-            y={fontAxisFontSize}
+            y={axisFontSize}
             dy={LABEL_OFFSET}
-            fill={colorBase500}
-            fontFamily={fontAxisFontFamily}
-            fontStyle={fontAxisFontStyle}
-            fontWeight={fontAxisFontWeight}
-            fontSize={fontAxisFontSize}
-            letterSpacing={fontAxisLetterSpacing}
+            fill={axisColor}
+            fontFamily={axisFontFamily}
+            fontStyle={axisFontStyle}
+            fontWeight={axisFontWeight}
+            fontSize={axisFontSize}
+            letterSpacing={axisLetterSpacing}
             textAnchor="middle"
           >
             {formatter(time)}

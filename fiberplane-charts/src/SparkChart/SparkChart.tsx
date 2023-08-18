@@ -1,4 +1,4 @@
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 import { useMemo } from "react";
 
 import {
@@ -19,7 +19,7 @@ type Props = Pick<
      * Override the colors for the timeseries. If not specified several colors
      * of the theme are used.
      */
-    colors?: Array<string>;
+    colors: Array<string>;
   };
 
 export function SparkChart({
@@ -31,8 +31,6 @@ export function SparkChart({
   timeseriesData,
   onChangeTimeRange,
 }: Props) {
-  const theme = useTheme();
-
   const chart = useMemo(
     () =>
       generateFromTimeseries({
@@ -46,23 +44,9 @@ export function SparkChart({
   );
 
   const getShapeListColor = useMemo(() => {
-    const shapeListColors = colors || [
-      theme["colorSupport1400"],
-      theme["colorSupport2400"],
-      theme["colorSupport3400"],
-      theme["colorSupport4400"],
-      theme["colorSupport5400"],
-      theme["colorSupport6400"],
-      theme["colorSupport7400"],
-      theme["colorSupport8400"],
-      theme["colorSupport9400"],
-      theme["colorSupport10400"],
-      theme["colorSupport11400"],
-    ];
-
     return (_source: Timeseries, index: number): string =>
-      shapeListColors[index % shapeListColors.length];
-  }, [colors, theme]);
+      colors[index % colors.length];
+  }, [colors]);
 
   return (
     <StyledChartSizeContainerProvider>

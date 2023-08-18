@@ -11,6 +11,30 @@ render [Mondrian charts](https://crates.io/crates/mondrian-charts/).
 `fiberplane-charts` contains a full TypeScript implementation of the Mondrian
 types, as well as the generators from Fiberplane `Timeseries`.
 
+## Extending styles
+
+If you want to extend the styles of the charts, you can pass a `chartTheme` prop
+to the `MetricsChart` component. This prop should be an object with values
+defined in the `ChartTheme` interface.
+
+```tsx
+import { MetricsChart, type ChartTheme } from "@fiberplane/charts";
+
+const chartTheme: ChartTheme = {
+  axisColor: "#EBEBEB",
+  //...
+};
+
+const MyComponent = () => {
+  return (
+    <MetricsChart
+      chartTheme={chartTheme}
+      //...
+    />
+  );
+};
+```
+
 ## Contributing
 
 If you want to test a work-in-progress in a downstream project while working in
