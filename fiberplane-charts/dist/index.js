@@ -2277,7 +2277,6 @@ const POSITIVE_ZERO = Number.EPSILON;
         axis.tickSuggestions.push(currentTick);
         currentTick += interval;
     }
-    return;
 }
 
 /**

@@ -2,7 +2,7 @@ import type { Axis } from "../../types";
 
 // NOTE - These constants account for floating point artifacts in the input data
 //        E.g., we want to treat 1.0 and 1.0000000000000002 as the same value
-//        Otherwise, we'll end up graphing a value like 1.0000000000000002 as a straight line
+//        Otherwise, we'll end up graphing a value like 1.0000000000000002 as a straight line in the middle of the graph
 const ONE = 1.0 + Number.EPSILON;
 const NEGATIVE_ONE = -1.0 - Number.EPSILON;
 const POSITIVE_ZERO = Number.EPSILON;
@@ -12,6 +12,12 @@ const POSITIVE_ZERO = Number.EPSILON;
  *
  * For values larger than 1 or smaller than -1, the results will be centered
  * along the Y axis.
+ *
+ * For values that are functionally 0 (between 0 and EPSILON), the results will be at the very bottom of the chart,
+ * and the max will be 1.
+ *
+ * For values that are functionally 1 (between 1 and 1+EPSILON),
+ * the resulting line or dot will be at the very top of the chart, and the max will be the value itself.
  *
  * For values closer to zero, the zero value is kept at the
  * bottom 1/8th (for positive values) or top 1/8th (for negative values) of the
@@ -52,6 +58,8 @@ export function getYAxisForConstantValue(value: number): Axis {
  * If the first two tick suggestions are not the min and max values, then we
  * use the those two suggestions as the interval, and give suggestions with that interval
  * until we reach the max value.
+ *
+ * @note This function mutates the axis object
  */
 function attachTickSuggestions(axis: Axis, suggestions: number[]) {
   if (suggestions.length < 2) {
@@ -81,6 +89,4 @@ function attachTickSuggestions(axis: Axis, suggestions: number[]) {
     axis.tickSuggestions.push(currentTick);
     currentTick += interval;
   }
-
-  return;
 }

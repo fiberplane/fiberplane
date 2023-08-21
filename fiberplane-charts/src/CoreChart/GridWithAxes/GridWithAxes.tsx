@@ -184,7 +184,6 @@ function getTicksAndIntervalFromSuggestions(
 
   const suggestionInterval = suggestions[1] - suggestions[0];
   const axisRange = axis.maxValue - axis.minValue;
-
   const ticksPerRange = axisRange / suggestionInterval;
   if (ticksPerRange < numTicks) {
     return { ticks: suggestions, interval: suggestionInterval };
