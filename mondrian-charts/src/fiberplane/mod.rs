@@ -8,6 +8,9 @@ mod generate_stacked_line_chart_from_timeseries;
 mod types;
 mod utils;
 
+#[cfg(feature = "wasm-bindgen")]
+mod js_bindings;
+
 #[cfg(test)]
 mod tests;
 

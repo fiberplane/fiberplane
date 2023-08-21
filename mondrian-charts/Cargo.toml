@@ -10,10 +10,11 @@ rust-version = { workspace = true }
 version = "0.1.0"
 
 [features]
-default = ["fiberplane", "image"]
+default = ["fiberplane", "image", "wasm-bindgen"]
 fiberplane = ["dep:fiberplane-models"]
 image = ["dep:csscolorparser", "dep:image", "dep:resvg", "svg"]
 svg = ["dep:itertools", "dep:time"]
+wasm-bindgen = ["dep:wasm-bindgen"]
 
 [dependencies]
 csscolorparser = { version = "0.6", optional = true }
@@ -24,6 +25,7 @@ resvg = { version = "0.35", optional = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 time = { workspace = true, optional = true }
+wasm-bindgen = { version = "0.2", optional = true }
 
 [dev-dependencies]
 insta = { workspace = true, features = ["yaml"] }
