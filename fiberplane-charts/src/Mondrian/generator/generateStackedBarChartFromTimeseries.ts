@@ -1,23 +1,23 @@
+import type { Metric, Timeseries } from "../../providerTypes";
+import { compact } from "../../utils";
 import type {
   AbstractChart,
   Axis,
-  TimeseriesSourceData,
   Shape,
   ShapeList,
+  TimeseriesSourceData,
 } from "../types";
+import type { StackedChartBuckets } from "./types";
 import {
-  calculateBucketsAndAxesForStackedChart,
+  attachSuggestionsToXAxis,
   calculateBarWidth,
+  calculateBucketsAndAxesForStackedChart,
   calculateSmallestTimeInterval,
   extendAxisWithInterval,
   extendAxisWithValue,
   getTimeFromTimestamp,
   normalizeAlongLinearAxis,
-  attachSuggestionsToXAxis,
 } from "./utils";
-import { compact } from "../../utils";
-import type { Metric, Timeseries } from "../../providerTypes";
-import type { StackedChartBuckets } from "./types";
 
 export function generateStackedBarChartFromTimeseries(
   input: TimeseriesSourceData,

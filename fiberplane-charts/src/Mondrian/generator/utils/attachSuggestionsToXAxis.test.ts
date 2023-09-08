@@ -1,5 +1,5 @@
-import { attachSuggestionsToXAxis } from "./attachSuggestionsToXAxis";
 import type { Axis } from "../../types";
+import { attachSuggestionsToXAxis } from "./attachSuggestionsToXAxis";
 
 test("it attaches the right suggestions", () => {
   const buckets = new Map<string, number>();

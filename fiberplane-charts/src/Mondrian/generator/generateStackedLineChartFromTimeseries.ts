@@ -1,3 +1,5 @@
+import type { Metric, Timeseries } from "../../providerTypes";
+import { compact } from "../../utils";
 import type {
   AbstractChart,
   AreaPoint,
@@ -14,8 +16,6 @@ import {
   normalizeAlongLinearAxis,
   splitIntoContinuousLines,
 } from "./utils";
-import { compact } from "../../utils";
-import type { Metric, Timeseries } from "../../providerTypes";
 
 type AxesAndBuckets = ReturnType<typeof calculateBucketsAndAxesForStackedChart>;
 

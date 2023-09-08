@@ -1,5 +1,5 @@
-import type { StackedChartBucketValue } from "../types";
 import type { TimeseriesSourceData } from "../../types";
+import type { StackedChartBucketValue } from "../types";
 import { calculateStackedYAxisRange } from "./calculateStackedYAxisRange";
 import { createMetricBuckets } from "./createMetricBuckets";
 import { getXAxisFromTimeRange } from "./getXAxisFromTimeRange";

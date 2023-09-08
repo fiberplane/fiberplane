@@ -1,7 +1,8 @@
+import type { Metric, ProviderEvent, Timeseries } from "../../providerTypes";
 import type {
   AbstractChart,
-  SeriesSource,
   CombinedSourceData,
+  SeriesSource,
   TimeseriesSourceData,
 } from "../types";
 import { generateBarChartFromTimeseries } from "./generateBarChartFromTimeseries";
@@ -10,7 +11,6 @@ import { generateShapeListFromEvents } from "./generateShapeListFromEvents";
 import { generateShapeListFromTargetLatency } from "./generateShapeListFromTargetLatency";
 import { generateStackedBarChartFromTimeseries } from "./generateStackedBarChartFromTimeseries";
 import { generateStackedLineChartFromTimeseries } from "./generateStackedLineChartFromTimeseries";
-import type { Timeseries, Metric, ProviderEvent } from "../../providerTypes";
 
 /**
  * Generates an abstract chart from a combination of timeseries data, events and

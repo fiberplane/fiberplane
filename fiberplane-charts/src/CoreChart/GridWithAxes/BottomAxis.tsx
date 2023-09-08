@@ -1,7 +1,7 @@
-import type { Axis } from "../../Mondrian";
-import type { Scales, TickFormatters } from "../types";
-import { ChartThemeContext } from "../../theme";
 import { useContext } from "react";
+import type { Axis } from "../../Mondrian";
+import { ChartThemeContext } from "../../theme";
+import type { Scales, TickFormatters } from "../types";
 
 const LABEL_OFFSET = 8;
 
@@ -44,7 +44,7 @@ export function BottomAxis({
 
       {ticks.map((time, index) => (
         <text
-          // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
+          // biome-ignore lint/suspicious/noArrayIndexKey: no better key available
           key={index}
           x={xScale((time - minValue) / (maxValue - minValue))}
           y={axisFontSize}

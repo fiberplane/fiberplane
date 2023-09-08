@@ -1,6 +1,6 @@
-import { getTimeFromTimestamp } from "./getTimeFromTimestamp";
 import type { Axis } from "../../types";
 import type { Buckets } from "../types";
+import { getTimeFromTimestamp } from "./getTimeFromTimestamp";
 
 /**
  * Adds suggestions to the axis based on the position of the first bucket and

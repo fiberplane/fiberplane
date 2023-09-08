@@ -1,8 +1,8 @@
 import { memo, useId } from "react";
 
-import type { CommonShapeProps } from "./types";
 import type { Line } from "../../Mondrian";
 import { createAreaPathDef, createLinePathDef } from "./paths";
+import type { CommonShapeProps } from "./types";
 
 type Props<P> = CommonShapeProps & {
   line: Line<P>;

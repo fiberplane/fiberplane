@@ -542,7 +542,6 @@ function useHandler(handler) {
     const handlerRef = useRef(handler);
     handlerRef.current = handler;
     // @ts-ignore
-    // rome-ignore lint/nursery/useHookAtTopLevel: https://github.com/rome/tools/issues/4483
     return useCallback((...args)=>handlerRef.current(...args), noDeps);
 }
 
@@ -1676,7 +1675,6 @@ function coordinateToTimestamp(timeRange, x) {
  * If the chart is being dragged with the mouse, translation along the X axis
  * is applied.
  */ function useScales({ xMax , yMax  }, mouseInteraction) {
-    // rome-ignore lint/nursery/useHookAtTopLevel: https://github.com/rome/tools/issues/4483
     return useMemo(()=>({
             xMax,
             yMax,
@@ -2010,7 +2008,7 @@ function CoreChart({ areaGradientShown =true , chart , getShapeListColor , gridS
     // HACK - For spark charts, the clip path can be larger than the chart itself,
     //        which leads to points getting cut off
     const svgHeight = height > clipPathHeight ? height : clipPathHeight;
-    return(// rome-ignore lint/a11y/noSvgWithoutTitle: title would interfere with tooltip
+    return(// biome-ignore lint/a11y/noSvgWithoutTitle: title would interfere with tooltip
     /*#__PURE__*/ jsxs("svg", {
         width: width,
         height: svgHeight,

@@ -1,8 +1,8 @@
 import { memo } from "react";
 
-import type { CommonShapeProps } from "./types";
 import type { Point } from "../../Mondrian";
 import { POINT_RADIUS, POINT_RADIUS_FOCUSED } from "../constants";
+import type { CommonShapeProps } from "./types";
 
 type Props<P> = CommonShapeProps & {
   point: Point<P>;

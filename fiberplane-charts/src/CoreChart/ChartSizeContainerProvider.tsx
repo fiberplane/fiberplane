@@ -1,9 +1,9 @@
-import { debounce } from "throttle-debounce";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { debounce } from "throttle-debounce";
 
-import { ChartSizeContext, ChartSizeContextValue } from "./ChartSizeContext";
-import { mergeRefs } from "../utils";
 import { useIntersectionObserver, useMeasure } from "../hooks";
+import { mergeRefs } from "../utils";
+import { ChartSizeContext, ChartSizeContextValue } from "./ChartSizeContext";
 
 type Props = {
   children: React.ReactNode;

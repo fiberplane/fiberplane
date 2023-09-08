@@ -2,12 +2,12 @@ import { Fragment, memo, useContext, useLayoutEffect } from "react";
 import styled, { css } from "styled-components";
 
 import { Container, Icon } from "../BaseComponents";
-import { isMac, noop, preventDefault, sortBy } from "../utils";
-import type { Timeseries } from "../providerTypes";
-import type { ToggleTimeseriesEvent } from "./types";
-import { useMeasure } from "../hooks";
-import { ChartThemeContext } from "../theme";
 import { WithChartTheme } from "../chartThemeTypes";
+import { useMeasure } from "../hooks";
+import type { Timeseries } from "../providerTypes";
+import { ChartThemeContext } from "../theme";
+import { isMac, noop, preventDefault, sortBy } from "../utils";
+import type { ToggleTimeseriesEvent } from "./types";
 
 type Props = {
   color: string;

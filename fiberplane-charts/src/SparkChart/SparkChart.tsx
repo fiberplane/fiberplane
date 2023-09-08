@@ -1,5 +1,5 @@
-import styled from "styled-components";
 import { useMemo } from "react";
+import styled from "styled-components";
 
 import {
   ChartSizeContainerProvider,
@@ -7,8 +7,8 @@ import {
   CoreChartProps,
   TickFormatters,
 } from "../CoreChart";
-import { Metric, Timeseries } from "../providerTypes";
 import { TimeseriesSourceData, generateFromTimeseries } from "../Mondrian";
+import { Metric, Timeseries } from "../providerTypes";
 
 type Props = Pick<
   CoreChartProps<Timeseries, Metric>,

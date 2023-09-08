@@ -1,14 +1,14 @@
-import type { ChartControlsProps } from "./ChartControls";
-import type { ChartTheme } from "../theme";
 import type {
   CloseTooltipFn,
   CoreChartProps,
   TooltipAnchor,
   VirtualElement,
 } from "../CoreChart";
-import type { Metric, ProviderEvent, Timeseries } from "../providerTypes";
 import type { SeriesSource, TimeseriesSourceData } from "../Mondrian";
 import type { TimeseriesLegendProps } from "../TimeseriesLegend";
+import type { Metric, ProviderEvent, Timeseries } from "../providerTypes";
+import type { ChartTheme } from "../theme";
+import type { ChartControlsProps } from "./ChartControls";
 
 export type MetricsChartProps = Omit<
   CoreChartProps<SeriesSource, Metric | ProviderEvent | null>,
