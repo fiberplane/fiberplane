@@ -2733,7 +2733,7 @@ const Emphasis = styled.span(({ $chartTheme  })=>css`
     display: inline-block;
   `);
 const ResizeContainer = styled.div`
-  height: fit-content;
+  min-height: fit-content;
 `;
 const LegendItemContainer = styled(Container)(({ $chartTheme , interactive  })=>css`
     display: grid;

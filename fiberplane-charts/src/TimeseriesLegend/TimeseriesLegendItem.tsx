@@ -44,13 +44,13 @@ export function TimeseriesLegendItem({
   const toggleTimeseriesVisibility =
     onToggleTimeseriesVisibility && !readOnly
       ? (event: React.MouseEvent | React.KeyboardEvent) => {
-          preventDefault(event);
-          const toggleSingle = isMac ? event.metaKey : event.ctrlKey;
-          onToggleTimeseriesVisibility({
-            timeseries,
-            toggleOthers: !toggleSingle,
-          });
-        }
+        preventDefault(event);
+        const toggleSingle = isMac ? event.metaKey : event.ctrlKey;
+        onToggleTimeseriesVisibility({
+          timeseries,
+          toggleOthers: !toggleSingle,
+        });
+      }
       : noop;
 
   const onKeyDown = (event: React.KeyboardEvent) => {
@@ -157,7 +157,7 @@ const Emphasis = styled.span<WithChartTheme>(
 );
 
 const ResizeContainer = styled.div`
-  height: fit-content;
+  min-height: fit-content;
 `;
 
 const LegendItemContainer = styled(Container)<
@@ -174,9 +174,8 @@ const LegendItemContainer = styled(Container)<
     gap: 10px;
     word-wrap: anywhere;
 
-    ${
-      interactive &&
-      css`
+    ${interactive &&
+    css`
         cursor: pointer;
 
         &:hover {
