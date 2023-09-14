@@ -35,6 +35,7 @@ export function TimeseriesLegendItem({
   const [ref, { height }] = useMeasure<HTMLDivElement>();
 
   useLayoutEffect(() => {
+    console.log('index', index, 'height', height);
     if (height) {
       setSize(index, height);
     }

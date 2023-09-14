@@ -2631,6 +2631,7 @@ function getPointForMetric(metric, { buckets , isPercentage , xAxis , yAxis  }) 
 function TimeseriesLegendItem({ color , onHover , onToggleTimeseriesVisibility , readOnly , index , setSize , style , timeseries , uniqueKeys  }) {
     const [ref, { height  }] = useMeasure();
     useLayoutEffect(()=>{
+        console.log('index', index, 'height', height);
         if (height) {
             setSize(index, height);
         }
