@@ -2631,7 +2631,7 @@ function getPointForMetric(metric, { buckets , isPercentage , xAxis , yAxis  }) 
 function TimeseriesLegendItem({ color , onHover , onToggleTimeseriesVisibility , readOnly , index , setSize , style , timeseries , uniqueKeys  }) {
     const [ref, { height  }] = useMeasure();
     useLayoutEffect(()=>{
-        console.log('index', index, 'height', height);
+        console.log("index", index, "height", height);
         if (height) {
             setSize(index, height);
         }
@@ -2658,27 +2658,29 @@ function TimeseriesLegendItem({ color , onHover , onToggleTimeseriesVisibility ,
         style: style,
         onClick: toggleTimeseriesVisibility,
         onKeyDown: onKeyDown,
-        children: /*#__PURE__*/ jsxs(LegendItemContainer, {
+        children: /*#__PURE__*/ jsx("div", {
             ref: ref,
-            $chartTheme: chartTheme,
-            onMouseOver: timeseries.visible ? onHover : noop,
-            interactive: !readOnly && onToggleTimeseriesVisibility !== undefined,
-            children: [
-                /*#__PURE__*/ jsx(ColorBlock, {
-                    $chartTheme: chartTheme,
-                    color: color,
-                    selected: timeseries.visible,
-                    children: timeseries.visible && /*#__PURE__*/ jsx(Icon, {
-                        type: "check",
-                        width: "12",
-                        height: "12"
+            children: /*#__PURE__*/ jsxs(LegendItemContainer, {
+                $chartTheme: chartTheme,
+                onMouseOver: timeseries.visible ? onHover : noop,
+                interactive: !readOnly && onToggleTimeseriesVisibility !== undefined,
+                children: [
+                    /*#__PURE__*/ jsx(ColorBlock, {
+                        $chartTheme: chartTheme,
+                        color: color,
+                        selected: timeseries.visible,
+                        children: timeseries.visible && /*#__PURE__*/ jsx(Icon, {
+                            type: "check",
+                            width: "12",
+                            height: "12"
+                        })
+                    }),
+                    /*#__PURE__*/ jsx(FormattedTimeseries, {
+                        metric: timeseries,
+                        emphasizedKeys: uniqueKeys
                     })
-                }),
-                /*#__PURE__*/ jsx(FormattedTimeseries, {
-                    metric: timeseries,
-                    emphasizedKeys: uniqueKeys
-                })
-            ]
+                ]
+            })
         })
     });
 }

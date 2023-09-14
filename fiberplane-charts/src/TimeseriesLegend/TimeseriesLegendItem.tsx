@@ -35,7 +35,7 @@ export function TimeseriesLegendItem({
   const [ref, { height }] = useMeasure<HTMLDivElement>();
 
   useLayoutEffect(() => {
-    console.log('index', index, 'height', height);
+    console.log("index", index, "height", height);
     if (height) {
       setSize(index, height);
     }
@@ -44,13 +44,13 @@ export function TimeseriesLegendItem({
   const toggleTimeseriesVisibility =
     onToggleTimeseriesVisibility && !readOnly
       ? (event: React.MouseEvent | React.KeyboardEvent) => {
-        preventDefault(event);
-        const toggleSingle = isMac ? event.metaKey : event.ctrlKey;
-        onToggleTimeseriesVisibility({
-          timeseries,
-          toggleOthers: !toggleSingle,
-        });
-      }
+          preventDefault(event);
+          const toggleSingle = isMac ? event.metaKey : event.ctrlKey;
+          onToggleTimeseriesVisibility({
+            timeseries,
+            toggleOthers: !toggleSingle,
+          });
+        }
       : noop;
 
   const onKeyDown = (event: React.KeyboardEvent) => {
@@ -67,21 +67,25 @@ export function TimeseriesLegendItem({
       onClick={toggleTimeseriesVisibility}
       onKeyDown={onKeyDown}
     >
-      <LegendItemContainer
-        ref={ref}
-        $chartTheme={chartTheme}
-        onMouseOver={timeseries.visible ? onHover : noop}
-        interactive={!readOnly && onToggleTimeseriesVisibility !== undefined}
-      >
-        <ColorBlock
+      <div ref={ref}>
+        <LegendItemContainer
           $chartTheme={chartTheme}
-          color={color}
-          selected={timeseries.visible}
+          onMouseOver={timeseries.visible ? onHover : noop}
+          interactive={!readOnly && onToggleTimeseriesVisibility !== undefined}
         >
-          {timeseries.visible && <Icon type="check" width="12" height="12" />}
-        </ColorBlock>
-        <FormattedTimeseries metric={timeseries} emphasizedKeys={uniqueKeys} />
-      </LegendItemContainer>
+          <ColorBlock
+            $chartTheme={chartTheme}
+            color={color}
+            selected={timeseries.visible}
+          >
+            {timeseries.visible && <Icon type="check" width="12" height="12" />}
+          </ColorBlock>
+          <FormattedTimeseries
+            metric={timeseries}
+            emphasizedKeys={uniqueKeys}
+          />
+        </LegendItemContainer>
+      </div>
     </div>
   );
 }
@@ -166,8 +170,9 @@ const LegendItemContainer = styled(Container)<
     gap: 10px;
     word-wrap: anywhere;
 
-    ${interactive &&
-    css`
+    ${
+      interactive &&
+      css`
         cursor: pointer;
 
         &:hover {
