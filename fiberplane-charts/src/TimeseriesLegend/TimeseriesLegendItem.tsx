@@ -67,7 +67,7 @@ export function TimeseriesLegendItem({
       onClick={toggleTimeseriesVisibility}
       onKeyDown={onKeyDown}
     >
-      <div ref={ref}>
+      <ResizeContainer ref={ref}>
         <LegendItemContainer
           $chartTheme={chartTheme}
           onMouseOver={timeseries.visible ? onHover : noop}
@@ -85,7 +85,7 @@ export function TimeseriesLegendItem({
             emphasizedKeys={uniqueKeys}
           />
         </LegendItemContainer>
-      </div>
+      </ResizeContainer>
     </div>
   );
 }
@@ -155,6 +155,10 @@ const Emphasis = styled.span<WithChartTheme>(
     display: inline-block;
   `,
 );
+
+const ResizeContainer = styled.div`
+  height: fit-content;
+`;
 
 const LegendItemContainer = styled(Container)<
   WithChartTheme & { interactive: boolean }

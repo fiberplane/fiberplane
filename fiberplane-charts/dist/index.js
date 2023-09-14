@@ -2658,7 +2658,7 @@ function TimeseriesLegendItem({ color , onHover , onToggleTimeseriesVisibility ,
         style: style,
         onClick: toggleTimeseriesVisibility,
         onKeyDown: onKeyDown,
-        children: /*#__PURE__*/ jsx("div", {
+        children: /*#__PURE__*/ jsx(ResizeContainer, {
             ref: ref,
             children: /*#__PURE__*/ jsxs(LegendItemContainer, {
                 $chartTheme: chartTheme,
@@ -2732,6 +2732,9 @@ const Emphasis = styled.span(({ $chartTheme  })=>css`
     padding: 1px 4px;
     display: inline-block;
   `);
+const ResizeContainer = styled.div`
+  height: fit-content;
+`;
 const LegendItemContainer = styled(Container)(({ $chartTheme , interactive  })=>css`
     display: grid;
     grid-template: "checkbox text" auto / 20px auto;
