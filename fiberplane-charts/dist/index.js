@@ -2655,11 +2655,11 @@ function TimeseriesLegendItem({ color , onHover , onToggleTimeseriesVisibility ,
     };
     const chartTheme = useContext(ChartThemeContext);
     return /*#__PURE__*/ jsx("div", {
-        ref: ref,
         style: style,
         onClick: toggleTimeseriesVisibility,
         onKeyDown: onKeyDown,
         children: /*#__PURE__*/ jsxs(LegendItemContainer, {
+            ref: ref,
             $chartTheme: chartTheme,
             onMouseOver: timeseries.visible ? onHover : noop,
             interactive: !readOnly && onToggleTimeseriesVisibility !== undefined,

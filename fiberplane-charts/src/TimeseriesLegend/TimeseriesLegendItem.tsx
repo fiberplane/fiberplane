@@ -63,12 +63,12 @@ export function TimeseriesLegendItem({
 
   return (
     <div
-      ref={ref}
       style={style}
       onClick={toggleTimeseriesVisibility}
       onKeyDown={onKeyDown}
     >
       <LegendItemContainer
+        ref={ref}
         $chartTheme={chartTheme}
         onMouseOver={timeseries.visible ? onHover : noop}
         interactive={!readOnly && onToggleTimeseriesVisibility !== undefined}
