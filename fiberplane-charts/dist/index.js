@@ -2791,7 +2791,7 @@ function TimeseriesLegend({ footerShown =true , getShapeListColor , onFocusedSha
         sizeMap.current.set(index, size);
         listRef.current?.resetAfterIndex(index);
         heightRef.current += size - oldSize;
-        if (heightRef.current < maxHeight) {
+        if (heightRef.current !== maxHeight) {
             update();
         }
     });

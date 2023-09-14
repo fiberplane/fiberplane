@@ -62,7 +62,7 @@ export function TimeseriesLegend<S extends Timeseries, P>({
     listRef.current?.resetAfterIndex(index);
     heightRef.current += size - oldSize;
 
-    if (heightRef.current < maxHeight) {
+    if (heightRef.current !== maxHeight) {
       update();
     }
   });
@@ -71,13 +71,13 @@ export function TimeseriesLegend<S extends Timeseries, P>({
 
   const setFocusedTimeseries = onFocusedShapeListChange
     ? (timeseries: Timeseries) => {
-        const shapeList = shapeLists.find(
-          (shapeList) => shapeList.source === timeseries,
-        );
-        if (shapeList) {
-          onFocusedShapeListChange(shapeList);
-        }
+      const shapeList = shapeLists.find(
+        (shapeList) => shapeList.source === timeseries,
+      );
+      if (shapeList) {
+        onFocusedShapeListChange(shapeList);
       }
+    }
     : noop;
 
   type RenderProps = {
