@@ -44,13 +44,13 @@ export function TimeseriesLegendItem({
   const toggleTimeseriesVisibility =
     onToggleTimeseriesVisibility && !readOnly
       ? (event: React.MouseEvent | React.KeyboardEvent) => {
-        preventDefault(event);
-        const toggleSingle = isMac ? event.metaKey : event.ctrlKey;
-        onToggleTimeseriesVisibility({
-          timeseries,
-          toggleOthers: !toggleSingle,
-        });
-      }
+          preventDefault(event);
+          const toggleSingle = isMac ? event.metaKey : event.ctrlKey;
+          onToggleTimeseriesVisibility({
+            timeseries,
+            toggleOthers: !toggleSingle,
+          });
+        }
       : noop;
 
   const onKeyDown = (event: React.KeyboardEvent) => {
@@ -62,31 +62,27 @@ export function TimeseriesLegendItem({
   const chartTheme = useContext(ChartThemeContext);
 
   return (
-    <div
+    <ResizeContainer
       style={style}
       onClick={toggleTimeseriesVisibility}
       onKeyDown={onKeyDown}
+      ref={ref}
     >
-      <ResizeContainer ref={ref}>
-        <LegendItemContainer
+      <LegendItemContainer
+        $chartTheme={chartTheme}
+        onMouseOver={timeseries.visible ? onHover : noop}
+        interactive={!readOnly && onToggleTimeseriesVisibility !== undefined}
+      >
+        <ColorBlock
           $chartTheme={chartTheme}
-          onMouseOver={timeseries.visible ? onHover : noop}
-          interactive={!readOnly && onToggleTimeseriesVisibility !== undefined}
+          color={color}
+          selected={timeseries.visible}
         >
-          <ColorBlock
-            $chartTheme={chartTheme}
-            color={color}
-            selected={timeseries.visible}
-          >
-            {timeseries.visible && <Icon type="check" width="12" height="12" />}
-          </ColorBlock>
-          <FormattedTimeseries
-            metric={timeseries}
-            emphasizedKeys={uniqueKeys}
-          />
-        </LegendItemContainer>
-      </ResizeContainer>
-    </div>
+          {timeseries.visible && <Icon type="check" width="12" height="12" />}
+        </ColorBlock>
+        <FormattedTimeseries metric={timeseries} emphasizedKeys={uniqueKeys} />
+      </LegendItemContainer>
+    </ResizeContainer>
   );
 }
 
@@ -174,8 +170,9 @@ const LegendItemContainer = styled(Container)<
     gap: 10px;
     word-wrap: anywhere;
 
-    ${interactive &&
-    css`
+    ${
+      interactive &&
+      css`
         cursor: pointer;
 
         &:hover {
