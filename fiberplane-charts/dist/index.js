@@ -332,211 +332,6 @@ const IconButton = /*#__PURE__*/ forwardRef(function IconButton(props, ref) {
     });
 });
 
-/**
- * Strips all falsy values from an array.
- */ function compact(items) {
-    return items.filter(Boolean);
-}
-
-/**
- * Return a list of keys whose values vary across series (or don't exist
- * everywhere).
- */ function findUniqueKeys(timeseriesData) {
-    let constantKeys;
-    let detectedValues = {};
-    for (const timeseries of timeseriesData){
-        const keys = Object.keys(timeseries.labels);
-        if (constantKeys === undefined) {
-            constantKeys = new Set(keys);
-            detectedValues = {
-                ...timeseries.labels
-            };
-        } else {
-            for (const key of keys){
-                if (detectedValues[key] !== timeseries.labels[key]) {
-                    constantKeys.delete(key);
-                }
-                detectedValues[key] = timeseries.labels[key] || "";
-            }
-        }
-    }
-    const allKeys = Object.keys(detectedValues);
-    return allKeys.filter((key)=>constantKeys === undefined || constantKeys.has(key) === false);
-}
-
-/**
- * Returns the input value.
- *
- * A function that only returns its input is also known as the identity
- * function.
- */ function identity(input) {
-    return input;
-}
-
-/**
- * Taken from: https://github.com/gregberge/react-merge-refs
- *
- * Copyright (c) 2020 Greg Bergé
- *
- * @license MIT
- */ function mergeRefs(refs) {
-    return (value)=>{
-        for (const ref of refs){
-            if (typeof ref === "function") {
-                ref(value);
-            } else if (ref != null) {
-                ref.current = value;
-            }
-        }
-    };
-}
-
-function noop() {}
-
-function preventDefault(event) {
-    event.preventDefault();
-}
-
-/**
- * Sorts an array ascending by priority.
- *
- * *Warning:* As this function uses `Array#sort()` it also mutates the input
- * array.
- */ function sortBy(array, getPriorityFn, reverse = false) {
-    return array.sort((a, b)=>{
-        const priorityA = getPriorityFn(a);
-        const priorityB = getPriorityFn(b);
-        if (priorityA < priorityB) {
-            return reverse === true ? 1 : -1;
-        } else if (priorityA > priorityB) {
-            return reverse === true ? -1 : 1;
-        } else {
-            return 0;
-        }
-    });
-}
-
-const secondsToTimestamp = (seconds)=>new Date(seconds * 1000).toISOString();
-const timestampToSeconds = (timestamp)=>new Date(timestamp).getTime() / 1000;
-
-const os = typeof navigator === "undefined" ? "" : navigator.platform.match(/mac|win|linux/i)?.[0]?.toLowerCase();
-const isMac = os === "mac";
-
-/**
- * Control what kind fo chart you're viewing (and more)
- */ function ChartControls({ children , graphType , onChangeGraphType , onChangeStackingType , stackingControlsShown , stackingType  }) {
-    if (!onChangeGraphType && !onChangeStackingType) {
-        return null;
-    }
-    return /*#__PURE__*/ jsxs(ControlsContainer, {
-        children: [
-            /*#__PURE__*/ jsxs(ControlsGroup, {
-                children: [
-                    onChangeGraphType && /*#__PURE__*/ jsxs(ControlsSet, {
-                        children: [
-                            /*#__PURE__*/ jsx(ControlsSetLabel, {
-                                children: "Type"
-                            }),
-                            /*#__PURE__*/ jsxs(ButtonGroup, {
-                                children: [
-                                    /*#__PURE__*/ jsx(IconButton, {
-                                        active: graphType === "line",
-                                        "aria-label": "Line chart",
-                                        className: "iconButton",
-                                        onClick: (event)=>{
-                                            preventDefault(event);
-                                            onChangeGraphType("line");
-                                        },
-                                        children: /*#__PURE__*/ jsx(Icon, {
-                                            type: "chart_line"
-                                        })
-                                    }),
-                                    /*#__PURE__*/ jsx(IconButton, {
-                                        active: graphType === "bar",
-                                        "aria-label": "Bar chart",
-                                        className: "iconButton",
-                                        onClick: (event)=>{
-                                            preventDefault(event);
-                                            onChangeGraphType("bar");
-                                        },
-                                        children: /*#__PURE__*/ jsx(Icon, {
-                                            type: "chart_bar"
-                                        })
-                                    })
-                                ]
-                            })
-                        ]
-                    }),
-                    stackingControlsShown && onChangeStackingType && /*#__PURE__*/ jsxs(ControlsSet, {
-                        children: [
-                            /*#__PURE__*/ jsx(ControlsSetLabel, {
-                                children: "Stacking"
-                            }),
-                            /*#__PURE__*/ jsxs(ButtonGroup, {
-                                children: [
-                                    /*#__PURE__*/ jsx(IconButton, {
-                                        active: stackingType === "none",
-                                        "aria-label": "Combined/default",
-                                        className: "iconButton",
-                                        onClick: (event)=>{
-                                            preventDefault(event);
-                                            onChangeStackingType("none");
-                                        },
-                                        children: /*#__PURE__*/ jsx(Icon, {
-                                            type: "combined"
-                                        })
-                                    }),
-                                    /*#__PURE__*/ jsx(IconButton, {
-                                        active: stackingType === "stacked",
-                                        "aria-label": "Stacked",
-                                        className: "iconButton",
-                                        type: "button",
-                                        onClick: (event)=>{
-                                            preventDefault(event);
-                                            onChangeStackingType("stacked");
-                                        },
-                                        children: /*#__PURE__*/ jsx(Icon, {
-                                            type: "stacked"
-                                        })
-                                    }),
-                                    /*#__PURE__*/ jsx(IconButton, {
-                                        active: stackingType === "percentage",
-                                        "aria-label": "Stacked/percentage",
-                                        className: "iconButton",
-                                        onClick: (event)=>{
-                                            preventDefault(event);
-                                            onChangeStackingType("percentage");
-                                        },
-                                        children: /*#__PURE__*/ jsx(Icon, {
-                                            type: "percentage"
-                                        })
-                                    })
-                                ]
-                            })
-                        ]
-                    })
-                ]
-            }, "built_in"),
-            children && /*#__PURE__*/ jsx(ControlsGroup, {
-                children: children
-            }, "custom")
-        ]
-    });
-}
-
-/**
- * Context for tracking the size of the chart.
- */ const ChartSizeContext = createContext({
-    width: 0,
-    height: 0,
-    xMax: 0,
-    yMax: 0,
-    marginTop: 0,
-    marginRight: 0,
-    marginBottom: 0,
-    marginLeft: 0
-});
-
 const noDeps = [];
 function useHandler(handler) {
     const handlerRef = useRef(handler);
@@ -751,6 +546,109 @@ function useMeasure() {
         rect
     ];
 }
+
+/**
+ * Strips all falsy values from an array.
+ */ function compact(items) {
+    return items.filter(Boolean);
+}
+
+/**
+ * Return a list of keys whose values vary across series (or don't exist
+ * everywhere).
+ */ function findUniqueKeys(timeseriesData) {
+    let constantKeys;
+    let detectedValues = {};
+    for (const timeseries of timeseriesData){
+        const keys = Object.keys(timeseries.labels);
+        if (constantKeys === undefined) {
+            constantKeys = new Set(keys);
+            detectedValues = {
+                ...timeseries.labels
+            };
+        } else {
+            for (const key of keys){
+                if (detectedValues[key] !== timeseries.labels[key]) {
+                    constantKeys.delete(key);
+                }
+                detectedValues[key] = timeseries.labels[key] || "";
+            }
+        }
+    }
+    const allKeys = Object.keys(detectedValues);
+    return allKeys.filter((key)=>constantKeys === undefined || constantKeys.has(key) === false);
+}
+
+/**
+ * Returns the input value.
+ *
+ * A function that only returns its input is also known as the identity
+ * function.
+ */ function identity(input) {
+    return input;
+}
+
+/**
+ * Taken from: https://github.com/gregberge/react-merge-refs
+ *
+ * Copyright (c) 2020 Greg Bergé
+ *
+ * @license MIT
+ */ function mergeRefs(refs) {
+    return (value)=>{
+        for (const ref of refs){
+            if (typeof ref === "function") {
+                ref(value);
+            } else if (ref != null) {
+                ref.current = value;
+            }
+        }
+    };
+}
+
+function noop() {}
+
+function preventDefault(event) {
+    event.preventDefault();
+}
+
+/**
+ * Sorts an array ascending by priority.
+ *
+ * *Warning:* As this function uses `Array#sort()` it also mutates the input
+ * array.
+ */ function sortBy(array, getPriorityFn, reverse = false) {
+    return array.sort((a, b)=>{
+        const priorityA = getPriorityFn(a);
+        const priorityB = getPriorityFn(b);
+        if (priorityA < priorityB) {
+            return reverse === true ? 1 : -1;
+        } else if (priorityA > priorityB) {
+            return reverse === true ? -1 : 1;
+        } else {
+            return 0;
+        }
+    });
+}
+
+const secondsToTimestamp = (seconds)=>new Date(seconds * 1000).toISOString();
+const timestampToSeconds = (timestamp)=>new Date(timestamp).getTime() / 1000;
+
+const os = typeof navigator === "undefined" ? "" : navigator.platform.match(/mac|win|linux/i)?.[0]?.toLowerCase();
+const isMac = os === "mac";
+
+/**
+ * Context for tracking the size of the chart.
+ */ const ChartSizeContext = createContext({
+    width: 0,
+    height: 0,
+    xMax: 0,
+    yMax: 0,
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0
+});
 
 function ChartSizeContainerProvider({ children , className , overrideHeight , marginTop =0 , marginRight =0 , marginBottom =0 , marginLeft =0  }) {
     const [measureRef, { width , height: measuredHeight  }] = useMeasure();
@@ -1057,37 +955,6 @@ function ChartContent({ areaGradientShown , chart , focusedShapeList , getShapeL
     });
 }
 
-const LABEL_OFFSET = 8;
-function BottomAxis({ formatter , scales: { xMax , xScale , yMax  } , strokeColor , strokeDasharray , ticks , xAxis: { maxValue , minValue  }  }) {
-    const { axisColor , axisFontSize , axisFontFamily , axisFontStyle , axisFontWeight , axisLetterSpacing  } = useContext(ChartThemeContext);
-    return /*#__PURE__*/ jsxs("g", {
-        transform: `translate(0, ${yMax})`,
-        children: [
-            /*#__PURE__*/ jsx("line", {
-                x1: 0,
-                y1: 0,
-                x2: xMax,
-                y2: 0,
-                stroke: strokeColor,
-                strokeDasharray: strokeDasharray
-            }),
-            ticks.map((time, index)=>/*#__PURE__*/ jsx("text", {
-                    x: xScale((time - minValue) / (maxValue - minValue)),
-                    y: axisFontSize,
-                    dy: LABEL_OFFSET,
-                    fill: axisColor,
-                    fontFamily: axisFontFamily,
-                    fontStyle: axisFontStyle,
-                    fontWeight: axisFontWeight,
-                    fontSize: axisFontSize,
-                    letterSpacing: axisLetterSpacing,
-                    textAnchor: "middle",
-                    children: formatter(time)
-                }, index))
-        ]
-    });
-}
-
 /**
  * Creates a linear scale function for the given range.
  *
@@ -1127,6 +994,37 @@ function getCoordinatesForEvent(event, { xMax , yMax  }) {
         target = target.parentElement;
     }
     return null;
+}
+
+const LABEL_OFFSET = 8;
+function BottomAxis({ formatter , scales: { xMax , xScale , yMax  } , strokeColor , strokeDasharray , ticks , xAxis: { maxValue , minValue  }  }) {
+    const { axisColor , axisFontSize , axisFontFamily , axisFontStyle , axisFontWeight , axisLetterSpacing  } = useContext(ChartThemeContext);
+    return /*#__PURE__*/ jsxs("g", {
+        transform: `translate(0, ${yMax})`,
+        children: [
+            /*#__PURE__*/ jsx("line", {
+                x1: 0,
+                y1: 0,
+                x2: xMax,
+                y2: 0,
+                stroke: strokeColor,
+                strokeDasharray: strokeDasharray
+            }),
+            ticks.map((time, index)=>/*#__PURE__*/ jsx("text", {
+                    x: xScale((time - minValue) / (maxValue - minValue)),
+                    y: axisFontSize,
+                    dy: LABEL_OFFSET,
+                    fill: axisColor,
+                    fontFamily: axisFontFamily,
+                    fontStyle: axisFontStyle,
+                    fontWeight: axisFontWeight,
+                    fontSize: axisFontSize,
+                    letterSpacing: axisLetterSpacing,
+                    textAnchor: "middle",
+                    children: formatter(time)
+                }, index))
+        ]
+    });
 }
 
 function GridColumns({ scales: { xScale , yMax  } , xAxis: { maxValue , minValue  } , xTicks , ...lineProps }) {
@@ -1183,7 +1081,7 @@ function LeftAxis({ formatter , gridBordersShown , scales: { yMax , yScale  } , 
                 stroke: strokeColor,
                 strokeDasharray: strokeDasharray
             }),
-            ticks.map((value, index)=>(index > 0 || index < numTicks - 1) && value.valueOf() !== 0 ? // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
+            ticks.map((value, index)=>(index > 0 || index < numTicks - 1) && value.valueOf() !== 0 ? // biome-ignore lint/suspicious/noArrayIndexKey: no better key available
                 /*#__PURE__*/ jsx("text", {
                     x: 0,
                     y: yScale(value),
@@ -1437,6 +1335,26 @@ function useCustomSpring(value, shouldAnimate = true) {
     const interval = ticks[1] - ticks[0];
     return maxValue - interval / 3;
 };
+
+function ZoomBar({ dimensions: { xMax , yMax  } , mouseInteraction  }) {
+    if (mouseInteraction.type !== "zoom") {
+        return null;
+    }
+    const { start , end  } = mouseInteraction;
+    if (end === undefined) {
+        return null;
+    }
+    const reverseZoom = end < start;
+    return /*#__PURE__*/ jsx("rect", {
+        stroke: "#4797ff",
+        fill: "#a3cbff",
+        fillOpacity: "10%",
+        x: (reverseZoom ? end : start) * xMax,
+        y: 0,
+        width: (reverseZoom ? start - end : end - start) * xMax,
+        height: yMax
+    });
+}
 
 const defaultState = {
     mouseInteraction: {
@@ -1931,26 +1849,6 @@ function getDistance(p1, p2) {
  * Horizontal distance is prioritized over vertical distance.
  */ function isCloser(distance, reference) {
     return distance[0] < reference[0] || distance[0] === reference[0] && distance[1] < reference[1];
-}
-
-function ZoomBar({ dimensions: { xMax , yMax  } , mouseInteraction  }) {
-    if (mouseInteraction.type !== "zoom") {
-        return null;
-    }
-    const { start , end  } = mouseInteraction;
-    if (end === undefined) {
-        return null;
-    }
-    const reverseZoom = end < start;
-    return /*#__PURE__*/ jsx("rect", {
-        stroke: "#4797ff",
-        fill: "#a3cbff",
-        fillOpacity: "10%",
-        x: (reverseZoom ? end : start) * xMax,
-        y: 0,
-        width: (reverseZoom ? start - end : end - start) * xMax,
-        height: yMax
-    });
 }
 
 function CoreChart({ areaGradientShown =true , chart , getShapeListColor , gridShown =true , onChangeTimeRange , readOnly =false , showTooltip , timeRange , ...props }) {
@@ -2812,6 +2710,7 @@ const FormattedTimeseries = /*#__PURE__*/ memo(function FormattedTimeseries({ me
     });
 });
 const ColorBlock = styled.div(({ $chartTheme , color , selected  })=>css`
+    grid-area: checkbox;
     background: ${selected ? color : "transparent"};
     border: 2px solid ${color};
     width: 14px;
@@ -2831,8 +2730,9 @@ const Emphasis = styled.span(({ $chartTheme  })=>css`
     display: inline-block;
   `);
 const LegendItemContainer = styled(Container)(({ $chartTheme , interactive  })=>css`
+    display: grid;
+    grid-template: "checkbox text" auto / 20px auto;
     border-radius: ${$chartTheme.legendItemBorderRadius};
-    display: flex;
     align-items: center;
     font: ${$chartTheme.legendItemFont};
     color: ${$chartTheme.legendItemColor};
@@ -2850,7 +2750,7 @@ const LegendItemContainer = styled(Container)(({ $chartTheme , interactive  })=>
       `}
   `);
 const Text = styled.div`
-  flex: 1;
+  grid-area: text;
 `;
 
 const DEFAULT_HEIGHT = 293;
@@ -2964,6 +2864,108 @@ const Results = styled.span(()=>{
     color: ${theme.legendResultsColor};
   `;
 });
+
+/**
+ * Control what kind fo chart you're viewing (and more)
+ */ function ChartControls({ children , graphType , onChangeGraphType , onChangeStackingType , stackingControlsShown , stackingType  }) {
+    if (!onChangeGraphType && !onChangeStackingType) {
+        return null;
+    }
+    return /*#__PURE__*/ jsxs(ControlsContainer, {
+        children: [
+            /*#__PURE__*/ jsxs(ControlsGroup, {
+                children: [
+                    onChangeGraphType && /*#__PURE__*/ jsxs(ControlsSet, {
+                        children: [
+                            /*#__PURE__*/ jsx(ControlsSetLabel, {
+                                children: "Type"
+                            }),
+                            /*#__PURE__*/ jsxs(ButtonGroup, {
+                                children: [
+                                    /*#__PURE__*/ jsx(IconButton, {
+                                        active: graphType === "line",
+                                        "aria-label": "Line chart",
+                                        className: "iconButton",
+                                        onClick: (event)=>{
+                                            preventDefault(event);
+                                            onChangeGraphType("line");
+                                        },
+                                        children: /*#__PURE__*/ jsx(Icon, {
+                                            type: "chart_line"
+                                        })
+                                    }),
+                                    /*#__PURE__*/ jsx(IconButton, {
+                                        active: graphType === "bar",
+                                        "aria-label": "Bar chart",
+                                        className: "iconButton",
+                                        onClick: (event)=>{
+                                            preventDefault(event);
+                                            onChangeGraphType("bar");
+                                        },
+                                        children: /*#__PURE__*/ jsx(Icon, {
+                                            type: "chart_bar"
+                                        })
+                                    })
+                                ]
+                            })
+                        ]
+                    }),
+                    stackingControlsShown && onChangeStackingType && /*#__PURE__*/ jsxs(ControlsSet, {
+                        children: [
+                            /*#__PURE__*/ jsx(ControlsSetLabel, {
+                                children: "Stacking"
+                            }),
+                            /*#__PURE__*/ jsxs(ButtonGroup, {
+                                children: [
+                                    /*#__PURE__*/ jsx(IconButton, {
+                                        active: stackingType === "none",
+                                        "aria-label": "Combined/default",
+                                        className: "iconButton",
+                                        onClick: (event)=>{
+                                            preventDefault(event);
+                                            onChangeStackingType("none");
+                                        },
+                                        children: /*#__PURE__*/ jsx(Icon, {
+                                            type: "combined"
+                                        })
+                                    }),
+                                    /*#__PURE__*/ jsx(IconButton, {
+                                        active: stackingType === "stacked",
+                                        "aria-label": "Stacked",
+                                        className: "iconButton",
+                                        type: "button",
+                                        onClick: (event)=>{
+                                            preventDefault(event);
+                                            onChangeStackingType("stacked");
+                                        },
+                                        children: /*#__PURE__*/ jsx(Icon, {
+                                            type: "stacked"
+                                        })
+                                    }),
+                                    /*#__PURE__*/ jsx(IconButton, {
+                                        active: stackingType === "percentage",
+                                        "aria-label": "Stacked/percentage",
+                                        className: "iconButton",
+                                        onClick: (event)=>{
+                                            preventDefault(event);
+                                            onChangeStackingType("percentage");
+                                        },
+                                        children: /*#__PURE__*/ jsx(Icon, {
+                                            type: "percentage"
+                                        })
+                                    })
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }, "built_in"),
+            children && /*#__PURE__*/ jsx(ControlsGroup, {
+                children: children
+            }, "custom")
+        ]
+    });
+}
 
 function MetricsChart(props) {
     const chartTheme = useMemo(()=>({

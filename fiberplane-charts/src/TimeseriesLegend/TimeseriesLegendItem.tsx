@@ -43,13 +43,13 @@ export function TimeseriesLegendItem({
   const toggleTimeseriesVisibility =
     onToggleTimeseriesVisibility && !readOnly
       ? (event: React.MouseEvent | React.KeyboardEvent) => {
-          preventDefault(event);
-          const toggleSingle = isMac ? event.metaKey : event.ctrlKey;
-          onToggleTimeseriesVisibility({
-            timeseries,
-            toggleOthers: !toggleSingle,
-          });
-        }
+        preventDefault(event);
+        const toggleSingle = isMac ? event.metaKey : event.ctrlKey;
+        onToggleTimeseriesVisibility({
+          timeseries,
+          toggleOthers: !toggleSingle,
+        });
+      }
       : noop;
 
   const onKeyDown = (event: React.KeyboardEvent) => {
@@ -127,6 +127,7 @@ const ColorBlock = styled.div<
   WithChartTheme & { color: string; selected: boolean }
 >(
   ({ $chartTheme, color, selected }) => css`
+    grid-area: checkbox;
     background: ${selected ? color : "transparent"};
     border: 2px solid ${color};
     width: 14px;
@@ -154,8 +155,9 @@ const LegendItemContainer = styled(Container)<
   WithChartTheme & { interactive: boolean }
 >(
   ({ $chartTheme, interactive }) => css`
+    display: grid;
+    grid-template: "checkbox text" auto / 20px auto;
     border-radius: ${$chartTheme.legendItemBorderRadius};
-    display: flex;
     align-items: center;
     font: ${$chartTheme.legendItemFont};
     color: ${$chartTheme.legendItemColor};
@@ -163,9 +165,8 @@ const LegendItemContainer = styled(Container)<
     gap: 10px;
     word-wrap: anywhere;
 
-    ${
-      interactive &&
-      css`
+    ${interactive &&
+    css`
         cursor: pointer;
 
         &:hover {
@@ -178,5 +179,5 @@ const LegendItemContainer = styled(Container)<
 );
 
 const Text = styled.div`
-  flex: 1;
+  grid-area: text;
 `;
