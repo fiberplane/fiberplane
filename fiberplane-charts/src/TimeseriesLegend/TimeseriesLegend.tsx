@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useRef } from "react";
+import { useContext, useMemo, useRef } from "react";
 import { VariableSizeList } from "react-window";
 import styled, { css } from "styled-components";
 
@@ -44,12 +44,6 @@ export function TimeseriesLegend<S extends Timeseries, P>({
   const heightRef = useRef(timeseriesData.length * DEFAULT_SIZE);
   const update = useForceUpdate();
 
-  useEffect(() => {
-    sizeMap.current = new Map();
-    heightRef.current = timeseriesData.length * DEFAULT_SIZE;
-    update();
-  }, [timeseriesData, update]);
-
   const getSize = (index: number) => sizeMap.current.get(index) ?? DEFAULT_SIZE;
 
   const setSize = useHandler((index: number, size: number) => {
@@ -62,7 +56,7 @@ export function TimeseriesLegend<S extends Timeseries, P>({
     listRef.current?.resetAfterIndex(index);
     heightRef.current += size - oldSize;
 
-    if (heightRef.current !== maxHeight) {
+    if (heightRef.current < maxHeight) {
       update();
     }
   });

@@ -35,7 +35,6 @@ export function TimeseriesLegendItem({
   const [ref, { height }] = useMeasure<HTMLDivElement>();
 
   useLayoutEffect(() => {
-    console.log("index", index, "height", height);
     if (height) {
       setSize(index, height);
     }
@@ -60,29 +59,32 @@ export function TimeseriesLegendItem({
   };
 
   const chartTheme = useContext(ChartThemeContext);
-
   return (
-    <ResizeContainer
+    <div
       style={style}
       onClick={toggleTimeseriesVisibility}
       onKeyDown={onKeyDown}
-      ref={ref}
     >
-      <LegendItemContainer
-        $chartTheme={chartTheme}
-        onMouseOver={timeseries.visible ? onHover : noop}
-        interactive={!readOnly && onToggleTimeseriesVisibility !== undefined}
-      >
-        <ColorBlock
+      <ResizeContainer ref={ref}>
+        <LegendItemContainer
           $chartTheme={chartTheme}
-          color={color}
-          selected={timeseries.visible}
+          onMouseOver={timeseries.visible ? onHover : noop}
+          interactive={!readOnly && onToggleTimeseriesVisibility !== undefined}
         >
-          {timeseries.visible && <Icon type="check" width="12" height="12" />}
-        </ColorBlock>
-        <FormattedTimeseries metric={timeseries} emphasizedKeys={uniqueKeys} />
-      </LegendItemContainer>
-    </ResizeContainer>
+          <ColorBlock
+            $chartTheme={chartTheme}
+            color={color}
+            selected={timeseries.visible}
+          >
+            {timeseries.visible && <Icon type="check" width="12" height="12" />}
+          </ColorBlock>
+          <FormattedTimeseries
+            metric={timeseries}
+            emphasizedKeys={uniqueKeys}
+          />
+        </LegendItemContainer>
+      </ResizeContainer>
+    </div>
   );
 }
 

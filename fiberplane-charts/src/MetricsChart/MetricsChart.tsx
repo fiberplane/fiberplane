@@ -99,6 +99,8 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
     },
   );
 
+  const id = useMemo(() => crypto.randomUUID(), [timeseriesData]);
+
   return (
     <>
       {chartControlsShown && !readOnly && (
@@ -117,6 +119,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
       {legendShown && (
         <TimeseriesLegend
           {...props}
+          key={id}
           getShapeListColor={getShapeListColor}
           onFocusedShapeListChange={onFocusedShapeListChange}
           shapeLists={chart.shapeLists.filter(isTimeseriesShapeList)}

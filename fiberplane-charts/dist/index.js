@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createContext, useContext, forwardRef, useRef, useCallback, useState, useEffect, useReducer, useMemo, useLayoutEffect, memo, useId, Fragment as Fragment$1 } from 'react';
+import { createContext, useContext, forwardRef, useRef, useCallback, useState, useEffect, useReducer, useMemo, useLayoutEffect, memo, useId, Fragment as Fragment$1, createElement } from 'react';
 import styled, { css } from 'styled-components';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { debounce } from 'throttle-debounce';
@@ -2631,7 +2631,6 @@ function getPointForMetric(metric, { buckets , isPercentage , xAxis , yAxis  }) 
 function TimeseriesLegendItem({ color , onHover , onToggleTimeseriesVisibility , readOnly , index , setSize , style , timeseries , uniqueKeys  }) {
     const [ref, { height  }] = useMeasure();
     useLayoutEffect(()=>{
-        console.log("index", index, "height", height);
         if (height) {
             setSize(index, height);
         }
@@ -2654,31 +2653,33 @@ function TimeseriesLegendItem({ color , onHover , onToggleTimeseriesVisibility ,
         }
     };
     const chartTheme = useContext(ChartThemeContext);
-    return /*#__PURE__*/ jsx(ResizeContainer, {
+    return /*#__PURE__*/ jsx("div", {
         style: style,
         onClick: toggleTimeseriesVisibility,
         onKeyDown: onKeyDown,
-        ref: ref,
-        children: /*#__PURE__*/ jsxs(LegendItemContainer, {
-            $chartTheme: chartTheme,
-            onMouseOver: timeseries.visible ? onHover : noop,
-            interactive: !readOnly && onToggleTimeseriesVisibility !== undefined,
-            children: [
-                /*#__PURE__*/ jsx(ColorBlock, {
-                    $chartTheme: chartTheme,
-                    color: color,
-                    selected: timeseries.visible,
-                    children: timeseries.visible && /*#__PURE__*/ jsx(Icon, {
-                        type: "check",
-                        width: "12",
-                        height: "12"
+        children: /*#__PURE__*/ jsx(ResizeContainer, {
+            ref: ref,
+            children: /*#__PURE__*/ jsxs(LegendItemContainer, {
+                $chartTheme: chartTheme,
+                onMouseOver: timeseries.visible ? onHover : noop,
+                interactive: !readOnly && onToggleTimeseriesVisibility !== undefined,
+                children: [
+                    /*#__PURE__*/ jsx(ColorBlock, {
+                        $chartTheme: chartTheme,
+                        color: color,
+                        selected: timeseries.visible,
+                        children: timeseries.visible && /*#__PURE__*/ jsx(Icon, {
+                            type: "check",
+                            width: "12",
+                            height: "12"
+                        })
+                    }),
+                    /*#__PURE__*/ jsx(FormattedTimeseries, {
+                        metric: timeseries,
+                        emphasizedKeys: uniqueKeys
                     })
-                }),
-                /*#__PURE__*/ jsx(FormattedTimeseries, {
-                    metric: timeseries,
-                    emphasizedKeys: uniqueKeys
-                })
-            ]
+                ]
+            })
         })
     });
 }
@@ -2777,14 +2778,6 @@ function TimeseriesLegend({ footerShown =true , getShapeListColor , onFocusedSha
     const sizeMap = useRef(new Map());
     const heightRef = useRef(timeseriesData.length * DEFAULT_SIZE);
     const update = useForceUpdate();
-    useEffect(()=>{
-        sizeMap.current = new Map();
-        heightRef.current = timeseriesData.length * DEFAULT_SIZE;
-        update();
-    }, [
-        timeseriesData,
-        update
-    ]);
     const getSize = (index)=>sizeMap.current.get(index) ?? DEFAULT_SIZE;
     const setSize = useHandler((index, size)=>{
         const oldSize = getSize(index);
@@ -2794,7 +2787,7 @@ function TimeseriesLegend({ footerShown =true , getShapeListColor , onFocusedSha
         sizeMap.current.set(index, size);
         listRef.current?.resetAfterIndex(index);
         heightRef.current += size - oldSize;
-        if (heightRef.current !== maxHeight) {
+        if (heightRef.current < maxHeight) {
             update();
         }
     });
@@ -3032,6 +3025,9 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
             setFocusedShapeList(shapeList);
         }
     });
+    const id = useMemo(()=>crypto.randomUUID(), [
+        timeseriesData
+    ]);
     return /*#__PURE__*/ jsxs(Fragment, {
         children: [
             chartControlsShown && !readOnly && /*#__PURE__*/ jsx(ChartControls, {
@@ -3047,8 +3043,9 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
                 getShapeListColor: getShapeListColor,
                 onFocusedShapeListChange: onFocusedShapeListChange
             }),
-            legendShown && /*#__PURE__*/ jsx(TimeseriesLegend, {
+            legendShown && /*#__PURE__*/ createElement(TimeseriesLegend, {
                 ...props,
+                key: id,
                 getShapeListColor: getShapeListColor,
                 onFocusedShapeListChange: onFocusedShapeListChange,
                 shapeLists: chart.shapeLists.filter(isTimeseriesShapeList)
