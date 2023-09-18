@@ -3025,6 +3025,9 @@ const InnerMetricsChart = /*#__PURE__*/ memo(function InnerMetricsChart(props) {
             setFocusedShapeList(shapeList);
         }
     });
+    // When the timeseries changes, we want to reset the id so that the legend
+    // is re-rendered. This resets the size values for all legend items
+    // biome-ignore lint/nursery/useExhaustiveDependencies: this is intentional
     const id = useMemo(()=>crypto.randomUUID(), [
         timeseriesData
     ]);
