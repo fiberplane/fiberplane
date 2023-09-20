@@ -9,6 +9,9 @@ import {
   Rectangle,
   Shape,
 } from "../../Mondrian";
+import { useHandler } from "../../hooks";
+import { noop } from "../../utils";
+import { MARGINS } from "../constants";
 import type {
   ChartCoordinates,
   CloseTooltipFn,
@@ -17,9 +20,6 @@ import type {
   VirtualElement,
 } from "../types";
 import { getCoordinatesForEvent } from "../utils";
-import { MARGINS } from "../constants";
-import { noop } from "../../utils";
-import { useHandler } from "../../hooks";
 
 export type GraphTooltip<S, P> = {
   top: number;

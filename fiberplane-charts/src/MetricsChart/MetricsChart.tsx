@@ -1,17 +1,17 @@
 import { memo, useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 
-import { ChartControls } from "./ChartControls";
 import { ChartSizeContainerProvider } from "../CoreChart";
 import { CoreChart } from "../CoreChart";
-import { generate, SeriesSource, ShapeList } from "../Mondrian";
 import { HEIGHT, MARGINS } from "../CoreChart/constants";
-import type { Metric, ProviderEvent, Timeseries } from "../providerTypes";
-import type { MetricsChartProps } from "./types";
+import { SeriesSource, ShapeList, generate } from "../Mondrian";
 import { TimeseriesLegend } from "../TimeseriesLegend";
-import { useHandler } from "../hooks";
-import { ChartThemeContext, defaultChartTheme } from "../theme";
 import { Theme } from "../chartThemeTypes";
+import { useHandler } from "../hooks";
+import type { Metric, ProviderEvent, Timeseries } from "../providerTypes";
+import { ChartThemeContext, defaultChartTheme } from "../theme";
+import { ChartControls } from "./ChartControls";
+import type { MetricsChartProps } from "./types";
 
 type GenericShapeList = ShapeList<SeriesSource, Metric | ProviderEvent | null>;
 

@@ -1,4 +1,4 @@
-import { animate, Tween, useMotionValue } from "framer-motion";
+import { Tween, animate, useMotionValue } from "framer-motion";
 import {
   memo,
   useContext,
@@ -9,14 +9,14 @@ import {
 } from "react";
 
 import type { AbstractChart, Axis } from "../../Mondrian";
+import { ChartThemeContext } from "../../theme";
+import { noop } from "../../utils";
+import type { Scale, Scales, TickFormatters } from "../types";
+import { Range, createLinearScaleForRange } from "../utils";
 import { BottomAxis } from "./BottomAxis";
-import { createLinearScaleForRange, Range } from "../utils";
 import { GridColumns } from "./GridColumns";
 import { GridRows } from "./GridRows";
 import { LeftAxis } from "./LeftAxis";
-import type { Scale, Scales, TickFormatters } from "../types";
-import { ChartThemeContext } from "../../theme";
-import { noop } from "../../utils";
 
 type Props = {
   chart: AbstractChart<unknown, unknown>;

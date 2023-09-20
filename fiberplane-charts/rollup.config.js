@@ -1,5 +1,5 @@
-import { swc, defineRollupSwcOption } from "rollup-plugin-swc3";
 import svgr from "@svgr/rollup";
+import { defineRollupSwcOption, swc } from "rollup-plugin-swc3";
 
 export default {
   input: "src/index.ts",

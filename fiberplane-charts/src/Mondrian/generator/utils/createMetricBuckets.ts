@@ -1,5 +1,5 @@
-import type { Buckets } from "../types";
 import type { Timeseries } from "../../../providerTypes";
+import type { Buckets } from "../types";
 
 /**
  * Creates buckets from timeseries, and reduces the metrics to calculated

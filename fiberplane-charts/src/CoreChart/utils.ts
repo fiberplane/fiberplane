@@ -1,5 +1,5 @@
-import type { ChartCoordinates, Dimensions, Scale } from "./types";
 import { MARGINS } from "./constants";
+import type { ChartCoordinates, Dimensions, Scale } from "./types";
 
 export type Range = [from: number, to: number];
 

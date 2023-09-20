@@ -20,7 +20,7 @@ export function GridRows({
         const y = yScale(value);
         return (
           <line
-            // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
+            // biome-ignore lint/suspicious/noArrayIndexKey: no better key available
             key={index}
             x1={0}
             y1={y}

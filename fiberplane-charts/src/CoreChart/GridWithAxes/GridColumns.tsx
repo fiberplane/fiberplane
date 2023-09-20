@@ -21,7 +21,7 @@ export function GridColumns({
         const x = xScale((time - minValue) / (maxValue - minValue));
         return (
           <line
-            // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
+            // biome-ignore lint/suspicious/noArrayIndexKey: no better key available
             key={index}
             x1={x}
             y1={0}

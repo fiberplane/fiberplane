@@ -10,11 +10,11 @@
         "fiberplane-prometheus-query"
     ],
     "devDependencies": {
-        "rome": "^12.1.3",
+        "@biomejs/biome": "1.1.2",
         "typescript": "^5.0.4"
     },
     "scripts": {
-        "lint": "rome ci .",
+        "lint": "biome ci .",
         "test": "yarn workspaces foreach run test",
         "type-check": "yarn workspaces foreach run type-check"
     }

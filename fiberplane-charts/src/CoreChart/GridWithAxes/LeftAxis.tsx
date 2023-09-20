@@ -1,6 +1,6 @@
-import type { Scales, TickFormatters } from "../types";
 import { useContext } from "react";
 import { ChartThemeContext } from "../../theme";
+import type { Scales, TickFormatters } from "../types";
 
 type Props = {
   formatter: TickFormatters["yFormatter"];
@@ -57,7 +57,7 @@ export function LeftAxis({
 
       {ticks.map((value, index) =>
         (index > 0 || index < numTicks - 1) && value.valueOf() !== 0 ? (
-          // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
+          // biome-ignore lint/suspicious/noArrayIndexKey: no better key available
           <text key={index} x={0} y={yScale(value)} {...tickLabelProps}>
             {formatter(value)}
           </text>

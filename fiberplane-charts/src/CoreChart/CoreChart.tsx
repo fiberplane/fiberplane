@@ -2,8 +2,9 @@ import { useContext, useEffect, useId, useMemo } from "react";
 
 import { ChartContent } from "./ChartContent";
 import { ChartSizeContext } from "./ChartSizeContext";
-import type { CoreChartProps } from "./types";
 import { GridWithAxes } from "./GridWithAxes";
+import { ZoomBar } from "./ZoomBar";
+import { CHART_SHAPE_OVERFLOW_MARGIN } from "./constants";
 import {
   InteractiveControlsState,
   useInteractiveControls,
@@ -11,8 +12,7 @@ import {
   useScales,
   useTooltip,
 } from "./hooks";
-import { ZoomBar } from "./ZoomBar";
-import { CHART_SHAPE_OVERFLOW_MARGIN } from "./constants";
+import type { CoreChartProps } from "./types";
 
 export function CoreChart<S, P>({
   areaGradientShown = true,
@@ -92,7 +92,7 @@ export function CoreChart<S, P>({
   const svgHeight = height > clipPathHeight ? height : clipPathHeight;
 
   return (
-    // rome-ignore lint/a11y/noSvgWithoutTitle: title would interfere with tooltip
+    // biome-ignore lint/a11y/noSvgWithoutTitle: title would interfere with tooltip
     <svg
       width={width}
       height={svgHeight}

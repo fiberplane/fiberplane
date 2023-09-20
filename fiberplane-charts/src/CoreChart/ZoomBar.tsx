@@ -1,5 +1,5 @@
-import type { Dimensions } from "./types";
 import type { MouseInteractionState } from "./hooks";
+import type { Dimensions } from "./types";
 
 type Props = {
   dimensions: Dimensions;

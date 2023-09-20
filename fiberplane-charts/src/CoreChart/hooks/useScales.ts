@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
-import { createLinearScaleForRange, Range } from "../utils";
 import type { Dimensions, Scales } from "../types";
+import { Range, createLinearScaleForRange } from "../utils";
 import type { MouseInteractionState } from "./useInteractiveControls";
 
 /**
@@ -17,7 +17,6 @@ export function useScales(
   { xMax, yMax }: Dimensions,
   mouseInteraction: MouseInteractionState,
 ): Scales {
-  // rome-ignore lint/nursery/useHookAtTopLevel: https://github.com/rome/tools/issues/4483
   return useMemo(
     () => ({
       xMax,

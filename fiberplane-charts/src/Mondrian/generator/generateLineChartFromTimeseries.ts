@@ -1,3 +1,5 @@
+import type { Metric, Timeseries } from "../../providerTypes";
+import { identity } from "../../utils";
 import type {
   AbstractChart,
   Axis,
@@ -6,22 +8,20 @@ import type {
   ShapeList,
   TimeseriesSourceData,
 } from "../types";
+import type { MinMax } from "./types";
 import {
   attachSuggestionsToXAxis,
   calculateSmallestTimeInterval,
   calculateYAxisRange,
   createMetricBuckets,
-  extendMinMax,
   extendAxisWithValue,
+  extendMinMax,
   getInitialMinMax,
   getTimeFromTimestamp,
   getXAxisFromTimeRange,
   normalizeAlongLinearAxis,
   splitIntoContinuousLines,
 } from "./utils";
-import { identity } from "../../utils";
-import type { Metric, Timeseries } from "../../providerTypes";
-import type { MinMax } from "./types";
 
 export function generateLineChartFromTimeseries(
   input: TimeseriesSourceData,

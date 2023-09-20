@@ -1,7 +1,7 @@
 import {
+  getPercentageFormatter,
   getScientificFormatterForAxis,
   getTimeFormatterForAxis,
-  getPercentageFormatter,
 } from "./tickFormatters";
 
 test("it can format large numbers with scientific notation", () => {

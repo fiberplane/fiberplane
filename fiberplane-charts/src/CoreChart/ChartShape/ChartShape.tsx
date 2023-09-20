@@ -1,9 +1,9 @@
+import type { Shape } from "../../Mondrian";
 import { AreaShape } from "./AreaShape";
-import type { CommonShapeProps } from "./types";
 import { LineShape } from "./LineShape";
 import { PointShape } from "./PointShape";
 import { RectangleShape } from "./RectangleShape";
-import type { Shape } from "../../Mondrian";
+import type { CommonShapeProps } from "./types";
 
 type Props<P> = CommonShapeProps & { shape: Shape<P> };
 
