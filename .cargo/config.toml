@@ -2,4 +2,4 @@
 git-fetch-with-cli = true
 
 [alias]
-xtask = "run --package xtask --"
+xtask = "run --package fiberplane-xtask --"
