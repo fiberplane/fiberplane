@@ -371,7 +371,7 @@ fn generate_function_body(
     writeln!(writer, "        Method::{method},")?;
 
     // https://stackoverflow.com/a/413077/11494565
-    let regex = Regex::new(r#"\{(.*?)\}"#).context("Failed to build regex")?;
+    let regex = Regex::new(r"\{(.*?)\}").context("Failed to build regex")?;
     let mut arguments = vec![];
 
     for captures in regex.captures_iter(endpoint) {
