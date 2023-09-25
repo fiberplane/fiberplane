@@ -59,28 +59,31 @@ export function TimeseriesLegendItem({
   };
 
   const chartTheme = useContext(ChartThemeContext);
-
   return (
     <div
-      ref={ref}
       style={style}
       onClick={toggleTimeseriesVisibility}
       onKeyDown={onKeyDown}
     >
-      <LegendItemContainer
-        $chartTheme={chartTheme}
-        onMouseOver={timeseries.visible ? onHover : noop}
-        interactive={!readOnly && onToggleTimeseriesVisibility !== undefined}
-      >
-        <ColorBlock
+      <ResizeContainer ref={ref}>
+        <LegendItemContainer
           $chartTheme={chartTheme}
-          color={color}
-          selected={timeseries.visible}
+          onMouseOver={timeseries.visible ? onHover : noop}
+          interactive={!readOnly && onToggleTimeseriesVisibility !== undefined}
         >
-          {timeseries.visible && <Icon type="check" width="12" height="12" />}
-        </ColorBlock>
-        <FormattedTimeseries metric={timeseries} emphasizedKeys={uniqueKeys} />
-      </LegendItemContainer>
+          <ColorBlock
+            $chartTheme={chartTheme}
+            color={color}
+            selected={timeseries.visible}
+          >
+            {timeseries.visible && <Icon type="check" width="12" height="12" />}
+          </ColorBlock>
+          <FormattedTimeseries
+            metric={timeseries}
+            emphasizedKeys={uniqueKeys}
+          />
+        </LegendItemContainer>
+      </ResizeContainer>
     </div>
   );
 }
@@ -127,6 +130,7 @@ const ColorBlock = styled.div<
   WithChartTheme & { color: string; selected: boolean }
 >(
   ({ $chartTheme, color, selected }) => css`
+    grid-area: checkbox;
     background: ${selected ? color : "transparent"};
     border: 2px solid ${color};
     width: 14px;
@@ -150,12 +154,17 @@ const Emphasis = styled.span<WithChartTheme>(
   `,
 );
 
+const ResizeContainer = styled.div`
+  min-height: fit-content;
+`;
+
 const LegendItemContainer = styled(Container)<
   WithChartTheme & { interactive: boolean }
 >(
   ({ $chartTheme, interactive }) => css`
+    display: grid;
+    grid-template: "checkbox text" auto / 20px auto;
     border-radius: ${$chartTheme.legendItemBorderRadius};
-    display: flex;
     align-items: center;
     font: ${$chartTheme.legendItemFont};
     color: ${$chartTheme.legendItemColor};
@@ -178,5 +187,5 @@ const LegendItemContainer = styled(Container)<
 );
 
 const Text = styled.div`
-  flex: 1;
+  grid-area: text;
 `;
