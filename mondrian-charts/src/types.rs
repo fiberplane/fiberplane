@@ -10,7 +10,8 @@ use serde::{Deserialize, Serialize};
 /// The generic argument `S` refers to the type of the series from which shapes
 /// will be generated, while the type `P` refers to the type for individual data
 /// points. When generating charts from timeseries data, these will be
-/// [Timeseries] and [Metric], respectively.
+/// [Timeseries](crate::fiberplane::Timeseries) and
+/// [Metric](crate::fiberplane::Metric), respectively.
 #[derive(Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MondrianChart<S, P> {
@@ -68,19 +69,25 @@ impl Axis {
 
 /// List of shapes that belongs together.
 ///
-/// These should be rendered in the same color.
+/// These are usually rendered in the same color and would correspond to a
+/// single legend item, conceptually.
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ShapeList<S, P> {
+    /// All the shapes to represent data points within the series.
+    ///
+    /// This list may be empty if no relevant data points were found in the
+    /// series data.
     pub shapes: Vec<Shape<P>>,
 
-    /// The original source this shape list belongs to.
+    /// The original source this shape list was generated from.
     ///
-    /// This would be the type of input data the chart was generated from, such
-    /// as [Timeseries].
+    /// This would be the type of series data the chart was generated from, such
+    /// as [Timeseries](crate::fiberplane::Timeseries).
     pub source: S,
 }
 
+/// An abstract shape used to visualize data points.
 #[derive(Deserialize, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum Shape<P> {
@@ -114,7 +121,8 @@ pub struct AreaPoint<P> {
 
     /// The source this point was generated from.
     ///
-    /// This would be a [Metric] if the chart was generated from [Timeseries].
+    /// This would be a [Metric](crate::fiberplane::Metric) if the chart was
+    /// generated from [Timeseries](crate::fiberplane::Timeseries).
     pub source: P,
 }
 
@@ -132,15 +140,16 @@ pub struct Line<P> {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Point<P> {
-    /// X coordinate between 0.0 and 1.0.
+    /// X coordinate of the point's center, between 0.0 and 1.0.
     pub x: f64,
 
-    /// Y coordinate between 0.0 and 1.0.
+    /// Y coordinate of the point's center, between 0.0 and 1.0.
     pub y: f64,
 
     /// The source this point was generated from.
     ///
-    /// This would be a [Metric] if the chart was generated from [Timeseries].
+    /// This would be a [Metric](crate::fiberplane::Metric) if the chart was
+    /// generated from [Timeseries](crate::fiberplane::Timeseries).
     pub source: P,
 }
 
@@ -148,13 +157,21 @@ pub struct Point<P> {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Rectangle<P> {
+    /// X coordinate of the bottom left corner, between 0.0 and 1.0.
     pub x: f64,
+
+    /// Y coordinate of the bottom left corner, between 0.0 and 1.0.
     pub y: f64,
+
+    /// Width of the rectangle, between 0.0 and 1.0.
     pub width: f64,
+
+    /// Width of the rectangle, between 0.0 and 1.0.
     pub height: f64,
 
     /// The source this rectangle was generated from.
     ///
-    /// This would be a [Metric] if the chart was generated from [Timeseries].
+    /// This would be a [Metric](crate::fiberplane::Metric) if the chart was
+    /// generated from [Timeseries](crate::fiberplane::Timeseries).
     pub source: P,
 }

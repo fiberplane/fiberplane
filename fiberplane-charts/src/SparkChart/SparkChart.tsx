@@ -55,7 +55,8 @@ export function SparkChart({
         chart={chart}
         focusedShapeList={null}
         getShapeListColor={getShapeListColor}
-        gridShown={false}
+        gridColumnsShown={false}
+        gridRowsShown={false}
         onChangeTimeRange={onChangeTimeRange}
         tickFormatters={tickFormatters}
         timeRange={timeRange}
@@ -69,8 +70,5 @@ const StyledChartSizeContainerProvider = styled(ChartSizeContainerProvider)`
   height: 100%;
 `;
 
-// Dummy formatters, since we don't display axes in a spark chart anyway.
-const tickFormatters: TickFormatters = {
-  xFormatter: () => "",
-  yFormatter: () => "",
-};
+// No formatters, which will cause the ticks to not be shown.
+const tickFormatters: TickFormatters = {};

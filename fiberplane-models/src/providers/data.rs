@@ -69,6 +69,8 @@ pub struct Metric {
 }
 
 /// Metadata following the OpenTelemetry metadata spec.
+///
+/// See also: https://github.com/open-telemetry/opentelemetry-specification/
 #[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
@@ -78,8 +80,14 @@ pub struct Metric {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct OtelMetadata {
+    /// OpenTelemetry attributes.
+    ///
+    /// See also: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/common/README.md
     pub attributes: BTreeMap<String, Value>,
 
+    /// Resource metadata.
+    ///
+    /// See also: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/README.md
     pub resource: BTreeMap<String, Value>,
 
     #[builder(default, setter(into, strip_option))]

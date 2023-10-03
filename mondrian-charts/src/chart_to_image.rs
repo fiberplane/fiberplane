@@ -24,7 +24,7 @@ pub enum ImageRenderingError {
 
 /// Options for generating an image from a Mondrian chart.
 pub struct ImageOptions {
-    /// The font database that should be used for rendering ticks.
+    /// The font database to be used for rendering ticks.
     ///
     /// Currently, only the `sans-serif` font needs to be initialized.
     pub fonts: fontdb::Database,
@@ -32,7 +32,9 @@ pub struct ImageOptions {
     /// The file format to use for the generated image.
     pub format: ImageFormat,
 
-    /// Background color to render the chart on, specified as a CSS color.
+    /// Background color to render the chart on.
+    ///
+    /// Must be a valid CSS color string.
     pub background_color: String,
 }
 

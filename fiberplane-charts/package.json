@@ -1,17 +1,33 @@
 {
-    "name": "fiberplane-charts",
-    "version": "0.1.0",
-    "description": "Charts for rendering metrics",
+    "name": "@fiberplane/fiberplane-charts",
+    "version": "0.2.0",
+    "description": "Charts for visualizing metrics",
+    "author": "Fiberplane <info@fiberplane.com>",
+    "license": "MIT OR Apache-2.0",
+    "keywords": [
+        "chart",
+        "charts",
+        "react",
+        "mondrian",
+        "metrics",
+        "prometheus",
+        "opentelemetry"
+    ],
+    "repository": {
+        "url": "git+https://github.com/fiberplane/fiberplane.git"
+    },
+    "type": "module",
+    "sideEffects": false,
     "module": "dist/index.js",
     "types": "dist/index.d.ts",
     "files": [
-        "dist/"
+        "dist/",
+        "package.json",
+        "README.md"
     ],
-    "sideEffects": false,
-    "repository": "https://github.com/fiberplane/fiberplane",
-    "author": "Fiberplane <info@fiberplane.com>",
-    "license": "MIT OR Apache-2.0",
-    "type": "module",
+    "publishConfig": {
+        "access": "public"
+    },
     "dependencies": {
         "framer-motion": "^10.12.4",
         "react-window": "^1.8.9",
@@ -43,7 +59,9 @@
     "scripts": {
         "build": "rollup -c && rollup -c rollup.config.dts.js",
         "lint": "cd .. && yarn lint",
+        "prepublish": "yarn build",
         "test": "jest",
+        "test-dist": "test ! -d dist",
         "type-check": "tsc -p tsconfig.json"
     }
 }

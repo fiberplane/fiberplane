@@ -18,7 +18,6 @@ export function CoreChart<S, P>({
   areaGradientShown = true,
   chart,
   getShapeListColor,
-  gridShown = true,
   onChangeTimeRange,
   readOnly = false,
   showTooltip,
@@ -108,14 +107,12 @@ export function CoreChart<S, P>({
         </clipPath>
       </defs>
       <g transform={`translate(${marginLeft}, ${marginTop})`}>
-        {gridShown && (
-          <GridWithAxes
-            {...props}
-            chart={chart}
-            scales={scales}
-            tickFormatters={tickFormatters}
-          />
-        )}
+        <GridWithAxes
+          {...props}
+          chart={chart}
+          scales={scales}
+          tickFormatters={tickFormatters}
+        />
         <g clipPath={`url(#${clipPathId})`}>
           <ChartContent
             {...props}

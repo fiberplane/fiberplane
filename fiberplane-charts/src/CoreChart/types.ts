@@ -30,9 +30,9 @@ export type CoreChartProps<S, P> = {
   getShapeListColor: (source: S, index: number) => string;
 
   /**
-   * Show the line/border at the outer edge of the chart. (default: true)
+   * Whether lines should be rendered along the axes. (default: true)
    */
-  gridBordersShown?: boolean;
+  axisLinesShown?: boolean;
 
   /**
    * Show the grid column (vertical) lines. (default: true)
@@ -40,8 +40,9 @@ export type CoreChartProps<S, P> = {
   gridColumnsShown?: boolean;
 
   /**
-   * Customize the grid line style. (defaults to a solid line). This parameter is passed
-   * directly to the SVG `stroke-dasharray` attribute for several of the lines in the chart.
+   * Customize the grid line style. (defaults to a solid line). This parameter
+   * is passed directly to the SVG `stroke-dasharray` attribute for several of
+   * the lines in the chart.
    */
   gridDasharray?: string;
 
@@ -51,9 +52,9 @@ export type CoreChartProps<S, P> = {
   gridRowsShown?: boolean;
 
   /**
-   * Whether the grid is shown at all. (default: true)
+   * Override the color of the grid lines. (defaults to the theme's grid color)
    */
-  gridShown?: boolean;
+  gridStrokeColor?: string;
 
   /**
    * Handler that is invoked when the time range is changed.
@@ -119,13 +120,17 @@ export type Scales = Dimensions & {
 export type TickFormatters = {
   /**
    * Formats the ticks displayed along the X axis.
+   *
+   * If omitted, no ticks are shown along the X axis.
    */
-  xFormatter(value: number): string;
+  xFormatter?: (value: number) => string;
 
   /**
    * Formats the ticks displayed along the Y axis.
+   *
+   * If omitted, no ticks are shown along the Y axis.
    */
-  yFormatter(value: number): string;
+  yFormatter?: (value: number) => string;
 };
 
 export type TickFormattersFactory = (

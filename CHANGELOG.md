@@ -13,6 +13,7 @@ changes if the major version hasn't changed.
 
 ## [Unreleased]
 
+- `fiberplane-charts`: fix issue where height wasn't set/stored correctly for legend items (especially relevant for items that span multiple lines)
 - `fiberplane-charts`: updated with `chartTheme` prop allowing extending styles of the charts (#95)
 
 ## [v1.0.0-beta.5] - 2023-06-14

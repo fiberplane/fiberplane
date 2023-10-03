@@ -76,7 +76,7 @@ fn edit_cargo_toml(path: &Path, args: &GeneratorArgs) -> Result<()> {
 
     let mut manifest = open_manifest(&path)?;
 
-    let mut package_metadata = manifest
+    let package_metadata = manifest
         .package
         .as_mut()
         .context("`Cargo.toml` does not contain a [package] section")?;

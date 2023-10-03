@@ -16,6 +16,7 @@
     "scripts": {
         "lint": "biome ci .",
         "test": "yarn workspaces foreach run test",
+        "test-dist": "yarn workspaces foreach run test-dist",
         "type-check": "yarn workspaces foreach run type-check"
     }
 }

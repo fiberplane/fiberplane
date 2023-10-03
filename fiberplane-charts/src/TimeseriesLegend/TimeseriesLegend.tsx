@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useRef } from "react";
+import { useContext, useMemo, useRef } from "react";
 import { VariableSizeList } from "react-window";
 import styled, { css } from "styled-components";
 
@@ -43,12 +43,6 @@ export function TimeseriesLegend<S extends Timeseries, P>({
   const sizeMap = useRef(new Map<number, number>());
   const heightRef = useRef(timeseriesData.length * DEFAULT_SIZE);
   const update = useForceUpdate();
-
-  useEffect(() => {
-    sizeMap.current = new Map();
-    heightRef.current = timeseriesData.length * DEFAULT_SIZE;
-    update();
-  }, [timeseriesData, update]);
 
   const getSize = (index: number) => sizeMap.current.get(index) ?? DEFAULT_SIZE;
 
