@@ -1,15 +1,15 @@
-import styled, { css } from "styled-components";
-import { useContext, useEffect, useMemo, useRef } from "react";
+import { useContext, useMemo, useRef } from "react";
 import { VariableSizeList } from "react-window";
+import styled, { css } from "styled-components";
 
+import { Container } from "../BaseComponents";
+import type { ShapeList } from "../Mondrian";
+import { useExpandable, useForceUpdate, useHandler } from "../hooks";
+import type { Timeseries } from "../providerTypes";
+import { ChartThemeContext } from "../theme";
+import { findUniqueKeys, noop } from "../utils";
 import { TimeseriesLegendItem } from "./TimeseriesLegendItem";
 import type { TimeseriesLegendProps } from "./types";
-import { Container } from "../BaseComponents";
-import { findUniqueKeys, noop } from "../utils";
-import type { ShapeList } from "../Mondrian";
-import type { Timeseries } from "../providerTypes";
-import { useExpandable, useForceUpdate, useHandler } from "../hooks";
-import { ChartThemeContext } from "../theme";
 
 const DEFAULT_HEIGHT = 293;
 const DEFAULT_SIZE = 30;
@@ -43,12 +43,6 @@ export function TimeseriesLegend<S extends Timeseries, P>({
   const sizeMap = useRef(new Map<number, number>());
   const heightRef = useRef(timeseriesData.length * DEFAULT_SIZE);
   const update = useForceUpdate();
-
-  useEffect(() => {
-    sizeMap.current = new Map();
-    heightRef.current = timeseriesData.length * DEFAULT_SIZE;
-    update();
-  }, [timeseriesData, update]);
 
   const getSize = (index: number) => sizeMap.current.get(index) ?? DEFAULT_SIZE;
 

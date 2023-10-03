@@ -1,5 +1,5 @@
-import type { Axis, SeriesSource, ShapeList } from "../types";
 import type { ProviderEvent } from "../../providerTypes";
+import type { Axis, SeriesSource, ShapeList } from "../types";
 import { getTimeFromTimestamp } from "./utils";
 
 export function generateShapeListFromEvents(

@@ -50,7 +50,7 @@ export function XAxis({
       {formatter &&
         ticks.map((time, index) => (
           <text
-            // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
+            // biome-ignore lint/suspicious/noArrayIndexKey: no better key available
             key={index}
             x={xScale((time - minValue) / (maxValue - minValue))}
             y={axisFontSize}

@@ -9,6 +9,5 @@ export function useHandler<Handler extends Function>(
   handlerRef.current = handler;
 
   // @ts-ignore
-  // rome-ignore lint/nursery/useHookAtTopLevel: https://github.com/rome/tools/issues/4483
   return useCallback((...args) => handlerRef.current(...args), noDeps);
 }

@@ -196,7 +196,7 @@ fn parsing_ordered_lists(markdown: &str, cell_text: &[&str]) {
 #[test]
 fn parsing_adjacent_lists() {
     let markdown = "1. one\n2. two\n1. three\n- four\n- five";
-    let expected = vec![
+    let expected = [
         ("one", Some(1)),
         ("two", Some(2)),
         ("three", Some(3)),

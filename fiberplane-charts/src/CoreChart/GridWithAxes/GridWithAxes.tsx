@@ -1,4 +1,4 @@
-import { animate, Tween, useMotionValue } from "framer-motion";
+import { Tween, animate, useMotionValue } from "framer-motion";
 import {
   memo,
   useContext,
@@ -13,6 +13,7 @@ import { ChartThemeContext } from "../../theme";
 import { createLinearScaleForRange, Range } from "../utils";
 import { GridColumns } from "./GridColumns";
 import { GridRows } from "./GridRows";
+import { noop } from "../../utils";
 import type { Scale, Scales, TickFormatters } from "../types";
 import { XAxis } from "./XAxis";
 import { YAxis } from "./YAxis";
@@ -24,6 +25,7 @@ type Props = {
   gridRowsShown?: boolean;
   gridDasharray?: string;
   scales: Scales;
+  shouldAnimateYScale?: boolean;
   tickFormatters: TickFormatters;
 };
 
@@ -34,6 +36,7 @@ export const GridWithAxes = memo(function GridWithAxes({
   axisLinesShown = true,
   gridDasharray,
   scales,
+  shouldAnimateYScale,
   tickFormatters,
 }: Props) {
   const { xMax, xScale, yMax } = scales;
@@ -41,8 +44,8 @@ export const GridWithAxes = memo(function GridWithAxes({
   const { gridStrokeColor } = useContext(ChartThemeContext);
 
   const { xAxis, yAxis } = chart;
-  const minValue = useCustomSpring(yAxis.minValue);
-  const maxValue = useCustomSpring(yAxis.maxValue);
+  const minValue = useCustomSpring(yAxis.minValue, shouldAnimateYScale);
+  const maxValue = useCustomSpring(yAxis.maxValue, shouldAnimateYScale);
 
   const animatedScale = createLinearScaleForRangeWithCustomDomain(
     [yMax, 0],
@@ -237,7 +240,7 @@ const spring: Tween = {
   easings: ["anticipate"],
 };
 
-function useCustomSpring(value: number) {
+function useCustomSpring(value: number, shouldAnimate = true) {
   const motionValue = useMotionValue(value);
   const [current, setCurrent] = useState(value);
 
@@ -246,9 +249,15 @@ function useCustomSpring(value: number) {
   }, [motionValue]);
 
   useEffect(() => {
-    const controls = animate(motionValue, value, spring);
-    return controls.stop;
-  }, [motionValue, value]);
+    if (shouldAnimate) {
+      const controls = animate(motionValue, value, spring);
+      return controls.stop;
+    }
+
+    setCurrent(value);
+
+    return noop;
+  }, [motionValue, value, shouldAnimate]);
 
   return current;
 }

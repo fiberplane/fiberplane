@@ -1,5 +1,5 @@
 [package]
-name = "xtask"
+name = "fiberplane-xtask"
 authors = { workspace = true }
 edition = { workspace = true }
 rust-version = { workspace = true }

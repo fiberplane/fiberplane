@@ -1,3 +1,5 @@
+import type { Metric, Timeseries } from "../../providerTypes";
+import { compact, identity } from "../../utils";
 import type {
   AbstractChart,
   Axis,
@@ -5,6 +7,7 @@ import type {
   ShapeList,
   TimeseriesSourceData,
 } from "../types";
+import type { MinMax } from "./types";
 import {
   attachSuggestionsToXAxis,
   calculateBarWidth,
@@ -20,9 +23,6 @@ import {
   getXAxisFromTimeRange,
   normalizeAlongLinearAxis,
 } from "./utils";
-import { compact, identity } from "../../utils";
-import type { Metric, Timeseries } from "../../providerTypes";
-import type { MinMax } from "./types";
 
 export function generateBarChartFromTimeseries(
   input: TimeseriesSourceData,

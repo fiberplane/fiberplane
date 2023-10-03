@@ -1,8 +1,8 @@
 import { memo, useId } from "react";
 
 import type { Area } from "../../Mondrian";
-import type { CommonShapeProps } from "./types";
 import { createAreaPathDef } from "./paths";
+import type { CommonShapeProps } from "./types";
 
 type Props<P> = CommonShapeProps & {
   area: Area<P>;

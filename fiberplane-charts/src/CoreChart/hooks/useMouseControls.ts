@@ -1,15 +1,15 @@
+import type { TimeRange, Timestamp } from "../../providerTypes";
+import {
+  preventDefault,
+  secondsToTimestamp,
+  timestampToSeconds,
+} from "../../utils";
 import type { Dimensions } from "../types";
 import { getCoordinatesForEvent } from "../utils";
 import type {
   InteractiveControls,
   InteractiveControlsState,
 } from "./useInteractiveControls";
-import {
-  preventDefault,
-  secondsToTimestamp,
-  timestampToSeconds,
-} from "../../utils";
-import type { TimeRange, Timestamp } from "../../providerTypes";
 
 const MIN_DURATION = 60; // in seconds
 

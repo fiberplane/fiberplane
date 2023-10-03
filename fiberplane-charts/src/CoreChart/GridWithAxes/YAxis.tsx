@@ -69,7 +69,7 @@ export function YAxis({
       {formatter &&
         ticks.map((value, index) =>
           (index > 0 || index < numTicks - 1) && value.valueOf() !== 0 ? (
-            // rome-ignore lint/suspicious/noArrayIndexKey: no better key available
+            // biome-ignore lint/suspicious/noArrayIndexKey: no better key available
             <text key={index} x={0} y={yScale(value)} {...tickLabelProps}>
               {formatter(value)}
             </text>

@@ -1,7 +1,7 @@
 import { memo } from "react";
 
-import type { CommonShapeProps } from "./types";
 import type { Rectangle } from "../../Mondrian";
+import type { CommonShapeProps } from "./types";
 
 type Props<P> = CommonShapeProps & {
   rectangle: Rectangle<P>;

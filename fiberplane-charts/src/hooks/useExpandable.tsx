@@ -1,9 +1,9 @@
+import { useContext, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
-import { useRef, useState, useEffect, useContext } from "react";
 
 import { Icon } from "../BaseComponents";
-import { useHandler } from "./useHandler";
 import { ChartThemeContext } from "../theme";
+import { useHandler } from "./useHandler";
 
 type Options = {
   /**

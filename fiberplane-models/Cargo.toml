@@ -27,6 +27,7 @@ clap = { version = "4.1", default-features = false, optional = true, features = 
 form_urlencoded = "1"
 fp-bindgen = { workspace = true, optional = true, features = [
     "bytes-compat",
+    "serde-json-compat",
     "time-compat",
 ] }
 rmpv = "1"
