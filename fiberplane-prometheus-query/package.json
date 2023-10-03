@@ -18,7 +18,9 @@
     "module": "dist/index.js",
     "types": "dist/index.d.ts",
     "files": [
-        "dist/"
+        "dist/",
+        "package.json",
+        "README.md"
     ],
     "publishConfig": {
         "access": "public"

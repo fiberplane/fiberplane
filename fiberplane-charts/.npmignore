@@ -1,9 +1,0 @@
-.vscode/
-node_modules/
-src/
-.gitignore
-jest.*
-rollup.*
-tsconfig.json
-yarn-error.*
-*.tgz
