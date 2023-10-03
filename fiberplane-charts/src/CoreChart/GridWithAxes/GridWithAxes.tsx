@@ -10,11 +10,11 @@ import {
 
 import type { AbstractChart, Axis } from "../../Mondrian";
 import { ChartThemeContext } from "../../theme";
-import { createLinearScaleForRange, Range } from "../utils";
-import { GridColumns } from "./GridColumns";
-import { GridRows } from "./GridRows";
 import { noop } from "../../utils";
 import type { Scale, Scales, TickFormatters } from "../types";
+import { Range, createLinearScaleForRange } from "../utils";
+import { GridColumns } from "./GridColumns";
+import { GridRows } from "./GridRows";
 import { XAxis } from "./XAxis";
 import { YAxis } from "./YAxis";
 
