@@ -1,6 +1,6 @@
 {
     "name": "@fiberplane/prometheus-query",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Package for querying Prometheus",
     "author": "Fiberplane <info@fiberplane.com>",
     "license": "MIT OR Apache-2.0",
