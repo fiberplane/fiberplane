@@ -56,6 +56,7 @@ export function SparkChart({
         focusedShapeList={null}
         getShapeListColor={getShapeListColor}
         gridColumnsShown={false}
+        axisLinesShown={false}
         gridRowsShown={false}
         onChangeTimeRange={onChangeTimeRange}
         tickFormatters={tickFormatters}
