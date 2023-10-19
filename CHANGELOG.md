@@ -13,6 +13,7 @@ changes if the major version hasn't changed.
 
 ## [Unreleased]
 
+- `fiberplane-charts': fix issue where SparkCharts would still get some grid lines.
 - `fiberplane-charts`: fix issue where height wasn't set/stored correctly for legend items (especially relevant for items that span multiple lines)
 - `fiberplane-charts`: updated with `chartTheme` prop allowing extending styles of the charts (#95)
 
