@@ -1543,9 +1543,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fiberplane/fiberplane-charts@workspace:fiberplane-charts":
+"@fiberplane/charts@workspace:fiberplane-charts":
   version: 0.0.0-use.local
-  resolution: "@fiberplane/fiberplane-charts@workspace:fiberplane-charts"
+  resolution: "@fiberplane/charts@workspace:fiberplane-charts"
   dependencies:
     "@svgr/rollup": ^7.0.0
     "@swc/core": ^1.3.51
