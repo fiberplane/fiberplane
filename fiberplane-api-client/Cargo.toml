@@ -34,7 +34,7 @@ description = "Generated API client for Fiberplane API"
 edition = "2021"
 name = "fiberplane-api-client"
 readme = "README.md"
-version = "1.0.0-beta.6"
+version = "1.0.0-beta.7"
 
 [package.license]
 workspace = true

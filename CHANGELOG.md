@@ -13,12 +13,14 @@ crates do not strictly follow _SemVer_ although their versioning remains
 _compatible with_ SemVer, i.e. they will not contain breaking changes if the
 major version hasn't changed.
 
-## [Unreleased]
+## [v1.0.0-beta.7] - TBD
 
-- `fiberplane-charts': Fix issue where SparkCharts would still get some grid lines.
+- ...
 
-## [v1.0.0-beta.6] - 2023-10-18
+## [v1.0.0-beta.6] - 2023-10-20
 
+- `fiberplane-charts': Fix issue where SparkCharts would still get some grid
+  lines.
 - `fiberplane-charts`: Fix issue where height wasn't set/stored correctly for
   legend items (especially relevant for items that span multiple lines)
 - `fiberplane-charts`: Updated with `chartTheme` prop allowing extending styles
