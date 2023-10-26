@@ -152,7 +152,7 @@ function modifierPressed(state: InteractiveControlsState): boolean {
   return state.dragKeyPressed || state.zoomKeyPressed;
 }
 
-function getCursorFromState(state: InteractiveControlsState): string {
+export function getCursorFromState(state: InteractiveControlsState): string {
   switch (state.mouseInteraction.type) {
     case "none":
       if (state.dragKeyPressed) {

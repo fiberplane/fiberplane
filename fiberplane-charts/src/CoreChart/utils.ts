@@ -12,24 +12,32 @@ export function createLinearScaleForRange([from, to]: Range): Scale {
   return (value) => from + value * (to - from);
 }
 
-export function getCoordinatesForEvent(
-  event: React.MouseEvent<SVGElement> | WheelEvent,
+export function getCoordinatesForEvent<E extends Element>(
+  event: React.MouseEvent<E> | WheelEvent,
   { xMax, yMax }: Dimensions,
 ): ChartCoordinates | null {
   const svg = getTarget(event);
-  if (!svg) {
+  if (svg) {
+    const rect = svg.getBoundingClientRect();
+
+    const x = event.clientX - rect.left - MARGINS.left;
+    const y = event.clientY - rect.top - MARGINS.top;
+    if (x < 0 || x > xMax || y < 0 || y > yMax) {
+      return null;
+    }
+
+    return { x: x / xMax, y: 1 - y / yMax };
+  }
+  const element = event.currentTarget || event.target;
+  if (!element) {
     return null;
   }
 
-  const rect = svg.getBoundingClientRect();
-
-  const x = event.clientX - rect.left - MARGINS.left;
-  const y = event.clientY - rect.top - MARGINS.top;
-  if (x < 0 || x > xMax || y < 0 || y > yMax) {
-    return null;
-  }
-
-  return { x: x / xMax, y: 1 - y / yMax };
+  const rect = (element as Element).getBoundingClientRect();
+  return {
+    x: (event.clientX - rect.left) / xMax,
+    y: 1 - (event.clientY - rect.top) / yMax,
+  };
 }
 
 /**
@@ -37,8 +45,8 @@ export function getCoordinatesForEvent(
  * directly attached to it, but some may be attached elsewhere and we need to
  * travel from the `event.target` to find it.
  */
-function getTarget(
-  event: React.MouseEvent<SVGElement> | WheelEvent,
+function getTarget<E extends Element>(
+  event: React.MouseEvent<E> | WheelEvent,
 ): SVGSVGElement | null {
   if (event.currentTarget instanceof SVGSVGElement) {
     return event.currentTarget;

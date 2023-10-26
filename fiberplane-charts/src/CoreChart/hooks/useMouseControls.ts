@@ -13,10 +13,10 @@ import type {
 
 const MIN_DURATION = 60; // in seconds
 
-type MouseControls = {
-  onMouseDown: React.MouseEventHandler<SVGElement>;
-  onMouseMove: React.MouseEventHandler<SVGElement>;
-  onMouseUp: React.MouseEventHandler<SVGElement>;
+type MouseControls<E extends Element> = {
+  onMouseDown: React.MouseEventHandler<E>;
+  onMouseMove: React.MouseEventHandler<E>;
+  onMouseUp: React.MouseEventHandler<E>;
   onWheel: (event: WheelEvent) => void;
 };
 
@@ -30,7 +30,7 @@ type Props = {
 /**
  * Hook for setting up mouse handlers to control dragging & zoom
  */
-export function useMouseControls({
+export function useMouseControls<E extends Element>({
   interactiveControls: {
     dragKeyPressed,
     zoomKeyPressed,
@@ -43,8 +43,8 @@ export function useMouseControls({
   timeRange,
   onChangeTimeRange,
   dimensions,
-}: Props): MouseControls {
-  function onMouseDown(event: React.MouseEvent<SVGElement>) {
+}: Props): MouseControls<E> {
+  function onMouseDown(event: React.MouseEvent<E>) {
     if (event.buttons !== 1 || !onChangeTimeRange) {
       return;
     }
@@ -63,7 +63,7 @@ export function useMouseControls({
     }
   }
 
-  function onMouseMove(event: React.MouseEvent<SVGElement>) {
+  function onMouseMove(event: React.MouseEvent<E>) {
     preventDefault(event);
 
     if (mouseInteraction.type === "none") {

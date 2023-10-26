@@ -12,6 +12,8 @@ import { generateShapeListFromTargetLatency } from "./generateShapeListFromTarge
 import { generateStackedBarChartFromTimeseries } from "./generateStackedBarChartFromTimeseries";
 import { generateStackedLineChartFromTimeseries } from "./generateStackedLineChartFromTimeseries";
 
+export { getXAxisFromTimeRange } from "./utils";
+
 /**
  * Generates an abstract chart from a combination of timeseries data, events and
  * an optional target latency.

@@ -16,7 +16,20 @@ export type {
   Timeseries,
   Timestamp,
 } from "./providerTypes";
-export type { TickFormatters, TickFormattersFactory } from "./CoreChart";
+export type {
+  TickFormatters,
+  TickFormattersFactory,
+  MouseInteractionState,
+} from "./CoreChart";
+export {
+  useInteractiveControls,
+  useMouseControls,
+  useScales,
+  getCursorFromState,
+  getTicks,
+  getMaxXTickValue,
+} from "./CoreChart";
+
 export type { ToggleTimeseriesEvent } from "./TimeseriesLegend";
 
 export * from "./MetricsChart";

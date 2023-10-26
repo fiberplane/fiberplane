@@ -120,7 +120,7 @@ function createLinearScaleForRangeWithCustomDomain(
   return (value) => linearScale((value - min) / (max - min));
 }
 
-function getTicks(
+export function getTicks(
   axis: Axis,
   max: number,
   scale: Scale,
@@ -298,7 +298,7 @@ const removeLastTickIfTooCloseToMax = (
  *
  * Note that the heuristic was determined by trial and error.
  */
-const getMaxXTickValue = (ticks: Array<number>, maxValue: number) => {
+export const getMaxXTickValue = (ticks: Array<number>, maxValue: number) => {
   if (ticks.length < 2) {
     return maxValue;
   }
