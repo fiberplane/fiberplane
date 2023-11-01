@@ -14,9 +14,10 @@
     "typescript": "^5.0.4"
   },
   "scripts": {
+    "build": "yarn workspaces foreach -Wpt --verbose run build",
     "lint": "biome ci .",
-    "test": "yarn workspaces foreach -A run test",
-    "test-dist": "yarn workspaces foreach -A run test-dist",
-    "type-check": "yarn workspaces foreach -Ap run type-check"
+    "test": "yarn workspaces foreach -W run test",
+    "test-dist": "yarn workspaces foreach -W run test-dist",
+    "type-check": "yarn workspaces foreach -Wp run type-check"
   }
 }
