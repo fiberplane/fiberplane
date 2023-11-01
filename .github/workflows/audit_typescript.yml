@@ -18,4 +18,4 @@ jobs:
         run: yarn install --no-immutable
 
       - name: Run security audit
-        run: yarn workspaces foreach npm audit
+        run: yarn workspaces foreach -A npm audit
