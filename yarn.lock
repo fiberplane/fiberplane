@@ -1640,6 +1640,7 @@ __metadata:
   peerDependencies:
     react: ^18.0.0
     react-dom: ^18.0.0
+    react-router-dom: ^6.18.0
     styled-components: ^5.3.0
   languageName: unknown
   linkType: soft

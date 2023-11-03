@@ -13,8 +13,7 @@
   ],
   "packageManager": "yarn@3.5.0",
   "dependencies": {
-    "lodash.merge": "^4.6.2",
-    "react-router-dom": "^6.18.0"
+    "lodash.merge": "^4.6.2"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^11.1.5",
@@ -26,6 +25,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-is": "^18.2.0",
+    "react-router-dom": "^6.18.0",
     "rollup": "^4.2.0",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-swc3": "^0.10.3",
@@ -36,10 +36,11 @@
   "peerDependencies": {
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "react-router-dom": "^6.18.0",
     "styled-components": "^5.3.0"
   },
   "scripts": {
-    "build": "rollup --config rollup.config.ts --configPlugin ./node_modules/@rollup/plugin-typescript && rollup --config rollup.config.dts.ts --configPlugin ./node_modules/@rollup/plugin-typescript"
+    "build": "rollup --config rollup.config.ts --configPlugin ./node_modules/@rollup/plugin-typescript"
   },
   "type": "module"
 }

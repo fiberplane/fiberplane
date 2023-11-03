@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*", "rollup.config.ts"],
+  "include": ["src/**/*", "rollup.config.ts", "styled-components.d.ts"],
   "compilerOptions": {
     "target": "ES2020",
     "lib": ["ES2020", "DOM"],
@@ -11,6 +11,8 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "declaration": true,
+    "declarationDir": "dist",
   }
 }
