@@ -1,6 +1,11 @@
+import React from "react";
 import { forwardRef } from "react";
 import { Link, NavLink } from "react-router-dom";
-import styled, { css } from "styled-components";
+import styled, {
+  css,
+  type DefaultTheme,
+  type StyledComponent,
+} from "styled-components";
 
 type ButtonStyle = "primary" | "secondary" | "tertiary-color" | "tertiary-grey";
 
@@ -32,57 +37,63 @@ type ButtonTypeProps = AsButton | AsTextButton | AsLink | AsNavLink | AsAnchor;
 
 type ButtonProps = ButtonTypeProps & ButtonStyleProps;
 
-export const Button = forwardRef(function Button(
-  {
-    children,
-    buttonStyle = "primary",
-    asElement = "button",
-    ...elementProps
-  }: ButtonProps,
-  ref: React.ForwardedRef<HTMLElement>,
-) {
-  switch (asElement) {
-    case "button":
-      return (
-        <StyledButton ref={ref} $buttonStyle={buttonStyle} {...elementProps}>
-          {children}
-        </StyledButton>
-      );
-    case "textButton":
-      return (
-        <StyledTextButton
-          ref={ref}
-          $buttonStyle={buttonStyle}
-          {...elementProps}
-        >
-          {children}
-        </StyledTextButton>
-      );
-    case "link":
-      return (
-        <StyledLink ref={ref} $buttonStyle={buttonStyle} {...elementProps}>
-          {children}
-        </StyledLink>
-      );
-    case "navLink":
-      return (
-        <StyledNavLink ref={ref} $buttonStyle={buttonStyle} {...elementProps}>
-          {children}
-        </StyledNavLink>
-      );
-    case "externalLink":
-      return (
-        <StyledButton
-          ref={ref}
-          as="a"
-          $buttonStyle={buttonStyle}
-          {...elementProps}
-        >
-          {children}
-        </StyledButton>
-      );
-  }
-});
+type Button = React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ButtonProps> & React.RefAttributes<HTMLElement>
+>;
+
+export const Button: Button = forwardRef<HTMLElement, ButtonProps>(
+  function Button(
+    {
+      children,
+      buttonStyle = "primary",
+      asElement = "button",
+      ...elementProps
+    },
+    ref,
+  ) {
+    switch (asElement) {
+      case "button":
+        return (
+          <StyledButton ref={ref} $buttonStyle={buttonStyle} {...elementProps}>
+            {children}
+          </StyledButton>
+        );
+      case "textButton":
+        return (
+          <StyledTextButton
+            ref={ref}
+            $buttonStyle={buttonStyle}
+            {...elementProps}
+          >
+            {children}
+          </StyledTextButton>
+        );
+      case "link":
+        return (
+          <StyledLink ref={ref} $buttonStyle={buttonStyle} {...elementProps}>
+            {children}
+          </StyledLink>
+        );
+      case "navLink":
+        return (
+          <StyledNavLink ref={ref} $buttonStyle={buttonStyle} {...elementProps}>
+            {children}
+          </StyledNavLink>
+        );
+      case "externalLink":
+        return (
+          <StyledButton
+            ref={ref}
+            as="a"
+            $buttonStyle={buttonStyle}
+            {...elementProps}
+          >
+            {children}
+          </StyledButton>
+        );
+    }
+  },
+);
 
 type ButtonSCProps = {
   $buttonStyle: ButtonStyle;
@@ -136,7 +147,13 @@ const StyledButton = styled.button<ButtonSCProps>`
   ${buttonStyling}
 `;
 
-const StyledLink = styled(Link)<ButtonSCProps>`
+type StyledLink = StyledComponent<
+  typeof Link,
+  DefaultTheme,
+  ButtonSCProps,
+  never
+>;
+const StyledLink: StyledLink = styled(Link)<ButtonSCProps>`
   ${buttonStyling}
 `;
 
