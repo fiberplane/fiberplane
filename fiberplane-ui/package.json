@@ -1,0 +1,45 @@
+{
+  "name": "@fiberplane/ui",
+  "version": "0.1.0",
+  "description": "UI components for Fiberplane",
+  "author": "Fiberplane <info@fiberplane.com>",
+  "license": "MIT OR Apache-2.0",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "package.json",
+    "README.md"
+  ],
+  "packageManager": "yarn@3.5.0",
+  "dependencies": {
+    "lodash.merge": "^4.6.2",
+    "react-router-dom": "^6.18.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@svgr/rollup": "^8.1.0",
+    "@swc/core": "^1.3.95",
+    "@types/lodash.merge": "^4.6.8",
+    "@types/react": "18.0.37",
+    "@types/styled-components": "5.1.29",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-is": "^18.2.0",
+    "rollup": "^4.2.0",
+    "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-swc3": "^0.10.3",
+    "styled-components": "^5.3.11",
+    "tslib": "^2.6.2",
+    "typescript": "^5.2.2"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "styled-components": "^5.3.0"
+  },
+  "scripts": {
+    "build": "rollup --config rollup.config.ts --configPlugin ./node_modules/@rollup/plugin-typescript && rollup --config rollup.config.dts.ts --configPlugin ./node_modules/@rollup/plugin-typescript"
+  },
+  "type": "module"
+}
