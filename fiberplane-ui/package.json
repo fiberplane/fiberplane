@@ -40,7 +40,8 @@
     "styled-components": "^5.3.0"
   },
   "scripts": {
-    "build": "rollup --config rollup.config.ts --configPlugin ./node_modules/@rollup/plugin-typescript"
+    "build": "rollup --config rollup.config.ts --configPlugin ./node_modules/@rollup/plugin-typescript",
+    "type-check": "tsc -p tsconfig.json"
   },
   "type": "module"
 }
