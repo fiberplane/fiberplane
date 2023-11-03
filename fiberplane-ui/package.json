@@ -4,6 +4,9 @@
   "description": "UI components for Fiberplane",
   "author": "Fiberplane <info@fiberplane.com>",
   "license": "MIT OR Apache-2.0",
+  "repository": {
+    "url": "git+https://github.com/fiberplane/fiberplane.git"
+  },
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
