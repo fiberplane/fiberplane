@@ -11,8 +11,6 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "declaration": true,
-    "declarationDir": "dist",
+    "noUnusedParameters": true
   }
 }
