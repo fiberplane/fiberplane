@@ -15,7 +15,9 @@ major version hasn't changed.
 
 ## [v1.0.0-beta.7] - TBD
 
-- ...
+- `fiberplane-charts`: Export some util function and components related to 
+  zooming/dragging to facilitate a more experimental graph (alert timeline)
+
 
 ## [v1.0.0-beta.6] - 2023-10-20
 
