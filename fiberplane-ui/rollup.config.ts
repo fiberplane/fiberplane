@@ -17,7 +17,6 @@ const config = defineConfig([
       "react/jsx-runtime",
       "styled-components",
       "react-router-dom",
-      "lodash.merge",
     ],
     plugins: [
       svgr({
