@@ -1,22 +1,23 @@
 {
-    "name": "fiberplane",
-    "description": "Fiberplane Yarn worktree",
-    "repository": "https://github.com/fiberplane/fiberplane",
-    "author": "Fiberplane <info@fiberplane.com>",
-    "license": "MIT OR Apache-2.0",
-    "packageManager": "yarn@3.5.0",
-    "workspaces": [
-        "fiberplane-charts",
-        "fiberplane-prometheus-query"
-    ],
-    "devDependencies": {
-        "@biomejs/biome": "1.1.2",
-        "typescript": "^5.0.4"
-    },
-    "scripts": {
-        "lint": "biome ci .",
-        "test": "yarn workspaces foreach run test",
-        "test-dist": "yarn workspaces foreach run test-dist",
-        "type-check": "yarn workspaces foreach run type-check"
-    }
+  "name": "fiberplane",
+  "description": "Fiberplane Yarn worktree",
+  "repository": "https://github.com/fiberplane/fiberplane",
+  "author": "Fiberplane <info@fiberplane.com>",
+  "license": "MIT OR Apache-2.0",
+  "packageManager": "yarn@3.5.0",
+  "workspaces": [
+    "fiberplane-charts",
+    "fiberplane-prometheus-query"
+  ],
+  "devDependencies": {
+    "@biomejs/biome": "1.1.2",
+    "typescript": "^5.0.4"
+  },
+  "scripts": {
+    "build": "yarn workspaces foreach -Wpt --verbose run build",
+    "lint": "biome ci .",
+    "test": "yarn workspaces foreach -W run test",
+    "test-dist": "yarn workspaces foreach -W run test-dist",
+    "type-check": "yarn workspaces foreach -Wp run type-check"
+  }
 }

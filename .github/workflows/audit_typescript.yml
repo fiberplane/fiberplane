@@ -5,7 +5,6 @@ on:
     branches: ["**"]
     paths:
       - "**/package.json"
-      - "**/yarn.lock"
   schedule:
     - cron: "0 0 * * *"
 
@@ -16,7 +15,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install dependencies
-        run: yarn --immutable
+        run: yarn install --no-immutable
 
       - name: Run security audit
-        run: yarn workspaces foreach npm audit
+        run: yarn workspaces foreach -A npm audit
