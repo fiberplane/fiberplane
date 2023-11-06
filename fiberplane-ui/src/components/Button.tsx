@@ -171,13 +171,15 @@ const StyledTextButton = styled.button<ButtonSCProps>(
       background: unset;
       height: fit-content;
 
-      ${$buttonStyle === "primary"
-        ? css`
+      ${
+        $buttonStyle === "primary"
+          ? css`
             color: ${theme.color.fg.primary};
           `
-        : css`
+          : css`
             color: ${theme.color.fg.muted};
-          `}
+          `
+      }
 
       &:hover {
         color: ${theme.color.fg.default};

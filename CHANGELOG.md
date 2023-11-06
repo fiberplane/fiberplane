@@ -15,7 +15,7 @@ major version hasn't changed.
 
 ## [v1.0.0-beta.7] - TBD
 
-- ...
+- `@fiberplane/ui`: Add initial setup component library & add `Button` component
 
 ## [v1.0.0-beta.6] - 2023-10-20
 
