@@ -2,9 +2,6 @@ import { defineConfig } from "rollup";
 import { defineRollupSwcOption, swc } from "rollup-plugin-swc3";
 import svgr from "@svgr/rollup";
 import dts from "rollup-plugin-dts";
-import css from "rollup-plugin-import-css";
-import { nodeResolve } from "@rollup/plugin-node-resolve";
-import commonJs from "@rollup/plugin-commonjs";
 
 const config = defineConfig([
   {
@@ -16,10 +13,10 @@ const config = defineConfig([
       compact: true,
     },
     external: [
+      "react-router-dom",
       "react",
       "react/jsx-runtime",
       "styled-components",
-      "react-router-dom",
     ],
     plugins: [
       svgr({
@@ -51,32 +48,6 @@ const config = defineConfig([
       format: "es",
     },
     plugins: [swc(defineRollupSwcOption({ sourceMaps: true })), dts()],
-  },
-  {
-    input: "src/theme/index.ts",
-    output: {
-      file: "dist/theme/index.js",
-      format: "es",
-      sourcemap: true,
-      compact: true,
-    },
-    external: ["styled-components", "react/jsx-runtime"],
-    plugins: [
-      swc(defineRollupSwcOption({ sourceMaps: true })),
-      css({ output: "variables.css", minify: true }),
-      commonJs(),
-      nodeResolve({
-        resolveOnly: (module) => module === "lodash.merge",
-      }),
-    ],
-  },
-  {
-    input: "src/theme/index.ts",
-    output: {
-      file: "dist/theme/index.d.ts",
-      format: "es",
-    },
-    plugins: [swc(defineRollupSwcOption({ sourceMaps: true })), dts(), css()],
   },
 ]);
 
