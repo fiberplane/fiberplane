@@ -5,11 +5,10 @@ on:
     branches: ["**"]
     paths:
       - ".github/workflows/*_typescript.yml"
+      - "biome.json"
       - "fiberplane-charts/**"
       - "fiberplane-prometheus-query/**"
       - "package.json"
-      - "rome.json"
-      - "yarn.lock"
 
 jobs:
   test_ts:
@@ -20,7 +19,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install dependencies
-        run: yarn --immutable
+        run: yarn install --no-immutable
 
       - name: Verify dist/ folders are not checked in
         run: yarn test-dist
