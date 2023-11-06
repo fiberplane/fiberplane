@@ -1,4 +1,4 @@
-import { extendedTheme } from "./src/theme";
+import { extendedTheme } from "./extendedTheme";
 
 type Theme = typeof extendedTheme;
 
