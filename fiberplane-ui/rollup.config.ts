@@ -1,7 +1,7 @@
-import { defineConfig } from "rollup";
-import { defineRollupSwcOption, swc } from "rollup-plugin-swc3";
 import svgr from "@svgr/rollup";
+import { defineConfig } from "rollup";
 import dts from "rollup-plugin-dts";
+import { defineRollupSwcOption, swc } from "rollup-plugin-swc3";
 
 const config = defineConfig([
   {
