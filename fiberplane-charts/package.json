@@ -1,6 +1,6 @@
 {
   "name": "@fiberplane/charts",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Charts for visualizing metrics",
   "author": "Fiberplane <info@fiberplane.com>",
   "license": "MIT OR Apache-2.0",
