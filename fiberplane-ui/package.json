@@ -14,10 +14,6 @@
     "package.json",
     "README.md"
   ],
-  "packageManager": "yarn@3.5.0",
-  "dependencies": {
-    "lodash.merge": "^4.6.2"
-  },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
