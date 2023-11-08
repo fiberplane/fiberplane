@@ -1,10 +1,10 @@
 import { forwardRef } from "react";
 
 import {
-  StyledInput,
-  InputComponentContainer,
   HiddenInputElement,
   IconContainer,
+  InputComponentContainer,
+  StyledInput,
 } from "./common";
 
 type CheckboxProps = React.InputHTMLAttributes<HTMLInputElement>;

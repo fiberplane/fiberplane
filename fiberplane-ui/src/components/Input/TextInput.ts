@@ -26,5 +26,5 @@ export const TextInput = styled.input(
     &:invalid {
       border-color: ${theme.color.fg.danger};
     }
-  `
+  `,
 );

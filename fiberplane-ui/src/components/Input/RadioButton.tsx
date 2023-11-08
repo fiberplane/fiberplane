@@ -2,10 +2,10 @@ import { forwardRef } from "react";
 import styled, { css } from "styled-components";
 
 import {
-  StyledInput,
-  InputComponentContainer,
   HiddenInputElement,
   IconContainer,
+  InputComponentContainer,
+  StyledInput,
 } from "./common";
 
 type RadioButtonProps = React.InputHTMLAttributes<HTMLInputElement>;

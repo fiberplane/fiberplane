@@ -1,9 +1,9 @@
 import { forwardRef } from "react";
 
 import { CheckBox } from "./Checkbox";
+import { LightSwitch } from "./LightSwitch";
 import { RadioButton } from "./RadioButton";
 import { TextInput } from "./TextInput";
-import { LightSwitch } from "./LightSwitch";
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
