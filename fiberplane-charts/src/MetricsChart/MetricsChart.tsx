@@ -101,9 +101,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
 
   // When the timeseries changes, we want to reset the id so that the legend
   // is re-rendered. This resets the size values for all legend items
-  /*
-    biome-ignore lint/correctness/useExhaustiveDependencies: this is intentional
-  */
+  // biome-ignore lint/correctness/useExhaustiveDependencies: this is intentional
   const id = useMemo(() => crypto.randomUUID(), [timeseriesData]);
 
   return (
