@@ -23,7 +23,6 @@
     "@types/lodash.merge": "^4.6.8",
     "@types/react": "^18.0.37",
     "@types/styled-components": "5.1.29",
-    "prettier": "^3.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-is": "^18.2.0",
