@@ -12,6 +12,7 @@ import type { Buckets } from "../types";
 export function createMetricBuckets<T>(
   timeseriesData: Array<Timeseries>,
   reducer: (current: T | undefined, metricValue: number) => T,
+  // biome-ignore lint/suspicious/noConfusingVoidType: this is intentional
   initialValue: void,
 ): Buckets<T>;
 export function createMetricBuckets<T>(

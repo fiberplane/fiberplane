@@ -2,6 +2,10 @@ import { useCallback, useRef } from "react";
 
 const noDeps: Array<void> = [];
 
+/*
+  biome-ignore lint/complexity/noBannedTypes: we can't know what the argument &
+  return types are
+*/
 export function useHandler<Handler extends Function>(
   handler: Handler,
 ): Handler {
