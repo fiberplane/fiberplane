@@ -15,6 +15,7 @@
 # TypeScript stuff is owned by the Studio team
 /fiberplane-charts/ @fiberplane/studio-devs
 /fiberplane-prometheus-query/ @fiberplane/studio-devs
+/fiberplane-ui/ @fiberplane/studio-devs
 biome.json
 package.json
 yarn.lock

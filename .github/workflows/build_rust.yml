@@ -6,6 +6,7 @@ on:
     paths-ignore:
       - "fiberplane-charts"
       - "fiberplane-prometheus-query"
+      - "fiberplane-ui"
   release:
     types: [published]
 

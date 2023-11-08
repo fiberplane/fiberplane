@@ -8,6 +8,7 @@ on:
       - "biome.json"
       - "fiberplane-charts/**"
       - "fiberplane-prometheus-query/**"
+      - "fiberplane-ui/**"
       - "package.json"
 
 jobs:
