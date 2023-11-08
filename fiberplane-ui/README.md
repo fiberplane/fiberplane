@@ -9,7 +9,7 @@ Contains UI elements for use in Fiberplane products.
 ```tsx
 import { Button } from "@fiberplane/ui";
 
-const MyComponent = () => {
+function MyComponent() {
   return (
     <Button
       onClick={() => { /* your onClick handler... */ }}
