@@ -18,6 +18,7 @@ major version hasn't changed.
 - `fiberplane-charts`: Export some util function and components related to 
   zooming/dragging to facilitate a more experimental graph (alert timeline)
 - `@fiberplane/ui`: Add initial setup component library & add `Button` component
+- `@fiberplane/ui`: Add `Input` components
 
 ## [v1.0.0-beta.6] - 2023-10-20
 
