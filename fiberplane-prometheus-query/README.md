@@ -6,6 +6,11 @@ This package provides a subset of the functionality of the Prometheus Provider
 that is useful for TypeScript projects where importing the entire Provider
 runtime would be overkill.
 
+In addition, it contains helpers for generating PromQL queries for Autometrics.
+Given a query type, a function name and optional other information, it will
+generate useful queries for generating common charts such as request rate, error
+rate and latency.
+
 The query responses are converted to Provider types and are compatible with our
 [Provider Protocol](../fiberplane-provider-protocol/). This also ensures they're
 readily usable with [fiberplane-charts](../fiberplane-charts/).

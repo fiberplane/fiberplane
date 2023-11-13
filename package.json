@@ -16,6 +16,7 @@
   },
   "scripts": {
     "build": "yarn workspaces foreach -Wpt --verbose run build",
+    "format": "biome format --write .",
     "lint": "biome ci .",
     "test": "yarn workspaces foreach -W run test",
     "test-dist": "yarn workspaces foreach -W run test-dist",
