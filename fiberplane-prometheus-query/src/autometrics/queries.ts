@@ -507,7 +507,7 @@ export function createTop5FunctionsErrorRatioQuery({
       }[${interval}]
     )
     ${getBuildInfoQuery({ indent: 4, interval: buildInfoInterval })}
-  ))) / (
+  ))) / ignoring(function) group_left (
   sum by(function, module, version, commit, service_name) (
     rate(
       {
@@ -516,8 +516,9 @@ export function createTop5FunctionsErrorRatioQuery({
       }[${interval}]
     )
     ${getBuildInfoQuery({ indent: 4, interval: buildInfoInterval })}
-  ) > 0
+  )
 )
+> 0
 `.trim();
 }
 
