@@ -8,6 +8,6 @@ export type {
   Timestamp,
 } from "./providerTypes";
 
-export * as Autometrics from "./autometrics/queries";
+export * as Autometrics from "./autometrics";
 export * from "./timeseries";
 export { getPrometheusWindowFromTimeRange } from "./utils";

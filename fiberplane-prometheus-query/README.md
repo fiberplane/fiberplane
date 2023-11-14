@@ -9,7 +9,8 @@ runtime would be overkill.
 In addition, it contains helpers for generating PromQL queries for Autometrics.
 Given a query type, a function name and optional other information, it will
 generate useful queries for generating common charts such as request rate, error
-rate and latency.
+rate and latency. Helpers for processing Prometheus responses to known queries
+are included as well.
 
 The query responses are converted to Provider types and are compatible with our
 [Provider Protocol](../fiberplane-provider-protocol/). This also ensures they're

@@ -1,4 +1,4 @@
-import { TimeRange } from "./providerTypes";
+import { TimeRange } from "../providerTypes";
 
 export function getPrometheusWindowFromTimeRange(timeRange: TimeRange) {
   const from = +new Date(timeRange.from) / 1000;

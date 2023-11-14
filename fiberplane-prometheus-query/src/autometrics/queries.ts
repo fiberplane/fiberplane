@@ -1,6 +1,11 @@
-import { TimeRange } from "..";
+import type { TimeRange } from "../providerTypes";
 import { getPrometheusWindowFromTimeRange } from "../utils";
-import { LatencyObjective, SuccessRateObjective } from "./types";
+import {
+  LatencyObjective,
+  Objective,
+  ScopedFunction,
+  SuccessRateObjective,
+} from "./types";
 
 /**
  * The list of metric types supported by Autometrics.
@@ -191,6 +196,27 @@ export function createFunctionRequestRateQuery({
 }
 
 /**
+ * Generates the PromQL query for an Autometrics-defined objective.
+ */
+export function createObjectiveQuery(
+  objective: Objective,
+  timeRange: TimeRange,
+  scopedFunction?: ScopedFunction,
+): string {
+  switch (objective.metric) {
+    case "latency":
+      return createSloQueryLatencyUnderThreshold(
+        objective,
+        timeRange,
+        scopedFunction,
+      );
+
+    case "success_rate":
+      return createSloQuerySuccessRate(objective, timeRange, scopedFunction);
+  }
+}
+
+/**
  * Generates the PromQL query to determine how many function call happened in a
  * given time window.
  */
@@ -307,7 +333,7 @@ export function createSloQueryLatencyUnderThresholdByFunction(
 }
 
 export function createSloQuerySuccessRate(
-  objective: { name: string },
+  objective: Objective,
   timeRange: TimeRange,
   function_?: { name: string; module: string },
 ) {

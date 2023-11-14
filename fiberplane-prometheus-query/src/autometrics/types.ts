@@ -1,4 +1,7 @@
-type ScopedFunction = {
+/**
+ * Label set to refer to a function within a module and service.
+ */
+export type ScopedFunction = {
   name: string;
   module: string;
   service_name?: string;
@@ -20,7 +23,7 @@ type SuccessRateSeriesName =
 type AmSeries = {
   __name__: string;
   function: string;
-  module?: string;
+  module: string;
   service_name?: string;
 };
 
@@ -28,28 +31,22 @@ type AmSeries = {
  * An Autometrics function call histogram series with a latency objective
  * attached via labels.
  */
-export type AmSeriesWithLatencyObjective =
-  | AmSeries
-  | {
-      __name__: LatencySeriesName;
-      objective_name: string;
-      objective_latency_threshold: string;
-      objective_percentile: string;
-    };
+export type AmSeriesWithLatencyObjective = AmSeries & {
+  __name__: LatencySeriesName;
+  objective_name: string;
+  objective_latency_threshold: string;
+  objective_percentile: string;
+};
 
 /**
  * An Autometrics function call counter series with a success rate objective
  * attached via labels.
  */
-export type AmSeriesWithSuccessObjective =
-  | AmSeries
-  | {
-      __name__: SuccessRateSeriesName;
-      objective_name: string;
-      objective_percentile: string;
-    };
-
-// Schemas for transformed SLO data
+export type AmSeriesWithSuccessObjective = AmSeries & {
+  __name__: SuccessRateSeriesName;
+  objective_name: string;
+  objective_percentile: string;
+};
 
 export type SuccessRateTarget = {
   percentile: string;
@@ -63,7 +60,7 @@ export type SuccessRateObjective = {
   name: string;
   functions: Array<ScopedFunction>;
   functionsCount?: number;
-  metric: "successRate";
+  metric: "success_rate";
   target: SuccessRateTarget;
 };
 
