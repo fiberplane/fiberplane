@@ -1,7 +1,7 @@
 import merge from "lodash.merge";
 
-import { media } from "./media";
 import { theme } from "../figma";
+import { media } from "./media";
 import { spacing } from "./spacing";
 
 // Theme object that extends the base theme with additional values which aren't

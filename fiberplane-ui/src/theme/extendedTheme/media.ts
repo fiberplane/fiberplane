@@ -30,5 +30,5 @@ export const media = Object.fromEntries(
         ${css(...args)}
       }
     `,
-  ])
+  ]),
 ) as Record<keyof typeof BREAKPOINTS, CssFunction>;
