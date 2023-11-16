@@ -1,3 +1,4 @@
+import { css } from "styled-components";
 import merge from "lodash.merge";
 
 import { theme } from "../figma";
@@ -25,24 +26,28 @@ export const extendedTheme = merge(theme, {
  * Light CSS variables that are used for the extended theme.
  * To be used in `globalStyle`.
  */
-export const lightCssVariables = [
-  `--color-bg-placeholder-gradient: linear-gradient(
-    90deg,
-    ${theme.color.neutral[100]} 25%,
-    ${theme.color.neutral[200]} 75%,
-    ${theme.color.neutral[100]} 100%
-  );`,
-];
+export const lightCssVariables = css(
+  ({ theme }) => css`
+    --color-bg-placeholder-gradient: linear-gradient(
+      90deg,
+      ${theme.color.neutral[100]} 25%,
+      ${theme.color.neutral[200]} 75%,
+      ${theme.color.neutral[100]} 100%
+    );
+  `,
+);
 
 /**
  * Dark CSS variables that are used for the extended theme.
  * To be used in `globalStyle`.
  */
-export const darkCssVariables = [
-  `--color-bg-placeholder-gradient: linear-gradient(
-    90deg,
-    ${theme.color.neutral[800]} 25%,
-    ${theme.color.neutral[700]} 75%,
-    ${theme.color.neutral[800]} 100%
-  );`,
-];
+export const darkCssVariables = css(
+  ({ theme }) => css`
+    --color-bg-placeholder-gradient: linear-gradient(
+      90deg,
+      ${theme.color.neutral[800]} 25%,
+      ${theme.color.neutral[700]} 75%,
+      ${theme.color.neutral[800]} 100%
+    );
+  `,
+);

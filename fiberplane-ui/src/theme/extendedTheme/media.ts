@@ -1,5 +1,8 @@
 import { css } from "styled-components";
 
+/**
+ * Breakpoints for media queries, in pixels.
+ */
 export const BREAKPOINTS = {
   sm: 512,
   md: 768,

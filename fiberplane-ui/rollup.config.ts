@@ -50,7 +50,7 @@ export default defineConfig([
     plugins: [swc(defineRollupSwcOption({ sourceMaps: true })), dts()],
   },
   {
-    input: "src/theme/ThemeProvider.tsx",
+    input: "src/theme/index.ts",
     output: {
       file: "dist/theme/index.js",
       format: "es",
@@ -81,7 +81,7 @@ export default defineConfig([
     ],
   },
   {
-    input: "src/theme/ThemeProvider.tsx",
+    input: "src/theme/index.ts",
     output: { file: "dist/theme/index.d.ts", format: "es" },
     plugins: [dts()],
   },

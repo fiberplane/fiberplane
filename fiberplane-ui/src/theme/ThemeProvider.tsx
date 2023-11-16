@@ -8,6 +8,10 @@ type ThemeProviderProps = {
   children: React.ReactNode;
 };
 
+/**
+ * Fiberplane theme provider that includes the theme's CSS variables & typed
+ * theme object.
+ */
 export function ThemeProvider({ children }: ThemeProviderProps) {
   return (
     <StyledComponentsThemeProvider theme={extendedTheme}>
