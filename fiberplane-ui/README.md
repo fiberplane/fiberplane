@@ -13,7 +13,7 @@ function MyComponent() {
   return (
     <Button
       onClick={() => { /* your onClick handler... */ }}
-      buttonType="textButton"
+      asElement="link" /* React Router `Link` element */
       buttonStyle="secondary"
     >
       Click me!
