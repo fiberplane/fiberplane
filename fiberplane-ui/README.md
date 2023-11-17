@@ -2,7 +2,7 @@
 
 > Fiberplane UI library
 
-Contains UI elements for use in Fiberplane products.
+Contains ReactJS UI elements for use in Fiberplane products.
 
 ## Usage
 
@@ -13,7 +13,7 @@ function MyComponent() {
   return (
     <Button
       onClick={() => { /* your onClick handler... */ }}
-      asElement="link" /* React Router `Link` element */
+      buttonType="textButton"
       buttonStyle="secondary"
     >
       Click me!

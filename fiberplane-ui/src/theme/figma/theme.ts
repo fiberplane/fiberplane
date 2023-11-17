@@ -11,6 +11,9 @@ export const theme = {
         400: "var(--color-primary-grape-400)",
         500: "var(--color-primary-grape-500)",
         600: "var(--color-primary-grape-600)",
+        700: "var(--color-primary-grape-700)",
+        800: "var(--color-primary-grape-800)",
+        900: "var(--color-primary-grape-900)",
         alpha: {
           50: "var(--color-primary-grape-alpha-50)",
           100: "var(--color-primary-grape-alpha-100)",
@@ -36,11 +39,14 @@ export const theme = {
       alpha: {
         dark: {
           100: "var(--color-neutral-alpha-dark-100)",
+          200: "var(--color-neutral-alpha-dark-200)",
           300: "var(--color-neutral-alpha-dark-300)",
+          400: "var(--color-neutral-alpha-dark-400)",
         },
         light: {
           100: "var(--color-neutral-alpha-light-100)",
           200: "var(--color-neutral-alpha-light-200)",
+          300: "var(--color-neutral-alpha-light-300)",
           400: "var(--color-neutral-alpha-light-400)",
         },
       },
@@ -53,7 +59,10 @@ export const theme = {
         700: "var(--color-accent-magenta-700)",
         900: "var(--color-accent-magenta-900)",
         alpha: {
+          100: "var(--color-accent-magenta-alpha-100)",
+          200: "var(--color-accent-magenta-alpha-200)",
           300: "var(--color-accent-magenta-alpha-300)",
+          400: "var(--color-accent-magenta-alpha-400)",
         },
       },
       mustard: {
@@ -63,8 +72,10 @@ export const theme = {
         700: "var(--color-accent-mustard-700)",
         900: "var(--color-accent-mustard-900)",
         alpha: {
+          100: "var(--color-accent-mustard-alpha-100)",
           200: "var(--color-accent-mustard-alpha-200)",
           300: "var(--color-accent-mustard-alpha-300)",
+          400: "var(--color-accent-mustard-alpha-400)",
         },
       },
       rust: {
@@ -74,7 +85,10 @@ export const theme = {
         700: "var(--color-accent-rust-700)",
         900: "var(--color-accent-rust-900)",
         alpha: {
+          100: "var(--color-accent-rust-alpha-100)",
+          200: "var(--color-accent-rust-alpha-200)",
           300: "var(--color-accent-rust-alpha-300)",
+          400: "var(--color-accent-rust-alpha-400)",
         },
       },
     },
@@ -89,10 +103,13 @@ export const theme = {
         600: "var(--color-support-danger-600)",
         700: "var(--color-support-danger-700)",
         800: "var(--color-support-danger-800)",
+        900: "var(--color-support-danger-900)",
         alpha: {
           50: "var(--color-support-danger-alpha-50)",
+          100: "var(--color-support-danger-alpha-100)",
           200: "var(--color-support-danger-alpha-200)",
           300: "var(--color-support-danger-alpha-300)",
+          400: "var(--color-support-danger-alpha-400)",
         },
       },
       warning: {
@@ -105,17 +122,32 @@ export const theme = {
         600: "var(--color-support-warning-600)",
         700: "var(--color-support-warning-700)",
         800: "var(--color-support-warning-800)",
+        900: "var(--color-support-warning-900)",
         alpha: {
           50: "var(--color-support-warning-alpha-50)",
+          100: "var(--color-support-warning-alpha-100)",
+          200: "var(--color-support-warning-alpha-200)",
+          300: "var(--color-support-warning-alpha-300)",
+          400: "var(--color-support-warning-alpha-400)",
         },
       },
       success: {
         50: "var(--color-support-success-50)",
+        100: "var(--color-support-success-100)",
+        200: "var(--color-support-success-200)",
+        300: "var(--color-support-success-300)",
         400: "var(--color-support-success-400)",
         500: "var(--color-support-success-500)",
         600: "var(--color-support-success-600)",
+        700: "var(--color-support-success-700)",
+        800: "var(--color-support-success-800)",
+        900: "var(--color-support-success-900)",
         alpha: {
           50: "var(--color-support-success-alpha-50)",
+          100: "var(--color-support-success-alpha-100)",
+          200: "var(--color-support-success-alpha-200)",
+          300: "var(--color-support-success-alpha-300)",
+          400: "var(--color-support-success-alpha-400)",
         },
       },
     },
@@ -186,6 +218,14 @@ export const theme = {
         border: "var(--color-button-secondary-border)",
       },
     },
+    input: {
+      bg: "var(--color-input-bg)",
+      fg: {
+        input: "var(--color-input-fg-input)",
+        placeholder: "var(--color-input-fg-placeholder)",
+      },
+      border: "var(--color-input-border)",
+    },
     timeline: {
       firing: {
         bg: {
@@ -202,18 +242,18 @@ export const theme = {
         fg: "var(--color-timeline-pending-fg)",
       },
     },
-    input: {
-      bg: "var(--color-input-bg)",
-      fg: {
-        input: "var(--color-input-fg-input)",
-        placeholder: "var(--color-input-fg-placeholder)",
-      },
-      border: "var(--color-input-border)",
-    },
   },
   spacing: {
+    none: "var(--spacing-none)",
     xxs: "var(--spacing-xxs)",
     xs: "var(--spacing-xs)",
+    s: "var(--spacing-s)",
+    md: "var(--spacing-md)",
+    lg: "var(--spacing-lg)",
+    xl: "var(--spacing-xl)",
+    "2xl": "var(--spacing-2xl)",
+    "3xl": "var(--spacing-3xl)",
+    "4xl": "var(--spacing-4xl)",
   },
   radius: {
     none: "var(--radius-none)",

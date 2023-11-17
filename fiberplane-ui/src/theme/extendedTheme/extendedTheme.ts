@@ -1,5 +1,5 @@
-import { css } from "styled-components";
 import merge from "lodash.merge";
+import { css } from "styled-components";
 
 import { theme } from "../figma";
 import { media } from "./media";
