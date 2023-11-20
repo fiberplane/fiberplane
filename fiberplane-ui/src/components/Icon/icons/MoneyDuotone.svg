@@ -1,0 +1,27 @@
+<svg
+  width="20"
+  height="20"
+  viewBox="0 0 20 20"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    opacity="0.2"
+    d="M17 5C17.5523 5 18 5.44772 18 6L18 14C18 14.5523 17.5523 15 17 15L3 15C2.44771 15 2 14.5523 2 14L2 6C2 5.44771 2.44772 5 3 5L17 5Z"
+    fill="currentColor"
+    stroke="currentColor"
+    stroke-width="2"
+  />
+  <path
+    fill-rule="evenodd"
+    clip-rule="evenodd"
+    d="M13 10C13 11.6569 11.6569 13 10 13C8.34315 13 7 11.6569 7 10C7 8.34315 8.34315 7 10 7C11.6569 7 13 8.34315 13 10ZM11 10C11 10.5523 10.5523 11 10 11C9.44772 11 9 10.5523 9 10C9 9.44772 9.44772 9 10 9C10.5523 9 11 9.44772 11 10Z"
+    fill="currentColor"
+  />
+  <path
+    fill-rule="evenodd"
+    clip-rule="evenodd"
+    d="M17 4C18.1046 4 19 4.89543 19 6V14C19 15.1046 18.1046 16 17 16H3C1.89543 16 1 15.1046 1 14V6C1 4.89543 1.89543 4 3 4H17ZM15 8H17V12H15V14H5V12H3V8H5V6H15V8Z"
+    fill="currentColor"
+  />
+</svg>

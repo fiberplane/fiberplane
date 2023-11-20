@@ -11,8 +11,8 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist/",
-    "package.json",
-    "README.md"
+    "./package.json",
+    "./README.md"
   ],
   "dependencies": {
     "lodash.merge": "^4.6.2"
@@ -44,7 +44,7 @@
   },
   "scripts": {
     "build": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
-    "watch": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript --watch",
+    "watch": "yarn build --watch",
     "prepublishOnly": "yarn build",
     "type-check": "tsc -p tsconfig.json"
   },
