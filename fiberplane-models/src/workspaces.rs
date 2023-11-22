@@ -1,7 +1,9 @@
-use crate::data_sources::SelectedDataSources;
+use std::collections::HashMap;
+
 pub use crate::labels::Label;
 use crate::names::Name;
 use crate::timestamps::Timestamp;
+use crate::{data_sources::SelectedDataSources, front_matter_schemas::FrontMatterSchema};
 use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
@@ -10,7 +12,7 @@ use strum_macros::Display;
 use typed_builder::TypedBuilder;
 
 /// Workspace representation.
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -41,6 +43,9 @@ pub struct Workspace {
 
     #[builder(setter(into))]
     pub updated_at: Timestamp,
+
+    #[builder(default)]
+    pub front_matter_schemas: HashMap<String, FrontMatterSchema>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Display)]
@@ -96,7 +101,7 @@ pub struct WorkspaceInviteResponse {
 }
 
 /// Payload to create a new organization workspace.
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -115,6 +120,10 @@ pub struct NewWorkspace {
     #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub default_data_sources: Option<SelectedDataSources>,
+
+    #[builder(default, setter(strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub front_matter_schemas: Option<HashMap<String, FrontMatterSchema>>,
 }
 
 impl NewWorkspace {
@@ -123,12 +132,13 @@ impl NewWorkspace {
             name,
             display_name: None,
             default_data_sources: None,
+            front_matter_schemas: None,
         }
     }
 }
 
 /// Payload to update workspace settings
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -148,6 +158,10 @@ pub struct UpdateWorkspace {
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub default_data_sources: Option<SelectedDataSources>,
+
+    #[builder(default, setter(strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub front_matter_schemas: Option<HashMap<String, FrontMatterSchema>>,
 }
 
 /// Payload to update a workspace members' role
