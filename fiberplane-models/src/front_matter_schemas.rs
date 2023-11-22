@@ -9,7 +9,7 @@ use strum_macros::Display;
 use typed_builder::TypedBuilder;
 
 /// Front Matter Schema representation.
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, Default)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
