@@ -14,6 +14,7 @@ products, including but not limited to:
 - Providers
   - Provider Schemas
 - Comments
+- Front Matter Schemas
 - Rich-Text Formatting
 - Templates
 - Views

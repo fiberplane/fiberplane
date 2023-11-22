@@ -12,6 +12,7 @@ products, including but not limited to:
 - Providers
   - Provider Schemas
 - Comments
+- Front Matter Schemas
 - Rich-Text Formatting
 - Templates
 - Views
@@ -29,6 +30,7 @@ pub mod data_sources;
 pub mod events;
 pub mod files;
 pub mod formatting;
+pub mod front_matter_schemas;
 pub mod labels;
 pub mod names;
 pub mod notebooks;
