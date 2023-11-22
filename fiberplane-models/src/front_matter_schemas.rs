@@ -67,6 +67,9 @@ pub struct FrontMatterNumberSchema {
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_name: Option<String>,
+    // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
+    #[builder(setter(strip_bool))]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub multiple: bool,
     pub allow_extra_values: bool,
     #[builder(default, setter(into, strip_option))]
@@ -88,6 +91,9 @@ pub struct FrontMatterStringSchema {
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_name: Option<String>,
+    // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
+    #[builder(setter(strip_bool))]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub multiple: bool,
     pub allow_extra_values: bool,
     #[builder(default, setter(into, strip_option))]
@@ -106,6 +112,9 @@ pub struct FrontMatterDateTimeSchema {
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     icon_name: Option<String>,
+    // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
+    #[builder(setter(strip_bool))]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     multiple: bool,
     allow_extra_values: bool,
     #[builder(default, setter(into, strip_option))]
@@ -124,6 +133,9 @@ pub struct FrontMatterUserSchema {
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     icon_name: Option<String>,
+    // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
+    #[builder(setter(strip_bool))]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     multiple: bool,
     allow_extra_values: bool,
     #[builder(default, setter(into, strip_option))]

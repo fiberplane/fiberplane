@@ -388,7 +388,10 @@ impl NewTemplate {
         Self {
             name,
             description: description.into(),
-            front_matter_schema_names: front_matter_schema_names.iter().map(Into::into).collect(),
+            front_matter_schema_names: front_matter_schema_names
+                .into_iter()
+                .map(|name| String::from(name).into())
+                .collect(),
             body: body.into(),
         }
     }
