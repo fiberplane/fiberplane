@@ -372,7 +372,7 @@ pub struct NewTemplate {
     pub description: String,
 
     #[builder(default)]
-    pub front_matter_schema_names: Vec<Name>,
+    pub front_matter_schema_names: Vec<String>,
 
     #[builder(setter(into))]
     pub body: String,
@@ -382,7 +382,7 @@ impl NewTemplate {
     pub fn new(
         name: Name,
         description: impl Into<String>,
-        front_matter_schema_names: &[impl Into<String>],
+        front_matter_schema_names: &[impl ToString],
         body: impl Into<String>,
     ) -> Self {
         Self {
@@ -390,7 +390,7 @@ impl NewTemplate {
             description: description.into(),
             front_matter_schema_names: front_matter_schema_names
                 .into_iter()
-                .map(|name| String::from(name).into())
+                .map(ToString::to_string)
                 .collect(),
             body: body.into(),
         }
