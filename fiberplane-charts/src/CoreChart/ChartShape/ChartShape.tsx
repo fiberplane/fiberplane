@@ -9,11 +9,27 @@ type Props<P> = CommonShapeProps & { shape: Shape<P> };
 
 export function ChartShape<P>({ shape, ...props }: Props<P>): JSX.Element {
   switch (shape.type) {
-    case "area":
-      return <AreaShape area={shape} {...props} />;
+    case "area": {
+      const { areaGradientShown, ...areaProps } = props;
+      return (
+        <AreaShape
+          area={shape}
+          areaGradientShown={shape.areaGradientShown ?? areaGradientShown}
+          {...areaProps}
+        />
+      );
+    }
 
-    case "line":
-      return <LineShape line={shape} {...props} />;
+    case "line": {
+      const { areaGradientShown, ...lineProps } = props;
+      return (
+        <LineShape
+          line={shape}
+          areaGradientShown={shape.areaGradientShown ?? areaGradientShown}
+          {...lineProps}
+        />
+      );
+    }
 
     case "point":
       return <PointShape point={shape} {...props} />;

@@ -171,6 +171,11 @@ export type Area<P> = {
   points: Array<AreaPoint<P>>;
 
   /**
+   * Optional boolean that allows for overriding the areaGradientShown property on the CoreChart per individual Area
+   */
+  areaGradientShown?: boolean;
+
+  /**
    * Optional array specifying the pattern of dashes and gaps used to draw the
    * outline surrounding the area.
    *
@@ -217,6 +222,11 @@ export type AreaPoint<P> = {
  */
 export type Line<P> = {
   points: Array<Point<P>>;
+
+  /**
+   * Optional boolean that allows for overriding the areaGradientShown property on the CoreChart per individual Line
+   */
+  areaGradientShown?: boolean;
 
   /**
    * Optional array specifying the pattern of dashes and gaps used to draw the
