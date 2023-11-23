@@ -94,7 +94,7 @@ pub struct FrontMatterNumberSchema {
     pub allow_extra_values: bool,
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub options: Option<Vec<FrontMatterEnumValue<f64>>>,
+    pub options: Option<Vec<FrontMatterEnumNumberValue>>,
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit: Option<String>,
@@ -118,7 +118,7 @@ pub struct FrontMatterStringSchema {
     pub allow_extra_values: bool,
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub options: Option<Vec<FrontMatterEnumValue<String>>>,
+    pub options: Option<Vec<FrontMatterEnumStringValue>>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
@@ -139,7 +139,7 @@ pub struct FrontMatterDateTimeSchema {
     allow_extra_values: bool,
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
-    options: Option<Vec<FrontMatterEnumValue<Timestamp>>>,
+    options: Option<Vec<FrontMatterEnumDateTimeValue>>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
@@ -160,7 +160,52 @@ pub struct FrontMatterUserSchema {
     allow_extra_values: bool,
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
-    options: Option<Vec<FrontMatterEnumValue<Base64Uuid>>>,
+    options: Option<Vec<FrontMatterEnumBase64UuidValue>>,
+}
+
+// NOTE: The cleaner way would be to have a generic type FrontMatterEnumValue<T>,
+// but it's impossible to _conditionnally_ add the `Serializable` trait bound on
+// the inner type T only when there is the "fp-bindgen" feature.
+
+// NOTE: The reason those are struct (new types) instead of "just" being the
+// inner value is because we are already thinking of adding extra properties (like "color")
+// to the known options of an enumeration
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::front_matter_schemas")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct FrontMatterEnumBase64UuidValue {
+    value: Base64Uuid,
+}
+impl From<Base64Uuid> for FrontMatterEnumBase64UuidValue {
+    fn from(value: Base64Uuid) -> Self {
+        Self { value }
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::front_matter_schemas")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct FrontMatterEnumStringValue {
+    value: String,
+}
+
+impl<T: Into<String>> From<T> for FrontMatterEnumStringValue {
+    fn from(value: T) -> Self {
+        Self {
+            value: value.into(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
@@ -171,9 +216,32 @@ pub struct FrontMatterUserSchema {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct FrontMatterEnumValue<T>
-where
-    T: Serialize + 'static + PartialEq + Clone + std::fmt::Debug,
-{
-    value: T,
+pub struct FrontMatterEnumNumberValue {
+    value: f64,
+}
+impl<T: Into<f64>> From<T> for FrontMatterEnumNumberValue {
+    fn from(value: T) -> Self {
+        Self {
+            value: value.into(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::front_matter_schemas")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct FrontMatterEnumDateTimeValue {
+    value: Timestamp,
+}
+impl<T: Into<Timestamp>> From<T> for FrontMatterEnumDateTimeValue {
+    fn from(value: T) -> Self {
+        Self {
+            value: value.into(),
+        }
+    }
 }
