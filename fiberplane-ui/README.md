@@ -2,7 +2,7 @@
 
 > Fiberplane UI library
 
-Contains UI elements for use in Fiberplane products.
+Contains ReactJS UI elements for use in Fiberplane products.
 
 ## Usage
 

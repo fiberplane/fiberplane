@@ -38,6 +38,7 @@
   },
   "scripts": {
     "build": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
+    "watch": "yarn run build --watch",
     "lint": "cd .. && yarn lint",
     "test": "jest",
     "test-dist": "test ! -d dist",

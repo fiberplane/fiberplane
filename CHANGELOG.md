@@ -19,6 +19,8 @@ major version hasn't changed.
   zooming/dragging to facilitate a more experimental graph (alert timeline)
 - `@fiberplane/ui`: Add initial setup component library & add `Button` component
 - `@fiberplane/ui`: Add `Input` components
+- `@fiberplane/ui`: Add `ThemeProvider`
+- `@fiberplane/ui`: Add `Icon` component
 
 ## [v1.0.0-beta.6] - 2023-10-20
 

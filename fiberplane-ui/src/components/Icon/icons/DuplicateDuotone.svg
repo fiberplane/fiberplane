@@ -1,0 +1,28 @@
+<svg
+  width="20"
+  height="20"
+  viewBox="0 0 20 20"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect
+    opacity="0.2"
+    x="5"
+    y="3"
+    width="12"
+    height="12"
+    rx="2"
+    fill="currentColor"
+  />
+  <path
+    d="M4 18C2.89543 18 2 17.1046 2 16L2 5C2 3.89543 2.89543 3 4 3L4 16.001L17 16.001C17 17.1055 16.1046 18.001 15 18.001L4 18Z"
+    fill="currentColor"
+  />
+  <path d="M12 6H10V8H8V10H10V12H12V10H14V8H12V6Z" fill="currentColor" />
+  <path
+    fill-rule="evenodd"
+    clip-rule="evenodd"
+    d="M7 3C5.89543 3 5 3.89543 5 5V13C5 14.1046 5.89543 15 7 15H15C16.1046 15 17 14.1046 17 13V5C17 3.89543 16.1046 3 15 3H7ZM15 5H7V13H15V5Z"
+    fill="currentColor"
+  />
+</svg>

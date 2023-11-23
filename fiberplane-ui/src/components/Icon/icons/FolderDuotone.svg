@@ -1,0 +1,13 @@
+<svg
+  width="20"
+  height="20"
+  viewBox="0 0 20 20"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M16 16L4 16L4 6L18 6C18 4.89543 17.1046 4 16 4L8 4C8 2.89543 7.10457 2 6 2L4 2C2.89543 2 2 2.89543 2 4L2 16C2 17.1046 2.89543 18 4 18L16 18C17.1042 18 17.9993 17.1052 18 16.0012L18 6.00122L16 4.77748V16Z"
+    fill="currentColor"
+  />
+  <rect opacity="0.2" x="4" y="6" width="12" height="10" fill="currentColor" />
+</svg>

@@ -1,0 +1,23 @@
+<svg
+  width="20"
+  height="20"
+  viewBox="0 0 20 20"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect
+    opacity="0.2"
+    x="2"
+    y="2"
+    width="16"
+    height="16"
+    rx="2"
+    fill="currentColor"
+  />
+  <path d="M4 4H13V6H4V4Z" fill="currentColor" />
+  <path d="M4 7H16V9H4V7Z" fill="currentColor" />
+  <path d="M6 10H4V12H6V10Z" fill="currentColor" />
+  <path d="M15 10H7V12H15V10Z" fill="currentColor" />
+  <path d="M10 15V13H4V15H10Z" fill="currentColor" />
+  <path d="M16 4H14V6H16V4Z" fill="currentColor" />
+</svg>
