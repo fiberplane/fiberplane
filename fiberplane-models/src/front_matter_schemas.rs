@@ -16,7 +16,7 @@ use typed_builder::TypedBuilder;
     derive(Serializable),
     fp(rust_module = "fiberplane_models::front_matter_schemas")
 )]
-#[serde(transparent)]
+#[repr(transparent)]
 pub struct FrontMatterSchema(Vec<FrontMatterSchemaEntry>);
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
