@@ -1,0 +1,19 @@
+<svg
+  width="20"
+  height="20"
+  viewBox="0 0 20 20"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    opacity="0.2"
+    d="M16 2C17.1046 2 18 2.89543 18 4L18 16C18 17.1046 17.1046 18 16 18L6 18C4.89543 18 4 17.1046 4 16L4 4C4 2.89543 4.89543 2 6 2L16 2Z"
+    fill="currentColor"
+  />
+  <path
+    fill-rule="evenodd"
+    clip-rule="evenodd"
+    d="M16 2C17.1046 2 18 2.89543 18 4V16C18 17.1046 17.1046 18 16 18H6C4.89543 18 4 17.1046 4 16H2V14H4V11H2V9H4V6H2V4L4 4C4 2.89543 4.89543 2 6 2L16 2ZM16 4V16H6L6 4L16 4Z"
+    fill="currentColor"
+  />
+</svg>

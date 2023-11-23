@@ -1,0 +1,18 @@
+<svg
+  width="20"
+  height="20"
+  viewBox="0 0 20 20"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect
+    opacity="0.2"
+    x="2"
+    y="2"
+    width="16"
+    height="16"
+    rx="2"
+    fill="currentColor"
+  />
+  <path d="M11 5H9V9H5V11H9V15H11V11H15V9H11V5Z" fill="currentColor" />
+</svg>

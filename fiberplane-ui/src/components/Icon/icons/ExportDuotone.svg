@@ -1,0 +1,33 @@
+<svg
+  width="20"
+  height="20"
+  viewBox="0 0 20 20"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <g>
+    <rect
+      id="Vector"
+      opacity="0.2"
+      x="4"
+      y="7"
+      width="12"
+      height="9"
+      fill="currentColor"
+    />
+    <g id="Vector_2">
+      <path
+        d="M11 3.99851L12.0009 5.00168L13.0009 4.00186L10.0022 1L10.0038 3.00003L10.0057 3.00195H9.99991L10.0009 1.00186L7 4.00186L8.00086 5.00186L9 4.00229V12.002H11V3.99851Z"
+        fill="currentColor"
+      />
+      <path
+        d="M18 16.0002C17.9999 17.1047 17.1045 18 16 18H4C2.89543 18 2 17.1046 2 16V7C2 5.89543 2.89543 5 4 5H6V7H4V16H16V7.00024H18L18 16.0002Z"
+        fill="currentColor"
+      />
+      <path
+        d="M14 5L16 5C17.1046 5 18 5.89568 18 7.00024L14 7L14 5Z"
+        fill="currentColor"
+      />
+    </g>
+  </g>
+</svg>
