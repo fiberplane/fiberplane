@@ -84,6 +84,8 @@ impl From<FrontMatterNumberSchema> for FrontMatterValueSchema {
 )]
 #[non_exhaustive]
 pub struct FrontMatterNumberSchema {
+    #[builder(default, setter(into))]
+    pub display_name: String,
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_name: Option<String>,
@@ -97,7 +99,13 @@ pub struct FrontMatterNumberSchema {
     pub options: Option<Vec<FrontMatterEnumNumberValue>>,
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub unit: Option<String>,
+    pub default_value: Option<FrontMatterEnumNumberValue>,
+    #[builder(default, setter(into, strip_option))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prefix: Option<String>,
+    #[builder(default, setter(into, strip_option))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub suffix: Option<String>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
@@ -108,6 +116,8 @@ pub struct FrontMatterNumberSchema {
 )]
 #[non_exhaustive]
 pub struct FrontMatterStringSchema {
+    #[builder(default, setter(into))]
+    pub display_name: String,
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_name: Option<String>,
@@ -119,6 +129,9 @@ pub struct FrontMatterStringSchema {
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<Vec<FrontMatterEnumStringValue>>,
+    #[builder(default, setter(into, strip_option))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default_value: Option<FrontMatterEnumStringValue>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
@@ -129,17 +142,22 @@ pub struct FrontMatterStringSchema {
 )]
 #[non_exhaustive]
 pub struct FrontMatterDateTimeSchema {
+    #[builder(default, setter(into))]
+    pub display_name: String,
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
-    icon_name: Option<String>,
+    pub icon_name: Option<String>,
     // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    multiple: bool,
-    allow_extra_values: bool,
+    pub multiple: bool,
+    pub allow_extra_values: bool,
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
-    options: Option<Vec<FrontMatterEnumDateTimeValue>>,
+    pub options: Option<Vec<FrontMatterEnumDateTimeValue>>,
+    #[builder(default, setter(into, strip_option))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default_value: Option<FrontMatterEnumDateTimeValue>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
@@ -150,17 +168,22 @@ pub struct FrontMatterDateTimeSchema {
 )]
 #[non_exhaustive]
 pub struct FrontMatterUserSchema {
+    #[builder(default, setter(into))]
+    pub display_name: String,
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
-    icon_name: Option<String>,
+    pub icon_name: Option<String>,
     // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    multiple: bool,
-    allow_extra_values: bool,
+    pub multiple: bool,
+    pub allow_extra_values: bool,
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
-    options: Option<Vec<FrontMatterEnumBase64UuidValue>>,
+    pub options: Option<Vec<FrontMatterEnumBase64UuidValue>>,
+    #[builder(default, setter(into, strip_option))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default_value: Option<FrontMatterEnumBase64UuidValue>,
 }
 
 // NOTE: The cleaner way would be to have a generic type FrontMatterEnumValue<T>,
