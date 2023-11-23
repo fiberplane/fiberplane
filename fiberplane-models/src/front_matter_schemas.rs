@@ -9,13 +9,35 @@ use strum_macros::Display;
 use typed_builder::TypedBuilder;
 
 /// Front Matter Schema representation.
+///
+/// The order of the elements in the schema drives the order of
+/// rendering elements.
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, Default)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
     fp(rust_module = "fiberplane_models::front_matter_schemas")
 )]
-pub struct FrontMatterSchema(HashMap<String, FrontMatterValueSchema>);
+#[serde(transparent)]
+pub struct FrontMatterSchema(Vec<FrontMatterSchemaEntry>);
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::front_matter_schemas")
+)]
+#[non_exhaustive]
+pub struct FrontMatterSchemaEntry {
+    /// The key to use to target the front matter value in a notebook storage (Notebook::frontmatter).
+    ///
+    /// Currently, this key is also used to decide the "display" name of the front matter key
+    #[builder(setter(into))]
+    pub key: String,
+
+    #[builder(setter(into))]
+    pub schema: FrontMatterValueSchema,
+}
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, Display)]
 #[cfg_attr(
