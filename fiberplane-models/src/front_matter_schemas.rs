@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::timestamps::Timestamp;
 use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]

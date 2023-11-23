@@ -1,10 +1,12 @@
 use crate::data_sources::SelectedDataSource;
 use crate::formatting::Formatting;
+use crate::front_matter_schemas::FrontMatterValueSchema;
 use crate::notebooks::{Cell, FrontMatter, Label};
 use crate::timestamps::TimeRange;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::*;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use typed_builder::TypedBuilder;
 
 /// An operation is the representation for a mutation to be performed to a notebook.
@@ -34,6 +36,11 @@ pub enum Operation {
     RemoveLabel(RemoveLabelOperation),
     UpdateFrontMatter(UpdateFrontMatterOperation),
     ClearFrontMatter(ClearFrontMatterOperation),
+    AddFrontMatterKey(AddFrontMatterKeyOperation),
+    UpdateFrontMatterKey(UpdateFrontMatterKeyOperation),
+    UpdateFrontMatterValue(UpdateFrontMatterValueOperation),
+    MoveFrontMatterKey(MoveFrontMatterKeyOperation),
+    RemoveFrontMatterKey(RemoveFrontMatterKeyOperation),
 }
 
 /// Moves one or more cells.
@@ -423,6 +430,86 @@ pub struct UpdateFrontMatterOperation {
 #[serde(rename_all = "camelCase")]
 pub struct ClearFrontMatterOperation {
     pub front_matter: FrontMatter,
+}
+
+/// Adds a front matter key in a notebook (at the end)
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::operations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct AddFrontMatterKeyOperation {
+    #[builder(setter(into))]
+    pub key: String,
+    #[builder(setter(into))]
+    pub schema: FrontMatterValueSchema,
+}
+
+/// Changes the expected schema of a front matter key in a notebook
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::operations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateFrontMatterKeyOperation {
+    #[builder(setter(into))]
+    pub key: String,
+    #[builder(setter(into))]
+    pub old_schema: FrontMatterValueSchema,
+    #[builder(setter(into))]
+    pub new_schema: FrontMatterValueSchema,
+}
+
+/// Changes the _value_ of a front matter entry in a notebook
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::operations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateFrontMatterValueOperation {
+    pub key: String,
+    pub old_value: Value,
+    pub new_value: Value,
+}
+
+/// Moves a front matter entry in a notebook
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::operations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct MoveFrontMatterKeyOperation {
+    pub key: String,
+    /// Index the key will be moved from. This is the index of the front matter key before the move.
+    pub from_index: u32,
+    /// Index the key will be moved to. This is the index of the front matter key after the move.
+    pub to_index: u32,
+}
+
+/// Removes a front matter key in a notebook
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::operations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct RemoveFrontMatterKeyOperation {
+    pub key: String,
+    pub old_value: Value,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
