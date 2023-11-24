@@ -12,12 +12,7 @@ export default defineConfig([
       sourcemap: true,
       compact: true,
     },
-    external: [
-      "react-router-dom",
-      "react",
-      "react/jsx-runtime",
-      "styled-components",
-    ],
+    external: ["react", "react/jsx-runtime", "styled-components"],
     plugins: [
       svgr({
         svgoConfig: {
