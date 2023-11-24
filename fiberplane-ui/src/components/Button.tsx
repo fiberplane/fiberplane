@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 type ButtonStyle = "primary" | "secondary" | "tertiary-color" | "tertiary-grey";
 
-type ButtonStyleProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+export type ButtonStyleProps = {
   buttonStyle?: ButtonStyle;
   buttonType?: "button" | "textButton";
 };
@@ -43,7 +43,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   },
 );
 
-type StyledButtonTransientProps = {
+export type StyledButtonTransientProps = {
   $buttonStyle: ButtonStyle;
 };
 
