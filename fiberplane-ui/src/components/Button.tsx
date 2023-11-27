@@ -1,5 +1,5 @@
 import React, { forwardRef } from "react";
-import styled, { css } from "styled-components";
+import { css, styled } from "styled-components";
 
 type ButtonStyle = "primary" | "secondary" | "tertiary-color" | "tertiary-grey";
 
