@@ -49,6 +49,8 @@ pub enum ClientRealtimeMessage {
 
     /// Unsubscribe from workspace activities
     UnsubscribeWorkspace(UnsubscribeWorkspaceMessage),
+
+    ChatMessage(ChatMessage),
 }
 
 impl ClientRealtimeMessage {
@@ -65,6 +67,7 @@ impl ClientRealtimeMessage {
             UserTypingComment(msg) => &msg.op_id,
             SubscribeWorkspace(msg) => &msg.op_id,
             UnsubscribeWorkspace(msg) => &msg.op_id,
+            ChatMessage(msg) => &msg.op_id,
         }
     }
 }
@@ -89,6 +92,8 @@ pub enum ServerRealtimeMessage {
     /// An Err message will be sent once an operation is received, but could not
     /// be processed. It includes the op_id if that was present.
     Err(ErrMessage),
+
+    ChatMessageAdded(ChatMessageAddedMessage),
 
     /// Response from a DebugRequest. Contains some useful data regarding the
     /// connection.
@@ -164,6 +169,30 @@ impl Debug for AuthenticateMessage {
             .field("op_id", &self.op_id)
             .finish()
     }
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::realtime")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct ChatMessage {
+    /// ID of the notebook.
+    #[builder(setter(into))]
+    pub notebook_id: String,
+
+    /// Operation ID.
+    ///
+    /// Only messages with an operation ID will receive an `Ack` from the
+    /// server.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub op_id: Option<String>,
+
+    #[builder(default, setter(into))]
+    pub message: String,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -777,6 +806,31 @@ pub struct SubscriberChangedFocusMessage {
     /// User's focus within the notebook.
     #[serde(default)]
     pub focus: NotebookFocus,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::realtime")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct ChatMessageAddedMessage {
+    /// ID of the session.
+    // #[builder(setter(into))]
+    // pub session_id: String,
+
+    /// The moment the session was created.
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+
+    pub notebook_id: String,
+
+    pub message: String,
+
+    /// User details associated with the session.
+    pub user: User,
 }
 
 /// A single focus position within a notebook.
