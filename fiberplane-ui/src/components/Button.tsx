@@ -55,8 +55,10 @@ const StyledTextButton = styled.button<StyledButtonTransientProps>(
 );
 
 export const buttonStyling = css<StyledButtonTransientProps>(
-  ({ $buttonStyle, theme }) =>
-    css`
+  ({ $buttonStyle, theme }) => {
+    const buttonStyle = getButtonStyle($buttonStyle);
+
+    return css`
       /* reset default button styles */
       background: none;
       border: none;
@@ -79,7 +81,7 @@ export const buttonStyling = css<StyledButtonTransientProps>(
       transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out,
         border-color 0.2s ease-in-out, box-shadow 0.1s ease-in-out 0.05s;
 
-      ${getButtonStyle($buttonStyle)}
+      ${buttonStyle}
 
       &:focus,
       &:hover,
@@ -95,7 +97,8 @@ export const buttonStyling = css<StyledButtonTransientProps>(
       &:focus-visible {
         box-shadow: ${theme.effect.focus.primary};
       }
-    `,
+    `;
+  },
 );
 
 export const textButtonStyling = css<StyledButtonTransientProps>(
