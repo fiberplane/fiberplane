@@ -23,6 +23,7 @@ use serde::de::{Error, Unexpected, Visitor};
 use serde::{Deserialize, Deserializer};
 use std::fmt;
 
+pub mod autometrics;
 pub mod blobs;
 pub mod comments;
 pub mod data_sources;
