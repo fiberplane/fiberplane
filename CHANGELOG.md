@@ -14,6 +14,7 @@ _compatible with_ SemVer, i.e. they will not contain breaking changes if the
 major version hasn't changed.
 
 ## [v1.0.0-beta.7] - TBD
+
 - `fiberplane-charts`: Export some util function and components related to 
   zooming/dragging to facilitate a more experimental graph (alert timeline)
 - `@fiberplane/ui`: Add initial setup component library & add `Button` component
