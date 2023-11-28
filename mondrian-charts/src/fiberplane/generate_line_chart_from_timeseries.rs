@@ -72,6 +72,7 @@ fn create_shapes<'source>(
                         Shape::Point(create_point_for_metric(line[0], x_axis, y_axis))
                     } else {
                         Shape::Line(Line {
+                            area_gradient_shown: None,
                             points: line
                                 .into_iter()
                                 .map(|metric| create_point_for_metric(metric, x_axis, y_axis))

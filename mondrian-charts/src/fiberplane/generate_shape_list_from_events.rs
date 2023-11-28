@@ -11,6 +11,7 @@ pub(crate) fn generate_shape_list_from_events<'source>(
             .iter()
             .map(|event| {
                 Shape::Area(Area {
+                    area_gradient_shown: None,
                     points: vec![AreaPoint {
                         x: normalize_along_linear_axis(get_time_from_timestamp(event.time), x_axis),
                         y_min: 0.,
