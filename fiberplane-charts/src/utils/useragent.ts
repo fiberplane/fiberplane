@@ -1,6 +1,14 @@
-const os =
-  typeof navigator === "undefined"
-    ? ""
-    : navigator.platform.match(/mac|win|linux/i)?.[0]?.toLowerCase();
+let isMac = false;
 
-export const isMac = os === "mac";
+if (typeof navigator !== "undefined") {
+  const { platform } = navigator;
+  if (
+    platform?.startsWith("Mac") ||
+    platform?.startsWith("iPhone") ||
+    platform?.startsWith("iPad")
+  ) {
+    isMac = true;
+  }
+}
+
+export { isMac };
