@@ -19,6 +19,7 @@ products, including but not limited to:
 
 */
 
+use fp_bindgen::prelude::Serializable;
 use serde::de::{Error, Unexpected, Visitor};
 use serde::{Deserialize, Deserializer};
 use std::fmt;
@@ -56,6 +57,12 @@ fn debug_print_bytes(bytes: impl AsRef<[u8]>) -> String {
         String::from_utf8_lossy(bytes).to_string()
     }
 }
+
+#[cfg(feature = "fp-bindgen")]
+pub trait MaybeSerializable: Serializable {}
+
+#[cfg(not(feature = "fp-bindgen"))]
+pub trait MaybeSerializable {}
 
 /// Any value that is present is considered Some value, including null
 // https://github.com/serde-rs/serde/issues/984#issuecomment-314143738

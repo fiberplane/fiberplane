@@ -1,3 +1,4 @@
+use crate::MaybeSerializable;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
@@ -187,12 +188,12 @@ pub enum AutometricsFunctionCallResult {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct AutometricsFunctionsResponse {
+pub struct PrometheusResponse<T: Clone + Eq + Serialize + MaybeSerializable> {
     #[builder(setter(into))]
     pub status: PrometheusResponseStatus,
 
     #[builder(setter(into))]
-    pub data: Vec<AutometricsFunction>,
+    pub data: Vec<T>,
 }
 
 /// Status reported by Prometheus.
