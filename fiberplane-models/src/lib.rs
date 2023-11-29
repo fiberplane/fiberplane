@@ -65,6 +65,8 @@ pub trait MaybeSerializable: Serializable {}
 #[cfg(not(feature = "fp-bindgen"))]
 pub trait MaybeSerializable {}
 
+impl<T: MaybeSerializable> MaybeSerializable for Vec<T> {}
+
 /// Any value that is present is considered Some value, including null
 // https://github.com/serde-rs/serde/issues/984#issuecomment-314143738
 pub(crate) fn deserialize_some<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>

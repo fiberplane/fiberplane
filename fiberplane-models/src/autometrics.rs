@@ -199,7 +199,7 @@ pub struct PrometheusResponse<T: Clone + PartialEq + Serialize + MaybeSerializab
     pub status: PrometheusResponseStatus,
 
     #[builder(setter(into))]
-    pub data: Vec<T>,
+    pub data: T,
 }
 
 /// Status reported by Prometheus.
