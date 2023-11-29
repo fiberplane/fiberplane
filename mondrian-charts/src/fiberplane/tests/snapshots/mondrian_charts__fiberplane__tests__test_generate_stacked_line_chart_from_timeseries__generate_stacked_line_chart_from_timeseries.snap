@@ -48,6 +48,7 @@ shapeLists:
               attributes: {}
               resource: {}
               value: 20
+        areaGradientShown: ~
       - type: area
         points:
           - x: 0.4
@@ -98,6 +99,7 @@ shapeLists:
               attributes: {}
               resource: {}
               value: 10
+        areaGradientShown: ~
     source:
       name: dummy_data
       labels:
@@ -225,6 +227,7 @@ shapeLists:
               attributes: {}
               resource: {}
               value: 70
+        areaGradientShown: ~
     source:
       name: dummy_data
       labels:

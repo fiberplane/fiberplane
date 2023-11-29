@@ -169,6 +169,7 @@ impl<'source> From<Shape<&'source Metric>> for Shape<PointSource<'source>> {
 impl<'source> From<Area<&'source Metric>> for Area<PointSource<'source>> {
     fn from(value: Area<&'source Metric>) -> Self {
         Self {
+            area_gradient_shown: None,
             points: value.points.into_iter().map(AreaPoint::into).collect(),
         }
     }
@@ -188,6 +189,7 @@ impl<'source> From<AreaPoint<&'source Metric>> for AreaPoint<PointSource<'source
 impl<'source> From<Line<&'source Metric>> for Line<PointSource<'source>> {
     fn from(value: Line<&'source Metric>) -> Self {
         Self {
+            area_gradient_shown: None,
             points: value.points.into_iter().map(Point::into).collect(),
         }
     }

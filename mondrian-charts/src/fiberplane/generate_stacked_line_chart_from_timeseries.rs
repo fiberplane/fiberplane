@@ -64,6 +64,7 @@ fn create_shapes<'source>(
         .iter()
         .map(|line| {
             Shape::Area(Area {
+                area_gradient_shown: None,
                 points: line
                     .iter()
                     .filter_map(|metric| create_point_for_metric(metric, args))
