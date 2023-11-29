@@ -22,6 +22,7 @@ major version hasn't changed.
 - `@fiberplane/ui`: Add `ThemeProvider`
 - `@fiberplane/ui`: Add `Icon` component
 - `@fiberplane/ui`: Upgrade `styled-components` to v6 & simplify `Button`
+- `@fiberplane/ui`: Add webhooks icon & expose icon type guard
 
 ## [v1.0.0-beta.6] - 2023-10-20
 
