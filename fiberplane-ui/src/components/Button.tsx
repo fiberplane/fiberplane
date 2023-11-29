@@ -1,62 +1,27 @@
-import { forwardRef } from "react";
-import { Link, NavLink } from "react-router-dom";
-import styled, {
-  type DefaultTheme,
-  type StyledComponent,
-  css,
-} from "styled-components";
+import React, { forwardRef } from "react";
+import { css, styled } from "styled-components";
 
 type ButtonStyle = "primary" | "secondary" | "tertiary-color" | "tertiary-grey";
 
-type ButtonStyleProps = {
+export type ButtonStyleProps = {
   buttonStyle?: ButtonStyle;
+  buttonType?: "button" | "textButton";
 };
 
-type AsButton = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  asElement?: "button";
-};
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
+  ButtonStyleProps;
 
-type AsTextButton = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  asElement: "textButton";
-};
-
-type AsLink = React.ComponentProps<typeof StyledLink> & {
-  asElement: "link";
-};
-
-type AsNavLink = React.ComponentProps<typeof NavLink> & {
-  asElement: "navLink";
-};
-
-type AsAnchor = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
-  asElement: "externalLink";
-};
-
-type ButtonTypeProps = AsButton | AsTextButton | AsLink | AsNavLink | AsAnchor;
-
-type ButtonProps = ButtonTypeProps & ButtonStyleProps;
-
-type Button = React.ForwardRefExoticComponent<
-  React.PropsWithoutRef<ButtonProps> & React.RefAttributes<HTMLElement>
->;
-
-export const Button: Button = forwardRef<HTMLElement, ButtonProps>(
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   function Button(
     {
       children,
       buttonStyle = "primary",
-      asElement = "button",
+      buttonType = "button",
       ...elementProps
     },
     ref,
   ) {
-    switch (asElement) {
-      case "button":
-        return (
-          <StyledButton ref={ref} $buttonStyle={buttonStyle} {...elementProps}>
-            {children}
-          </StyledButton>
-        );
+    switch (buttonType) {
       case "textButton":
         return (
           <StyledTextButton
@@ -67,26 +32,10 @@ export const Button: Button = forwardRef<HTMLElement, ButtonProps>(
             {children}
           </StyledTextButton>
         );
-      case "link":
+
+      default:
         return (
-          <StyledLink ref={ref} $buttonStyle={buttonStyle} {...elementProps}>
-            {children}
-          </StyledLink>
-        );
-      case "navLink":
-        return (
-          <StyledNavLink ref={ref} $buttonStyle={buttonStyle} {...elementProps}>
-            {children}
-          </StyledNavLink>
-        );
-      case "externalLink":
-        return (
-          <StyledButton
-            ref={ref}
-            as="a"
-            $buttonStyle={buttonStyle}
-            {...elementProps}
-          >
+          <StyledButton ref={ref} $buttonStyle={buttonStyle} {...elementProps}>
             {children}
           </StyledButton>
         );
@@ -94,13 +43,22 @@ export const Button: Button = forwardRef<HTMLElement, ButtonProps>(
   },
 );
 
-type ButtonSCProps = {
+export type StyledButtonTransientProps = {
   $buttonStyle: ButtonStyle;
 };
 
-export const buttonStyling = css<ButtonSCProps>(
-  ({ $buttonStyle, theme }) =>
-    css`
+const StyledButton = styled.button<StyledButtonTransientProps>(
+  () => buttonStyling,
+);
+const StyledTextButton = styled.button<StyledButtonTransientProps>(
+  () => textButtonStyling,
+);
+
+export const buttonStyling = css<StyledButtonTransientProps>(
+  ({ $buttonStyle, theme }) => {
+    const buttonStyle = getButtonStyle($buttonStyle);
+
+    return css`
       /* reset default button styles */
       background: none;
       border: none;
@@ -123,7 +81,7 @@ export const buttonStyling = css<ButtonSCProps>(
       transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out,
         border-color 0.2s ease-in-out, box-shadow 0.1s ease-in-out 0.05s;
 
-      ${getButtonStyle($buttonStyle)}
+      ${buttonStyle}
 
       &:focus,
       &:hover,
@@ -139,30 +97,13 @@ export const buttonStyling = css<ButtonSCProps>(
       &:focus-visible {
         box-shadow: ${theme.effect.focus.primary};
       }
-    `,
+    `;
+  },
 );
 
-const StyledButton = styled.button<ButtonSCProps>`
-  ${buttonStyling}
-`;
-
-type StyledLink = StyledComponent<
-  typeof Link,
-  DefaultTheme,
-  ButtonSCProps,
-  never
->;
-const StyledLink: StyledLink = styled(Link)<ButtonSCProps>`
-  ${buttonStyling}
-`;
-
-const StyledNavLink = styled(NavLink)<ButtonSCProps>`
-  ${buttonStyling}
-`;
-
-const StyledTextButton = styled.button<ButtonSCProps>(
+export const textButtonStyling = css<StyledButtonTransientProps>(
   ({ $buttonStyle, theme }) =>
-    css`
+    css<StyledButtonTransientProps>`
       ${buttonStyling}
 
       padding: 4px;

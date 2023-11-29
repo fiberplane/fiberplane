@@ -1,6 +1,6 @@
 import { useContext, useMemo, useRef } from "react";
 import { VariableSizeList } from "react-window";
-import styled, { css } from "styled-components";
+import { css, styled } from "styled-components";
 
 import { Container } from "../BaseComponents";
 import type { ShapeList } from "../Mondrian";
