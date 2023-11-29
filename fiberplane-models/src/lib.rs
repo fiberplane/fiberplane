@@ -19,6 +19,7 @@ products, including but not limited to:
 
 */
 
+#[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::de::{Error, Unexpected, Visitor};
 use serde::{Deserialize, Deserializer};
