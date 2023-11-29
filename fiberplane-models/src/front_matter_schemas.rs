@@ -17,7 +17,7 @@ use typed_builder::TypedBuilder;
     fp(rust_module = "fiberplane_models::front_matter_schemas")
 )]
 #[repr(transparent)]
-pub struct FrontMatterSchema(Vec<FrontMatterSchemaEntry>);
+pub struct FrontMatterSchema(pub Vec<FrontMatterSchemaEntry>);
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
 #[cfg_attr(
