@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 pub use crate::labels::Label;
 use crate::names::Name;
 use crate::timestamps::Timestamp;
@@ -8,6 +6,7 @@ use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 use strum_macros::Display;
 use typed_builder::TypedBuilder;
 
@@ -45,7 +44,7 @@ pub struct Workspace {
     pub updated_at: Timestamp,
 
     #[builder(default)]
-    pub front_matter_schemas: HashMap<String, FrontMatterSchema>,
+    pub front_matter_schemas: BTreeMap<String, FrontMatterSchema>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Display)]
@@ -123,7 +122,7 @@ pub struct NewWorkspace {
 
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub front_matter_schemas: Option<HashMap<String, FrontMatterSchema>>,
+    pub front_matter_schemas: Option<BTreeMap<String, FrontMatterSchema>>,
 }
 
 impl NewWorkspace {
@@ -161,7 +160,7 @@ pub struct UpdateWorkspace {
 
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub front_matter_schemas: Option<HashMap<String, FrontMatterSchema>>,
+    pub front_matter_schemas: Option<BTreeMap<String, FrontMatterSchema>>,
 }
 
 /// Payload to update a workspace members' role

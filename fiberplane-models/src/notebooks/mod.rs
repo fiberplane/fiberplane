@@ -8,7 +8,7 @@ use base64uuid::Base64Uuid;
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use strum_macros::Display;
 use typed_builder::TypedBuilder;
 use url::Url;
@@ -23,7 +23,7 @@ pub mod operations;
 /// A JSON object which may or may not contain well known keys.
 /// More information in the [RFC](https://www.notion.so/fiberplane/RFC-58-Front-matter-Specialization-Front-matter-a9b3b51614ee48a19ec416c02a9fd647)
 // this is on purpose a `Map<String, Value>` instead of a `Value` to disallow top level arrays
-pub type FrontMatter = Map<String, Value>;
+pub type FrontMatter = BTreeMap<String, Value>;
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, TypedBuilder)]
 #[cfg_attr(
@@ -389,7 +389,7 @@ impl NewTemplate {
             name,
             description: description.into(),
             front_matter_schema_names: front_matter_schema_names
-                .into_iter()
+                .iter()
                 .map(ToString::to_string)
                 .collect(),
             body: body.into(),

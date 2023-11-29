@@ -190,7 +190,7 @@ pub struct FrontMatterUserSchema {
 // but it's impossible to _conditionnally_ add the `Serializable` trait bound on
 // the inner type T only when there is the "fp-bindgen" feature.
 
-// NOTE: The reason those are struct (new types) instead of "just" being the
+// NOTE: The reason those are struct instead of "just" being the
 // inner value is because we are already thinking of adding extra properties (like "color")
 // to the known options of an enumeration
 

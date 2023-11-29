@@ -20,7 +20,7 @@ products, including but not limited to:
 
 */
 
-use serde::de::{Error, Unexpected, Visitor};
+use serde::de::{self, Error, Unexpected, Visitor};
 use serde::{Deserialize, Deserializer};
 use std::fmt;
 
@@ -116,3 +116,16 @@ impl<'de> Visitor<'de> for U32Visitor {
             .map_err(|_| Error::invalid_type(Unexpected::Str(&v), &self))
     }
 }
+
+/// Helper trait to use as a trait bound on generic types that must be serializable when
+/// the `fp-bindgen` feature is enabled
+pub trait BindgenSerializable {}
+
+#[cfg(feature = "fp-bindgen")]
+impl<T> BindgenSerializable for T where
+    T: fp_bindgen::prelude::Serializable + for<'de> de::Deserialize<'de>
+{
+}
+
+#[cfg(not(feature = "fp-bindgen"))]
+impl<T> BindgenSerializable for T {}

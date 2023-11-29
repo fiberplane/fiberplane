@@ -36,7 +36,7 @@ pub enum Operation {
     RemoveLabel(RemoveLabelOperation),
     UpdateFrontMatter(UpdateFrontMatterOperation),
     ClearFrontMatter(ClearFrontMatterOperation),
-    AddFrontMatterKey(AddFrontMatterKeyOperation),
+    AppendFrontMatterKey(AppendFrontMatterKeyOperation),
     UpdateFrontMatterKey(UpdateFrontMatterKeyOperation),
     UpdateFrontMatterValue(UpdateFrontMatterValueOperation),
     MoveFrontMatterKey(MoveFrontMatterKeyOperation),
@@ -441,7 +441,7 @@ pub struct ClearFrontMatterOperation {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct AddFrontMatterKeyOperation {
+pub struct AppendFrontMatterKeyOperation {
     #[builder(setter(into))]
     pub key: String,
     #[builder(setter(into))]
