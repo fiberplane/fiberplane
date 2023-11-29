@@ -2,6 +2,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
+pub use fiberplane_models::autometrics::AutometricsFunction;
 pub use fiberplane_models::blobs::Blob;
 pub use fiberplane_models::blobs::EncodedBlob;
 pub use fiberplane_models::formatting::Annotation;
@@ -58,6 +59,7 @@ pub use fiberplane_models::providers::SupportedQueryType;
 pub use fiberplane_models::providers::TextField;
 pub use fiberplane_models::providers::Timeseries;
 pub use fiberplane_models::providers::ValidationError;
+pub use fiberplane_models::timestamps::TimeRange;
 pub use fiberplane_models::timestamps::Timestamp;
 
 pub type ConfigSchema = Vec<ConfigField>;

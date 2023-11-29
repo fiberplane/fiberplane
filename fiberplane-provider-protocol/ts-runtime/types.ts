@@ -185,6 +185,33 @@ export type AutoSuggestRequest = {
 };
 
 /**
+ * Representation of an individual Autometricized function.
+ */
+export type AutometricsFunction = {
+    /**
+     * The name of the function or method, exactly as it appears in the source code.
+     *
+     * See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#function
+     */
+    function: string;
+
+    /**
+     * The fully-qualified module or file path of the function.
+     *
+     * See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#module
+     */
+    module: string;
+
+    /**
+     * The logical name of a service. This matches the
+     * [OpenTelemetry Service specification](https://github.com/open-telemetry/semantic-conventions/tree/main/specification/resource/semantic_conventions#service).
+     *
+     * See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#servicename
+     */
+    serviceName?: string;
+};
+
+/**
  * Binary blob for passing data in arbitrary encodings.
  *
  * Binary blobs are both consumed and produced by providers. Note that for many
@@ -700,9 +727,22 @@ export type Metric = {
 
 /**
  * Metadata following the OpenTelemetry metadata spec.
+ *
+ * See also: https://github.com/open-telemetry/opentelemetry-specification/
  */
 export type OtelMetadata = {
+    /**
+     * OpenTelemetry attributes.
+     *
+     * See also: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/common/README.md
+     */
     attributes: Record<string, any>;
+
+    /**
+     * Resource metadata.
+     *
+     * See also: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/README.md
+     */
     resource: Record<string, any>;
     traceId?: OtelTraceId;
     spanId?: OtelSpanId;
@@ -1074,6 +1114,15 @@ export type TextField = {
     supportsSuggestions: boolean;
 };
 
+/**
+ * A range in time from a given timestamp (inclusive) up to another timestamp
+ * (exclusive).
+ */
+export type TimeRange = {
+    from: Timestamp;
+    to: Timestamp;
+};
+
 export type TimelineCell = {
     id: string;
 
@@ -1084,11 +1133,6 @@ export type TimelineCell = {
     readOnly?: boolean;
 };
 
-export type TimeRange = {
-    from: Timestamp;
-    to: Timestamp;
-};
-  
 /**
  * A series of metrics over time, with metadata.
  */

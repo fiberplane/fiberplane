@@ -11,5 +11,6 @@ publish = false
 [dependencies]
 bytes = { workspace = true }
 fp-bindgen = { workspace = true, features = ["bytes-compat", "generators"] }
+fiberplane-ci = { workspace = true }
 fiberplane-models = { workspace = true, features = ["fp-bindgen"] }
 serde_json = { workspace = true }

@@ -7,6 +7,11 @@ use typed_builder::TypedBuilder;
 /// A metric that contains metadata related to the application.
 ///
 /// See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#build_info
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::autometrics")
+)]
 pub struct AutometricsBuildInfo {
     /// The version of the user's project.
     ///
@@ -46,7 +51,7 @@ pub struct AutometricsBuildInfo {
 }
 
 /// Representation of an individual Autometricized function.
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -75,6 +80,8 @@ pub struct AutometricsFunction {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub service_name: Option<String>,
 }
+
+impl MaybeSerializable for AutometricsFunction {}
 
 /// Represents an individual function call to an Autometricized function.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize, TypedBuilder)]
@@ -180,7 +187,7 @@ pub enum AutometricsFunctionCallResult {
 }
 
 /// Schema for a Prometheus response to a query for Autometricized functions.
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -188,8 +195,7 @@ pub enum AutometricsFunctionCallResult {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct PrometheusResponse<T: Clone + Eq + Serialize + MaybeSerializable> {
-    #[builder(setter(into))]
+pub struct PrometheusResponse<T: Clone + PartialEq + Serialize + MaybeSerializable> {
     pub status: PrometheusResponseStatus,
 
     #[builder(setter(into))]
