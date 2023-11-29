@@ -9,6 +9,8 @@ export function generateShapeListFromTargetLatency(
     shapes: [
       {
         type: "line",
+        strokeDasharray: [2],
+        areaGradientShown: false,
         points: [
           { x: 0, y: normalizeAlongLinearAxis(value, yAxis), source: null },
           { x: 1, y: normalizeAlongLinearAxis(value, yAxis), source: null },

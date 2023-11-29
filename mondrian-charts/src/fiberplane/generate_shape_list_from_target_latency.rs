@@ -10,6 +10,7 @@ pub(crate) fn generate_shape_list_from_target_latency<'source>(
 ) -> ShapeList<SeriesSource<'source>, PointSource<'source>> {
     ShapeList {
         shapes: vec![Shape::Line(Line {
+            area_gradient_shown: Some(false),
             points: vec![
                 Point {
                     x: 0.,

@@ -73,7 +73,7 @@ fn generate_area_svg<P>(area: &Area<P>, scales: &Scales, options: ShapeOptions) 
         index,
     } = options;
 
-    let (defs, fill) = if area_gradient_shown {
+    let (defs, fill) = if area.area_gradient_shown.unwrap_or(area_gradient_shown) {
         let defs = format!(
             "<defs>\
                 <linearGradient id=\"line-{index}\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\
@@ -105,7 +105,7 @@ fn generate_line_svg<P>(line: &Line<P>, scales: &Scales, options: ShapeOptions) 
         index,
     } = options;
 
-    let gradient = if area_gradient_shown {
+    let gradient = if line.area_gradient_shown.unwrap_or(area_gradient_shown) {
         let path_def = create_area_path_def(
             &line.points,
             |point| scales.x(point.x),

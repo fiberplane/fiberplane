@@ -48,6 +48,7 @@ shapeLists:
               attributes: {}
               resource: {}
               value: 20
+        areaGradientShown: ~
       - type: line
         points:
           - x: 0.4
@@ -98,6 +99,7 @@ shapeLists:
               attributes: {}
               resource: {}
               value: 10
+        areaGradientShown: ~
     source:
       type: timeseries
       name: dummy_data
@@ -155,6 +157,7 @@ shapeLists:
               resource: {}
               title: deploy 1
               labels: {}
+        areaGradientShown: ~
       - type: area
         points:
           - x: 0.7
@@ -167,6 +170,7 @@ shapeLists:
               resource: {}
               title: deploy 2
               labels: {}
+        areaGradientShown: ~
     source:
       type: events
   - shapes:
@@ -180,6 +184,7 @@ shapeLists:
             y: 1
             source:
               type: none
+        areaGradientShown: false
     source:
       type: target_latency
 

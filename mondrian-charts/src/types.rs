@@ -104,6 +104,9 @@ pub enum Shape<P> {
 #[serde(rename_all = "camelCase")]
 pub struct Area<P> {
     pub points: Vec<AreaPoint<P>>,
+
+    // Optional boolean that allows for overriding the area_gradient_shown property on the ShapeOptions per individual Line
+    pub area_gradient_shown: Option<bool>,
 }
 
 /// A single data point in an area shape.
@@ -131,6 +134,9 @@ pub struct AreaPoint<P> {
 #[serde(rename_all = "camelCase")]
 pub struct Line<P> {
     pub points: Vec<Point<P>>,
+
+    // Optional boolean that allows for overriding the area_gradient_shown property on the ShapeOptions per individual Line
+    pub area_gradient_shown: Option<bool>,
 }
 
 /// A single point in the chart.

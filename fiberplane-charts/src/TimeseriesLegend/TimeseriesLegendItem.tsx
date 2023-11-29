@@ -1,5 +1,5 @@
 import { Fragment, memo, useContext, useLayoutEffect } from "react";
-import styled, { css } from "styled-components";
+import { css, styled } from "styled-components";
 
 import { Container, Icon } from "../BaseComponents";
 import { WithChartTheme } from "../chartThemeTypes";

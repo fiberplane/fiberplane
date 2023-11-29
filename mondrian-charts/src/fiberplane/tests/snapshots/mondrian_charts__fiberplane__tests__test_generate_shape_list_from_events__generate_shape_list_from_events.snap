@@ -15,6 +15,7 @@ shapes:
           resource: {}
           title: deploy 1
           labels: {}
+    areaGradientShown: ~
   - type: area
     points:
       - x: 0.7
@@ -27,6 +28,7 @@ shapes:
           resource: {}
           title: deploy 2
           labels: {}
+    areaGradientShown: ~
 source:
   type: events
 

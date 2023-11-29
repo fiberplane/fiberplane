@@ -45,6 +45,7 @@ shapeLists:
               attributes: {}
               resource: {}
               value: 20
+        areaGradientShown: ~
       - type: line
         points:
           - x: 0.4
@@ -89,6 +90,7 @@ shapeLists:
               attributes: {}
               resource: {}
               value: 10
+        areaGradientShown: ~
     source:
       name: dummy_data
       labels: {}
