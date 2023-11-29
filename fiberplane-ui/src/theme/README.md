@@ -12,7 +12,8 @@ theme object in the theme provider.
 
 ## Updating the theme with updated Figma values
 
-1. Open Figma and open all files on the left sidebar;
+1. (when only having read access) Open Figma and open all files on the left
+  sidebar;
 2. Build the plugin locally & run in Figma (follow instructions in the
   [plugin repo](https://github.com/oscarvz/figma-plugin));
 3. Copy the generated CSS into `src/theme/figma/variables.ts` and the TS object
@@ -23,8 +24,8 @@ All set!
 
 > [!important]
 > Figma has a limitation where it only returns the variables in your current
-> workspace. To make sure all defined variables are returned, make sure to
-> follow step 1.
+> workspace when you only have read access to the project. To make sure all
+> defined variables are returned, make sure to follow step 1.
 
 > [!important]
 > When updating the theme it's important you **always** update both the CSS and
