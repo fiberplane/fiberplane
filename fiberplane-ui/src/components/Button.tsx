@@ -8,7 +8,10 @@ export type ButtonStyleProps = {
   buttonType?: "button" | "textButton";
 };
 
-type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
+type ButtonProps = Omit<
+  React.ComponentProps<typeof StyledButton>,
+  "$buttonStyle"
+> &
   ButtonStyleProps;
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
