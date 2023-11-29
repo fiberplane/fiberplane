@@ -1,5 +1,5 @@
 import { memo, useContext, useMemo, useState } from "react";
-import styled from "styled-components";
+import { styled } from "styled-components";
 
 import { ChartSizeContainerProvider } from "../CoreChart";
 import { CoreChart } from "../CoreChart";

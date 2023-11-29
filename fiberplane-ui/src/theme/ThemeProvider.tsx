@@ -1,4 +1,7 @@
-import { ThemeProvider as StyledComponentsThemeProvider } from "styled-components";
+import {
+  StyleSheetManager,
+  ThemeProvider as StyledComponentsThemeProvider,
+} from "styled-components";
 
 import { extendedTheme } from "./extendedTheme/extendedTheme";
 import { GlobalStyle } from "./globalStyle";
@@ -14,9 +17,11 @@ type ThemeProviderProps = {
  */
 export function ThemeProvider({ children }: ThemeProviderProps) {
   return (
-    <StyledComponentsThemeProvider theme={extendedTheme}>
-      <GlobalStyle />
-      {children}
-    </StyledComponentsThemeProvider>
+    <StyleSheetManager enableVendorPrefixes>
+      <StyledComponentsThemeProvider theme={extendedTheme}>
+        <GlobalStyle />
+        {children}
+      </StyledComponentsThemeProvider>
+    </StyleSheetManager>
   );
 }

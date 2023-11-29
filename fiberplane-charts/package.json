@@ -36,7 +36,7 @@
   "peerDependencies": {
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "styled-components": "^5.3.0"
+    "styled-components": "^6.1.1"
   },
   "devDependencies": {
     "@svgr/rollup": "^6.5.0",
@@ -45,7 +45,6 @@
     "@types/jest": "^29.5.0",
     "@types/react": "^18.0.37",
     "@types/react-window": "^1.8.5",
-    "@types/styled-components": "^5.1.26",
     "@types/throttle-debounce": "^5.0.0",
     "jest": "^29.5.0",
     "react": "^18.2.0",
@@ -53,7 +52,7 @@
     "rollup": "^3.20.5",
     "rollup-plugin-dts": "^5.3.0",
     "rollup-plugin-swc3": "^0.10.3",
-    "styled-components": "^5.3.10",
+    "styled-components": "^6.1.1",
     "typescript": "^5.0.4"
   },
   "scripts": {
