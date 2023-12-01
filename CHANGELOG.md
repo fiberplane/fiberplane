@@ -24,9 +24,13 @@ major version hasn't changed.
 - `@fiberplane/ui`: Upgrade `styled-components` to v6 & simplify `Button`
 - `@fiberplane/ui`: Add webhooks icon & expose icon type guard
 
+## mondrian-charts [v0.4.0] - 2023-11-30
+
+- `mondrian-charts`: Change Target Latency into a dotted line and support individual area gradients
+
 ## [v1.0.0-beta.6] - 2023-10-20
 
-- `fiberplane-charts': Fix issue where SparkCharts would still get some grid
+- `fiberplane-charts`: Fix issue where SparkCharts would still get some grid
   lines.
 - `fiberplane-charts`: Fix issue where height wasn't set/stored correctly for
   legend items (especially relevant for items that span multiple lines)
