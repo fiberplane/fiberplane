@@ -1,6 +1,6 @@
 use super::create_area_path_def::create_area_path_def;
 use super::create_line_path_def::create_line_path_def;
-use super::{ChartOptions, Scales, POINT_RADIUS};
+use super::{ChartOptions, Scales, POINT_RADIUS, SHAPE_STROKE_WIDTH};
 use crate::types::{Area, Line, MondrianChart, Point, Rectangle, Shape};
 use itertools::join;
 use std::borrow::Cow;
@@ -34,6 +34,7 @@ pub(super) fn generate_chart_content_svg<'a, S, P>(
 struct ShapeOptions<'a> {
     area_gradient_shown: bool,
     color: &'a str,
+    stroke_width: f32,
     index: usize,
 }
 
@@ -45,6 +46,7 @@ impl<'a> ShapeOptions<'a> {
     ) -> Self {
         let ChartOptions {
             area_gradient_shown,
+            shape_stroke_width,
             get_shape_list_color,
             ..
         } = options;
@@ -52,6 +54,7 @@ impl<'a> ShapeOptions<'a> {
         Self {
             area_gradient_shown: *area_gradient_shown,
             color: get_shape_list_color(source, index),
+            stroke_width: shape_stroke_width.unwrap_or(SHAPE_STROKE_WIDTH),
             index,
         }
     }
@@ -70,6 +73,7 @@ fn generate_area_svg<P>(area: &Area<P>, scales: &Scales, options: ShapeOptions) 
     let ShapeOptions {
         area_gradient_shown,
         color,
+        stroke_width,
         index,
     } = options;
 
@@ -95,13 +99,16 @@ fn generate_area_svg<P>(area: &Area<P>, scales: &Scales, options: ShapeOptions) 
         |point| scales.y(point.y_max),
     );
 
-    format!(r#"{defs}<path d="{path_def}" stroke="{color}" stroke-width="1" fill="{fill}" />"#)
+    format!(
+        r#"{defs}<path d="{path_def}" stroke="{color}" stroke-width="{stroke_width}" fill="{fill}" />"#
+    )
 }
 
 fn generate_line_svg<P>(line: &Line<P>, scales: &Scales, options: ShapeOptions) -> String {
     let ShapeOptions {
         area_gradient_shown,
         color,
+        stroke_width,
         index,
     } = options;
 
@@ -132,7 +139,9 @@ fn generate_line_svg<P>(line: &Line<P>, scales: &Scales, options: ShapeOptions) 
         |point| scales.y(point.y),
     );
 
-    format!(r#"{gradient}<path d="{path_def}" stroke="{color}" stroke-width="1" fill="none" />"#)
+    format!(
+        r#"{gradient}<path d="{path_def}" stroke="{color}" stroke-width="{stroke_width}" fill="none" />"#
+    )
 }
 
 fn generate_point_svg<P>(point: &Point<P>, scales: &Scales, options: ShapeOptions) -> String {

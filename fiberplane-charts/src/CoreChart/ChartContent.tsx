@@ -7,6 +7,7 @@ type Props<S, P> = {
   chart: AbstractChart<S, P>;
   focusedShapeList: ShapeList<S, P> | null;
   getShapeListColor: (source: S, index: number) => string;
+  strokeWidth: number;
   scales: Scales;
 };
 
@@ -15,6 +16,7 @@ export function ChartContent<S, P>({
   chart,
   focusedShapeList,
   getShapeListColor,
+  strokeWidth,
   scales,
 }: Props<S, P>): JSX.Element {
   return (
@@ -27,6 +29,7 @@ export function ChartContent<S, P>({
             color={getShapeListColor(shapeList.source, listIndex)}
             focused={shapeList === focusedShapeList}
             key={`${listIndex}-${shapeIndex}`}
+            strokeWidth={strokeWidth}
             scales={scales}
             shape={shape}
           />
