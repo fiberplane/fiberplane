@@ -1,6 +1,6 @@
 use crate::data_sources::SelectedDataSource;
 use crate::formatting::Formatting;
-use crate::front_matter_schemas::FrontMatterValueSchema;
+use crate::front_matter_schemas::{FrontMatterSchemaEntry, FrontMatterValueSchema};
 use crate::notebooks::{Cell, FrontMatter, Label};
 use crate::timestamps::TimeRange;
 #[cfg(feature = "fp-bindgen")]
@@ -34,13 +34,16 @@ pub enum Operation {
     AddLabel(AddLabelOperation),
     ReplaceLabel(ReplaceLabelOperation),
     RemoveLabel(RemoveLabelOperation),
+    #[deprecated(
+        note = "Full front matter updates should be avoided, granular update operations are better for conflict handling."
+    )]
     UpdateFrontMatter(UpdateFrontMatterOperation),
     ClearFrontMatter(ClearFrontMatterOperation),
-    AppendFrontMatterKey(AppendFrontMatterKeyOperation),
+    AppendFrontMatterKeys(AppendFrontMatterKeysOperation),
     UpdateFrontMatterKey(UpdateFrontMatterKeyOperation),
     UpdateFrontMatterValue(UpdateFrontMatterValueOperation),
-    MoveFrontMatterKey(MoveFrontMatterKeyOperation),
-    RemoveFrontMatterKey(RemoveFrontMatterKeyOperation),
+    MoveFrontMatterKeys(MoveFrontMatterKeysOperation),
+    RemoveFrontMatterKeys(RemoveFrontMatterKeysOperation),
 }
 
 /// Moves one or more cells.
@@ -432,7 +435,7 @@ pub struct ClearFrontMatterOperation {
     pub front_matter: FrontMatter,
 }
 
-/// Adds a front matter key in a notebook (at the end)
+/// Adds front matter entries in a notebook (at the end)
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
@@ -441,11 +444,9 @@ pub struct ClearFrontMatterOperation {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct AppendFrontMatterKeyOperation {
+pub struct AppendFrontMatterKeysOperation {
     #[builder(setter(into))]
-    pub key: String,
-    #[builder(setter(into))]
-    pub schema: FrontMatterValueSchema,
+    pub new_entries: Vec<FrontMatterSchemaEntry>,
 }
 
 /// Changes the expected schema of a front matter key in a notebook
@@ -481,7 +482,7 @@ pub struct UpdateFrontMatterValueOperation {
     pub new_value: Value,
 }
 
-/// Moves a front matter entry in a notebook
+/// Moves front matter entries in a notebook
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
@@ -490,15 +491,15 @@ pub struct UpdateFrontMatterValueOperation {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct MoveFrontMatterKeyOperation {
-    pub key: String,
-    /// Index the key will be moved from. This is the index of the front matter key before the move.
+pub struct MoveFrontMatterKeysOperation {
+    pub keys: Vec<String>,
+    /// Index the key will be moved from. This is the index of the first front matter key before the move.
     pub from_index: u32,
-    /// Index the key will be moved to. This is the index of the front matter key after the move.
+    /// Index the key will be moved to. This is the index of the first front matter key after the move.
     pub to_index: u32,
 }
 
-/// Removes a front matter key in a notebook
+/// Removes front matter entries in a notebook
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
@@ -507,9 +508,9 @@ pub struct MoveFrontMatterKeyOperation {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct RemoveFrontMatterKeyOperation {
-    pub key: String,
-    pub old_value: Value,
+pub struct RemoveFrontMatterKeysOperation {
+    pub keys: Vec<String>,
+    pub old_values: Vec<Value>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
