@@ -15,6 +15,7 @@ export const AreaShape = memo(function AreaShape<P>({
   color,
   focused,
   scales,
+  strokeWidth,
 }: Props<P>): JSX.Element {
   const id = useId();
   const gradientId = `line-${id}`;
@@ -23,6 +24,8 @@ export const AreaShape = memo(function AreaShape<P>({
   const x = (point: { x: number }) => scales.xScale(point.x);
   const y0 = (point: { yMin: number }) => scales.yScale(point.yMin);
   const y1 = (point: { yMax: number }) => scales.yScale(point.yMax);
+
+  const focusedStrokeWidth = strokeWidth * 1.5;
 
   return (
     <g opacity={focused || !anyFocused ? 1 : 0.2}>
@@ -38,7 +41,7 @@ export const AreaShape = memo(function AreaShape<P>({
         d={createAreaPathDef(area.points, { x, y0, y1 })}
         stroke={color}
         strokeDasharray={area.strokeDasharray?.join(" ")}
-        strokeWidth={focused ? 1.5 : 1}
+        strokeWidth={focused ? focusedStrokeWidth : strokeWidth}
         fill={areaGradientShown ? gradientRef : "none"}
       />
     </g>

@@ -23,6 +23,8 @@ major version hasn't changed.
 - `@fiberplane/ui`: Add `Icon` component
 - `@fiberplane/ui`: Upgrade `styled-components` to v6 & simplify `Button`
 - `@fiberplane/ui`: Add webhooks icon & expose icon type guard
+- `fiberplane-charts`: Allow configuring stroke width of chart content lines
+- `mondrian-charts`: Allow configuring stroke width of chart content lines
 
 ## mondrian-charts [v0.4.0] - 2023-11-30
 
