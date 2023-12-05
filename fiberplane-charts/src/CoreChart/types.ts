@@ -77,6 +77,11 @@ export type CoreChartProps<S, P> = {
   readOnly?: boolean;
 
   /**
+   * Override stroke width of the lines inside the chart. (default: 1)
+   */
+  shapeStrokeWidth?: number;
+
+  /**
    * Whether the Y scale should be animated across changes.
    */
   shouldAnimateYScale?: boolean;

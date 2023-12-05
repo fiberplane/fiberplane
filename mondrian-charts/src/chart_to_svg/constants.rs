@@ -12,6 +12,9 @@ pub(super) const POINT_RADIUS_FOCUSED: u16 = 4;
 // This overflow margin ensures that the point is still visible.
 pub(super) const CHART_SHAPE_OVERFLOW_MARGIN: u16 = POINT_RADIUS_FOCUSED;
 
+// Stroke width of chart content lines
+pub(super) const SHAPE_STROKE_WIDTH: f32 = 1.0;
+
 pub(super) const TICK_FONT_FAMILY: &str = "sans-serif";
 pub(super) const TICK_FONT_SIZE: u16 = 20;
 pub(super) const TICK_FONT_WEIGHT: u16 = 400;
