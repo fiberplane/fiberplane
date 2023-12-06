@@ -122,6 +122,8 @@ pub struct FrontMatterNumberSchema {
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub multiple: bool,
+    #[builder(setter(strip_bool))]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub allow_extra_values: bool,
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -154,6 +156,8 @@ pub struct FrontMatterStringSchema {
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub multiple: bool,
+    #[builder(setter(strip_bool))]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub allow_extra_values: bool,
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -180,6 +184,8 @@ pub struct FrontMatterDateTimeSchema {
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub multiple: bool,
+    #[builder(setter(strip_bool))]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub allow_extra_values: bool,
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -206,6 +212,8 @@ pub struct FrontMatterUserSchema {
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub multiple: bool,
+    #[builder(setter(strip_bool))]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub allow_extra_values: bool,
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -232,6 +240,7 @@ pub struct FrontMatterUserSchema {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct FrontMatterEnumBase64UuidValue {
+    #[builder(setter(into))]
     value: Base64Uuid,
 }
 impl From<Base64Uuid> for FrontMatterEnumBase64UuidValue {
@@ -249,6 +258,7 @@ impl From<Base64Uuid> for FrontMatterEnumBase64UuidValue {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct FrontMatterEnumStringValue {
+    #[builder(setter(into))]
     value: String,
 }
 
@@ -269,6 +279,7 @@ impl<T: Into<String>> From<T> for FrontMatterEnumStringValue {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct FrontMatterEnumNumberValue {
+    #[builder(setter(into))]
     value: SerializableEqFloat,
 }
 impl<T: Into<f64>> From<T> for FrontMatterEnumNumberValue {
@@ -288,6 +299,7 @@ impl<T: Into<f64>> From<T> for FrontMatterEnumNumberValue {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct FrontMatterEnumDateTimeValue {
+    #[builder(setter(into))]
     value: Timestamp,
 }
 impl<T: Into<Timestamp>> From<T> for FrontMatterEnumDateTimeValue {
