@@ -20,6 +20,7 @@ export function CoreChart<S, P>({
   getShapeListColor,
   onChangeTimeRange,
   readOnly = false,
+  shapeStrokeWidth = 1,
   showTooltip,
   timeRange,
   ...props
@@ -119,6 +120,7 @@ export function CoreChart<S, P>({
             areaGradientShown={areaGradientShown}
             chart={chart}
             getShapeListColor={getShapeListColor}
+            strokeWidth={shapeStrokeWidth}
             scales={scales}
           />
         </g>

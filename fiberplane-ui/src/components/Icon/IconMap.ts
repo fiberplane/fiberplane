@@ -309,6 +309,7 @@ import Views from "./icons/Views.svg";
 import WarningIcon from "./icons/Warning.svg";
 import WarningCircleIcon from "./icons/WarningCircle.svg";
 import WarningOctagonIcon from "./icons/WarningOctagon.svg";
+import WebhookIcon from "./icons/Webhooks.svg";
 import CloseIcon from "./icons/X.svg";
 import YoutubeLogoIcon from "./icons/YoutubeLogo.svg";
 
@@ -626,5 +627,6 @@ export const ICON_MAP = {
   warning_circle: WarningCircleIcon,
   warning_octagon: WarningOctagonIcon,
   warning: WarningIcon,
+  webhook: WebhookIcon,
   youtube_logo: YoutubeLogoIcon,
 } as const;

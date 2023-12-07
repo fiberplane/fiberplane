@@ -29,4 +29,9 @@ export type CommonShapeProps = {
    * Chart scales for converting abstract coordinates to pixel values.
    */
   scales: Scales;
+
+  /**
+   * The stroke width of the chart line.
+   */
+  strokeWidth: number;
 };
