@@ -34,9 +34,9 @@ pub enum Operation {
     AddLabel(AddLabelOperation),
     ReplaceLabel(ReplaceLabelOperation),
     RemoveLabel(RemoveLabelOperation),
-    #[deprecated(
-        note = "Full front matter updates should be avoided, granular update operations are better for conflict handling."
-    )]
+    // #[deprecated(
+    //     note = "Full front matter updates should be avoided, granular update operations are better for conflict handling."
+    // )]
     UpdateFrontMatter(UpdateFrontMatterOperation),
     ClearFrontMatter(ClearFrontMatterOperation),
     AppendFrontMatterKeys(AppendFrontMatterKeysOperation),
