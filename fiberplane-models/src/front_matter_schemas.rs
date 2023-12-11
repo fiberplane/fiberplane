@@ -55,6 +55,7 @@ pub struct FrontMatterSchema(pub Vec<FrontMatterSchemaEntry>);
     fp(rust_module = "fiberplane_models::front_matter_schemas")
 )]
 #[non_exhaustive]
+#[serde(rename_all = "camelCase")]
 pub struct FrontMatterSchemaEntry {
     /// The key to use to target the front matter value in a notebook storage (Notebook::frontmatter).
     ///
@@ -112,6 +113,7 @@ impl From<FrontMatterNumberSchema> for FrontMatterValueSchema {
     fp(rust_module = "fiberplane_models::front_matter_schemas")
 )]
 #[non_exhaustive]
+#[serde(rename_all = "camelCase")]
 pub struct FrontMatterNumberSchema {
     #[builder(default, setter(into))]
     pub display_name: String,
@@ -146,6 +148,7 @@ pub struct FrontMatterNumberSchema {
     fp(rust_module = "fiberplane_models::front_matter_schemas")
 )]
 #[non_exhaustive]
+#[serde(rename_all = "camelCase")]
 pub struct FrontMatterStringSchema {
     #[builder(default, setter(into))]
     pub display_name: String,
@@ -174,6 +177,7 @@ pub struct FrontMatterStringSchema {
     fp(rust_module = "fiberplane_models::front_matter_schemas")
 )]
 #[non_exhaustive]
+#[serde(rename_all = "camelCase")]
 pub struct FrontMatterDateTimeSchema {
     #[builder(default, setter(into))]
     pub display_name: String,
@@ -202,6 +206,7 @@ pub struct FrontMatterDateTimeSchema {
     fp(rust_module = "fiberplane_models::front_matter_schemas")
 )]
 #[non_exhaustive]
+#[serde(rename_all = "camelCase")]
 pub struct FrontMatterUserSchema {
     #[builder(default, setter(into))]
     pub display_name: String,

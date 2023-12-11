@@ -30,14 +30,18 @@ path = "src/lib.rs"
 required-features = []
 
 [package]
+authors = ["Fiberplane <info@fiberplane.com>"]
 description = "Generated API client for Fiberplane API"
 edition = "2021"
 name = "fiberplane-api-client"
 readme = "README.md"
-version = "1.0.0-beta.7"
+rust-version = "1.64"
 
 [package.license]
 workspace = true
 
 [package.repository]
+workspace = true
+
+[package.version]
 workspace = true
