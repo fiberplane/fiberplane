@@ -43,6 +43,9 @@ pub struct ChartOptions<'a, S> {
     /// Optional dasharray to apply to the grid lines.
     pub grid_stroke_dasharray: &'a [f32],
 
+    /// Optional stroke width of the chart content lines.
+    pub shape_stroke_width: Option<f32>,
+
     /// Callback to determine the color that should be used for a given shape
     /// list.
     ///

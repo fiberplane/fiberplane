@@ -15,12 +15,15 @@ export const LineShape = memo(function LineShape<P>({
   focused,
   line,
   scales,
+  strokeWidth,
 }: Props<P>): JSX.Element {
   const id = useId();
   const gradientId = `line-${id}`;
 
   const x = (point: { x: number }) => scales.xScale(point.x);
   const y = (point: { y: number }) => scales.yScale(point.y);
+
+  const focusedStrokeWidth = strokeWidth * 1.5;
 
   return (
     <g opacity={focused || !anyFocused ? 1 : 0.2}>
@@ -43,7 +46,7 @@ export const LineShape = memo(function LineShape<P>({
         d={createLinePathDef(line.points, { x, y })}
         stroke={color}
         strokeDasharray={line.strokeDasharray?.join(" ")}
-        strokeWidth={focused ? 1.5 : 1}
+        strokeWidth={focused ? focusedStrokeWidth : strokeWidth}
         fill="none"
       />
     </g>

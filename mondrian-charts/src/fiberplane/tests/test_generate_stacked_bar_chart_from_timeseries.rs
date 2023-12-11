@@ -67,6 +67,7 @@ fn test_generate_stacked_bar_chart_from_timeseries() {
             grid_rows_shown: false,
             grid_stroke_color: "#e7e7e7",
             grid_stroke_dasharray: Default::default(),
+            shape_stroke_width: None,
             get_shape_list_color: &|_, index| if index % 2 == 0 { "#c00eae" } else { "#23304a" },
             tick_color: "#a4a4a4",
             x_formatter: Some(FormatterKind::Time),

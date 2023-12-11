@@ -56,6 +56,7 @@ fn test_generate_line_chart_from_timeseries() {
             grid_rows_shown: false,
             grid_stroke_color: "#e7e7e7",
             grid_stroke_dasharray: Default::default(),
+            shape_stroke_width: None,
             get_shape_list_color: &|source, _| match source {
                 SeriesSource::Timeseries(_) => "#c00eae",
                 SeriesSource::Events => "#4c7aff",
