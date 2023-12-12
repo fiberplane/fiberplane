@@ -39,7 +39,7 @@ pub enum Operation {
     // )]
     UpdateFrontMatter(UpdateFrontMatterOperation),
     ClearFrontMatter(ClearFrontMatterOperation),
-    AppendFrontMatterKeys(AppendFrontMatterKeysOperation),
+    InsertFrontMatterKeys(InsertFrontMatterKeysOperation),
     UpdateFrontMatterKey(UpdateFrontMatterKeyOperation),
     UpdateFrontMatterValue(UpdateFrontMatterValueOperation),
     MoveFrontMatterKeys(MoveFrontMatterKeysOperation),
@@ -435,7 +435,7 @@ pub struct ClearFrontMatterOperation {
     pub front_matter: FrontMatter,
 }
 
-/// Adds front matter entries in a notebook (at the end)
+/// Adds front matter entries in a notebook
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
@@ -444,7 +444,12 @@ pub struct ClearFrontMatterOperation {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct AppendFrontMatterKeysOperation {
+pub struct InsertFrontMatterKeysOperation {
+    #[builder(default, setter(into, strip_option))]
+    pub before_insertion_key: Option<String>,
+    #[builder(default, setter(into, strip_option))]
+    pub after_insertion_key: Option<String>,
+    pub to_index: u32,
     #[builder(setter(into))]
     pub new_entries: Vec<FrontMatterSchemaEntry>,
 }
@@ -478,8 +483,10 @@ pub struct UpdateFrontMatterKeyOperation {
 #[serde(rename_all = "camelCase")]
 pub struct UpdateFrontMatterValueOperation {
     pub key: String,
-    pub old_value: Value,
-    pub new_value: Value,
+    #[builder(default, setter(strip_option))]
+    pub old_value: Option<Value>,
+    #[builder(default, setter(strip_option))]
+    pub new_value: Option<Value>,
 }
 
 /// Moves front matter entries in a notebook
@@ -509,8 +516,9 @@ pub struct MoveFrontMatterKeysOperation {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct RemoveFrontMatterKeysOperation {
-    pub keys: Vec<String>,
-    pub old_values: Vec<Value>,
+    pub from_index: u32,
+    pub old_entries: Vec<FrontMatterSchemaEntry>,
+    pub old_values: Vec<Option<Value>>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
