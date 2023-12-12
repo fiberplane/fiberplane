@@ -34,6 +34,7 @@ pub(crate) fn generate_routes(
 
     let mut writer = BufWriter::new(file);
 
+    writeln!(writer, "#![allow(clippy::too_many_arguments)]")?;
     writeln!(writer, "#![forbid(unsafe_code)]")?;
     writeln!(writer, "#![allow(unused_mut)]")?;
     writeln!(writer, "#![allow(unused_variables)]")?;

@@ -1,3 +1,4 @@
+#![allow(clippy::too_many_arguments)]
 #![forbid(unsafe_code)]
 #![allow(unused_mut)]
 #![allow(unused_variables)]
