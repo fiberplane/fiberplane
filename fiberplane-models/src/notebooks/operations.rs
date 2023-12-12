@@ -452,6 +452,7 @@ pub struct InsertFrontMatterKeysOperation {
     pub to_index: u32,
     #[builder(setter(into))]
     pub new_entries: Vec<FrontMatterSchemaEntry>,
+    pub new_values: Vec<Option<Value>>,
 }
 
 /// Changes the expected schema of a front matter key in a notebook
