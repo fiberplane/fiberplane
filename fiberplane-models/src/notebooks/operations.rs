@@ -445,9 +445,11 @@ pub struct ClearFrontMatterOperation {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct InsertFrontMatterKeysOperation {
-    #[builder(default, setter(into, strip_option))]
+    // NOTE: No strip_option here because the strongly typed builder makes
+    // it hard to revert operations in fiberplane-ot otherwise
+    #[builder(default, setter(into))]
     pub before_insertion_key: Option<String>,
-    #[builder(default, setter(into, strip_option))]
+    #[builder(default, setter(into))]
     pub after_insertion_key: Option<String>,
     pub to_index: u32,
     #[builder(setter(into))]
@@ -484,9 +486,11 @@ pub struct UpdateFrontMatterKeyOperation {
 #[serde(rename_all = "camelCase")]
 pub struct UpdateFrontMatterValueOperation {
     pub key: String,
-    #[builder(default, setter(strip_option))]
+    // NOTE: No strip_option here because the strongly typed builder makes
+    // it hard to revert operations in fiberplane-ot otherwise
+    #[builder(default)]
     pub old_value: Option<Value>,
-    #[builder(default, setter(strip_option))]
+    #[builder(default)]
     pub new_value: Option<Value>,
 }
 
@@ -517,6 +521,10 @@ pub struct MoveFrontMatterKeysOperation {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct RemoveFrontMatterKeysOperation {
+    #[builder(default, setter(into))]
+    pub before_deletion_range_key: Option<String>,
+    #[builder(default, setter(into))]
+    pub after_deletion_range_key: Option<String>,
     pub from_index: u32,
     pub old_entries: Vec<FrontMatterSchemaEntry>,
     pub old_values: Vec<Option<Value>>,
