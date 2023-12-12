@@ -39,11 +39,11 @@ pub enum Operation {
     // )]
     UpdateFrontMatter(UpdateFrontMatterOperation),
     ClearFrontMatter(ClearFrontMatterOperation),
-    InsertFrontMatterKeys(InsertFrontMatterKeysOperation),
-    UpdateFrontMatterKey(UpdateFrontMatterKeyOperation),
+    InsertFrontMatterSchema(InsertFrontMatterSchemaOperation),
+    UpdateFrontMatterSchema(UpdateFrontMatterSchemaOperation),
     UpdateFrontMatterValue(UpdateFrontMatterValueOperation),
-    MoveFrontMatterKeys(MoveFrontMatterKeysOperation),
-    RemoveFrontMatterKeys(RemoveFrontMatterKeysOperation),
+    MoveFrontMatterSchema(MoveFrontMatterSchemaOperation),
+    RemoveFrontMatterSchema(RemoveFrontMatterSchemaOperation),
 }
 
 /// Moves one or more cells.
@@ -444,7 +444,7 @@ pub struct ClearFrontMatterOperation {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct InsertFrontMatterKeysOperation {
+pub struct InsertFrontMatterSchemaOperation {
     // NOTE: No strip_option here because the strongly typed builder makes
     // it hard to revert operations in fiberplane-ot otherwise
     #[builder(default, setter(into))]
@@ -466,7 +466,7 @@ pub struct InsertFrontMatterKeysOperation {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct UpdateFrontMatterKeyOperation {
+pub struct UpdateFrontMatterSchemaOperation {
     #[builder(setter(into))]
     pub key: String,
     #[builder(setter(into))]
@@ -503,7 +503,7 @@ pub struct UpdateFrontMatterValueOperation {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct MoveFrontMatterKeysOperation {
+pub struct MoveFrontMatterSchemaOperation {
     pub keys: Vec<String>,
     /// Index the key will be moved from. This is the index of the first front matter key before the move.
     pub from_index: u32,
@@ -520,7 +520,7 @@ pub struct MoveFrontMatterKeysOperation {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct RemoveFrontMatterKeysOperation {
+pub struct RemoveFrontMatterSchemaOperation {
     #[builder(default, setter(into))]
     pub before_deletion_range_key: Option<String>,
     #[builder(default, setter(into))]
