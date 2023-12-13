@@ -15,7 +15,6 @@ export default defineConfig([
     external: ["react", "react/jsx-runtime", "styled-components"],
     plugins: [
       svgr({
-        jsxRuntime: "automatic",
         svgoConfig: {
           plugins: [
             {
