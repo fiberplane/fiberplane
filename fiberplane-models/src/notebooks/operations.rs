@@ -450,13 +450,13 @@ pub struct InsertFrontMatterSchemaOperation {
     /// is solely used for consistency checks when validating the operation.
     #[builder(default, setter(into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub before_insertion_key: Option<String>,
+    pub key_of_entry_before_insertion_location: Option<String>,
 
     /// The Front Matter Schema key that is just after the insertion point. This
     /// is solely used for consistency checks when validating the operation.
     #[builder(default, setter(into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub after_insertion_key: Option<String>,
+    pub key_of_entry_after_insertion_location: Option<String>,
 
     /// The index to insert the new front matter schema into
     pub to_index: u32,
@@ -473,7 +473,8 @@ pub struct InsertFrontMatterSchemaOperation {
 // NOTE: No strip_option here because the strongly typed builder makes
 // it hard to revert operations in fiberplane-ot otherwise
 
-/// Changes the expected schema of a front matter key in a notebook
+/// Changes the expected schema of a front matter key in a notebook and/or the
+/// value attached to a schema
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
@@ -563,13 +564,13 @@ pub struct RemoveFrontMatterSchemaOperation {
     /// This is used to make consistency checks when validating operation.
     #[builder(default, setter(into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub before_deletion_range_key: Option<String>,
+    pub key_of_entry_before_deletion_range: Option<String>,
 
     /// The key of the front matter schema element lying just after the deletion range, i.e. _not_ removed.
     /// This is used to make consistency checks when validating operation.
     #[builder(default, setter(into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub after_deletion_range_key: Option<String>,
+    pub key_of_entry_after_deletion_range: Option<String>,
 
     /// The index to start removing elements from. This is the index of the first element that will be
     /// deleted, and should match the first element of the `old_entries` array.
