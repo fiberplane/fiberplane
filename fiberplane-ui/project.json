@@ -1,0 +1,12 @@
+{
+  "targets": {
+    "watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "yarn watch",
+        "cwd": "{projectRoot}",
+        "readyWhen": "created"
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import { css, styled } from "styled-components";
 
 type ButtonStyle = "primary" | "secondary" | "tertiary-color" | "tertiary-grey";
