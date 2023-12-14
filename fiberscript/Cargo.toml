@@ -1,0 +1,13 @@
+[package]
+name = "fiberscript"
+description = "TypeScript runtime for building Fiberplane integrations"
+readme = "README.md"
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+rust-version = { workspace = true }
+version = "0.1.0"
+
+[dependencies]
+deno_runtime = "0.136"

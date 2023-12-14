@@ -11,6 +11,7 @@ members = [
     "fiberplane-provider-protocol/fiberplane-provider-bindings",
     "fiberplane-provider-protocol/fiberplane-provider-runtime",
     "fiberplane-templates",
+    "fiberscript",
     "mondrian-charts",
     "xtask",
 ]
@@ -37,6 +38,7 @@ fiberplane-openapi-rust-gen = { version = "0.1.0", path = "fiberplane-openapi-ru
 fiberplane-provider-bindings = { version = "2.0.0-beta.7", path = "fiberplane-provider-protocol/fiberplane-provider-bindings" }
 fiberplane-provider-runtime = { version = "2.0.0-beta.7", path = "fiberplane-provider-protocol/fiberplane-provider-runtime" }
 fiberplane-templates = { version = "1.0.0-beta.7", path = "fiberplane-templates" }
+fiberscript = { version = "0.1.0", path = "fiberscript" }
 insta = { version = "1.31.0" }
 once_cell = { version = "1.12" }
 serde = { version = "1", features = ["derive"] }
