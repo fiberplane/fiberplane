@@ -980,6 +980,61 @@ pub async fn event_create(
     Ok(response)
 }
 
+#[doc = r#"Retrieve all front matter schemas defined in the workspace"#]
+pub async fn workspace_front_matter_schemas_get(
+    client: &ApiClient,
+    workspace_id: base64uuid::Base64Uuid,
+) -> Result<models::WorkspaceFrontMatterSchemas> {
+    let mut builder = client.request(
+        Method::GET,
+        &format!(
+            "/api/workspaces/{workspace_id}/front_matter_schemas",
+            workspace_id = workspace_id,
+        ),
+    )?;
+    let response = builder.send().await?.error_for_status()?.json().await?;
+
+    Ok(response)
+}
+
+#[doc = r#"Retrieve a front matter schema defined in the workspace"#]
+pub async fn workspace_front_matter_schemas_create(
+    client: &ApiClient,
+    workspace_id: base64uuid::Base64Uuid,
+    payload: models::NewWorkspaceFrontMatterSchema,
+) -> Result<()> {
+    let mut builder = client.request(
+        Method::POST,
+        &format!(
+            "/api/workspaces/{workspace_id}/front_matter_schemas",
+            workspace_id = workspace_id,
+        ),
+    )?;
+    builder = builder.json(&payload);
+    let response = builder.send().await?.error_for_status()?;
+
+    Ok(())
+}
+
+#[doc = r#"Retrieve a front matter schema defined in the workspace"#]
+pub async fn workspace_front_matter_schemas_get_by_name(
+    client: &ApiClient,
+    workspace_id: base64uuid::Base64Uuid,
+    front_matter_schema_name: &str,
+) -> Result<models::FrontMatterSchema> {
+    let mut builder = client.request(
+        Method::GET,
+        &format!(
+            "/api/workspaces/{workspace_id}/front_matter_schemas/{front_matter_schema_name}",
+            workspace_id = workspace_id,
+            front_matter_schema_name = front_matter_schema_name,
+        ),
+    )?;
+    let response = builder.send().await?.error_for_status()?.json().await?;
+
+    Ok(response)
+}
+
 #[doc = r#"Retrieves a list of pending workspace invitations"#]
 pub async fn workspace_invite_get(
     client: &ApiClient,
