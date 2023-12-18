@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use crate::timestamps::Timestamp;
 use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]
@@ -25,7 +27,18 @@ impl Serializable for SerializableEqFloat {
     }
 
     fn ty() -> fp_bindgen::types::Type {
-        fp_bindgen::types::Type::Primitive(fp_bindgen::primitives::Primitive::F64)
+        // fp_bindgen::types::Type::Primitive(fp_bindgen::primitives::Primitive::F64)
+
+        fp_bindgen::types::Type::Custom(fp_bindgen::types::CustomType {
+            ident: fp_bindgen::types::TypeIdent::from("SerializableEqFloat"),
+            rs_ty: "f64".to_owned(),
+            ts_ty: "number".to_owned(),
+            // Not filling the BTreeMap here can be wrong, but as long as fiberplane_models ends up
+            // in the dependencies of downstream users, it should be fine.
+            rs_dependencies: BTreeMap::new(),
+            serde_attrs: Vec::new(),
+            ts_declaration: None,
+        })
     }
 }
 
@@ -47,6 +60,26 @@ impl<T: Into<f64>> From<T> for SerializableEqFloat {
 )]
 #[repr(transparent)]
 pub struct FrontMatterSchema(pub Vec<FrontMatterSchemaEntry>);
+
+impl std::ops::Deref for FrontMatterSchema {
+    type Target = Vec<FrontMatterSchemaEntry>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::ops::DerefMut for FrontMatterSchema {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl From<Vec<FrontMatterSchemaEntry>> for FrontMatterSchema {
+    fn from(value: Vec<FrontMatterSchemaEntry>) -> Self {
+        Self(value)
+    }
+}
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
 #[cfg_attr(
@@ -117,25 +150,45 @@ impl From<FrontMatterNumberSchema> for FrontMatterValueSchema {
 pub struct FrontMatterNumberSchema {
     #[builder(default, setter(into))]
     pub display_name: String,
+
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_name: Option<String>,
+
+    /// Whether the field can have multiple values
     // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub multiple: bool,
+
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub allow_extra_values: bool,
+
+    /// The list of valid "pre-filled" options one can choose for the field.
+    ///
+    /// There is a functional difference between `None` and `Some(Vec::new())`:
+    /// - When `options.is_none()`, that means the current number field should
+    ///   not propose pre-filled values at all: this front matter field is a
+    ///   freeform field
+    /// - When `options == Some(Vec::new())` (arguably with `allow_extra_values` being true),
+    ///   that means that the field is supposed to be a "choose value from an enumerated list"-kind
+    ///   of field, but without any pre-existing values being present.
+    ///
+    /// The difference of intent between those two cases can be used on the front-end side to decide
+    /// how to render the front matter cell
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<Vec<FrontMatterEnumNumberValue>>,
+
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_value: Option<FrontMatterEnumNumberValue>,
+
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prefix: Option<String>,
+
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub suffix: Option<String>,
@@ -152,19 +205,37 @@ pub struct FrontMatterNumberSchema {
 pub struct FrontMatterStringSchema {
     #[builder(default, setter(into))]
     pub display_name: String,
+
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_name: Option<String>,
+
+    /// Whether the field can have multiple values
     // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub multiple: bool,
+
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub allow_extra_values: bool,
+
+    /// The list of valid "pre-filled" options one can choose for the field.
+    ///
+    /// There is a functional difference between `None` and `Some(Vec::new())`:
+    /// - When `options.is_none()`, that means the current number field should
+    ///   not propose pre-filled values at all: this front matter field is a
+    ///   freeform field
+    /// - When `options == Some(Vec::new())` (arguably with `allow_extra_values` being true),
+    ///   that means that the field is supposed to be a "choose value from an enumerated list"-kind
+    ///   of field, but without any pre-existing values being present.
+    ///
+    /// The difference of intent between those two cases can be used on the front-end side to decide
+    /// how to render the front matter cell
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<Vec<FrontMatterEnumStringValue>>,
+
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_value: Option<FrontMatterEnumStringValue>,
@@ -181,19 +252,37 @@ pub struct FrontMatterStringSchema {
 pub struct FrontMatterDateTimeSchema {
     #[builder(default, setter(into))]
     pub display_name: String,
+
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_name: Option<String>,
+
+    /// Whether the field can have multiple values
     // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub multiple: bool,
+
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub allow_extra_values: bool,
+
+    /// The list of valid "pre-filled" options one can choose for the field.
+    ///
+    /// There is a functional difference between `None` and `Some(Vec::new())`:
+    /// - When `options.is_none()`, that means the current number field should
+    ///   not propose pre-filled values at all: this front matter field is a
+    ///   freeform field
+    /// - When `options == Some(Vec::new())` (arguably with `allow_extra_values` being true),
+    ///   that means that the field is supposed to be a "choose value from an enumerated list"-kind
+    ///   of field, but without any pre-existing values being present.
+    ///
+    /// The difference of intent between those two cases can be used on the front-end side to decide
+    /// how to render the front matter cell
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<Vec<FrontMatterEnumDateTimeValue>>,
+
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_value: Option<FrontMatterEnumDateTimeValue>,
@@ -210,19 +299,37 @@ pub struct FrontMatterDateTimeSchema {
 pub struct FrontMatterUserSchema {
     #[builder(default, setter(into))]
     pub display_name: String,
+
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_name: Option<String>,
+
+    /// Whether the field can have multiple values
     // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub multiple: bool,
+
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub allow_extra_values: bool,
+
+    /// The list of valid "pre-filled" options one can choose for the field.
+    ///
+    /// There is a functional difference between `None` and `Some(Vec::new())`:
+    /// - When `options.is_none()`, that means the current number field should
+    ///   not propose pre-filled values at all: this front matter field is a
+    ///   freeform field
+    /// - When `options == Some(Vec::new())` (arguably with `allow_extra_values` being true),
+    ///   that means that the field is supposed to be a "choose value from an enumerated list"-kind
+    ///   of field, but without any pre-existing values being present.
+    ///
+    /// The difference of intent between those two cases can be used on the front-end side to decide
+    /// how to render the front matter cell
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<Vec<FrontMatterEnumBase64UuidValue>>,
+
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_value: Option<FrontMatterEnumBase64UuidValue>,
@@ -248,6 +355,7 @@ pub struct FrontMatterEnumBase64UuidValue {
     #[builder(setter(into))]
     value: Base64Uuid,
 }
+
 impl From<Base64Uuid> for FrontMatterEnumBase64UuidValue {
     fn from(value: Base64Uuid) -> Self {
         Self { value }
@@ -287,6 +395,7 @@ pub struct FrontMatterEnumNumberValue {
     #[builder(setter(into))]
     value: SerializableEqFloat,
 }
+
 impl<T: Into<f64>> From<T> for FrontMatterEnumNumberValue {
     fn from(value: T) -> Self {
         Self {
@@ -307,6 +416,7 @@ pub struct FrontMatterEnumDateTimeValue {
     #[builder(setter(into))]
     value: Timestamp,
 }
+
 impl<T: Into<Timestamp>> From<T> for FrontMatterEnumDateTimeValue {
     fn from(value: T) -> Self {
         Self {
