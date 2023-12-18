@@ -122,7 +122,7 @@ pub struct NewWorkspace {
 
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub front_matter_schemas: Option<BTreeMap<String, FrontMatterSchema>>,
+    pub front_matter_schemas: Option<WorkspaceFrontMatterSchemas>,
 }
 
 impl NewWorkspace {
@@ -133,6 +133,57 @@ impl NewWorkspace {
             default_data_sources: None,
             front_matter_schemas: None,
         }
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Default, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::workspaces")
+)]
+#[serde(rename_all = "camelCase")]
+#[non_exhaustive]
+pub struct NewWorkspaceFrontMatterSchema {
+    pub name: String,
+    pub schema: FrontMatterSchema,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Default)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::workspaces")
+)]
+#[non_exhaustive]
+#[repr(transparent)]
+pub struct WorkspaceFrontMatterSchemas(pub BTreeMap<String, FrontMatterSchema>);
+
+impl std::ops::Deref for WorkspaceFrontMatterSchemas {
+    type Target = BTreeMap<String, FrontMatterSchema>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::ops::DerefMut for WorkspaceFrontMatterSchemas {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl From<BTreeMap<String, FrontMatterSchema>> for WorkspaceFrontMatterSchemas {
+    fn from(value: BTreeMap<String, FrontMatterSchema>) -> Self {
+        Self(value)
+    }
+}
+
+impl FromIterator<(String, FrontMatterSchema)> for WorkspaceFrontMatterSchemas {
+    fn from_iter<T: IntoIterator<Item = (String, FrontMatterSchema)>>(iter: T) -> Self {
+        iter.into_iter()
+            .collect::<BTreeMap<String, FrontMatterSchema>>()
+            .into()
     }
 }
 
