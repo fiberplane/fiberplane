@@ -10,4 +10,5 @@ rust-version = { workspace = true }
 version = "0.1.0"
 
 [dependencies]
+deno_ast = { version = "0.31.6", features = ["transpiling"] }
 deno_runtime = "0.136"
