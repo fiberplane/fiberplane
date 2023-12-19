@@ -465,17 +465,33 @@ pub struct InsertFrontMatterSchemaOperation {
     pub insertions: Vec<FrontMatterSchemaInsertion>,
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
     fp(rust_module = "fiberplane_models::notebooks::operations")
 )]
-pub struct FrontMatterSchemaInsertion(pub FrontMatterSchemaEntry, pub Option<Value>);
+#[serde(rename_all = "camelCase")]
+#[non_exhaustive]
+pub struct FrontMatterSchemaInsertion {
+    #[builder(setter(into))]
+    pub key: String,
+
+    #[builder(setter(into))]
+    pub schema: FrontMatterValueSchema,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[builder(default, setter(into))]
+    pub value: Option<Value>,
+}
 
 impl From<(FrontMatterSchemaEntry, Option<Value>)> for FrontMatterSchemaInsertion {
     fn from((schema, value): (FrontMatterSchemaEntry, Option<Value>)) -> Self {
-        Self(schema, value)
+        Self {
+            key: schema.key,
+            schema: schema.schema,
+            value,
+        }
     }
 }
 
