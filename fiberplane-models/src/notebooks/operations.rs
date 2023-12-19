@@ -461,17 +461,23 @@ pub struct InsertFrontMatterSchemaOperation {
     /// The index to insert the new front matter schema into
     pub to_index: u32,
 
-    /// The new entries to add to the front matter schema
-    #[builder(setter(into))]
-    pub new_entries: Vec<FrontMatterSchemaEntry>,
-
-    /// The new values to add to the front matter schema, in the same order as
-    /// the new entries. Use `None` to skip value insertion for a specific entry.
-    pub new_values: Vec<Option<Value>>,
+    /// The new entries to add to the front matter schema, with their new values
+    pub insertions: Vec<FrontMatterSchemaInsertion>,
 }
 
-// NOTE: No strip_option here because the strongly typed builder makes
-// it hard to revert operations in fiberplane-ot otherwise
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::operations")
+)]
+pub struct FrontMatterSchemaInsertion(pub FrontMatterSchemaEntry, pub Option<Value>);
+
+impl From<(FrontMatterSchemaEntry, Option<Value>)> for FrontMatterSchemaInsertion {
+    fn from((schema, value): (FrontMatterSchemaEntry, Option<Value>)) -> Self {
+        Self(schema, value)
+    }
+}
 
 /// Changes the expected schema of a front matter key in a notebook and/or the
 /// value attached to a schema
@@ -493,12 +499,16 @@ pub struct UpdateFrontMatterSchemaOperation {
     #[builder(setter(into))]
     pub old_schema: FrontMatterValueSchema,
 
+    // NOTE: No strip_option here because the strongly typed builder makes
+    // it hard to revert operations in fiberplane-ot otherwise
     /// The previous value for that front matter key. It is used for consistency checks,
     /// as well as making reverting operations possible.
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub old_value: Option<Value>,
 
+    // NOTE: No strip_option here because the strongly typed builder makes
+    // it hard to revert operations in fiberplane-ot otherwise
     /// The new schema to use, if unspecified the operation will leave the schema
     /// untouched (so the operation is only being used to edit the associated value).
     ///
