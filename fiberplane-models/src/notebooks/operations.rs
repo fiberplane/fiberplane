@@ -599,7 +599,7 @@ pub struct RemoveFrontMatterSchemaOperation {
     pub key_of_entry_after_deletion_range: Option<String>,
 
     /// The index to start removing elements from. This is the index of the first element that will be
-    /// deleted, and should match the first element of the `old_entries` array.
+    /// deleted, and should match the first element of the `deletions` array.
     pub from_index: u32,
 
     /// Elements that should be deleted, with their last known values
