@@ -462,10 +462,10 @@ pub struct InsertFrontMatterSchemaOperation {
     pub to_index: u32,
 
     /// The new entries to add to the front matter schema, with their new values
-    pub insertions: Vec<FrontMatterSchemaInsertion>,
+    pub insertions: Vec<FrontMatterSchemaRow>,
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -473,7 +473,7 @@ pub struct InsertFrontMatterSchemaOperation {
 )]
 #[serde(rename_all = "camelCase")]
 #[non_exhaustive]
-pub struct FrontMatterSchemaInsertion {
+pub struct FrontMatterSchemaRow {
     #[builder(setter(into))]
     pub key: String,
 
@@ -485,7 +485,7 @@ pub struct FrontMatterSchemaInsertion {
     pub value: Option<Value>,
 }
 
-impl From<(FrontMatterSchemaEntry, Option<Value>)> for FrontMatterSchemaInsertion {
+impl From<(FrontMatterSchemaEntry, Option<Value>)> for FrontMatterSchemaRow {
     fn from((schema, value): (FrontMatterSchemaEntry, Option<Value>)) -> Self {
         Self {
             key: schema.key,
@@ -602,12 +602,8 @@ pub struct RemoveFrontMatterSchemaOperation {
     /// deleted, and should match the first element of the `old_entries` array.
     pub from_index: u32,
 
-    /// Elements that should be deleted.
-    pub old_entries: Vec<FrontMatterSchemaEntry>,
-
-    /// Values of the front matter for the deleted elements, in the same order as the deleted
-    /// elements.
-    pub old_values: Vec<Option<Value>>,
+    /// Elements that should be deleted, with their last known values
+    pub deletions: Vec<FrontMatterSchemaRow>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
