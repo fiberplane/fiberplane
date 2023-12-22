@@ -1,4 +1,4 @@
-import { forwardRef, type HTMLInputTypeAttribute } from "react";
+import { type HTMLInputTypeAttribute, forwardRef } from "react";
 
 import { CheckBox } from "./Checkbox";
 import { LightSwitch } from "./LightSwitch";
