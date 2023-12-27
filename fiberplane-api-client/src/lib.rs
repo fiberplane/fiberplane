@@ -16,6 +16,7 @@ pub(crate) mod models {
     pub(crate) use fiberplane_models::events::*;
     pub(crate) use fiberplane_models::files::*;
     pub(crate) use fiberplane_models::formatting::*;
+    pub(crate) use fiberplane_models::integrations::*;
     pub(crate) use fiberplane_models::labels::*;
     pub(crate) use fiberplane_models::names::*;
     pub(crate) use fiberplane_models::notebooks::operations::*;
@@ -557,6 +558,14 @@ pub async fn profile_get(client: &ApiClient) -> Result<models::Profile> {
 #[doc = r#"List of all available providers and if they're linked to the current user"#]
 pub async fn oid_connections_list(client: &ApiClient) -> Result<Vec<models::OidConnection>> {
     let mut builder = client.request(Method::GET, "/api/profile/connections")?;
+    let response = builder.send().await?.error_for_status()?.json().await?;
+
+    Ok(response)
+}
+
+#[doc = r#"Get a list of all integrations and their status"#]
+pub async fn integrations_get(client: &ApiClient) -> Result<Vec<models::Integration>> {
+    let mut builder = client.request(Method::GET, "/api/profile/integrations")?;
     let response = builder.send().await?.error_for_status()?.json().await?;
 
     Ok(response)

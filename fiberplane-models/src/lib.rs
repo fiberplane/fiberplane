@@ -29,6 +29,7 @@ pub mod data_sources;
 pub mod events;
 pub mod files;
 pub mod formatting;
+pub mod integrations;
 pub mod labels;
 pub mod names;
 pub mod notebooks;

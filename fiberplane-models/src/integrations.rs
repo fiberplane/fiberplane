@@ -1,0 +1,59 @@
+use crate::timestamps::Timestamp;
+#[cfg(feature = "fp-bindgen")]
+use fp_bindgen::prelude::Serializable;
+use serde::{Deserialize, Serialize};
+use strum_macros::{Display, EnumIter};
+use typed_builder::TypedBuilder;
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct Integration {
+    pub id: IntegrationId,
+    pub status: IntegrationStatus,
+
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+    #[builder(setter(into))]
+    pub updated_at: Timestamp,
+
+    #[builder(default, setter(strip_option, into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub data: Option<serde_json::Value>,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize, Display, EnumIter)]
+#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "lowercase")]
+pub enum IntegrationId {
+    /*
+    GitHub,
+    Zoom,
+    etc...
+    */
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Display, EnumIter)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub enum IntegrationStatus {
+    Connected,
+    Disconnected,
+    AttentionRequired { reason: String }, // todo: check if this gets serialized correctly
+}
