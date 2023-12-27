@@ -564,6 +564,14 @@ pub async fn oid_connections_list(client: &ApiClient) -> Result<Vec<models::OidC
     Ok(response)
 }
 
+#[doc = r#"Get a list of all integrations and their status"#]
+pub async fn integrations_get(client: &ApiClient) -> Result<Vec<models::Integration>> {
+    let mut builder = client.request(Method::GET, "/api/profile/integrations")?;
+    let response = builder.send().await?.error_for_status()?.json().await?;
+
+    Ok(response)
+}
+
 #[doc = r#"Retrieve profile image"#]
 pub async fn profile_picture_get(client: &ApiClient) -> Result<bytes::Bytes> {
     let mut builder = client.request(Method::GET, "/api/profile/picture")?;
