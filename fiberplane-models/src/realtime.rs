@@ -537,6 +537,10 @@ pub enum RejectReason {
     /// Current notebook state does not match old state in operation.
     InconsistentState,
 
+    /// Current notebook state does not match old state in operation.
+    #[serde(rename_all = "camelCase")]
+    InconsistentFrontMatter { message: String },
+
     /// Attempted to perform a text operation on a non-text cell.
     #[serde(rename_all = "camelCase")]
     NoTextCell { cell_id: String },
@@ -544,6 +548,10 @@ pub enum RejectReason {
     /// The requested apply operation was for an old version. The u32 contains
     /// the current revision.
     Outdated(OutdatedRejectReason),
+
+    /// The operation is unknown yet, and cannot be validated
+    #[serde(rename_all = "camelCase")]
+    UnknownOperation { operation_summary: String },
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]

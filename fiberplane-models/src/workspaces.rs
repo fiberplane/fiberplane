@@ -1,16 +1,17 @@
-use crate::data_sources::SelectedDataSources;
 pub use crate::labels::Label;
 use crate::names::Name;
 use crate::timestamps::Timestamp;
+use crate::{data_sources::SelectedDataSources, front_matter_schemas::FrontMatterSchema};
 use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 use strum_macros::Display;
 use typed_builder::TypedBuilder;
 
 /// Workspace representation.
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -41,6 +42,9 @@ pub struct Workspace {
 
     #[builder(setter(into))]
     pub updated_at: Timestamp,
+
+    #[builder(default)]
+    pub front_matter_schemas: BTreeMap<String, FrontMatterSchema>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Display)]
@@ -96,7 +100,7 @@ pub struct WorkspaceInviteResponse {
 }
 
 /// Payload to create a new organization workspace.
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -115,6 +119,10 @@ pub struct NewWorkspace {
     #[builder(default, setter(into, strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub default_data_sources: Option<SelectedDataSources>,
+
+    #[builder(default, setter(strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub front_matter_schemas: Option<WorkspaceFrontMatterSchemas>,
 }
 
 impl NewWorkspace {
@@ -123,12 +131,64 @@ impl NewWorkspace {
             name,
             display_name: None,
             default_data_sources: None,
+            front_matter_schemas: None,
         }
     }
 }
 
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Default, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::workspaces")
+)]
+#[serde(rename_all = "camelCase")]
+#[non_exhaustive]
+pub struct NewWorkspaceFrontMatterSchema {
+    pub name: String,
+    pub schema: FrontMatterSchema,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Default)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::workspaces")
+)]
+#[non_exhaustive]
+#[repr(transparent)]
+pub struct WorkspaceFrontMatterSchemas(pub BTreeMap<String, FrontMatterSchema>);
+
+impl std::ops::Deref for WorkspaceFrontMatterSchemas {
+    type Target = BTreeMap<String, FrontMatterSchema>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::ops::DerefMut for WorkspaceFrontMatterSchemas {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl From<BTreeMap<String, FrontMatterSchema>> for WorkspaceFrontMatterSchemas {
+    fn from(value: BTreeMap<String, FrontMatterSchema>) -> Self {
+        Self(value)
+    }
+}
+
+impl FromIterator<(String, FrontMatterSchema)> for WorkspaceFrontMatterSchemas {
+    fn from_iter<T: IntoIterator<Item = (String, FrontMatterSchema)>>(iter: T) -> Self {
+        iter.into_iter()
+            .collect::<BTreeMap<String, FrontMatterSchema>>()
+            .into()
+    }
+}
+
 /// Payload to update workspace settings
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -148,6 +208,10 @@ pub struct UpdateWorkspace {
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub default_data_sources: Option<SelectedDataSources>,
+
+    #[builder(default, setter(strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub front_matter_schemas: Option<BTreeMap<String, FrontMatterSchema>>,
 }
 
 /// Payload to update a workspace members' role

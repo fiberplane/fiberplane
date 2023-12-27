@@ -25,6 +25,14 @@ major version hasn't changed.
 - `@fiberplane/ui`: Add webhooks icon & expose icon type guard
 - `fiberplane-charts`: Allow configuring stroke width of chart content lines
 - `mondrian-charts`: Allow configuring stroke width of chart content lines
+- `fiberplane-models`: Add models and operations to interact with Front matter using 
+  "Front Matter Schema" structure.
+  Each notebook has both a "front matter" (the raw data) and a "front matter schema",
+  controlling the display and the properties of the front matter.
+  Each workspace has a list of (editable) associated front matter schemas pickable when
+  creating notebooks.
+- `fiberplane-api-client`: Add queries to work with front matter schemas associated with
+  a workspace.
 
 ## mondrian-charts [v0.4.0] - 2023-11-30
 

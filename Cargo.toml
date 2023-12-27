@@ -16,7 +16,7 @@ members = [
 ]
 
 [workspace.package]
-version = "1.0.0-beta.6"
+version = "1.0.0-beta.7"
 authors = ["Fiberplane <info@fiberplane.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"

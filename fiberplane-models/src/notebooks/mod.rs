@@ -1,5 +1,6 @@
 use crate::comments::UserSummary;
 use crate::data_sources::SelectedDataSources;
+use crate::front_matter_schemas::FrontMatterSchema;
 pub use crate::labels::Label;
 use crate::timestamps::*;
 use base64uuid::Base64Uuid;
@@ -7,7 +8,7 @@ use base64uuid::Base64Uuid;
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use strum_macros::Display;
 use typed_builder::TypedBuilder;
 use url::Url;
@@ -22,7 +23,7 @@ pub mod operations;
 /// A JSON object which may or may not contain well known keys.
 /// More information in the [RFC](https://www.notion.so/fiberplane/RFC-58-Front-matter-Specialization-Front-matter-a9b3b51614ee48a19ec416c02a9fd647)
 // this is on purpose a `Map<String, Value>` instead of a `Value` to disallow top level arrays
-pub type FrontMatter = Map<String, Value>;
+pub type FrontMatter = BTreeMap<String, Value>;
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, TypedBuilder)]
 #[cfg_attr(
@@ -74,6 +75,10 @@ pub struct Notebook {
     #[builder(default)]
     #[serde(default)]
     pub front_matter: FrontMatter,
+
+    #[builder(default)]
+    #[serde(default)]
+    pub front_matter_schema: FrontMatterSchema,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, TypedBuilder)]
@@ -105,6 +110,10 @@ pub struct NewNotebook {
     #[builder(default)]
     #[serde(default)]
     pub front_matter: FrontMatter,
+
+    #[builder(default)]
+    #[serde(default)]
+    pub front_matter_schema: FrontMatterSchema,
 }
 
 impl From<Notebook> for NewNotebook {
@@ -116,6 +125,7 @@ impl From<Notebook> for NewNotebook {
             selected_data_sources: notebook.selected_data_sources,
             labels: notebook.labels,
             front_matter: notebook.front_matter,
+            front_matter_schema: notebook.front_matter_schema,
         }
     }
 }
@@ -361,15 +371,27 @@ pub struct NewTemplate {
     #[builder(default, setter(into))]
     pub description: String,
 
+    #[builder(default)]
+    pub front_matter_schema_names: Vec<String>,
+
     #[builder(setter(into))]
     pub body: String,
 }
 
 impl NewTemplate {
-    pub fn new(name: Name, description: impl Into<String>, body: impl Into<String>) -> Self {
+    pub fn new(
+        name: Name,
+        description: impl Into<String>,
+        front_matter_schema_names: &[impl ToString],
+        body: impl Into<String>,
+    ) -> Self {
         Self {
             name,
             description: description.into(),
+            front_matter_schema_names: front_matter_schema_names
+                .iter()
+                .map(ToString::to_string)
+                .collect(),
             body: body.into(),
         }
     }
@@ -386,6 +408,9 @@ impl NewTemplate {
 pub struct UpdateTemplate {
     #[builder(default, setter(into, strip_option))]
     pub description: Option<String>,
+
+    #[builder(default, setter(into, strip_option))]
+    pub front_matter_schema_names: Option<Vec<String>>,
 
     #[builder(default, setter(into, strip_option))]
     pub body: Option<String>,
