@@ -22,6 +22,7 @@ pub fn handle_generate_api_client_command() -> TaskResult {
             "fiberplane_models::files::*".to_owned(),
             "fiberplane_models::formatting::*".to_owned(),
             "fiberplane_models::front_matter_schemas::*".to_owned(),
+            "fiberplane_models::integrations::*".to_owned(),
             "fiberplane_models::labels::*".to_owned(),
             "fiberplane_models::names::*".to_owned(),
             "fiberplane_models::proxies::*".to_owned(),
