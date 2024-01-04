@@ -81,6 +81,9 @@ mod types;
 
 pub static FIBERPLANE_LIBRARY_PATH: &str = "fiberplane.libsonnet";
 
+#[cfg(feature = "convert")]
 pub use convert::*;
 #[cfg(feature = "expand")]
 pub use expand::*;
+#[cfg(feature = "types")]
+pub use types::*;
