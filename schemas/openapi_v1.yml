@@ -3409,6 +3409,9 @@ paths:
       description: "Get a list of all integrations and their status"
       tags:
         - Integrations
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
       responses:
         "200":
           description: OK
