@@ -1221,6 +1221,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/templateParameter"
+        frontMatterSchemaNames:
+          type: array
+          items:
+            type: string
         createdAt:
           type: string
           format: date-time
@@ -1360,6 +1364,10 @@ components:
           type: string
         body:
           type: string
+        frontMatterSchemaNames:
+          type: array
+          items:
+            type: string
     updateTemplate:
       type: object
       properties:
@@ -1367,6 +1375,10 @@ components:
           type: string
         body:
           type: string
+        frontMatterSchemaNames:
+          type: array
+          items:
+            type: string
     trigger:
       type: object
       required:

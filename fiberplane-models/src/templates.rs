@@ -77,4 +77,11 @@ pub struct Template {
     pub updated_at: Timestamp,
 
     pub parameters: Vec<TemplateParameter>,
+
+    /// The names of the front matter schemas to expand with the template. Names are relevant to the
+    /// workspace in which the template is expanded
+    ///
+    /// The order matters, in that, in case of conflicts, the last [`FrontMatterSchema`]() wins.
+    #[builder(default)]
+    pub front_matter_schema_names: Vec<String>,
 }
