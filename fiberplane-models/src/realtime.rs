@@ -785,6 +785,9 @@ pub struct SubscriberChangedFocusMessage {
     /// User's focus within the notebook.
     #[serde(default)]
     pub focus: NotebookFocus,
+
+    #[builder(setter(into))]
+    pub updated_at: Timestamp,
 }
 
 /// A single focus position within a notebook.
