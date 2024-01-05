@@ -31,6 +31,7 @@ major version hasn't changed.
   controlling the display and the properties of the front matter.
   Each workspace has a list of (editable) associated front matter schemas pickable when
   creating notebooks.
+- `fiberplane-models`: Add `updated_at` to `SubscriberChangedFocusMessage`
 - `fiberplane-api-client`: Add queries to work with front matter schemas associated with
   a workspace.
 
