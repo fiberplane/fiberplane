@@ -7,7 +7,7 @@ edition = { workspace = true }
 license = { workspace = true }
 repository = { workspace = true }
 rust-version = { workspace = true }
-version = "1.0.0-beta.7"
+version = "1.0.0-beta.8"
 
 [dependencies]
 fiberplane-models = { workspace = true }

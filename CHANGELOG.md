@@ -13,7 +13,9 @@ crates do not strictly follow _SemVer_ although their versioning remains
 _compatible with_ SemVer, i.e. they will not contain breaking changes if the
 major version hasn't changed.
 
-## [v1.0.0-beta.7] - TBD
+## [v1.0.0-beta.8] - TBD
+
+## [v1.0.0-beta.7] - 2024-01-05
 
 - `fiberplane-charts`: Export some util function and components related to 
   zooming/dragging to facilitate a more experimental graph (alert timeline)

@@ -28,12 +28,13 @@ export function getCoordinatesForEvent<E extends Element>(
 
     return { x: x / xMax, y: 1 - y / yMax };
   }
+
   const element = event.currentTarget || event.target;
-  if (!element) {
+  if (!(element instanceof Element)) {
     return null;
   }
 
-  const rect = (element as Element).getBoundingClientRect();
+  const rect = element.getBoundingClientRect();
   return {
     x: (event.clientX - rect.left) / xMax,
     y: 1 - (event.clientY - rect.top) / yMax,
