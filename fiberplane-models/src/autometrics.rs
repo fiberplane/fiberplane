@@ -1,7 +1,7 @@
-use crate::MaybeSerializable;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
 use typed_builder::TypedBuilder;
 
 /// A metric that contains metadata related to the application.
@@ -80,8 +80,6 @@ pub struct AutometricsFunction {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub service_name: Option<String>,
 }
-
-impl MaybeSerializable for AutometricsFunction {}
 
 /// Represents an individual function call to an Autometricized function.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize, TypedBuilder)]
@@ -195,7 +193,7 @@ pub enum AutometricsFunctionCallResult {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct PrometheusResponse<T: Clone + PartialEq + Serialize + MaybeSerializable> {
+pub struct PrometheusResponse<T> {
     pub status: PrometheusResponseStatus,
 
     #[builder(setter(into))]

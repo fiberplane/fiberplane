@@ -20,8 +20,6 @@ products, including but not limited to:
 
 */
 
-#[cfg(feature = "fp-bindgen")]
-use fp_bindgen::prelude::Serializable;
 use serde::de::{Error, Unexpected, Visitor};
 use serde::{Deserialize, Deserializer};
 use std::fmt;
@@ -60,14 +58,6 @@ fn debug_print_bytes(bytes: impl AsRef<[u8]>) -> String {
         String::from_utf8_lossy(bytes).to_string()
     }
 }
-
-#[cfg(feature = "fp-bindgen")]
-pub trait MaybeSerializable: Serializable {}
-
-#[cfg(not(feature = "fp-bindgen"))]
-pub trait MaybeSerializable {}
-
-impl<T: MaybeSerializable> MaybeSerializable for Vec<T> {}
 
 /// Any value that is present is considered Some value, including null
 // https://github.com/serde-rs/serde/issues/984#issuecomment-314143738
@@ -133,10 +123,7 @@ impl<'de> Visitor<'de> for U32Visitor {
 pub trait BindgenSerializable {}
 
 #[cfg(feature = "fp-bindgen")]
-impl<T> BindgenSerializable for T where
-    T: fp_bindgen::prelude::Serializable + for<'de> serde::de::Deserialize<'de>
-{
-}
+impl<T> BindgenSerializable for T where T: fp_bindgen::prelude::Serializable {}
 
 #[cfg(not(feature = "fp-bindgen"))]
 impl<T> BindgenSerializable for T {}
