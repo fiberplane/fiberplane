@@ -7,46 +7,62 @@ use typed_builder::TypedBuilder;
 /// A metric that contains metadata related to the application.
 ///
 /// See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#build_info
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
     fp(rust_module = "fiberplane_models::autometrics")
 )]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
 pub struct AutometricsBuildInfo {
     /// The version of the user's project.
     ///
     /// See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#version
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub version: Option<String>,
 
     /// The Git commit hash identifying the snapshot of the user's project.
     ///
     /// See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#commit
+    #[builder(setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub commit: Option<String>,
 
     /// The Git branch of the user's project.
     ///
     /// See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#branch
+    #[builder(setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub branch: Option<String>,
 
     /// The logical name of a service. This matches the
     /// [OpenTelemetry Service specification](https://github.com/open-telemetry/semantic-conventions/tree/main/specification/resource/semantic_conventions#service).
     ///
     /// See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#servicename
+    #[builder(setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub service_name: Option<String>,
 
     /// The version of the Autometrics specification that the library targets.
     ///
     /// See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#autometricsversion
+    #[builder(setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub autometrics_version: Option<String>,
 
     /// A URL to the user's project git or other SCM repository.
     ///
     /// See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#repositoryurl
+    #[builder(setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub repository_url: Option<String>,
 
     /// A hint to which provider is being used to host the repository.
     ///
     /// See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#repositoryprovider
+    #[builder(setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub repository_provider: Option<String>,
 }
 
@@ -102,12 +118,14 @@ pub struct AutometricsFunctionCall {
     ///
     /// See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#callerfunction
     #[builder(setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub caller_function: Option<String>,
 
     /// The module of the function that invoked the given function.
     ///
     /// See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#callermodule
     #[builder(setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub caller_module: Option<String>,
 
     /// The user-specified name of the objective, if an SLO is attached.
@@ -116,6 +134,7 @@ pub struct AutometricsFunctionCall {
     ///
     /// See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#objectivename
     #[builder(setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub objective_name: Option<String>,
 
     /// The percentage of requests that should have an `"ok"` result.
@@ -125,6 +144,7 @@ pub struct AutometricsFunctionCall {
     ///
     /// See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#objectivepercentile
     #[builder(setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub objective_percentile: Option<String>,
 }
 
@@ -148,6 +168,7 @@ pub struct AutometricsFunctionCallDuration {
     ///
     /// See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#objectivename
     #[builder(setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub objective_name: Option<String>,
 
     /// The percentage of requests that should meet the SLO's `latency_threshold`.
@@ -157,6 +178,7 @@ pub struct AutometricsFunctionCallDuration {
     ///
     /// See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#objectivepercentile
     #[builder(setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub objective_percentile: Option<String>,
 
     /// The percentage of requests that should meet the SLO's `latency_threshold`.
@@ -166,6 +188,7 @@ pub struct AutometricsFunctionCallDuration {
     ///
     /// See also: https://github.com/autometrics-dev/autometrics-shared/blob/main/specs/autometrics_v1.0.0.md#objectivelatency_threshold
     #[builder(setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub objective_latency_threshold: Option<String>,
 }
 
