@@ -13,7 +13,9 @@ crates do not strictly follow _SemVer_ although their versioning remains
 _compatible with_ SemVer, i.e. they will not contain breaking changes if the
 major version hasn't changed.
 
-## [v1.0.0-beta.7] - TBD
+## [v1.0.0-beta.8] - TBD
+
+## [v1.0.0-beta.7] - 2024-01-05
 
 - `fiberplane-charts`: Export some util function and components related to 
   zooming/dragging to facilitate a more experimental graph (alert timeline)
@@ -25,6 +27,14 @@ major version hasn't changed.
 - `@fiberplane/ui`: Add webhooks icon & expose icon type guard
 - `fiberplane-charts`: Allow configuring stroke width of chart content lines
 - `mondrian-charts`: Allow configuring stroke width of chart content lines
+- `fiberplane-models`: Add models and operations to interact with Front matter using 
+  "Front Matter Schema" structure.
+  Each notebook has both a "front matter" (the raw data) and a "front matter schema",
+  controlling the display and the properties of the front matter.
+  Each workspace has a list of (editable) associated front matter schemas pickable when
+  creating notebooks.
+- `fiberplane-api-client`: Add queries to work with front matter schemas associated with
+  a workspace.
 
 ## mondrian-charts [v0.4.0] - 2023-11-30
 

@@ -53,11 +53,11 @@ jobs:
         # Skip linting on main, since it's not critical and should've already
         # been checked before merging
         if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
-        uses: actions-rs/clippy-check@v1
+        uses: giraffate/clippy-action@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: >
-            --all-features
+          filter_mode: nofilter
+          fail_on_error: true
+          clippy_flags: --all-features --no-deps
             --workspace
             --exclude fiberplane-api-client
             --exclude fiberplane-provider-bindings

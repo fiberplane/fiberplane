@@ -7,7 +7,7 @@ edition = { workspace = true }
 license = { workspace = true }
 repository = { workspace = true }
 rust-version = { workspace = true }
-version = "1.0.0-beta.7"
+version = "1.0.0-beta.8"
 
 [lib]
 crate-type = ["lib"]
@@ -47,6 +47,7 @@ typed-builder = { workspace = true }
 url = { workspace = true, features = ["serde"] }
 strum = "0.24"
 strum_macros = "0.24"
+ordered-float = { version = "4.1.1", features = ["serde"] }
 
 [dev-dependencies]
 pretty_assertions = "1.3"

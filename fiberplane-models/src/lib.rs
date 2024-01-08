@@ -12,6 +12,7 @@ products, including but not limited to:
 - Providers
   - Provider Schemas
 - Comments
+- Front Matter Schemas
 - Rich-Text Formatting
 - Templates
 - Views
@@ -32,6 +33,7 @@ pub mod data_sources;
 pub mod events;
 pub mod files;
 pub mod formatting;
+pub mod front_matter_schemas;
 pub mod labels;
 pub mod names;
 pub mod notebooks;
@@ -125,3 +127,16 @@ impl<'de> Visitor<'de> for U32Visitor {
             .map_err(|_| Error::invalid_type(Unexpected::Str(&v), &self))
     }
 }
+
+/// Helper trait to use as a trait bound on generic types that must be serializable when
+/// the `fp-bindgen` feature is enabled
+pub trait BindgenSerializable {}
+
+#[cfg(feature = "fp-bindgen")]
+impl<T> BindgenSerializable for T where
+    T: fp_bindgen::prelude::Serializable + for<'de> serde::de::Deserialize<'de>
+{
+}
+
+#[cfg(not(feature = "fp-bindgen"))]
+impl<T> BindgenSerializable for T {}

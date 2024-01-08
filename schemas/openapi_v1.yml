@@ -46,7 +46,9 @@ components:
         selectedDataSources:
           $ref: "#/components/schemas/selectedDataSources"
         frontMatter:
-          $ref: "#/components/schemas/front_matter"
+          $ref: "#/components/schemas/frontMatter"
+        frontMatterSchema:
+          $ref: "#/components/schemas/frontMatterSchema"
     notebookCopyDestination:
       type: object
       required:
@@ -518,6 +520,7 @@ components:
         - labels
         - selectedDataSources
         - frontMatter
+        - frontMatterSchema
       properties:
         id:
           type: string
@@ -553,7 +556,9 @@ components:
         selectedDataSources:
           $ref: "#/components/schemas/selectedDataSources"
         frontMatter:
-          $ref: "#/components/schemas/front_matter"
+          $ref: "#/components/schemas/frontMatter"
+        frontMatterSchema:
+          $ref: "#/components/schemas/frontMatterSchema"
     notebookPatch:
       type: object
       properties:
@@ -1905,6 +1910,157 @@ components:
           type: string
         defaultDataSources:
           $ref: "#/components/schemas/selectedDataSources"
+        frontMatterSchemas:
+          $ref: "#/components/schemas/workspaceFrontMatterSchemas"
+    workspaceFrontMatterSchemas:
+      type: object
+      description: A mapping of front matter schemas belonging to a workspace, keyed by name
+      additionalProperties:
+        $ref: "#/components/schemas/frontMatterSchema"
+    newWorkspaceFrontMatterSchema:
+      type: object
+      required:
+        - name
+        - frontMatterSchema
+      description: The payload to create a new front matter schema in a workspace
+      properties:
+        name:
+          type: string
+        frontMatterSchema:
+          $ref: "#/components/schemas/frontMatterSchema"
+    frontMatterSchema:
+      type: array
+      description: An array (in order) of the properties for the keys inside a notebook front matter
+      items:
+        $ref: "#/components/schemas/frontMatterSchemaEntry"
+    frontMatterSchemaEntry:
+      type: object
+      required:
+        - key
+        - schema
+      properties:
+        key:
+          type: string
+        schema:
+          $ref: "#/components/schemas/frontMatterValueSchema"
+    frontMatterValueSchema:
+      oneOf:
+        - $ref: "#/components/schemas/frontMatterNumberSchema"
+        - $ref: "#/components/schemas/frontMatterStringSchema"
+        - $ref: "#/components/schemas/frontMatterDateTimeSchema"
+        - $ref: "#/components/schemas/frontMatterUserSchema"
+      discriminator:
+        propertyName: type
+        mapping:
+        - number: "#/components/schemas/frontMatterNumberSchema"
+        - string: "#/components/schemas/frontMatterStringSchema"
+        - date_time: "#/components/schemas/frontMatterDateTimeSchema"
+        - user: "#/components/schemas/frontMatterUserSchema"
+    frontMatterNumberSchema:
+      type: object
+      required:
+        - displayName
+      properties:
+        displayName:
+          type: string
+        iconName:
+          type: string
+        multiple:
+          type: boolean
+        allowExtraValues:
+          type: boolean
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/frontMatterEnumNumberValue"
+        defaultValue:
+          $ref: "#/components/schemas/frontMatterEnumNumberValue"
+        prefix:
+          type: string
+        suffix:
+          type: string
+    frontMatterEnumNumberValue:
+      type: object
+      description: Representation of a number _value_ in the front matter. It contains the raw number as well as optional formatting/presentation metadata
+      properties:
+        value:
+          type: number
+    frontMatterStringSchema:
+      type: object
+      required:
+        - displayName
+      properties:
+        displayName:
+          type: string
+        iconName:
+          type: string
+        multiple:
+          type: boolean
+        allowExtraValues:
+          type: boolean
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/frontMatterEnumStringValue"
+        defaultValue:
+          $ref: "#/components/schemas/frontMatterEnumStringValue"
+    frontMatterEnumStringValue:
+      type: object
+      description: Representation of a string _value_ in the front matter. It contains the raw string as well as optional formatting/presentation metadata
+      properties:
+        value:
+          type: string
+    frontMatterDateTimeSchema:
+      type: object
+      required:
+        - displayName
+      properties:
+        displayName:
+          type: string
+        iconName:
+          type: string
+        multiple:
+          type: boolean
+        allowExtraValues:
+          type: boolean
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/frontMatterEnumDateTimeValue"
+        defaultValue:
+          $ref: "#/components/schemas/frontMatterEnumDateTimeValue"
+    frontMatterEnumDateTimeValue:
+      type: object
+      description: Representation of a dateTime _value_ in the front matter. It contains the raw dateTime as well as optional formatting/presentation metadata
+      properties:
+        value:
+          type: string
+    frontMatterUserSchema:
+      type: object
+      required:
+        - displayName
+      properties:
+        displayName:
+          type: string
+        iconName:
+          type: string
+        multiple:
+          type: boolean
+        allowExtraValues:
+          type: boolean
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/frontMatterEnumUserValue"
+        defaultValue:
+          $ref: "#/components/schemas/frontMatterEnumUserValue"
+    frontMatterEnumUserValue:
+      type: object
+      description: Representation of a user _value_ in the front matter. It contains the raw user (as its uuid) as well as optional formatting/presentation metadata
+      properties:
+        value:
+          type: string
+          format: base64uuid
     workspace_invite:
       type: object
       required:
@@ -2113,7 +2269,7 @@ components:
           $ref: "#/components/schemas/providerConfig"
     providerConfig:
       description: "Can be any JSON value (string, number, object, array, ...) including 'null'"
-    front_matter:
+    frontMatter:
       type: object
     relativeTime:
       type: object
@@ -2321,6 +2477,13 @@ components:
       schema:
         type: string
         format: base64uuid
+    front_matter_schema_name:
+      name: front_matter_schema_name
+      in: path
+      description: The name of the front matter schema for the workspace
+      required: true
+      schema:
+        type: string
     invitation_id:
       name: invitation_id
       in: path
@@ -2769,7 +2932,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/front_matter"
+              $ref: "#/components/schemas/frontMatter"
       responses:
         "200":
           description: OK
@@ -4591,3 +4754,52 @@ paths:
       responses:
         "200":
           description: OK. Resend has been queued.
+  /api/workspaces/{workspace_id}/front_matter_schemas:
+    parameters:
+      - $ref: "#/components/parameters/workspace_id"
+    get:
+      operationId: workspace_front_matter_schemas_get
+      summary: Retrieve all front matter schemas defined in the workspace
+      description: Retrieve all front matter schemas defined in the workspace
+      tags:
+        - Front Matter Schemas
+      responses:
+        "200":
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/workspaceFrontMatterSchemas"
+    post:
+      operationId: workspace_front_matter_schemas_create
+      summary: Create a front matter schema
+      description: Retrieve a front matter schema defined in the workspace
+      tags:
+        - Front Matter Schemas
+      requestBody:
+        description: Front Matter Schema creation payload
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/newWorkspaceFrontMatterSchema"
+      responses:
+        "200":
+          description: OK. The front matter schema has been created
+  /api/workspaces/{workspace_id}/front_matter_schemas/{front_matter_schema_name}:
+    parameters:
+      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/front_matter_schema_name"
+    get:
+      operationId: workspace_front_matter_schemas_get_by_name
+      summary: Retrieve a front matter schema defined in the workspace
+      description: Retrieve a front matter schema defined in the workspace
+      tags:
+        - Front Matter Schemas
+      responses:
+        "200":
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/frontMatterSchema"

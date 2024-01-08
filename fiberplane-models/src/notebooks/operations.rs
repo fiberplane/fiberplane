@@ -1,10 +1,12 @@
 use crate::data_sources::SelectedDataSource;
 use crate::formatting::Formatting;
+use crate::front_matter_schemas::{FrontMatterSchemaEntry, FrontMatterValueSchema};
 use crate::notebooks::{Cell, FrontMatter, Label};
 use crate::timestamps::TimeRange;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::*;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use typed_builder::TypedBuilder;
 
 /// An operation is the representation for a mutation to be performed to a notebook.
@@ -32,8 +34,15 @@ pub enum Operation {
     AddLabel(AddLabelOperation),
     ReplaceLabel(ReplaceLabelOperation),
     RemoveLabel(RemoveLabelOperation),
+    // #[deprecated(
+    //     note = "Full front matter updates should be avoided, granular update operations are better for conflict handling."
+    // )]
     UpdateFrontMatter(UpdateFrontMatterOperation),
     ClearFrontMatter(ClearFrontMatterOperation),
+    InsertFrontMatterSchema(InsertFrontMatterSchemaOperation),
+    UpdateFrontMatterSchema(UpdateFrontMatterSchemaOperation),
+    MoveFrontMatterSchema(MoveFrontMatterSchemaOperation),
+    RemoveFrontMatterSchema(RemoveFrontMatterSchemaOperation),
 }
 
 /// Moves one or more cells.
@@ -423,6 +432,178 @@ pub struct UpdateFrontMatterOperation {
 #[serde(rename_all = "camelCase")]
 pub struct ClearFrontMatterOperation {
     pub front_matter: FrontMatter,
+}
+
+/// Adds front matter entries in a notebook
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::operations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct InsertFrontMatterSchemaOperation {
+    // NOTE: No strip_option here because the strongly typed builder makes
+    // it hard to revert operations in fiberplane-ot otherwise
+    /// The Front Matter Schema key that is just before the insertion point. This
+    /// is solely used for consistency checks when validating the operation.
+    #[builder(default, setter(into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub key_of_entry_before_insertion_location: Option<String>,
+
+    /// The Front Matter Schema key that is just after the insertion point. This
+    /// is solely used for consistency checks when validating the operation.
+    #[builder(default, setter(into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub key_of_entry_after_insertion_location: Option<String>,
+
+    /// The index to insert the new front matter schema into
+    pub to_index: u32,
+
+    /// The new entries to add to the front matter schema, with their new values
+    pub insertions: Vec<FrontMatterSchemaRow>,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::operations")
+)]
+#[serde(rename_all = "camelCase")]
+#[non_exhaustive]
+pub struct FrontMatterSchemaRow {
+    #[builder(setter(into))]
+    pub key: String,
+
+    #[builder(setter(into))]
+    pub schema: FrontMatterValueSchema,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[builder(default, setter(into))]
+    pub value: Option<Value>,
+}
+
+impl From<(FrontMatterSchemaEntry, Option<Value>)> for FrontMatterSchemaRow {
+    fn from((schema, value): (FrontMatterSchemaEntry, Option<Value>)) -> Self {
+        Self {
+            key: schema.key,
+            schema: schema.schema,
+            value,
+        }
+    }
+}
+
+/// Changes the expected schema of a front matter key in a notebook and/or the
+/// value attached to a schema
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::operations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateFrontMatterSchemaOperation {
+    /// The key of the front matter schema to update.
+    #[builder(setter(into))]
+    pub key: String,
+
+    /// The previous schema used for that front matter key. The old value is used
+    /// to make consistency checks, as well as revert the operation.
+    #[builder(setter(into))]
+    pub old_schema: FrontMatterValueSchema,
+
+    // NOTE: No strip_option here because the strongly typed builder makes
+    // it hard to revert operations in fiberplane-ot otherwise
+    /// The previous value for that front matter key. It is used for consistency checks,
+    /// as well as making reverting operations possible.
+    #[builder(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub old_value: Option<Value>,
+
+    // NOTE: No strip_option here because the strongly typed builder makes
+    // it hard to revert operations in fiberplane-ot otherwise
+    /// The new schema to use, if unspecified the operation will leave the schema
+    /// untouched (so the operation is only being used to edit the associated value).
+    ///
+    /// If a new schema is specified, and the data type does _not_ match between the
+    /// old and the new one, then the old value will be wiped anyway.
+    #[builder(setter(into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub new_schema: Option<FrontMatterValueSchema>,
+
+    /// The new value to set for the front matter entry.
+    ///
+    /// If this attribute is `None` or `null` it can mean multiple things depending on
+    /// the other attributes:
+    /// - if `delete_value` is `false`, this means we want to keep the `old_value`
+    ///   + it is impossible to keep the `old_value` if the schemas are incompatible. In that
+    ///     case we use the `default_value` of the new schema (or nothing if there’s no default)
+    /// - if `delete_value` is `true`, this means we want to wipe the value from the front
+    ///   matter in all cases.
+    #[builder(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub new_value: Option<Value>,
+
+    /// Switch that controls front matter value edition alongside `new_value`, when
+    /// `new_value` is None.
+    #[builder(setter(strip_bool))]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub delete_value: bool,
+}
+
+/// Moves front matter entries in a notebook
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::operations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct MoveFrontMatterSchemaOperation {
+    /// The keys that will be moved in the front matter. They should be a range of
+    /// consecutive front matter entries, matching the existing front matter schema
+    /// at the index pointed to by `from_index`
+    pub keys: Vec<String>,
+
+    /// Index the key will be moved from. This is the index of the first front matter key before the move.
+    pub from_index: u32,
+
+    /// Index the key will be moved to. This is the index of the first front matter key after the move.
+    pub to_index: u32,
+}
+
+/// Removes front matter entries in a notebook
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::operations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct RemoveFrontMatterSchemaOperation {
+    /// The key of the front matter schema element lying just before the deletion range, i.e. _not_ removed.
+    /// This is used to make consistency checks when validating operation.
+    #[builder(default, setter(into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub key_of_entry_before_deletion_range: Option<String>,
+
+    /// The key of the front matter schema element lying just after the deletion range, i.e. _not_ removed.
+    /// This is used to make consistency checks when validating operation.
+    #[builder(default, setter(into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub key_of_entry_after_deletion_range: Option<String>,
+
+    /// The index to start removing elements from. This is the index of the first element that will be
+    /// deleted, and should match the first element of the `deletions` array.
+    pub from_index: u32,
+
+    /// Elements that should be deleted, with their last known values
+    pub deletions: Vec<FrontMatterSchemaRow>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
