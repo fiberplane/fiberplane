@@ -37,7 +37,7 @@ pub struct Integration {
 #[non_exhaustive]
 #[serde(rename_all = "lowercase")]
 pub enum IntegrationId {
-    GitHub
+    GitHub,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Display, EnumIter)]
