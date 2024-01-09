@@ -2448,13 +2448,24 @@ components:
         id:
           type: string
           enum:
-            - "TODO"
+            - "github"
         status:
-          type: string
-          enum:
-            - "connected"
-            - "disconnected"
-            - "attentionRequired"
+          type: object
+          required:
+            - type
+          properties:
+            type:
+              type: string
+              enum:
+                - "connected"
+                - "disconnected"
+                - "attention_required"
+            reason:
+              type: string
+              description: |
+                If `type = attention_required`, this field will be
+                populated with a human readable string explaining why
+                attention is required for this peculiar integration
         created_at:
           type: string
           format: date-time

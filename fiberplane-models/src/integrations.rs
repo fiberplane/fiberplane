@@ -37,11 +37,7 @@ pub struct Integration {
 #[non_exhaustive]
 #[serde(rename_all = "lowercase")]
 pub enum IntegrationId {
-    /*
-    GitHub,
-    Zoom,
-    etc...
-    */
+    GitHub
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Display, EnumIter)]
@@ -51,9 +47,9 @@ pub enum IntegrationId {
     fp(rust_module = "fiberplane_models::integrations")
 )]
 #[non_exhaustive]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "snake_case", tag = "type")]
 pub enum IntegrationStatus {
     Connected,
     Disconnected,
-    AttentionRequired { reason: String }, // todo: check if this gets serialized correctly
+    AttentionRequired { reason: String },
 }
