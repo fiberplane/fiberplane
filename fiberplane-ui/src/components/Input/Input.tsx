@@ -1,11 +1,13 @@
-import { forwardRef } from "react";
+import { type HTMLInputTypeAttribute, forwardRef } from "react";
 
 import { CheckBox } from "./Checkbox";
 import { LightSwitch } from "./LightSwitch";
 import { RadioButton } from "./RadioButton";
 import { TextInput } from "./TextInput";
 
-type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
+type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> & {
+  type?: HTMLInputTypeAttribute | "lightswitch";
+};
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   props,
