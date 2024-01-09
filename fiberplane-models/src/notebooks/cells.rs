@@ -1,6 +1,5 @@
 use crate::blobs::EncodedBlob;
 use crate::formatting::Formatting;
-pub use crate::labels::Label;
 use crate::query_data::{has_query_data, set_query_field, unset_query_field};
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;

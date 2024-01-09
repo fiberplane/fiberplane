@@ -20,7 +20,7 @@ products, including but not limited to:
 
 */
 
-use serde::de::{self, Error, Unexpected, Visitor};
+use serde::de::{Error, Unexpected, Visitor};
 use serde::{Deserialize, Deserializer};
 use std::fmt;
 
@@ -123,7 +123,7 @@ pub trait BindgenSerializable {}
 
 #[cfg(feature = "fp-bindgen")]
 impl<T> BindgenSerializable for T where
-    T: fp_bindgen::prelude::Serializable + for<'de> de::Deserialize<'de>
+    T: fp_bindgen::prelude::Serializable + for<'de> serde::de::Deserialize<'de>
 {
 }
 

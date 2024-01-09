@@ -1,5 +1,3 @@
-use std::collections::BTreeMap;
-
 use crate::timestamps::Timestamp;
 use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]
@@ -10,7 +8,7 @@ use strum_macros::Display;
 use typed_builder::TypedBuilder;
 
 /// A floating-point number that can be ordered and compared using Eq.
-///  
+///
 /// It is not compliant to IEEE standard, and NaN is considered greater than
 /// everything and equal to itself.
 ///
@@ -35,7 +33,7 @@ impl Serializable for SerializableEqFloat {
             ts_ty: "number".to_owned(),
             // Not filling the BTreeMap here can be wrong, but as long as fiberplane_models ends up
             // in the dependencies of downstream users, it should be fine.
-            rs_dependencies: BTreeMap::new(),
+            rs_dependencies: std::collections::BTreeMap::new(),
             serde_attrs: Vec::new(),
             ts_declaration: None,
         })
