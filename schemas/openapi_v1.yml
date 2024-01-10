@@ -2472,9 +2472,6 @@ components:
         updated_at:
           type: string
           format: date-time
-        data:
-          type: object
-          description: Any additional data on the integration, if available
   parameters:
     sortDirection:
       in: query
