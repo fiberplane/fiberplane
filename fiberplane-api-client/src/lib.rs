@@ -570,7 +570,7 @@ pub async fn integrations_get(
     client: &ApiClient,
     page: Option<i32>,
     limit: Option<i32>,
-) -> Result<Vec<models::Integration>> {
+) -> Result<Vec<models::IntegrationSummary>> {
     let mut builder = client.request(Method::GET, "/api/profile/integrations")?;
     if let Some(page) = page {
         builder = builder.query(&[("page", page)]);

@@ -2437,7 +2437,7 @@ components:
         location:
           type: string
           description: URL which the user needs to visit
-    integration:
+    integrationSummary:
       type: object
       required:
         - id
@@ -3428,7 +3428,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/integration"
+                  $ref: "#/components/schemas/integrationSummary"
   /api/workspaces/{workspace_id}/pinnednotebooks:
     parameters:
       - $ref: "#/components/parameters/workspace_id"
