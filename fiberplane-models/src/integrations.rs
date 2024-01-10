@@ -13,7 +13,7 @@ use typed_builder::TypedBuilder;
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct Integration {
+pub struct IntegrationSummary {
     pub id: IntegrationId,
     pub status: IntegrationStatus,
 
@@ -21,10 +21,6 @@ pub struct Integration {
     pub created_at: Timestamp,
     #[builder(setter(into))]
     pub updated_at: Timestamp,
-
-    #[builder(default, setter(strip_option, into))]
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub data: Option<serde_json::Value>,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize, Display, EnumIter)]
