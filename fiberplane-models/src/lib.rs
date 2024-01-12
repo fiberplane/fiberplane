@@ -31,6 +31,7 @@ pub mod events;
 pub mod files;
 pub mod formatting;
 pub mod front_matter_schemas;
+pub mod integrations;
 pub mod labels;
 pub mod names;
 pub mod notebooks;

@@ -36,6 +36,8 @@ major version hasn't changed.
 - `fiberplane-models`: Add `updated_at` to `SubscriberChangedFocusMessage`
 - `fiberplane-api-client`: Add queries to work with front matter schemas associated with
   a workspace.
+- `fiberplane-models`: Added various structs related to Integrations (#142)
+- `fiberplane-api-client`: Added `integrations_list` endpoint (#142)
 
 ## mondrian-charts [v0.4.0] - 2023-11-30
 

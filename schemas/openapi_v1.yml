@@ -2437,6 +2437,41 @@ components:
         location:
           type: string
           description: URL which the user needs to visit
+    integrationSummary:
+      type: object
+      required:
+        - id
+        - status
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          enum:
+            - "github"
+        status:
+          type: object
+          required:
+            - type
+          properties:
+            type:
+              type: string
+              enum:
+                - "connected"
+                - "disconnected"
+                - "attention_required"
+            reason:
+              type: string
+              description: |
+                If `type = attention_required`, this field will be
+                populated with a human readable string explaining why
+                attention is required for this peculiar integration
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
   parameters:
     sortDirection:
       in: query
@@ -3375,6 +3410,25 @@ paths:
       responses:
         "200":
           description: OK
+  /api/profile/integrations:
+    get:
+      operationId: integrations_get
+      summary: "Get a list of all integrations and their status"
+      description: "Get a list of all integrations and their status"
+      tags:
+        - Integrations
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/integrationSummary"
   /api/workspaces/{workspace_id}/pinnednotebooks:
     parameters:
       - $ref: "#/components/parameters/workspace_id"
