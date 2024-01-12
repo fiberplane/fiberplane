@@ -63,18 +63,26 @@ pub enum Annotation {
     EndHighlight,
     StartItalics,
     EndItalics,
+    Label(Label),
     StartLink { url: String },
     EndLink,
     Mention(Mention),
-    Timestamp { timestamp: Timestamp },
     StartStrikethrough,
     EndStrikethrough,
+    Timestamp { timestamp: Timestamp },
     StartUnderline,
     EndUnderline,
-    Label(Label),
 }
 
 impl Annotation {
+    /// Returns whether the annotation is one of a `Start*`/`End*` pair.
+    pub fn is_paired_annotation(&self) -> bool {
+        !matches!(
+            self,
+            Self::Label(_) | Self::Mention(_) | Self::Timestamp { .. }
+        )
+    }
+
     /// Returns the opposite of an annotation for the purpose of toggling the
     /// formatting.
     ///
@@ -124,6 +132,8 @@ pub struct ActiveFormatting {
     pub underline: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label: Option<Label>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mention: Option<Mention>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub timestamp: Option<Timestamp>,
 }
@@ -250,6 +260,11 @@ impl ActiveFormatting {
                 annotations.push(Annotation::Label(label.clone()))
             }
         }
+        if self.mention != reference.mention {
+            if let Some(mention) = self.mention.as_ref() {
+                annotations.push(Annotation::Mention(mention.clone()))
+            }
+        }
         if self.timestamp != reference.timestamp {
             if let Some(timestamp) = self.timestamp {
                 annotations.push(Annotation::Timestamp { timestamp })
@@ -271,7 +286,7 @@ impl ActiveFormatting {
             Annotation::EndItalics => !self.italics,
             Annotation::StartLink { .. } => self.link.is_some(),
             Annotation::EndLink => self.link.is_none(),
-            Annotation::Mention(_) => false,
+            Annotation::Mention(_) => self.mention.is_some(),
             Annotation::Timestamp { .. } => self.timestamp.is_some(),
             Annotation::StartStrikethrough => self.strikethrough,
             Annotation::EndStrikethrough => !self.strikethrough,
