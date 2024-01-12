@@ -1965,8 +1965,6 @@ components:
           type: string
         iconName:
           type: string
-        multiple:
-          type: boolean
         allowExtraValues:
           type: boolean
         options:
@@ -2019,14 +2017,6 @@ components:
           type: string
         iconName:
           type: string
-        multiple:
-          type: boolean
-        allowExtraValues:
-          type: boolean
-        options:
-          type: array
-          items:
-            $ref: "#/components/schemas/frontMatterEnumDateTimeValue"
         defaultValue:
           $ref: "#/components/schemas/frontMatterEnumDateTimeValue"
     frontMatterEnumDateTimeValue:
@@ -2044,14 +2034,6 @@ components:
           type: string
         iconName:
           type: string
-        multiple:
-          type: boolean
-        allowExtraValues:
-          type: boolean
-        options:
-          type: array
-          items:
-            $ref: "#/components/schemas/frontMatterEnumUserValue"
         defaultValue:
           $ref: "#/components/schemas/frontMatterEnumUserValue"
     frontMatterEnumUserValue:
@@ -2975,7 +2957,7 @@ paths:
       operationId: front_matter_delete
       summary: Delete all front matter data for a notebook
       description: |
-        Deletes *all* front matter data for notebook. 
+        Deletes *all* front matter data for notebook.
         If you wish to delete a single key instead of the whole object, use the `patch` endpoint with value: `null`
       tags:
         - Notebooks
@@ -3484,7 +3466,7 @@ paths:
     get:
       operationId: oidc_authorize
       summary: Start the OID auth flow directly (normal sign in)
-      description: | 
+      description: |
         Start the auth flow to authenticate a user (used only with the Studio).
         For authenticating with the API see the Authentication section in the docs
       tags:
@@ -4694,7 +4676,7 @@ paths:
     post:
       operationId: webhook_create
       summary: Create a new webhook
-      description: | 
+      description: |
         Create a new webhook. Upon execution of this route, a test event ("ping") will be sent to the endpoint.
         If sending the ping event fails, the webhook will still be created, but it will be disabled.
         Please check the response of this endpoint to see whenever `enabled` = `false`,
@@ -4723,7 +4705,7 @@ paths:
     patch:
       operationId: webhook_update
       summary: Update an existing webhook
-      description: | 
+      description: |
         Updates an existing webhook. Upon execution of this route, a test event ("ping") will be sent to the endpoint.
         If sending the ping event fails, the webhook will still be updated, but will be disabled.
         Please check the response of this endpoint to see whenever `enabled` = `false`, and if that is the case

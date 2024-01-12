@@ -153,12 +153,6 @@ pub struct FrontMatterNumberSchema {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_name: Option<String>,
 
-    /// Whether the field can have multiple values
-    // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
-    #[builder(setter(strip_bool))]
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub multiple: bool,
-
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub allow_extra_values: bool,
@@ -255,32 +249,6 @@ pub struct FrontMatterDateTimeSchema {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_name: Option<String>,
 
-    /// Whether the field can have multiple values
-    // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
-    #[builder(setter(strip_bool))]
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub multiple: bool,
-
-    #[builder(setter(strip_bool))]
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub allow_extra_values: bool,
-
-    /// The list of valid "pre-filled" options one can choose for the field.
-    ///
-    /// There is a functional difference between `None` and `Some(Vec::new())`:
-    /// - When `options.is_none()`, that means the current number field should
-    ///   not propose pre-filled values at all: this front matter field is a
-    ///   freeform field
-    /// - When `options == Some(Vec::new())` (arguably with `allow_extra_values` being true),
-    ///   that means that the field is supposed to be a "choose value from an enumerated list"-kind
-    ///   of field, but without any pre-existing values being present.
-    ///
-    /// The difference of intent between those two cases can be used on the front-end side to decide
-    /// how to render the front matter cell
-    #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub options: Option<Vec<FrontMatterEnumDateTimeValue>>,
-
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_value: Option<FrontMatterEnumDateTimeValue>,
@@ -301,32 +269,6 @@ pub struct FrontMatterUserSchema {
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_name: Option<String>,
-
-    /// Whether the field can have multiple values
-    // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
-    #[builder(setter(strip_bool))]
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub multiple: bool,
-
-    #[builder(setter(strip_bool))]
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub allow_extra_values: bool,
-
-    /// The list of valid "pre-filled" options one can choose for the field.
-    ///
-    /// There is a functional difference between `None` and `Some(Vec::new())`:
-    /// - When `options.is_none()`, that means the current number field should
-    ///   not propose pre-filled values at all: this front matter field is a
-    ///   freeform field
-    /// - When `options == Some(Vec::new())` (arguably with `allow_extra_values` being true),
-    ///   that means that the field is supposed to be a "choose value from an enumerated list"-kind
-    ///   of field, but without any pre-existing values being present.
-    ///
-    /// The difference of intent between those two cases can be used on the front-end side to decide
-    /// how to render the front matter cell
-    #[builder(default, setter(into, strip_option))]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub options: Option<Vec<FrontMatterEnumBase64UuidValue>>,
 
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
