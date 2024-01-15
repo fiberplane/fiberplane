@@ -341,7 +341,7 @@ pub async fn file_delete(
     Ok(())
 }
 
-#[doc = r#"Deletes *all* front matter data for notebook. 
+#[doc = r#"Deletes *all* front matter data for notebook.
 If you wish to delete a single key instead of the whole object, use the `patch` endpoint with value: `null`
 "#]
 pub async fn front_matter_delete(
