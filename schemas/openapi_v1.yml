@@ -49,6 +49,10 @@ components:
           $ref: "#/components/schemas/frontMatter"
         frontMatterSchema:
           $ref: "#/components/schemas/frontMatterSchema"
+        frontMatterSchemaByNames:
+          type: array
+          items:
+            type: string
     notebookCopyDestination:
       type: object
       required:

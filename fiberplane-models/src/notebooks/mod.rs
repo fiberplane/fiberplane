@@ -111,9 +111,23 @@ pub struct NewNotebook {
     #[serde(default)]
     pub front_matter: FrontMatter,
 
+    /// The "inline" front matter schema for the notebook.
+    ///
+    /// It will always be expanded first and have priority over anything defined in
+    /// `front_matter_schema_by_names`. The keys in common will be ignored.
     #[builder(default)]
     #[serde(default)]
     pub front_matter_schema: FrontMatterSchema,
+
+    /// A list of front matter schema names that exist in the target workspace.
+    ///
+    /// If `front_matter_schema_by_names` and `front_matter_schema` are both mentioned, then:
+    /// - the `front_matter_schema` will be the first elements of the notebook front matter,
+    /// - and keys from the named schema that already exist in `front_matter_schema` (or an earlier
+    ///   entry in the list) will be ignored.
+    #[builder(default)]
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub front_matter_schema_by_names: Vec<String>,
 }
 
 impl From<Notebook> for NewNotebook {
@@ -126,6 +140,7 @@ impl From<Notebook> for NewNotebook {
             labels: notebook.labels,
             front_matter: notebook.front_matter,
             front_matter_schema: notebook.front_matter_schema,
+            front_matter_schema_by_names: Vec::new(),
         }
     }
 }
@@ -371,27 +386,15 @@ pub struct NewTemplate {
     #[builder(default, setter(into))]
     pub description: String,
 
-    #[builder(default)]
-    pub front_matter_schema_names: Vec<String>,
-
     #[builder(setter(into))]
     pub body: String,
 }
 
 impl NewTemplate {
-    pub fn new(
-        name: Name,
-        description: impl Into<String>,
-        front_matter_schema_names: &[impl ToString],
-        body: impl Into<String>,
-    ) -> Self {
+    pub fn new(name: Name, description: impl Into<String>, body: impl Into<String>) -> Self {
         Self {
             name,
             description: description.into(),
-            front_matter_schema_names: front_matter_schema_names
-                .iter()
-                .map(ToString::to_string)
-                .collect(),
             body: body.into(),
         }
     }
@@ -408,9 +411,6 @@ impl NewTemplate {
 pub struct UpdateTemplate {
     #[builder(default, setter(into, strip_option))]
     pub description: Option<String>,
-
-    #[builder(default, setter(into, strip_option))]
-    pub front_matter_schema_names: Option<Vec<String>>,
 
     #[builder(default, setter(into, strip_option))]
     pub body: Option<String>,
