@@ -1,8 +1,5 @@
 ---
 title: Webhook events and their payloads
-excerpt: List of all webhook events and their corresponding payloads
-category: 644f7777d0901a002b72fa8a
-slug: webhook-events
 ---
 
 Upon creation or updating of a payload, you can choose a list of categories for which your configured endpoint

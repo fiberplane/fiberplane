@@ -1,8 +1,5 @@
 ---
 title: Notebooks
-excerpt: Notebooks – collaborative spaces for your team – are at the core of Fiberplane.
-category: 63d7e8b76ca5cd0ccaf0c482
-slug: notebooks
 ---
 
 Notebooks – collaborative spaces for your team – are at the core of Fiberplane.

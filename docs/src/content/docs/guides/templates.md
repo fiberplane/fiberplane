@@ -1,8 +1,5 @@
 ---
 title: Templates
-excerpt: Programmatically create Fiberplane Notebooks for repeatable workflows.
-category: 63d7e8c259d696004978b93b
-slug: templates
 ---
 
 Fiberplane Templates are programmable workflows that allow you to automate notebook creation for your incident response, infrastructure debugging, and maintenance.

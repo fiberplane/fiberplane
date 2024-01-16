@@ -1,7 +1,5 @@
 ---
 title: Setting up Providers
-category: 63d7e8bdbf7b4b0e0745e823
-slug: setting-up-providers
 ---
 
 Providers are full-stack plugins in Fiberplane that allow you to pull in live data directly from your infrastructure data sources into your Notebooks. They are compiled to WebAssembly and can run both on the Studio and the `fpd`.

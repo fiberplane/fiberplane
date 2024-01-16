@@ -1,7 +1,5 @@
 ---
 title: Prometheus
-category: 63d7e8bdbf7b4b0e0745e823
-slug: prometheus
 ---
 
 Write and run PromQL queries, and display Prometheus charts and tables alongside the rest of your content.

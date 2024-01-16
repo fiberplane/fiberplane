@@ -1,7 +1,5 @@
 ---
 title: Configuration help / FAQ
-category: 63d7e8b49721540020f5c3ea
-slug: configuration-help-faq
 ---
 
 ## Resource Names

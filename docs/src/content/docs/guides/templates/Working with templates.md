@@ -1,7 +1,5 @@
 ---
 title: Working with templates
-category: 63d7e8c259d696004978b93b
-slug: working-with-templates
 ---
 
 > ⚠️ Note

@@ -1,7 +1,5 @@
 ---
 title: Getting started with Fiberplane CLI
-category: 63d7e8bf2482560ba8b126e0
-slug: cli
 ---
 
 Fiberplane CLI is a command-line tool that helps you install Proxies, set up

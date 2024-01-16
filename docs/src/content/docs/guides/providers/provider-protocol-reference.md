@@ -1,7 +1,5 @@
 ---
 title: Provider Protocol Reference (v2)
-category: 63e0c7cf7166bf006d3b4117
-slug: provider-protocol-reference
 ---
 
 All functions described here are bindings that are generated from our [provider protocol](https://github.com/fiberplane/fiberplane/tree/main/fiberplane-provider-protocol) and which are publish as our [provider bindings crate](https://docs.rs/fiberplane-provider-bindings/latest/fiberplane_provider_bindings/). Please refer to the crate for more details on any of the types mentioned below.

@@ -1,8 +1,5 @@
 ---
 title: Securing your webhook
-excerpt: Ensure your server only handles requests sent by Fiberplane
-category: 644f7777d0901a002b72fa8a
-slug: webhooks-security
 ---
 
 After you created your webhook, you received a shared secret which is a random 32 character hexadecimal string.

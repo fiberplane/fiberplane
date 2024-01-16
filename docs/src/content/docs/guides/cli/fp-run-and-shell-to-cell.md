@@ -1,7 +1,5 @@
 ---
 title: Sending data from shell to Notebook
-category: 63d7e8bf2482560ba8b126e0
-slug: fp-run-and-shell-to-cell
 ---
 
 If you’re an SRE or infrastructure engineer - chances are you spend much of your

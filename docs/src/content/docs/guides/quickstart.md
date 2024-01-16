@@ -1,7 +1,7 @@
 ---
 title: Quickstart
-category: 63d7e8b49721540020f5c3ea
-slug: quickstart
+sidebar:
+    order: 0
 ---
 
 Fiberplane Studio is available for the [Web](https://fiberplane.com/).

@@ -1,7 +1,5 @@
 ---
 title: PagerDuty Integration
-category: 63d7e8c259d696004978b93b
-slug: pagerduty-integration
 ---
 
 - Create a Fiberplane notebook automatically when a PagerDuty incident is acknowledged.

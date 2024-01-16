@@ -1,7 +1,5 @@
 ---
 title: Deploy to Kubernetes
-category: 63d7e8b49721540020f5c3ea
-slug: deploy-to-kubernetes
 ---
 
 ## Deploy to Kubernetes

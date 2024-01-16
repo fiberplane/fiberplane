@@ -1,7 +1,5 @@
 ---
 title: Working with triggers
-category: 63d7e8c259d696004978b93b
-slug: working-with-triggers
 ---
 
 Triggers enable you to invoke Fiberplane Templates and create notebooks via a Webhook call. This can be used to automatically create notebooks from alerts, deploy notifications, or connect it to your customer support tools.

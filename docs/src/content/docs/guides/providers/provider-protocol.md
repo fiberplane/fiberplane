@@ -1,7 +1,5 @@
 ---
 title: Provider Protocol Explanation
-category: 63d7e8bdbf7b4b0e0745e823
-slug: provider-protocol
 ---
 
 This page explains how the interactions between Fiberplane Studio and a provider happen to interactively add cells to a notebook. If you want to know how to write a provider, please refer to the [tutorial](doc:create-a-provider).
