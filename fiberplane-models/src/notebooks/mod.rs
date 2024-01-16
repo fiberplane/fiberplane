@@ -127,7 +127,7 @@ pub struct NewNotebook {
     ///   entry in the list) will be ignored.
     #[builder(default)]
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
-    pub front_matter_schema_by_names: Vec<String>,
+    pub front_matter_schema_names: Vec<String>,
 }
 
 impl From<Notebook> for NewNotebook {
@@ -140,7 +140,7 @@ impl From<Notebook> for NewNotebook {
             labels: notebook.labels,
             front_matter: notebook.front_matter,
             front_matter_schema: notebook.front_matter_schema,
-            front_matter_schema_by_names: Vec::new(),
+            front_matter_schema_names: Vec::new(),
         }
     }
 }
