@@ -6,7 +6,6 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "Fiberplane",
-			
       social: {
         github: "https://github.com/withastro/starlight",
       },
