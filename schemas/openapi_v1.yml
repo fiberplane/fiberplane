@@ -49,7 +49,7 @@ components:
           $ref: "#/components/schemas/frontMatter"
         frontMatterSchema:
           $ref: "#/components/schemas/frontMatterSchema"
-        frontMatterSchemaNames:
+        frontMatterCollections:
           type: array
           items:
             type: string

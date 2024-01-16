@@ -15,7 +15,7 @@ major version hasn't changed.
 
 ## [v1.0.0-beta.8] - TBD
 
-- `fiberplane-models`: Add a `front_matter_schemas_by_names` key to the `NewNotebook` payload.
+- `fiberplane-models`: Add a `front_matter_collections` key to the `NewNotebook` payload.
   The extra field will allow an extra way for templates to point to a front matter schema to
   expand into.
 - `fiberplane-models`: Remove (short-lived, unused) `front_matter_schema_names` from `NewTemplate` and

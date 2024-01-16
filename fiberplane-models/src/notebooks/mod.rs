@@ -114,20 +114,20 @@ pub struct NewNotebook {
     /// The "inline" front matter schema for the notebook.
     ///
     /// It will always be expanded first and have priority over anything defined in
-    /// `front_matter_schema_by_names`. The keys in common will be ignored.
+    /// `front_matter_collections`. The keys in common will be ignored.
     #[builder(default)]
     #[serde(default)]
     pub front_matter_schema: FrontMatterSchema,
 
     /// A list of front matter schema names that exist in the target workspace.
     ///
-    /// If `front_matter_schema_by_names` and `front_matter_schema` are both mentioned, then:
+    /// If `front_matter_collections` and `front_matter_schema` are both mentioned, then:
     /// - the `front_matter_schema` will be the first elements of the notebook front matter,
     /// - and keys from the named schema that already exist in `front_matter_schema` (or an earlier
     ///   entry in the list) will be ignored.
     #[builder(default)]
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
-    pub front_matter_schema_names: Vec<String>,
+    pub front_matter_collections: Vec<Name>,
 }
 
 impl From<Notebook> for NewNotebook {
@@ -140,7 +140,7 @@ impl From<Notebook> for NewNotebook {
             labels: notebook.labels,
             front_matter: notebook.front_matter,
             front_matter_schema: notebook.front_matter_schema,
-            front_matter_schema_names: Vec::new(),
+            front_matter_collections: Vec::new(),
         }
     }
 }
