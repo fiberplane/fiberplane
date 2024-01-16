@@ -10,7 +10,7 @@ Notebooks – collaborative spaces for your team – are at the core of Fiberpla
 Like Jupyter notebooks or other modern block-based editors, Notebooks in
 Fiberplane are made up of cells.
 
-![Untitled](/docs/notebooks/notebook-overview.png)
+![Untitled](@assets/notebook-overview.png)
 
 ---
 
@@ -18,7 +18,7 @@ Fiberplane are made up of cells.
 
 The Notebook time range provides the ability to align all data source queries on the same start and end date. This way your data is aligned by default. Changing the start or end date of the time range will rerun the linked queries in the notebook automatically.
 
-![Untitled](/docs/notebooks/time-range.png)
+![Untitled](@assets/time-range.png)
 
 ## Labels
 
@@ -30,17 +30,17 @@ Click `Add Label +`  to add a label, add a key-value pair separating it with `=`
 
 Anywhere in Fiberplane you can hit `⌘P`  (`CTRL-P` in Windows and Linux) to bring up the command menu. Command menu allows you to search for notebooks quickly (also using labels to filter them), navigate to sections in the app or execute actions quickly.
 
-![Untitled](/docs/notebooks/command-menu.png)
+![Untitled](@assets/command-menu.png)
 
 ## Cells
 
 Everything you write in a notebook is a **cell**. A cell can contain text (in its various rich formats), code snippets, images or provider queries and charts.
 
-![dots-six-vertical.png](/docs/notebooks/dots-six-vertical.png)
+![dots-six-vertical.png](@assets/dots-six-vertical.png)
 
  With the controls in the left margin you can delete, duplicate, lock, change cell types or move them around by dragging them.
 
-![Untitled](/docs/notebooks/cell-controls.png)
+![Untitled](@assets/cell-controls.png)
 
 ## Rich text
 
@@ -101,7 +101,7 @@ Once a discussion is created it is marked as "Open". You can resolve and close t
 
 Comments can be edited or removed by the author by clicking the three dots on the right-hand side.
 
-![Untitled](/docs/notebooks/discussion-cell.png)
+![Untitled](@assets/discussion-cell.png)
 
 ### Provider cells
 

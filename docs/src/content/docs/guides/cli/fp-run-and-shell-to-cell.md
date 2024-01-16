@@ -50,7 +50,7 @@ notebook by running something like:
 
 And here’s how that will look like in the notebook:
 
-![Untitled](/docs/cli/fp-run/Untitled.png)
+![Untitled](@assets/Untitled.png)
 
 ### Rich output
 

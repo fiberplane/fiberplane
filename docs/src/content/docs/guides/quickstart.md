@@ -11,7 +11,7 @@ in with your Fiberplane account (currently available only for Google Workspace
 or Gmail users). You can also get right to your notebook by typing
 [fp.new](https://fp.new/)
 
-![How it works](/docs/fpd.png)
+![How it works](@assets/fpd.png)
 
 ## How Fiberplane works
 
@@ -45,7 +45,7 @@ You can do it in the Settings > FPD menu or using our CLI tool.
 
 ### Generate an FPD API Token in the Studio
 
-![Register a proxy](/docs/quickstart/register_an_fpd.png)
+![Register a proxy](@assets/register_an_fpd.png)
 
 In order for the Daemon to talk to the Fiberplane Studio successfully it needs
 to be successfully authorized. This step will generate a **Daemon API Token**
