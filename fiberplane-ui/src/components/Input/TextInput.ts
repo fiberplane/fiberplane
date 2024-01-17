@@ -1,30 +1,28 @@
-import { css, styled } from "styled-components";
+import { styled } from "styled-components";
 
-export const TextInput = styled.input(
-  ({ theme }) => css`
-    background-color: ${theme.color.input.bg};
-    border: 1px solid ${theme.color.input.border};
-    border-radius: ${theme.radius.default};
-    color: ${theme.color.input.fg};
-    padding: 6px 12px;
-    outline: none;
-    font: ${theme.font.body.md.regular};
-    box-shadow: ${theme.effect.shadow.xxs};
+export const TextInput = styled.input`
+  background-color: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-default);
+  color: var(--color-input-fg-input);
+  padding: 6px 12px;
+  outline: none;
+  font: var(--font-body-md-regular);
+  box-shadow: var(--shadow-xxs);
 
-    transition: box-shadow 0.1s ease-in-out 0.05s, border-color 0.2s ease-in-out;
+  transition: box-shadow 0.1s ease-in-out 0.05s, border-color 0.2s ease-in-out;
 
-    &::placeholder {
-      color: ${theme.color.input.fg.placeholder};
-    }
+  &::placeholder {
+    color: var(--color-input-fg-placeholder);
+  }
 
-    &:focus,
-    &:focus-visible {
-      box-shadow: ${theme.effect.focus.primary};
-      border-color: ${theme.color.border.primary};
-    }
-    &[data-invalid="true"],
-    &:invalid {
-      border-color: ${theme.color.fg.danger};
-    }
-  `,
-);
+  &:focus,
+  &:focus-visible {
+    box-shadow: var(--focus-primary);
+    border-color: var(--color-border-primary);
+  }
+  &[data-invalid="true"],
+  &:invalid {
+    border-color: var(--color-fg-danger);
+  }
+`;

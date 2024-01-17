@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { css, styled } from "styled-components";
+import { styled } from "styled-components";
 
 import {
   HiddenInputElement,
@@ -36,46 +36,44 @@ const LightSwitchComponentContainer = styled(InputComponentContainer)`
   width: 36px;
 `;
 
-const Switch = styled.div(
-  ({ theme }) => css`
-    position: absolute;
-    inset: 2px;
-    height: 80%;
-    aspect-ratio: 1;
-    border-radius: ${theme.radius.full};
-    background-color: ${theme.color.fg.onemphasis.default};
-    box-shadow: ${theme.effect.shadow.xxs};
-    transition: transform 0.2s ease-out;
-  `,
-);
+const Switch = styled.div`
+  position: absolute;
+  inset: 2px;
+  height: 80%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  background-color: var(--color-fg-onemphasis-default);
+  box-shadow: var(--shadow-xxs);
+  transition: transform 0.2s ease-out;
+`;
 
-const SwitchContainer = styled(StyledInput)(
-  ({ theme }) => css`
-    border: unset;
-    background-color: unset;
+const SwitchContainer = styled(StyledInput)`
+  border: unset;
+  background-color: unset;
 
-    position: relative;
-    border-radius: ${theme.radius.full};
-    background-color: ${theme.color.bg.disabled};
+  position: relative;
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg-disabled);
 
-    ${HiddenInputElement}:hover ~ & {
-      background-color: ${theme.color.bg.elevated.hover};
+  ${HiddenInputElement}:hover ~ & {
+    background-color: var(--color-bg-elevated-hover);
+  }
+
+  ${HiddenInputElement}:checked ~ & {
+    background-color: var(
+      --color-bg-emphasis-primary, var(--color-bg-emphasis-default)
+    );
+
+    ${Switch} {
+      transform: translateX(100%);
     }
+  }
 
-    ${HiddenInputElement}:checked ~ & {
-      background-color: ${theme.color.bg.emphasis.primary};
+  ${HiddenInputElement}:disabled ~ & {
+    background-color: var(--color-bg-disabled);
 
-      ${Switch} {
-        transform: translateX(100%);
-      }
+    ${Switch} {
+      background-color: var(--color-fg-onemphasis-subtle);
     }
-
-    ${HiddenInputElement}:disabled ~ & {
-      background-color: ${theme.color.bg.disabled};
-
-      ${Switch} {
-        background-color: ${theme.color.fg.onemphasis.subtle};
-      }
-    }
-  `,
-);
+  }
+`;

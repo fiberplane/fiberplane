@@ -1,25 +1,24 @@
-import merge from "lodash.merge";
 import { css } from "styled-components";
 
-import { theme } from "../figma";
 import { media } from "./media";
 import { spacing } from "./spacing";
 
 // Theme object that extends the base theme with additional values which aren't
 // supported or added in Figma. Lodash's merge function is used to deeply merge
 // the base theme with the extended theme.
-export const extendedTheme = merge(theme, {
-  color: {
-    bg: {
-      placeholder: {
-        gradient: "var(--color-bg-placeholder-gradient)",
-      },
-    },
-  },
+export const extendedTheme = {
+  // color: {
+  //   bg: {
+  //     placeholder: {
+  //       gradient: "var(--color-bg-placeholder-gradient)",
+  //     },
+  //   },
+  // },
   media,
   spacing,
-});
+};
 
+// TODO (Oscar): move these values to the Explorer theme.
 // CSS color values that aren't coming from, or supported by Figma. Reference
 // these variables in `extendTheme` above.
 /**

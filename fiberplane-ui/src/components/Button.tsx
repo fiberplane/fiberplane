@@ -58,7 +58,7 @@ const StyledTextButton = styled.button<StyledButtonTransientProps>(
 );
 
 export const buttonStyling = css<StyledButtonTransientProps>(
-  ({ $buttonStyle, theme }) => {
+  ({ $buttonStyle }) => {
     const buttonStyle = getButtonStyle($buttonStyle);
 
     return css`
@@ -70,7 +70,7 @@ export const buttonStyling = css<StyledButtonTransientProps>(
       text-decoration: none;
       /* reset default button styles */
 
-      font: ${theme.font.buttons.md};
+      font: var(--font-buttons-md);
       max-height: 36px;
 
       display: flex;
@@ -79,8 +79,8 @@ export const buttonStyling = css<StyledButtonTransientProps>(
       gap: 8px;
 
       padding: 8px 16px;
-      border-radius: ${theme.radius.default};
-      box-shadow: ${theme.effect.shadow.xxs};
+      border-radius: var(--radius-default);
+      box-shadow: var(--shadow-xxs);
       transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out,
         border-color 0.2s ease-in-out, box-shadow 0.1s ease-in-out 0.05s;
 
@@ -98,14 +98,14 @@ export const buttonStyling = css<StyledButtonTransientProps>(
 
       &:focus,
       &:focus-visible {
-        box-shadow: ${theme.effect.focus.primary};
+        box-shadow: var(--focus-primary);
       }
     `;
   },
 );
 
 export const textButtonStyling = css<StyledButtonTransientProps>(
-  ({ $buttonStyle, theme }) =>
+  ({ $buttonStyle }) =>
     css<StyledButtonTransientProps>`
       ${buttonStyling}
 
@@ -118,15 +118,15 @@ export const textButtonStyling = css<StyledButtonTransientProps>(
       ${
         $buttonStyle === "primary"
           ? css`
-            color: ${theme.color.fg.primary};
+            color: var(--color-button-primary-fg-default);
           `
           : css`
-            color: ${theme.color.fg.muted};
+            color: var(--color-button-primary-fg-muted);
           `
       }
 
       &:hover {
-        color: ${theme.color.fg.default};
+        color: var(--color-button-primary-fg-default);
         background: unset;
       }
     `,
@@ -135,97 +135,89 @@ export const textButtonStyling = css<StyledButtonTransientProps>(
 function getButtonStyle(buttonStyle: ButtonStyle) {
   switch (buttonStyle) {
     case "primary":
-      return css(
-        ({ theme }) => css`
-          background-color: ${theme.color.button.primary.bg.default};
-          color: ${theme.color.button.primary.fg.default};
+      return css`
+        background-color: var(--color-button-primary-bg-default);
+        color: var(--color-button-primary-fg-default);
 
-          &:hover {
-            background-color: ${theme.color.button.primary.bg.hover};
-          }
+        &:hover {
+          background-color: var(--color-button-primary-bg-hover);
+        }
 
-          &:disabled {
-            background-color: ${theme.color.button.primary.bg.disabled};
-            color: ${theme.color.button.primary.fg.disabled};
-            cursor: not-allowed;
-          }
-        `,
-      );
+        &:disabled {
+          background-color: var(--color-button-primary-bg-disabled);
+          color: var(--color-button-primary-fg-disabled);
+          cursor: not-allowed;
+        }
+      `;
     case "secondary":
-      return css(
-        ({ theme }) => css`
-          background-color: ${theme.color.button.secondary.bg};
-          color: ${theme.color.button.secondary.fg};
-          border: 1px solid ${theme.color.button.secondary.border};
+      return css`
+        background-color: var(--color-button-secondary-bg);
+        color: var(--color-button-secondary-fg);
+        border: 1px solid var(--color-button-secondary-border);
 
-          &:hover {
-            background-color: ${theme.color.bg.hover};
-          }
+        &:hover {
+          background-color: var(--color-bg-hover);
+        }
 
-          &:focus,
-          &:focus-visible {
-            border-color: ${theme.color.border.primary};
-          }
+        &:focus,
+        &:focus-visible {
+          border-color: var(--color-border-primary);
+        }
 
-          &:disabled {
-            border-color: ${theme.color.border.muted};
-            background-color: ${theme.color.button.secondary.bg};
-            color: ${theme.color.fg.subtle};
-          }
-        `,
-      );
+        &:disabled {
+          border-color: var(--color-border-muted);
+          background-color: var(--color-button-secondary-bg);
+          color: var(--color-fg-subtle);
+        }
+      `;
     case "tertiary-color":
-      return css(
-        ({ theme }) => css`
-          box-shadow: none;
-          padding: 4px 2px;
-          color: ${theme.color.fg.primary};
-          border: 1px solid transparent;
+      return css`
+        box-shadow: none;
+        padding: 4px 2px;
+        color: var(--color-fg-primary);
+        border: 1px solid transparent;
 
-          &:hover {
-            color: ${theme.color.fg.default};
-          }
+        &:hover {
+          color: var(--color-button-primary-fg-default);
+        }
 
-          &:focus,
-          &:focus-visible {
-            border-color: ${theme.color.border.primary};
-          }
+        &:focus,
+        &:focus-visible {
+          border-color: var(--color-border-primary);
+        }
 
-          &:disabled {
-            color: ${theme.color.fg.subtle};
-          }
-        `,
-      );
+        &:disabled {
+          color: var(--color-fg-subtle);
+        }
+      `;
     case "tertiary-grey":
-      return css(
-        ({ theme }) => css`
-          box-shadow: none;
-          padding: 4px 2px;
-          color: ${theme.color.fg.muted};
-          border: 1px solid transparent;
+      return css`
+        box-shadow: none;
+        padding: 4px 2px;
+        color: var(--color-fg-muted);
+        border: 1px solid transparent;
 
-          &:hover {
-            background-color: ${theme.color.bg.hover};
-          }
+        &:hover {
+          background-color: var(--color-bg-hover);
+        }
 
-          &:focus,
-          &:focus-visible {
-            border-color: ${theme.color.border.primary};
-          }
+        &:focus,
+        &:focus-visible {
+          border-color: var(--color-border-primary);
+        }
 
-          &:disabled {
-            color: ${theme.color.fg.subtle};
-          }
+        &:disabled {
+          color: var(--color-fg-subtle);
+        }
 
-          &.active, /* Adding the .active class here too for NavLinks */
-          &:active {
-            color: ${theme.color.fg.primary};
-          }
+        &.active, /* Adding the .active class here too for NavLinks */
+        &:active {
+          color: var(--color-fg-primary);
+        }
 
-          &:disabled {
-            color: ${theme.color.fg.subtle};
-          }
-        `,
-      );
+        &:disabled {
+          color: var(--color-fg-subtle);
+        }
+      `;
   }
 }
