@@ -3,7 +3,7 @@ import {
   ThemeProvider as StyledComponentsThemeProvider,
 } from "styled-components";
 
-import { extendedTheme } from "./extendedTheme/extendedTheme";
+import { baseTheme } from "./baseTheme";
 import { GlobalStyle } from "./globalStyle";
 import "./styled-components.d";
 
@@ -18,7 +18,7 @@ type ThemeProviderProps = {
 export function ThemeProvider({ children }: ThemeProviderProps) {
   return (
     <StyleSheetManager enableVendorPrefixes>
-      <StyledComponentsThemeProvider theme={extendedTheme}>
+      <StyledComponentsThemeProvider theme={baseTheme}>
         <GlobalStyle />
         {children}
       </StyledComponentsThemeProvider>

@@ -1,2 +1,2 @@
 export { spacingCssVariables } from "./spacing";
-export * from "./extendedTheme";
+export * from "./baseTheme";

@@ -1,6 +1,6 @@
 import { createGlobalStyle } from "styled-components";
 
-import { spacingCssVariables } from "./extendedTheme/spacing";
+import { spacingCssVariables } from "./baseTheme/spacing";
 
 export const GlobalStyle = createGlobalStyle`
   :root {
