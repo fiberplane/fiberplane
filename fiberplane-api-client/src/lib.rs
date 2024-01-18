@@ -341,6 +341,27 @@ pub async fn file_delete(
     Ok(())
 }
 
+#[doc = r#"Adds rows to the front matter of a notebook.
+If the requested position is out of bounds or is not specified, will append the rows to the existing front matter.
+"#]
+pub async fn front_matter_add_keys(
+    client: &ApiClient,
+    notebook_id: base64uuid::Base64Uuid,
+    payload: models::FrontMatterAddRows,
+) -> Result<()> {
+    let mut builder = client.request(
+        Method::POST,
+        &format!(
+            "/api/notebooks/{notebookId}/front_matter",
+            notebookId = notebook_id,
+        ),
+    )?;
+    builder = builder.json(&payload);
+    let response = builder.send().await?.error_for_status()?;
+
+    Ok(())
+}
+
 #[doc = r#"Deletes *all* front matter data for notebook.
 If you wish to delete a single key instead of the whole object, use the `patch` endpoint with value: `null`
 "#]
@@ -371,6 +392,47 @@ pub async fn front_matter_update(
         &format!(
             "/api/notebooks/{notebookId}/front_matter",
             notebookId = notebook_id,
+        ),
+    )?;
+    builder = builder.json(&payload);
+    let response = builder.send().await?.error_for_status()?;
+
+    Ok(())
+}
+
+#[doc = r#"Deletes a row of the front matter for a notebook.
+"#]
+pub async fn front_matter_delete_key(
+    client: &ApiClient,
+    notebook_id: base64uuid::Base64Uuid,
+    front_matter_key: &str,
+) -> Result<()> {
+    let mut builder = client.request(
+        Method::DELETE,
+        &format!(
+            "/api/notebooks/{notebookId}/front_matter/{frontMatterKey}",
+            notebookId = notebook_id,
+            frontMatterKey = front_matter_key,
+        ),
+    )?;
+    let response = builder.send().await?.error_for_status()?;
+
+    Ok(())
+}
+
+#[doc = r#"Updates a front matter row of a given notebook"#]
+pub async fn front_matter_update_key(
+    client: &ApiClient,
+    notebook_id: base64uuid::Base64Uuid,
+    front_matter_key: &str,
+    payload: models::FrontMatterUpdateRow,
+) -> Result<()> {
+    let mut builder = client.request(
+        Method::PATCH,
+        &format!(
+            "/api/notebooks/{notebookId}/front_matter/{frontMatterKey}",
+            notebookId = notebook_id,
+            frontMatterKey = front_matter_key,
         ),
     )?;
     builder = builder.json(&payload);

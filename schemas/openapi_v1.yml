@@ -2047,6 +2047,19 @@ components:
         value:
           type: string
           format: base64uuid
+    frontMatterSchemaRow:
+      type: object
+      description: Representation of a front matter row to be inserted
+      required:
+        - key
+        - schema
+      properties:
+        key:
+          type: string
+        schema:
+          $ref: "#/components/schemas/frontMatterSchemaEntry"
+        value:
+          description: The value to assign to the front matter row on insertion
     workspace_invite:
       type: object
       required:
@@ -2458,6 +2471,35 @@ components:
         updated_at:
           type: string
           format: date-time
+    frontMatterUpdateRow:
+      type: object
+      properties:
+        newSchema:
+          $ref: "#/components/schemas/frontMatterSchemaEntry"
+        newValue:
+          description: |
+            Set a new value for the object. The type of value depends on the schema.
+            If this attribute is `null` or absent it can mean multiple things depending on
+            the other attributes:
+            - if `deleteValue` is `false` or absent, this means we want to keep the current
+              + it is impossible to keep the current value if the schemas are incompatible. In that
+                case we use the `defaultValue` of the new schema (or nothing if there’s no default)
+            - if `deleteValue` is `true`, this means we want to wipe the value from the front
+              matter in all cases.
+        deleteValue:
+          type: boolean
+    frontMatterAddRows:
+      type: object
+      required:
+        - toIndex
+        - insertions
+      properties:
+        toIndex:
+          type: integer
+        insertions:
+          type: array
+          items:
+            $ref: "#/components/schemas/frontMatterSchemaRow"
   parameters:
     sortDirection:
       in: query
@@ -2502,6 +2544,13 @@ components:
       name: front_matter_schema_name
       in: path
       description: The name of the front matter schema for the workspace
+      required: true
+      schema:
+        type: string
+    frontMatterKey:
+      name: frontMatterKey
+      in: path
+      description: The name of the front matter key to act on within a notebook
       required: true
       schema:
         type: string
@@ -2963,6 +3012,56 @@ paths:
       description: |
         Deletes *all* front matter data for notebook.
         If you wish to delete a single key instead of the whole object, use the `patch` endpoint with value: `null`
+      tags:
+        - Notebooks
+      responses:
+        "200":
+          description: OK
+    post:
+      operationId: front_matter_add_keys
+      summary: Add rows to the front matter of a notebook
+      description: |
+        Adds rows to the front matter of a notebook.
+        If the requested position is out of bounds or is not specified, will append the rows to the existing front matter.
+      tags:
+        - Notebooks
+      requestBody:
+        description: Front matter rows insertion operation to apply
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/frontMatterAddRows"
+      responses:
+        "200":
+          description: OK
+  /api/notebooks/{notebookId}/front_matter/{frontMatterKey}:
+    parameters:
+      - $ref: "#/components/parameters/notebookId"
+      - $ref: "#/components/parameters/frontMatterKey"
+    patch:
+      operationId: front_matter_update_key
+      summary: Updates a front matter row of a given notebook
+      description: Updates a front matter row of a given notebook
+      tags:
+        - Notebooks
+      requestBody:
+        description: |
+          Front matter update operation to apply on the row.
+          It is possible to change the content of the value, the label/type for the entry, or both.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/frontMatterUpdateRow"
+      responses:
+        "200":
+          description: OK
+    delete:
+      operationId: front_matter_delete_key
+      summary: Delete a row of the front matter for a notebook
+      description: |
+        Deletes a row of the front matter for a notebook.
       tags:
         - Notebooks
       responses:
