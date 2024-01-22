@@ -460,7 +460,7 @@ local notebook = {
      * @example notebook.addFrontMatterValue(key='status', value='Created')
      */
     addFrontMatterValue(key, value):: self {
-      frontMatter+: { key: value },
+      frontMatter+: { [key]: value },
     },
 
     /**
