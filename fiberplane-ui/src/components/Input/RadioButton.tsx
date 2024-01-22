@@ -32,5 +32,5 @@ export const RadioButton = forwardRef<HTMLInputElement, RadioButtonProps>(
 );
 
 const RadioContainer = styled(StyledInput)`
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-full, 9999px);
 `;

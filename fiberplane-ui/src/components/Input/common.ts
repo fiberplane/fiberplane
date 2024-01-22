@@ -23,9 +23,9 @@ export const HiddenInputElement = styled.input`
 export const StyledInput = styled.div`
   display: grid;
   place-items: center;
-  background-color: var(--color-bg-subtle);
+  background-color: var(--color-bg-subtle, #f9f9fa);
   border: 1px solid var(--color-fg-muted, #8c898f);
-  border-radius: var(--radius-minimal);
+  border-radius: var(--radius-minimal, 8px);
   height: 100%;
   width: 100%;
   z-index: 1;
@@ -42,14 +42,14 @@ export const StyledInput = styled.div`
 
   ${HiddenInputElement}:checked ~ & {
     border-color: var(--color-border-primary, #3755ed);
-    background-color: var(--color-bg-emphasis-primary-subtle);
+    background-color: var(--color-bg-emphasis-primary-subtle, #e7e7e7);
     color: var(--color-fg-primary, #3755ed);
   }
 
   ${HiddenInputElement}:disabled ~ & {
-    border-color: var(--color-border-default);
-    background-color: var(--color-bg-disabled);
-    color: var(--color-border-default);
+    border-color: var(--color-border-default, #d6d4d9);
+    background-color: var(--color-bg-disabled, #ebeaed);
+    color: var(--color-border-default, #d6d4d9);
     cursor: default;
   }
 `;
