@@ -261,7 +261,7 @@ local notebook = {
   new(title):: {
     title: validate.string('title', title),
     timeRange: { minutes: -60 },
-    dataSources: {},
+    selectedDataSources: {},
     labels: [],
     cells: [],
     frontMatter: {},
