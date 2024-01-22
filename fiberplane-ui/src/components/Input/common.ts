@@ -24,7 +24,7 @@ export const StyledInput = styled.div`
   display: grid;
   place-items: center;
   background-color: var(--color-bg-subtle);
-  border: 1px solid var(--color-fg-muted);
+  border: 1px solid var(--color-fg-muted, #8c898f);
   border-radius: var(--radius-minimal);
   height: 100%;
   width: 100%;
@@ -33,17 +33,17 @@ export const StyledInput = styled.div`
     background-color 0.2s ease-in-out;
 
   ${HiddenInputElement}:hover ~ & {
-    border-color: var(--color-border-primary);
+    border-color: var(--color-border-primary, #3755ed);
   }
 
   ${HiddenInputElement}:focus ~ & {
-    box-shadow: var(--focus-primary);
+    box-shadow: var(--focus-primary, 0px 0px 0px 4px rgb(108 84 255 / 20%));
   }
 
   ${HiddenInputElement}:checked ~ & {
-    border-color: var(--color-border-primary);
+    border-color: var(--color-border-primary, #3755ed);
     background-color: var(--color-bg-emphasis-primary-subtle);
-    color: var(--color-fg-primary);
+    color: var(--color-fg-primary, #3755ed);
   }
 
   ${HiddenInputElement}:disabled ~ & {

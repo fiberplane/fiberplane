@@ -43,7 +43,7 @@ const Switch = styled.div`
   aspect-ratio: 1;
   border-radius: var(--radius-full);
   background-color: var(--color-fg-onemphasis-default);
-  box-shadow: var(--shadow-xxs);
+  box-shadow: var(--shadow-xxs, 0px 1px 2px 0px rgb(0 0 0 / 5%));
   transition: transform 0.2s ease-out;
 `;
 

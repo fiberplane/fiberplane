@@ -3,12 +3,12 @@ import { styled } from "styled-components";
 export const TextInput = styled.input`
   background-color: var(--color-input-bg);
   border: 1px solid var(--color-input-border);
-  border-radius: var(--radius-default);
+  border-radius: var(--radius-default, 10px);
   color: var(--color-input-fg-input);
   padding: 6px 12px;
   outline: none;
   font: var(--font-body-md-regular);
-  box-shadow: var(--shadow-xxs);
+  box-shadow: var(--shadow-xxs, 0px 1px 2px 0px rgb(0 0 0 / 5%));
 
   transition: box-shadow 0.1s ease-in-out 0.05s, border-color 0.2s ease-in-out;
 
@@ -18,8 +18,8 @@ export const TextInput = styled.input`
 
   &:focus,
   &:focus-visible {
-    box-shadow: var(--focus-primary);
-    border-color: var(--color-border-primary);
+    box-shadow: var(--focus-primary, 0px 0px 0px 4px rgb(108 84 255 / 20%));
+    border-color: var(--color-border-primary, #3755ed);
   }
   &[data-invalid="true"],
   &:invalid {
