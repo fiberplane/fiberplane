@@ -22,6 +22,7 @@ major version hasn't changed.
   `UpdateTemplate` payloads. Consequence of the change above, templates will describe the front
   matter they use exclusively in their body now, not through extra API handling. Therefore the field
   is not necessary.
+- `fiberplane-ui`: Reduce UI library theming complexity & add fallback values.
 
 ## [v1.0.0-beta.7] - 2024-01-05
 
