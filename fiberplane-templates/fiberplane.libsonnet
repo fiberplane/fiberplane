@@ -436,7 +436,8 @@ local notebook = {
     ),
 
     /**
-     * UNSTABLE: this function has no validation and the parameters might change
+     * UNSTABLE: this function has no validation and the parameters might change.
+     *
      * Append front matter schema to a notebook inline. The method allows describing the schema
      * directly in template source.
      *
@@ -452,7 +453,7 @@ local notebook = {
      * Add a single front matter value to the notebook. The value will _not_ appear in the
      * notebook unless the front matter _schema_ of the notebook has an entry for the given key.
      *
-     * @function notebook.Notebook#addLabel
+     * @function notebook.Notebook#addFrontMatterValue
      * @param {string} key - Key of the front matter entry
      * @param {string | number} value - Front matter value
      * @returns {notebook.Notebook}

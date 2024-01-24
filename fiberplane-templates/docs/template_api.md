@@ -41,7 +41,7 @@ fp.notebook.new('My Notebook')
         * [`.addFrontMatterCollection(name)`](#notebook.Notebook+addFrontMatterCollection) ⇒ [<code>Notebook</code>](#notebook.Notebook)
         * [`.addFrontMatterCollections(names)`](#notebook.Notebook+addFrontMatterCollections) ⇒ [<code>Notebook</code>](#notebook.Notebook)
         * [`.addFrontMatterSchema(frontMatterSchema)`](#notebook.Notebook+addFrontMatterSchema) ⇒ [<code>Notebook</code>](#notebook.Notebook)
-        * [`.addLabel(key, value)`](#notebook.Notebook+addLabel) ⇒ [<code>Notebook</code>](#notebook.Notebook)
+        * [`.addFrontMatterValue(key, value)`](#notebook.Notebook+addFrontMatterValue) ⇒ [<code>Notebook</code>](#notebook.Notebook)
         * [`.addFrontMatterValues(vals)`](#notebook.Notebook+addFrontMatterValues) ⇒ [<code>Notebook</code>](#notebook.Notebook)
     * [`.new(title)`](#notebook.new) ⇒ [<code>Notebook</code>](#notebook.Notebook)
 
@@ -64,7 +64,7 @@ fp.notebook.new('My Notebook')
     * [`.addFrontMatterCollection(name)`](#notebook.Notebook+addFrontMatterCollection) ⇒ [<code>Notebook</code>](#notebook.Notebook)
     * [`.addFrontMatterCollections(names)`](#notebook.Notebook+addFrontMatterCollections) ⇒ [<code>Notebook</code>](#notebook.Notebook)
     * [`.addFrontMatterSchema(frontMatterSchema)`](#notebook.Notebook+addFrontMatterSchema) ⇒ [<code>Notebook</code>](#notebook.Notebook)
-    * [`.addLabel(key, value)`](#notebook.Notebook+addLabel) ⇒ [<code>Notebook</code>](#notebook.Notebook)
+    * [`.addFrontMatterValue(key, value)`](#notebook.Notebook+addFrontMatterValue) ⇒ [<code>Notebook</code>](#notebook.Notebook)
     * [`.addFrontMatterValues(vals)`](#notebook.Notebook+addFrontMatterValues) ⇒ [<code>Notebook</code>](#notebook.Notebook)
 
 <a name="notebook.Notebook+setTimeRangeRelative"></a>
@@ -199,8 +199,8 @@ notebook.addFrontMatterCollections(['post-mortem', 'opsgenie'])
 <a name="notebook.Notebook+addFrontMatterSchema"></a>
 
 #### `notebook.addFrontMatterSchema(frontMatterSchema)` ⇒ [<code>Notebook</code>](#notebook.Notebook)
-<p>UNSTABLE: this function has no validation and the parameters might change
-Append front matter schema to a notebook inline. The method allows describing the schema
+<p>UNSTABLE: this function has no validation and the parameters might change.</p>
+<p>Append front matter schema to a notebook inline. The method allows describing the schema
 directly in template source.</p>
 
 **Kind**: instance method of [<code>Notebook</code>](#notebook.Notebook)  
@@ -209,9 +209,9 @@ directly in template source.</p>
 | --- | --- | --- |
 | frontMatterSchema | <code>Array.&lt;object&gt;</code> | <p>Front Matter Schema as expected by the API</p> |
 
-<a name="notebook.Notebook+addLabel"></a>
+<a name="notebook.Notebook+addFrontMatterValue"></a>
 
-#### `notebook.addLabel(key, value)` ⇒ [<code>Notebook</code>](#notebook.Notebook)
+#### `notebook.addFrontMatterValue(key, value)` ⇒ [<code>Notebook</code>](#notebook.Notebook)
 <p>Add a single front matter value to the notebook. The value will <em>not</em> appear in the
 notebook unless the front matter <em>schema</em> of the notebook has an entry for the given key.</p>
 
