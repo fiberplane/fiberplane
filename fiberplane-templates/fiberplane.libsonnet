@@ -430,7 +430,7 @@ local notebook = {
      */
     addFrontMatterCollections(names):: std.foldl(
       function(nb, name)
-        nb.addFrontMatterCollection(validate.string('name', name)),
+        nb.addFrontMatterCollection(name),
       names,
       self
     ),
