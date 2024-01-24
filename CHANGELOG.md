@@ -23,6 +23,14 @@ major version hasn't changed.
   matter they use exclusively in their body now, not through extra API handling. Therefore the field
   is not necessary.
 - `fiberplane-ui`: Reduce UI library theming complexity & add fallback values.
+- `fiberplane-templates`: Add jsonnet functions in `fiberplane.libsonnet` to allow templates to manipulate
+  front matter when creating a notebook.
+  + `addFrontMatterCollection` and `addFrontMatterCollections` allow to add front matter entries according
+    to (beta) front matter collections living in the workspace that the template is expanded into.
+  + `addFrontMatterValue` and `AddFrontMatterValues` allow to add specific values to front matter entries
+  + `addFrontMatterSchema` is an unstable function that allows to specify front matter entries to add
+    to the notebook inplace. It is currently used to convert a notebook to a template while keeping the
+    front matter information
 
 ## [v1.0.0-beta.7] - 2024-01-05
 
