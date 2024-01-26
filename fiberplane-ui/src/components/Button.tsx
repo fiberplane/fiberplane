@@ -178,7 +178,7 @@ function getButtonStyle(buttonStyle: ButtonStyle) {
         border: 1px solid transparent;
 
         &:hover {
-          color: var(--color-button-primary-fg-default, #fff);
+          color: var(--color-fg-default, #000);
         }
 
         &:focus,
