@@ -71,7 +71,7 @@ export const buttonStyling = css<StyledButtonTransientProps>(
       /* reset default button styles */
 
       font: var(--font-buttons-md, 500 14px / 16px Inter);
-      max-height: 36px;
+      min-height: 36px;
 
       display: flex;
       justify-content: center;
