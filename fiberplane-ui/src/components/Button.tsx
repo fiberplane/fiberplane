@@ -58,7 +58,7 @@ const StyledTextButton = styled.button<StyledButtonTransientProps>(
 );
 
 export const buttonStyling = css<StyledButtonTransientProps>(
-  ({ $buttonStyle, theme }) => {
+  ({ $buttonStyle }) => {
     const buttonStyle = getButtonStyle($buttonStyle);
 
     return css`
@@ -70,7 +70,7 @@ export const buttonStyling = css<StyledButtonTransientProps>(
       text-decoration: none;
       /* reset default button styles */
 
-      font: ${theme.font.buttons.md};
+      font: var(--font-buttons-md, 500 14px / 16px Inter);
       max-height: 36px;
 
       display: flex;
@@ -79,8 +79,8 @@ export const buttonStyling = css<StyledButtonTransientProps>(
       gap: 8px;
 
       padding: 8px 16px;
-      border-radius: ${theme.radius.default};
-      box-shadow: ${theme.effect.shadow.xxs};
+      border-radius: var(--radius-default, 10px);
+      box-shadow: var(--shadow-xxs, 0px 1px 2px 0px rgb(0 0 0 / 5%));
       transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out,
         border-color 0.2s ease-in-out, box-shadow 0.1s ease-in-out 0.05s;
 
@@ -98,14 +98,14 @@ export const buttonStyling = css<StyledButtonTransientProps>(
 
       &:focus,
       &:focus-visible {
-        box-shadow: ${theme.effect.focus.primary};
+        box-shadow: var(--focus-primary, 0px 0px 0px 4px rgb(108 84 255 / 20%));
       }
     `;
   },
 );
 
 export const textButtonStyling = css<StyledButtonTransientProps>(
-  ({ $buttonStyle, theme }) =>
+  ({ $buttonStyle }) =>
     css<StyledButtonTransientProps>`
       ${buttonStyling}
 
@@ -118,15 +118,15 @@ export const textButtonStyling = css<StyledButtonTransientProps>(
       ${
         $buttonStyle === "primary"
           ? css`
-            color: ${theme.color.fg.primary};
+            color: var(--color-button-primary-fg-default, #fff);
           `
           : css`
-            color: ${theme.color.fg.muted};
+            color: var(--color-button-primary-fg-muted, #8c898f);
           `
       }
 
       &:hover {
-        color: ${theme.color.fg.default};
+        color: var(--color-button-primary-fg-default, #fff);
         background: unset;
       }
     `,
@@ -135,97 +135,89 @@ export const textButtonStyling = css<StyledButtonTransientProps>(
 function getButtonStyle(buttonStyle: ButtonStyle) {
   switch (buttonStyle) {
     case "primary":
-      return css(
-        ({ theme }) => css`
-          background-color: ${theme.color.button.primary.bg.default};
-          color: ${theme.color.button.primary.fg.default};
+      return css`
+        background-color: var(--color-button-primary-bg-default, #3755ed);
+        color: var(--color-button-primary-fg-default, #fff);
 
-          &:hover {
-            background-color: ${theme.color.button.primary.bg.hover};
-          }
+        &:hover {
+          background-color: var(--color-button-primary-bg-hover, #abb5ff);
+        }
 
-          &:disabled {
-            background-color: ${theme.color.button.primary.bg.disabled};
-            color: ${theme.color.button.primary.fg.disabled};
-            cursor: not-allowed;
-          }
-        `,
-      );
+        &:disabled {
+          background-color: var(--color-button-primary-bg-disabled, #ebeaed);
+          color: var(--color-button-primary-fg-disabled, #fff);
+          cursor: not-allowed;
+        }
+      `;
     case "secondary":
-      return css(
-        ({ theme }) => css`
-          background-color: ${theme.color.button.secondary.bg};
-          color: ${theme.color.button.secondary.fg};
-          border: 1px solid ${theme.color.button.secondary.border};
+      return css`
+        background-color: var(--color-button-secondary-bg, #fff);
+        color: var(--color-button-secondary-fg, #111114);
+        border: 1px solid var(--color-button-secondary-border, #d6d4d9);
 
-          &:hover {
-            background-color: ${theme.color.bg.hover};
-          }
+        &:hover {
+          background-color: var(--color-bg-hover, #ebeaed);
+        }
 
-          &:focus,
-          &:focus-visible {
-            border-color: ${theme.color.border.primary};
-          }
+        &:focus,
+        &:focus-visible {
+          border-color: var(--color-border-primary, #3755ed);
+        }
 
-          &:disabled {
-            border-color: ${theme.color.border.muted};
-            background-color: ${theme.color.button.secondary.bg};
-            color: ${theme.color.fg.subtle};
-          }
-        `,
-      );
+        &:disabled {
+          border-color: var(--color-border-muted, #ebeaed);
+          background-color: var(--color-button-secondary-bg, #fff);
+          color: var(--color-fg-subtle, #bcb9bf);
+        }
+      `;
     case "tertiary-color":
-      return css(
-        ({ theme }) => css`
-          box-shadow: none;
-          padding: 4px 2px;
-          color: ${theme.color.fg.primary};
-          border: 1px solid transparent;
+      return css`
+        box-shadow: none;
+        padding: 4px 2px;
+        color: var(--color-fg-primary, #3755ed);
+        border: 1px solid transparent;
 
-          &:hover {
-            color: ${theme.color.fg.default};
-          }
+        &:hover {
+          color: var(--color-button-primary-fg-default, #fff);
+        }
 
-          &:focus,
-          &:focus-visible {
-            border-color: ${theme.color.border.primary};
-          }
+        &:focus,
+        &:focus-visible {
+          border-color: var(--color-border-primary, #3755ed);
+        }
 
-          &:disabled {
-            color: ${theme.color.fg.subtle};
-          }
-        `,
-      );
+        &:disabled {
+          color: var(--color-fg-subtle, #bcb9bf);
+        }
+      `;
     case "tertiary-grey":
-      return css(
-        ({ theme }) => css`
-          box-shadow: none;
-          padding: 4px 2px;
-          color: ${theme.color.fg.muted};
-          border: 1px solid transparent;
+      return css`
+        box-shadow: none;
+        padding: 4px 2px;
+        color: var(--color-fg-muted, #8c898f);
+        border: 1px solid transparent;
 
-          &:hover {
-            background-color: ${theme.color.bg.hover};
-          }
+        &:hover {
+          background-color: var(--color-bg-hover, #ebeaed);
+        }
 
-          &:focus,
-          &:focus-visible {
-            border-color: ${theme.color.border.primary};
-          }
+        &:focus,
+        &:focus-visible {
+          border-color: var(--color-border-primary, #3755ed);
+        }
 
-          &:disabled {
-            color: ${theme.color.fg.subtle};
-          }
+        &:disabled {
+          color: var(--color-fg-subtle, #bcb9bf);
+        }
 
-          &.active, /* Adding the .active class here too for NavLinks */
-          &:active {
-            color: ${theme.color.fg.primary};
-          }
+        &.active, /* Adding the .active class here too for NavLinks */
+        &:active {
+          color: var(--color-fg-primary, #3755ed);
+        }
 
-          &:disabled {
-            color: ${theme.color.fg.subtle};
-          }
-        `,
-      );
+        &:disabled {
+          color: var(--color-fg-subtle, #bcb9bf);
+        }
+      `;
   }
 }

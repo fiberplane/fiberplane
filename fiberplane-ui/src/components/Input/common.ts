@@ -1,4 +1,4 @@
-import { css, styled } from "styled-components";
+import { styled } from "styled-components";
 
 export const InputComponentContainer = styled.div`
   display: inline-block;
@@ -8,41 +8,51 @@ export const InputComponentContainer = styled.div`
   isolation: isolate;
 `;
 
-export const StyledInput = styled.div(
-  ({ theme }) => css`
-    display: grid;
-    place-items: center;
-    background-color: ${theme.color.bg.subtle};
-    border: 1px solid ${theme.color.fg.muted};
-    border-radius: ${theme.radius.minimal};
-    height: 100%;
-    width: 100%;
-    z-index: 1;
-    transition: box-shadow 0.1s ease-in-out 0.05s, border-color 0.2s ease-in-out,
-      background-color 0.2s ease-in-out;
+export const HiddenInputElement = styled.input`
+  appearance: none;
+  outline: none;
+  border: none;
 
-    ${HiddenInputElement}:hover ~ & {
-      border-color: ${theme.color.border.primary};
-    }
+  cursor: pointer;
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  z-index: 3;
+`;
 
-    ${HiddenInputElement}:focus ~ & {
-      box-shadow: ${theme.effect.focus.primary};
-    }
+export const StyledInput = styled.div`
+  display: grid;
+  place-items: center;
+  background-color: var(--color-bg-subtle, #f9f9fa);
+  border: 1px solid var(--color-fg-muted, #8c898f);
+  border-radius: var(--radius-minimal, 8px);
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  transition: box-shadow 0.1s ease-in-out 0.05s, border-color 0.2s ease-in-out,
+    background-color 0.2s ease-in-out;
 
-    ${HiddenInputElement}:checked ~ & {
-      border-color: ${theme.color.border.primary};
-      background-color: ${theme.color.bg.emphasis["primary-subtle"]};
-      color: ${theme.color.fg.primary};
-    }
+  ${HiddenInputElement}:hover ~ & {
+    border-color: var(--color-border-primary, #3755ed);
+  }
 
-    ${HiddenInputElement}:disabled ~ & {
-      border-color: ${theme.color.border.default};
-      background-color: ${theme.color.bg.disabled};
-      color: ${theme.color.border.default};
-      cursor: default;
-    }
-  `,
-);
+  ${HiddenInputElement}:focus ~ & {
+    box-shadow: var(--focus-primary, 0px 0px 0px 4px rgb(108 84 255 / 20%));
+  }
+
+  ${HiddenInputElement}:checked ~ & {
+    border-color: var(--color-border-primary, #3755ed);
+    background-color: var(--color-bg-emphasis-primary-subtle, #e7e7e7);
+    color: var(--color-fg-primary, #3755ed);
+  }
+
+  ${HiddenInputElement}:disabled ~ & {
+    border-color: var(--color-border-default, #d6d4d9);
+    background-color: var(--color-bg-disabled, #ebeaed);
+    color: var(--color-border-default, #d6d4d9);
+    cursor: default;
+  }
+`;
 
 export const IconContainer = styled.div`
   @keyframes check {
@@ -63,16 +73,4 @@ export const IconContainer = styled.div`
     opacity: 0;
     animation: check 0.1s ease-in-out forwards;
   }
-`;
-
-export const HiddenInputElement = styled.input`
-  appearance: none;
-  outline: none;
-  border: none;
-
-  cursor: pointer;
-  position: absolute;
-  inset: 0;
-  margin: 0;
-  z-index: 3;
 `;

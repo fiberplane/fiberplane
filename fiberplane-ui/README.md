@@ -7,13 +7,24 @@ Contains ReactJS UI elements for use in Fiberplane products.
 ## Usage
 
 ```tsx
-import { Button } from "@fiberplane/ui";
+import { Button, Input } from "@fiberplane/ui";
 
-function MyComponent() {
+function MyForm() {
+  // ...
+
   return (
+    <Input
+      type="text"
+      onChange={(event) => { /* your text onChange handler... */ }}
+    >
+    <Input
+      type="lightswitch"
+      onChange={(event) => { /* your lightswitch onChange handler... */ }}
+      checked={isChecked}
+    >
     <Button
       onClick={() => { /* your onClick handler... */ }}
-      asElement="link" /* React Router `Link` element */
+      type="submit"
       buttonStyle="secondary"
     >
       Click me!

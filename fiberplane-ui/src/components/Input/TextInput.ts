@@ -1,30 +1,28 @@
-import { css, styled } from "styled-components";
+import { styled } from "styled-components";
 
-export const TextInput = styled.input(
-  ({ theme }) => css`
-    background-color: ${theme.color.input.bg};
-    border: 1px solid ${theme.color.input.border};
-    border-radius: ${theme.radius.default};
-    color: ${theme.color.input.fg};
-    padding: 6px 12px;
-    outline: none;
-    font: ${theme.font.body.md.regular};
-    box-shadow: ${theme.effect.shadow.xxs};
+export const TextInput = styled.input`
+  background-color: var(--color-input-bg, #fff);
+  border: 1px solid var(--color-input-border, #d6d4d9);
+  border-radius: var(--radius-default, 10px);
+  color: var(--color-input-fg-input, #000);
+  padding: 6px 12px;
+  outline: none;
+  font: var(--font-body-md-regular, 400 14px / 24px Inter);
+  box-shadow: var(--shadow-xxs, 0px 1px 2px 0px rgb(0 0 0 / 5%));
 
-    transition: box-shadow 0.1s ease-in-out 0.05s, border-color 0.2s ease-in-out;
+  transition: box-shadow 0.1s ease-in-out 0.05s, border-color 0.2s ease-in-out;
 
-    &::placeholder {
-      color: ${theme.color.input.fg.placeholder};
-    }
+  &::placeholder {
+    color: var(--color-input-fg-placeholder, #8c898f);
+  }
 
-    &:focus,
-    &:focus-visible {
-      box-shadow: ${theme.effect.focus.primary};
-      border-color: ${theme.color.border.primary};
-    }
-    &[data-invalid="true"],
-    &:invalid {
-      border-color: ${theme.color.fg.danger};
-    }
-  `,
-);
+  &:focus,
+  &:focus-visible {
+    box-shadow: var(--focus-primary, 0px 0px 0px 4px rgb(108 84 255 / 20%));
+    border-color: var(--color-border-primary, #3755ed);
+  }
+  &[data-invalid="true"],
+  &:invalid {
+    border-color: var(--color-fg-danger, #c40041);
+  }
+`;

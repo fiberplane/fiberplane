@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { css, styled } from "styled-components";
+import { styled } from "styled-components";
 
 import {
   HiddenInputElement,
@@ -31,8 +31,6 @@ export const RadioButton = forwardRef<HTMLInputElement, RadioButtonProps>(
   },
 );
 
-const RadioContainer = styled(StyledInput)(
-  ({ theme }) => css`
-    border-radius: ${theme.radius.full};
-  `,
-);
+const RadioContainer = styled(StyledInput)`
+  border-radius: var(--radius-full, 9999px);
+`;

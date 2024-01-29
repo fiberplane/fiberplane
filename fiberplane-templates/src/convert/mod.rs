@@ -93,6 +93,29 @@ pub fn notebook_to_template(notebook: impl Into<NewNotebook>) -> String {
         writer.println("})");
     }
 
+    // Add front matter
+    if !notebook.front_matter.is_empty() {
+        writer.println(".addFrontMatterValues({");
+        for (fm_key, fm_value) in notebook.front_matter {
+            writer.println(format!(
+                "{}: {},",
+                escape_string(fm_key),
+                serde_json::to_string(&fm_value).expect("A JSON Value is always serializable")
+            ));
+        }
+        writer.println("})");
+    }
+
+    // Add front matter schema
+    if !notebook.front_matter_schema.is_empty() {
+        writer.println("// If the front matter schema comes from a known collection, you can replace the next call with .addFrontMatterCollection('name')");
+        writer.println(format!(
+            ".addFrontMatterSchema({})",
+            serde_json::to_string_pretty(&notebook.front_matter_schema.0)
+                .expect("A Front matter schema is always serializable."),
+        ));
+    }
+
     // Add selected data sources
     for (provider_type, data_source) in notebook.selected_data_sources.iter() {
         if let Some(proxy_name) = &data_source.proxy_name {
