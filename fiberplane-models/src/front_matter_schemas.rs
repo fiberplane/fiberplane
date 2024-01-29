@@ -366,14 +366,6 @@ impl<T: Into<Timestamp>> From<T> for FrontMatterEnumDateTimeValue {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "fiberplane_models::front_matter_schemas")
-)]
-#[non_exhaustive]
-#[serde(rename_all = "camelCase")]
 /// API Payload to update an entry to a front matter schema.
 ///
 /// The payload is received in the context of a known (Notebook,
@@ -383,6 +375,14 @@ impl<T: Into<Timestamp>> From<T> for FrontMatterEnumDateTimeValue {
 /// Notably, as the _API_ will handle the call, it can fill the ceremonial data
 /// related to Operational Transform, such as getting the "old" state and "old" value
 /// that are necessary to build a valid `Operation`.
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::front_matter_schemas")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
 pub struct FrontMatterUpdateRow {
     /// The new schema to use, if unspecified the operation will leave the schema
     /// untouched (so the operation is only being used to edit the associated value).
@@ -413,14 +413,6 @@ pub struct FrontMatterUpdateRow {
     pub delete_value: bool,
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "fiberplane_models::front_matter_schemas")
-)]
-#[non_exhaustive]
-#[serde(rename_all = "camelCase")]
 /// API Payload to add an entry to a front matter schema.
 ///
 /// The payload is received in the context of a known Notebook, and
@@ -429,6 +421,14 @@ pub struct FrontMatterUpdateRow {
 /// Notably, as the _API_ will handle the call, it can fill the ceremonial data
 /// related to Operational Transform, such as getting the "old" state and "old" value
 /// that are necessary to build a valid `Operation`.
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::front_matter_schemas")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
 pub struct FrontMatterAddRows {
     /// The index to insert the new front matter schema into.
     ///
