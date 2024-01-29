@@ -1,9 +1,10 @@
-use crate::timestamps::Timestamp;
+use crate::{notebooks::operations::FrontMatterSchemaRow, timestamps::Timestamp};
 use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use ordered_float::OrderedFloat;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use strum_macros::Display;
 use typed_builder::TypedBuilder;
 
@@ -369,4 +370,77 @@ impl<T: Into<Timestamp>> From<T> for FrontMatterEnumDateTimeValue {
             value: value.into(),
         }
     }
+}
+
+/// API Payload to update an entry to a front matter schema.
+///
+/// The payload is received in the context of a known (Notebook,
+/// target key) pair, and
+/// maps easily to an [`UpdateFrontMatterSchemaOperation`](crate::notebooks::operations::UpdateFrontMatterSchemaOperation)
+///
+/// Notably, as the _API_ will handle the call, it can fill the ceremonial data
+/// related to Operational Transform, such as getting the "old" state and "old" value
+/// that are necessary to build a valid `Operation`.
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::front_matter_schemas")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct FrontMatterUpdateRow {
+    /// The new schema to use, if unspecified the operation will leave the schema
+    /// untouched (so the operation is only being used to edit the associated value).
+    ///
+    /// If a new schema is specified, and the data type does _not_ match between the
+    /// old and the new one, then the old value will be wiped anyway.
+    #[builder(default, setter(into, strip_option))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub new_schema: Option<FrontMatterValueSchema>,
+
+    /// The new value to set for the front matter entry.
+    ///
+    /// If this attribute is `None` or `null` it can mean multiple things depending on
+    /// the other attributes:
+    /// - if `delete_value` is `false`, this means we want to keep the current value
+    ///   + it is impossible to keep the current if the schemas are incompatible. In that
+    ///     case we use the `default_value` of the new schema (or nothing if there’s no default)
+    /// - if `delete_value` is `true`, this means we want to wipe the value from the front
+    ///   matter in all cases.
+    #[builder(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub new_value: Option<Value>,
+
+    /// Switch that controls front matter value edition alongside `new_value`, when
+    /// `new_value` is None.
+    #[builder(setter(strip_bool))]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub delete_value: bool,
+}
+
+/// API Payload to add an entry to a front matter schema.
+///
+/// The payload is received in the context of a known Notebook, and
+/// maps easily to an [`InsertFrontMatterOperation`](crate::notebooks::operations::InsertFrontMatterOperation)
+///
+/// Notably, as the _API_ will handle the call, it can fill the ceremonial data
+/// related to Operational Transform, such as getting the "old" state and "old" value
+/// that are necessary to build a valid `Operation`.
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::front_matter_schemas")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct FrontMatterAddRows {
+    /// The index to insert the new front matter schema into.
+    ///
+    /// If the index is
+    pub to_index: u32,
+
+    /// The new entries to add to the front matter schema, with their new values
+    pub insertions: Vec<FrontMatterSchemaRow>,
 }

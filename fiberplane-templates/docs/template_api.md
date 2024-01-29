@@ -38,6 +38,11 @@ fp.notebook.new('My Notebook')
         * [`.addCells(cells)`](#notebook.Notebook+addCells) ⇒ [<code>Notebook</code>](#notebook.Notebook)
         * [`.addLabel(key, value)`](#notebook.Notebook+addLabel) ⇒ [<code>Notebook</code>](#notebook.Notebook)
         * [`.addLabels(labels)`](#notebook.Notebook+addLabels) ⇒ [<code>Notebook</code>](#notebook.Notebook)
+        * [`.addFrontMatterCollection(name)`](#notebook.Notebook+addFrontMatterCollection) ⇒ [<code>Notebook</code>](#notebook.Notebook)
+        * [`.addFrontMatterCollections(names)`](#notebook.Notebook+addFrontMatterCollections) ⇒ [<code>Notebook</code>](#notebook.Notebook)
+        * [`.addFrontMatterSchema(frontMatterSchema)`](#notebook.Notebook+addFrontMatterSchema) ⇒ [<code>Notebook</code>](#notebook.Notebook)
+        * [`.addFrontMatterValue(key, value)`](#notebook.Notebook+addFrontMatterValue) ⇒ [<code>Notebook</code>](#notebook.Notebook)
+        * [`.addFrontMatterValues(vals)`](#notebook.Notebook+addFrontMatterValues) ⇒ [<code>Notebook</code>](#notebook.Notebook)
     * [`.new(title)`](#notebook.new) ⇒ [<code>Notebook</code>](#notebook.Notebook)
 
 <a name="notebook.Notebook"></a>
@@ -56,6 +61,11 @@ fp.notebook.new('My Notebook')
     * [`.addCells(cells)`](#notebook.Notebook+addCells) ⇒ [<code>Notebook</code>](#notebook.Notebook)
     * [`.addLabel(key, value)`](#notebook.Notebook+addLabel) ⇒ [<code>Notebook</code>](#notebook.Notebook)
     * [`.addLabels(labels)`](#notebook.Notebook+addLabels) ⇒ [<code>Notebook</code>](#notebook.Notebook)
+    * [`.addFrontMatterCollection(name)`](#notebook.Notebook+addFrontMatterCollection) ⇒ [<code>Notebook</code>](#notebook.Notebook)
+    * [`.addFrontMatterCollections(names)`](#notebook.Notebook+addFrontMatterCollections) ⇒ [<code>Notebook</code>](#notebook.Notebook)
+    * [`.addFrontMatterSchema(frontMatterSchema)`](#notebook.Notebook+addFrontMatterSchema) ⇒ [<code>Notebook</code>](#notebook.Notebook)
+    * [`.addFrontMatterValue(key, value)`](#notebook.Notebook+addFrontMatterValue) ⇒ [<code>Notebook</code>](#notebook.Notebook)
+    * [`.addFrontMatterValues(vals)`](#notebook.Notebook+addFrontMatterValues) ⇒ [<code>Notebook</code>](#notebook.Notebook)
 
 <a name="notebook.Notebook+setTimeRangeRelative"></a>
 
@@ -154,6 +164,85 @@ notebook.addLabel(key='service', value='api')
 notebook.addLabels({
  service: 'api',
  severity: 'high'
+})
+```
+<a name="notebook.Notebook+addFrontMatterCollection"></a>
+
+#### `notebook.addFrontMatterCollection(name)` ⇒ [<code>Notebook</code>](#notebook.Notebook)
+<p>Add a single front matter collection to the notebook.</p>
+
+**Kind**: instance method of [<code>Notebook</code>](#notebook.Notebook)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| name | <code>string</code> | <p>Name of the front matter collection in the workspace</p> |
+
+**Example**  
+```js
+notebook.addFrontMatterCollection(name='post-mortem')
+```
+<a name="notebook.Notebook+addFrontMatterCollections"></a>
+
+#### `notebook.addFrontMatterCollections(names)` ⇒ [<code>Notebook</code>](#notebook.Notebook)
+<p>Add multiple front matter collections to the notebook.</p>
+
+**Kind**: instance method of [<code>Notebook</code>](#notebook.Notebook)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| names | <code>Array.&lt;string&gt;</code> | <p>Names of the front matter collections in the workspace</p> |
+
+**Example**  
+```js
+notebook.addFrontMatterCollections(['post-mortem', 'opsgenie'])
+```
+<a name="notebook.Notebook+addFrontMatterSchema"></a>
+
+#### `notebook.addFrontMatterSchema(frontMatterSchema)` ⇒ [<code>Notebook</code>](#notebook.Notebook)
+<p>UNSTABLE: this function has no validation and the parameters might change.</p>
+<p>Append front matter schema to a notebook inline. The method allows describing the schema
+directly in template source.</p>
+
+**Kind**: instance method of [<code>Notebook</code>](#notebook.Notebook)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| frontMatterSchema | <code>Array.&lt;object&gt;</code> | <p>Front Matter Schema as expected by the API</p> |
+
+<a name="notebook.Notebook+addFrontMatterValue"></a>
+
+#### `notebook.addFrontMatterValue(key, value)` ⇒ [<code>Notebook</code>](#notebook.Notebook)
+<p>Add a single front matter value to the notebook. The value will <em>not</em> appear in the
+notebook unless the front matter <em>schema</em> of the notebook has an entry for the given key.</p>
+
+**Kind**: instance method of [<code>Notebook</code>](#notebook.Notebook)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| key | <code>string</code> | <p>Key of the front matter entry</p> |
+| value | <code>string</code> \| <code>number</code> | <p>Front matter value</p> |
+
+**Example**  
+```js
+notebook.addFrontMatterValue(key='status', value='Created')
+```
+<a name="notebook.Notebook+addFrontMatterValues"></a>
+
+#### `notebook.addFrontMatterValues(vals)` ⇒ [<code>Notebook</code>](#notebook.Notebook)
+<p>Add multiple front matter values to the notebook. The value will <em>not</em> appear in the
+notebook unless the front matter <em>schema</em> of the notebook has an entry for the given key.</p>
+
+**Kind**: instance method of [<code>Notebook</code>](#notebook.Notebook)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| vals | <code>object</code> | <p>Map of keys and values</p> |
+
+**Example**  
+```js
+notebook.addFrontMatterValues({
+ status: 'Created',
+ ticket: 23
 })
 ```
 <a name="notebook.new"></a>
@@ -401,7 +490,7 @@ notebook.addCells([
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | intent | <code>string</code> |  | <p>The intent of the new provider cell</p> |
-| title | <code>string</code> |  | <p>Title for the new provider cell</p> |
+| title | <code>string</code> |  | <p>Title for the new provider cell (deprecated)</p> |
 | queryData | <code>string</code> |  | <p>Query data that the provider will understand</p> |
 | readOnly | <code>boolean</code> | <code>false</code> | <p>Whether the cell is locked</p> |
 

@@ -261,9 +261,12 @@ local notebook = {
   new(title):: {
     title: validate.string('title', title),
     timeRange: { minutes: -60 },
-    dataSources: {},
+    selectedDataSources: {},
     labels: [],
     cells: [],
+    frontMatter: {},
+    frontMatterSchema: [],
+    frontMatterCollections: [],
     // This is used to generate the cell IDs in the addCell
     // method. It does not appear in the JSON output
     _nextCellId:: 1,
@@ -400,6 +403,87 @@ local notebook = {
       std.objectFields(validate.object('labels', labels)),
       self
     ),
+
+    /**
+     * Add a single front matter collection to the notebook.
+     *
+     * @function notebook.Notebook#addFrontMatterCollection
+     * @param {string} name - Name of the front matter collection in the workspace
+     * @returns {notebook.Notebook}
+     *
+     * @example notebook.addFrontMatterCollection(name='post-mortem')
+     */
+    addFrontMatterCollection(name):: self {
+      frontMatterCollections+: [
+        validate.string('name', name),
+      ],
+    },
+
+    /**
+     * Add multiple front matter collections to the notebook.
+     *
+     * @function notebook.Notebook#addFrontMatterCollections
+     * @param {Array.<string>} names - Names of the front matter collections in the workspace
+     * @returns {notebook.Notebook}
+     *
+     * @example notebook.addFrontMatterCollections(['post-mortem', 'opsgenie'])
+     */
+    addFrontMatterCollections(names):: std.foldl(
+      function(nb, name)
+        nb.addFrontMatterCollection(name),
+      names,
+      self
+    ),
+
+    /**
+     * UNSTABLE: this function has no validation and the parameters might change.
+     *
+     * Append front matter schema to a notebook inline. The method allows describing the schema
+     * directly in template source.
+     *
+     * @function notebook.Notebook#addFrontMatterSchema
+     * @param {Array.<object>} frontMatterSchema - Front Matter Schema as expected by the API
+     * @returns {notebook.Notebook}
+     */
+    addFrontMatterSchema(fMSchema):: self {
+      frontMatterSchema+: fMSchema,
+    },
+
+    /**
+     * Add a single front matter value to the notebook. The value will _not_ appear in the
+     * notebook unless the front matter _schema_ of the notebook has an entry for the given key.
+     *
+     * @function notebook.Notebook#addFrontMatterValue
+     * @param {string} key - Key of the front matter entry
+     * @param {string | number} value - Front matter value
+     * @returns {notebook.Notebook}
+     *
+     * @example notebook.addFrontMatterValue(key='status', value='Created')
+     */
+    addFrontMatterValue(key, value):: self {
+      frontMatter+: { [key]: value },
+    },
+
+    /**
+     * Add multiple front matter values to the notebook. The value will _not_ appear in the
+     * notebook unless the front matter _schema_ of the notebook has an entry for the given key.
+     *
+     * @function notebook.Notebook#addFrontMatterValues
+     * @param {object} vals - Map of keys and values
+     * @returns {notebook.Notebook}
+     *
+     * @example notebook.addFrontMatterValues({
+     *  status: 'Created',
+     *  ticket: 23
+     * })
+     */
+    addFrontMatterValues(vals):: std.foldl(
+      function(nb, key)
+        nb.addFrontMatterValue(key, vals[key]),
+      std.objectFields(validate.object('vals', vals)),
+      self
+    ),
+
   },
 };
 
