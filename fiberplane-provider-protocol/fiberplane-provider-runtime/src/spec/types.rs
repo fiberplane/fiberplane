@@ -26,8 +26,8 @@ pub use fiberplane_models::notebooks::LogVisibilityFilter;
 pub use fiberplane_models::notebooks::ProviderCell;
 pub use fiberplane_models::notebooks::StackingType;
 pub use fiberplane_models::notebooks::TableCell;
-pub use fiberplane_models::notebooks::TableCellValue;
 pub use fiberplane_models::notebooks::TableColumnDefinition;
+pub use fiberplane_models::notebooks::TableRowValue;
 pub use fiberplane_models::notebooks::TextCell;
 pub use fiberplane_models::notebooks::TimelineCell;
 pub use fiberplane_models::providers::ArrayField;
@@ -68,4 +68,4 @@ pub type ProviderConfig = serde_json::Value;
 
 pub type QuerySchema = Vec<QueryField>;
 
-pub type TableRowData = BTreeMap<String, TableCellValue>;
+pub type TableRowData = BTreeMap<String, TableRowValue>;

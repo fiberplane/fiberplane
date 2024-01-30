@@ -1,3 +1,4 @@
+use super::{TableColumnDefinition, TableRow, TableRowValue};
 use crate::data_sources::SelectedDataSource;
 use crate::formatting::Formatting;
 use crate::front_matter_schemas::{FrontMatterSchemaEntry, FrontMatterValueSchema};
@@ -25,24 +26,44 @@ use typed_builder::TypedBuilder;
 #[non_exhaustive]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum Operation {
+    // Cell-level operations.
     MoveCells(MoveCellsOperation),
     ReplaceCells(ReplaceCellsOperation),
+
+    // Text-level operation.
     ReplaceText(ReplaceTextOperation),
+
+    // Time-range operation.
     UpdateNotebookTimeRange(UpdateNotebookTimeRangeOperation),
+
     /// **Deprecated:** Please use `ReplaceText` with `cell_id == TITLE_CELL_ID` instead.
     UpdateNotebookTitle(UpdateNotebookTitleOperation),
+
+    // Data source selection.
     SetSelectedDataSource(SetSelectedDataSourceOperation),
+
+    // Label operations.
     AddLabel(AddLabelOperation),
     ReplaceLabel(ReplaceLabelOperation),
     RemoveLabel(RemoveLabelOperation),
-    /// **Deprecated:** Full front matter updates should be avoided, granular update operations are
-    /// better for conflict handling.
-    UpdateFrontMatter(UpdateFrontMatterOperation),
+
+    // Front matter operations.
     ClearFrontMatter(ClearFrontMatterOperation),
     InsertFrontMatterSchema(InsertFrontMatterSchemaOperation),
     UpdateFrontMatterSchema(UpdateFrontMatterSchemaOperation),
     MoveFrontMatterSchema(MoveFrontMatterSchemaOperation),
     RemoveFrontMatterSchema(RemoveFrontMatterSchemaOperation),
+    /// **Deprecated:** Full front matter updates should be avoided, granular update operations are
+    /// better for conflict handling.
+    UpdateFrontMatter(UpdateFrontMatterOperation),
+
+    // Table cell operations.
+    // TODO: We'll probably want Move operations for columns and rows later as well.
+    InsertTableColumn(InsertTableColumnOperation),
+    RemoveTableColumn(RemoveTableColumnOperation),
+    UpdateTableColumnDefinition(UpdateTableColumnDefinitionOperation),
+    InsertTableRow(InsertTableRowOperation),
+    RemoveTableRow(RemoveTableRowOperation),
 }
 
 /// Moves one or more cells.
@@ -662,4 +683,109 @@ pub struct CellReplaceText {
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub old_formatting: Option<Formatting>,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::operations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct InsertTableColumnOperation {
+    /// ID of the table cell.
+    pub cell_id: String,
+
+    /// Definition for the column.
+    pub column_def: TableColumnDefinition,
+
+    /// The index at which to insert the column.
+    pub index: u32,
+
+    /// The values to insert in the column.
+    ///
+    /// The amount of values should match the amount of rows in the table.
+    pub values: Vec<TableRowValue>,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::operations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct RemoveTableColumnOperation {
+    /// ID of the table cell.
+    pub cell_id: String,
+
+    /// Definition of the column being removed.
+    pub column_def: TableColumnDefinition,
+
+    /// The index of the column being removed.
+    pub index: u32,
+
+    /// The values that are being removed together with the column.
+    ///
+    /// The amount of values should match the amount of rows in the table.
+    pub values: Vec<TableRowValue>,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::operations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateTableColumnDefinitionOperation {
+    /// ID of the table cell.
+    pub cell_id: String,
+
+    /// The updated column definition that will be set.
+    pub new_column_def: TableColumnDefinition,
+
+    /// The old column definition that is being replaced.
+    pub old_column_def: TableColumnDefinition,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::operations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct InsertTableRowOperation {
+    /// ID of the table cell.
+    pub cell_id: String,
+
+    /// The row being inserted.
+    pub row: TableRow,
+
+    /// The index at which to insert the row.
+    pub index: u32,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::operations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct RemoveTableRowOperation {
+    /// ID of the table cell.
+    pub cell_id: String,
+
+    /// The row being removed.
+    pub row: TableRow,
+
+    /// The index of the row being removed.
+    pub index: u32,
 }

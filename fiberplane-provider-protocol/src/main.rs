@@ -23,7 +23,6 @@ fp_export! {
     type Formatting = Vec<AnnotationWithOffset>;
     type ProviderConfig = Value;
     type QuerySchema = Vec<QueryField>;
-    type TableRowData = BTreeMap<String, TableCellValue>;
 
     // Standardized types that are used for provider data. These should only
     // be needed when trying to construct or parse blobs of certain MIME types.
