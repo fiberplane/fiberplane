@@ -7,6 +7,7 @@ export const TextInput = styled.input`
   color: var(--color-input-fg-input, #000);
   padding: 6px 12px;
   outline: none;
+  min-height: 36px;
   font: var(--font-body-md-regular, 400 14px / 24px Inter);
   box-shadow: var(--shadow-xxs, 0px 1px 2px 0px rgb(0 0 0 / 5%));
 
