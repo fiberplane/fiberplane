@@ -71,7 +71,7 @@ export const buttonStyling = css<StyledButtonTransientProps>(
       /* reset default button styles */
 
       font: var(--font-buttons-md, 500 14px / 16px Inter);
-      max-height: 36px;
+      min-height: 36px;
 
       display: flex;
       justify-content: center;
@@ -178,7 +178,7 @@ function getButtonStyle(buttonStyle: ButtonStyle) {
         border: 1px solid transparent;
 
         &:hover {
-          color: var(--color-button-primary-fg-default, #fff);
+          color: var(--color-fg-default, #000);
         }
 
         &:focus,
