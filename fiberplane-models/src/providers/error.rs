@@ -106,6 +106,14 @@ impl From<time::error::Parse> for Error {
     }
 }
 
+impl From<crate::notebooks::InvalidTableId> for Error {
+    fn from(error: crate::notebooks::InvalidTableId) -> Self {
+        Self::Other {
+            message: format!("Invalid ID in table: {error}"),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
