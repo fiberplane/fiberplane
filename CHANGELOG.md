@@ -15,6 +15,7 @@ major version hasn't changed.
 
 ## [v1.0.0-beta.8] - TBD
 
+- `fiberplane-models`: User schema for front-matter now has the multiple property, so multiple users can be selected
 - `fiberplane-models`: Add a `front_matter_collections` key to the `NewNotebook` payload.
   The extra field will allow an extra way for templates to point to a front matter schema to
   expand into.
