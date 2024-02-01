@@ -15,6 +15,10 @@ major version hasn't changed.
 
 ## [v1.0.0-beta.10] - TBD
 
+- `API` schema: Add routes to manipulate the front matter collections in a workspace (a saved front matter
+  schema with an attached name).
+- `fiberplane-api-client`: Add methods to manipulate the front matter collections in a workspace.
+
 ## [v1.0.0-beta.9] - 2024-02-05
 
 - `fiberplane-models`: User schema for front-matter now has the multiple property, so multiple users can be selected

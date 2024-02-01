@@ -4944,3 +4944,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/frontMatterSchema"
+    delete:
+      operationId: workspace_front_matter_schemas_delete
+      summary: Delete a front matter schema defined in the workspace
+      description: Delete a front matter schema defined in the workspace
+      tags:
+        - Front Matter Schemas
+      responses:
+        "200":
+          description: OK.

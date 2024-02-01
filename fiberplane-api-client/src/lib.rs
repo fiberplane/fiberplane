@@ -1116,6 +1116,25 @@ pub async fn workspace_front_matter_schemas_get_by_name(
     Ok(response)
 }
 
+#[doc = r#"Delete a front matter schema defined in the workspace"#]
+pub async fn workspace_front_matter_schemas_delete(
+    client: &ApiClient,
+    workspace_id: base64uuid::Base64Uuid,
+    front_matter_schema_name: &str,
+) -> Result<()> {
+    let mut builder = client.request(
+        Method::DELETE,
+        &format!(
+            "/api/workspaces/{workspace_id}/front_matter_schemas/{front_matter_schema_name}",
+            workspace_id = workspace_id,
+            front_matter_schema_name = front_matter_schema_name,
+        ),
+    )?;
+    let response = builder.send().await?.error_for_status()?;
+
+    Ok(())
+}
+
 #[doc = r#"Retrieves a list of pending workspace invitations"#]
 pub async fn workspace_invite_get(
     client: &ApiClient,
