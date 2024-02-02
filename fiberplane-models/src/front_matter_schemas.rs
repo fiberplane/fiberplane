@@ -204,7 +204,8 @@ pub struct FrontMatterStringSchema {
     pub icon_name: Option<String>,
 
     /// Whether the field can have multiple values
-    // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
+    // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder
+    // will set the field to true.
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub multiple: bool,
