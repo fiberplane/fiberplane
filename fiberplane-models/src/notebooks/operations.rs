@@ -745,6 +745,9 @@ pub struct UpdateTableColumnDefinitionOperation {
     /// ID of the table cell.
     pub cell_id: String,
 
+    /// The index of the column being updated.
+    pub index: u32,
+
     /// The updated column definition that will be set.
     pub new_column_def: TableColumnDefinition,
 
