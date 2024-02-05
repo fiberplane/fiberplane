@@ -34,6 +34,7 @@ major version hasn't changed.
   + `addFrontMatterSchema` is an unstable function that allows to specify front matter entries to add
     to the notebook inplace. It is currently used to convert a notebook to a template while keeping the
     front matter information
+- Add `fiberplane-hooks`: Add hook library shipping three initial hooks (`useHandler`, `useKeyPressEvent`, `useLocalStorage`)
 
 ## [v1.0.0-beta.7] - 2024-01-05
 

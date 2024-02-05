@@ -108,7 +108,10 @@ class WrappedLocalStorage extends EventEmitter {
     super();
 
     window.addEventListener("storage", (event) => {
-      this.emit(event.key!, event.newValue);
+      if (!event.key) {
+        return;
+      }
+      this.emit(event.key, event.newValue);
     });
   }
 
@@ -138,7 +141,10 @@ const wrappedLocalStorage = new WrappedLocalStorage();
 
 function safeJSONParse(value: string | null) {
   try {
-    return JSON.parse(value!);
+    if (value === null) {
+      return;
+    }
+    return JSON.parse(value);
   } catch (error) {
     console.warn("Error parsing json from localStorage", error);
     return null;
