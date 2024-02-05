@@ -29,6 +29,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@fiberplane/hooks": "workspace:^",
     "framer-motion": "^10.12.4",
     "react-window": "^1.8.9",
     "throttle-debounce": "^5.0.0"
