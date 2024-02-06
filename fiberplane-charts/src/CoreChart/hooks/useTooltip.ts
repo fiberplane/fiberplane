@@ -1,3 +1,4 @@
+import { useHandler } from "@fiberplane/hooks";
 import { useEffect, useRef, useState } from "react";
 
 import {
@@ -9,7 +10,6 @@ import {
   Rectangle,
   Shape,
 } from "../../Mondrian";
-import { useHandler } from "../../hooks";
 import { noop } from "../../utils";
 import { MARGINS } from "../constants";
 import type {

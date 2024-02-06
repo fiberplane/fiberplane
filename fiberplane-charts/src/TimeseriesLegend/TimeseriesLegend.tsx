@@ -1,10 +1,11 @@
+import { useHandler } from "@fiberplane/hooks";
 import { useContext, useMemo, useRef } from "react";
 import { VariableSizeList } from "react-window";
 import { css, styled } from "styled-components";
 
 import { Container } from "../BaseComponents";
 import type { ShapeList } from "../Mondrian";
-import { useExpandable, useForceUpdate, useHandler } from "../hooks";
+import { useExpandable, useForceUpdate } from "../hooks";
 import type { Timeseries } from "../providerTypes";
 import { ChartThemeContext } from "../theme";
 import { findUniqueKeys, noop } from "../utils";
