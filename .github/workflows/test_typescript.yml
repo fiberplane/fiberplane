@@ -22,6 +22,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --no-immutable
 
+      - name: Build packages
+        run: yarn build
+        
       - name: Verify dist/ folders are not checked in
         run: yarn test-dist
 
