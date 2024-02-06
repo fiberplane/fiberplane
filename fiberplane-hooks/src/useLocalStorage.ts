@@ -19,9 +19,9 @@ type JsonValue = JsonPrimitive | JsonArray | JsonObject;
  * If the setter is called with `null`, the key will be removed from
  * localStorage and the default value will be used instead.
  *
- * @param key - The localStorage key
- * @param defaultValue - The default value to use if the key doesn't exist
- * @returns {Array} - A tuple containing the current value and a setter for that value
+ * @param key The localStorage key
+ * @param defaultValue The default value to use if the key doesn't exist
+ * @returns A tuple containing the current value and a setter for that value
  *
  * @example
  * const [value, setValue] = useLocalStorage("my_key", "my_default_value");
