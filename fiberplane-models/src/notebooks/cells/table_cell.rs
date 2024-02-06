@@ -1,4 +1,4 @@
-use crate::formatting::Formatting;
+use crate::formatting::RichText;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use rand::distributions::Alphanumeric;
@@ -69,7 +69,7 @@ impl TableCell {
     }
 
     /// Returns a reference to a row value.
-    pub fn row_item(&self, id: &TableRowValueId) -> Option<&TableRowValue> {
+    pub fn row_value(&self, id: &TableRowValueId) -> Option<&TableRowValue> {
         let row = self.row(id.row_id());
         let value_index = self
             .column_defs
@@ -219,10 +219,7 @@ impl FromStr for TableRowId {
 #[non_exhaustive]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum TableRowValue {
-    Text {
-        text: String,
-        formatting: Formatting,
-    },
+    Text(RichText),
 }
 
 /// This is a compound ID based on the row ID and column ID that together

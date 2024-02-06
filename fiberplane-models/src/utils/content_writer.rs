@@ -1,4 +1,4 @@
-use crate::formatting::{ActiveFormatting, AnnotationWithOffset, Formatting};
+use crate::formatting::{ActiveFormatting, AnnotationWithOffset, Formatting, RichText};
 use crate::notebooks::{CheckboxCell, HeadingCell, ListItemCell, TableRowValue, TextCell};
 use crate::timestamps::Timestamp;
 use crate::utils::char_count;
@@ -189,7 +189,7 @@ impl ContentWriter {
     /// Create a table value out of the content and formatting.
     pub fn to_table_value(self) -> TableRowValue {
         let (text, formatting) = self.to_content();
-        TableRowValue::Text { text, formatting }
+        TableRowValue::Text(RichText { text, formatting })
     }
 
     /// Create a text cell out of the content and formatting.

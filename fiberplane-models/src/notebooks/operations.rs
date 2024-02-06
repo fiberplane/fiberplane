@@ -1,4 +1,4 @@
-use super::{TableColumnDefinition, TableRow, TableRowValue};
+use super::{TableColumnDefinition, TableColumnId, TableRow, TableRowValue};
 use crate::data_sources::SelectedDataSource;
 use crate::formatting::Formatting;
 use crate::front_matter_schemas::{FrontMatterSchemaEntry, FrontMatterValueSchema};
@@ -745,14 +745,14 @@ pub struct UpdateTableColumnDefinitionOperation {
     /// ID of the table cell.
     pub cell_id: String,
 
-    /// The index of the column being updated.
-    pub index: u32,
+    /// ID of the column being updated.
+    pub column_id: TableColumnId,
 
-    /// The updated column definition that will be set.
-    pub new_column_def: TableColumnDefinition,
+    /// New heading text.
+    pub new_title: String,
 
-    /// The old column definition that is being replaced.
-    pub old_column_def: TableColumnDefinition,
+    /// Old heading text.
+    pub old_title: String,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]

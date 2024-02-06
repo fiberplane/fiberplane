@@ -545,6 +545,10 @@ pub enum RejectReason {
     /// of bounds, or used a row with an incorrect amount of columns.
     InvalidTableDimensions,
 
+    /// A table operation tried to reference a row or column with a non-existing
+    /// ID.
+    InvalidTableId { table_id: String },
+
     /// Current notebook state does not match old state in operation.
     #[serde(rename_all = "camelCase")]
     InconsistentFrontMatter { message: String },
