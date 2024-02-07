@@ -13,10 +13,11 @@ const config = defineConfig([
       compact: true,
     },
     external: [
+      "@fiberplane/hooks",
       "framer-motion",
+      "react-window",
       "react",
       "react/jsx-runtime",
-      "react-window",
       "styled-components",
       "throttle-debounce",
     ],
