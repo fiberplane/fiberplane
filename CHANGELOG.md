@@ -17,6 +17,7 @@ major version hasn't changed.
 
 ## [v1.0.0-beta.9] - 2024-02-05
 
+- `fiberplane-models`: User schema for front-matter now has the multiple property, so multiple users can be selected
 - `fiberplane-models`: Add a `front_matter_collections` key to the `NewNotebook` payload.
   The extra field will allow an extra way for templates to point to a front matter schema to
   expand into.
@@ -36,7 +37,8 @@ major version hasn't changed.
   + `addFrontMatterSchema` is an unstable function that allows to specify front matter entries to add
     to the notebook inplace. It is currently used to convert a notebook to a template while keeping the
     front matter information
-- Add `fiberplane-hooks`: Add hook library shipping three initial hooks (`useHandler`, `useKeyPressEvent`, `useLocalStorage`)
+- Add `fiberplane-hooks`: Add hook library shipping three initial hooks
+  (`useHandler`, `useKeyPressEvent`, `useLocalStorage`, `useMedia`, `useThemeSwitch`)
 
 ## [v1.0.0-beta.8] - 2024-01-05
 

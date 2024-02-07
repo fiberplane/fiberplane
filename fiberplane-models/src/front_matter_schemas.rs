@@ -204,7 +204,8 @@ pub struct FrontMatterStringSchema {
     pub icon_name: Option<String>,
 
     /// Whether the field can have multiple values
-    // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
+    // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder
+    // will set the field to true.
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub multiple: bool,
@@ -274,10 +275,16 @@ pub struct FrontMatterUserSchema {
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_value: Option<FrontMatterEnumBase64UuidValue>,
+
+    /// Whether the field can have multiple values
+    // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
+    #[builder(setter(strip_bool))]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub multiple: bool,
 }
 
 // NOTE: The cleaner way would be to have a generic type FrontMatterEnumValue<T>,
-// but it's impossible to _conditionnally_ add the `Serializable` trait bound on
+// but it's impossible to _conditionally_ add the `Serializable` trait bound on
 // the inner type T only when there is the "fp-bindgen" feature.
 
 // NOTE: The reason those are struct instead of "just" being the
