@@ -5,15 +5,46 @@ use std::borrow::Cow;
 use strum_macros::IntoStaticStr;
 use typed_builder::TypedBuilder;
 
+// Keep this here for backwards compatibility
+#[deprecated(note = "Use `fiberplane_models::paging::Pagination` instead")]
+pub type Pagination = crate::paging::Pagination;
+
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, TypedBuilder)]
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 pub struct Sorting<T: SortField> {
     #[serde(default = "T::default_sort_field")]
+    #[builder(default_code = "T::default_sort_field()")]
     pub sort_by: T,
 
     #[serde(default = "T::default_sort_direction")]
+    #[builder(default_code = "T::default_sort_direction()")]
     pub sort_direction: SortDirection,
+}
+
+impl<T: SortField> Sorting<T> {
+    /// Create a new `Sorting` instance using the Builder.
+    pub fn new(sort_by: T, sort_direction: SortDirection) -> Self {
+        Self::builder()
+            .sort_by(sort_by)
+            .sort_direction(sort_direction)
+            .build()
+    }
+
+    /// Sort by T and its default sort direction.
+    pub fn sort_by(sort_by: T) -> Self {
+        Self::builder().sort_by(sort_by).build()
+    }
+
+    /// Sort by T and force the sort direction to be ascending.
+    pub fn sort_ascending_by(sort_by: T) -> Self {
+        Self::new(sort_by, SortDirection::Ascending)
+    }
+
+    /// Sort by T and force the sort direction to be descending.
+    pub fn sort_descending_by(sort_by: T) -> Self {
+        Self::new(sort_by, SortDirection::Descending)
+    }
 }
 
 impl<T: SortField> Default for Sorting<T> {
@@ -60,65 +91,6 @@ pub trait SortField {
     #[inline]
     fn default_sort_direction() -> SortDirection {
         SortDirection::Ascending
-    }
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, TypedBuilder)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "fiberplane_models::sorting")
-)]
-#[non_exhaustive]
-pub struct Pagination {
-    #[serde(
-        default = "Pagination::default_page",
-        deserialize_with = "crate::deserialize_u32"
-    )]
-    pub page: u32,
-
-    #[serde(
-        default = "Pagination::default_limit",
-        deserialize_with = "crate::deserialize_u32"
-    )]
-    pub limit: u32,
-}
-
-impl Pagination {
-    #[inline]
-    fn default_page() -> u32 {
-        0
-    }
-
-    #[inline]
-    fn default_limit() -> u32 {
-        200
-    }
-
-    pub fn limit(&self) -> i64 {
-        self.limit as i64
-    }
-
-    pub fn offset(&self) -> i64 {
-        self.page as i64 * self.limit as i64
-    }
-
-    /// Create a pagination that effectively fetches every item from the
-    /// database (since limit is set to the max value).
-    pub fn max() -> Self {
-        Self {
-            page: 0,
-            limit: u32::MAX,
-        }
-    }
-}
-
-impl Default for Pagination {
-    fn default() -> Self {
-        Self {
-            page: Pagination::default_page(),
-            limit: Pagination::default_limit(),
-        }
     }
 }
 

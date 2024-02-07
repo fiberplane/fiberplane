@@ -1,4 +1,4 @@
-use crate::clients::ApiClient;
+use crate::api_client::ApiClient;
 use anyhow::Result;
 use reqwest::{header, Url};
 use std::time::Duration;
