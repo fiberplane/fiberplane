@@ -1,7 +1,7 @@
 mod table_cell;
 
 use crate::blobs::EncodedBlob;
-use crate::formatting::Formatting;
+use crate::formatting::{Formatting, RichText};
 use crate::query_data::{has_query_data, set_query_field, unset_query_field};
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
@@ -287,6 +287,13 @@ impl Cell {
             (Cell::Provider(cell), Some(field)) => {
                 Cell::Provider(cell.with_query_field(field.as_ref(), text))
             }
+            (Cell::Table(cell), Some(field)) => Cell::Table(cell.with_row_value(
+                field.as_ref(),
+                TableRowValue::Text(RichText {
+                    text: text.into(),
+                    formatting: formatting.unwrap_or_default(),
+                }),
+            )),
             (cell, _) => {
                 if let Some(formatting) = formatting {
                     cell.with_rich_text(text, formatting)

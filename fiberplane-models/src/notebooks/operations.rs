@@ -187,22 +187,38 @@ pub struct ReplaceCellsOperation {
 }
 
 impl ReplaceCellsOperation {
-    /// Returns all the new cell IDs, including the ones in the
+    /// Returns all the new cells, including the ones in the
+    /// `new_referencing_cells` field.
+    ///
+    /// Note that new cells doesn't imply newly inserted, since cells that are
+    /// merely updated are part of the new cells as well. See
+    /// `all_newly_inserted_cells()` if that's what you're looking for.
+    pub fn all_new_cells(&self) -> impl Iterator<Item = &CellWithIndex> {
+        self.old_cells
+            .iter()
+            .chain(self.old_referencing_cells.iter())
+    }
+
+    /// Returns all the newly inserted cells, including the ones in the
     /// `new_referencing_cells` field.
     pub fn all_newly_inserted_cells(&self) -> impl Iterator<Item = &CellWithIndex> {
         self.newly_inserted_cells()
             .chain(self.newly_inserted_referencing_cells())
     }
 
-    /// Returns all the old cell IDs, including the ones in the
+    /// Returns all the old cells, including the ones in the
     /// `old_referencing_cells` field.
+    ///
+    /// Note that old cells doesn't imply removed cells, since cells that are
+    /// merely updated are part of the old cells as well. See
+    /// `all_old_removed_cells()` if that's what you're looking for.
     pub fn all_old_cells(&self) -> impl Iterator<Item = &CellWithIndex> {
         self.old_cells
             .iter()
             .chain(self.old_referencing_cells.iter())
     }
 
-    /// Returns all the old removed cell IDs, including the ones from the
+    /// Returns all the old removed cells, including the ones from the
     /// `old_referencing_cells` field.
     pub fn all_old_removed_cells(&self) -> impl Iterator<Item = &CellWithIndex> {
         self.old_removed_cells()
@@ -695,6 +711,7 @@ pub struct CellReplaceText {
 #[serde(rename_all = "camelCase")]
 pub struct InsertTableColumnOperation {
     /// ID of the table cell.
+    #[builder(setter(into))]
     pub cell_id: String,
 
     /// Definition for the column.
@@ -706,6 +723,7 @@ pub struct InsertTableColumnOperation {
     /// The values to insert in the column.
     ///
     /// The amount of values should match the amount of rows in the table.
+    #[builder(setter(into))]
     pub values: Vec<TableRowValue>,
 }
 
@@ -719,6 +737,7 @@ pub struct InsertTableColumnOperation {
 #[serde(rename_all = "camelCase")]
 pub struct RemoveTableColumnOperation {
     /// ID of the table cell.
+    #[builder(setter(into))]
     pub cell_id: String,
 
     /// Definition of the column being removed.
@@ -730,6 +749,7 @@ pub struct RemoveTableColumnOperation {
     /// The values that are being removed together with the column.
     ///
     /// The amount of values should match the amount of rows in the table.
+    #[builder(setter(into))]
     pub values: Vec<TableRowValue>,
 }
 
@@ -743,15 +763,18 @@ pub struct RemoveTableColumnOperation {
 #[serde(rename_all = "camelCase")]
 pub struct UpdateTableColumnDefinitionOperation {
     /// ID of the table cell.
+    #[builder(setter(into))]
     pub cell_id: String,
 
     /// ID of the column being updated.
     pub column_id: TableColumnId,
 
     /// New heading text.
+    #[builder(setter(into))]
     pub new_title: String,
 
     /// Old heading text.
+    #[builder(setter(into))]
     pub old_title: String,
 }
 
@@ -765,6 +788,7 @@ pub struct UpdateTableColumnDefinitionOperation {
 #[serde(rename_all = "camelCase")]
 pub struct InsertTableRowOperation {
     /// ID of the table cell.
+    #[builder(setter(into))]
     pub cell_id: String,
 
     /// The row being inserted.
@@ -784,6 +808,7 @@ pub struct InsertTableRowOperation {
 #[serde(rename_all = "camelCase")]
 pub struct RemoveTableRowOperation {
     /// ID of the table cell.
+    #[builder(setter(into))]
     pub cell_id: String,
 
     /// The row being removed.

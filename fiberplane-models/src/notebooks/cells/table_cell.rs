@@ -8,7 +8,7 @@ use std::str::FromStr;
 use thiserror::Error;
 use typed_builder::TypedBuilder;
 
-const MIN_LENGTH: usize = 6;
+const MIN_LENGTH: usize = 4;
 
 /// Cell used for displaying tables in a notebook.
 ///
@@ -47,12 +47,12 @@ pub struct TableCell {
 
     /// Describes the types used for the columns and the order they should be
     /// rendered in.
-    #[builder(default)]
+    #[builder(default, setter(into))]
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub column_defs: Vec<TableColumnDefinition>,
 
     /// Holds the table rows and their values.
-    #[builder(default)]
+    #[builder(default, setter(into))]
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub rows: Vec<TableRow>,
 }
@@ -106,6 +106,56 @@ impl TableCell {
         }
         TableColumnId(id)
     }
+
+    /// Returns the table cell with an updated row value for the given field.
+    pub fn with_row_value(&self, field: &str, mut updated_value: TableRowValue) -> Self {
+        let Ok(id) = TableRowValueId::from_str(field) else {
+            return self.clone();
+        };
+
+        let Some(column_index) = self
+            .column_defs
+            .iter()
+            .position(|column_def| &column_def.id == id.column_id())
+        else {
+            return self.clone();
+        };
+
+        let rows = self
+            .rows
+            .iter()
+            .map(|row| match &row.id == id.row_id() {
+                true => TableRow {
+                    id: row.id.clone(),
+                    values: row
+                        .values
+                        .iter()
+                        .enumerate()
+                        .map(|(i, value)| match i == column_index {
+                            // We use `mem::replace()` to avoid cloning, because
+                            // the borrow checker thinks we might move from
+                            // `updated_value` multiple times, even though we
+                            // know it'll happen only once since `field`
+                            // identifies a unique table row value.
+                            true => std::mem::replace(
+                                &mut updated_value,
+                                TableRowValue::Text(RichText::default()),
+                            ),
+                            false => value.clone(),
+                        })
+                        .collect(),
+                },
+                false => row.clone(),
+            })
+            .collect();
+
+        Self {
+            id: self.id.clone(),
+            column_defs: self.column_defs.clone(),
+            read_only: self.read_only,
+            rows,
+        }
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize, TypedBuilder)]
@@ -121,6 +171,7 @@ pub struct TableColumnDefinition {
     pub id: TableColumnId,
 
     /// Heading text to be displayed at the top of the column.
+    #[builder(setter(into))]
     pub title: String,
 }
 
@@ -169,6 +220,7 @@ pub struct TableRow {
     ///
     /// The types, order, and amount of the values should match the table's
     /// [column definitions](TableCell::column_defs).
+    #[builder(setter(into))]
     pub values: Vec<TableRowValue>,
 }
 
