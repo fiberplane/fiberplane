@@ -22,7 +22,7 @@ import { useLocalStorage } from "./useLocalStorage";
 export function getFeatureHooks<const F extends string>(FEATURES: Array<F>) {
   const FEATURES_KEY = "features";
 
-  type Feature = (typeof FEATURES)[number];
+  type Feature = typeof FEATURES[number];
 
   function isFeature(feature: string): feature is Feature {
     return FEATURES.includes(feature as Feature);
