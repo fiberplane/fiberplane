@@ -1,13 +1,12 @@
+import { useHandler } from "@fiberplane/hooks";
 import { memo, useContext, useMemo, useState } from "react";
 import { styled } from "styled-components";
 
-import { ChartSizeContainerProvider } from "../CoreChart";
-import { CoreChart } from "../CoreChart";
+import { ChartSizeContainerProvider, CoreChart } from "../CoreChart";
 import { HEIGHT, MARGINS } from "../CoreChart/constants";
 import { SeriesSource, ShapeList, generate } from "../Mondrian";
 import { TimeseriesLegend } from "../TimeseriesLegend";
 import { Theme } from "../chartThemeTypes";
-import { useHandler } from "../hooks";
 import type { Metric, ProviderEvent, Timeseries } from "../providerTypes";
 import { ChartThemeContext, defaultChartTheme } from "../theme";
 import { ChartControls } from "./ChartControls";

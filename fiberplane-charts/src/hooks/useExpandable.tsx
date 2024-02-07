@@ -1,10 +1,9 @@
+import { useHandler } from "@fiberplane/hooks";
 import { useContext, useEffect, useRef, useState } from "react";
 import { css, styled } from "styled-components";
 
 import { Icon } from "../BaseComponents";
 import { ChartThemeContext } from "../theme";
-import { useHandler } from "./useHandler";
-
 type Options = {
   /**
    * Default height (assumed to be in pixels).

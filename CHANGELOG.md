@@ -13,7 +13,9 @@ crates do not strictly follow _SemVer_ although their versioning remains
 _compatible with_ SemVer, i.e. they will not contain breaking changes if the
 major version hasn't changed.
 
-## [v1.0.0-beta.8] - TBD
+## [v1.0.0-beta.9] - TBD
+
+## [v1.0.0-beta.8] - 2024-02-05
 
 - `fiberplane-models`: Add a `front_matter_collections` key to the `NewNotebook` payload.
   The extra field will allow an extra way for templates to point to a front matter schema to
@@ -34,6 +36,7 @@ major version hasn't changed.
   + `addFrontMatterSchema` is an unstable function that allows to specify front matter entries to add
     to the notebook inplace. It is currently used to convert a notebook to a template while keeping the
     front matter information
+- Add `fiberplane-hooks`: Add hook library shipping three initial hooks (`useHandler`, `useKeyPressEvent`, `useLocalStorage`)
 
 ## [v1.0.0-beta.7] - 2024-01-05
 
