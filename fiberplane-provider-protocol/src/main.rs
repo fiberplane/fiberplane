@@ -119,7 +119,7 @@ fn main() {
                     .name("fiberplane-provider-bindings")
                     .description("Fiberplane Provider protocol bindings")
                     .readme("README.md")
-                    .version("2.0.0-beta.6")
+                    .version("2.0.0-beta.10")
                     .authors(RustPluginConfigValue::Workspace)
                     .license(RustPluginConfigValue::Workspace)
                     .dependencies(dependencies)
