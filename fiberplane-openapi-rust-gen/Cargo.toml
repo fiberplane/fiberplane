@@ -20,5 +20,6 @@ okapi = "0.7.0-rc.1"
 regex = "1.7.0"
 schemars = "0.8.11"                             # Matches what okapi uses
 serde = { workspace = true }
+serde_json = { workspace = true }
 serde_yaml = "0.9.14"
 toml = "0.5.9"

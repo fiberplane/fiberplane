@@ -12,6 +12,7 @@ specific crates should be compiled.
 ## Features
 
 - `api-client`
+- `axum` - Enable support for axum's `IntoResponse` for some error models.
 - `base64uuid`
 - `base64uuid-creation` - Enables support for generating UUIDs in the
   `base64uuid` crate.

@@ -24,6 +24,7 @@ use serde::de::{Error, Unexpected, Visitor};
 use serde::{Deserialize, Deserializer};
 use std::fmt;
 
+pub mod auth;
 pub mod blobs;
 pub mod comments;
 pub mod data_sources;
@@ -35,6 +36,8 @@ pub mod integrations;
 pub mod labels;
 pub mod names;
 pub mod notebooks;
+pub mod pagerduty;
+pub mod paging;
 pub mod providers;
 pub mod proxies;
 pub mod query_data;
