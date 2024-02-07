@@ -48,12 +48,10 @@ pub struct TableCell {
     /// Describes the types used for the columns and the order they should be
     /// rendered in.
     #[builder(default, setter(into))]
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub column_defs: Vec<TableColumnDefinition>,
 
     /// Holds the table rows and their values.
     #[builder(default, setter(into))]
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub rows: Vec<TableRow>,
 }
 
