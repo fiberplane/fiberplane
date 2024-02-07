@@ -1,8 +1,6 @@
 use crate::formatting::RichText;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
-use rand::distributions::Alphanumeric;
-use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use thiserror::Error;
@@ -77,32 +75,6 @@ impl TableCell {
             (Some(row), Some(value_index)) => row.values.get(value_index),
             _ => None,
         }
-    }
-
-    /// Generates a unique [TableRowId] for this table.
-    pub fn unique_row_id(&self) -> TableRowId {
-        let mut id: String = rand::thread_rng()
-            .sample_iter(Alphanumeric)
-            .take(6)
-            .map(char::from)
-            .collect();
-        while self.rows.iter().any(|row| row.id.0 == id) {
-            id.push(rand::thread_rng().gen());
-        }
-        TableRowId(id)
-    }
-
-    /// Generates a unique [TableColumnId] for this table.
-    pub fn unique_column_id(&self) -> TableColumnId {
-        let mut id: String = rand::thread_rng()
-            .sample_iter(Alphanumeric)
-            .take(6)
-            .map(char::from)
-            .collect();
-        while self.column_defs.iter().any(|def| def.id.0 == id) {
-            id.push(rand::thread_rng().gen());
-        }
-        TableColumnId(id)
     }
 
     /// Returns the table cell with an updated row value for the given field.

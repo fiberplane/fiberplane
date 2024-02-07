@@ -30,7 +30,6 @@ fp-bindgen = { workspace = true, optional = true, features = [
     "serde-json-compat",
     "time-compat",
 ] }
-rand = "0.8"
 rmpv = "1"
 rmp-serde = "1.0"
 serde = { workspace = true }
