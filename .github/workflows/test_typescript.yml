@@ -25,6 +25,9 @@ jobs:
       - name: Verify dist/ folders are not checked in
         run: yarn test-dist
 
+      - name: Build packages
+        run: yarn build
+        
       - name: Linting and formatting
         # Skip on main, since it's not critical and should've already been
         # checked before merging

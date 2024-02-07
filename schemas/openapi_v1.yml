@@ -2038,6 +2038,8 @@ components:
           type: string
         iconName:
           type: string
+        multiple:
+          type: boolean
         defaultValue:
           $ref: "#/components/schemas/frontMatterEnumUserValue"
     frontMatterEnumUserValue:
