@@ -62,7 +62,7 @@ major version hasn't changed.
 - `fiberplane-models`: Added various structs related to Integrations (#142)
 - `fiberplane-api-client`: Added `integrations_list` endpoint (#142)
 
-## [v1.0.0-beta.7] - 2024-11-30
+## [v1.0.0-beta.7] - 2023-11-30
 ## mondrian-charts [v0.4.0] - 2023-11-30
 
 - `mondrian-charts`: Change Target Latency into a dotted line and support individual area gradients
