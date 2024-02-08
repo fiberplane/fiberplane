@@ -1,0 +1,23 @@
+---
+import ApiReference from "@components/ApiReference.astro"
+import type { Props } from '@astrojs/starlight/props';
+import Header from "@components/Header.astro"
+import { parseSwaggerFile } from "@scalar/swagger-parser"
+
+const openApiSpecPath = "../schemas/openapi_v1.yml"
+
+const parsed = await parseSwaggerFile(openApiSpecPath)
+
+const {components, info, tags, webhooks, definitions } = parsed
+
+const filteredTags = tags.filter((tag) => {
+	if (tag.name !== "Internal") return true
+})
+
+const openApiSpec = {components, info, filteredTags, webhooks, definitions }
+
+
+---
+
+<Header {...Astro.props}/>
+<ApiReference {...{ spec: {content: openApiSpecPath} }}/>

@@ -1,0 +1,18 @@
+---
+import { ApiReference as ApiRef, type ReferenceConfiguration } from "@scalar/api-reference"
+
+interface Props extends ReferenceConfiguration {};
+
+const ApiReferenceProps = Astro.props
+
+const { spec } = ApiReferenceProps
+
+if (!spec?.url && !spec?.content && !spec?.preparsedContent) {
+	 throw new Error(
+      '[APIReference] You didn’t provide a spec.content or spec.url. Please provide one of these options.',
+    )
+}
+
+---
+
+<ApiRef client:only {...ApiReferenceProps}/>
