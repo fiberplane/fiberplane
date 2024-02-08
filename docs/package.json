@@ -4,17 +4,23 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
+    "start": "astro dev --host",
     "lint": "cd .. && yarn lint",
     "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
+  "devDependencies": {
+    "@biomejs/biome": "^1.5.3",
+    "typescript": "^5.3.3"
+  },
   "dependencies": {
     "@astrojs/check": "^0.4.1",
     "@astrojs/starlight": "^0.15.3",
+    "@astrojs/vue": "^4.0.8",
+    "@scalar/api-reference": "^1.13.9",
+    "@scalar/swagger-parser": "^0.5.15",
     "astro": "^4.0.1",
-    "sharp": "^0.32.5",
-    "typescript": "^5.3.3"
+    "sharp": "^0.32.5"
   }
 }
