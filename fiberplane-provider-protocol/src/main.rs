@@ -1,5 +1,5 @@
 use fiberplane_models::notebooks::Cell;
-use fiberplane_models::timestamps::Timestamp;
+use fiberplane_models::timestamps::{TimeRange, Timestamp};
 use fiberplane_models::{blobs::Blob, providers::*};
 use fp_bindgen::{prelude::*, types::CargoDependency};
 use std::collections::{BTreeMap, BTreeSet};
@@ -41,6 +41,7 @@ fp_export! {
     // TODO FP-2920: Enable `Timeline` once the `Event` type is unified.
     // See: https://linear.app/fiberplane/issue/FP-2920/merge-event-structs-from-the-provider-and-api-module
     //use Timeline;
+    use TimeRange;
     use Timeseries;
 
     /// Returns the schema for the config consumed by this provider.

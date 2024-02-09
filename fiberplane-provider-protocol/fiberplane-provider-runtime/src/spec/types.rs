@@ -62,6 +62,7 @@ pub use fiberplane_models::providers::SupportedQueryType;
 pub use fiberplane_models::providers::TextField;
 pub use fiberplane_models::providers::Timeseries;
 pub use fiberplane_models::providers::ValidationError;
+pub use fiberplane_models::timestamps::TimeRange;
 pub use fiberplane_models::timestamps::Timestamp;
 
 pub type ConfigSchema = Vec<ConfigField>;

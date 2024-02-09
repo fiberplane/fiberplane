@@ -1161,6 +1161,15 @@ export type TextField = {
     supportsSuggestions: boolean;
 };
 
+/**
+ * A range in time from a given timestamp (inclusive) up to another timestamp
+ * (exclusive).
+ */
+export type TimeRange = {
+    from: Timestamp;
+    to: Timestamp;
+};
+
 export type TimelineCell = {
     id: string;
 

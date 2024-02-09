@@ -59,6 +59,7 @@ pub use fiberplane_models::notebooks::TableRowId;
 pub use fiberplane_models::notebooks::TableRowValue;
 pub use fiberplane_models::notebooks::TextCell;
 pub use fiberplane_models::providers::TextField;
+pub use fiberplane_models::timestamps::TimeRange;
 pub use fiberplane_models::notebooks::TimelineCell;
 pub use fiberplane_models::providers::Timeseries;
 pub use fiberplane_models::timestamps::Timestamp;
