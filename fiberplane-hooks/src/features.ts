@@ -17,7 +17,7 @@ import { useLocalStorage } from "./useLocalStorage";
  * app load, and filters out unsupported features.
  * @returns Additionally, the returned object contains the following properties:
  * - `features` - Contains the original array of feature names. This can be used
- * to write your own type validators for ßfeatures.
+ * to write your own type validators for features.
  * @example
  * // src/hooks/features.ts
  * import { getFeatureHooks } from "@fiberplane/hooks";
