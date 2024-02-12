@@ -3,16 +3,18 @@ import type { Props } from "@astrojs/starlight/props"
 import Search from "@astrojs/starlight/components/Search.astro";
 import ThemeSelect from "@astrojs/starlight/components/ThemeSelect.astro";
 import SocialIcons from "@astrojs/starlight/components/SocialIcons.astro";
+import { Image } from "astro:assets";
+import Logo from "@assets/fiberplane_logo_black.svg";
 ---
 <div class="header sl-flex">
-  <a href="/" class="site-logo">
-		<h1>Fiberplane</h1>
+  <a href="/"  class="site-logo">
+		<Image src={Logo} alt="Fiberplane logo" height="40"	/>
   </a>
   <div class="secondary-wrap">
-    <!--<Search {...Astro.props} />-->
+    <Search {...Astro.props} />
     <SocialIcons {...Astro.props} />
     <div class="sl-hidden md:sl-flex">
-      <!--<ThemeSelect {...Astro.props} />-->
+      <ThemeSelect {...Astro.props} />
     </div>
   </div>
 </div>

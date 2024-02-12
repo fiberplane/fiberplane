@@ -1,5 +1,5 @@
 ---
-title: PagerDuty Integration
+title: Connecting with PagerDuty
 ---
 
 - Create a Fiberplane notebook automatically when a PagerDuty incident is acknowledged.
