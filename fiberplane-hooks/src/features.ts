@@ -5,6 +5,8 @@ import { useLocalStorage } from "./useLocalStorage";
 /**
  * Accepts an array of feature names and returns hooks for working with them.
  * @param features An array of feature names
+ * @param featuresKey The key to use for storing the features in `localStorage`.
+ * Defaults to `"features"`.
  * @returns An object containing hooks for working with feature flags:
  * - `useFeatures` - A hook that returns the enabled state of all features and a
  * setter for changing it.
@@ -13,15 +15,30 @@ import { useLocalStorage } from "./useLocalStorage";
  * - `useFeaturesFromSearchParams` - A hook that handles the initial state of
  * features based on the query params. This hook should only be called once on
  * app load, and filters out unsupported features.
+ * @returns Additionally, the returned object contains the following properties:
+ * - `features` - Contains the original array of feature names. This can be used
+ * to write your own type validators for features.
  * @example
+ * // src/hooks/features.ts
  * import { getFeatureHooks } from "@fiberplane/hooks";
  *
- * const { useFeature, useFeatures, useFeaturesFromSearchParams } =
- *   getFeatureHooks(["experimental-nav", "unstable-feature"]);
+ * export const {
+ *   features,
+ *   useFeature,
+ *   useFeatures,
+ *   useFeaturesFromSearchParams,
+ * } = getFeatureHooks(["experimental-nav", "unstable-feature"]);
+ *
+ * export type Feature = (typeof features)[number];
+ *
+ * export function isFeature(feature: string): feature is Feature {
+ *   return feature === "experimental-nav" || feature === "unstable-feature";
+ * }
  */
-export function getFeatureHooks<const F extends string>(FEATURES: Array<F>) {
-  const FEATURES_KEY = "features";
-
+export function getFeatureHooks<const F extends string>(
+  FEATURES: Array<F>,
+  FEATURES_KEY = "features",
+) {
   type Feature = typeof FEATURES[number];
 
   function isFeature(feature: string): feature is Feature {
@@ -174,6 +191,7 @@ export function getFeatureHooks<const F extends string>(FEATURES: Array<F>) {
   }
 
   return {
+    features: FEATURES,
     /**
      * Returns the enabled state of all features and a setter for changing it.
      */
