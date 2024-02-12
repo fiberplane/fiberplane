@@ -1,7 +1,7 @@
 use crate::data_sources::SelectedDataSource;
 use crate::formatting::Formatting;
 use crate::front_matter_schemas::{FrontMatterSchemaEntry, FrontMatterValueSchema};
-use crate::notebooks::{Cell, FrontMatter, Label};
+use crate::notebooks::{front_matter::FrontMatter, Cell, Label};
 use crate::timestamps::TimeRange;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::*;
