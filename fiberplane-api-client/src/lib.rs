@@ -628,18 +628,8 @@ pub async fn oid_connections_list(client: &ApiClient) -> Result<Vec<models::OidC
 }
 
 #[doc = r#"Get a list of all integrations and their status"#]
-pub async fn integrations_get(
-    client: &ApiClient,
-    page: Option<i32>,
-    limit: Option<i32>,
-) -> Result<Vec<models::IntegrationSummary>> {
+pub async fn integrations_get(client: &ApiClient) -> Result<Vec<models::IntegrationSummary>> {
     let mut builder = client.request(Method::GET, "/api/profile/integrations")?;
-    if let Some(page) = page {
-        builder = builder.query(&[("page", page)]);
-    }
-    if let Some(limit) = limit {
-        builder = builder.query(&[("limit", limit)]);
-    }
     let response = builder.send().await?.error_for_status()?.json().await?;
 
     Ok(response)
