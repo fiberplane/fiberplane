@@ -18,6 +18,8 @@ major version hasn't changed.
 - `API` schema: Add routes to manipulate the front matter collections in a workspace (a saved front matter
   schema with an attached name).
 - `fiberplane-api-client`: Add methods to manipulate the front matter collections in a workspace.
+- `fiberplane-models`: The `updated_at` and `created_at` fields in the `IntegrationSummary` struct are now optional (#171)
+- `fiberplane-api-client`: Pagination has been removed from the integrations listing endpoint (#171)
 
 ## [v1.0.0-beta.9] - 2024-02-05
 
