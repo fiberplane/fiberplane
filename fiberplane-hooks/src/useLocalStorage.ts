@@ -107,12 +107,14 @@ class WrappedLocalStorage extends EventEmitter {
   constructor() {
     super();
 
-    window.addEventListener("storage", (event) => {
-      if (!event.key) {
-        return;
-      }
-      this.emit(event.key, event.newValue);
-    });
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", (event) => {
+        if (!event.key) {
+          return;
+        }
+        this.emit(event.key, event.newValue);
+      });
+    }
   }
 
   getItem(key: string) {
