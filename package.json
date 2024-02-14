@@ -9,8 +9,7 @@
     "fiberplane-charts",
     "fiberplane-hooks",
     "fiberplane-prometheus-query",
-    "fiberplane-ui",
-    "docs"
+    "fiberplane-ui"
   ],
   "devDependencies": {
     "@biomejs/biome": "1.3.3",
