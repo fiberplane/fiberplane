@@ -22,25 +22,24 @@ import { useLocalStorage } from "./useLocalStorage";
  * // src/hooks/features.ts
  * import { getFeatureHooks } from "@fiberplane/hooks";
  *
+ * const FEATURES = ["experimental-nav", "unstable-feature"] as const;
+ *
  * export const {
- *   features,
  *   useFeature,
  *   useFeatures,
  *   useFeaturesFromSearchParams,
- * } = getFeatureHooks(["experimental-nav", "unstable-feature"]);
+ * } = getFeatureHooks(FEATURES);
  *
- * export type Feature = (typeof features)[number];
+ * export type Feature = (typeof FEATURES)[number];
  *
  * export function isFeature(feature: string): feature is Feature {
- *   return feature === "experimental-nav" || feature === "unstable-feature";
+ *   return FEATURES.includes(feature as Feature);
  * }
  */
-export function getFeatureHooks<const F extends string>(
-  FEATURES: Array<F>,
+export function getFeatureHooks<const Feature extends string>(
+  FEATURES: ReadonlyArray<Feature>,
   FEATURES_KEY = "features",
 ) {
-  type Feature = typeof FEATURES[number];
-
   function isFeature(feature: string): feature is Feature {
     return FEATURES.includes(feature as Feature);
   }
