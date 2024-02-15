@@ -96,19 +96,6 @@ pub enum FrontMatterValue {
     User(FrontMatterUserValue),
     /// A list-of-users front matter value
     UserList(FrontMatterUserList),
-
-    /// Untagged values are lumped together in this Raw variant.
-    ///
-    /// This variant serves 2 developer-oriented purposes:
-    /// - keep backwards compatibility with old front matter values, and
-    /// - allow raw json values to still be converted into proper typed variants if it
-    ///   makes sense (like converting `42` to a `Number` variant with `42` as inner value.)
-    ///
-    /// In almost all cases, this variant should not be built explicitely.
-    ///
-    /// Due to how serde deserializes enumerations, this variant should always be last.
-    #[serde(untagged)]
-    Raw(Value),
 }
 
 /// Error from validating a JSON object as a correct front matter value
@@ -169,21 +156,6 @@ impl FrontMatterValue {
             FrontMatterValue::DateTimeList(_) => "date_time_list",
             FrontMatterValue::User(_) => "user",
             FrontMatterValue::UserList(_) => "user_list",
-            FrontMatterValue::Raw(_) => "untyped",
-        }
-    }
-
-    /// Ensure the current value is the untyped variant
-    pub fn ensure_untyped(
-        value: serde_json::Value,
-    ) -> Result<serde_json::Value, FrontMatterValidationError> {
-        let value = FrontMatterValue::try_from(value)?;
-        match value {
-            FrontMatterValue::Raw(val) => Ok(val),
-            _ => Err(FrontMatterValidationError::wrong_variant(
-                value.get_type(),
-                "untyped",
-            )),
         }
     }
 }
@@ -192,26 +164,26 @@ impl TryFrom<serde_json::Value> for FrontMatterNumberValue {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        let value = FrontMatterValue::try_from(value)?;
-        match value {
-            FrontMatterValue::Number(num) => Ok(num),
-            FrontMatterValue::Raw(val) => {
-                if let Value::Number(num) = val {
-                    return Ok(Self::builder()
-                        .value(num.as_f64().ok_or_else(|| {
-                            FrontMatterValidationError::Format("invalid number".to_string())
-                        })?)
-                        .build());
-                }
-
-                Err(FrontMatterValidationError::wrong_variant(
-                    "untyped", "number",
-                ))
+        if let Ok(value) = FrontMatterValue::try_from(value.clone()) {
+            match value {
+                FrontMatterValue::Number(num) => Ok(num),
+                _ => Err(FrontMatterValidationError::wrong_variant(
+                    value.get_type(),
+                    "number",
+                )),
             }
-            _ => Err(FrontMatterValidationError::wrong_variant(
-                value.get_type(),
-                "number",
-            )),
+        } else {
+            if let Value::Number(num) = value {
+                return Ok(Self::builder()
+                    .value(num.as_f64().ok_or_else(|| {
+                        FrontMatterValidationError::Format("invalid number".to_string())
+                    })?)
+                    .build());
+            }
+
+            Err(FrontMatterValidationError::wrong_variant(
+                "untyped", "number",
+            ))
         }
     }
 }
@@ -230,30 +202,30 @@ impl TryFrom<serde_json::Value> for FrontMatterNumberList {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        let value = FrontMatterValue::try_from(value)?;
-        match value {
-            FrontMatterValue::NumberList(num_list) => Ok(num_list),
-            FrontMatterValue::Raw(val) => {
-                if let Value::Array(array) = val {
-                    return Ok(Self::builder()
-                        .values(
-                            array
-                                .into_iter()
-                                .map(FrontMatterNumberValue::try_from)
-                                .collect::<Result<Vec<_>, _>>()?,
-                        )
-                        .build());
-                }
-
-                Err(FrontMatterValidationError::wrong_variant(
-                    "'not a list'",
+        if let Ok(value) = FrontMatterValue::try_from(value.clone()) {
+            match value {
+                FrontMatterValue::NumberList(num_list) => Ok(num_list),
+                _ => Err(FrontMatterValidationError::wrong_variant(
+                    value.get_type(),
                     "number_list",
-                ))
+                )),
             }
-            _ => Err(FrontMatterValidationError::wrong_variant(
-                value.get_type(),
+        } else {
+            if let Value::Array(array) = value {
+                return Ok(Self::builder()
+                    .values(
+                        array
+                            .into_iter()
+                            .map(FrontMatterNumberValue::try_from)
+                            .collect::<Result<Vec<_>, _>>()?,
+                    )
+                    .build());
+            }
+
+            Err(FrontMatterValidationError::wrong_variant(
+                "'not a list'",
                 "number_list",
-            )),
+            ))
         }
     }
 }
@@ -272,22 +244,22 @@ impl TryFrom<serde_json::Value> for FrontMatterStringValue {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        let value = FrontMatterValue::try_from(value)?;
-        match value {
-            FrontMatterValue::String(st) => Ok(st),
-            FrontMatterValue::Raw(val) => {
-                if let Value::String(strr) = val {
-                    return Ok(Self::builder().value(strr).build());
-                }
-
-                Err(FrontMatterValidationError::wrong_variant(
-                    "untyped", "string",
-                ))
+        if let Ok(value) = FrontMatterValue::try_from(value.clone()) {
+            match value {
+                FrontMatterValue::String(st) => Ok(st),
+                _ => Err(FrontMatterValidationError::wrong_variant(
+                    value.get_type(),
+                    "string",
+                )),
             }
-            _ => Err(FrontMatterValidationError::wrong_variant(
-                value.get_type(),
-                "string",
-            )),
+        } else {
+            if let Value::String(strr) = value {
+                return Ok(Self::builder().value(strr).build());
+            }
+
+            Err(FrontMatterValidationError::wrong_variant(
+                "untyped", "string",
+            ))
         }
     }
 }
@@ -306,30 +278,30 @@ impl TryFrom<serde_json::Value> for FrontMatterStringList {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        let value = FrontMatterValue::try_from(value)?;
-        match value {
-            FrontMatterValue::StringList(str_list) => Ok(str_list),
-            FrontMatterValue::Raw(val) => {
-                if let Value::Array(array) = val {
-                    return Ok(Self::builder()
-                        .values(
-                            array
-                                .into_iter()
-                                .map(FrontMatterStringValue::try_from)
-                                .collect::<Result<Vec<_>, _>>()?,
-                        )
-                        .build());
-                }
-
-                Err(FrontMatterValidationError::wrong_variant(
-                    "'not a list'",
+        if let Ok(value) = FrontMatterValue::try_from(value.clone()) {
+            match value {
+                FrontMatterValue::StringList(str_list) => Ok(str_list),
+                _ => Err(FrontMatterValidationError::wrong_variant(
+                    value.get_type(),
                     "string_list",
-                ))
+                )),
             }
-            _ => Err(FrontMatterValidationError::wrong_variant(
-                value.get_type(),
+        } else {
+            if let Value::Array(array) = value {
+                return Ok(Self::builder()
+                    .values(
+                        array
+                            .into_iter()
+                            .map(FrontMatterStringValue::try_from)
+                            .collect::<Result<Vec<_>, _>>()?,
+                    )
+                    .build());
+            }
+
+            Err(FrontMatterValidationError::wrong_variant(
+                "'not a list'",
                 "string_list",
-            )),
+            ))
         }
     }
 }
@@ -348,28 +320,28 @@ impl TryFrom<serde_json::Value> for FrontMatterDateTimeValue {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        let value = FrontMatterValue::try_from(value)?;
-        match value {
-            FrontMatterValue::DateTime(dt) => Ok(dt),
-            FrontMatterValue::Raw(val) => {
-                if let Value::String(strr) = val {
-                    return Ok(Self::builder()
-                        .value(
-                            strr.parse::<Timestamp>()
-                                .map_err(|err| Self::Error::Format(err.to_string()))?,
-                        )
-                        .build());
-                }
-
-                Err(FrontMatterValidationError::wrong_variant(
-                    "untyped",
+        if let Ok(value) = FrontMatterValue::try_from(value.clone()) {
+            match value {
+                FrontMatterValue::DateTime(dt) => Ok(dt),
+                _ => Err(FrontMatterValidationError::wrong_variant(
+                    value.get_type(),
                     "date_time",
-                ))
+                )),
             }
-            _ => Err(FrontMatterValidationError::wrong_variant(
-                value.get_type(),
+        } else {
+            if let Value::String(strr) = value {
+                return Ok(Self::builder()
+                    .value(
+                        strr.parse::<Timestamp>()
+                            .map_err(|err| Self::Error::Format(err.to_string()))?,
+                    )
+                    .build());
+            }
+
+            Err(FrontMatterValidationError::wrong_variant(
+                "untyped",
                 "date_time",
-            )),
+            ))
         }
     }
 }
@@ -388,30 +360,30 @@ impl TryFrom<serde_json::Value> for FrontMatterDateTimeList {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        let value = FrontMatterValue::try_from(value)?;
-        match value {
-            FrontMatterValue::DateTimeList(dt_list) => Ok(dt_list),
-            FrontMatterValue::Raw(val) => {
-                if let Value::Array(array) = val {
-                    return Ok(Self::builder()
-                        .values(
-                            array
-                                .into_iter()
-                                .map(FrontMatterDateTimeValue::try_from)
-                                .collect::<Result<Vec<_>, _>>()?,
-                        )
-                        .build());
-                }
-
-                Err(FrontMatterValidationError::wrong_variant(
-                    "'not a list'",
+        if let Ok(value) = FrontMatterValue::try_from(value.clone()) {
+            match value {
+                FrontMatterValue::DateTimeList(dt_list) => Ok(dt_list),
+                _ => Err(FrontMatterValidationError::wrong_variant(
+                    value.get_type(),
                     "date_time_list",
-                ))
+                )),
             }
-            _ => Err(FrontMatterValidationError::wrong_variant(
-                value.get_type(),
+        } else {
+            if let Value::Array(array) = value {
+                return Ok(Self::builder()
+                    .values(
+                        array
+                            .into_iter()
+                            .map(FrontMatterDateTimeValue::try_from)
+                            .collect::<Result<Vec<_>, _>>()?,
+                    )
+                    .build());
+            }
+
+            Err(FrontMatterValidationError::wrong_variant(
+                "'not a list'",
                 "date_time_list",
-            )),
+            ))
         }
     }
 }
@@ -430,25 +402,25 @@ impl TryFrom<serde_json::Value> for FrontMatterUserValue {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        let value = FrontMatterValue::try_from(value)?;
-        match value {
-            FrontMatterValue::User(user) => Ok(user),
-            FrontMatterValue::Raw(val) => {
-                if let Value::String(strr) = val {
-                    return Ok(Self::builder()
-                        .value(
-                            strr.parse::<Base64Uuid>()
-                                .map_err(|err| Self::Error::Format(err.to_string()))?,
-                        )
-                        .build());
-                }
-
-                Err(FrontMatterValidationError::wrong_variant("untyped", "user"))
+        if let Ok(value) = FrontMatterValue::try_from(value.clone()) {
+            match value {
+                FrontMatterValue::User(user) => Ok(user),
+                _ => Err(FrontMatterValidationError::wrong_variant(
+                    value.get_type(),
+                    "user",
+                )),
             }
-            _ => Err(FrontMatterValidationError::wrong_variant(
-                value.get_type(),
-                "user",
-            )),
+        } else {
+            if let Value::String(strr) = value {
+                return Ok(Self::builder()
+                    .value(
+                        strr.parse::<Base64Uuid>()
+                            .map_err(|err| Self::Error::Format(err.to_string()))?,
+                    )
+                    .build());
+            }
+
+            Err(FrontMatterValidationError::wrong_variant("untyped", "user"))
         }
     }
 }
@@ -467,30 +439,30 @@ impl TryFrom<serde_json::Value> for FrontMatterUserList {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        let value = FrontMatterValue::try_from(value)?;
-        match value {
-            FrontMatterValue::UserList(user_list) => Ok(user_list),
-            FrontMatterValue::Raw(val) => {
-                if let Value::Array(array) = val {
-                    return Ok(Self::builder()
-                        .values(
-                            array
-                                .into_iter()
-                                .map(FrontMatterUserValue::try_from)
-                                .collect::<Result<Vec<_>, _>>()?,
-                        )
-                        .build());
-                }
-
-                Err(FrontMatterValidationError::wrong_variant(
-                    "'not a list'",
+        if let Ok(value) = FrontMatterValue::try_from(value.clone()) {
+            match value {
+                FrontMatterValue::UserList(user_list) => Ok(user_list),
+                _ => Err(FrontMatterValidationError::wrong_variant(
+                    value.get_type(),
                     "user_list",
-                ))
+                )),
             }
-            _ => Err(FrontMatterValidationError::wrong_variant(
-                value.get_type(),
+        } else {
+            if let Value::Array(array) = value {
+                return Ok(Self::builder()
+                    .values(
+                        array
+                            .into_iter()
+                            .map(FrontMatterUserValue::try_from)
+                            .collect::<Result<Vec<_>, _>>()?,
+                    )
+                    .build());
+            }
+
+            Err(FrontMatterValidationError::wrong_variant(
+                "'not a list'",
                 "user_list",
-            )),
+            ))
         }
     }
 }

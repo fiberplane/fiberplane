@@ -134,13 +134,11 @@ impl FrontMatterValueSchema {
         &self,
         value: serde_json::Value,
     ) -> Result<FrontMatterValue, FrontMatterValidationError> {
-        let parsed_value = FrontMatterValue::try_from(value)?;
-
         match self {
-            FrontMatterValueSchema::Number(schema) => schema.validate_value(parsed_value),
-            FrontMatterValueSchema::String(schema) => schema.validate_value(parsed_value),
-            FrontMatterValueSchema::DateTime(schema) => schema.validate_value(parsed_value),
-            FrontMatterValueSchema::User(schema) => schema.validate_value(parsed_value),
+            FrontMatterValueSchema::Number(schema) => schema.validate_value(value),
+            FrontMatterValueSchema::String(schema) => schema.validate_value(value),
+            FrontMatterValueSchema::DateTime(schema) => schema.validate_value(value),
+            FrontMatterValueSchema::User(schema) => schema.validate_value(value),
         }
     }
 }
@@ -148,42 +146,21 @@ impl FrontMatterValueSchema {
 impl FrontMatterNumberSchema {
     pub fn validate_value(
         &self,
-        value: FrontMatterValue,
+        value: serde_json::Value,
     ) -> Result<FrontMatterValue, FrontMatterValidationError> {
-        match value {
-            FrontMatterValue::Number(_) => Ok(value),
-            FrontMatterValue::Raw(raw) => Ok(FrontMatterNumberValue::try_from(raw)?.into()),
-            val => Err(FrontMatterValidationError::wrong_variant(
-                val.get_type(),
-                "number",
-            )),
-        }
+        Ok(FrontMatterNumberValue::try_from(value)?.into())
     }
 }
 
 impl FrontMatterStringSchema {
     pub fn validate_value(
         &self,
-        value: FrontMatterValue,
+        value: serde_json::Value,
     ) -> Result<FrontMatterValue, FrontMatterValidationError> {
-        match (self.multiple, &value) {
-            (false, FrontMatterValue::String(_)) | (true, FrontMatterValue::StringList(_)) => {
-                Ok(value)
-            }
-            (true, FrontMatterValue::Raw(raw)) => {
-                Ok(FrontMatterStringList::try_from(raw.clone())?.into())
-            }
-            (false, FrontMatterValue::Raw(raw)) => {
-                Ok(FrontMatterStringValue::try_from(raw.clone())?.into())
-            }
-            (true, _) => Err(FrontMatterValidationError::wrong_variant(
-                value.get_type(),
-                "string_list",
-            )),
-            (false, _) => Err(FrontMatterValidationError::wrong_variant(
-                value.get_type(),
-                "string",
-            )),
+        if self.multiple {
+            Ok(FrontMatterStringList::try_from(value)?.into())
+        } else {
+            Ok(FrontMatterStringValue::try_from(value)?.into())
         }
     }
 }
@@ -191,40 +168,21 @@ impl FrontMatterStringSchema {
 impl FrontMatterDateTimeSchema {
     pub fn validate_value(
         &self,
-        value: FrontMatterValue,
+        value: serde_json::Value,
     ) -> Result<FrontMatterValue, FrontMatterValidationError> {
-        match value {
-            FrontMatterValue::DateTime(_) => Ok(value),
-            FrontMatterValue::Raw(raw) => Ok(FrontMatterDateTimeValue::try_from(raw)?.into()),
-            _ => Err(FrontMatterValidationError::wrong_variant(
-                value.get_type(),
-                "date_time",
-            )),
-        }
+        Ok(FrontMatterDateTimeValue::try_from(value)?.into())
     }
 }
 
 impl FrontMatterUserSchema {
     pub fn validate_value(
         &self,
-        value: FrontMatterValue,
+        value: serde_json::Value,
     ) -> Result<FrontMatterValue, FrontMatterValidationError> {
-        match (self.multiple, &value) {
-            (false, FrontMatterValue::User(_)) | (true, FrontMatterValue::UserList(_)) => Ok(value),
-            (true, FrontMatterValue::Raw(raw)) => {
-                Ok(FrontMatterUserList::try_from(raw.clone())?.into())
-            }
-            (false, FrontMatterValue::Raw(raw)) => {
-                Ok(FrontMatterUserValue::try_from(raw.clone())?.into())
-            }
-            (true, _) => Err(FrontMatterValidationError::wrong_variant(
-                value.get_type(),
-                "user_list",
-            )),
-            (false, _) => Err(FrontMatterValidationError::wrong_variant(
-                value.get_type(),
-                "user",
-            )),
+        if self.multiple {
+            Ok(FrontMatterUserList::try_from(value)?.into())
+        } else {
+            Ok(FrontMatterUserValue::try_from(value)?.into())
         }
     }
 }
