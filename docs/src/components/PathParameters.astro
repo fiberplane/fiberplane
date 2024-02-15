@@ -1,0 +1,56 @@
+---
+import { Markdown } from "@astropub/md";
+
+const { pathParameters } = Astro.props;
+---
+
+<>
+	<h4>Path parameters</h4>
+	<ul>
+		{
+			pathParameters.map((parameter) => (
+				<li class="path-parameter">
+					<h6>
+						<code>{parameter.name}</code>
+						<span>{parameter.schema.type}</span>
+						<span>{parameter.required ? "Required" : ""}</span>
+					</h6>
+					<p>
+						<Markdown.Inline of={parameter.description} />
+					</p>
+				</li>
+			))
+		}
+	</ul>
+</>
+
+<style>
+	ul {
+		list-style: none;
+		padding: 0;
+	}
+
+	h4 {
+		font-size: var(--sl-text-h6) !important;
+	}
+
+	.path-parameter {
+		padding-top: 1rem;
+		border-top: 1px solid var(--sl-color-gray-5);
+	}
+
+	.path-parameter > h6 {
+		font-size: var(--sl-text-sm) !important;
+		font-weight: normal;
+		display: flex;
+		flex-direction: row;
+		gap: var(--sl-content-pad-x);
+	}
+
+	.path-parameter code {
+		font-weight: bold;
+		background: none;
+		padding: 0;
+		margin: 0;
+	}
+</style>

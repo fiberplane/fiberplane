@@ -1,0 +1,85 @@
+---
+import { Markdown, markdown } from "@astropub/md";
+import NestedParameter from "@components/NestedParameter.astro";
+
+const { requestBody } = Astro.props;
+// console.log(requestBody.content["application/json"]?.schema);
+
+const json = requestBody.content["application/json"];
+
+if (!json) {
+	return;
+}
+
+const properties = json?.schema?.properties;
+
+console.log(properties);
+
+if (!properties) {
+	return;
+}
+---
+
+<>
+	<h4>Body parameters</h4>
+	<p>{requestBody?.description}</p>
+	<ul>
+		{
+			Object.entries(properties).map(([key, value]) => {
+				return (
+					<li class="body-parameter">
+						<h6>
+							<code>{key}</code>
+							<span>{value?.type}</span>
+						</h6>
+						<p>
+							<Markdown.Inline of={value?.description} />
+						</p>
+						{value.type === "object" && (
+							<NestedParameter
+								name={key}
+								properties={value.properties}
+							/>
+						)}
+					</li>
+				);
+			})
+		}
+	</ul>
+</>
+
+<style>
+	ul {
+		list-style: none;
+		padding: 0;
+	}
+
+	h4 {
+		font-size: var(--sl-text-h6) !important;
+	}
+
+	.body-parameter {
+		padding-top: 1rem;
+		border-top: 1px solid var(--sl-color-gray-5);
+	}
+
+	.body-parameter > h6 {
+		font-size: var(--sl-text-sm) !important;
+		font-weight: normal;
+		display: flex;
+		flex-direction: row;
+		gap: var(--sl-content-pad-x);
+	}
+
+	.body-parameter code {
+		font-weight: bold !important;
+		background: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	details ul {
+		background-color: var(--sl-color-gray-6);
+		padding: var(--sl-content-pad-x);
+	}
+</style>

@@ -9,6 +9,9 @@
       "@components/*": [
         "components/*"
       ],
+      "@lib/*": [
+        "lib/*"
+      ],
     }
   }
 }
