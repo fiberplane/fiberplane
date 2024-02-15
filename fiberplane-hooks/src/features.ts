@@ -186,6 +186,10 @@ export function getFeatureHooks<const Feature extends string>(
       });
     }
 
+    if (!features) {
+      return [initialFeatures, setFeatures] as const;
+    }
+
     return [features, setFeatures] as const;
   }
 
