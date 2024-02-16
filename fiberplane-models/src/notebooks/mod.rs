@@ -218,7 +218,7 @@ pub enum NotebookVisibility {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct NotebookPatch {
+pub struct UpdateNotebook {
     pub visibility: NotebookVisibility,
 }
 

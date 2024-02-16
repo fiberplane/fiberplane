@@ -563,7 +563,7 @@ components:
           $ref: "#/components/schemas/frontMatter"
         frontMatterSchema:
           $ref: "#/components/schemas/frontMatterSchema"
-    notebookPatch:
+    updateNotebook:
       type: object
       properties:
         visibility:
@@ -967,7 +967,7 @@ components:
         file:
           type: string
           format: binary
-    ProfileUploadData:
+    profileUploadData:
       description: "upload file payload"
       type: object
       required:
@@ -1002,7 +1002,7 @@ components:
         email:
           type: string
         role:
-          $ref: "#/components/schemas/auth_role"
+          $ref: "#/components/schemas/authRole"
     profile:
       type: object
       required:
@@ -1025,7 +1025,7 @@ components:
           type: object
           description: "This contains a mapping of the workspace ID and the role that the user has in the workspace"
           additionalProperties:
-            $ref: "#/components/schemas/auth_role"
+            $ref: "#/components/schemas/authRole"
     newPinnedNotebook:
       type: object
       required:
@@ -1475,7 +1475,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-    snippet_summary:
+    snippetSummary:
       type: object
       required:
         - id
@@ -1498,7 +1498,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-    new_snippet:
+    newSnippet:
       type: object
       required:
         - name
@@ -1511,7 +1511,7 @@ components:
           type: string
         body:
           type: string
-    update_snippet:
+    updateSnippet:
       type: object
       properties:
         description:
@@ -1901,7 +1901,7 @@ components:
         email:
           type: string
         role:
-          $ref: "#/components/schemas/auth_role"
+          $ref: "#/components/schemas/authRole"
     newWorkspace:
       type: object
       required:
@@ -1956,10 +1956,10 @@ components:
       discriminator:
         propertyName: type
         mapping:
-        - number: "#/components/schemas/frontMatterNumberSchema"
-        - string: "#/components/schemas/frontMatterStringSchema"
-        - date_time: "#/components/schemas/frontMatterDateTimeSchema"
-        - user: "#/components/schemas/frontMatterUserSchema"
+          number: "#/components/schemas/frontMatterNumberSchema"
+          string: "#/components/schemas/frontMatterStringSchema"
+          date_time: "#/components/schemas/frontMatterDateTimeSchema"
+          user: "#/components/schemas/frontMatterUserSchema"
     frontMatterNumberSchema:
       type: object
       required:
@@ -2062,7 +2062,7 @@ components:
           $ref: "#/components/schemas/frontMatterSchemaEntry"
         value:
           description: The value to assign to the front matter row on insertion
-    workspace_invite:
+    workspaceInvite:
       type: object
       required:
         - id
@@ -2076,14 +2076,14 @@ components:
         receiver:
           type: string
         role:
-          $ref: "#/components/schemas/auth_role"
+          $ref: "#/components/schemas/authRole"
         createdAt:
           type: string
           format: date-time
         expiresAt:
           type: string
           format: date-time
-    update_workspace:
+    updateWorkspace:
       type: object
       properties:
         displayName:
@@ -2093,7 +2093,7 @@ components:
           format: base64uuid
         defaultDataSources:
           $ref: "#/components/schemas/selectedDataSources"
-    workspace_invite_response:
+    workspaceInviteResponse:
       type: object
       required:
         - url
@@ -2101,12 +2101,12 @@ components:
         url:
           type: string
           format: url
-    workspace_user_update:
+    updateWorkspaceUser:
       type: object
       properties:
         role:
-          $ref: "#/components/schemas/auth_role"
-    auth_role:
+          $ref: "#/components/schemas/authRole"
+    authRole:
       type: string
       enum:
         - read
@@ -2160,7 +2160,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-    new_view:
+    newView:
       type: object
       required:
         - name
@@ -2195,7 +2195,7 @@ components:
           enum:
             - ascending
             - descending
-    update_view:
+    updateView:
       type: object
       properties:
         displayName:
@@ -2225,46 +2225,46 @@ components:
           enum:
             - ascending
             - descending
-    pinned_view:
+    pinnedView:
       type: object
       properties:
-        view_id:
+        viewId:
           type: string
           format: base64uuid
     createCellsRequest:
       type: object
       required:
         - response
-        - query_type
+        - queryType
       properties:
         response:
           $ref: "#/components/schemas/blob"
-        query_type:
+        queryType:
           type: string
     extractDataRequest:
       type: object
       required:
         - response
-        - mime_type
+        - mimeType
       properties:
         response:
           $ref: "#/components/schemas/blob"
         query:
           type: string
-        mime_type:
+        mimeType:
           type: string
     providerRequest:
       type: object
       required:
-        - query_type
-        - query_data
+        - queryType
+        - queryData
         - config
       properties:
-        previous_response:
+        previousResponse:
           $ref: "#/components/schemas/blob"
-        query_type:
+        queryType:
           type: string
-        query_data:
+        queryData:
           $ref: "#/components/schemas/blob"
         config:
           $ref: "#/components/schemas/providerConfig"
@@ -2313,7 +2313,7 @@ components:
         events:
           type: array
           items:
-            $ref: "#/components/schemas/webhook_events"
+            $ref: "#/components/schemas/webhookEvents"
         sharedSecret:
           type: string
           format: password
@@ -2331,12 +2331,12 @@ components:
         updatedAt:
           type: string
           format: date-time
-    webhook_events:
+    webhookEvents:
       type: string
       enum:
         - ping
         - frontmatter
-    new_webhook:
+    newWebhook:
       type: object
       required:
         - endpoint
@@ -2348,10 +2348,10 @@ components:
         events:
           type: array
           items:
-            $ref: "#/components/schemas/webhook_events"
+            $ref: "#/components/schemas/webhookEvents"
         enabled:
           type: boolean
-    update_webhook:
+    updateWebhook:
       type: object
       properties:
         endpoint:
@@ -2359,47 +2359,47 @@ components:
         events:
           type: array
           items:
-            $ref: "#/components/schemas/webhook_events"
-        regenerate_shared_secret:
+            $ref: "#/components/schemas/webhookEvents"
+        regenerateSharedSecret:
           type: boolean
         enabled:
           type: boolean
-    webhook_delivery:
+    webhookDelivery:
       type: object
       required:
         - id
-        - webhook_id
+        - webhookId
         - event
-        - request_headers
-        - request_body
-        - sent_request_at
+        - requestHeaders
+        - requestBody
+        - sentRequestAt
       properties:
         id:
           type: string
           format: base64uuid
-        webhook_id:
+        webhookId:
           type: string
           format: base64uuid
         event:
           type: string
-        status_code:
+        statusCode:
           type: number
           format: int32
-        request_headers:
+        requestHeaders:
           type: string
-        request_body:
+        requestBody:
           type: string
-        response_headers:
+        responseHeaders:
           type: string
-        response_body:
+        responseBody:
           type: string
-        sent_request_at:
-          type: string
-          format: date-time
-        received_response_at:
+        sentRequestAt:
           type: string
           format: date-time
-    webhook_delivery_summary:
+        receivedResponseAt:
+          type: string
+          format: date-time
+    webhookDeliverySummary:
       type: object
       required:
         - id
@@ -2417,7 +2417,7 @@ components:
         timestamp:
           type: string
           format: date-time
-    oid_connection:
+    oidConnection:
       type: object
       required:
         - provider
@@ -2430,7 +2430,7 @@ components:
             - github
         linked:
           type: boolean
-    oid_linkup_location:
+    oidLinkupLocation:
       type: object
       required:
         - location
@@ -2465,10 +2465,10 @@ components:
                 If `type = attention_required`, this field will be
                 populated with a human readable string explaining why
                 attention is required for this peculiar integration
-        created_at:
+        createdAt:
           type: string
           format: date-time
-        updated_at:
+        updatedAt:
           type: string
           format: date-time
     frontMatterUpdateRow:
@@ -2483,7 +2483,7 @@ components:
             the other attributes:
             - if `deleteValue` is `false` or absent, this means we want to keep the current
               + it is impossible to keep the current value if the schemas are incompatible. In that
-                case we use the `defaultValue` of the new schema (or nothing if there’s no default)
+                case we use the `defaultValue` of the new schema (or nothing if there's no default)
             - if `deleteValue` is `true`, this means we want to wipe the value from the front
               matter in all cases.
         deleteValue:
@@ -2532,16 +2532,16 @@ components:
       schema:
         type: string
         format: base64uuid
-    workspace_id:
-      name: workspace_id
+    workspaceId:
+      name: workspaceId
       in: path
       description: The workspace ID
       required: true
       schema:
         type: string
         format: base64uuid
-    front_matter_schema_name:
-      name: front_matter_schema_name
+    frontMatterSchemaName:
+      name: frontMatterSchemaName
       in: path
       description: The name of the front matter schema for the workspace
       required: true
@@ -2554,16 +2554,16 @@ components:
       required: true
       schema:
         type: string
-    invitation_id:
-      name: invitation_id
+    invitationId:
+      name: invitationId
       in: path
       description: ID of the invitation for which an action should be executed for
       required: true
       schema:
         type: string
         format: base64uuid
-    invitation_secret:
-      name: invitation_secret
+    invitationSecret:
+      name: invitationSecret
       in: path
       description: Secret key used to verify that the route belongs to a specific email address
       required: true
@@ -2583,55 +2583,55 @@ components:
       schema:
         type: string
         format: base64uuid
-    data_source_name:
+    dataSourceName:
       in: path
-      name: data_source_name
+      name: dataSourceName
       required: true
       schema:
         type: string
         format: name
-    proxy_name:
+    proxyName:
       in: path
-      name: proxy_name
+      name: proxyName
       required: true
       schema:
         type: string
         format: name
-    user_id:
+    userId:
       in: path
-      name: user_id
+      name: userId
       description: User ID
       required: true
       schema:
         type: string
         format: base64uuid
-    snippet_name:
+    snippetName:
       in: path
-      name: snippet_name
+      name: snippetName
       description: Name of the snippet
       required: true
       schema:
         type: string
         format: name
-    view_name:
+    viewName:
       in: path
-      name: view_name
+      name: viewName
       description: Name of the View
       required: true
       schema:
         type: string
         format: name
-    webhook_id:
+    webhookId:
       in: path
-      name: webhook_id
+      name: webhookId
       description: ID of the Webhook
       required: true
       schema:
         type: string
         format: base64uuid
-    delivery_id:
+    deliveryId:
       in: path
-      name: delivery_id
+      name: deliveryId
       description: ID of the webhook delivery
       required: true
       schema:
@@ -2647,7 +2647,7 @@ components:
         enum:
           - google
           - github
-    cli_redirect_port:
+    cliRedirectPort:
       in: query
       name: cli_redirect_port
       description: The port on localhost to redirect to after the OAuth flow is successful. Used for authorizing the CLI
@@ -2679,9 +2679,9 @@ components:
 security:
   - userToken: []
 paths:
-  /api/workspaces/{workspace_id}/notebooks:
+  /api/workspaces/{workspaceId}/notebooks:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     get:
       operationId: notebook_list
       summary: "List all notebooks"
@@ -2754,7 +2754,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/notebookPatch"
+              $ref: "#/components/schemas/updateNotebook"
       responses:
         "200":
           description: OK
@@ -2866,10 +2866,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/cell"
-  /api/notebooks/{notebookId}/insert_snippet/{snippet_name}:
+  /api/notebooks/{notebookId}/insert_snippet/{snippetName}:
     parameters:
       - $ref: "#/components/parameters/notebookId"
-      - $ref: "#/components/parameters/snippet_name"
+      - $ref: "#/components/parameters/snippetName"
     post:
       operationId: notebook_snippet_insert
       summary: Expand the snippet and insert the cells into the notebook
@@ -3067,9 +3067,9 @@ paths:
       responses:
         "200":
           description: OK
-  /api/workspaces/{workspace_id}/data_sources:
+  /api/workspaces/{workspaceId}/data_sources:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     post:
       operationId: data_source_create
       summary: "Create a workspace data source"
@@ -3105,10 +3105,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/dataSource"
-  /api/workspaces/{workspace_id}/data_sources/{data_source_name}:
+  /api/workspaces/{workspaceId}/data_sources/{dataSourceName}:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/data_source_name"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/dataSourceName"
     get:
       operationId: data_source_get
       summary: Get the data source's details
@@ -3150,9 +3150,9 @@ paths:
       responses:
         "200":
           description: OK
-  /api/workspaces/{workspace_id}/proxies:
+  /api/workspaces/{workspaceId}/proxies:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     get:
       operationId: proxy_list
       summary: "List all proxies"
@@ -3188,10 +3188,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/proxy"
-  /api/workspaces/{workspace_id}/proxies/{proxy_name}:
+  /api/workspaces/{workspaceId}/proxies/{proxyName}:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/proxy_name"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/proxyName"
     delete:
       operationId: proxy_delete
       summary: "Delete a single proxy"
@@ -3214,11 +3214,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/proxy"
-  /api/workspaces/{workspace_id}/proxies/{proxy_name}/data_sources/{data_source_name}/relay:
+  /api/workspaces/{workspaceId}/proxies/{proxyName}/data_sources/{dataSourceName}/relay:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/proxy_name"
-      - $ref: "#/components/parameters/data_source_name"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/proxyName"
+      - $ref: "#/components/parameters/dataSourceName"
       - name: provider_protocol_version
         in: query
         required: true
@@ -3250,11 +3250,11 @@ paths:
               schema:
                 type: string
                 format: binary
-  /api/workspaces/{workspace_id}/proxies/{proxy_name}/data_sources/{data_source_name}/relay/v2/invoke:
+  /api/workspaces/{workspaceId}/proxies/{proxyName}/data_sources/{dataSourceName}/relay/v2/invoke:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/proxy_name"
-      - $ref: "#/components/parameters/data_source_name"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/proxyName"
+      - $ref: "#/components/parameters/dataSourceName"
     post:
       operationId: proxy_invoke
       summary: "Invoke a provider on remote proxy"
@@ -3279,11 +3279,11 @@ paths:
               schema:
                 type: string
                 format: binary
-  /api/workspaces/{workspace_id}/proxies/{proxy_name}/data_sources/{data_source_name}/relay/v2/create_cells:
+  /api/workspaces/{workspaceId}/proxies/{proxyName}/data_sources/{dataSourceName}/relay/v2/create_cells:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/proxy_name"
-      - $ref: "#/components/parameters/data_source_name"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/proxyName"
+      - $ref: "#/components/parameters/dataSourceName"
     post:
       operationId: proxy_create_cells
       summary: Call `create_cells` from a provider on proxy
@@ -3308,11 +3308,11 @@ paths:
               schema:
                 type: string
                 format: binary
-  /api/workspaces/{workspace_id}/proxies/{proxy_name}/data_sources/{data_source_name}/relay/v2/extract_data:
+  /api/workspaces/{workspaceId}/proxies/{proxyName}/data_sources/{dataSourceName}/relay/v2/extract_data:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/proxy_name"
-      - $ref: "#/components/parameters/data_source_name"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/proxyName"
+      - $ref: "#/components/parameters/dataSourceName"
     post:
       operationId: proxy_extract_data
       summary: "Call `extract_data` from a provider on proxy"
@@ -3337,11 +3337,11 @@ paths:
               schema:
                 type: string
                 format: binary
-  /api/workspaces/{workspace_id}/proxies/{proxy_name}/data_sources/{data_source_name}/relay/v2/supported_query_types:
+  /api/workspaces/{workspaceId}/proxies/{proxyName}/data_sources/{dataSourceName}/relay/v2/supported_query_types:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/proxy_name"
-      - $ref: "#/components/parameters/data_source_name"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/proxyName"
+      - $ref: "#/components/parameters/dataSourceName"
     get:
       operationId: proxy_supported_query_types
       summary: "Call `get_supported_query_types` from provider on proxy"
@@ -3356,11 +3356,11 @@ paths:
               schema:
                 type: string
                 format: binary
-  /api/workspaces/{workspace_id}/proxies/{proxy_name}/data_sources/{data_source_name}/relay/v2/config_schema:
+  /api/workspaces/{workspaceId}/proxies/{proxyName}/data_sources/{dataSourceName}/relay/v2/config_schema:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/proxy_name"
-      - $ref: "#/components/parameters/data_source_name"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/proxyName"
+      - $ref: "#/components/parameters/dataSourceName"
     get:
       operationId: proxy_config_schema
       summary: "Call `get_config_schema` from a provider on proxy"
@@ -3379,7 +3379,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/notebookId"
     post:
-      operationId: file_upload
+      operationId: notebook_upload_file
       summary: "Upload a file to a notebook"
       description: "upload a file"
       tags:
@@ -3408,7 +3408,7 @@ paths:
         schema:
           type: string
     delete:
-      operationId: file_delete
+      operationId: notebook_delete_file
       summary: "Delete a file from a notebook"
       description: "Delete a file from a notebook"
       tags:
@@ -3417,7 +3417,7 @@ paths:
         "200":
           description: OK
     get:
-      operationId: file_get
+      operationId: notebook_get_file
       summary: "Get a file from a notebook"
       description: "Get a file from a notebook"
       tags:
@@ -3461,7 +3461,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/oid_connection"
+                  $ref: "#/components/schemas/oidConnection"
   /api/profile/picture:
     get:
       operationId: profile_picture_get
@@ -3491,7 +3491,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: "#/components/schemas/ProfileUploadData"
+              $ref: "#/components/schemas/profileUploadData"
       responses:
         "200":
           description: OK
@@ -3511,9 +3511,9 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/integrationSummary"
-  /api/workspaces/{workspace_id}/pinnednotebooks:
+  /api/workspaces/{workspaceId}/pinnednotebooks:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     get:
       operationId: pinned_notebook_list
       summary: "List all pinned notebooks"
@@ -3561,7 +3561,7 @@ paths:
   /api/oidc/authorize/{provider}:
     parameters:
       - $ref: "#/components/parameters/provider"
-      - $ref: "#/components/parameters/cli_redirect_port"
+      - $ref: "#/components/parameters/cliRedirectPort"
       - $ref: "#/components/parameters/redirect"
     get:
       operationId: oidc_authorize
@@ -3577,7 +3577,7 @@ paths:
   /api/oidc/linkup/{provider}:
     parameters:
       - $ref: "#/components/parameters/provider"
-      - $ref: "#/components/parameters/cli_redirect_port"
+      - $ref: "#/components/parameters/cliRedirectPort"
       - $ref: "#/components/parameters/redirect"
     post:
       operationId: oid_linkup
@@ -3593,7 +3593,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/oid_linkup_location"
+                $ref: "#/components/schemas/oidLinkupLocation"
   /api/logout:
     post:
       operationId: logout
@@ -3604,9 +3604,9 @@ paths:
       responses:
         "200":
           description: OK
-  /api/workspaces/{workspace_id}/templates:
+  /api/workspaces/{workspaceId}/templates:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     post:
       operationId: template_create
       summary: Create a new template
@@ -3653,9 +3653,9 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/templateSummary"
-  /api/workspaces/{workspace_id}/templates/{templateName}:
+  /api/workspaces/{workspaceId}/templates/{templateName}:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
       - name: templateName
         in: path
         description: Name of the template
@@ -3704,9 +3704,9 @@ paths:
       responses:
         "200":
           description: OK
-  /api/workspaces/{workspace_id}/templates/{templateName}/expand:
+  /api/workspaces/{workspaceId}/templates/{templateName}/expand:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
       - name: templateName
         in: path
         description: Name of the template
@@ -3733,9 +3733,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/notebook"
-  /api/workspaces/{workspace_id}/snippets:
+  /api/workspaces/{workspaceId}/snippets:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     post:
       operationId: snippet_create
       summary: Create a new snippet
@@ -3747,7 +3747,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/new_snippet"
+              $ref: "#/components/schemas/newSnippet"
       responses:
         "200":
           description: OK
@@ -3781,11 +3781,11 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/snippet_summary"
-  /api/workspaces/{workspace_id}/snippets/{snippet_name}:
+                  $ref: "#/components/schemas/snippetSummary"
+  /api/workspaces/{workspaceId}/snippets/{snippetName}:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/snippet_name"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/snippetName"
     get:
       operationId: snippet_get
       summary: Retrieve a snippet
@@ -3810,7 +3810,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/update_snippet"
+              $ref: "#/components/schemas/updateSnippet"
       responses:
         "200":
           description: OK
@@ -3827,10 +3827,10 @@ paths:
       responses:
         "200":
           description: OK
-  /api/workspaces/{workspace_id}/snippets/{snippet_name}/expand:
+  /api/workspaces/{workspaceId}/snippets/{snippetName}/expand:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/snippet_name"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/snippetName"
     get:
       operationId: snippet_expand
       summary: Expand the snippet
@@ -3846,9 +3846,9 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/cell"
-  /api/workspaces/{workspace_id}/triggers:
+  /api/workspaces/{workspaceId}/triggers:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     get:
       operationId: trigger_list
       summary: List all triggers
@@ -3951,9 +3951,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/triggerInvokeResponse"
-  /api/workspaces/{workspace_id}/labels/keys:
+  /api/workspaces/{workspaceId}/labels/keys:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     get:
       operationId: label_keys_list
       summary: Retrieve all label keys
@@ -3976,10 +3976,10 @@ paths:
                 type: array
                 items:
                   type: string
-  /api/workspaces/{workspace_id}/labels/values/{label_key}:
+  /api/workspaces/{workspaceId}/labels/values/{labelKey}:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - name: label_key
+      - $ref: "#/components/parameters/workspaceId"
+      - name: labelKey
         in: path
         description: The label key
         required: true
@@ -4007,9 +4007,9 @@ paths:
                 type: array
                 items:
                   type: string
-  /api/workspaces/{workspace_id}/search/notebooks:
+  /api/workspaces/{workspaceId}/search/notebooks:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     post:
       operationId: notebook_search
       summary: Search notebooks
@@ -4044,9 +4044,9 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/notebookSummary"
-  /api/workspaces/{workspace_id}/events:
+  /api/workspaces/{workspaceId}/events:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     get:
       operationId: event_list
       summary: Retrieve all events matching the query
@@ -4116,9 +4116,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/event"
-  /api/events/{event_id}:
+  /api/events/{eventId}:
     parameters:
-      - name: event_id
+      - name: eventId
         in: path
         description: ID of the event
         required: true
@@ -4306,11 +4306,11 @@ paths:
       responses:
         "200":
           description: OK
-  /api/workspaces/{workspace_id}/users:
+  /api/workspaces/{workspaceId}/users:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     get:
-      operationId: workspace_users_list
+      operationId: workspace_user_list
       summary: List all users
       description: List all users for a workspace
       tags:
@@ -4384,9 +4384,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/workspace"
-  /api/workspaces/{workspace_id}:
+  /api/workspaces/{workspaceId}:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     get:
       operationId: workspace_get
       summary: Get the workspace details
@@ -4412,7 +4412,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/update_workspace"
+              $ref: "#/components/schemas/updateWorkspace"
       responses:
         "200":
           description: OK
@@ -4429,9 +4429,9 @@ paths:
       responses:
         "200":
           description: OK
-  /api/workspaces/{workspace_id}/invitations:
+  /api/workspaces/{workspaceId}/invitations:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     get:
       operationId: workspace_invite_get
       summary: Retrieve pending workspace invitations
@@ -4462,9 +4462,9 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/workspace_invite"
+                  $ref: "#/components/schemas/workspaceInvite"
     post:
-      operationId: workspace_invite
+      operationId: workspace_invite_create
       summary: Invite a user to workspace
       description: Invites a user to a workspace
       tags:
@@ -4482,10 +4482,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/workspace_invite_response"
-  /api/invitations/{invitation_id}:
+                $ref: "#/components/schemas/workspaceInviteResponse"
+  /api/invitations/{invitationId}:
     parameters:
-      - $ref: "#/components/parameters/invitation_id"
+      - $ref: "#/components/parameters/invitationId"
     delete:
       operationId: workspace_invite_delete
       summary: Delete a pending workspace invitation
@@ -4495,10 +4495,10 @@ paths:
       responses:
         "200":
           description: OK
-  /api/invitations/{invitation_id}/{invitation_secret}/accept:
+  /api/invitations/{invitationId}/{invitationSecret}/accept:
     parameters:
-      - $ref: "#/components/parameters/invitation_id"
-      - $ref: "#/components/parameters/invitation_secret"
+      - $ref: "#/components/parameters/invitationId"
+      - $ref: "#/components/parameters/invitationSecret"
     post:
       operationId: workspace_invite_accept
       summary: "Accept the workspace invitation"
@@ -4512,10 +4512,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/workspace"
-  /api/invitations/{invitation_id}/{invitation_secret}/decline:
+  /api/invitations/{invitationId}/{invitationSecret}/decline:
     parameters:
-      - $ref: "#/components/parameters/invitation_id"
-      - $ref: "#/components/parameters/invitation_secret"
+      - $ref: "#/components/parameters/invitationId"
+      - $ref: "#/components/parameters/invitationSecret"
     post:
       operationId: workspace_invite_decline
       summary: "Decline the workspace invitation"
@@ -4525,9 +4525,9 @@ paths:
       responses:
         "200":
           description: OK
-  /api/workspaces/{workspace_id}/leave:
+  /api/workspaces/{workspaceId}/leave:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     post:
       operationId: workspace_leave
       summary: "Leave a workspace"
@@ -4537,10 +4537,10 @@ paths:
       responses:
         "200":
           description: OK
-  /api/workspaces/{workspace_id}/users/{user_id}:
+  /api/workspaces/{workspaceId}/users/{userId}:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/user_id"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/userId"
     patch:
       operationId: workspace_user_update
       summary: Update user in a workspace
@@ -4553,7 +4553,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/workspace_user_update"
+              $ref: "#/components/schemas/updateWorkspaceUser"
       responses:
         "200":
           description: OK
@@ -4570,9 +4570,9 @@ paths:
       responses:
         "200":
           description: OK
-  /api/workspaces/{workspace_id}/picture:
+  /api/workspaces/{workspaceId}/picture:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     get:
       operationId: workspace_picture_get
       summary: Retrieve workspace image
@@ -4600,15 +4600,15 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: "#/components/schemas/ProfileUploadData"
+              $ref: "#/components/schemas/profileUploadData"
       responses:
         "200":
           description: OK
-  /api/workspaces/{workspace_id}/views:
+  /api/workspaces/{workspaceId}/views:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     get:
-      operationId: views_get
+      operationId: view_list
       summary: Retrieve all views
       description: Retrieves all views
       tags:
@@ -4640,7 +4640,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/view"
     post:
-      operationId: views_create
+      operationId: view_create
       summary: Create a new view
       description: Creates a new view
       tags:
@@ -4651,7 +4651,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/new_view"
+              $ref: "#/components/schemas/newView"
       responses:
         "200":
           description: OK
@@ -4659,10 +4659,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/view"
-  /api/workspaces/{workspace_id}/views/{view_name}:
+  /api/workspaces/{workspaceId}/views/{viewName}:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/view_name"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/viewName"
     get:
       operationId: view_get
       summary: Retrieve a single view
@@ -4688,7 +4688,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/update_view"
+              $ref: "#/components/schemas/updateView"
       responses:
         "200":
           description: OK
@@ -4705,11 +4705,11 @@ paths:
       responses:
         "200":
           description: OK
-  /api/workspaces/{workspace_id}/pinned_views:
+  /api/workspaces/{workspaceId}/pinned_views:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     get:
-      operationId: pinned_views_get
+      operationId: pinned_view_get
       description: Get all pinned views for the current user
       summary: Get all pinned views for the current user
       tags:
@@ -4735,14 +4735,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/pinned_view"
+              $ref: "#/components/schemas/pinnedView"
       responses:
         "200":
           description: OK
-  /api/workspaces/{workspace_id}/pinned_views/{view_name}:
+  /api/workspaces/{workspaceId}/pinned_views/{viewName}:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/view_name"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/viewName"
     delete:
       operationId: pinned_view_remove
       description: Remove view from the pinned views list
@@ -4752,11 +4752,11 @@ paths:
       responses:
         "200":
           description: OK
-  /api/workspaces/{workspace_id}/webhooks:
+  /api/workspaces/{workspaceId}/webhooks:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     get:
-      operationId: webhooks_list
+      operationId: webhook_list
       summary: Retrieve all webhooks for a specific workspace
       description: Retrieve all webhooks for a specific workspace
       tags:
@@ -4790,7 +4790,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/new_webhook"
+              $ref: "#/components/schemas/newWebhook"
       responses:
         "200":
           description: OK
@@ -4798,10 +4798,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/webhook"
-  /api/workspaces/{workspace_id}/webhooks/{webhook_id}:
+  /api/workspaces/{workspaceId}/webhooks/{webhookId}:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/webhook_id"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/webhookId"
     patch:
       operationId: webhook_update
       summary: Update an existing webhook
@@ -4819,7 +4819,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/update_webhook"
+              $ref: "#/components/schemas/updateWebhook"
       responses:
         "200":
           description: OK
@@ -4836,10 +4836,10 @@ paths:
       responses:
         "200":
           description: OK
-  /api/workspaces/{workspace_id}/webhooks/{webhook_id}/deliveries:
+  /api/workspaces/{workspaceId}/webhooks/{webhookId}/deliveries:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/webhook_id"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/webhookId"
     get:
       operationId: webhook_delivery_list
       summary: Retrieve a list of deliveries for a specific webhook
@@ -4857,12 +4857,12 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/webhook_delivery_summary"
-  /api/workspaces/{workspace_id}/webhooks/{webhook_id}/deliveries/{delivery_id}:
+                  $ref: "#/components/schemas/webhookDeliverySummary"
+  /api/workspaces/{workspaceId}/webhooks/{webhookId}/deliveries/{deliveryId}:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/webhook_id"
-      - $ref: "#/components/parameters/delivery_id"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/webhookId"
+      - $ref: "#/components/parameters/deliveryId"
     get:
       operationId: webhook_delivery_get
       summary: Retrieve information about a specific delivery for a specific webhook
@@ -4875,12 +4875,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/webhook_delivery"
-  /api/workspaces/{workspace_id}/webhooks/{webhook_id}/deliveries/{delivery_id}/resend:
+                $ref: "#/components/schemas/webhookDelivery"
+  /api/workspaces/{workspaceId}/webhooks/{webhookId}/deliveries/{deliveryId}/resend:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/webhook_id"
-      - $ref: "#/components/parameters/delivery_id"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/webhookId"
+      - $ref: "#/components/parameters/deliveryId"
     post:
       operationId: webhook_delivery_resend
       summary: Resend a specific delivery
@@ -4890,11 +4890,11 @@ paths:
       responses:
         "200":
           description: OK. Resend has been queued.
-  /api/workspaces/{workspace_id}/front_matter_schemas:
+  /api/workspaces/{workspaceId}/front_matter_schemas:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
+      - $ref: "#/components/parameters/workspaceId"
     get:
-      operationId: workspace_front_matter_schemas_get
+      operationId: workspace_front_matter_schema_get
       summary: Retrieve all front matter schemas defined in the workspace
       description: Retrieve all front matter schemas defined in the workspace
       tags:
@@ -4907,7 +4907,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/workspaceFrontMatterSchemas"
     post:
-      operationId: workspace_front_matter_schemas_create
+      operationId: workspace_front_matter_schema_create
       summary: Create a front matter schema
       description: Retrieve a front matter schema defined in the workspace
       tags:
@@ -4922,12 +4922,12 @@ paths:
       responses:
         "200":
           description: OK. The front matter schema has been created
-  /api/workspaces/{workspace_id}/front_matter_schemas/{front_matter_schema_name}:
+  /api/workspaces/{workspaceId}/front_matter_schemas/{frontMatterSchemaName}:
     parameters:
-      - $ref: "#/components/parameters/workspace_id"
-      - $ref: "#/components/parameters/front_matter_schema_name"
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/frontMatterSchemaName"
     get:
-      operationId: workspace_front_matter_schemas_get_by_name
+      operationId: workspace_front_matter_schema_get_by_name
       summary: Retrieve a front matter schema defined in the workspace
       description: Retrieve a front matter schema defined in the workspace
       tags:
@@ -4940,7 +4940,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/frontMatterSchema"
     delete:
-      operationId: workspace_front_matter_schemas_delete
+      operationId: workspace_front_matter_schema_delete
       summary: Delete a front matter schema defined in the workspace
       description: Delete a front matter schema defined in the workspace
       tags:

@@ -82,7 +82,7 @@ pub async fn comment_update(
 pub async fn event_delete(client: &ApiClient, event_id: base64uuid::Base64Uuid) -> Result<()> {
     let mut builder = client.request(
         Method::DELETE,
-        &format!("/api/events/{event_id}", event_id = event_id,),
+        &format!("/api/events/{eventId}", eventId = event_id,),
     )?;
     let response = builder.send().await?.error_for_status()?;
 
@@ -97,8 +97,8 @@ pub async fn workspace_invite_delete(
     let mut builder = client.request(
         Method::DELETE,
         &format!(
-            "/api/invitations/{invitation_id}",
-            invitation_id = invitation_id,
+            "/api/invitations/{invitationId}",
+            invitationId = invitation_id,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?;
@@ -115,9 +115,9 @@ pub async fn workspace_invite_accept(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/invitations/{invitation_id}/{invitation_secret}/accept",
-            invitation_id = invitation_id,
-            invitation_secret = invitation_secret,
+            "/api/invitations/{invitationId}/{invitationSecret}/accept",
+            invitationId = invitation_id,
+            invitationSecret = invitation_secret,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -134,9 +134,9 @@ pub async fn workspace_invite_decline(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/invitations/{invitation_id}/{invitation_secret}/decline",
-            invitation_id = invitation_id,
-            invitation_secret = invitation_secret,
+            "/api/invitations/{invitationId}/{invitationSecret}/decline",
+            invitationId = invitation_id,
+            invitationSecret = invitation_secret,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?;
@@ -184,7 +184,7 @@ pub async fn notebook_delete(
 pub async fn notebook_update(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
-    payload: models::NotebookPatch,
+    payload: models::UpdateNotebook,
 ) -> Result<()> {
     let mut builder = client.request(
         Method::PATCH,
@@ -285,7 +285,7 @@ pub async fn notebook_duplicate(
 }
 
 #[doc = r#"upload a file"#]
-pub async fn file_upload(
+pub async fn notebook_upload_file(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
     payload: models::UploadData,
@@ -304,7 +304,7 @@ pub async fn file_upload(
 }
 
 #[doc = r#"Get a file from a notebook"#]
-pub async fn file_get(
+pub async fn notebook_get_file(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
     file_id: &str,
@@ -323,7 +323,7 @@ pub async fn file_get(
 }
 
 #[doc = r#"Delete a file from a notebook"#]
-pub async fn file_delete(
+pub async fn notebook_delete_file(
     client: &ApiClient,
     notebook_id: base64uuid::Base64Uuid,
     file_id: &str,
@@ -451,9 +451,9 @@ pub async fn notebook_snippet_insert(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/notebooks/{notebookId}/insert_snippet/{snippet_name}",
+            "/api/notebooks/{notebookId}/insert_snippet/{snippetName}",
             notebookId = notebook_id,
-            snippet_name = snippet_name,
+            snippetName = snippet_name,
         ),
     )?;
     if let Some(cell_id) = cell_id {
@@ -850,10 +850,7 @@ pub async fn workspace_get(
 ) -> Result<models::Workspace> {
     let mut builder = client.request(
         Method::GET,
-        &format!(
-            "/api/workspaces/{workspace_id}",
-            workspace_id = workspace_id,
-        ),
+        &format!("/api/workspaces/{workspaceId}", workspaceId = workspace_id,),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
 
@@ -867,10 +864,7 @@ pub async fn workspace_delete(
 ) -> Result<()> {
     let mut builder = client.request(
         Method::DELETE,
-        &format!(
-            "/api/workspaces/{workspace_id}",
-            workspace_id = workspace_id,
-        ),
+        &format!("/api/workspaces/{workspaceId}", workspaceId = workspace_id,),
     )?;
     let response = builder.send().await?.error_for_status()?;
 
@@ -885,10 +879,7 @@ pub async fn workspace_update(
 ) -> Result<models::Workspace> {
     let mut builder = client.request(
         Method::PATCH,
-        &format!(
-            "/api/workspaces/{workspace_id}",
-            workspace_id = workspace_id,
-        ),
+        &format!("/api/workspaces/{workspaceId}", workspaceId = workspace_id,),
     )?;
     builder = builder.json(&payload);
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -904,8 +895,8 @@ pub async fn data_source_list(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/data_sources",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/data_sources",
+            workspaceId = workspace_id,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -922,8 +913,8 @@ pub async fn data_source_create(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/data_sources",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/data_sources",
+            workspaceId = workspace_id,
         ),
     )?;
     builder = builder.json(&payload);
@@ -941,9 +932,9 @@ pub async fn data_source_get(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/data_sources/{data_source_name}",
-            workspace_id = workspace_id,
-            data_source_name = data_source_name,
+            "/api/workspaces/{workspaceId}/data_sources/{dataSourceName}",
+            workspaceId = workspace_id,
+            dataSourceName = data_source_name,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -960,9 +951,9 @@ pub async fn data_source_delete(
     let mut builder = client.request(
         Method::DELETE,
         &format!(
-            "/api/workspaces/{workspace_id}/data_sources/{data_source_name}",
-            workspace_id = workspace_id,
-            data_source_name = data_source_name,
+            "/api/workspaces/{workspaceId}/data_sources/{dataSourceName}",
+            workspaceId = workspace_id,
+            dataSourceName = data_source_name,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?;
@@ -980,9 +971,9 @@ pub async fn data_source_update(
     let mut builder = client.request(
         Method::PATCH,
         &format!(
-            "/api/workspaces/{workspace_id}/data_sources/{data_source_name}",
-            workspace_id = workspace_id,
-            data_source_name = data_source_name,
+            "/api/workspaces/{workspaceId}/data_sources/{dataSourceName}",
+            workspaceId = workspace_id,
+            dataSourceName = data_source_name,
         ),
     )?;
     builder = builder.json(&payload);
@@ -1006,8 +997,8 @@ pub async fn event_list(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/events",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/events",
+            workspaceId = workspace_id,
         ),
     )?;
     builder = builder.query(&[("occurrence_time_start", occurrence_time_start.to_string())]);
@@ -1041,8 +1032,8 @@ pub async fn event_create(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/events",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/events",
+            workspaceId = workspace_id,
         ),
     )?;
     builder = builder.json(&payload);
@@ -1052,15 +1043,15 @@ pub async fn event_create(
 }
 
 #[doc = r#"Retrieve all front matter schemas defined in the workspace"#]
-pub async fn workspace_front_matter_schemas_get(
+pub async fn workspace_front_matter_schema_get(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
 ) -> Result<models::WorkspaceFrontMatterSchemas> {
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/front_matter_schemas",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/front_matter_schemas",
+            workspaceId = workspace_id,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -1069,7 +1060,7 @@ pub async fn workspace_front_matter_schemas_get(
 }
 
 #[doc = r#"Retrieve a front matter schema defined in the workspace"#]
-pub async fn workspace_front_matter_schemas_create(
+pub async fn workspace_front_matter_schema_create(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
     payload: models::NewWorkspaceFrontMatterSchema,
@@ -1077,8 +1068,8 @@ pub async fn workspace_front_matter_schemas_create(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/front_matter_schemas",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/front_matter_schemas",
+            workspaceId = workspace_id,
         ),
     )?;
     builder = builder.json(&payload);
@@ -1088,7 +1079,7 @@ pub async fn workspace_front_matter_schemas_create(
 }
 
 #[doc = r#"Retrieve a front matter schema defined in the workspace"#]
-pub async fn workspace_front_matter_schemas_get_by_name(
+pub async fn workspace_front_matter_schema_get_by_name(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
     front_matter_schema_name: &str,
@@ -1096,9 +1087,9 @@ pub async fn workspace_front_matter_schemas_get_by_name(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/front_matter_schemas/{front_matter_schema_name}",
-            workspace_id = workspace_id,
-            front_matter_schema_name = front_matter_schema_name,
+            "/api/workspaces/{workspaceId}/front_matter_schemas/{frontMatterSchemaName}",
+            workspaceId = workspace_id,
+            frontMatterSchemaName = front_matter_schema_name,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -1107,7 +1098,7 @@ pub async fn workspace_front_matter_schemas_get_by_name(
 }
 
 #[doc = r#"Delete a front matter schema defined in the workspace"#]
-pub async fn workspace_front_matter_schemas_delete(
+pub async fn workspace_front_matter_schema_delete(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
     front_matter_schema_name: &str,
@@ -1115,9 +1106,9 @@ pub async fn workspace_front_matter_schemas_delete(
     let mut builder = client.request(
         Method::DELETE,
         &format!(
-            "/api/workspaces/{workspace_id}/front_matter_schemas/{front_matter_schema_name}",
-            workspace_id = workspace_id,
-            front_matter_schema_name = front_matter_schema_name,
+            "/api/workspaces/{workspaceId}/front_matter_schemas/{frontMatterSchemaName}",
+            workspaceId = workspace_id,
+            frontMatterSchemaName = front_matter_schema_name,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?;
@@ -1137,8 +1128,8 @@ pub async fn workspace_invite_get(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/invitations",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/invitations",
+            workspaceId = workspace_id,
         ),
     )?;
     if let Some(sort_by) = sort_by {
@@ -1159,7 +1150,7 @@ pub async fn workspace_invite_get(
 }
 
 #[doc = r#"Invites a user to a workspace"#]
-pub async fn workspace_invite(
+pub async fn workspace_invite_create(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
     payload: models::NewWorkspaceInvite,
@@ -1167,8 +1158,8 @@ pub async fn workspace_invite(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/invitations",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/invitations",
+            workspaceId = workspace_id,
         ),
     )?;
     builder = builder.json(&payload);
@@ -1186,8 +1177,8 @@ pub async fn label_keys_list(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/labels/keys",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/labels/keys",
+            workspaceId = workspace_id,
         ),
     )?;
     if let Some(prefix) = prefix {
@@ -1208,9 +1199,9 @@ pub async fn label_values_list(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/labels/values/{label_key}",
-            workspace_id = workspace_id,
-            label_key = label_key,
+            "/api/workspaces/{workspaceId}/labels/values/{labelKey}",
+            workspaceId = workspace_id,
+            labelKey = label_key,
         ),
     )?;
     if let Some(prefix) = prefix {
@@ -1229,8 +1220,8 @@ pub async fn workspace_leave(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/leave",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/leave",
+            workspaceId = workspace_id,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?;
@@ -1246,8 +1237,8 @@ pub async fn notebook_list(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/notebooks",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/notebooks",
+            workspaceId = workspace_id,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -1264,8 +1255,8 @@ pub async fn notebook_create(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/notebooks",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/notebooks",
+            workspaceId = workspace_id,
         ),
     )?;
     builder = builder.json(&payload);
@@ -1282,8 +1273,8 @@ pub async fn workspace_picture_get(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/picture",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/picture",
+            workspaceId = workspace_id,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?.bytes().await?;
@@ -1300,8 +1291,8 @@ pub async fn workspace_picture_update(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/picture",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/picture",
+            workspaceId = workspace_id,
         ),
     )?;
     builder = builder.form(&payload);
@@ -1311,15 +1302,15 @@ pub async fn workspace_picture_update(
 }
 
 #[doc = r#"Get all pinned views for the current user"#]
-pub async fn pinned_views_get(
+pub async fn pinned_view_get(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
 ) -> Result<Vec<models::View>> {
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/pinned_views",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/pinned_views",
+            workspaceId = workspace_id,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -1336,8 +1327,8 @@ pub async fn pinned_view_add(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/pinned_views",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/pinned_views",
+            workspaceId = workspace_id,
         ),
     )?;
     builder = builder.json(&payload);
@@ -1355,9 +1346,9 @@ pub async fn pinned_view_remove(
     let mut builder = client.request(
         Method::DELETE,
         &format!(
-            "/api/workspaces/{workspace_id}/pinned_views/{view_name}",
-            workspace_id = workspace_id,
-            view_name = view_name,
+            "/api/workspaces/{workspaceId}/pinned_views/{viewName}",
+            workspaceId = workspace_id,
+            viewName = view_name,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?;
@@ -1373,8 +1364,8 @@ pub async fn pinned_notebook_list(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/pinnednotebooks",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/pinnednotebooks",
+            workspaceId = workspace_id,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -1390,8 +1381,8 @@ pub async fn proxy_list(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/proxies",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/proxies",
+            workspaceId = workspace_id,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -1408,8 +1399,8 @@ pub async fn proxy_create(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/proxies",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/proxies",
+            workspaceId = workspace_id,
         ),
     )?;
     builder = builder.json(&payload);
@@ -1427,9 +1418,9 @@ pub async fn proxy_get(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/proxies/{proxy_name}",
-            workspace_id = workspace_id,
-            proxy_name = proxy_name,
+            "/api/workspaces/{workspaceId}/proxies/{proxyName}",
+            workspaceId = workspace_id,
+            proxyName = proxy_name,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -1446,9 +1437,9 @@ pub async fn proxy_delete(
     let mut builder = client.request(
         Method::DELETE,
         &format!(
-            "/api/workspaces/{workspace_id}/proxies/{proxy_name}",
-            workspace_id = workspace_id,
-            proxy_name = proxy_name,
+            "/api/workspaces/{workspaceId}/proxies/{proxyName}",
+            workspaceId = workspace_id,
+            proxyName = proxy_name,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?;
@@ -1467,7 +1458,12 @@ pub async fn proxy_relay(
 ) -> Result<bytes::Bytes> {
     let mut builder = client.request(
         Method::POST,
-        &format!("/api/workspaces/{workspace_id}/proxies/{proxy_name}/data_sources/{data_source_name}/relay", workspace_id = workspace_id, proxy_name = proxy_name, data_source_name = data_source_name, )
+        &format!(
+            "/api/workspaces/{workspaceId}/proxies/{proxyName}/data_sources/{dataSourceName}/relay",
+            workspaceId = workspace_id,
+            proxyName = proxy_name,
+            dataSourceName = data_source_name,
+        ),
     )?;
     builder = builder.body(payload);
     let response = builder.send().await?.error_for_status()?.bytes().await?;
@@ -1484,7 +1480,7 @@ pub async fn proxy_config_schema(
 ) -> Result<bytes::Bytes> {
     let mut builder = client.request(
         Method::GET,
-        &format!("/api/workspaces/{workspace_id}/proxies/{proxy_name}/data_sources/{data_source_name}/relay/v2/config_schema", workspace_id = workspace_id, proxy_name = proxy_name, data_source_name = data_source_name, )
+        &format!("/api/workspaces/{workspaceId}/proxies/{proxyName}/data_sources/{dataSourceName}/relay/v2/config_schema", workspaceId = workspace_id, proxyName = proxy_name, dataSourceName = data_source_name, )
     )?;
     let response = builder.send().await?.error_for_status()?.bytes().await?;
 
@@ -1501,7 +1497,7 @@ pub async fn proxy_create_cells(
 ) -> Result<bytes::Bytes> {
     let mut builder = client.request(
         Method::POST,
-        &format!("/api/workspaces/{workspace_id}/proxies/{proxy_name}/data_sources/{data_source_name}/relay/v2/create_cells", workspace_id = workspace_id, proxy_name = proxy_name, data_source_name = data_source_name, )
+        &format!("/api/workspaces/{workspaceId}/proxies/{proxyName}/data_sources/{dataSourceName}/relay/v2/create_cells", workspaceId = workspace_id, proxyName = proxy_name, dataSourceName = data_source_name, )
     )?;
     builder = builder.body(payload);
     let response = builder.send().await?.error_for_status()?.bytes().await?;
@@ -1519,7 +1515,7 @@ pub async fn proxy_extract_data(
 ) -> Result<bytes::Bytes> {
     let mut builder = client.request(
         Method::POST,
-        &format!("/api/workspaces/{workspace_id}/proxies/{proxy_name}/data_sources/{data_source_name}/relay/v2/extract_data", workspace_id = workspace_id, proxy_name = proxy_name, data_source_name = data_source_name, )
+        &format!("/api/workspaces/{workspaceId}/proxies/{proxyName}/data_sources/{dataSourceName}/relay/v2/extract_data", workspaceId = workspace_id, proxyName = proxy_name, dataSourceName = data_source_name, )
     )?;
     builder = builder.body(payload);
     let response = builder.send().await?.error_for_status()?.bytes().await?;
@@ -1537,7 +1533,7 @@ pub async fn proxy_invoke(
 ) -> Result<bytes::Bytes> {
     let mut builder = client.request(
         Method::POST,
-        &format!("/api/workspaces/{workspace_id}/proxies/{proxy_name}/data_sources/{data_source_name}/relay/v2/invoke", workspace_id = workspace_id, proxy_name = proxy_name, data_source_name = data_source_name, )
+        &format!("/api/workspaces/{workspaceId}/proxies/{proxyName}/data_sources/{dataSourceName}/relay/v2/invoke", workspaceId = workspace_id, proxyName = proxy_name, dataSourceName = data_source_name, )
     )?;
     builder = builder.body(payload);
     let response = builder.send().await?.error_for_status()?.bytes().await?;
@@ -1554,7 +1550,7 @@ pub async fn proxy_supported_query_types(
 ) -> Result<bytes::Bytes> {
     let mut builder = client.request(
         Method::GET,
-        &format!("/api/workspaces/{workspace_id}/proxies/{proxy_name}/data_sources/{data_source_name}/relay/v2/supported_query_types", workspace_id = workspace_id, proxy_name = proxy_name, data_source_name = data_source_name, )
+        &format!("/api/workspaces/{workspaceId}/proxies/{proxyName}/data_sources/{dataSourceName}/relay/v2/supported_query_types", workspaceId = workspace_id, proxyName = proxy_name, dataSourceName = data_source_name, )
     )?;
     let response = builder.send().await?.error_for_status()?.bytes().await?;
 
@@ -1572,8 +1568,8 @@ pub async fn notebook_search(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/search/notebooks",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/search/notebooks",
+            workspaceId = workspace_id,
         ),
     )?;
     if let Some(sort_by) = sort_by {
@@ -1598,8 +1594,8 @@ pub async fn snippet_list(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/snippets",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/snippets",
+            workspaceId = workspace_id,
         ),
     )?;
     if let Some(sort_by) = sort_by {
@@ -1622,8 +1618,8 @@ pub async fn snippet_create(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/snippets",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/snippets",
+            workspaceId = workspace_id,
         ),
     )?;
     builder = builder.json(&payload);
@@ -1641,9 +1637,9 @@ pub async fn snippet_get(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/snippets/{snippet_name}",
-            workspace_id = workspace_id,
-            snippet_name = snippet_name,
+            "/api/workspaces/{workspaceId}/snippets/{snippetName}",
+            workspaceId = workspace_id,
+            snippetName = snippet_name,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -1660,9 +1656,9 @@ pub async fn snippet_delete(
     let mut builder = client.request(
         Method::DELETE,
         &format!(
-            "/api/workspaces/{workspace_id}/snippets/{snippet_name}",
-            workspace_id = workspace_id,
-            snippet_name = snippet_name,
+            "/api/workspaces/{workspaceId}/snippets/{snippetName}",
+            workspaceId = workspace_id,
+            snippetName = snippet_name,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?;
@@ -1680,9 +1676,9 @@ pub async fn snippet_update(
     let mut builder = client.request(
         Method::PATCH,
         &format!(
-            "/api/workspaces/{workspace_id}/snippets/{snippet_name}",
-            workspace_id = workspace_id,
-            snippet_name = snippet_name,
+            "/api/workspaces/{workspaceId}/snippets/{snippetName}",
+            workspaceId = workspace_id,
+            snippetName = snippet_name,
         ),
     )?;
     builder = builder.json(&payload);
@@ -1700,9 +1696,9 @@ pub async fn snippet_expand(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/snippets/{snippet_name}/expand",
-            workspace_id = workspace_id,
-            snippet_name = snippet_name,
+            "/api/workspaces/{workspaceId}/snippets/{snippetName}/expand",
+            workspaceId = workspace_id,
+            snippetName = snippet_name,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -1720,8 +1716,8 @@ pub async fn template_list(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/templates",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/templates",
+            workspaceId = workspace_id,
         ),
     )?;
     if let Some(sort_by) = sort_by {
@@ -1744,8 +1740,8 @@ pub async fn template_create(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/templates",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/templates",
+            workspaceId = workspace_id,
         ),
     )?;
     builder = builder.json(&payload);
@@ -1763,8 +1759,8 @@ pub async fn template_get(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/templates/{templateName}",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/templates/{templateName}",
+            workspaceId = workspace_id,
             templateName = template_name,
         ),
     )?;
@@ -1782,8 +1778,8 @@ pub async fn template_delete(
     let mut builder = client.request(
         Method::DELETE,
         &format!(
-            "/api/workspaces/{workspace_id}/templates/{templateName}",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/templates/{templateName}",
+            workspaceId = workspace_id,
             templateName = template_name,
         ),
     )?;
@@ -1802,8 +1798,8 @@ pub async fn template_update(
     let mut builder = client.request(
         Method::PATCH,
         &format!(
-            "/api/workspaces/{workspace_id}/templates/{templateName}",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/templates/{templateName}",
+            workspaceId = workspace_id,
             templateName = template_name,
         ),
     )?;
@@ -1823,8 +1819,8 @@ pub async fn template_expand(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/templates/{templateName}/expand",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/templates/{templateName}/expand",
+            workspaceId = workspace_id,
             templateName = template_name,
         ),
     )?;
@@ -1842,8 +1838,8 @@ pub async fn trigger_list(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/triggers",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/triggers",
+            workspaceId = workspace_id,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -1860,8 +1856,8 @@ pub async fn trigger_create(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/triggers",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/triggers",
+            workspaceId = workspace_id,
         ),
     )?;
     builder = builder.json(&payload);
@@ -1871,7 +1867,7 @@ pub async fn trigger_create(
 }
 
 #[doc = r#"List all users for a workspace"#]
-pub async fn workspace_users_list(
+pub async fn workspace_user_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
     sort_by: Option<&str>,
@@ -1880,8 +1876,8 @@ pub async fn workspace_users_list(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/users",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/users",
+            workspaceId = workspace_id,
         ),
     )?;
     if let Some(sort_by) = sort_by {
@@ -1904,9 +1900,9 @@ pub async fn workspace_user_remove(
     let mut builder = client.request(
         Method::DELETE,
         &format!(
-            "/api/workspaces/{workspace_id}/users/{user_id}",
-            workspace_id = workspace_id,
-            user_id = user_id,
+            "/api/workspaces/{workspaceId}/users/{userId}",
+            workspaceId = workspace_id,
+            userId = user_id,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?;
@@ -1919,14 +1915,14 @@ pub async fn workspace_user_update(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
     user_id: base64uuid::Base64Uuid,
-    payload: models::WorkspaceUserUpdate,
+    payload: models::UpdateWorkspaceUser,
 ) -> Result<models::User> {
     let mut builder = client.request(
         Method::PATCH,
         &format!(
-            "/api/workspaces/{workspace_id}/users/{user_id}",
-            workspace_id = workspace_id,
-            user_id = user_id,
+            "/api/workspaces/{workspaceId}/users/{userId}",
+            workspaceId = workspace_id,
+            userId = user_id,
         ),
     )?;
     builder = builder.json(&payload);
@@ -1936,7 +1932,7 @@ pub async fn workspace_user_update(
 }
 
 #[doc = r#"Retrieves all views"#]
-pub async fn views_get(
+pub async fn view_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
     sort_by: Option<&str>,
@@ -1947,8 +1943,8 @@ pub async fn views_get(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/views",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/views",
+            workspaceId = workspace_id,
         ),
     )?;
     if let Some(sort_by) = sort_by {
@@ -1969,7 +1965,7 @@ pub async fn views_get(
 }
 
 #[doc = r#"Creates a new view"#]
-pub async fn views_create(
+pub async fn view_create(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
     payload: models::NewView,
@@ -1977,8 +1973,8 @@ pub async fn views_create(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/views",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/views",
+            workspaceId = workspace_id,
         ),
     )?;
     builder = builder.json(&payload);
@@ -1996,9 +1992,9 @@ pub async fn view_get(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/views/{view_name}",
-            workspace_id = workspace_id,
-            view_name = view_name,
+            "/api/workspaces/{workspaceId}/views/{viewName}",
+            workspaceId = workspace_id,
+            viewName = view_name,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -2015,9 +2011,9 @@ pub async fn view_delete(
     let mut builder = client.request(
         Method::DELETE,
         &format!(
-            "/api/workspaces/{workspace_id}/views/{view_name}",
-            workspace_id = workspace_id,
-            view_name = view_name,
+            "/api/workspaces/{workspaceId}/views/{viewName}",
+            workspaceId = workspace_id,
+            viewName = view_name,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?;
@@ -2035,9 +2031,9 @@ pub async fn view_update(
     let mut builder = client.request(
         Method::PATCH,
         &format!(
-            "/api/workspaces/{workspace_id}/views/{view_name}",
-            workspace_id = workspace_id,
-            view_name = view_name,
+            "/api/workspaces/{workspaceId}/views/{viewName}",
+            workspaceId = workspace_id,
+            viewName = view_name,
         ),
     )?;
     builder = builder.json(&payload);
@@ -2047,7 +2043,7 @@ pub async fn view_update(
 }
 
 #[doc = r#"Retrieve all webhooks for a specific workspace"#]
-pub async fn webhooks_list(
+pub async fn webhook_list(
     client: &ApiClient,
     workspace_id: base64uuid::Base64Uuid,
     page: Option<i32>,
@@ -2056,8 +2052,8 @@ pub async fn webhooks_list(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/webhooks",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/webhooks",
+            workspaceId = workspace_id,
         ),
     )?;
     if let Some(page) = page {
@@ -2085,8 +2081,8 @@ pub async fn webhook_create(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/webhooks",
-            workspace_id = workspace_id,
+            "/api/workspaces/{workspaceId}/webhooks",
+            workspaceId = workspace_id,
         ),
     )?;
     builder = builder.json(&payload);
@@ -2104,9 +2100,9 @@ pub async fn webhook_delete(
     let mut builder = client.request(
         Method::DELETE,
         &format!(
-            "/api/workspaces/{workspace_id}/webhooks/{webhook_id}",
-            workspace_id = workspace_id,
-            webhook_id = webhook_id,
+            "/api/workspaces/{workspaceId}/webhooks/{webhookId}",
+            workspaceId = workspace_id,
+            webhookId = webhook_id,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?;
@@ -2129,9 +2125,9 @@ pub async fn webhook_update(
     let mut builder = client.request(
         Method::PATCH,
         &format!(
-            "/api/workspaces/{workspace_id}/webhooks/{webhook_id}",
-            workspace_id = workspace_id,
-            webhook_id = webhook_id,
+            "/api/workspaces/{workspaceId}/webhooks/{webhookId}",
+            workspaceId = workspace_id,
+            webhookId = webhook_id,
         ),
     )?;
     builder = builder.json(&payload);
@@ -2151,9 +2147,9 @@ pub async fn webhook_delivery_list(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/webhooks/{webhook_id}/deliveries",
-            workspace_id = workspace_id,
-            webhook_id = webhook_id,
+            "/api/workspaces/{workspaceId}/webhooks/{webhookId}/deliveries",
+            workspaceId = workspace_id,
+            webhookId = webhook_id,
         ),
     )?;
     if let Some(page) = page {
@@ -2177,10 +2173,10 @@ pub async fn webhook_delivery_get(
     let mut builder = client.request(
         Method::GET,
         &format!(
-            "/api/workspaces/{workspace_id}/webhooks/{webhook_id}/deliveries/{delivery_id}",
-            workspace_id = workspace_id,
-            webhook_id = webhook_id,
-            delivery_id = delivery_id,
+            "/api/workspaces/{workspaceId}/webhooks/{webhookId}/deliveries/{deliveryId}",
+            workspaceId = workspace_id,
+            webhookId = webhook_id,
+            deliveryId = delivery_id,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?.json().await?;
@@ -2198,10 +2194,10 @@ pub async fn webhook_delivery_resend(
     let mut builder = client.request(
         Method::POST,
         &format!(
-            "/api/workspaces/{workspace_id}/webhooks/{webhook_id}/deliveries/{delivery_id}/resend",
-            workspace_id = workspace_id,
-            webhook_id = webhook_id,
-            delivery_id = delivery_id,
+            "/api/workspaces/{workspaceId}/webhooks/{webhookId}/deliveries/{deliveryId}/resend",
+            workspaceId = workspace_id,
+            webhookId = webhook_id,
+            deliveryId = delivery_id,
         ),
     )?;
     let response = builder.send().await?.error_for_status()?;
