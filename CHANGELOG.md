@@ -18,6 +18,8 @@ major version hasn't changed.
 - `API` schema: Add routes to manipulate the front matter collections in a workspace (a saved front matter
   schema with an attached name).
 - `fiberplane-api-client`: Add methods to manipulate the front matter collections in a workspace.
+- `fiberplane-models`: Add extra types to front matter values, and add a value validation method to
+  front matter schema entries.
 
 ## [v1.0.0-beta.9] - 2024-02-05
 
