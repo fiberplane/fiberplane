@@ -101,12 +101,12 @@ pub enum HttpRequestError {
     ConnectionRefused,
     Timeout,
     ResponseTooBig,
-    #[cfg_attr(feature = "fp-bindgen", fp(rename_all = "camelCase"))]
+    #[serde(rename_all = "camelCase")]
     ServerError {
         status_code: u16,
         response: Bytes,
     },
-    #[cfg_attr(feature = "fp-bindgen", fp(rename_all = "camelCase"))]
+    #[serde(rename_all = "camelCase")]
     Other {
         reason: String,
     },

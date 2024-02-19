@@ -1,5 +1,7 @@
+use fiberplane_ci::utils::TomlNode;
+use fiberplane_models::autometrics::AutometricsFunction;
 use fiberplane_models::notebooks::Cell;
-use fiberplane_models::timestamps::Timestamp;
+use fiberplane_models::timestamps::*;
 use fiberplane_models::{blobs::Blob, providers::*};
 use fp_bindgen::{prelude::*, types::CargoDependency};
 use std::collections::{BTreeMap, BTreeSet};
@@ -30,6 +32,7 @@ fp_export! {
     //
     // NOTE: Don't use these within FPD to make sure its proxy functionality
     //       can treat all data as opaque.
+    use AutometricsFunction;
     use AutoSuggestRequest;
     use Metric;
     use OtelMetadata;
@@ -42,6 +45,7 @@ fp_export! {
     // TODO FP-2920: Enable `Timeline` once the `Event` type is unified.
     // See: https://linear.app/fiberplane/issue/FP-2920/merge-event-structs-from-the-provider-and-api-module
     //use Timeline;
+    use TimeRange;
     use Timeseries;
 
     /// Returns the schema for the config consumed by this provider.
@@ -114,13 +118,17 @@ fn main() {
         ]);
 
         let path = "./fiberplane-provider-bindings";
+        let protocol_version = TomlNode::from_file("../Cargo.toml")
+            .expect("Can't read Cargo.toml")
+            .get_string("workspace.dependencies.fiberplane-provider-bindings.version")
+            .expect("Can't determine version for provider bindings");
         fp_bindgen!(BindingConfig {
             bindings_type: BindingsType::RustPlugin(
                 RustPluginConfig::builder()
                     .name("fiberplane-provider-bindings")
                     .description("Fiberplane Provider protocol bindings")
                     .readme("README.md")
-                    .version("2.0.0-beta.6")
+                    .version(protocol_version)
                     .authors(RustPluginConfigValue::Workspace)
                     .license(RustPluginConfigValue::Workspace)
                     .dependencies(dependencies)

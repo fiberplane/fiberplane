@@ -1,11 +1,6 @@
-import type { TimeRange } from "../providerTypes";
+import type { AutometricsFunction, TimeRange } from "../providerTypes";
 import { getPrometheusWindowFromTimeRange } from "../utils";
-import {
-  LatencyObjective,
-  Objective,
-  ScopedFunction,
-  SuccessRateObjective,
-} from "./types";
+import { LatencyObjective, Objective, SuccessRateObjective } from "./types";
 
 /**
  * The list of metric types supported by Autometrics.
@@ -201,18 +196,14 @@ export function createFunctionRequestRateQuery({
 export function createObjectiveQuery(
   objective: Objective,
   timeRange: TimeRange,
-  scopedFunction?: ScopedFunction,
+  fn?: AutometricsFunction,
 ): string {
   switch (objective.metric) {
     case "latency":
-      return createSloQueryLatencyUnderThreshold(
-        objective,
-        timeRange,
-        scopedFunction,
-      );
+      return createSloQueryLatencyUnderThreshold(objective, timeRange, fn);
 
     case "success_rate":
-      return createSloQuerySuccessRate(objective, timeRange, scopedFunction);
+      return createSloQuerySuccessRate(objective, timeRange, fn);
   }
 }
 
@@ -244,7 +235,7 @@ sum by (function, module) (
 export function createSloQueryLatencyUnderThreshold(
   objective: LatencyObjective,
   timeRange: TimeRange,
-  function_?: { name: string; module: string },
+  fn?: AutometricsFunction,
 ): string {
   const objectiveName = objective.name;
   // FIXME
@@ -275,15 +266,15 @@ export function createSloQueryLatencyUnderThreshold(
 
   // INVESTIGATE - should this query not include the objective_name?
   // That way we can look at data before the objective was defined...
-  if (function_) {
+  if (fn) {
     query = query.replace(
       '__name__=~"function_calls_duration(_seconds)?_bucket",',
-      `__name__=~"function_calls_duration(_seconds)?_bucket",\nfunction="${function_.name}",\nmodule="${function_.module}",\n`.trim(),
+      `__name__=~"function_calls_duration(_seconds)?_bucket",\nfunction="${fn.function}",\nmodule="${fn.module}",\n`.trim(),
     );
 
     query = query.replace(
       `__name__=~"function_calls_duration(_seconds)?_count",`,
-      `__name__=~"function_calls_duration(_seconds)?_count",\nfunction="${function_.name}",\nmodule="${function_.module}",\n`.trim(),
+      `__name__=~"function_calls_duration(_seconds)?_count",\nfunction="${fn.function}",\nmodule="${fn.module}",\n`.trim(),
     );
   }
 
@@ -335,12 +326,12 @@ export function createSloQueryLatencyUnderThresholdByFunction(
 export function createSloQuerySuccessRate(
   objective: Objective,
   timeRange: TimeRange,
-  function_?: { name: string; module: string },
+  fn?: AutometricsFunction,
 ) {
   const objectiveName = objective.name;
   const rateInterval = getPrometheusWindowFromTimeRange(timeRange);
 
-  if (function_) {
+  if (fn) {
     return `
 1 - (
   sum(
@@ -349,8 +340,8 @@ export function createSloQuerySuccessRate(
         __name__=~"function_calls(_count)?(_total)?", 
         objective_name="${objectiveName}",
         result="error",
-        function="${function_.name}",
-        module="${function_.module}"
+        function="${fn.function}",
+        module="${fn.module}"
       }[${rateInterval}])
     ) or on() vector(0)
   ) / (
@@ -359,8 +350,8 @@ export function createSloQuerySuccessRate(
         {
           __name__=~"function_calls(_count)?(_total)?", 
           objective_name="${objectiveName}",
-          function="${function_.name}",
-          module="${function_.module}"
+          function="${fn.function}",
+          module="${fn.module}"
         }[${rateInterval}]
       )
     ) > 0

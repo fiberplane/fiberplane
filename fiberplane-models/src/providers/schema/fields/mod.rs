@@ -6,6 +6,7 @@ mod integer_field;
 mod label_field;
 mod select_field;
 mod text_field;
+mod timestamp_field;
 
 pub use array_field::*;
 pub use checkbox_field::*;
@@ -15,3 +16,4 @@ pub use integer_field::*;
 pub use label_field::*;
 pub use select_field::*;
 pub use text_field::*;
+pub use timestamp_field::*;

@@ -27,6 +27,13 @@ pub enum QueryField {
     Integer(IntegerField),
     Select(SelectField),
     Text(TextField),
+    Timestamp(TimestampField),
+}
+
+impl From<ArrayField> for QueryField {
+    fn from(field: ArrayField) -> Self {
+        Self::Array(field)
+    }
 }
 
 impl From<CheckboxField> for QueryField {
@@ -71,8 +78,8 @@ impl From<TextField> for QueryField {
     }
 }
 
-impl From<ArrayField> for QueryField {
-    fn from(field: ArrayField) -> Self {
-        Self::Array(field)
+impl From<TimestampField> for QueryField {
+    fn from(field: TimestampField) -> Self {
+        Self::Timestamp(field)
     }
 }

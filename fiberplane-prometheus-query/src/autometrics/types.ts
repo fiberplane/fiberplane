@@ -1,11 +1,6 @@
-/**
- * Label set to refer to a function within a module and service.
- */
-export type ScopedFunction = {
-  name: string;
-  module: string;
-  service_name?: string;
-};
+import type { AutometricsFunction } from "../providerTypes";
+
+export type { AutometricsFunction };
 
 type LatencySeriesName =
   | "function_calls_duration_count"
@@ -58,7 +53,7 @@ export type SuccessRateTarget = {
 export type SuccessRateObjective = {
   series: Array<AmSeries>;
   name: string;
-  functions: Array<ScopedFunction>;
+  functions: Array<AutometricsFunction>;
   functionsCount?: number;
   metric: "success_rate";
   target: SuccessRateTarget;
@@ -76,7 +71,7 @@ export type LatencyTarget = {
 export type LatencyObjective = {
   series: Array<AmSeries>;
   name: string;
-  functions: Array<ScopedFunction>;
+  functions: Array<AutometricsFunction>;
   functionsCount?: number;
   metric: "latency";
   target: LatencyTarget;

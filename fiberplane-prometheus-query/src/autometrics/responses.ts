@@ -1,24 +1,24 @@
+import type { AutometricsFunction } from "../providerTypes";
 import { sortBy } from "../utils";
 import {
   AmSeriesWithLatencyObjective,
   AmSeriesWithSuccessObjective,
   LatencyObjective,
   Objective,
-  ScopedFunction,
   SuccessRateObjective,
 } from "./types";
 
 export function filterUniqueFunctions(
-  functions: Array<ScopedFunction>,
-): Array<ScopedFunction> {
-  const uniqueFunctions: Array<ScopedFunction> = [];
+  functions: Array<AutometricsFunction>,
+): Array<AutometricsFunction> {
+  const uniqueFunctions: Array<AutometricsFunction> = [];
 
   for (const fn of functions) {
     const isDuplicate = uniqueFunctions.some(
       (other) =>
-        other.name === fn.name &&
+        other.function === fn.function &&
         other.module === fn.module &&
-        other.service_name === fn.service_name,
+        other.serviceName === fn.serviceName,
     );
 
     if (!isDuplicate) {
@@ -115,12 +115,12 @@ function transformObjectiveMetadata<T extends Objective>(
     //        using old functions that are no longer part of the SLO?
     objective.functions = filterUniqueFunctions(
       objective.series.map((entry) => ({
-        name: entry.function,
+        function: entry.function,
         module: entry.module,
-        service_name: entry.service_name,
+        serviceName: entry.service_name,
       })),
     );
-    sortBy(objective.functions, (objective) => objective.name);
+    sortBy(objective.functions, (objective) => objective.function);
     objective.functionsCount = objective.functions.length;
   }
 

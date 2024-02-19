@@ -10,4 +10,7 @@ export type {
 
 export * as Autometrics from "./autometrics";
 export * from "./timeseries";
-export { getPrometheusWindowFromTimeRange } from "./utils";
+export {
+  getPrometheusWindowFromTimeRange,
+  getScrapeIntervalsFromConfigYaml,
+} from "./utils";

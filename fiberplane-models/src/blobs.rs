@@ -1,6 +1,8 @@
 use crate::debug_print_bytes;
+use crate::providers::FORM_ENCODED_MIME_TYPE;
 use base64::DecodeError;
 use bytes::Bytes;
+use form_urlencoded::Serializer;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
@@ -39,6 +41,17 @@ pub struct Blob {
     /// include version numbers in their MIME type strings, if desired.
     #[builder(setter(into))]
     pub mime_type: String,
+}
+
+impl<'a> From<Serializer<'a, String>> for Blob {
+    fn from(mut form_data: Serializer<'a, String>) -> Self {
+        let query_string = form_data.finish();
+
+        Blob::builder()
+            .data(query_string.into_bytes())
+            .mime_type(FORM_ENCODED_MIME_TYPE.to_owned())
+            .build()
+    }
 }
 
 impl TryFrom<EncodedBlob> for Blob {

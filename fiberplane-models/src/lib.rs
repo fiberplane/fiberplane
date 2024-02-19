@@ -24,6 +24,7 @@ use serde::de::{Error, Unexpected, Visitor};
 use serde::{Deserialize, Deserializer};
 use std::fmt;
 
+pub mod autometrics;
 pub mod blobs;
 pub mod comments;
 pub mod data_sources;
@@ -123,10 +124,7 @@ impl<'de> Visitor<'de> for U32Visitor {
 pub trait BindgenSerializable {}
 
 #[cfg(feature = "fp-bindgen")]
-impl<T> BindgenSerializable for T where
-    T: fp_bindgen::prelude::Serializable + for<'de> serde::de::Deserialize<'de>
-{
-}
+impl<T> BindgenSerializable for T where T: fp_bindgen::prelude::Serializable {}
 
 #[cfg(not(feature = "fp-bindgen"))]
 impl<T> BindgenSerializable for T {}
