@@ -535,7 +535,7 @@ impl From<FrontMatterNumberList> for FrontMatterValue {
 #[serde(rename_all = "snake_case")]
 pub struct FrontMatterNumberValue {
     #[builder(setter(into))]
-    value: SerializableEqFloat,
+    pub value: SerializableEqFloat,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -548,7 +548,7 @@ pub struct FrontMatterNumberValue {
 #[serde(rename_all = "snake_case")]
 pub struct FrontMatterNumberList {
     #[builder(setter(into))]
-    values: Vec<FrontMatterNumberValue>,
+    pub values: Vec<FrontMatterNumberValue>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -561,7 +561,7 @@ pub struct FrontMatterNumberList {
 #[serde(rename_all = "snake_case")]
 pub struct FrontMatterStringValue {
     #[builder(setter(into))]
-    value: String,
+    pub value: String,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -574,7 +574,7 @@ pub struct FrontMatterStringValue {
 #[serde(rename_all = "snake_case")]
 pub struct FrontMatterStringList {
     #[builder(setter(into))]
-    values: Vec<FrontMatterStringValue>,
+    pub values: Vec<FrontMatterStringValue>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -587,7 +587,7 @@ pub struct FrontMatterStringList {
 #[serde(rename_all = "snake_case")]
 pub struct FrontMatterDateTimeValue {
     #[builder(setter(into))]
-    value: Timestamp,
+    pub value: Timestamp,
 }
 
 impl<T: Into<Timestamp>> From<T> for FrontMatterDateTimeValue {
@@ -608,7 +608,7 @@ impl<T: Into<Timestamp>> From<T> for FrontMatterDateTimeValue {
 #[serde(rename_all = "snake_case")]
 pub struct FrontMatterDateTimeList {
     #[builder(setter(into))]
-    values: Vec<FrontMatterDateTimeValue>,
+    pub values: Vec<FrontMatterDateTimeValue>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -621,7 +621,7 @@ pub struct FrontMatterDateTimeList {
 #[serde(rename_all = "snake_case")]
 pub struct FrontMatterUserValue {
     #[builder(setter(into))]
-    value: Base64Uuid,
+    pub value: Base64Uuid,
 }
 
 impl From<Base64Uuid> for FrontMatterUserValue {
@@ -640,5 +640,5 @@ impl From<Base64Uuid> for FrontMatterUserValue {
 #[serde(rename_all = "snake_case")]
 pub struct FrontMatterUserList {
     #[builder(setter(into))]
-    values: Vec<FrontMatterUserValue>,
+    pub values: Vec<FrontMatterUserValue>,
 }
