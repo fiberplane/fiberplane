@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev --host",
+    "format": "prettier --write .",
     "lint": "cd .. && yarn lint",
     "build": "astro check && astro build",
     "preview": "astro preview",
