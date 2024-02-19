@@ -4,62 +4,84 @@ import { Markdown } from "@astropub/md";
 // This component is used to display parameter documentation
 // for nested objects in the API documentation.
 
-const { name, properties } = Astro.props;
+const { name, properties, oneOf } = Astro.props;
 
 if (!properties) {
-	return;
+  return;
 }
+
+// console.log(name);
+// console.dir(properties);
+// console.log("------");
 ---
 
 <details>
-	<summary>
-		Properties of <code>{name}</code>
-	</summary>
-	<ul class="nested-parameters">
-		{
-			Object.entries(properties).map(([key, value]) => {
-				return (
-					<li>
-						<h6>
-							<code>{key}</code>
-							<span>{value?.type}</span>
-						</h6>
-						<p>
-							<Markdown.Inline of={value?.description} />
-						</p>
-					</li>
-				);
-			})
-		}
-	</ul>
+  {
+    oneOf ? (
+      <summary>Possible values</summary>
+    ) : (
+      <summary>
+        {" "}
+        Properties of <code>{name}</code>{" "}
+      </summary>
+    )
+  }
+  <ul class="nested-parameters">
+    {
+      oneOf
+        ? properties.map((item) => {
+            return <Astro.self name={name} properties={item.properties} />;
+          })
+        : Object.entries(properties).map(([key, value]) => {
+            return (
+              <li>
+                <h6>
+                  <code>{key}</code>
+                  <span>{value?.type}</span>
+                </h6>
+                <p>
+                  <Markdown.Inline of={value?.description} />
+                </p>
+                {value.type === "object" && (
+                  <Astro.self name={key} properties={value.properties} />
+                )}
+                {value.type === "array" && (
+                  <Astro.self name={key} properties={value.items.properties} />
+                )}
+              </li>
+            );
+          })
+    }
+  </ul>
 </details>
 
 <style>
-	ul {
-		list-style: none;
-		padding-left: var(--sl-content-pad-x);
-		background-color: var(--sl-color-gray-6);
-	}
+  ul {
+    list-style: none;
+    padding-left: var(--sl-content-pad-x);
+    background-color: var(--sl-color-gray-6);
+  }
 
-	li {
-		border-top: 1px solid var(--sl-color-gray-5);
-	}
+  li {
+    border-top: 1px solid var(--sl-color-gray-5);
+    padding-top: 1rem;
+  }
 
-	h6 {
-		font-size: var(--sl-text-sm) !important;
-		font-weight: normal;
-		display: flex;
-		flex-direction: row;
-		gap: var(--sl-content-pad-x);
-	}
+  h6 {
+    font-size: var(--sl-text-sm) !important;
+    font-weight: normal;
+    display: flex;
+    flex-direction: row;
+    gap: var(--sl-content-pad-x);
+  }
 
-	details ul {
-		padding: var(--sl-content-pad-x);
-	}
-	code {
-		font-weight: bold !important;
-		background: none;
-		padding: 0;
-		margin: 0;
-	}
+  details ul {
+    padding: var(--sl-content-pad-x);
+  }
+  code {
+    font-weight: bold !important;
+    background: none;
+    padding: 0;
+    margin: 0;
+  }
 </style>

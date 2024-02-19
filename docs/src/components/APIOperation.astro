@@ -6,23 +6,23 @@ import PathParameters from "@components/PathParameters.astro";
 import BodyParameters from "@components/BodyParameters.astro";
 
 type Props = {
-	name: string;
-	description: string;
-	path: string;
-	httpVerb: string;
-	operationId: string;
-	pathParameters: any; //TODO type this properly
-	information: any;
+  name: string;
+  description: string;
+  path: string;
+  httpVerb: string;
+  operationId: string;
+  pathParameters: any; //TODO type this properly
+  information: any;
 };
 
 const {
-	name,
-	description,
-	httpVerb,
-	operationId,
-	path,
-	pathParameters,
-	information,
+  name,
+  description,
+  httpVerb,
+  operationId,
+  path,
+  pathParameters,
+  information,
 } = Astro.props;
 
 const slugger = new GithubSlugger();
@@ -30,64 +30,60 @@ const slug = slugger.slug(name);
 ---
 
 <section>
-	<a href={`#${slug}`}
-		><h2 id={slug}>
-			{await markdown.inline(name)}
-		</h2></a
-	>
-	<div class="table-wrapper">
-		<div class="table">
-			<p>
-				<Markdown.Inline of={description} />
-			</p>
-			{pathParameters && <PathParameters {pathParameters} />}
+  <a href={`#${slug}`}
+    ><h2 id={slug}>
+      {await markdown.inline(name)}
+    </h2></a
+  >
+  <div class="table-wrapper">
+    <div class="table">
+      <p>
+        <Markdown.Inline of={description} />
+      </p>
+      {pathParameters && <PathParameters {pathParameters} />}
 
-			{
-				information?.requestBody && (
-					<BodyParameters requestBody={information.requestBody} />
-				)
-			}
-		</div>
-		<div class="sample">
-			<div class="operation-path">
-				<Code
-					code={`${httpVerb.toUpperCase()} ${path}`}
-					frame="auto"
-				/>
-			</div>
-		</div>
-	</div>
+      {
+        information?.requestBody && (
+          <BodyParameters requestBody={information.requestBody} />
+        )
+      }
+    </div>
+    <div class="sample">
+      <div class="operation-path">
+        <Code code={`${httpVerb.toUpperCase()} ${path}`} frame="auto" />
+      </div>
+    </div>
+  </div>
 </section>
 
 <style>
-	a {
-		text-decoration: none;
-	}
+  a {
+    text-decoration: none;
+  }
 
-	p,
-	li {
-		font-size: var(--sl-text-sm);
-	}
+  p,
+  li {
+    font-size: var(--sl-text-sm);
+  }
 
-	a:hover {
-		text-decoration: underline;
-		text-decoration-thickness: 2px;
-		text-decoration-color: var(--sl-color-gray-5);
-	}
+  a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--sl-color-gray-5);
+  }
 
-	h2 {
-		font-size: var(--sl-text-h4) !important;
-		padding-bottom: var(--sl-content-pad-x);
-	}
+  h2 {
+    font-size: var(--sl-text-h4) !important;
+    padding-bottom: var(--sl-content-pad-x);
+  }
 
-	.table-wrapper {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		column-gap: var(--sl-content-pad-x);
-	}
+  .table-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: var(--sl-content-pad-x);
+  }
 
-	.sample {
-		margin-top: 0 !important;
-	}
-
+  .sample {
+    margin-top: 0 !important;
+  }
 </style>

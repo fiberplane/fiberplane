@@ -1,12 +1,12 @@
 ---
 import type { GetStaticPaths, MarkdownHeading } from "astro";
 import StarlightPage, {
-	type StarlightPageProps,
+  type StarlightPageProps,
 } from "@astrojs/starlight/components/StarlightPage.astro";
 import {
-	parse,
-	type SwaggerSpec,
-	type SwaggerTag,
+  parse,
+  type SwaggerSpec,
+  type SwaggerTag,
 } from "@scalar/swagger-parser";
 import GithubSlugger from "github-slugger";
 import APIOperation from "@components/APIOperation.astro";
@@ -16,19 +16,19 @@ import type { Code, Debug } from "astro:components";
 import type { Image, Picture } from "astro:assets";
 
 export const getStaticPaths = (async () => {
-	const schema = await getSchema();
-	if (!schema) throw new Error("Failed to parse schema");
+  const schema = await getSchema();
+  if (!schema) throw new Error("Failed to parse schema");
 
-	return schema.tags.map((tag) => {
-		return {
-			params: { tag: tag.name.toLowerCase() },
-			props: { tag },
-		};
-	});
+  return schema.tags.map((tag) => {
+    return {
+      params: { tag: tag.name.toLowerCase() },
+      props: { tag },
+    };
+  });
 }) satisfies GetStaticPaths;
 
 interface Props {
-	tag: SwaggerTag;
+  tag: SwaggerTag;
 }
 
 const { tag } = Astro.props;
@@ -37,40 +37,36 @@ const { name, operations, description } = tag;
 const slugger = new GithubSlugger();
 
 const headings: MarkdownHeading[] = operations.map((operation) => {
-	return {
-		depth: 2,
-		text: operation.name,
-		slug: slugger.slug(operation.name),
-	};
+  return {
+    depth: 2,
+    text: operation.name,
+    slug: slugger.slug(operation.name),
+  };
 });
 
 slugger.reset(); // HACK: reset slugger to avoid -1 suffix in the template
 ---
 
-<StarlightPage
-	frontmatter={{ title: name}}
-	hasSidebar
-	headings={headings}
->
-	<p>{tag.description}</p>
-	<div>
-		{
-			operations.map(async (operation) => {
-				return <APIOperation {...operation} />;
-			})
-		}
-	</div>
+<StarlightPage frontmatter={{ title: name }} hasSidebar headings={headings}>
+  <p>{tag.description}</p>
+  <div>
+    {
+      operations.map(async (operation) => {
+        return <APIOperation {...operation} />;
+      })
+    }
+  </div>
 </StarlightPage>
 
 <style>
-	:root {
-		--sl-content-width: 75rem;
-	}
+  :root {
+    --sl-content-width: 75rem;
+  }
 
-	div {
-		display: flex;
-		flex-direction: column;
-		gap: 5rem;
-		justify-content: space-between;
-	}
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 5rem;
+    justify-content: space-between;
+  }
 </style>

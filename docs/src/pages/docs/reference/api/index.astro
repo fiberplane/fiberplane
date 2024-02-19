@@ -4,20 +4,20 @@ import { getSchema } from "@lib/openApiSchema";
 const schema = await getSchema();
 
 if (schema === undefined) {
-	return;
+  return;
 }
 ---
 
 <StarlightPage frontmatter={{ title: "API Reference" }}>
-	<ul>
-		{
-			schema.tags.map((tag) => {
-				return (
-					<li>
-						<a href={"api/" + tag.name.toLowerCase()}>{tag.name}</a>
-					</li>
-				);
-			})
-		}
-	</ul>
+  <ul>
+    {
+      schema.tags.map((tag) => {
+        return (
+          <li>
+            <a href={"api/" + tag.name.toLowerCase()}>{tag.name}</a>
+          </li>
+        );
+      })
+    }
+  </ul>
 </StarlightPage>
