@@ -6,7 +6,7 @@ use base64uuid::Base64Uuid;
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, str::FromStr};
 use strum_macros::Display;
 use thiserror::Error;
 use typed_builder::TypedBuilder;
@@ -188,13 +188,9 @@ impl TryFrom<serde_json::Value> for FrontMatterNumberValue {
     }
 }
 
-impl TryFrom<&str> for FrontMatterNumberValue {
-    type Error = FrontMatterValidationError;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let value: serde_json::Value = serde_json::from_str(value)
-            .map_err(|err| FrontMatterValidationError::Format(err.to_string()))?;
-        Self::try_from(value)
+impl From<f64> for FrontMatterNumberValue {
+    fn from(value: f64) -> Self {
+        Self::builder().value(value).build()
     }
 }
 
@@ -230,16 +226,6 @@ impl TryFrom<serde_json::Value> for FrontMatterNumberList {
     }
 }
 
-impl TryFrom<&str> for FrontMatterNumberList {
-    type Error = FrontMatterValidationError;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let value: serde_json::Value = serde_json::from_str(value)
-            .map_err(|err| FrontMatterValidationError::Format(err.to_string()))?;
-        Self::try_from(value)
-    }
-}
-
 impl TryFrom<serde_json::Value> for FrontMatterStringValue {
     type Error = FrontMatterValidationError;
 
@@ -264,13 +250,9 @@ impl TryFrom<serde_json::Value> for FrontMatterStringValue {
     }
 }
 
-impl TryFrom<&str> for FrontMatterStringValue {
-    type Error = FrontMatterValidationError;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let value: serde_json::Value = serde_json::from_str(value)
-            .map_err(|err| FrontMatterValidationError::Format(err.to_string()))?;
-        Self::try_from(value)
+impl From<&str> for FrontMatterStringValue {
+    fn from(value: &str) -> Self {
+        Self::builder().value(value).build()
     }
 }
 
@@ -306,16 +288,6 @@ impl TryFrom<serde_json::Value> for FrontMatterStringList {
     }
 }
 
-impl TryFrom<&str> for FrontMatterStringList {
-    type Error = FrontMatterValidationError;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let value: serde_json::Value = serde_json::from_str(value)
-            .map_err(|err| FrontMatterValidationError::Format(err.to_string()))?;
-        Self::try_from(value)
-    }
-}
-
 impl TryFrom<serde_json::Value> for FrontMatterDateTimeValue {
     type Error = FrontMatterValidationError;
 
@@ -330,12 +302,7 @@ impl TryFrom<serde_json::Value> for FrontMatterDateTimeValue {
             }
         } else {
             if let Value::String(strr) = value {
-                return Ok(Self::builder()
-                    .value(
-                        strr.parse::<Timestamp>()
-                            .map_err(|err| Self::Error::Format(err.to_string()))?,
-                    )
-                    .build());
+                return strr.parse();
             }
 
             Err(FrontMatterValidationError::wrong_variant(
@@ -350,9 +317,17 @@ impl TryFrom<&str> for FrontMatterDateTimeValue {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let value: serde_json::Value = serde_json::from_str(value)
+        let value = Timestamp::parse(value)
             .map_err(|err| FrontMatterValidationError::Format(err.to_string()))?;
-        Self::try_from(value)
+        Ok(Self::builder().value(value).build())
+    }
+}
+
+impl FromStr for FrontMatterDateTimeValue {
+    type Err = FrontMatterValidationError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::try_from(s)
     }
 }
 
@@ -388,16 +363,6 @@ impl TryFrom<serde_json::Value> for FrontMatterDateTimeList {
     }
 }
 
-impl TryFrom<&str> for FrontMatterDateTimeList {
-    type Error = FrontMatterValidationError;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let value: serde_json::Value = serde_json::from_str(value)
-            .map_err(|err| FrontMatterValidationError::Format(err.to_string()))?;
-        Self::try_from(value)
-    }
-}
-
 impl TryFrom<serde_json::Value> for FrontMatterUserValue {
     type Error = FrontMatterValidationError;
 
@@ -412,12 +377,7 @@ impl TryFrom<serde_json::Value> for FrontMatterUserValue {
             }
         } else {
             if let Value::String(strr) = value {
-                return Ok(Self::builder()
-                    .value(
-                        strr.parse::<Base64Uuid>()
-                            .map_err(|err| Self::Error::Format(err.to_string()))?,
-                    )
-                    .build());
+                return strr.parse();
             }
 
             Err(FrontMatterValidationError::wrong_variant("untyped", "user"))
@@ -429,9 +389,17 @@ impl TryFrom<&str> for FrontMatterUserValue {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let value: serde_json::Value = serde_json::from_str(value)
+        let value = Base64Uuid::parse_str(value)
             .map_err(|err| FrontMatterValidationError::Format(err.to_string()))?;
-        Self::try_from(value)
+        Ok(Self::builder().value(value).build())
+    }
+}
+
+impl FromStr for FrontMatterUserValue {
+    type Err = FrontMatterValidationError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::try_from(s)
     }
 }
 
@@ -464,16 +432,6 @@ impl TryFrom<serde_json::Value> for FrontMatterUserList {
                 "user_list",
             ))
         }
-    }
-}
-
-impl TryFrom<&str> for FrontMatterUserList {
-    type Error = FrontMatterValidationError;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let value: serde_json::Value = serde_json::from_str(value)
-            .map_err(|err| FrontMatterValidationError::Format(err.to_string()))?;
-        Self::try_from(value)
     }
 }
 
