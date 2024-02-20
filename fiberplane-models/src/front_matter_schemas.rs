@@ -141,6 +141,15 @@ impl FrontMatterValueSchema {
             FrontMatterValueSchema::User(schema) => schema.validate_value(value),
         }
     }
+
+    pub fn validate_front_matter_value(
+        &self,
+        value: FrontMatterValue,
+    ) -> Result<FrontMatterValue, FrontMatterValidationError> {
+        self.validate_value(
+            serde_json::to_value(value).expect("All front matter values are serializable."),
+        )
+    }
 }
 
 impl FrontMatterNumberSchema {
