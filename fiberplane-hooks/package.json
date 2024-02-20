@@ -24,9 +24,6 @@
     "rollup-plugin-swc3": "^0.10.3",
     "typescript": "^5.2.2"
   },
-  "dependencies": {
-    "eventemitter3": "^5.0.1"
-  },
   "scripts": {
     "build": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
     "watch": "yarn build --watch",
