@@ -144,11 +144,14 @@ impl FrontMatterValueSchema {
 
     pub fn validate_front_matter_value(
         &self,
-        value: FrontMatterValue,
-    ) -> Result<FrontMatterValue, FrontMatterValidationError> {
-        self.validate_value(
-            serde_json::to_value(value).expect("All front matter values are serializable."),
-        )
+        value: &FrontMatterValue,
+    ) -> Result<(), FrontMatterValidationError> {
+        match self {
+            FrontMatterValueSchema::Number(schema) => schema.validate_front_matter_value(value),
+            FrontMatterValueSchema::String(schema) => schema.validate_front_matter_value(value),
+            FrontMatterValueSchema::DateTime(schema) => schema.validate_front_matter_value(value),
+            FrontMatterValueSchema::User(schema) => schema.validate_front_matter_value(value),
+        }
     }
 }
 
@@ -158,6 +161,19 @@ impl FrontMatterNumberSchema {
         value: serde_json::Value,
     ) -> Result<FrontMatterValue, FrontMatterValidationError> {
         Ok(FrontMatterNumberValue::try_from(value)?.into())
+    }
+
+    pub fn validate_front_matter_value(
+        &self,
+        value: &FrontMatterValue,
+    ) -> Result<(), FrontMatterValidationError> {
+        match value {
+            FrontMatterValue::Number(_) => Ok(()),
+            other => Err(FrontMatterValidationError::wrong_variant(
+                other.get_type(),
+                "number",
+            )),
+        }
     }
 }
 
@@ -172,6 +188,24 @@ impl FrontMatterStringSchema {
             Ok(FrontMatterStringValue::try_from(value)?.into())
         }
     }
+
+    pub fn validate_front_matter_value(
+        &self,
+        value: &FrontMatterValue,
+    ) -> Result<(), FrontMatterValidationError> {
+        match (value, self.multiple) {
+            (FrontMatterValue::String(_), false) => Ok(()),
+            (FrontMatterValue::StringList(_), true) => Ok(()),
+            (other, true) => Err(FrontMatterValidationError::wrong_variant(
+                other.get_type(),
+                "string_list",
+            )),
+            (other, false) => Err(FrontMatterValidationError::wrong_variant(
+                other.get_type(),
+                "string",
+            )),
+        }
+    }
 }
 
 impl FrontMatterDateTimeSchema {
@@ -180,6 +214,19 @@ impl FrontMatterDateTimeSchema {
         value: serde_json::Value,
     ) -> Result<FrontMatterValue, FrontMatterValidationError> {
         Ok(FrontMatterDateTimeValue::try_from(value)?.into())
+    }
+
+    pub fn validate_front_matter_value(
+        &self,
+        value: &FrontMatterValue,
+    ) -> Result<(), FrontMatterValidationError> {
+        match value {
+            FrontMatterValue::DateTime(_) => Ok(()),
+            other => Err(FrontMatterValidationError::wrong_variant(
+                other.get_type(),
+                "date_time",
+            )),
+        }
     }
 }
 
@@ -192,6 +239,24 @@ impl FrontMatterUserSchema {
             Ok(FrontMatterUserList::try_from(value)?.into())
         } else {
             Ok(FrontMatterUserValue::try_from(value)?.into())
+        }
+    }
+
+    pub fn validate_front_matter_value(
+        &self,
+        value: &FrontMatterValue,
+    ) -> Result<(), FrontMatterValidationError> {
+        match (value, self.multiple) {
+            (FrontMatterValue::User(_), false) => Ok(()),
+            (FrontMatterValue::UserList(_), true) => Ok(()),
+            (other, true) => Err(FrontMatterValidationError::wrong_variant(
+                other.get_type(),
+                "user_list",
+            )),
+            (other, false) => Err(FrontMatterValidationError::wrong_variant(
+                other.get_type(),
+                "user",
+            )),
         }
     }
 }

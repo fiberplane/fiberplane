@@ -9,7 +9,6 @@ use serde_json::Value;
 use std::{collections::BTreeMap, str::FromStr};
 use strum_macros::Display;
 use thiserror::Error;
-use typed_builder::TypedBuilder;
 
 /// A JSON object which may or may not contain well known keys.
 /// More information in the [RFC](https://www.notion.so/fiberplane/RFC-58-Front-matter-Specialization-Front-matter-a9b3b51614ee48a19ec416c02a9fd647)
@@ -74,18 +73,8 @@ pub type FrontMatter = BTreeMap<String, FrontMatterValue>;
     fp(rust_module = "fiberplane_models::notebooks::front_matter")
 )]
 #[non_exhaustive]
-#[serde(rename_all = "snake_case", tag = "type")]
+#[serde(untagged)]
 pub enum FrontMatterValue {
-    /// A number front matter value
-    Number(FrontMatterNumberValue),
-    /// A list-of-numbers front matter value
-    NumberList(FrontMatterNumberList),
-
-    /// A string front matter value
-    String(FrontMatterStringValue),
-    /// A list-of-strings front matter value
-    StringList(FrontMatterStringList),
-
     /// A timestamp front matter value
     DateTime(FrontMatterDateTimeValue),
     /// A list-of-timestamps front matter value
@@ -96,17 +85,15 @@ pub enum FrontMatterValue {
     /// A list-of-users front matter value
     UserList(FrontMatterUserList),
 
-    /// An untagged variant.
-    ///
-    /// Having the untagged variant allows API consumers to skip tagging the
-    /// front-matter values with the correct type if the raw value can exactly
-    /// be inferred to a strongly typed variant.
-    ///
-    /// The API will ensure that untagged variants have a workable value if they
-    /// are within values it returns. A "workable" value is a value that matches
-    /// the expected type by the associated [front matter schema](crate::front_matter_schemas::FrontMatterSchemaEntry).
-    #[serde(untagged)]
-    Untagged(serde_json::Value),
+    /// A string front matter value
+    String(FrontMatterStringValue),
+    /// A list-of-strings front matter value
+    StringList(FrontMatterStringList),
+
+    /// A number front matter value
+    Number(FrontMatterNumberValue),
+    /// A list-of-numbers front matter value
+    NumberList(FrontMatterNumberList),
 }
 
 /// Error from validating a JSON object as a correct front matter value
@@ -165,7 +152,6 @@ impl FrontMatterValue {
             FrontMatterValue::DateTimeList(_) => "date_time_list",
             FrontMatterValue::User(_) => "user",
             FrontMatterValue::UserList(_) => "user_list",
-            FrontMatterValue::Untagged(_) => "untyped",
         }
     }
 }
@@ -174,32 +160,25 @@ impl TryFrom<serde_json::Value> for FrontMatterNumberValue {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        match FrontMatterValue::from(value) {
-            FrontMatterValue::Number(num) => Ok(num),
-            FrontMatterValue::Untagged(value) => {
-                if let Value::Number(num) = value {
-                    return Ok(Self::builder()
-                        .value(num.as_f64().ok_or_else(|| {
-                            FrontMatterValidationError::Format("invalid number".to_string())
-                        })?)
-                        .build());
-                }
-
-                Err(FrontMatterValidationError::wrong_variant(
-                    "untyped", "number",
-                ))
-            }
-            other_value => Err(FrontMatterValidationError::wrong_variant(
-                other_value.get_type(),
-                "number",
-            )),
+        if let Value::Number(num) = value {
+            return Ok(Self(
+                num.as_f64()
+                    .ok_or_else(|| {
+                        FrontMatterValidationError::Format("invalid number".to_string())
+                    })?
+                    .into(),
+            ));
         }
+
+        Err(FrontMatterValidationError::wrong_variant(
+            "untyped", "number",
+        ))
     }
 }
 
 impl From<f64> for FrontMatterNumberValue {
     fn from(value: f64) -> Self {
-        Self::builder().value(value).build()
+        Self(value.into())
     }
 }
 
@@ -207,30 +186,19 @@ impl TryFrom<serde_json::Value> for FrontMatterNumberList {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        match FrontMatterValue::from(value) {
-            FrontMatterValue::NumberList(num_list) => Ok(num_list),
-            FrontMatterValue::Untagged(value) => {
-                if let Value::Array(array) = value {
-                    return Ok(Self::builder()
-                        .values(
-                            array
-                                .into_iter()
-                                .map(FrontMatterNumberValue::try_from)
-                                .collect::<Result<Vec<_>, _>>()?,
-                        )
-                        .build());
-                }
-
-                Err(FrontMatterValidationError::wrong_variant(
-                    "'not a list'",
-                    "number_list",
-                ))
-            }
-            other_value => Err(FrontMatterValidationError::wrong_variant(
-                other_value.get_type(),
-                "number_list",
-            )),
+        if let Value::Array(array) = value {
+            return Ok(Self(
+                array
+                    .into_iter()
+                    .map(FrontMatterNumberValue::try_from)
+                    .collect::<Result<Vec<_>, _>>()?,
+            ));
         }
+
+        Err(FrontMatterValidationError::wrong_variant(
+            "'not a list'",
+            "number_list",
+        ))
     }
 }
 
@@ -238,28 +206,25 @@ impl TryFrom<serde_json::Value> for FrontMatterStringValue {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        match FrontMatterValue::from(value) {
-            FrontMatterValue::String(st) => Ok(st),
-            FrontMatterValue::Untagged(value) => {
-                if let Value::String(strr) = value {
-                    return Ok(Self::builder().value(strr).build());
-                }
-
-                Err(FrontMatterValidationError::wrong_variant(
-                    "untyped", "string",
-                ))
-            }
-            other_value => Err(FrontMatterValidationError::wrong_variant(
-                other_value.get_type(),
-                "string",
-            )),
+        if let Value::String(strr) = value {
+            return Ok(Self(strr));
         }
+
+        Err(FrontMatterValidationError::wrong_variant(
+            "untyped", "string",
+        ))
     }
 }
 
 impl From<&str> for FrontMatterStringValue {
     fn from(value: &str) -> Self {
-        Self::builder().value(value).build()
+        Self(value.to_string())
+    }
+}
+
+impl From<String> for FrontMatterStringValue {
+    fn from(value: String) -> Self {
+        Self(value)
     }
 }
 
@@ -267,30 +232,19 @@ impl TryFrom<serde_json::Value> for FrontMatterStringList {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        match FrontMatterValue::from(value) {
-            FrontMatterValue::StringList(str_list) => Ok(str_list),
-            FrontMatterValue::Untagged(value) => {
-                if let Value::Array(array) = value {
-                    return Ok(Self::builder()
-                        .values(
-                            array
-                                .into_iter()
-                                .map(FrontMatterStringValue::try_from)
-                                .collect::<Result<Vec<_>, _>>()?,
-                        )
-                        .build());
-                }
-
-                Err(FrontMatterValidationError::wrong_variant(
-                    "'not a list'",
-                    "string_list",
-                ))
-            }
-            other_value => Err(FrontMatterValidationError::wrong_variant(
-                other_value.get_type(),
-                "string_list",
-            )),
+        if let Value::Array(array) = value {
+            return Ok(Self(
+                array
+                    .into_iter()
+                    .map(FrontMatterStringValue::try_from)
+                    .collect::<Result<Vec<_>, _>>()?,
+            ));
         }
+
+        Err(FrontMatterValidationError::wrong_variant(
+            "'not a list'",
+            "string_list",
+        ))
     }
 }
 
@@ -298,23 +252,16 @@ impl TryFrom<serde_json::Value> for FrontMatterDateTimeValue {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        match FrontMatterValue::from(value) {
-            FrontMatterValue::DateTime(dt) => Ok(dt),
-            FrontMatterValue::Untagged(value) => {
-                if let Value::String(strr) = value {
-                    return strr.parse();
-                }
-
-                Err(FrontMatterValidationError::wrong_variant(
-                    "untyped",
-                    "date_time",
-                ))
-            }
-            other_value => Err(FrontMatterValidationError::wrong_variant(
-                other_value.get_type(),
-                "date_time",
-            )),
+        if let Value::String(strr) = value {
+            return Ok(Self(strr.parse().map_err(|err| {
+                FrontMatterValidationError::Format(format!("invalid timestamp: {err}"))
+            })?));
         }
+
+        Err(FrontMatterValidationError::wrong_variant(
+            "untyped",
+            "date_time",
+        ))
     }
 }
 
@@ -324,7 +271,7 @@ impl TryFrom<&str> for FrontMatterDateTimeValue {
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let value = Timestamp::parse(value)
             .map_err(|err| FrontMatterValidationError::Format(err.to_string()))?;
-        Ok(Self::builder().value(value).build())
+        Ok(Self(value))
     }
 }
 
@@ -340,30 +287,19 @@ impl TryFrom<serde_json::Value> for FrontMatterDateTimeList {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        match FrontMatterValue::from(value) {
-            FrontMatterValue::DateTimeList(dt_list) => Ok(dt_list),
-            FrontMatterValue::Untagged(value) => {
-                if let Value::Array(array) = value {
-                    return Ok(Self::builder()
-                        .values(
-                            array
-                                .into_iter()
-                                .map(FrontMatterDateTimeValue::try_from)
-                                .collect::<Result<Vec<_>, _>>()?,
-                        )
-                        .build());
-                }
-
-                Err(FrontMatterValidationError::wrong_variant(
-                    "'not a list'",
-                    "date_time_list",
-                ))
-            }
-            other_value => Err(FrontMatterValidationError::wrong_variant(
-                other_value.get_type(),
-                "date_time_list",
-            )),
+        if let Value::Array(array) = value {
+            return Ok(Self(
+                array
+                    .into_iter()
+                    .map(FrontMatterDateTimeValue::try_from)
+                    .collect::<Result<Vec<_>, _>>()?,
+            ));
         }
+
+        Err(FrontMatterValidationError::wrong_variant(
+            "'not a list'",
+            "date_time_list",
+        ))
     }
 }
 
@@ -371,20 +307,13 @@ impl TryFrom<serde_json::Value> for FrontMatterUserValue {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        match FrontMatterValue::from(value) {
-            FrontMatterValue::User(user) => Ok(user),
-            FrontMatterValue::Untagged(value) => {
-                if let Value::String(strr) = value {
-                    return strr.parse();
-                }
-
-                Err(FrontMatterValidationError::wrong_variant("untyped", "user"))
-            }
-            other_value => Err(FrontMatterValidationError::wrong_variant(
-                other_value.get_type(),
-                "user",
-            )),
+        if let Value::String(strr) = value {
+            return Ok(Self(strr.parse().map_err(|err| {
+                FrontMatterValidationError::Format(format!("invalid user id: {err}"))
+            })?));
         }
+
+        Err(FrontMatterValidationError::wrong_variant("untyped", "user"))
     }
 }
 
@@ -394,7 +323,7 @@ impl TryFrom<&str> for FrontMatterUserValue {
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let value = Base64Uuid::parse_str(value)
             .map_err(|err| FrontMatterValidationError::Format(err.to_string()))?;
-        Ok(Self::builder().value(value).build())
+        Ok(Self(value))
     }
 }
 
@@ -410,30 +339,19 @@ impl TryFrom<serde_json::Value> for FrontMatterUserList {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        match FrontMatterValue::from(value) {
-            FrontMatterValue::UserList(user_list) => Ok(user_list),
-            FrontMatterValue::Untagged(value) => {
-                if let Value::Array(array) = value {
-                    return Ok(Self::builder()
-                        .values(
-                            array
-                                .into_iter()
-                                .map(FrontMatterUserValue::try_from)
-                                .collect::<Result<Vec<_>, _>>()?,
-                        )
-                        .build());
-                }
-
-                Err(FrontMatterValidationError::wrong_variant(
-                    "'not a list'",
-                    "user_list",
-                ))
-            }
-            other_value => Err(FrontMatterValidationError::wrong_variant(
-                other_value.get_type(),
-                "user_list",
-            )),
+        if let Value::Array(array) = value {
+            return Ok(Self(
+                array
+                    .into_iter()
+                    .map(FrontMatterUserValue::try_from)
+                    .collect::<Result<Vec<_>, _>>()?,
+            ));
         }
+
+        Err(FrontMatterValidationError::wrong_variant(
+            "'not a list'",
+            "user_list",
+        ))
     }
 }
 
@@ -485,120 +403,206 @@ impl From<FrontMatterNumberList> for FrontMatterValue {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
     fp(rust_module = "fiberplane_models::notebooks::front_matter")
 )]
 #[non_exhaustive]
-#[serde(rename_all = "snake_case")]
-pub struct FrontMatterNumberValue {
-    #[builder(setter(into))]
-    pub value: SerializableEqFloat,
+#[repr(transparent)]
+pub struct FrontMatterNumberValue(pub SerializableEqFloat);
+
+impl std::ops::DerefMut for FrontMatterNumberValue {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "fiberplane_models::notebooks::front_matter")
-)]
-#[non_exhaustive]
-#[serde(rename_all = "snake_case")]
-pub struct FrontMatterNumberList {
-    #[builder(setter(into))]
-    pub values: Vec<FrontMatterNumberValue>,
+impl std::ops::Deref for FrontMatterNumberValue {
+    type Target = SerializableEqFloat;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
     fp(rust_module = "fiberplane_models::notebooks::front_matter")
 )]
 #[non_exhaustive]
-#[serde(rename_all = "snake_case")]
-pub struct FrontMatterStringValue {
-    #[builder(setter(into))]
-    pub value: String,
+#[repr(transparent)]
+pub struct FrontMatterNumberList(pub Vec<FrontMatterNumberValue>);
+
+impl std::ops::DerefMut for FrontMatterNumberList {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "fiberplane_models::notebooks::front_matter")
-)]
-#[non_exhaustive]
-#[serde(rename_all = "snake_case")]
-pub struct FrontMatterStringList {
-    #[builder(setter(into))]
-    pub values: Vec<FrontMatterStringValue>,
+impl std::ops::Deref for FrontMatterNumberList {
+    type Target = Vec<FrontMatterNumberValue>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
     fp(rust_module = "fiberplane_models::notebooks::front_matter")
 )]
 #[non_exhaustive]
-#[serde(rename_all = "snake_case")]
-pub struct FrontMatterDateTimeValue {
-    #[builder(setter(into))]
-    pub value: Timestamp,
+#[repr(transparent)]
+pub struct FrontMatterStringValue(pub String);
+
+impl std::ops::DerefMut for FrontMatterStringValue {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl std::ops::Deref for FrontMatterStringValue {
+    type Target = String;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::front_matter")
+)]
+#[non_exhaustive]
+#[repr(transparent)]
+pub struct FrontMatterStringList(pub Vec<FrontMatterStringValue>);
+
+impl std::ops::DerefMut for FrontMatterStringList {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl std::ops::Deref for FrontMatterStringList {
+    type Target = Vec<FrontMatterStringValue>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::front_matter")
+)]
+#[non_exhaustive]
+#[repr(transparent)]
+pub struct FrontMatterDateTimeValue(pub Timestamp);
+
+impl std::ops::DerefMut for FrontMatterDateTimeValue {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl std::ops::Deref for FrontMatterDateTimeValue {
+    type Target = Timestamp;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 impl<T: Into<Timestamp>> From<T> for FrontMatterDateTimeValue {
     fn from(value: T) -> Self {
-        Self {
-            value: value.into(),
-        }
+        Self(value.into())
     }
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
     fp(rust_module = "fiberplane_models::notebooks::front_matter")
 )]
 #[non_exhaustive]
-#[serde(rename_all = "snake_case")]
-pub struct FrontMatterDateTimeList {
-    #[builder(setter(into))]
-    pub values: Vec<FrontMatterDateTimeValue>,
+#[repr(transparent)]
+pub struct FrontMatterDateTimeList(pub Vec<FrontMatterDateTimeValue>);
+
+impl std::ops::DerefMut for FrontMatterDateTimeList {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+impl std::ops::Deref for FrontMatterDateTimeList {
+    type Target = Vec<FrontMatterDateTimeValue>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
     fp(rust_module = "fiberplane_models::notebooks::front_matter")
 )]
 #[non_exhaustive]
-#[serde(rename_all = "snake_case")]
-pub struct FrontMatterUserValue {
-    #[builder(setter(into))]
-    pub value: Base64Uuid,
+#[repr(transparent)]
+pub struct FrontMatterUserValue(pub Base64Uuid);
+
+impl std::ops::DerefMut for FrontMatterUserValue {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl std::ops::Deref for FrontMatterUserValue {
+    type Target = Base64Uuid;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 impl From<Base64Uuid> for FrontMatterUserValue {
     fn from(value: Base64Uuid) -> Self {
-        Self { value }
+        Self(value)
     }
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
     fp(rust_module = "fiberplane_models::notebooks::front_matter")
 )]
 #[non_exhaustive]
-#[serde(rename_all = "snake_case")]
-pub struct FrontMatterUserList {
-    #[builder(setter(into))]
-    pub values: Vec<FrontMatterUserValue>,
+#[repr(transparent)]
+pub struct FrontMatterUserList(pub Vec<FrontMatterUserValue>);
+
+impl std::ops::DerefMut for FrontMatterUserList {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl std::ops::Deref for FrontMatterUserList {
+    type Target = Vec<FrontMatterUserValue>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
