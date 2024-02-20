@@ -14,6 +14,7 @@ const IS_SERVER = typeof window === "undefined";
  * Hook that returns a value from `localStorage` and a setter for changing it.
  * The hook requires a `key` to identify the value in `localStorage` and a
  * `defaultValue` to return if the value is not found in `localStorage`.
+ * The watches the value stored in `localStorage` and returns the updated value.
  */
 export function useLocalStorage<T>(key: string, defaultValue: T) {
   const getCurrentValue = useHandler(() => {
