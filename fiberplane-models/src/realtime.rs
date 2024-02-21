@@ -541,8 +541,14 @@ pub enum RejectReason {
     /// Current notebook state does not match old state in operation.
     InconsistentState,
 
-    /// A table operation tried to reference a row or column index that is out
-    /// of bounds, or used a row with an incorrect amount of columns.
+    /// A table operation specified a column index that is out of bounds.
+    InvalidTableColumnIndex,
+
+    /// A table operation specified a row index that is out of bounds.
+    InvalidTableRowIndex,
+
+    /// A table operation specified values that didn't match the expected amount
+    /// of columns or rows.
     InvalidTableDimensions,
 
     /// A table operation tried to reference a row or column with a non-existing
