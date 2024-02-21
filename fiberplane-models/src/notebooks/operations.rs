@@ -27,6 +27,7 @@ use typed_builder::TypedBuilder;
 )]
 #[non_exhaustive]
 #[serde(tag = "type", rename_all = "snake_case")]
+#[allow(clippy::large_enum_variant)]
 pub enum Operation {
     MoveCells(MoveCellsOperation),
     ReplaceCells(ReplaceCellsOperation),
