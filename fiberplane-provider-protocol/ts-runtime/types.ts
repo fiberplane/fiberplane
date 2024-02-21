@@ -18,15 +18,15 @@ export type Annotation =
     | { type: "end_highlight" }
     | { type: "start_italics" }
     | { type: "end_italics" }
+    | { type: "label" } & Label
     | { type: "start_link"; url: string }
     | { type: "end_link" }
     | { type: "mention" } & Mention
-    | { type: "timestamp"; timestamp: Timestamp }
     | { type: "start_strikethrough" }
     | { type: "end_strikethrough" }
+    | { type: "timestamp"; timestamp: Timestamp }
     | { type: "start_underline" }
-    | { type: "end_underline" }
-    | { type: "label" } & Label;
+    | { type: "end_underline" };
 
 /**
  * An annotation at a specific offset in the text. Offsets are always
@@ -700,9 +700,22 @@ export type Metric = {
 
 /**
  * Metadata following the OpenTelemetry metadata spec.
+ *
+ * See also: https://github.com/open-telemetry/opentelemetry-specification/
  */
 export type OtelMetadata = {
+    /**
+     * OpenTelemetry attributes.
+     *
+     * See also: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/common/README.md
+     */
     attributes: Record<string, any>;
+
+    /**
+     * Resource metadata.
+     *
+     * See also: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/semantic_conventions/README.md
+     */
     resource: Record<string, any>;
     traceId?: OtelTraceId;
     spanId?: OtelSpanId;
@@ -860,6 +873,14 @@ export type Result<T, E> =
     | { Err: E };
 
 /**
+ * Struct that contains text with associated formatting.
+ */
+export type RichText = {
+    text: string;
+    formatting: Formatting;
+};
+
+/**
  * Defines a field that allows selection from a predefined list of options.
  *
  * Values to be selected from can be either hard-coded in the schema, or
@@ -977,40 +998,106 @@ export type SupportedQueryType = {
     mimeTypes: Array<string>;
 };
 
+/**
+ * Cell used for displaying tables in a notebook.
+ *
+ * Tables have columns, which are tracked using [TableColumnDefinition]. The
+ * column definition may specify a specific schema to be used for all values
+ * in that column.
+ *
+ * Tables also have [rows](TableRow), which are used for tracking all the data
+ * in the table. Each row has multiple "row values" (we intentionally avoid the
+ * term "cell" here, because it would be too confusing with the table cell
+ * itself).
+ *
+ * Row values have a specific data type, which should correspond to the type
+ * specified in the [TableColumnDefinition].
+ *
+ * Every row and every column inside a table has a unique ID. Those IDs can be
+ * combined to create a [TableRowValueId]. [TableRowValueId] can be serialized
+ * to be used inside the `field` of
+ * [some operations](crate::notebooks::operations::ReplaceTextOperation::field)
+ * as well as [focus types](crate::realtime::FocusPosition::field).
+ */
 export type TableCell = {
     id: string;
     readOnly?: boolean;
 
     /**
-     * Describes which key in the TableRow element to render
-     * and the order of definitions also determines the order
-     * of the columns
+     * Describes the types used for the columns and the order they should be
+     * rendered in.
      */
-    columnDefs?: Array<TableColumnDefinition>;
+    columnDefs: Array<TableColumnDefinition>;
 
     /**
-     * Holds the values/data
+     * Holds the table rows and their values.
      */
-    rows?: Array<TableRowData>;
+    rows: Array<TableRow>;
 };
-
-export type TableCellValue =
-    | { type: "empty" }
-    | { type: "cell"; cell: Cell };
 
 export type TableColumnDefinition = {
     /**
-     * Key under which data for this colum is stored in the row data
+     * ID of the column.
      */
-    key: string;
+    id: TableColumnId;
 
     /**
-     * Table heading text.
+     * Heading text to be displayed at the top of the column.
      */
     title: string;
 };
 
-export type TableRowData = Record<string, TableCellValue>;
+/**
+ * This is an automatically generated ID that is added to every column in a
+ * table cell.
+ *
+ * Table column IDs are used to refer to column definitions in the table.
+ * They can also be combined with a [TableRowId] to create a [TableRowItemId].
+ *
+ * Column IDs may only contain alphanumeric characters and must be unique
+ * within a table.
+ */
+export type TableColumnId = string;
+
+export type TableRow = {
+    /**
+     * ID of the row.
+     */
+    id: TableRowId;
+
+    /**
+     * The values inside this row.
+     *
+     * The types, order, and amount of the values should match the table's
+     * [column definitions](TableCell::column_defs).
+     */
+    values: Array<TableRowValue>;
+};
+
+/**
+ * This is an automatically generated ID that is added to every row in a table
+ * cell.
+ *
+ * Table row IDs are used to refer to rows in the table. They can also be
+ * combined with a [TableColumnId] to create a [TableRowValueId].
+ *
+ * Row IDs may only contain alphanumeric characters and must be unique within a
+ * table.
+ */
+export type TableRowId = string;
+
+/**
+ * One of the values stored in a [TableRow].
+ *
+ * We intentionally avoid the term "cell" here, because it would be too
+ * confusing with the table cell itself.
+ *
+ * Row values can be looked up by [ID](TableRowValueId), although the ID is not
+ * stored in the row value itself. Instead, it can be created from the row ID
+ * and column ID.
+ */
+export type TableRowValue =
+    | { type: "text" } & RichText;
 
 export type TextCell = {
     id: string;
@@ -1074,6 +1161,15 @@ export type TextField = {
     supportsSuggestions: boolean;
 };
 
+/**
+ * A range in time from a given timestamp (inclusive) up to another timestamp
+ * (exclusive).
+ */
+export type TimeRange = {
+    from: Timestamp;
+    to: Timestamp;
+};
+
 export type TimelineCell = {
     id: string;
 
@@ -1084,11 +1180,6 @@ export type TimelineCell = {
     readOnly?: boolean;
 };
 
-export type TimeRange = {
-    from: Timestamp;
-    to: Timestamp;
-};
-  
 /**
  * A series of metrics over time, with metadata.
  */

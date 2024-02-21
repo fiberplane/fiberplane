@@ -1,10 +1,12 @@
+mod table_cell;
+
 use crate::blobs::EncodedBlob;
-use crate::formatting::Formatting;
+use crate::formatting::{Formatting, RichText};
 use crate::query_data::{has_query_data, set_query_field, unset_query_field};
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+pub use table_cell::*;
 use typed_builder::TypedBuilder;
 
 /// Representation of a single notebook cell.
@@ -285,6 +287,13 @@ impl Cell {
             (Cell::Provider(cell), Some(field)) => {
                 Cell::Provider(cell.with_query_field(field.as_ref(), text))
             }
+            (Cell::Table(cell), Some(field)) => Cell::Table(cell.with_row_value(
+                field.as_ref(),
+                TableRowValue::Text(RichText {
+                    text: text.into(),
+                    formatting: formatting.unwrap_or_default(),
+                }),
+            )),
             (cell, _) => {
                 if let Some(formatting) = formatting {
                     cell.with_rich_text(text, formatting)
@@ -678,66 +687,6 @@ impl ProviderCell {
             ..self.clone()
         }
     }
-}
-
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize, TypedBuilder)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "fiberplane_models::notebooks")
-)]
-#[non_exhaustive]
-#[serde(rename_all = "camelCase")]
-pub struct TableCell {
-    #[builder(setter(into))]
-    pub id: String,
-
-    #[builder(default, setter(strip_option))]
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub read_only: Option<bool>,
-
-    /// Describes which key in the TableRow element to render
-    /// and the order of definitions also determines the order
-    /// of the columns
-    #[builder(default)]
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub column_defs: Vec<TableColumnDefinition>,
-
-    /// Holds the values/data
-    #[builder(default)]
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub rows: Vec<TableRowData>,
-}
-
-pub type TableRowData = BTreeMap<String, TableCellValue>;
-
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize, TypedBuilder)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "fiberplane_models::notebooks")
-)]
-#[non_exhaustive]
-#[serde(rename_all = "camelCase")]
-pub struct TableColumnDefinition {
-    /// Key under which data for this colum is stored in the row data
-    pub key: String,
-
-    /// Table heading text.
-    pub title: String,
-}
-
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "fiberplane_models::notebooks")
-)]
-#[non_exhaustive]
-#[serde(tag = "type", rename_all = "snake_case")]
-pub enum TableCellValue {
-    Empty,
-    Cell { cell: Cell },
 }
 
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]

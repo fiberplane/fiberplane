@@ -35,7 +35,9 @@ rmp-serde = "1.0"
 serde = { workspace = true }
 serde_bytes = "0.11"
 serde_json = { workspace = true }
-sqlx = { version = "0.7.3", default-features = false, optional = true, features = ["macros"] }
+sqlx = { version = "0.7.3", default-features = false, optional = true, features = [
+    "macros",
+] }
 thiserror = "1.0"
 time = { workspace = true }
 typed-builder = { workspace = true }

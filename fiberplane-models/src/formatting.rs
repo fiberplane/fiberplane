@@ -4,6 +4,36 @@ use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
 use typed_builder::TypedBuilder;
 
+/// Struct that contains text with associated formatting.
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Eq, Serialize)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::formatting")
+)]
+pub struct RichText {
+    pub text: String,
+    pub formatting: Formatting,
+}
+
+impl RichText {
+    /// Creates a new `RichText` instance with text and formatting.
+    pub fn new(text: impl Into<String>, formatting: impl Into<Formatting>) -> Self {
+        Self {
+            text: text.into(),
+            formatting: formatting.into(),
+        }
+    }
+
+    /// Creates a new `RichText` instance with plain text only.
+    pub fn new_plain(text: impl Into<String>) -> Self {
+        Self {
+            text: text.into(),
+            formatting: Formatting::default(),
+        }
+    }
+}
+
 /// Formatting to be applied in order to turn plain-text into rich-text.
 ///
 /// The vector consists of tuples, each containing a character offset and an

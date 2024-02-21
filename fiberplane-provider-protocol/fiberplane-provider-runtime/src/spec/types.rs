@@ -7,6 +7,7 @@ pub use fiberplane_models::blobs::EncodedBlob;
 pub use fiberplane_models::formatting::Annotation;
 pub use fiberplane_models::formatting::AnnotationWithOffset;
 pub use fiberplane_models::formatting::Mention;
+pub use fiberplane_models::formatting::RichText;
 pub use fiberplane_models::labels::Label;
 pub use fiberplane_models::notebooks::Cell;
 pub use fiberplane_models::notebooks::CheckboxCell;
@@ -26,8 +27,11 @@ pub use fiberplane_models::notebooks::LogVisibilityFilter;
 pub use fiberplane_models::notebooks::ProviderCell;
 pub use fiberplane_models::notebooks::StackingType;
 pub use fiberplane_models::notebooks::TableCell;
-pub use fiberplane_models::notebooks::TableCellValue;
 pub use fiberplane_models::notebooks::TableColumnDefinition;
+pub use fiberplane_models::notebooks::TableColumnId;
+pub use fiberplane_models::notebooks::TableRow;
+pub use fiberplane_models::notebooks::TableRowId;
+pub use fiberplane_models::notebooks::TableRowValue;
 pub use fiberplane_models::notebooks::TextCell;
 pub use fiberplane_models::notebooks::TimelineCell;
 pub use fiberplane_models::providers::ArrayField;
@@ -58,6 +62,7 @@ pub use fiberplane_models::providers::SupportedQueryType;
 pub use fiberplane_models::providers::TextField;
 pub use fiberplane_models::providers::Timeseries;
 pub use fiberplane_models::providers::ValidationError;
+pub use fiberplane_models::timestamps::TimeRange;
 pub use fiberplane_models::timestamps::Timestamp;
 
 pub type ConfigSchema = Vec<ConfigField>;
@@ -67,5 +72,3 @@ pub type Formatting = Vec<AnnotationWithOffset>;
 pub type ProviderConfig = serde_json::Value;
 
 pub type QuerySchema = Vec<QueryField>;
-
-pub type TableRowData = BTreeMap<String, TableCellValue>;

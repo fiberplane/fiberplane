@@ -46,15 +46,20 @@ pub use fiberplane_models::providers::ProviderEvent;
 pub use fiberplane_models::providers::ProviderRequest;
 pub use fiberplane_models::providers::ProviderStatus;
 pub use fiberplane_models::providers::QueryField;
+pub use fiberplane_models::formatting::RichText;
 pub use fiberplane_models::providers::SelectField;
 pub use fiberplane_models::notebooks::StackingType;
 pub use fiberplane_models::providers::Suggestion;
 pub use fiberplane_models::providers::SupportedQueryType;
 pub use fiberplane_models::notebooks::TableCell;
-pub use fiberplane_models::notebooks::TableCellValue;
 pub use fiberplane_models::notebooks::TableColumnDefinition;
+pub use fiberplane_models::notebooks::TableColumnId;
+pub use fiberplane_models::notebooks::TableRow;
+pub use fiberplane_models::notebooks::TableRowId;
+pub use fiberplane_models::notebooks::TableRowValue;
 pub use fiberplane_models::notebooks::TextCell;
 pub use fiberplane_models::providers::TextField;
+pub use fiberplane_models::timestamps::TimeRange;
 pub use fiberplane_models::notebooks::TimelineCell;
 pub use fiberplane_models::providers::Timeseries;
 pub use fiberplane_models::timestamps::Timestamp;
@@ -67,5 +72,3 @@ pub type Formatting = Vec<AnnotationWithOffset>;
 pub type ProviderConfig = serde_json::Value;
 
 pub type QuerySchema = Vec<QueryField>;
-
-pub type TableRowData = BTreeMap<String, TableCellValue>;

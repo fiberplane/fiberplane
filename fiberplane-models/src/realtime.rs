@@ -527,6 +527,10 @@ pub enum RejectReason {
     /// A label was submitted for already exists for the notebook.
     DuplicateLabel(DuplicateLabelRejectReason),
 
+    /// The operation tried to insert a table row or column with a non-unique ID.
+    #[serde(rename_all = "camelCase")]
+    DuplicateTableId { table_id: String },
+
     /// The operation failed some miscellaneous precondition.
     #[serde(rename_all = "camelCase")]
     FailedPrecondition { message: String },
@@ -536,6 +540,20 @@ pub enum RejectReason {
 
     /// Current notebook state does not match old state in operation.
     InconsistentState,
+
+    /// A table operation specified a column index that is out of bounds.
+    InvalidTableColumnIndex,
+
+    /// A table operation specified a row index that is out of bounds.
+    InvalidTableRowIndex,
+
+    /// A table operation specified values that didn't match the expected amount
+    /// of columns or rows.
+    InvalidTableDimensions,
+
+    /// A table operation tried to reference a row or column with a non-existing
+    /// ID.
+    InvalidTableId { table_id: String },
 
     /// Current notebook state does not match old state in operation.
     #[serde(rename_all = "camelCase")]
@@ -548,15 +566,18 @@ pub enum RejectReason {
     #[serde(rename_all = "camelCase")]
     InvalidFrontMatterUpdate { message: String },
 
+    /// Attempted to perform a table operation on a non-table cell.
+    #[serde(rename_all = "camelCase")]
+    NoTableCell { cell_id: String },
+
     /// Attempted to perform a text operation on a non-text cell.
     #[serde(rename_all = "camelCase")]
     NoTextCell { cell_id: String },
 
-    /// The requested apply operation was for an old version. The u32 contains
-    /// the current revision.
+    /// The requested apply operation was for an old version.
     Outdated(OutdatedRejectReason),
 
-    /// The operation is unknown yet, and cannot be validated
+    /// The operation is unknown, and cannot be validated.
     #[serde(rename_all = "camelCase")]
     UnknownOperation { operation_summary: String },
 }

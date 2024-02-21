@@ -1,5 +1,5 @@
 use fiberplane_models::notebooks::Cell;
-use fiberplane_models::timestamps::Timestamp;
+use fiberplane_models::timestamps::{TimeRange, Timestamp};
 use fiberplane_models::{blobs::Blob, providers::*};
 use fp_bindgen::{prelude::*, types::CargoDependency};
 use std::collections::{BTreeMap, BTreeSet};
@@ -23,7 +23,6 @@ fp_export! {
     type Formatting = Vec<AnnotationWithOffset>;
     type ProviderConfig = Value;
     type QuerySchema = Vec<QueryField>;
-    type TableRowData = BTreeMap<String, TableCellValue>;
 
     // Standardized types that are used for provider data. These should only
     // be needed when trying to construct or parse blobs of certain MIME types.
@@ -42,6 +41,7 @@ fp_export! {
     // TODO FP-2920: Enable `Timeline` once the `Event` type is unified.
     // See: https://linear.app/fiberplane/issue/FP-2920/merge-event-structs-from-the-provider-and-api-module
     //use Timeline;
+    use TimeRange;
     use Timeseries;
 
     /// Returns the schema for the config consumed by this provider.
@@ -120,7 +120,7 @@ fn main() {
                     .name("fiberplane-provider-bindings")
                     .description("Fiberplane Provider protocol bindings")
                     .readme("README.md")
-                    .version("2.0.0-beta.6")
+                    .version("2.0.0-beta.10")
                     .authors(RustPluginConfigValue::Workspace)
                     .license(RustPluginConfigValue::Workspace)
                     .dependencies(dependencies)
