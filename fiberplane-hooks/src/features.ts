@@ -94,7 +94,10 @@ export function getFeatureHooks<const Feature extends string>(
       useValidStoredFeatures();
 
     const isFeatureEnabled = useMemo(() => {
-      const storedFeature = features.find(({ name }) => name === feature);
+      // Empty fallback array for failing e2e tests that set feature flags
+      const storedFeature = (features || []).find(
+        ({ name }) => name === feature,
+      );
       if (!storedFeature) {
         return false;
       }
