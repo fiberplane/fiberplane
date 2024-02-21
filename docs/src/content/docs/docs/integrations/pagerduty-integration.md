@@ -30,7 +30,7 @@ If you need help with this integration, please contact ***[support@fiberplane.co
 2. Follow the instructions to create a template and trigger using the CLI.
 3. Note the **Trigger URL** for later use.
 
-![Creating a template in Fiberplane](@assets/1-creating-template.png)
+![Creating a template in Fiberplane](@assets/images/1-creating-template.png)
 
 ### In the AWS console
 
@@ -42,14 +42,14 @@ If you need help with this integration, please contact ***[support@fiberplane.co
 6. In the **Code source** section double click the folder named **fp-PagerDuty-integration** and then double click **lambda_function.py** to open the file in the code editor.
 7. In a separate browser tab open the **lambda_function.py** page in the PagerDuty integration section of the [Fiberplane Quickstart Repository](https://raw.githubusercontent.com/fiberplane/quickstart/main/integrations/PagerDuty/lambda_function.py) and copy all of the contents of the file.
 
-![Copy the Python lambda function](@assets/2-lambda-function.png)
+![Copy the Python lambda function](@assets/images/2-lambda-function.png)
 
 1. Switch back to the AWS lambda console in your browser and paste the code into the **lambda_function.py** file in the **Code source** editor**.**
 2. Press **File → Save** in the **Code source** editor.
 3. Press **Deploy.**
 4. Copy the **Function URL** in the **Function Overview** section.
 
-![Copy the function URL in AWS Console](@assets/3-copy-function-url.png)
+![Copy the function URL in AWS Console](@assets/images/3-copy-function-url.png)
 
 ### In PagerDuty
 
@@ -65,9 +65,9 @@ If you need help with this integration, please contact ***[support@fiberplane.co
 10. Type **pd-apikey** in the **name** field and add your PagerDuty API key in the **value** field.
 11. Click **Add Webhook** and then **OK**
 
-![Untitled](@assets/4-create-pagerduty-webhook.png)
+![Untitled](@assets/images/4-create-pagerduty-webhook.png)
 
-![Untitled](@assets/5-webhook-headers.png)
+![Untitled](@assets/images/5-webhook-headers.png)
 
 ## Testing the integration
 
@@ -77,11 +77,11 @@ If you need help with this integration, please contact ***[support@fiberplane.co
 4. Click **! Acknowledge**
 5. Check that the notebook URL is updated in the incident notes:
 
-![Untitled](@assets/6-test-pagerduty-webhook.png)
+![Untitled](@assets/images/6-test-pagerduty-webhook.png)
 
 1. Click on the URL and ensure that it takes you through to the notebook and the notebook is correctly filled out with the data:
 
-![Untitled](@assets/7-test-fiberplane-notebook.png)
+![Untitled](@assets/images/7-test-fiberplane-notebook.png)
 
 ## How to Uninstall
 

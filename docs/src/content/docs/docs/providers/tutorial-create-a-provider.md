@@ -261,13 +261,13 @@ Click the Settings cogs in the bottom left corner of the screen, and go to the "
   Proxy is the old name we had for Fiberplane Daemon, so please mentally replace all "Proxy" mentions
   with "FPD".
 
-![Select the "FPD" category on the bottom left settings cog](@assets/1_Select_proxy_settings.png)
+![Select the "FPD" category on the bottom left settings cog](@assets/images/1_Select_proxy_settings.png)
 
 There, you will be able to create a new "FPD", which needs a name (For example `tutorial-proxy`), and then you will get a token. **Do not lose it**!!
 
-![The FPD management page](@assets/2_Add_new_proxy_page.png)
+![The FPD management page](@assets/images/2_Add_new_proxy_page.png)
 
-![Choosing a name for the new FPD](@assets/3_Fill_proxy_name.png)
+![Choosing a name for the new FPD](@assets/images/3_Fill_proxy_name.png)
 
 This token is a mandatory argument to run the Daemon on your machine, so that it can connect to Fiberplane Studio. A good way to save it is to put it in your environment, as the Daemon will look into the environment for the token if not provided in the command line:
 
@@ -323,7 +323,7 @@ With your Daemon running and connected to Studio, you can immediately test if "s
 
 Go to your FPD settings page: make sure that the daemon you created is present in the list, and reported as "online". If it does not report as "online" even after 5 minutes, make sure that you copied the token correctly, and that the `fpd` instance you ran before is still up and runs without errors.
 
-![The status of the FPD and the provider on the settings page](@assets/4_Check_proxy_and_provider.png)
+![The status of the FPD and the provider on the settings page](@assets/images/4_Check_proxy_and_provider.png)
 
 When the daemon reports as online, you can expand the line to also check the status of the provider.
 
@@ -331,19 +331,19 @@ When the daemon reports as online, you can expand the line to also check the sta
 
 Create a new, empty notebook in your workspace, and click the data sources icon in the top right corner. There should be an entry in the `Catnip` category, called `tutorial-provider`. Make sure it's there and active.
 
-![The list of data sources in the notebook](@assets/5_Data_sources_in_notebook.png)
+![The list of data sources in the notebook](@assets/images/5_Data_sources_in_notebook.png)
 
 **Is the slash Command present?**
 
 Go in a cell of the notebook, and hit `/`. The menu should appear, and now you can start typing `showcase`. You should see the 2 `Showcase` commands appear in the menu.
 
-![The slash command widget showing the new commands](@assets/6_Slash_Command.png)
+![The slash command widget showing the new commands](@assets/images/6_Slash_Command.png)
 
 **Is the Daemon communicating fine?**
 
 Accept any of the "Showcase" command, input some text in the fields, and try to run the Cell.
 
-![Calling the loaded provider](@assets/7_Sample_cell_called.png)
+![Calling the loaded provider](@assets/images/7_Sample_cell_called.png)
 
 If you obtain a result in the notebook, congratulations! You've successfully side-loaded a Web Assembly plugin to your Fiberplane workspace! This is (_was_) the hardest part of the tutorial.
 
@@ -644,10 +644,10 @@ You should be able to run the query from Studio now! To test it
 - Create a new notebook in your workspace
 - Try typing `/catnip` in a cell, and select your `Catnip: find closest dispenser` action
 
-![The slash command menu has catnip entries now](@assets/8_Catnip_Slash_Command.png)
+![The slash command menu has catnip entries now](@assets/images/8_Catnip_Slash_Command.png)
 
 - Fill the latitude and longitude, and run the query
 
 The results should appear in a new cell in the notebook!
 
-![The provider cell in the notebook has results](@assets/9_Catnip_cell_called.png)
+![The provider cell in the notebook has results](@assets/images/9_Catnip_cell_called.png)

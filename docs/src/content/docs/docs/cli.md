@@ -37,7 +37,7 @@ fp login
 Verify that Fiberplane CLI is working correctly by typing fp without any
 arguments. You should see a list of available commands.
 
-![CLI](@assets/cli.png)
+![CLI](@assets/images/cli.png)
 
 ## Updating the CLI
 

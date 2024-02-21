@@ -36,6 +36,31 @@ function getType(value) {
 
   return value.type;
 }
+
+function hasNestedProperties(value) {
+	if (!value) {
+		return false;
+	}
+
+	if (value.oneOf) {
+		return true;
+	}
+
+	if (value?.items?.oneOf) {
+		console.log(value.items.oneOf);
+		return true;
+	}
+
+	if (value.type === "array") {
+		return true;
+	}
+
+	if (value.type === "object") {
+		return true;
+	}
+
+	return false;
+}
 ---
 
 <>
@@ -53,6 +78,7 @@ function getType(value) {
             <p>
               <Markdown.Inline of={value?.description} />
             </p>
+					{hasNestedProperties(value)}
             {value.type === "object" && (
               <NestedParameter name={key} properties={value.properties} />
             )}
@@ -61,6 +87,9 @@ function getType(value) {
             )}
             {value?.oneOf ? (
               <NestedParameter name={key} properties={value?.oneOf} oneOf />
+            ) : undefined}
+            {value?.items?.oneOf ? (
+              <NestedParameter name={key} properties={value?.items?.oneOf} oneOf />
             ) : undefined}
           </li>
         );

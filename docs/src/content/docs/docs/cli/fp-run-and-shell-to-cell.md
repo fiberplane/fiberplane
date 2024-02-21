@@ -48,7 +48,7 @@ notebook by running something like:
 
 And here’s how that will look like in the notebook:
 
-![Untitled](@assets/Untitled.png)
+![Untitled](@assets/images/Untitled.png)
 
 ### Rich output
 

@@ -35,7 +35,7 @@ By default, the query will follow the Notebook time range (configured at the top
 
 You can also set a chart-specific time range overrides by clicking the link icon at the top of the chart.
 
-![Grafana Loki](@assets/elastic-query.png)
+![Grafana Loki](@assets/images/elastic-query.png)
 
 ### Expand, select, highlight, and export records
 

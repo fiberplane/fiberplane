@@ -10,9 +10,6 @@ if (!properties) {
   return;
 }
 
-// console.log(name);
-// console.dir(properties);
-// console.log("------");
 ---
 
 <details>
@@ -21,8 +18,7 @@ if (!properties) {
       <summary>Possible values</summary>
     ) : (
       <summary>
-        {" "}
-        Properties of <code>{name}</code>{" "}
+					Nested attributes
       </summary>
     )
   }
@@ -58,12 +54,13 @@ if (!properties) {
 <style>
   ul {
     list-style: none;
-    padding-left: var(--sl-content-pad-x);
+		padding: 0 var(--sl-content-pad-x) var(--sl-content-pad-x); 
     background-color: var(--sl-color-gray-6);
+		border-left: 3px solid var(--sl-color-gray-5);
   }
 
   li {
-    border-top: 1px solid var(--sl-color-gray-5);
+    border-bottom: 1px solid var(--sl-color-gray-5);
     padding-top: 1rem;
   }
 
@@ -75,9 +72,6 @@ if (!properties) {
     gap: var(--sl-content-pad-x);
   }
 
-  details ul {
-    padding: var(--sl-content-pad-x);
-  }
   code {
     font-weight: bold !important;
     background: none;

@@ -6,7 +6,7 @@ title: Deploy to Docker
 
 ### Generate a `fpd` API Token in the Studio
 
-![Register a daemon](@assets/register_an_fpd.png)
+![Register a daemon](@assets/images/register_an_fpd.png)
 
 In order for the `fpd` to talk to the Fiberplane Studio successfully it needs to be successfully authorized. This step will generate a **`fpd` API Token** that will be needed later.
 
@@ -43,4 +43,4 @@ docker run \
 
 Once you complete your `fpd` setup, your data sources linked in the `fpd` configuration should be recognized by the Studio - you can verify this again by going to the **Settings > Data Sources** screen.👇
 
-![Untitled](@assets/Untitled.png)
+![Untitled](@assets/images/Untitled.png)
