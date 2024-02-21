@@ -541,6 +541,13 @@ pub enum RejectReason {
     #[serde(rename_all = "camelCase")]
     InconsistentFrontMatter { message: String },
 
+    /// The front matter updates in the operation does not apply cleanly to the notebook.
+    ///
+    /// The most common occurrence of this will be trying to insert/modify values that don’t
+    /// match the schema given in the operation.
+    #[serde(rename_all = "camelCase")]
+    InvalidFrontMatterUpdate { message: String },
+
     /// Attempted to perform a text operation on a non-text cell.
     #[serde(rename_all = "camelCase")]
     NoTextCell { cell_id: String },
