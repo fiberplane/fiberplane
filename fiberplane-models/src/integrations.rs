@@ -17,10 +17,12 @@ pub struct IntegrationSummary {
     pub id: IntegrationId,
     pub status: IntegrationStatus,
 
-    #[builder(setter(into))]
-    pub created_at: Timestamp,
-    #[builder(setter(into))]
-    pub updated_at: Timestamp,
+    #[builder(default, setter(into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<Timestamp>,
+    #[builder(default, setter(into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub updated_at: Option<Timestamp>,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize, Display, EnumIter)]
