@@ -94,7 +94,8 @@ export function getFeatureHooks<const Feature extends string>(
       useValidStoredFeatures();
 
     const isFeatureEnabled = useMemo(() => {
-      const storedFeature = features.find(({ name }) => name === feature);
+      // Conditional fallback array for failing e2e tests that set feature flags
+      const storedFeature = features?.find(({ name }) => name === feature);
       if (!storedFeature) {
         return false;
       }
@@ -138,9 +139,9 @@ export function getFeatureHooks<const Feature extends string>(
     const validFeatures = new Set(parameterFeatures.filter(isFeature));
 
     // As the localStorage features aren't updated immediately on initial load,
-    // we use an empty array as a fallback. We can remove this fallback once we
-    // get rid of the temporary hook below.
-    const updatedFeatures = (validStoredFeatures || []).map((storedFeature) => {
+    // we use a conditional check. We can remove this fallback once we get rid
+    // of the temporary hook below.
+    const updatedFeatures = validStoredFeatures?.map((storedFeature) => {
       if (validFeatures.has(storedFeature.name)) {
         return {
           ...storedFeature,
