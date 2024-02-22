@@ -9,6 +9,7 @@ use serde_json::Value;
 use std::{collections::BTreeMap, str::FromStr};
 use strum_macros::Display;
 use thiserror::Error;
+use typed_builder::TypedBuilder;
 
 /// A JSON object which may or may not contain well known keys.
 /// More information in the [RFC](https://www.notion.so/fiberplane/RFC-58-Front-matter-Specialization-Front-matter-a9b3b51614ee48a19ec416c02a9fd647)
@@ -39,30 +40,12 @@ pub type FrontMatter = BTreeMap<String, FrontMatterValue>;
 ///     .build();
 ///     
 /// // A value that came from an API boundary
-/// let good_value_from_api = json!({
-///     "type": "number",
-///     "value": 42
-/// });
+/// let good_value_from_api = json!(42);
 /// assert!(schema.validate_value(good_value_from_api.clone()).is_ok());
 ///
 /// // Another value (that has the wrong type)
-/// let bad_value_from_api = json!({
-///     "type": "date_time",
-///     "value": "2022-10-08T13:29:00.78Z"
-/// });
+/// let bad_value_from_api = json!("2022-10-08T13:29:00.78Z");
 /// assert!(schema.validate_value(bad_value_from_api).is_err());
-///
-/// // A value can be inferred as well if it strictly matches the expected type
-/// let inferred_value_from_api = json!(42);
-/// assert!(schema.validate_value(inferred_value_from_api.clone()).is_ok());
-/// assert_eq!(
-///     schema.validate_value(inferred_value_from_api).unwrap(),
-///     schema.validate_value(good_value_from_api).unwrap(),
-/// );
-///
-/// // For example this will fail
-/// let not_inferred_value_from_api = json!("42");
-/// assert!(schema.validate_value(not_inferred_value_from_api).is_err());
 /// ```
 ///
 /// This can be used to validate the obtained value format.
@@ -307,13 +290,8 @@ impl TryFrom<serde_json::Value> for FrontMatterUserValue {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        if let Value::String(strr) = value {
-            return Ok(Self(strr.parse().map_err(|err| {
-                FrontMatterValidationError::Format(format!("invalid user id: {err}"))
-            })?));
-        }
-
-        Err(FrontMatterValidationError::wrong_variant("untyped", "user"))
+        serde_json::from_value(value)
+            .map_err(|err| FrontMatterValidationError::Format(format!("invalid user: {err}")))
     }
 }
 
@@ -323,7 +301,7 @@ impl TryFrom<&str> for FrontMatterUserValue {
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let value = Base64Uuid::parse_str(value)
             .map_err(|err| FrontMatterValidationError::Format(err.to_string()))?;
-        Ok(Self(value))
+        Ok(Self::from(value))
     }
 }
 
@@ -553,19 +531,24 @@ impl std::ops::Deref for FrontMatterDateTimeList {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
     fp(rust_module = "fiberplane_models::notebooks::front_matter")
 )]
 #[non_exhaustive]
-#[repr(transparent)]
-pub struct FrontMatterUserValue(pub Base64Uuid);
+#[serde(rename_all = "snake_case")]
+pub struct FrontMatterUserValue {
+    #[builder(setter(into))]
+    pub id: Base64Uuid,
+    #[builder(setter(into))]
+    pub name: String,
+}
 
 impl std::ops::DerefMut for FrontMatterUserValue {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
+        &mut self.id
     }
 }
 
@@ -573,13 +556,16 @@ impl std::ops::Deref for FrontMatterUserValue {
     type Target = Base64Uuid;
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        &self.id
     }
 }
 
 impl From<Base64Uuid> for FrontMatterUserValue {
     fn from(value: Base64Uuid) -> Self {
-        Self(value)
+        Self {
+            id: value,
+            name: String::new(),
+        }
     }
 }
 
