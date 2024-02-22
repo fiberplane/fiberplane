@@ -15,8 +15,8 @@ export default defineConfig({
     starlight({
       title: "Fiberplane Docs",
       logo: {
-        light: "@assets/fiberplane_logo_black.svg",
-        dark: "@assets/fiberplane_logo_white.svg",
+        light: "@assets/logo/fiberplane_logo_black.svg",
+        dark: "@assets/logo/fiberplane_logo_white.svg",
         replacesTitle: true,
       },
       social: {
