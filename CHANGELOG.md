@@ -23,6 +23,30 @@ TBD
   schema with an attached name).
 - `fiberplane-api-client`: Add methods to manipulate the front matter collections in a workspace.
 - `fiberplane-api-client`: Pagination has been removed from the integrations listing endpoint (#171)
+- Add docs regarding the conventions that we were already using, and make sure that they are applied to our OpenAPI schema. (#174)
+- Fix discriminator mapping's type from array to object for frontMatterValueSchema. (#174)
+- Fix casing for various properties of objects. These were already using camel casing, and were incorrectly specified as snake casing in the OpenAPI schema. (#174)
+
+Breaking changes in models:
+
+- Rename `NotebookPatch` to `UpdateNotebook`.
+- Rename `WorkspaceUserUpdate` to `UpdateWorkspaceUser`.
+
+Possible breaking changes in OpenAPI schema:
+
+- Rename every object in schemas to match lower camel casing.
+- Rename `notebookPatch` to `updateNotebook` in schemas.
+- Rename `workspace_user_update` to `updateWorkspaceUser` in schemas.
+- Rename operation id from `file_upload` to `notebook_upload_file`
+- Rename operation id from `file_delete` to `notebook_delete_file`
+- Rename operation id from `file_get` to `notebook_get_file`
+- Rename operation id from `views_get` to `view_list`
+- Rename operation id from `views_create` to `view_create`
+- Rename operation id from `pinned_views_get` to `pinned_view_get`
+- Rename operation id from `workspace_front_matter_schemas_get` to `workspace_front_matter_schema_get`
+- Rename operation id from `workspace_front_matter_schemas_create` to `workspace_front_matter_schema_create`
+- Rename operation id from `workspace_front_matter_schemas_get_by_name` to `workspace_front_matter_schema_get_by_name`
+- Rename operation id from `workspace_front_matter_schemas_delete` to `workspace_front_matter_schema_delete`
 
 ## [v1.0.0-beta.11] - 2024-02-08
 
