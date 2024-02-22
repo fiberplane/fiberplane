@@ -4,7 +4,10 @@ import { styled } from "styled-components";
 import { Button } from "./Button";
 import { Icon } from "./Icon";
 
-type IconButtonProps = Omit<React.ComponentProps<typeof Button>, "children"> &
+type IconButtonProps = Omit<
+  React.ComponentProps<typeof Button>,
+  "buttonType" | "children"
+> &
   Pick<React.ComponentProps<typeof Icon>, "iconType">;
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
