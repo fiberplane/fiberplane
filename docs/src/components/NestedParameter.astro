@@ -1,15 +1,96 @@
 ---
-import { Markdown } from "@astropub/md";
-
 // This component is used to display parameter documentation
-// for nested objects in the API documentation.
+// for nested objects in the API spec.
+import { Markdown } from "@astropub/md";
+import { getSchema } from "@lib/openApiSchema";
+import { hasNestedProperties } from "@lib/utils";
 
-const { name, properties, oneOf } = Astro.props;
+const schema = await getSchema();
+
+if (!schema) {
+  throw new Error("Schema not found");
+}
+
+const { name, value } = Astro.props;
+
+// let { dbg } = Astro.props;
+// dbg = dbg + " > " + name;
+// console.log(dbg);
+
+if (name === "providerCell") {
+  // HACK: providerCell is a circular reference (it can return other cell types
+  // including itself which causes an infinite loop), we're escaping here so it
+  // doesn't blow the stack.
+  return;
+}
+
+if (!value) {
+  console.log("No value for", name);
+  return;
+}
+
+const oneOf = value?.oneOf || value?.items?.oneOf;
+
+function resolveOneOf(mapping) {
+  // e.g.: "#/components/schemas/checkboxCell",
+  if (Array.isArray(mapping)) {
+    return; // FIXME: remove this when https://github.com/fiberplane/fiberplane/pull/174 is merged
+  }
+  return Object.entries(mapping).map(([_, ref]) => {
+    const key = ref.split("/").pop();
+    return { [key]: schema.components.schemas[key] };
+  });
+}
+
+function getProperties(value) {
+  // handle oneOfs first
+  if (value.oneOf) {
+    console.log(value);
+    if (value?.discriminator) {
+      return resolveOneOf(value?.discriminator?.mapping);
+    }
+
+    return value.oneOf.map((item) => {
+      return { [name]: item };
+    });
+  }
+
+  if (value.items?.oneOf) {
+    // console.log("items.oneOf", value);
+    return resolveOneOf(value?.items?.discriminator?.mapping);
+  }
+
+  if (value.type === "object") {
+    // console.log("object", value);
+
+    if (value.properties) {
+      return value.properties;
+    }
+
+    if (value.additionalProperties) {
+      return value.additionalProperties.properties;
+    }
+  }
+
+  if (value.type === "array") {
+    // console.log("array", value);
+    return value.items.properties;
+  }
+}
+
+const required = value?.required;
+const properties = getProperties(value);
+// console.log(name, properties);
+
+function isRequired(key, properties) {
+  return required?.includes(key);
+}
 
 if (!properties) {
   return;
 }
 
+// console.log("properties", properties);
 ---
 
 <details>
@@ -17,18 +98,16 @@ if (!properties) {
     oneOf ? (
       <summary>Possible values</summary>
     ) : (
-      <summary>
-					Nested attributes
-      </summary>
+      <summary>Nested attributes</summary>
     )
   }
+
   <ul class="nested-parameters">
     {
-      oneOf
+      Array.isArray(properties)
         ? properties.map((item) => {
-            return <Astro.self name={name} properties={item.properties} />;
-          })
-        : Object.entries(properties).map(([key, value]) => {
+            const key = Object.keys(item)[0];
+            const value = item[key];
             return (
               <li>
                 <h6>
@@ -38,11 +117,25 @@ if (!properties) {
                 <p>
                   <Markdown.Inline of={value?.description} />
                 </p>
-                {value.type === "object" && (
-                  <Astro.self name={key} properties={value.properties} />
+                {hasNestedProperties(value) && (
+                  <Astro.self name={key} {value} />
                 )}
-                {value.type === "array" && (
-                  <Astro.self name={key} properties={value.items.properties} />
+              </li>
+            );
+          })
+        : Object.entries(properties).map(([key, value]) => {
+            return (
+              <li>
+                <h6>
+                  <code>{key}</code>
+                  <span>{value?.type}</span>
+                  <span class="required-flag">{isRequired(key, properties) ? "Required" : ""}</span>
+                </h6>
+                <p>
+                  <Markdown.Inline of={value?.description} />
+                </p>
+                {hasNestedProperties(value) && (
+                  <Astro.self name={key} {value} />
                 )}
               </li>
             );
@@ -54,9 +147,9 @@ if (!properties) {
 <style>
   ul {
     list-style: none;
-		padding: 0 var(--sl-content-pad-x) var(--sl-content-pad-x); 
+    padding: 0 var(--sl-content-pad-x) var(--sl-content-pad-x);
     background-color: var(--sl-color-gray-6);
-		border-left: 3px solid var(--sl-color-gray-5);
+    border-left: 3px solid var(--sl-color-gray-5);
   }
 
   li {
@@ -66,16 +159,25 @@ if (!properties) {
 
   h6 {
     font-size: var(--sl-text-sm) !important;
-    font-weight: normal;
+    font-weight: normal !important;
     display: flex;
     flex-direction: row;
+		align-items: center;
     gap: var(--sl-content-pad-x);
   }
 
-  code {
-    font-weight: bold !important;
-    background: none;
-    padding: 0;
+  .nested-parameters code {
+    font-weight: bold;
+    background: var(--sl-color-gray-5);
+    border-radius: 4px;
+    padding: 4px;
     margin: 0;
   }
+
+	.required-flag {
+		font-size: var(--sl-text-xs);
+		color: var(--sl-color-red);
+	}
+
+
 </style>

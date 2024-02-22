@@ -1,6 +1,7 @@
 ---
 import { Markdown, markdown } from "@astropub/md";
 import NestedParameter from "@components/NestedParameter.astro";
+import { hasNestedProperties } from "@lib/utils";
 
 const { requestBody } = Astro.props;
 
@@ -11,6 +12,7 @@ if (!json) {
 }
 
 const properties = json?.schema?.properties;
+const required = json?.schema?.required;
 
 if (!properties) {
   return;
@@ -37,29 +39,8 @@ function getType(value) {
   return value.type;
 }
 
-function hasNestedProperties(value) {
-	if (!value) {
-		return false;
-	}
-
-	if (value.oneOf) {
-		return true;
-	}
-
-	if (value?.items?.oneOf) {
-		console.log(value.items.oneOf);
-		return true;
-	}
-
-	if (value.type === "array") {
-		return true;
-	}
-
-	if (value.type === "object") {
-		return true;
-	}
-
-	return false;
+function isRequired(key, properties) {
+	return required?.includes(key);
 }
 ---
 
@@ -74,23 +55,14 @@ function hasNestedProperties(value) {
             <h6>
               <code>{key}</code>
               <span>{getType(value)}</span>
+              <span class="required-flag">{isRequired(key, properties) ? "Required" : ""}</span>
             </h6>
             <p>
               <Markdown.Inline of={value?.description} />
             </p>
-					{hasNestedProperties(value)}
-            {value.type === "object" && (
-              <NestedParameter name={key} properties={value.properties} />
+            {hasNestedProperties(value) && (
+              <NestedParameter name={key} {value} />
             )}
-            {value.type === "array" && (
-              <NestedParameter name={key} properties={value.items.properties} />
-            )}
-            {value?.oneOf ? (
-              <NestedParameter name={key} properties={value?.oneOf} oneOf />
-            ) : undefined}
-            {value?.items?.oneOf ? (
-              <NestedParameter name={key} properties={value?.items?.oneOf} oneOf />
-            ) : undefined}
           </li>
         );
       })
@@ -118,13 +90,15 @@ function hasNestedProperties(value) {
     font-weight: normal;
     display: flex;
     flex-direction: row;
+		align-items: center;
     gap: var(--sl-content-pad-x);
   }
 
   .body-parameter code {
     font-weight: bold !important;
-    background: none;
-    padding: 0;
+    background: var(--sl-color-gray-6);
+		border-radius: 4px;
+    padding: 4px;
     margin: 0;
   }
 
@@ -132,4 +106,10 @@ function hasNestedProperties(value) {
     background-color: var(--sl-color-gray-6);
     padding: var(--sl-content-pad-x);
   }
+
+	.required-flag {
+		font-size: var(--sl-text-xs);
+		color: var(--sl-color-red);
+	}
+
 </style>
