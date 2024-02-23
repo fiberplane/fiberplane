@@ -13,13 +13,20 @@ crates do not strictly follow _SemVer_ although their versioning remains
 _compatible with_ SemVer, i.e. they will not contain breaking changes if the
 major version hasn't changed.
 
-## [v1.0.0-beta.10] - TBD
+## [v1.0.0-beta.13] - TBD
+
+TBD
+
+## [v1.0.0-beta.12] - 2024-02-26
 
 - `API` schema: Add routes to manipulate the front matter collections in a workspace (a saved front matter
   schema with an attached name).
 - `fiberplane-api-client`: Add methods to manipulate the front matter collections in a workspace.
-- `fiberplane-models`: The `updated_at` and `created_at` fields in the `IntegrationSummary` struct are now optional (#171)
 - `fiberplane-api-client`: Pagination has been removed from the integrations listing endpoint (#171)
+
+## [v1.0.0-beta.11] - 2024-02-08
+
+- `fiberplane-models`: The `updated_at` and `created_at` fields in the `IntegrationSummary` struct are now optional (#171)
 
 ## [v1.0.0-beta.9] - 2024-02-05
 
@@ -48,7 +55,7 @@ major version hasn't changed.
 
 ## [v1.0.0-beta.8] - 2024-01-05
 
-- `fiberplane-charts`: Export some util function and components related to 
+- `fiberplane-charts`: Export some util function and components related to
   zooming/dragging to facilitate a more experimental graph (alert timeline)
 - `@fiberplane/ui`: Add initial setup component library & add `Button` component
 - `@fiberplane/ui`: Add `Input` components
@@ -58,7 +65,7 @@ major version hasn't changed.
 - `@fiberplane/ui`: Add webhooks icon & expose icon type guard
 - `fiberplane-charts`: Allow configuring stroke width of chart content lines
 - `mondrian-charts`: Allow configuring stroke width of chart content lines
-- `fiberplane-models`: Add models and operations to interact with Front matter using 
+- `fiberplane-models`: Add models and operations to interact with Front matter using
   "Front Matter Schema" structure.
   Each notebook has both a "front matter" (the raw data) and a "front matter schema",
   controlling the display and the properties of the front matter.
