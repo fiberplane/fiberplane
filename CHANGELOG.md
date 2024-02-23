@@ -17,7 +17,7 @@ major version hasn't changed.
 
 TBD
 
-## [v1.0.0-beta.12] - 2024-02-26
+## [v1.0.0-beta.12] - 2024-02-23
 
 - `API` schema: Add routes to manipulate the front matter collections in a workspace (a saved front matter
   schema with an attached name).
