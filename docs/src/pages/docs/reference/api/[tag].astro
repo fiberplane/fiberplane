@@ -12,8 +12,6 @@ import GithubSlugger from "github-slugger";
 import APIOperation from "@components/APIOperation.astro";
 
 import { getSchema } from "@lib/openApiSchema.ts";
-import type { Code, Debug } from "astro:components";
-import type { Image, Picture } from "astro:assets";
 
 export const getStaticPaths = (async () => {
   const schema = await getSchema();
@@ -40,7 +38,7 @@ const headings: MarkdownHeading[] = operations.map((operation) => {
   return {
     depth: 2,
     text: operation.name,
-    slug: slugger.slug(operation.name),
+    slug: operation.operationId,
   };
 });
 
