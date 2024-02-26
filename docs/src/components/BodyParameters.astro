@@ -5,14 +5,26 @@ import { hasNestedProperties } from "@lib/utils";
 
 const { requestBody } = Astro.props;
 
-const json = requestBody.content["application/json"];
+function getFormatForBody() {
+	if (requestBody.content["application/json"]) {
+		return requestBody.content["application/json"];
+	}
 
-if (!json) {
+	if (requestBody.content["multipart/form-data"]) {
+		return requestBody.content["multipart/form-data"];
+	}
+
+	return
+}
+
+const format = getFormatForBody();
+
+if (!format) {
   return;
 }
 
-const properties = json?.schema?.properties;
-const required = json?.schema?.required;
+const properties = format?.schema?.properties;
+const required = format?.schema?.required;
 
 if (!properties) {
   return;
