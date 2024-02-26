@@ -45,7 +45,6 @@ function resolveOneOf(mapping) {
 function getProperties(value) {
   // handle oneOfs first
   if (value.oneOf) {
-    console.log(value);
     if (value?.discriminator) {
       return resolveOneOf(value?.discriminator?.mapping);
     }

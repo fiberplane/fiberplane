@@ -1,10 +1,11 @@
 ---
-import { HTTPSnippet } from "@readme/httpsnippet";
+import { HTTPSnippet, type HarRequest } from "@readme/httpsnippet";
 import { Code } from "@astrojs/starlight/components";
 import { Markdown, markdown } from "@astropub/md";
 import PathParameters from "@components/PathParameters.astro";
 import BodyParameters from "@components/BodyParameters.astro";
 import Returns from "@components/Returns.astro";
+import { circularStringify } from "@lib/utils";
 
 type Props = {
   name: string;
@@ -26,16 +27,38 @@ const {
   information,
 } = Astro.props;
 
+type Header = HarRequest["headers"][number];
+
+function createHeaders() {
+	let headers: Header[] = []
+
+	if (information?.requestBody?.content) {
+		headers = Object.keys(information.requestBody.content).map((contentType) => {
+			return {
+				name: "Content-Type",
+				value: contentType,
+			};
+		});
+	}
+
+	if (!information?.security) {
+		headers.push({ name: "Authorization", value: "Bearer <YOUR_API_TOKEN>" })
+	}
+
+	return headers
+}
+
 const snippet = new HTTPSnippet({
   url: "https://studio.fiberplane.com" + path,
   method: httpVerb,
-  headers: [
-    {
-      name: "Content-Type",
-      value: "application/json",
-    },
-  ],
+  headers: createHeaders(),
 });
+
+let responseSchema;
+
+if (information?.responses["200"]?.content && "application/json" in information?.responses["200"]?.content) {
+	responseSchema = circularStringify( information.responses["200"].content["application/json"].schema)
+}
 ---
 
 <section>
@@ -63,15 +86,21 @@ const snippet = new HTTPSnippet({
       {information.responses && <Returns responses={information.responses} />}
     </div>
     <div class="sample">
-      <div class="operation-path">
+      <div>
         <Code
-					wrap
           code={await snippet.convert("shell", "", {
             short: true,
             indent: "\t",
           })}
           frame="auto"
+				title="Example cURL request"
         />
+{responseSchema && (
+	<Code 
+		title="Response schema" 
+		code={responseSchema} 
+		class="response-schema"
+	/> )}
       </div>
     </div>
   </div>
@@ -120,5 +149,14 @@ const snippet = new HTTPSnippet({
 
   .sample {
     margin-top: 0 !important;
+		position: sticky;
+		align-self: start;
+		top: 5rem;
   }
+
+	.response-schema {
+		overflow: auto;
+		max-height: 400px;
+	}
+
 </style>
