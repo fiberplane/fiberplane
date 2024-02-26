@@ -69,9 +69,38 @@ export default defineConfig({
               label: "Command Line Interface",
               link: "/docs/reference/cli",
             },
+          ],
+        },
+        {
+          label: "API Reference",
+          items: [
             {
-              label: "API",
-              link: "/docs/reference/api",
+              label: "Events",
+              link: "/docs/reference/api/events",
+            },
+            {
+              label: "Integrations",
+              link: "/docs/reference/api/integrations",
+            },
+            {
+              label: "Notebooks",
+              link: "/docs/reference/api/notebooks",
+            },
+            {
+              label: "Templates",
+              link: "/docs/reference/api/templates",
+            },
+            {
+              label: "Triggers",
+              link: "/docs/reference/api/triggers",
+            },
+            {
+              label: "Webhooks",
+              link: "/docs/reference/api/webhooks",
+            },
+            {
+              label: "Workspaces",
+              link: "/docs/reference/api/workspaces",
             },
           ],
         },
