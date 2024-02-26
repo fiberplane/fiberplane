@@ -1,9 +1,11 @@
 ---
 import GithubSlugger from "github-slugger";
+import { HTTPSnippet } from "@readme/httpsnippet";
 import { Code } from "@astrojs/starlight/components";
 import { Markdown, markdown } from "@astropub/md";
 import PathParameters from "@components/PathParameters.astro";
 import BodyParameters from "@components/BodyParameters.astro";
+import Returns from "@components/Returns.astro";
 
 type Props = {
   name: string;
@@ -27,6 +29,16 @@ const {
 
 const slugger = new GithubSlugger();
 const slug = slugger.slug(name);
+const snippet = new HTTPSnippet({
+  url: "https://studio.fiberplane.com" + path,
+  method: httpVerb,
+  headers: [
+    {
+      name: "Content-Type",
+      value: "application/json",
+    },
+  ],
+});
 ---
 
 <section>
@@ -47,10 +59,20 @@ const slug = slugger.slug(name);
           <BodyParameters requestBody={information.requestBody} />
         )
       }
+
+      {information.responses && <Returns responses={information.responses} />}
     </div>
     <div class="sample">
       <div class="operation-path">
         <Code code={`${httpVerb.toUpperCase()} ${path}`} frame="auto" />
+        <Code
+					wrap
+          code={await snippet.convert("shell", "", {
+            short: true,
+            indent: "\t",
+          })}
+          frame="auto"
+        />
       </div>
     </div>
   </div>
@@ -66,6 +88,14 @@ const slug = slugger.slug(name);
     font-size: var(--sl-text-sm);
   }
 
+  .verb-path {
+    font-size: var(--sl-text-base);
+  }
+
+  .code {
+    text-wrap: wrap;
+  }
+
   a:hover {
     text-decoration: underline;
     text-decoration-thickness: 2px;
@@ -74,13 +104,19 @@ const slug = slugger.slug(name);
 
   h2 {
     font-size: var(--sl-text-h4) !important;
-    padding-bottom: var(--sl-content-pad-x);
+    padding-bottom: var(--sl-content-pad-y);
   }
 
   .table-wrapper {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns:  repeat(2, minmax(0,1fr));
     column-gap: var(--sl-content-pad-x);
+  }
+
+  .table {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    row-gap: var(--sl-content-pad-y);
   }
 
   .sample {
