@@ -1,5 +1,4 @@
 ---
-import GithubSlugger from "github-slugger";
 import { HTTPSnippet } from "@readme/httpsnippet";
 import { Code } from "@astrojs/starlight/components";
 import { Markdown, markdown } from "@astropub/md";
@@ -27,8 +26,6 @@ const {
   information,
 } = Astro.props;
 
-const slugger = new GithubSlugger();
-const slug = slugger.slug(name);
 const snippet = new HTTPSnippet({
   url: "https://studio.fiberplane.com" + path,
   method: httpVerb,
@@ -42,11 +39,14 @@ const snippet = new HTTPSnippet({
 ---
 
 <section>
-  <a href={`#${slug}`}
-    ><h2 id={slug}>
+  <a href={`#${operationId}`}
+    ><h2 id={operationId}>
       {await markdown.inline(name)}
     </h2></a
   >
+  <p>
+    <code class="verb-path">{`${httpVerb.toUpperCase()} ${path}`}</code>
+  </p>
   <div class="table-wrapper">
     <div class="table">
       <p>
@@ -64,7 +64,6 @@ const snippet = new HTTPSnippet({
     </div>
     <div class="sample">
       <div class="operation-path">
-        <Code code={`${httpVerb.toUpperCase()} ${path}`} frame="auto" />
         <Code
 					wrap
           code={await snippet.convert("shell", "", {
