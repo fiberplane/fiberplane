@@ -1,6 +1,6 @@
 {
   "name": "@fiberplane/ui",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "UI components for Fiberplane",
   "author": "Fiberplane <info@fiberplane.com>",
   "license": "MIT OR Apache-2.0",
