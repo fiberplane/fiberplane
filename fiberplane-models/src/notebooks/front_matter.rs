@@ -90,8 +90,8 @@ pub enum FrontMatterValue {
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum FrontMatterValidationError {
     /// Impossible to deserialize the data
-    #[error("unexpected format: {0}")]
-    Format(String),
+    #[error("unexpected format: {message}")]
+    Format { message: String },
 
     /// Obtained the wrong variant
     #[error("unexpected variant: expected {expected} but got {got}")]
@@ -118,8 +118,9 @@ impl TryFrom<&str> for FrontMatterValue {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        serde_json::from_str(value)
-            .map_err(|err| FrontMatterValidationError::Format(err.to_string()))
+        serde_json::from_str(value).map_err(|err| FrontMatterValidationError::Format {
+            message: err.to_string(),
+        })
     }
 }
 
@@ -146,8 +147,8 @@ impl TryFrom<serde_json::Value> for FrontMatterNumberValue {
         if let Value::Number(num) = value {
             return Ok(Self(
                 num.as_f64()
-                    .ok_or_else(|| {
-                        FrontMatterValidationError::Format("invalid number".to_string())
+                    .ok_or_else(|| FrontMatterValidationError::Format {
+                        message: "invalid number".to_string(),
                     })?
                     .into(),
             ));
@@ -237,7 +238,9 @@ impl TryFrom<serde_json::Value> for FrontMatterDateTimeValue {
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
         if let Value::String(strr) = value {
             return Ok(Self(strr.parse().map_err(|err| {
-                FrontMatterValidationError::Format(format!("invalid timestamp: {err}"))
+                FrontMatterValidationError::Format {
+                    message: format!("invalid timestamp: {err}"),
+                }
             })?));
         }
 
@@ -252,8 +255,9 @@ impl TryFrom<&str> for FrontMatterDateTimeValue {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let value = Timestamp::parse(value)
-            .map_err(|err| FrontMatterValidationError::Format(err.to_string()))?;
+        let value = Timestamp::parse(value).map_err(|err| FrontMatterValidationError::Format {
+            message: err.to_string(),
+        })?;
         Ok(Self(value))
     }
 }
@@ -290,8 +294,9 @@ impl TryFrom<serde_json::Value> for FrontMatterUserValue {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        serde_json::from_value(value)
-            .map_err(|err| FrontMatterValidationError::Format(format!("invalid user: {err}")))
+        serde_json::from_value(value).map_err(|err| FrontMatterValidationError::Format {
+            message: format!("invalid user: {err}"),
+        })
     }
 }
 
@@ -299,8 +304,10 @@ impl TryFrom<&str> for FrontMatterUserValue {
     type Error = FrontMatterValidationError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let value = Base64Uuid::parse_str(value)
-            .map_err(|err| FrontMatterValidationError::Format(err.to_string()))?;
+        let value =
+            Base64Uuid::parse_str(value).map_err(|err| FrontMatterValidationError::Format {
+                message: err.to_string(),
+            })?;
         Ok(Self::from(value))
     }
 }
