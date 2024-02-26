@@ -223,7 +223,7 @@ pub struct UpdateWorkspace {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct WorkspaceUserUpdate {
+pub struct UpdateWorkspaceUser {
     #[builder(default, setter(strip_option))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub role: Option<AuthRole>,
