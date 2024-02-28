@@ -6,65 +6,57 @@ import PathParameters from "@components/PathParameters.astro";
 import BodyParameters from "@components/BodyParameters.astro";
 import Returns from "@components/Returns.astro";
 import { circularStringify } from "@lib/utils";
+import type { Operation } from "@lib/types";
 
-type Props = {
-  name: string;
-  description: string;
-  path: string;
-  httpVerb: string;
-  operationId: string;
-  pathParameters: any; //TODO type this properly
-  information: any;
-};
+interface Props extends Operation {};
 
 const {
-  name,
+  summary,
   description,
   httpVerb,
   operationId,
   path,
-  pathParameters,
-  information,
+	parameters,
+	security,
+	responses
 } = Astro.props;
 
 type Header = HarRequest["headers"][number];
 
 function createHeaders() {
-	let headers: Header[] = []
+  let headers: Header[] = [];
 
-	if (information?.requestBody?.content) {
-		headers = Object.keys(information.requestBody.content).map((contentType) => {
-			return {
-				name: "Content-Type",
-				value: contentType,
-			};
-		});
-	}
+  if (!security) {
+    headers.push({ name: "Authorization", value: "Bearer <YOUR_API_TOKEN>" });
+  }
 
-	if (!information?.security) {
-		headers.push({ name: "Authorization", value: "Bearer <YOUR_API_TOKEN>" })
-	}
-
-	return headers
+  return headers;
 }
 
 const snippet = new HTTPSnippet({
   url: "https://studio.fiberplane.com" + path,
   method: httpVerb,
   headers: createHeaders(),
+  bodySize: -1,
+  headersSize: -1,
 });
 
 let responseSchema;
 
-if (information?.responses["200"]?.content && "application/json" in information?.responses["200"]?.content) {
-	responseSchema = circularStringify( information.responses["200"].content["application/json"].schema)
+if (
+  information?.responses["200"]?.content &&
+  "application/json" in information?.responses["200"]?.content
+) {
+  responseSchema = circularStringify(
+    information.responses["200"].content["application/json"].schema,
+  );
 }
 ---
 
 <section>
   <a href={`#${operationId}`}
     ><h2 id={operationId}>
-      {await markdown.inline(name)}
+      {await markdown.inline(summary)}
     </h2></a
   >
   <p>
@@ -93,14 +85,17 @@ if (information?.responses["200"]?.content && "application/json" in information?
             indent: "\t",
           })}
           frame="auto"
-				title="Example cURL request"
+          title="Example cURL request"
         />
-{responseSchema && (
-	<Code 
-		title="Response schema" 
-		code={responseSchema} 
-		class="response-schema"
-	/> )}
+        {
+          responseSchema && (
+            <Code
+              title="Response schema"
+              code={responseSchema}
+              class="response-schema"
+            />
+          )
+        }
       </div>
     </div>
   </div>
@@ -137,7 +132,7 @@ if (information?.responses["200"]?.content && "application/json" in information?
 
   .table-wrapper {
     display: grid;
-    grid-template-columns:  repeat(2, minmax(0,1fr));
+    grid-template-columns: 1fr;
     column-gap: var(--sl-content-pad-x);
   }
 
@@ -147,16 +142,21 @@ if (information?.responses["200"]?.content && "application/json" in information?
     row-gap: var(--sl-content-pad-y);
   }
 
-  .sample {
-    margin-top: 0 !important;
-		position: sticky;
-		align-self: start;
-		top: 5rem;
+  @media (min-width: 1024px;) {
+    .table-wrapper {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
-	.response-schema {
-		overflow: auto;
-		max-height: 400px;
-	}
+  .sample {
+    margin-top: 0 !important;
+    position: sticky;
+    align-self: start;
+    top: 5rem;
+  }
 
+  .response-schema {
+    overflow: auto;
+    max-height: 400px;
+  }
 </style>
