@@ -3,6 +3,9 @@ openapi: "3.0.3"
 info:
   title: Fiberplane API
   version: "1.0"
+tags:
+  - name: Notebooks
+    description: "All operations pertaining to the notebooks resource"
 servers:
   - url: https://studio.fiberplane.com/
     description: Production servers
