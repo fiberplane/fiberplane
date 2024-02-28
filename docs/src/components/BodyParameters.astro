@@ -6,15 +6,15 @@ import { hasNestedProperties } from "@lib/utils";
 const { requestBody } = Astro.props;
 
 function getFormatForBody() {
-	if (requestBody.content["application/json"]) {
-		return requestBody.content["application/json"];
-	}
+  if (requestBody.content["application/json"]) {
+    return requestBody.content["application/json"];
+  }
 
-	if (requestBody.content["multipart/form-data"]) {
-		return requestBody.content["multipart/form-data"];
-	}
+  if (requestBody.content["multipart/form-data"]) {
+    return requestBody.content["multipart/form-data"];
+  }
 
-	return
+  return;
 }
 
 const format = getFormatForBody();
@@ -52,7 +52,7 @@ function getType(value) {
 }
 
 function isRequired(key, properties) {
-	return required?.includes(key);
+  return required?.includes(key);
 }
 ---
 
@@ -67,7 +67,9 @@ function isRequired(key, properties) {
             <h6>
               <code>{key}</code>
               <span>{getType(value)}</span>
-              <span class="required-flag">{isRequired(key, properties) ? "Required" : ""}</span>
+              <span class="required-flag">
+                {isRequired(key, properties) ? "Required" : ""}
+              </span>
             </h6>
             <p>
               <Markdown.Inline of={value?.description} />
@@ -102,14 +104,14 @@ function isRequired(key, properties) {
     font-weight: normal;
     display: flex;
     flex-direction: row;
-		align-items: center;
+    align-items: center;
     gap: var(--sl-content-pad-x);
   }
 
   .body-parameter code {
     font-weight: bold !important;
     background: var(--sl-color-gray-6);
-		border-radius: 4px;
+    border-radius: 4px;
     padding: 4px;
     margin: 0;
   }
@@ -119,9 +121,8 @@ function isRequired(key, properties) {
     padding: var(--sl-content-pad-x);
   }
 
-	.required-flag {
-		font-size: var(--sl-text-xs);
-		color: var(--sl-color-red);
-	}
-
+  .required-flag {
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-red);
+  }
 </style>

@@ -13,7 +13,9 @@ const { pathParameters } = Astro.props;
           <h6>
             <code>{parameter.name}</code>
             <span>{parameter.schema.type}</span>
-            <span class="required-flag">{parameter.required ? "Required" : ""}</span>
+            <span class="required-flag">
+              {parameter.required ? "Required" : ""}
+            </span>
           </h6>
           <p>
             <Markdown.Inline of={parameter.description} />
@@ -44,22 +46,20 @@ const { pathParameters } = Astro.props;
     font-weight: normal;
     display: flex;
     flex-direction: row;
-		align-items: center;
+    align-items: center;
     gap: var(--sl-content-pad-x);
   }
 
   .path-parameter code {
     font-weight: bold;
     background: var(--sl-color-gray-6);
-		border-radius: 4px;
+    border-radius: 4px;
     padding: 4px;
     margin: 0;
   }
 
-	.required-flag {
-		font-size: var(--sl-text-xs);
-		color: var(--sl-color-red);
-	}
-
-
+  .required-flag {
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-red);
+  }
 </style>

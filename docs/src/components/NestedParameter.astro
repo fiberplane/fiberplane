@@ -128,7 +128,9 @@ if (!properties) {
                 <h6>
                   <code>{key}</code>
                   <span>{value?.type}</span>
-                  <span class="required-flag">{isRequired(key, properties) ? "Required" : ""}</span>
+                  <span class="required-flag">
+                    {isRequired(key, properties) ? "Required" : ""}
+                  </span>
                 </h6>
                 <p>
                   <Markdown.Inline of={value?.description} />
@@ -161,7 +163,7 @@ if (!properties) {
     font-weight: normal !important;
     display: flex;
     flex-direction: row;
-		align-items: center;
+    align-items: center;
     gap: var(--sl-content-pad-x);
   }
 
@@ -173,10 +175,8 @@ if (!properties) {
     margin: 0;
   }
 
-	.required-flag {
-		font-size: var(--sl-text-xs);
-		color: var(--sl-color-red);
-	}
-
-
+  .required-flag {
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-red);
+  }
 </style>
