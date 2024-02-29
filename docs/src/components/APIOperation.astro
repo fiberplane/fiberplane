@@ -7,8 +7,9 @@ import BodyParameters from "@components/BodyParameters.astro";
 import Returns from "@components/Returns.astro";
 import { circularStringify } from "@lib/utils";
 import type { Operation } from "@lib/types";
+import type { OpenAPIV3 } from "openapi-types";
 
-interface Props extends Operation {};
+interface Props extends Operation {}
 
 const {
   summary,
@@ -16,10 +17,18 @@ const {
   httpVerb,
   operationId,
   path,
-	parameters,
-	security,
-	responses
+  parameters,
+  security,
+  responses,
+  requestBody,
 } = Astro.props;
+
+for (const [propKey, prop] of Object.entries(Astro.props)) {
+  // @ts-ignore
+  if (typeof prop === "object" && "$ref" in prop) {
+    throw new Error(`${propKey} cannot be a $ref`);
+  }
+}
 
 type Header = HarRequest["headers"][number];
 
@@ -33,6 +42,7 @@ function createHeaders() {
   return headers;
 }
 
+// @ts-ignore we don't actually need all of the properties here
 const snippet = new HTTPSnippet({
   url: "https://studio.fiberplane.com" + path,
   method: httpVerb,
@@ -41,22 +51,42 @@ const snippet = new HTTPSnippet({
   headersSize: -1,
 });
 
+let codeSnippet = await snippet.convert("shell", "", {
+  short: true,
+  indent: "\t",
+});
+
+if (codeSnippet && Array.isArray(codeSnippet)) {
+  codeSnippet = codeSnippet.join("\n");
+}
+
 let responseSchema;
 
-if (
-  information?.responses["200"]?.content &&
-  "application/json" in information?.responses["200"]?.content
-) {
-  responseSchema = circularStringify(
-    information.responses["200"].content["application/json"].schema,
-  );
+if (responses) {
+  let sampleResponse = responses["200"]
+    ? responses["200"]
+    : Object.values(responses)[0];
+  if ("content" in sampleResponse) {
+    if (
+      sampleResponse?.content &&
+      "application/json" in sampleResponse?.content
+    ) {
+      responseSchema = circularStringify(
+        sampleResponse.content["application/json"].schema,
+      );
+    }
+  }
+}
+
+if (requestBody && "$ref" in requestBody) {
+  throw new Error("requestBody cannot be a $ref");
 }
 ---
 
 <section>
   <a href={`#${operationId}`}
     ><h2 id={operationId}>
-      {await markdown.inline(summary)}
+      {summary && (await markdown.inline(summary))}
     </h2></a
   >
   <p>
@@ -65,25 +95,22 @@ if (
   <div class="table-wrapper">
     <div class="table">
       <p>
-        <Markdown.Inline of={description} />
+        {description && <Markdown.Inline of={description} />}
       </p>
-      {pathParameters && <PathParameters {pathParameters} />}
+      {parameters && <PathParameters {parameters} />}
+
+      {requestBody && <BodyParameters requestBody={requestBody} />}
 
       {
-        information?.requestBody && (
-          <BodyParameters requestBody={information.requestBody} />
+        responses && (
+          <Returns responses={responses as OpenAPIV3.ResponsesObject} />
         )
       }
-
-      {information.responses && <Returns responses={information.responses} />}
     </div>
     <div class="sample">
       <div>
         <Code
-          code={await snippet.convert("shell", "", {
-            short: true,
-            indent: "\t",
-          })}
+          code={codeSnippet ? codeSnippet : ""}
           frame="auto"
           title="Example cURL request"
         />
@@ -132,7 +159,9 @@ if (
 
   .table-wrapper {
     display: grid;
-    grid-template-columns: 1fr;
+    /* grid-template-columns: 1fr; */
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: var(--sl-content-pad-x);
   }
 

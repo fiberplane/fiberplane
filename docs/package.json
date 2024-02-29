@@ -24,6 +24,7 @@
     "@astrojs/vue": "^4.0.8",
     "@astropub/md": "^0.4.0",
     "@readme/httpsnippet": "^8.1.4",
+    "@readme/openapi-parser": "^2.5.0",
     "@scalar/api-reference": "^1.13.9",
     "@scalar/swagger-parser": "^0.5.15",
     "astro": "4.4.0",

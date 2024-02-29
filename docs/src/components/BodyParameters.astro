@@ -2,6 +2,11 @@
 import { Markdown, markdown } from "@astropub/md";
 import NestedParameter from "@components/NestedParameter.astro";
 import { hasNestedProperties } from "@lib/utils";
+import { OpenAPIV3 } from "openapi-types";
+
+interface Props {
+  requestBody: OpenAPIV3.RequestBodyObject;
+}
 
 const { requestBody } = Astro.props;
 
@@ -23,6 +28,10 @@ if (!format) {
   return;
 }
 
+if (format.schema && "$ref" in format.schema) {
+  return;
+}
+
 const properties = format?.schema?.properties;
 const required = format?.schema?.required;
 
@@ -30,7 +39,7 @@ if (!properties) {
   return;
 }
 
-function getType(value) {
+function getType(value: OpenAPIV3.SchemaObject) {
   if (value.oneOf) {
     return "one of";
   }
@@ -40,7 +49,8 @@ function getType(value) {
   }
 
   if (value.type === "array") {
-    const of = value.items.type ? value.items.type : "object"; // TODO: handle more complex types
+    const items = value.items as OpenAPIV3.SchemaObject;
+    const of = items.type ? items.type : "object"; // TODO: handle more complex types
     return "array of " + of;
   }
 
@@ -51,9 +61,6 @@ function getType(value) {
   return value.type;
 }
 
-function isRequired(key, properties) {
-  return required?.includes(key);
-}
 ---
 
 <>
@@ -61,21 +68,27 @@ function isRequired(key, properties) {
   <p>{requestBody?.description}</p>
   <ul>
     {
-      Object.entries(properties).map(([key, value]) => {
+      Object.entries(properties).map(([key, schema]) => {
+        if ("$ref" in schema) {
+          return;
+        }
+
         return (
           <li class="body-parameter">
             <h6>
               <code>{key}</code>
-              <span>{getType(value)}</span>
+              <span>{getType(schema)}</span>
               <span class="required-flag">
-                {isRequired(key, properties) ? "Required" : ""}
+                {required?.includes(key) ? "Required" : ""}
               </span>
             </h6>
             <p>
-              <Markdown.Inline of={value?.description} />
+              <Markdown.Inline
+                of={schema?.description ? schema?.description : ""}
+              />
             </p>
-            {hasNestedProperties(value) && (
-              <NestedParameter name={key} {value} />
+            {hasNestedProperties(schema) && (
+              <NestedParameter name={key} {schema} />
             )}
           </li>
         );

@@ -4,18 +4,26 @@
 import { Markdown } from "@astropub/md";
 import { getSchema } from "@lib/openApiSchema";
 import { hasNestedProperties } from "@lib/utils";
+import type { OpenAPIV3 } from "openapi-types";
 
-const schema = await getSchema();
+interface Props {
+  name: string;
+  schema: OpenAPIV3.SchemaObject;
+  seen?: WeakSet<OpenAPIV3.SchemaObject>;
+}
 
-if (!schema) {
+const { name, schema } = Astro.props;
+let { seen } = Astro.props;
+
+const openApiSpec = await getSchema();
+
+if (!openApiSpec) {
   throw new Error("Schema not found");
 }
 
-const { name, value } = Astro.props;
-
-// let { dbg } = Astro.props;
-// dbg = dbg + " > " + name;
-// console.log(dbg);
+if (!seen) {
+  seen = new WeakSet();
+}
 
 if (name === "providerCell") {
   // HACK: providerCell is a circular reference (it can return other cell types
@@ -24,72 +32,85 @@ if (name === "providerCell") {
   return;
 }
 
-if (!value) {
+if (!schema) {
   console.log("No value for", name);
   return;
 }
 
-const oneOf = value?.oneOf || value?.items?.oneOf;
-
-function resolveOneOf(mapping) {
-  // e.g.: "#/components/schemas/checkboxCell",
-  if (Array.isArray(mapping)) {
-    return; // FIXME: remove this when https://github.com/fiberplane/fiberplane/pull/174 is merged
+function getOneOf(schema: OpenAPIV3.SchemaObject) {
+  if ("items" in schema) {
+    return schema?.items;
+  } else {
+    return schema.oneOf;
   }
+}
+
+const oneOf = getOneOf(schema);
+
+// e.g.: "#/components/schemas/checkboxCell",
+function resolveOneOf(discriminator: OpenAPIV3.DiscriminatorObject) {
+  const mapping = discriminator.mapping;
+  if (!mapping) return;
   return Object.entries(mapping).map(([_, ref]) => {
-    const key = ref.split("/").pop();
-    return { [key]: schema.components.schemas[key] };
+    const key = ref.split("/").pop() as string;
+
+    const compSchemas = openApiSpec?.components?.schemas;
+
+    if (!compSchemas) {
+      throw new Error("No component schemas found");
+    }
+
+    return { [key]: compSchemas[key] };
   });
 }
 
-function getProperties(value) {
-  // handle oneOfs first
-  if (value.oneOf) {
-    if (value?.discriminator) {
-      return resolveOneOf(value?.discriminator?.mapping);
+type Properties = OpenAPIV3.SchemaObject["properties"];
+
+function getProperties(
+  schema: OpenAPIV3.ArraySchemaObject | OpenAPIV3.NonArraySchemaObject,
+): Properties | Properties[] | undefined {
+
+  if (schema.oneOf) {
+    if (schema?.discriminator) {
+      return resolveOneOf(schema?.discriminator);
     }
 
-    return value.oneOf.map((item) => {
+    return schema.oneOf.map((item) => {
       return { [name]: item };
     });
   }
 
-  if (value.items?.oneOf) {
-    // console.log("items.oneOf", value);
-    return resolveOneOf(value?.items?.discriminator?.mapping);
-  }
-
-  if (value.type === "object") {
-    // console.log("object", value);
-
-    if (value.properties) {
-      return value.properties;
+  if (schema.type === "array") {
+    if ("oneOf" in schema?.items && schema?.items?.discriminator) {
+      return resolveOneOf(schema?.items?.discriminator);
     }
 
-    if (value.additionalProperties) {
-      return value.additionalProperties.properties;
+    const items = schema?.items as OpenAPIV3.ArraySchemaObject["items"];
+
+    if ("$ref" in items) {
+      throw new Error("Nested $ref not supported");
     }
+    return items.properties;
   }
 
-  if (value.type === "array") {
-    // console.log("array", value);
-    return value.items.properties;
+  if (schema.type === "object") {
+    if (schema.properties) {
+      return schema.properties;
+    }
+
+    if (schema.additionalProperties) {
+      // @ts-ignore
+      return schema.additionalProperties.properties;
+    }
   }
 }
 
-const required = value?.required;
-const properties = getProperties(value);
-// console.log(name, properties);
+const required = schema?.required;
+const properties = getProperties(schema);
 
-function isRequired(key, properties) {
-  return required?.includes(key);
-}
-
-if (!properties) {
+if (!properties || properties?.length === 0) {
   return;
 }
-
-// console.log("properties", properties);
 ---
 
 <details>
@@ -105,38 +126,48 @@ if (!properties) {
     {
       Array.isArray(properties)
         ? properties.map((item) => {
-            const key = Object.keys(item)[0];
-            const value = item[key];
+            const name = Object.keys(item!)[0];
+            const nestedSchema = item![name];
+            if ("$ref" in nestedSchema) {
+              throw new Error("Nested $ref not supported");
+            }
             return (
               <li>
                 <h6>
-                  <code>{key}</code>
-                  <span>{value?.type}</span>
+                  <code>{name}</code>
+                  <span>{nestedSchema?.type}</span>
                 </h6>
-                <p>
-                  <Markdown.Inline of={value?.description} />
-                </p>
-                {hasNestedProperties(value) && (
-                  <Astro.self name={key} {value} />
+                {nestedSchema?.description && (
+                  <p>
+                    <Markdown.Inline of={nestedSchema?.description} />
+                  </p>
+                )}
+                {hasNestedProperties(nestedSchema) && (
+                  <Astro.self {name} schema={nestedSchema} {seen} />
                 )}
               </li>
             );
           })
-        : Object.entries(properties).map(([key, value]) => {
+        : Object.entries(properties).map(([name, nestedSchema]) => {
+            if ("$ref" in nestedSchema) {
+              throw new Error("Nested $ref not supported");
+            }
             return (
               <li>
                 <h6>
-                  <code>{key}</code>
-                  <span>{value?.type}</span>
+                  <code>{name}</code>
+                  <span>{nestedSchema?.type}</span>
                   <span class="required-flag">
-                    {isRequired(key, properties) ? "Required" : ""}
+                    {required?.includes(name) ? "Required" : ""}
                   </span>
                 </h6>
-                <p>
-                  <Markdown.Inline of={value?.description} />
-                </p>
-                {hasNestedProperties(value) && (
-                  <Astro.self name={key} {value} />
+                {nestedSchema?.description && (
+                  <p>
+                    <Markdown.Inline of={nestedSchema?.description} />
+                  </p>
+                )}
+                {hasNestedProperties(nestedSchema) && (
+                  <Astro.self {name} schema={nestedSchema} {seen} />
                 )}
               </li>
             );

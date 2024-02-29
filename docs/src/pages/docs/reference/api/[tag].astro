@@ -11,7 +11,8 @@ import type { ExtendedTagObject } from "@lib/types";
 
 export const getStaticPaths = (async () => {
   const schema = await getSchema();
-  if (!schema || !schema?.tags) throw new Error("No schema or tagged paths in the schema");
+  if (!schema || !schema?.tags)
+    throw new Error("No schema or tagged paths in the schema");
 
   return schema.tags.map((tag) => {
     return {

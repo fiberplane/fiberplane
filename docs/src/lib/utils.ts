@@ -1,14 +1,11 @@
-// FIXME: type me
-export function hasNestedProperties(value) {
+import type { OpenAPIV3 } from "openapi-types";
+
+export function hasNestedProperties(value: OpenAPIV3.SchemaObject) {
   if (!value) {
     return false;
   }
 
   if (value.oneOf) {
-    return true;
-  }
-
-  if (value?.items?.oneOf) {
     return true;
   }
 
@@ -23,6 +20,7 @@ export function hasNestedProperties(value) {
   return false;
 }
 
+// @ts-ignore can literally be anything
 export function circularStringify(obj: any) {
   const seen = new WeakSet();
   return JSON.stringify(

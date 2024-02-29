@@ -1,12 +1,9 @@
 ---
-type Props = {
-  responses: {
-    [key: string]: {
-      description: string;
-      content: any;
-    };
-  };
-};
+import type { OpenAPIV3 } from "openapi-types";
+
+interface Props {
+  responses: OpenAPIV3.ResponsesObject;
+}
 
 const { responses } = Astro.props;
 ---
@@ -16,6 +13,9 @@ const { responses } = Astro.props;
   <ul>
     {
       Object.entries(responses).map(([code, response]) => {
+        if ("$ref" in response) {
+          throw new Error("References are not supported in responses");
+        }
         return (
           <li class="return-code">
             <h6>

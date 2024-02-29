@@ -1,6 +1,12 @@
+import type {
+  ExtendedTagObject,
+  HttpMethods,
+  OperationObject,
+  PathItemObject,
+  TagObject,
+} from "@lib/types";
 import OpenAPIParser from "@readme/openapi-parser";
-import type { OpenAPI, OpenAPIV3} from "openapi-types";
-import type { ExtendedTagObject, HttpMethods, OperationObject, PathItemObject, TagObject } from "@lib/types";
+import type { OpenAPI, OpenAPIV3 } from "openapi-types";
 
 let schema: OpenAPIV3.Document;
 
@@ -10,10 +16,14 @@ export async function getSchema() {
   }
 
   try {
-    const schemaPath = "../schemas/openapi_v1.yml"; // yeah...
+    const schemaPath = "../schemas/openapi_v1.yml";
 
-    schema = await OpenAPIParser.validate(schemaPath);
-    schema = groupOperationsByTag(schema) as OpenAPIV3.Document;
+    // there's some sort of type clashes between what @readme/openapi-parser
+    // outputs and what openapi-types defines but they're effectively the
+    // same thing
+    schema = groupOperationsByTag(
+      await OpenAPIParser.validate(schemaPath) as OpenAPIV3.Document
+    );
     return schema;
   } catch (e) {
     console.error(e);
@@ -21,18 +31,18 @@ export async function getSchema() {
   }
 }
 
-function groupOperationsByTag(schema: OpenAPI.Document): OpenAPI.Document {
+function groupOperationsByTag(schema: OpenAPIV3.Document): OpenAPIV3.Document {
   const tagsMap = tagArrayToMap(schema.tags);
   if (schema?.paths === undefined) {
     console.error("No paths found in schema");
-    return schema
+    return schema;
   }
 
   for (const [path, obj] of Object.entries(schema?.paths) as [
     keyof PathItemObject,
     PathItemObject,
   ][]) {
-    const { parameters, ...rest } = obj; // TODO: double check if the path params are coming through correctly
+    const { parameters, ...rest } = obj;
 
     for (const [httpVerb, pathItemObj] of Object.entries(rest) as [
       HttpMethods,
@@ -55,8 +65,12 @@ function groupOperationsByTag(schema: OpenAPI.Document): OpenAPI.Document {
           };
         }
 
-        console.log(restPathItemObj);
+        if (parameters && "$ref" in parameters) {
+          throw new Error("Ref parameters are not supported");
+        }
 
+        // @ts-ignore 
+        // TODO: figure out why types aren't matching up
         tagObj.operations.push({
           httpVerb,
           path: path as string,

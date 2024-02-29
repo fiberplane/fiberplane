@@ -1,27 +1,41 @@
 ---
 import { Markdown } from "@astropub/md";
+import type { OpenAPIV3 } from "openapi-types";
 
-const { pathParameters } = Astro.props;
+interface Props {
+  parameters: (OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject)[];
+}
+
+const { parameters } = Astro.props;
 ---
 
 <>
   <h4>Path parameters</h4>
   <ul>
     {
-      pathParameters.map((parameter) => (
-        <li class="path-parameter">
-          <h6>
-            <code>{parameter.name}</code>
-            <span>{parameter.schema.type}</span>
-            <span class="required-flag">
-              {parameter.required ? "Required" : ""}
-            </span>
-          </h6>
-          <p>
-            <Markdown.Inline of={parameter.description} />
-          </p>
-        </li>
-      ))
+      parameters.map((parameter) => {
+        if ("$ref" in parameter) {
+          throw new Error("References are not supported in path parameters");
+        }
+        const schema = parameter.schema as OpenAPIV3.SchemaObject;
+        return (
+          <li class="path-parameter">
+            <h6>
+              <code>{parameter.name}</code>
+              <span>{schema?.enum ? "enum" : schema.type}</span>{" "}
+              {schema?.format && <span>{schema.format}</span>}
+              <span class="required-flag">
+                {parameter.required ? "Required" : ""}
+              </span>
+            </h6>
+            <p>
+              {parameter.description && (
+                <Markdown.Inline of={parameter.description} />
+              )}
+            </p>
+          </li>
+        );
+      })
     }
   </ul>
 </>
