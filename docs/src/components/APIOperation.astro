@@ -89,8 +89,8 @@ if (requestBody && "$ref" in requestBody) {
       {summary && (await markdown.inline(summary))}
     </h2></a
   >
-  <p>
-    <code class="verb-path">{`${httpVerb.toUpperCase()} ${path}`}</code>
+  <p class="verb-path">
+    <code>{`${httpVerb.toUpperCase()} ${path}`}</code>
   </p>
   <div class="table-wrapper">
     <div class="table">
@@ -159,9 +159,7 @@ if (requestBody && "$ref" in requestBody) {
 
   .table-wrapper {
     display: grid;
-    /* grid-template-columns: 1fr; */
-
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     column-gap: var(--sl-content-pad-x);
   }
 
@@ -169,12 +167,7 @@ if (requestBody && "$ref" in requestBody) {
     display: grid;
     grid-template-rows: auto 1fr;
     row-gap: var(--sl-content-pad-y);
-  }
-
-  @media (min-width: 1024px;) {
-    .table-wrapper {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+    align-self: start;
   }
 
   .sample {
