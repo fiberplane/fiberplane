@@ -1,6 +1,7 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import { getSchema } from "@lib/openApiSchema";
+import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
 const schema = await getSchema();
 
 if (schema === undefined) {
@@ -9,16 +10,18 @@ if (schema === undefined) {
 ---
 
 <StarlightPage frontmatter={{ title: "API Reference" }}>
-  <ul>
+  <CardGrid>
     {
       schema.tags &&
         schema.tags.map((tag) => {
           return (
-            <li>
-              <a href={"api/" + tag.name.toLowerCase()}>{tag.name}</a>
-            </li>
+            <LinkCard
+              title={tag.name}
+              description={tag?.description}
+              href={"api/" + tag.name.toLowerCase()}
+            />
           );
         })
     }
-  </ul>
+  </CardGrid>
 </StarlightPage>
