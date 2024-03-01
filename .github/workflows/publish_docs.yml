@@ -1,0 +1,42 @@
+name: Build and publish docs website
+
+on:
+  workflow_call:
+    
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./docs
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_GITHUB_ACTIONS }}
+          aws-region: eu-central-1
+
+      - name: Install dependencies
+        run: yarn install --no-immutable
+
+      - name: Build site
+        run: yarn build
+
+      - name: Sync to S3 bucket
+        run: |
+          aws s3 sync \
+            --sse AES256 \
+            --delete
+            ./dist/ \
+            s3://${{ secrets.DOCS_BUCKET_ID }}
+
+      # - name: Invalidate CloudFront
+      #   run: |
+      #     aws cloudfront create-invalidation \
+      #     --distribution-id "AAAAAAAA" \ #FIXME: check this id
+      #       --paths '/*'
+

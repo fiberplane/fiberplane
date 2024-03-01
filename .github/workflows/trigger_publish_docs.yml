@@ -1,0 +1,11 @@
+name: Manually run docs build and deploy
+
+on:
+  workflow_dispatch:
+    
+
+jobs:
+  trigger-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: fiberplane/fiberplane/.github/workflows/publish_docs.yml@add-docs # FIXME: change this to @main before merge
