@@ -9,11 +9,9 @@ import type { OpenAPIV3 } from "openapi-types";
 interface Props {
   name: string;
   schema: OpenAPIV3.SchemaObject;
-  seen?: WeakSet<OpenAPIV3.SchemaObject>;
 }
 
 const { name, schema } = Astro.props;
-let { seen } = Astro.props;
 
 const openApiSpec = await getSchema();
 
@@ -21,14 +19,12 @@ if (!openApiSpec) {
   throw new Error("Schema not found");
 }
 
-if (!seen) {
-  seen = new WeakSet();
-}
-
 if (name === "providerCell") {
   // HACK: providerCell is a circular reference (it can return other cell types
   // including itself which causes an infinite loop), we're escaping here so it
   // doesn't blow the stack.
+	//
+	// will get back to this later
   return;
 }
 
@@ -69,7 +65,6 @@ type Properties = OpenAPIV3.SchemaObject["properties"];
 function getProperties(
   schema: OpenAPIV3.ArraySchemaObject | OpenAPIV3.NonArraySchemaObject,
 ): Properties | Properties[] | undefined {
-
   if (schema.oneOf) {
     if (schema?.discriminator) {
       return resolveOneOf(schema?.discriminator);
@@ -126,15 +121,15 @@ if (!properties || properties?.length === 0) {
     {
       Array.isArray(properties)
         ? properties.map((item) => {
-            const name = Object.keys(item!)[0];
-            const nestedSchema = item![name];
+            const nestedName = Object.keys(item!)[0];
+            const nestedSchema = item![nestedName];
             if ("$ref" in nestedSchema) {
               throw new Error("Nested $ref not supported");
             }
             return (
               <li>
                 <h6>
-                  <code>{name}</code>
+                  <code>{nestedName}</code>
                   <span>{nestedSchema?.type}</span>
                 </h6>
                 {nestedSchema?.description && (
@@ -143,22 +138,23 @@ if (!properties || properties?.length === 0) {
                   </p>
                 )}
                 {hasNestedProperties(nestedSchema) && (
-                  <Astro.self {name} schema={nestedSchema} {seen} />
+                  <!-- nestedName !== "providerCell" && ( -->
+                  <Astro.self name={nestedName} schema={nestedSchema} />
                 )}
               </li>
             );
           })
-        : Object.entries(properties).map(([name, nestedSchema]) => {
+        : Object.entries(properties).map(([nestedName, nestedSchema]) => {
             if ("$ref" in nestedSchema) {
               throw new Error("Nested $ref not supported");
             }
             return (
               <li>
                 <h6>
-                  <code>{name}</code>
+                  <code>{nestedName}</code>
                   <span>{nestedSchema?.type}</span>
                   <span class="required-flag">
-                    {required?.includes(name) ? "Required" : ""}
+                    {required?.includes(nestedName) ? "Required" : ""}
                   </span>
                 </h6>
                 {nestedSchema?.description && (
@@ -167,8 +163,9 @@ if (!properties || properties?.length === 0) {
                   </p>
                 )}
                 {hasNestedProperties(nestedSchema) && (
-                  <Astro.self {name} schema={nestedSchema} {seen} />
-                )}
+                  <!-- nestedName !== "providerCell" && ( -->
+                    <Astro.self name={nestedName} schema={nestedSchema} />
+                  )}
               </li>
             );
           })
