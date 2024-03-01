@@ -22,7 +22,7 @@ export async function getSchema() {
     // outputs and what openapi-types defines but they're effectively the
     // same thing
     schema = groupOperationsByTag(
-      await OpenAPIParser.validate(schemaPath) as OpenAPIV3.Document
+      (await OpenAPIParser.validate(schemaPath)) as OpenAPIV3.Document,
     );
     return schema;
   } catch (e) {
@@ -69,7 +69,7 @@ function groupOperationsByTag(schema: OpenAPIV3.Document): OpenAPIV3.Document {
           throw new Error("Ref parameters are not supported");
         }
 
-        // @ts-ignore 
+        // @ts-ignore
         // TODO: figure out why types aren't matching up
         tagObj.operations.push({
           httpVerb,

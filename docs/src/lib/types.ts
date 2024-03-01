@@ -7,7 +7,9 @@ export type Operation = Omit<OpenAPIV3.OperationObject, "tags"> & {
 
 export type TagObject = OpenAPIV3.TagObject | OpenAPIV3_1.TagObject;
 
-export type ExtendedTagObject = TagObject & { operations: Operation[] | undefined };
+export type ExtendedTagObject = TagObject & {
+  operations: Operation[] | undefined;
+};
 
 export type PathItemObject =
   | OpenAPIV3.PathItemObject
