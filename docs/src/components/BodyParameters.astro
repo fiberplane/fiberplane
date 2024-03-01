@@ -3,6 +3,7 @@ import { Markdown, markdown } from "@astropub/md";
 import NestedParameter from "@components/NestedParameter.astro";
 import { hasNestedProperties } from "@lib/utils";
 import { OpenAPIV3 } from "openapi-types";
+import Parameter from "./Parameter.astro";
 
 interface Props {
   requestBody: OpenAPIV3.RequestBodyObject;
@@ -67,29 +68,23 @@ function getType(value: OpenAPIV3.SchemaObject) {
   <p>{requestBody?.description}</p>
   <ul>
     {
-      Object.entries(properties).map(([key, schema]) => {
+      Object.entries(properties).map(([name, schema]) => {
         if ("$ref" in schema) {
           return;
         }
 
         return (
-          <li class="body-parameter">
-            <h6>
-              <code>{key}</code>
-              <span>{getType(schema)}</span>
-              <span class="required-flag">
-                {required?.includes(key) ? "Required" : ""}
-              </span>
-            </h6>
-            <p>
-              <Markdown.Inline
-                of={schema?.description ? schema?.description : ""}
-              />
-            </p>
+          <Parameter
+            {name}
+            type={getType(schema)}
+            format={schema.format}
+            required={required?.includes(name)}
+            description={schema?.description}
+          >
             {hasNestedProperties(schema) && (
-              <NestedParameter name={key} {schema} />
+              <NestedParameter name={name} {schema} />
             )}
-          </li>
+          </Parameter>
         );
       })
     }
@@ -104,32 +99,5 @@ function getType(value: OpenAPIV3.SchemaObject) {
 
   h4 {
     font-size: var(--sl-text-h6) !important;
-  }
-
-  .body-parameter {
-    padding-top: 1rem;
-    border-top: 1px solid var(--sl-color-gray-5);
-  }
-
-  .body-parameter > h6 {
-    font-size: var(--sl-text-sm) !important;
-    font-weight: normal;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: var(--sl-content-pad-x);
-  }
-
-  .body-parameter code {
-    font-weight: bold !important;
-    background: var(--sl-color-gray-6);
-    border-radius: 4px;
-    padding: 4px;
-    margin: 0;
-  }
-
-  .required-flag {
-    font-size: var(--sl-text-xs);
-    color: var(--sl-color-red);
   }
 </style>

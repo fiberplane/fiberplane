@@ -1,5 +1,5 @@
 ---
-import { Markdown } from "@astropub/md";
+import Parameter from "@components/Parameter.astro";
 import type { OpenAPIV3 } from "openapi-types";
 
 interface Props {
@@ -17,23 +17,18 @@ const { parameters } = Astro.props;
         if ("$ref" in parameter) {
           throw new Error("References are not supported in path parameters");
         }
+
+        const { name, required, description } = parameter;
         const schema = parameter.schema as OpenAPIV3.SchemaObject;
+
         return (
-          <li class="path-parameter">
-            <h6>
-              <code>{parameter.name}</code>
-              <span>{schema?.enum ? "enum" : schema.type}</span>{" "}
-              {schema?.format && <span>{schema.format}</span>}
-              <span class="required-flag">
-                {parameter.required ? "Required" : ""}
-              </span>
-            </h6>
-            <p>
-              {parameter.description && (
-                <Markdown.Inline of={parameter.description} />
-              )}
-            </p>
-          </li>
+          <Parameter
+            name={name}
+            type={schema.type}
+            format={schema.format}
+            required={required}
+            description={description}
+          />
         );
       })
     }
@@ -48,32 +43,5 @@ const { parameters } = Astro.props;
 
   h4 {
     font-size: var(--sl-text-h6) !important;
-  }
-
-  .path-parameter {
-    padding-top: 1rem;
-    border-top: 1px solid var(--sl-color-gray-5);
-  }
-
-  .path-parameter > h6 {
-    font-size: var(--sl-text-sm) !important;
-    font-weight: normal;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: var(--sl-content-pad-x);
-  }
-
-  .path-parameter code {
-    font-weight: bold;
-    background: var(--sl-color-gray-6);
-    border-radius: 4px;
-    padding: 4px;
-    margin: 0;
-  }
-
-  .required-flag {
-    font-size: var(--sl-text-xs);
-    color: var(--sl-color-red);
   }
 </style>

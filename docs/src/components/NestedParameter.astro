@@ -5,6 +5,7 @@ import { Markdown } from "@astropub/md";
 import { getSchema } from "@lib/openApiSchema";
 import { hasNestedProperties } from "@lib/utils";
 import type { OpenAPIV3 } from "openapi-types";
+import Parameter from "./Parameter.astro";
 
 interface Props {
   name: string;
@@ -23,8 +24,8 @@ if (name === "providerCell") {
   // HACK: providerCell is a circular reference (it can return other cell types
   // including itself which causes an infinite loop), we're escaping here so it
   // doesn't blow the stack.
-	//
-	// will get back to this later
+  //
+  // will get back to this later
   return;
 }
 
@@ -127,21 +128,17 @@ if (!properties || properties?.length === 0) {
               throw new Error("Nested $ref not supported");
             }
             return (
-              <li>
-                <h6>
-                  <code>{nestedName}</code>
-                  <span>{nestedSchema?.type}</span>
-                </h6>
-                {nestedSchema?.description && (
-                  <p>
-                    <Markdown.Inline of={nestedSchema?.description} />
-                  </p>
-                )}
+              <Parameter
+                name={nestedName}
+                type={nestedSchema?.type}
+                format={nestedSchema?.format}
+                required={required?.includes(nestedName)}
+                description={nestedSchema?.description}
+              >
                 {hasNestedProperties(nestedSchema) && (
-                  <!-- nestedName !== "providerCell" && ( -->
                   <Astro.self name={nestedName} schema={nestedSchema} />
                 )}
-              </li>
+              </Parameter>
             );
           })
         : Object.entries(properties).map(([nestedName, nestedSchema]) => {
@@ -149,24 +146,17 @@ if (!properties || properties?.length === 0) {
               throw new Error("Nested $ref not supported");
             }
             return (
-              <li>
-                <h6>
-                  <code>{nestedName}</code>
-                  <span>{nestedSchema?.type}</span>
-                  <span class="required-flag">
-                    {required?.includes(nestedName) ? "Required" : ""}
-                  </span>
-                </h6>
-                {nestedSchema?.description && (
-                  <p>
-                    <Markdown.Inline of={nestedSchema?.description} />
-                  </p>
-                )}
+              <Parameter
+                name={nestedName}
+                type={nestedSchema?.type}
+                format={nestedSchema?.format}
+                required={required?.includes(nestedName)}
+                description={nestedSchema?.description}
+              >
                 {hasNestedProperties(nestedSchema) && (
-                  <!-- nestedName !== "providerCell" && ( -->
-                    <Astro.self name={nestedName} schema={nestedSchema} />
-                  )}
-              </li>
+                  <Astro.self name={nestedName} schema={nestedSchema} />
+                )}
+              </Parameter>
             );
           })
     }
@@ -179,32 +169,5 @@ if (!properties || properties?.length === 0) {
     padding: 0 var(--sl-content-pad-x) var(--sl-content-pad-x);
     background-color: var(--sl-color-gray-6);
     border-left: 3px solid var(--sl-color-gray-5);
-  }
-
-  li {
-    border-bottom: 1px solid var(--sl-color-gray-5);
-    padding-top: 1rem;
-  }
-
-  h6 {
-    font-size: var(--sl-text-sm) !important;
-    font-weight: normal !important;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: var(--sl-content-pad-x);
-  }
-
-  .nested-parameters code {
-    font-weight: bold;
-    background: var(--sl-color-gray-5);
-    border-radius: 4px;
-    padding: 4px;
-    margin: 0;
-  }
-
-  .required-flag {
-    font-size: var(--sl-text-xs);
-    color: var(--sl-color-red);
   }
 </style>
