@@ -1,8 +1,8 @@
-name: Manually run docs build and deploy
+name: Manually publish docs
 
 on:
   workflow_dispatch:
-    
+
 
 jobs:
   trigger-deploy:
