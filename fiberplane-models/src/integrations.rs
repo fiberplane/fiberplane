@@ -13,8 +13,8 @@ use typed_builder::TypedBuilder;
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct IntegrationSummary {
-    pub id: IntegrationId,
+pub struct PersonalIntegrationSummary {
+    pub id: PersonalIntegrationId,
     pub status: IntegrationStatus,
 
     #[builder(default, setter(into))]
@@ -34,9 +34,40 @@ pub struct IntegrationSummary {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "lowercase")]
-pub enum IntegrationId {
+pub enum PersonalIntegrationId {
     GitHub,
 }
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct WorkspaceIntegrationSummary {
+    pub id: WorkspaceIntegrationId,
+    pub status: IntegrationStatus,
+
+    #[builder(default, setter(into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<Timestamp>,
+    #[builder(default, setter(into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub updated_at: Option<Timestamp>,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize, Display, EnumIter)]
+#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "lowercase")]
+pub enum WorkspaceIntegrationId {}
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Display, EnumIter)]
 #[cfg_attr(
