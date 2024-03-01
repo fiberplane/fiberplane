@@ -6,4 +6,4 @@ on:
 
 jobs:
   trigger-deploy:
-    uses: fiberplane/fiberplane/.github/workflows/publish_docs.yml@add-docs # FIXME: change this to @main before merge
+    uses: fiberplane/fiberplane/.github/workflows/publish_docs.yml@main
