@@ -41,6 +41,11 @@ pub struct NewPagerDutyReceiver {
     /// created. If this is empty then no template will be expanded.
     #[builder(default, setter())]
     pub incident_created_template_name: Option<Name>,
+
+    /// A secret as defined by PagerDuty when creating the webhook. This secret
+    /// will be use to verify that any incoming webhooks are valid.
+    #[builder(default, setter(into))]
+    pub secret: Option<String>,
 }
 
 /// PagerDutyReceiver represents a single PagerDuty receiver in Fiberplane.
@@ -56,12 +61,12 @@ pub struct PagerDutyReceiver {
     #[builder(default, setter())]
     pub incident_created_template_name: Option<Name>,
 
-    /// A shared security-key that should be set in the PagerDuty webhook
-    /// customer header.
-    pub security_key: String,
-
     /// The URL that should be set in the PagerDuty webhook.
     pub webhook_url: String,
+
+    /// A secret is set on the PagerDuty receiver. This will verify any incoming
+    /// webhooks against this secret and drops requests that do no pass.
+    pub secret_set: bool,
 
     /// Timestamp that the PagerDuty receiver was created.
     #[builder(setter(into))]
@@ -86,11 +91,17 @@ pub struct UpdatePagerDutyReceiver {
     )]
     pub incident_created_template_name: Option<Option<Name>>,
 
-    /// If this value is set to true, then a new random security-key will be
-    /// generated. This new value will be part of the response.
-    #[builder(default, setter())]
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub regenerate_security_key: bool,
+    /// A secret as defined by PagerDuty when creating the webhook. This secret
+    /// will be use to verify that any incoming webhooks are valid.
+    ///
+    /// Set this to `None` to remove the secret and disable verification.
+    #[builder(default, setter(into))]
+    #[serde(
+        default,
+        deserialize_with = "crate::deserialize_some",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub secret: Option<Option<String>>,
 }
 
 /// Errors that can occur when creating a new PagerDuty receiver.
