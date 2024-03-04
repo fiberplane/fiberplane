@@ -5161,6 +5161,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/pagerDutyReceiverListError"
+  /api/workspaces/{workspaceId}/pagerduty/receivers/{pagerDutyReceiverName}:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/pagerDutyReceiverName"
     post:
       operationId: pagerduty_receiver_create
       x-new-style: true
@@ -5188,10 +5192,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/pagerDutyReceiverCreateError"
-  /api/workspaces/{workspaceId}/pagerduty/receivers/{pagerDutyReceiverName}:
-    parameters:
-      - $ref: "#/components/parameters/workspaceId"
-      - $ref: "#/components/parameters/pagerDutyReceiverName"
     get:
       operationId: pagerduty_receiver_get
       x-new-style: true

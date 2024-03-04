@@ -1265,24 +1265,6 @@ For authenticating with the API see the Authentication section in the docs
     }
 
     #[doc = r#"TODO"#]
-    pub async fn pagerduty_receiver_create(
-        &self,
-        workspace_id: base64uuid::Base64Uuid,
-        payload: models::NewPagerDutyReceiver,
-    ) -> Result<models::PagerDutyReceiver, ApiClientError<models::PagerDutyReceiverCreateError>>
-    {
-        let path = &format!(
-            "/api/workspaces/{workspaceId}/pagerduty/receivers",
-            workspaceId = workspace_id,
-        );
-        let mut req = self.request(Method::POST, path)?;
-
-        let req = req.json(&payload);
-
-        self.do_req(req).await
-    }
-
-    #[doc = r#"TODO"#]
     pub async fn pagerduty_receiver_get(
         &self,
         workspace_id: base64uuid::Base64Uuid,
@@ -1294,6 +1276,26 @@ For authenticating with the API see the Authentication section in the docs
             pagerDutyReceiverName = pager_duty_receiver_name,
         );
         let mut req = self.request(Method::GET, path)?;
+
+        self.do_req(req).await
+    }
+
+    #[doc = r#"TODO"#]
+    pub async fn pagerduty_receiver_create(
+        &self,
+        workspace_id: base64uuid::Base64Uuid,
+        pager_duty_receiver_name: &fiberplane_models::names::Name,
+        payload: models::NewPagerDutyReceiver,
+    ) -> Result<models::PagerDutyReceiver, ApiClientError<models::PagerDutyReceiverCreateError>>
+    {
+        let path = &format!(
+            "/api/workspaces/{workspaceId}/pagerduty/receivers/{pagerDutyReceiverName}",
+            workspaceId = workspace_id,
+            pagerDutyReceiverName = pager_duty_receiver_name,
+        );
+        let mut req = self.request(Method::POST, path)?;
+
+        let req = req.json(&payload);
 
         self.do_req(req).await
     }
