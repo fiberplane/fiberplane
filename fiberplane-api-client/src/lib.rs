@@ -1263,6 +1263,8 @@ For authenticating with the API see the Authentication section in the docs
         workspace_id: base64uuid::Base64Uuid,
         page: Option<i32>,
         limit: Option<i32>,
+        sort_by: Option<&str>,
+        sort_direction: Option<&str>,
     ) -> Result<
         models::PagedVec<models::PagerDutyReceiver>,
         ApiClientError<models::PagerDutyReceiverListError>,
@@ -1278,6 +1280,12 @@ For authenticating with the API see the Authentication section in the docs
         }
         if let Some(limit) = limit {
             req = req.query(&[("limit", limit)]);
+        }
+        if let Some(sort_by) = sort_by {
+            req = req.query(&[("sort_by", sort_by)]);
+        }
+        if let Some(sort_direction) = sort_direction {
+            req = req.query(&[("sort_direction", sort_direction)]);
         }
 
         self.do_req_paged(req).await

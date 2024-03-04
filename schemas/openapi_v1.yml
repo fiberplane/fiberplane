@@ -5196,7 +5196,17 @@ paths:
       parameters:
         - $ref: "#/components/parameters/page"
         - $ref: "#/components/parameters/limit"
-        # TODO: add sort by
+        - in: query
+          name: sort_by
+          description: Sort the resulting list by the following field (defaults to name)
+          schema:
+            type: string
+            enum:
+              - "name"
+              - "created_at"
+              - "updated_at"
+          required: false
+        - $ref: "#/components/parameters/sortDirection"
       responses:
         "200":
           description: OK.
