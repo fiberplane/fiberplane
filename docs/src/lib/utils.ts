@@ -20,8 +20,7 @@ export function hasNestedProperties(value: OpenAPIV3.SchemaObject) {
   return false;
 }
 
-// @ts-ignore can literally be anything
-export function circularStringify(obj: any) {
+export function circularStringify<T>(obj: T) {
   const seen = new WeakSet();
   return JSON.stringify(
     obj,

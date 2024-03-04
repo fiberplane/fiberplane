@@ -94,8 +94,11 @@ function getProperties(
       return schema.properties;
     }
 
-    if (schema.additionalProperties) {
-      // @ts-ignore
+    if (
+      schema.additionalProperties &&
+      typeof schema.additionalProperties === "object" &&
+      "properties" in schema.additionalProperties
+    ) {
       return schema.additionalProperties.properties;
     }
   }

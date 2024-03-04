@@ -24,8 +24,7 @@ const {
 } = Astro.props;
 
 for (const [propKey, prop] of Object.entries(Astro.props)) {
-  // @ts-ignore
-  if (typeof prop === "object" && "$ref" in prop) {
+  if (prop && typeof prop === "object" && "$ref" in prop) {
     throw new Error(`${propKey} cannot be a $ref`);
   }
 }
