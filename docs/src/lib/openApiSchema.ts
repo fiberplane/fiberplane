@@ -65,12 +65,12 @@ function groupOperationsByTag(schema: OpenAPIV3.Document): OpenAPIV3.Document {
           };
         }
 
+        if (tagObj.operations === undefined) tagObj.operations = []
+
         if (parameters && "$ref" in parameters) {
           throw new Error("Ref parameters are not supported");
         }
 
-        // @ts-ignore
-        // TODO: figure out why types aren't matching up
         tagObj.operations.push({
           httpVerb,
           path: path as string,
