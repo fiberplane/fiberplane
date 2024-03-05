@@ -3,10 +3,9 @@ name: Manually publish docs
 on:
   workflow_dispatch:
 
-
 jobs:
   trigger-deploy:
     uses: ./.github/workflows/publish_docs.yml
     secrets:
       AWS_ROLE_GITHUB_ACTIONS: ${{ secrets.AWS_ROLE_GITHUB_ACTIONS }}
-      DOCS_BUCKET_ID: ${{ secrets.DOCS_BUCKET_ID }}
+      DOCS_BUCKET_ID: ${{ env.DOCS_BUCKET_ID }}
