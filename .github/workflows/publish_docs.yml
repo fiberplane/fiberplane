@@ -2,7 +2,11 @@ name: Build and publish docs website
 
 on:
   workflow_call:
-    
+    secrets:
+      AWS_ROLE_GITHUB_ACTIONS:
+        required: true
+      DOCS_BUCKET_ID:
+        required: true
 
 jobs:
   deploy:
@@ -34,9 +38,9 @@ jobs:
             ./dist/ \
             s3://${{ secrets.DOCS_BUCKET_ID }}
 
-      # - name: Invalidate CloudFront
-      #   run: |
-      #     aws cloudfront create-invalidation \
-      #     --distribution-id "AAAAAAAA" \ #FIXME: check this id
-      #       --paths '/*'
+    # - name: Invalidate CloudFront
+    #   run: |
+    #     aws cloudfront create-invalidation \
+    #     --distribution-id "AAAAAAAA" \ #FIXME: check this id
+    #       --paths '/*'
 
