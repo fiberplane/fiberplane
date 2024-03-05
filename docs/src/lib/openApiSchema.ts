@@ -33,12 +33,12 @@ export async function getSchema() {
 
 function groupOperationsByTag(schema: OpenAPIV3.Document): OpenAPIV3.Document {
   const tagsMap = tagArrayToMap(schema.tags);
-  if (schema?.paths === undefined) {
+  if (schema.paths && schema?.paths === undefined) {
     console.error("No paths found in schema");
     return schema;
   }
 
-  for (const [path, obj] of Object.entries(schema?.paths) as [
+  for (const [path, obj] of Object.entries(schema.paths) as [
     keyof PathItemObject,
     PathItemObject,
   ][]) {
