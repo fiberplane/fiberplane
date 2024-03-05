@@ -35,11 +35,7 @@ jobs:
 
       - name: Sync to S3 bucket
         run: |
-          aws s3 sync \
-            --sse AES256 \
-            --delete
-            ./dist/ \
-            s3://${{ secrets.DOCS_BUCKET_ID }}
+          aws s3 sync --delete ./dist/ s3://${{ secrets.DOCS_BUCKET_ID }}
 
     # - name: Invalidate CloudFront
     #   run: |
