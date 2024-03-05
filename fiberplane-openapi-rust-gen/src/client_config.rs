@@ -68,7 +68,7 @@ pub(crate) fn generate_api_client(src_path: &Path) -> Result<()> {
 
     writer
         .flush()
-        .context("Failed to flush output for `builder.rs`")
+        .context("Failed to flush output for `api_client.rs`")
 }
 
 fn generate_config_method(writer: &mut BufWriter<File>) -> Result<()> {
