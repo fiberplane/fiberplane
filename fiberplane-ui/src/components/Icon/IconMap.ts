@@ -215,6 +215,7 @@ import ModulesDuotoneIcon from "./icons/ModulesDuotone.svg";
 import MoneyDuotoneIcon from "./icons/MoneyDuotone.svg";
 import MoonIcon from "./icons/Moon.svg";
 import MoonDuotoneIcon from "./icons/MoonDuotone.svg";
+import NewNotebookIcon from "./icons/NewNotebook.svg";
 import NoteIcon from "./icons/Note.svg";
 import NoteBlankIcon from "./icons/NoteBlank.svg";
 import NotePencilIcon from "./icons/NotePencil.svg";
@@ -247,6 +248,7 @@ import QuestionIcon from "./icons/Question.svg";
 import QuotesIcon from "./icons/Quotes.svg";
 import RobotIcon from "./icons/Robot.svg";
 import RocketIcon from "./icons/Rocket.svg";
+import RocketDuotoneIcon from "./icons/RocketDuotone.svg";
 import ScissorsIcon from "./icons/Scissors.svg";
 import SearchDuotoneIcon from "./icons/SearchDuotone.svg";
 import SettingsDuotoneIcon from "./icons/SettingsDuotone.svg";
@@ -315,6 +317,7 @@ import YoutubeLogoIcon from "./icons/YoutubeLogo.svg";
 
 export const ICON_MAP = {
   alarm_duotone: AlarmDuotoneIcon,
+  new_notebook: NewNotebookIcon,
   alarm: AlarmIcon,
   alerts_duotone: AlertsDuotoneIcon,
   android_logo: AndroidLogoIcon,
@@ -562,6 +565,7 @@ export const ICON_MAP = {
   question: QuestionIcon,
   quotes: QuotesIcon,
   robot: RobotIcon,
+  rocket_duotone: RocketDuotoneIcon,
   rocket: RocketIcon,
   scissors: ScissorsIcon,
   search_duotone: SearchDuotoneIcon,

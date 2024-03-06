@@ -1,0 +1,21 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="20"
+  height="20"
+  viewBox="0 0 20 20"
+  fill="none"
+>
+  <rect
+    opacity="0.2"
+    x="5"
+    y="4"
+    width="11"
+    height="13"
+    fill="currentColor"
+  />
+  <path d="M4 9V6H1V4H4V1H6V4H9V6H6V9H4Z" fill="currentColor" />
+  <path
+    d="M12 2C11.4477 2 11 2.44772 11 3C11 3.55228 11.4477 4 12 4H15V16H5V12C5 11.4477 4.55228 11 4 11C3.44772 11 3 11.4477 3 12V16C3 17.1046 3.89543 18 5 18H15C16.1046 18 17 17.1046 17 16V4C17 2.89543 16.1046 2 15 2H12Z"
+    fill="currentColor"
+  />
+</svg>
