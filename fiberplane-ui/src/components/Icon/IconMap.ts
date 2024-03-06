@@ -108,6 +108,7 @@ import EyeSlashIcon from "./icons/EyeSlash.svg";
 import FacebookLogoIcon from "./icons/FacebookLogo.svg";
 import FiberplaneLogoIcon from "./icons/FiberplaneLogo.svg";
 import FiberplaneLogoCrackedIcon from "./icons/FiberplaneLogoCracked.svg";
+import FiberplaneLogoInverted from "./icons/FiberplaneLogoInverted.svg";
 import FiberplaneLogoType from "./icons/FiberplaneLogoType.svg";
 import FigmaLogoIcon from "./icons/FigmaLogo.svg";
 import FileIcon from "./icons/File.svg";
@@ -317,7 +318,6 @@ import YoutubeLogoIcon from "./icons/YoutubeLogo.svg";
 
 export const ICON_MAP = {
   alarm_duotone: AlarmDuotoneIcon,
-  new_notebook: NewNotebookIcon,
   alarm: AlarmIcon,
   alerts_duotone: AlertsDuotoneIcon,
   android_logo: AndroidLogoIcon,
@@ -426,6 +426,7 @@ export const ICON_MAP = {
   eye: EyeIcon,
   facebook_logo: FacebookLogoIcon,
   fiberplane_logo_cracked: FiberplaneLogoCrackedIcon,
+  fiberplane_logo_inverted: FiberplaneLogoInverted,
   fiberplane_logo_type: FiberplaneLogoType,
   fiberplane_logo: FiberplaneLogoIcon,
   figma_logo: FigmaLogoIcon,
@@ -534,6 +535,7 @@ export const ICON_MAP = {
   money_duotone: MoneyDuotoneIcon,
   moon_duotone: MoonDuotoneIcon,
   moon: MoonIcon,
+  new_notebook: NewNotebookIcon,
   note_blank: NoteBlankIcon,
   note_pencil: NotePencilIcon,
   note: NoteIcon,
