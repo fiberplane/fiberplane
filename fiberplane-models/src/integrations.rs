@@ -67,7 +67,9 @@ pub struct WorkspaceIntegrationSummary {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "lowercase")]
-pub enum WorkspaceIntegrationId {}
+pub enum WorkspaceIntegrationId {
+    Todo
+}
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Display, EnumIter)]
 #[cfg_attr(
