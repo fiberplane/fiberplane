@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "formatter": {
+    "enabled": false,
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  },
+  "files": {
+    "ignore": [
+      ".vscode/**",
+      "dist/**",
+      "fiberplane-provider-protocol/ts-runtime/**",
+      "node_modules/**",
+      "target/**",
+      "**/providerTypes.ts",
+      "**/*.json"
+    ]
+  }
+}

@@ -1,0 +1,183 @@
+---
+import { HTTPSnippet, type HarRequest } from "@readme/httpsnippet";
+import { Code } from "@astrojs/starlight/components";
+import { Markdown, markdown } from "@astropub/md";
+import PathParameters from "@components/PathParameters.astro";
+import BodyParameters from "@components/BodyParameters.astro";
+import Returns from "@components/Returns.astro";
+import { circularStringify } from "@lib/utils";
+import type { Operation } from "@lib/types";
+import type { OpenAPIV3 } from "openapi-types";
+
+interface Props extends Operation {}
+
+const {
+  summary,
+  description,
+  httpVerb,
+  operationId,
+  path,
+  parameters,
+  security,
+  responses,
+  requestBody,
+} = Astro.props;
+
+for (const [propKey, prop] of Object.entries(Astro.props)) {
+  if (prop && typeof prop === "object" && "$ref" in prop) {
+    throw new Error(`${propKey} cannot be a $ref`);
+  }
+}
+
+type Header = HarRequest["headers"][number];
+
+function createHeaders() {
+  let headers: Header[] = [];
+
+  if (!security) {
+    headers.push({ name: "Authorization", value: "Bearer <YOUR_API_TOKEN>" });
+  }
+
+  return headers;
+}
+
+// @ts-ignore we don't actually need all of the properties here
+const snippet = new HTTPSnippet({
+  url: "https://studio.fiberplane.com" + path,
+  method: httpVerb,
+  headers: createHeaders(),
+  bodySize: -1,
+  headersSize: -1,
+});
+
+let codeSnippet = await snippet.convert("shell", "", {
+  short: true,
+  indent: "\t",
+});
+
+if (codeSnippet && Array.isArray(codeSnippet)) {
+  codeSnippet = codeSnippet.join("\n");
+}
+
+let responseSchema;
+
+if (responses) {
+  let sampleResponse = responses["200"]
+    ? responses["200"]
+    : Object.values(responses)[0];
+  if ("content" in sampleResponse) {
+    if (
+      sampleResponse?.content &&
+      "application/json" in sampleResponse?.content
+    ) {
+      responseSchema = circularStringify(
+        sampleResponse.content["application/json"].schema,
+      );
+    }
+  }
+}
+
+if (requestBody && "$ref" in requestBody) {
+  throw new Error("requestBody cannot be a $ref");
+}
+---
+
+<section>
+  <a href={`#${operationId}`}
+    ><h2 id={operationId}>
+      {summary && (await markdown.inline(summary))}
+    </h2></a
+  >
+  <p class="verb-path">
+    <code>{`${httpVerb.toUpperCase()} ${path}`}</code>
+  </p>
+  <div class="table-wrapper">
+    <div class="table">
+      <p>
+        {description && <Markdown.Inline of={description} />}
+      </p>
+      {parameters && <PathParameters {parameters} />}
+
+      {requestBody && <BodyParameters requestBody={requestBody} />}
+
+      {
+        responses && (
+          <Returns responses={responses as OpenAPIV3.ResponsesObject} />
+        )
+      }
+    </div>
+    <div class="sample">
+      <div>
+        <Code
+          code={codeSnippet ? codeSnippet : ""}
+          frame="auto"
+          title="Example cURL request"
+        />
+        {
+          responseSchema && (
+            <Code
+              title="Response schema"
+              code={responseSchema}
+              class="response-schema"
+            />
+          )
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  a {
+    text-decoration: none;
+  }
+
+  p,
+  li {
+    font-size: var(--sl-text-sm);
+  }
+
+  .verb-path {
+    font-size: var(--sl-text-base);
+  }
+
+  .code {
+    text-wrap: wrap;
+  }
+
+  a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--sl-color-gray-5);
+  }
+
+  h2 {
+    font-size: var(--sl-text-h4) !important;
+    padding-bottom: var(--sl-content-pad-y);
+  }
+
+  .table-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    column-gap: var(--sl-content-pad-x);
+  }
+
+  .table {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    row-gap: var(--sl-content-pad-y);
+    align-self: start;
+  }
+
+  .sample {
+    margin-top: 0 !important;
+    position: sticky;
+    align-self: start;
+    top: 5rem;
+  }
+
+  .response-schema {
+    overflow: auto;
+    max-height: 400px;
+  }
+</style>

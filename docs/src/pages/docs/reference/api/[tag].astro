@@ -1,0 +1,66 @@
+---
+import type { GetStaticPaths, MarkdownHeading } from "astro";
+import StarlightPage, {
+  type StarlightPageProps,
+} from "@astrojs/starlight/components/StarlightPage.astro";
+import APIOperation from "@components/APIOperation.astro";
+
+import { getSchema } from "@lib/openApiSchema.ts";
+import type { ExtendedTagObject } from "@lib/types";
+
+export const getStaticPaths = (async () => {
+  const schema = await getSchema();
+  if (!schema || !schema?.tags)
+    throw new Error("No schema or tagged paths in the schema");
+
+  return schema.tags.map((tag) => {
+    return {
+      params: { tag: tag.name.toLowerCase() },
+      props: { tag },
+    };
+  });
+}) satisfies GetStaticPaths;
+
+interface Props {
+  tag: ExtendedTagObject;
+}
+
+const { tag } = Astro.props;
+const { name, operations, description } = tag;
+
+if (!operations) {
+  throw new Error("No operations found for tag");
+}
+
+const headings: MarkdownHeading[] = operations.map((operation) => {
+  return {
+    depth: 2,
+    text: operation.summary ? operation.summary : "",
+    slug: operation.operationId ? operation.operationId : "",
+  };
+});
+---
+
+<StarlightPage frontmatter={{ title: name }} hasSidebar headings={headings}>
+  <p>{tag.description}</p>
+  <div>
+    {
+      operations.map(async (operation) => {
+        return <APIOperation {...operation} />;
+      })
+    }
+  </div>
+</StarlightPage>
+
+<style>
+  :root {
+    --sl-content-width: 75rem;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 5rem;
+    justify-content: space-between;
+  }
+</style>

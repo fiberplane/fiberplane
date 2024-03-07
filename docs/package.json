@@ -1,0 +1,33 @@
+{
+  "name": "fiberplane-docs",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev --host",
+    "format": "prettier --write .",
+    "lint": "cd .. && yarn lint",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.5.3",
+    "openapi-types": "^12.1.3",
+    "prettier": "^3.2.5",
+    "prettier-plugin-astro": "^0.13.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@astrojs/check": "0.5.3",
+    "@astrojs/starlight": "^0.19.0",
+    "@astrojs/vue": "^4.0.8",
+    "@astropub/md": "^0.4.0",
+    "@readme/httpsnippet": "^8.1.4",
+    "@readme/openapi-parser": "^2.5.0",
+    "@scalar/api-reference": "^1.13.9",
+    "@scalar/swagger-parser": "^0.5.15",
+    "astro": "4.4.0",
+    "sharp": "^0.32.5"
+  }
+}
