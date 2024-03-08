@@ -1,6 +1,6 @@
-import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import markdownIntegration from "@astropub/md";
+import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
