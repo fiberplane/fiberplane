@@ -1,7 +1,7 @@
 use crate::builder::ApiClientBuilder;
 use anyhow::Result;
 use bytes::Bytes;
-use fiberplane_models::paging::{PagedVec, HAS_MORE_RESULTS_KEY, TOTAL_RESULTS_KEY};
+use fiberplane_models::pagination::{PagedVec, HAS_MORE_RESULTS_KEY, TOTAL_RESULTS_KEY};
 use reqwest::{Client, Method, RequestBuilder, Response, StatusCode};
 use thiserror::Error;
 use url::Url;

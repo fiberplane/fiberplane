@@ -37,7 +37,7 @@ pub mod labels;
 pub mod names;
 pub mod notebooks;
 pub mod pagerduty;
-pub mod paging;
+pub mod pagination;
 pub mod providers;
 pub mod proxies;
 pub mod query_data;

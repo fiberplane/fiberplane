@@ -27,7 +27,7 @@ pub(crate) mod models {
     pub(crate) use fiberplane_models::notebooks::operations::*;
     pub(crate) use fiberplane_models::notebooks::*;
     pub(crate) use fiberplane_models::pagerduty::*;
-    pub(crate) use fiberplane_models::paging::*;
+    pub(crate) use fiberplane_models::pagination::*;
     pub(crate) use fiberplane_models::proxies::*;
     pub(crate) use fiberplane_models::query_data::*;
     pub(crate) use fiberplane_models::realtime::*;

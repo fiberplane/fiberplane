@@ -7,7 +7,7 @@ use typed_builder::TypedBuilder;
 
 // Keep this here for backwards compatibility
 #[deprecated(note = "Use `fiberplane_models::paging::Pagination` instead")]
-pub type Pagination = crate::paging::Pagination;
+pub type Pagination = crate::pagination::Pagination;
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, TypedBuilder)]
 #[non_exhaustive]

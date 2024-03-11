@@ -1,6 +1,6 @@
 use crate::labels::Label;
 use crate::names::Name;
-use crate::paging::Pagination;
+use crate::pagination::Pagination;
 use crate::sorting::{NotebookSortFields, SortDirection, Sorting, ViewSortFields};
 use crate::timestamps::Timestamp;
 use base64uuid::Base64Uuid;
