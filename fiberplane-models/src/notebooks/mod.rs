@@ -8,7 +8,7 @@ use base64uuid::Base64Uuid;
 use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use strum_macros::Display;
 use typed_builder::TypedBuilder;
 use url::Url;
@@ -18,12 +18,9 @@ use crate::names::Name;
 use crate::views::RelativeTime;
 pub use cells::*;
 
+pub mod front_matter;
+pub use front_matter::FrontMatter;
 pub mod operations;
-
-/// A JSON object which may or may not contain well known keys.
-/// More information in the [RFC](https://www.notion.so/fiberplane/RFC-58-Front-matter-Specialization-Front-matter-a9b3b51614ee48a19ec416c02a9fd647)
-// this is on purpose a `Map<String, Value>` instead of a `Value` to disallow top level arrays
-pub type FrontMatter = BTreeMap<String, Value>;
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, TypedBuilder)]
 #[cfg_attr(

@@ -15,6 +15,7 @@ pub fn handle_generate_api_client_command() -> TaskResult {
         models: vec![
             "fiberplane_models::notebooks::*".to_owned(),
             "fiberplane_models::notebooks::operations::*".to_owned(),
+            "fiberplane_models::notebooks::front_matter::*".to_owned(),
             "fiberplane_models::blobs::*".to_owned(),
             "fiberplane_models::comments::*".to_owned(),
             "fiberplane_models::data_sources::*".to_owned(),

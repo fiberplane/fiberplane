@@ -2,7 +2,10 @@ use super::{TableColumnDefinition, TableColumnId, TableRow, TableRowValue};
 use crate::data_sources::SelectedDataSource;
 use crate::formatting::Formatting;
 use crate::front_matter_schemas::{FrontMatterSchemaEntry, FrontMatterValueSchema};
-use crate::notebooks::{Cell, FrontMatter, Label};
+use crate::notebooks::{
+    front_matter::{FrontMatter, FrontMatterValue},
+    Cell, Label,
+};
 use crate::timestamps::TimeRange;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::*;
@@ -25,6 +28,7 @@ use typed_builder::TypedBuilder;
 )]
 #[non_exhaustive]
 #[serde(tag = "type", rename_all = "snake_case")]
+#[allow(clippy::large_enum_variant)]
 pub enum Operation {
     // Cell-level operations.
     MoveCells(MoveCellsOperation),
@@ -519,7 +523,7 @@ pub struct FrontMatterSchemaRow {
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[builder(default, setter(into))]
-    pub value: Option<Value>,
+    pub value: Option<FrontMatterValue>,
 }
 
 impl From<(FrontMatterSchemaEntry, Option<Value>)> for FrontMatterSchemaRow {
@@ -527,7 +531,7 @@ impl From<(FrontMatterSchemaEntry, Option<Value>)> for FrontMatterSchemaRow {
         Self {
             key: schema.key,
             schema: schema.schema,
-            value,
+            value: value.map(Into::into),
         }
     }
 }
@@ -558,7 +562,7 @@ pub struct UpdateFrontMatterSchemaOperation {
     /// as well as making reverting operations possible.
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub old_value: Option<Value>,
+    pub old_value: Option<FrontMatterValue>,
 
     // NOTE: No strip_option here because the strongly typed builder makes
     // it hard to revert operations in fiberplane-ot otherwise
@@ -582,7 +586,7 @@ pub struct UpdateFrontMatterSchemaOperation {
     ///   matter in all cases.
     #[builder(default)]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub new_value: Option<Value>,
+    pub new_value: Option<FrontMatterValue>,
 
     /// Switch that controls front matter value edition alongside `new_value`, when
     /// `new_value` is None.

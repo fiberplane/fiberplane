@@ -1,5 +1,11 @@
-use crate::{notebooks::operations::FrontMatterSchemaRow, timestamps::Timestamp};
-use base64uuid::Base64Uuid;
+use crate::notebooks::{
+    front_matter::{
+        FrontMatterDateTimeValue, FrontMatterNumberValue, FrontMatterStringList,
+        FrontMatterStringValue, FrontMatterUserList, FrontMatterUserValue,
+        FrontMatterValidationError, FrontMatterValue,
+    },
+    operations::FrontMatterSchemaRow,
+};
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 use ordered_float::OrderedFloat;
@@ -17,7 +23,7 @@ use typed_builder::TypedBuilder;
 /// f64 primitive.
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Default)]
 #[repr(transparent)]
-pub struct SerializableEqFloat(OrderedFloat<f64>);
+pub struct SerializableEqFloat(pub OrderedFloat<f64>);
 
 #[cfg(feature = "fp-bindgen")]
 impl Serializable for SerializableEqFloat {
@@ -99,6 +105,15 @@ pub struct FrontMatterSchemaEntry {
     pub schema: FrontMatterValueSchema,
 }
 
+impl FrontMatterSchemaEntry {
+    pub fn validate_value(
+        &self,
+        value: serde_json::Value,
+    ) -> Result<FrontMatterValue, FrontMatterValidationError> {
+        self.schema.validate_value(value)
+    }
+}
+
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Display)]
 #[cfg_attr(
     feature = "fp-bindgen",
@@ -112,6 +127,138 @@ pub enum FrontMatterValueSchema {
     String(FrontMatterStringSchema),
     DateTime(FrontMatterDateTimeSchema),
     User(FrontMatterUserSchema),
+}
+
+impl FrontMatterValueSchema {
+    pub fn validate_value(
+        &self,
+        value: serde_json::Value,
+    ) -> Result<FrontMatterValue, FrontMatterValidationError> {
+        match self {
+            FrontMatterValueSchema::Number(schema) => schema.validate_value(value),
+            FrontMatterValueSchema::String(schema) => schema.validate_value(value),
+            FrontMatterValueSchema::DateTime(schema) => schema.validate_value(value),
+            FrontMatterValueSchema::User(schema) => schema.validate_value(value),
+        }
+    }
+
+    pub fn validate_front_matter_value(
+        &self,
+        value: &FrontMatterValue,
+    ) -> Result<(), FrontMatterValidationError> {
+        match self {
+            FrontMatterValueSchema::Number(schema) => schema.validate_front_matter_value(value),
+            FrontMatterValueSchema::String(schema) => schema.validate_front_matter_value(value),
+            FrontMatterValueSchema::DateTime(schema) => schema.validate_front_matter_value(value),
+            FrontMatterValueSchema::User(schema) => schema.validate_front_matter_value(value),
+        }
+    }
+}
+
+impl FrontMatterNumberSchema {
+    pub fn validate_value(
+        &self,
+        value: serde_json::Value,
+    ) -> Result<FrontMatterValue, FrontMatterValidationError> {
+        Ok(FrontMatterNumberValue::try_from(value)?.into())
+    }
+
+    pub fn validate_front_matter_value(
+        &self,
+        value: &FrontMatterValue,
+    ) -> Result<(), FrontMatterValidationError> {
+        match value {
+            FrontMatterValue::Number(_) => Ok(()),
+            other => Err(FrontMatterValidationError::wrong_variant(
+                other.get_type(),
+                "number",
+            )),
+        }
+    }
+}
+
+impl FrontMatterStringSchema {
+    pub fn validate_value(
+        &self,
+        value: serde_json::Value,
+    ) -> Result<FrontMatterValue, FrontMatterValidationError> {
+        if self.multiple {
+            Ok(FrontMatterStringList::try_from(value)?.into())
+        } else {
+            Ok(FrontMatterStringValue::try_from(value)?.into())
+        }
+    }
+
+    pub fn validate_front_matter_value(
+        &self,
+        value: &FrontMatterValue,
+    ) -> Result<(), FrontMatterValidationError> {
+        match (value, self.multiple) {
+            (FrontMatterValue::String(_), false) => Ok(()),
+            (FrontMatterValue::StringList(_), true) => Ok(()),
+            (other, true) => Err(FrontMatterValidationError::wrong_variant(
+                other.get_type(),
+                "string_list",
+            )),
+            (other, false) => Err(FrontMatterValidationError::wrong_variant(
+                other.get_type(),
+                "string",
+            )),
+        }
+    }
+}
+
+impl FrontMatterDateTimeSchema {
+    pub fn validate_value(
+        &self,
+        value: serde_json::Value,
+    ) -> Result<FrontMatterValue, FrontMatterValidationError> {
+        Ok(FrontMatterDateTimeValue::try_from(value)?.into())
+    }
+
+    pub fn validate_front_matter_value(
+        &self,
+        value: &FrontMatterValue,
+    ) -> Result<(), FrontMatterValidationError> {
+        match value {
+            FrontMatterValue::DateTime(_) => Ok(()),
+            other => Err(FrontMatterValidationError::wrong_variant(
+                other.get_type(),
+                "date_time",
+            )),
+        }
+    }
+}
+
+impl FrontMatterUserSchema {
+    pub fn validate_value(
+        &self,
+        value: serde_json::Value,
+    ) -> Result<FrontMatterValue, FrontMatterValidationError> {
+        if self.multiple {
+            Ok(FrontMatterUserList::try_from(value)?.into())
+        } else {
+            Ok(FrontMatterUserValue::try_from(value)?.into())
+        }
+    }
+
+    pub fn validate_front_matter_value(
+        &self,
+        value: &FrontMatterValue,
+    ) -> Result<(), FrontMatterValidationError> {
+        match (value, self.multiple) {
+            (FrontMatterValue::User(_), false) => Ok(()),
+            (FrontMatterValue::UserList(_), true) => Ok(()),
+            (other, true) => Err(FrontMatterValidationError::wrong_variant(
+                other.get_type(),
+                "user_list",
+            )),
+            (other, false) => Err(FrontMatterValidationError::wrong_variant(
+                other.get_type(),
+                "user",
+            )),
+        }
+    }
 }
 
 impl From<FrontMatterUserSchema> for FrontMatterValueSchema {
@@ -172,11 +319,11 @@ pub struct FrontMatterNumberSchema {
     /// how to render the front matter cell
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub options: Option<Vec<FrontMatterEnumNumberValue>>,
+    pub options: Option<Vec<FrontMatterNumberValue>>,
 
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub default_value: Option<FrontMatterEnumNumberValue>,
+    pub default_value: Option<FrontMatterNumberValue>,
 
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -228,11 +375,11 @@ pub struct FrontMatterStringSchema {
     /// how to render the front matter cell
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub options: Option<Vec<FrontMatterEnumStringValue>>,
+    pub options: Option<Vec<FrontMatterStringValue>>,
 
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub default_value: Option<FrontMatterEnumStringValue>,
+    pub default_value: Option<FrontMatterStringValue>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -253,7 +400,7 @@ pub struct FrontMatterDateTimeSchema {
 
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub default_value: Option<FrontMatterEnumDateTimeValue>,
+    pub default_value: Option<FrontMatterDateTimeValue>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -274,103 +421,13 @@ pub struct FrontMatterUserSchema {
 
     #[builder(default, setter(into, strip_option))]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub default_value: Option<FrontMatterEnumBase64UuidValue>,
+    pub default_value: Option<FrontMatterUserValue>,
 
     /// Whether the field can have multiple values
     // Skip serialization if the bool is false, and defaults to false, and the setter in typed_builder will set the field to true.
     #[builder(setter(strip_bool))]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub multiple: bool,
-}
-
-// NOTE: The cleaner way would be to have a generic type FrontMatterEnumValue<T>,
-// but it's impossible to _conditionally_ add the `Serializable` trait bound on
-// the inner type T only when there is the "fp-bindgen" feature.
-
-// NOTE: The reason those are struct instead of "just" being the
-// inner value is because we are already thinking of adding extra properties (like "color")
-// to the known options of an enumeration
-
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "fiberplane_models::front_matter_schemas")
-)]
-#[non_exhaustive]
-#[serde(rename_all = "camelCase")]
-pub struct FrontMatterEnumBase64UuidValue {
-    #[builder(setter(into))]
-    value: Base64Uuid,
-}
-
-impl From<Base64Uuid> for FrontMatterEnumBase64UuidValue {
-    fn from(value: Base64Uuid) -> Self {
-        Self { value }
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "fiberplane_models::front_matter_schemas")
-)]
-#[non_exhaustive]
-#[serde(rename_all = "camelCase")]
-pub struct FrontMatterEnumStringValue {
-    #[builder(setter(into))]
-    value: String,
-}
-
-impl<T: Into<String>> From<T> for FrontMatterEnumStringValue {
-    fn from(value: T) -> Self {
-        Self {
-            value: value.into(),
-        }
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "fiberplane_models::front_matter_schemas")
-)]
-#[non_exhaustive]
-#[serde(rename_all = "camelCase")]
-pub struct FrontMatterEnumNumberValue {
-    #[builder(setter(into))]
-    value: SerializableEqFloat,
-}
-
-impl<T: Into<f64>> From<T> for FrontMatterEnumNumberValue {
-    fn from(value: T) -> Self {
-        Self {
-            value: SerializableEqFloat(OrderedFloat(value.into())),
-        }
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
-#[cfg_attr(
-    feature = "fp-bindgen",
-    derive(Serializable),
-    fp(rust_module = "fiberplane_models::front_matter_schemas")
-)]
-#[non_exhaustive]
-#[serde(rename_all = "camelCase")]
-pub struct FrontMatterEnumDateTimeValue {
-    #[builder(setter(into))]
-    value: Timestamp,
-}
-
-impl<T: Into<Timestamp>> From<T> for FrontMatterEnumDateTimeValue {
-    fn from(value: T) -> Self {
-        Self {
-            value: value.into(),
-        }
-    }
 }
 
 /// API Payload to update an entry to a front matter schema.

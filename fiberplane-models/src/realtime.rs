@@ -1,6 +1,7 @@
 use crate::comments::{Thread, ThreadItem, UserSummary};
 use crate::events::Event;
 use crate::labels::LabelValidationError;
+use crate::notebooks::front_matter::FrontMatterValidationError;
 use crate::notebooks::operations::Operation;
 use crate::timestamps::Timestamp;
 use base64uuid::Base64Uuid;
@@ -559,6 +560,13 @@ pub enum RejectReason {
     #[serde(rename_all = "camelCase")]
     InconsistentFrontMatter { message: String },
 
+    /// The front matter updates in the operation does not apply cleanly to the notebook.
+    ///
+    /// The most common occurrence of this will be trying to insert/modify values that don’t
+    /// match the schema given in the operation.
+    #[serde(rename_all = "camelCase")]
+    InvalidFrontMatterUpdate(InvalidFrontMatterRejectReason),
+
     /// Attempted to perform a table operation on a non-table cell.
     #[serde(rename_all = "camelCase")]
     NoTableCell { cell_id: String },
@@ -573,6 +581,21 @@ pub enum RejectReason {
     /// The operation is unknown, and cannot be validated.
     #[serde(rename_all = "camelCase")]
     UnknownOperation { operation_summary: String },
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::realtime")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct InvalidFrontMatterRejectReason {
+    /// The front matter key that has an issue
+    pub problem_key: String,
+    /// The inner problem encountered
+    pub error: FrontMatterValidationError,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
