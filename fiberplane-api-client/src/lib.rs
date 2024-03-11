@@ -21,6 +21,7 @@ pub(crate) mod models {
     pub(crate) use fiberplane_models::integrations::*;
     pub(crate) use fiberplane_models::labels::*;
     pub(crate) use fiberplane_models::names::*;
+    pub(crate) use fiberplane_models::notebooks::front_matter::*;
     pub(crate) use fiberplane_models::notebooks::operations::*;
     pub(crate) use fiberplane_models::notebooks::*;
     pub(crate) use fiberplane_models::proxies::*;

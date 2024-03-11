@@ -1977,19 +1977,16 @@ components:
         options:
           type: array
           items:
-            $ref: "#/components/schemas/frontMatterEnumNumberValue"
+            $ref: "#/components/schemas/frontMatterNumberValue"
         defaultValue:
-          $ref: "#/components/schemas/frontMatterEnumNumberValue"
+          $ref: "#/components/schemas/frontMatterNumberValue"
         prefix:
           type: string
         suffix:
           type: string
-    frontMatterEnumNumberValue:
-      type: object
-      description: Representation of a number _value_ in the front matter. It contains the raw number as well as optional formatting/presentation metadata
-      properties:
-        value:
-          type: number
+    frontMatterNumberValue:
+      type: number
+      description: Representation of a number _value_ in the front matter.
     frontMatterStringSchema:
       type: object
       required:
@@ -2006,15 +2003,12 @@ components:
         options:
           type: array
           items:
-            $ref: "#/components/schemas/frontMatterEnumStringValue"
+            $ref: "#/components/schemas/frontMatterStringValue"
         defaultValue:
-          $ref: "#/components/schemas/frontMatterEnumStringValue"
+          $ref: "#/components/schemas/frontMatterStringValue"
     frontMatterEnumStringValue:
-      type: object
-      description: Representation of a string _value_ in the front matter. It contains the raw string as well as optional formatting/presentation metadata
-      properties:
-        value:
-          type: string
+      type: string
+      description: Representation of a string _value_ in the front matter.
     frontMatterDateTimeSchema:
       type: object
       required:
@@ -2025,13 +2019,10 @@ components:
         iconName:
           type: string
         defaultValue:
-          $ref: "#/components/schemas/frontMatterEnumDateTimeValue"
+          $ref: "#/components/schemas/frontMatterDateTimeValue"
     frontMatterEnumDateTimeValue:
-      type: object
-      description: Representation of a dateTime _value_ in the front matter. It contains the raw dateTime as well as optional formatting/presentation metadata
-      properties:
-        value:
-          type: string
+      type: string
+      description: Representation of a dateTime _value_ in the front matter.
     frontMatterUserSchema:
       type: object
       required:
@@ -2044,14 +2035,11 @@ components:
         multiple:
           type: boolean
         defaultValue:
-          $ref: "#/components/schemas/frontMatterEnumUserValue"
-    frontMatterEnumUserValue:
+          $ref: "#/components/schemas/frontMatterUserValue"
+    frontMatterUserValue:
       type: object
-      description: Representation of a user _value_ in the front matter. It contains the raw user (as its uuid) as well as optional formatting/presentation metadata
-      properties:
-        value:
-          type: string
-          format: base64uuid
+      format: base64uuid
+      description: Representation of a user _value_ in the front matter.
     frontMatterSchemaRow:
       type: object
       description: Representation of a front matter row to be inserted
