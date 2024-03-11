@@ -165,7 +165,7 @@ impl<T: Serialize> Serialize for PagedVec<T> {
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
-    fp(rust_module = "fiberplane_models::sorting")
+    fp(rust_module = "fiberplane_models::pagination")
 )]
 #[non_exhaustive]
 pub struct Pagination {
