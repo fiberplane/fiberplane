@@ -26,6 +26,9 @@ major version hasn't changed.
 ## [v1.0.0-beta.13] - 2024-03-01
 
 - Update dependencies
+- `fiberplane-models`: Added new models `WorkspaceIntegrationSummary` and `WorkspaceIntegrationId` for workspace integrations (#182)
+- `fiberplane-api-client`: Route `integrations_get` has been replaced by `integrations_get_by_user` (#182)
+- `fiberplane-api-client`: New route `integrations_get_by_workspace` has been added. (#182)
 
 ## [v1.0.0-beta.12] - 2024-02-23
 

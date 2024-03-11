@@ -2429,7 +2429,7 @@ components:
         location:
           type: string
           description: URL which the user needs to visit
-    integrationSummary:
+    personalIntegrationSummary:
       type: object
       required:
         - id
@@ -2439,6 +2439,39 @@ components:
           type: string
           enum:
             - "github"
+        status:
+          type: object
+          required:
+            - type
+          properties:
+            type:
+              type: string
+              enum:
+                - "connected"
+                - "disconnected"
+                - "attention_required"
+            reason:
+              type: string
+              description: |
+                If `type = attention_required`, this field will be
+                populated with a human readable string explaining why
+                attention is required for this peculiar integration
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    workspaceIntegrationSummary:
+      type: object
+      required:
+        - id
+        - status
+      properties:
+        id:
+          type: string
+          enum:
+            - "TODO"
         status:
           type: object
           required:
@@ -3488,9 +3521,9 @@ paths:
           description: OK
   /api/profile/integrations:
     get:
-      operationId: integrations_get
-      summary: "Get a list of all integrations and their status"
-      description: "Get a list of all integrations and their status"
+      operationId: integrations_get_by_user
+      summary: "Get a list of all integrations and their status for the current user"
+      description: "Get a list of all integrations and their status for the current user"
       tags:
         - Integrations
       responses:
@@ -3501,7 +3534,25 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/integrationSummary"
+                  $ref: "#/components/schemas/personalIntegrationSummary"
+  /api/workspaces/{workspaceId}/integrations:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      operationId: integrations_get_by_workspace
+      summary: "Get a list of al integrations and their status for the specified workspace"
+      description: "Get a list of al integrations and their status for the specified workspace"
+      tags:
+        - Integrations
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/workspaceIntegrationSummary"
   /api/workspaces/{workspaceId}/pinnednotebooks:
     parameters:
       - $ref: "#/components/parameters/workspaceId"

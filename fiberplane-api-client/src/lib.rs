@@ -628,8 +628,10 @@ pub async fn oid_connections_list(client: &ApiClient) -> Result<Vec<models::OidC
     Ok(response)
 }
 
-#[doc = r#"Get a list of all integrations and their status"#]
-pub async fn integrations_get(client: &ApiClient) -> Result<Vec<models::IntegrationSummary>> {
+#[doc = r#"Get a list of all integrations and their status for the current user"#]
+pub async fn integrations_get_by_user(
+    client: &ApiClient,
+) -> Result<Vec<models::PersonalIntegrationSummary>> {
     let mut builder = client.request(Method::GET, "/api/profile/integrations")?;
     let response = builder.send().await?.error_for_status()?.json().await?;
 
@@ -1115,6 +1117,23 @@ pub async fn workspace_front_matter_schema_delete(
     let response = builder.send().await?.error_for_status()?;
 
     Ok(())
+}
+
+#[doc = r#"Get a list of al integrations and their status for the specified workspace"#]
+pub async fn integrations_get_by_workspace(
+    client: &ApiClient,
+    workspace_id: base64uuid::Base64Uuid,
+) -> Result<Vec<models::WorkspaceIntegrationSummary>> {
+    let mut builder = client.request(
+        Method::GET,
+        &format!(
+            "/api/workspaces/{workspaceId}/integrations",
+            workspaceId = workspace_id,
+        ),
+    )?;
+    let response = builder.send().await?.error_for_status()?.json().await?;
+
+    Ok(response)
 }
 
 #[doc = r#"Retrieves a list of pending workspace invitations"#]
