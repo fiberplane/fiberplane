@@ -15,6 +15,10 @@ major version hasn't changed.
 
 ## unreleased
 
+## [v1.0.0-beta.14] - 2024-03-07
+
+- Update dependencies
+
 ## [v1.0.0-beta.13] - 2024-03-01
 
 - Update dependencies
