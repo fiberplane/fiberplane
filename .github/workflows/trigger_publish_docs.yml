@@ -1,0 +1,9 @@
+name: Manually publish docs
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  trigger-deploy:
+    uses: fiberplane/fiberplane/.github/workflows/publish_docs.yml@main

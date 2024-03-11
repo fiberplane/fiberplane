@@ -1,0 +1,63 @@
+---
+import type { OpenAPIV3 } from "openapi-types";
+
+interface Props {
+  responses: OpenAPIV3.ResponsesObject;
+}
+
+const { responses } = Astro.props;
+---
+
+<>
+  <h4>Returns</h4>
+  <ul>
+    {
+      Object.entries(responses).map(([code, response]) => {
+        if ("$ref" in response) {
+          throw new Error("References are not supported in responses");
+        }
+        return (
+          <li class="return-code">
+            <h6>
+              <code>{code}</code>
+              <p>{response.description}</p>
+            </h6>
+          </li>
+        );
+      })
+    }
+  </ul>
+</>
+
+<style>
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  h4 {
+    font-size: var(--sl-text-h6) !important;
+  }
+
+  .return-code {
+    padding-top: 1rem;
+    border-top: 1px solid var(--sl-color-gray-5);
+  }
+
+  .return-code > h6 {
+    font-size: var(--sl-text-sm) !important;
+    font-weight: normal;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--sl-content-pad-x);
+  }
+
+  .return-code code {
+    font-weight: bold !important;
+    background: var(--sl-color-gray-6);
+    border-radius: 4px;
+    padding: 4px;
+    margin: 0;
+  }
+</style>

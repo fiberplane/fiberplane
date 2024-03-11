@@ -1,0 +1,64 @@
+---
+import { Markdown } from "@astropub/md";
+
+interface Props {
+  name: string;
+  type?: string;
+  format?: string;
+  required?: boolean;
+  description?: string;
+  nested?: boolean;
+}
+
+const { name, type, format, required, nested, description } = Astro.props;
+---
+
+<li class={nested ? "nested" : ""}>
+  <h6>
+    <code>{name}</code>
+    <span>{type}</span>
+    {format && <span>{format}</span>}
+    {required && <span class="required-flag">Required</span>}
+  </h6>
+  {
+    description && (
+      <p>
+        <Markdown.Inline of={description} />
+      </p>
+    )
+  }
+  <slot />
+</li>
+
+<style>
+  li {
+    padding-top: 1rem;
+    border-top: 1px solid var(--sl-color-gray-5);
+  }
+
+  li > h6 {
+    font-size: var(--sl-text-sm) !important;
+    font-weight: normal !important;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--sl-content-pad-x);
+  }
+
+  li code {
+    font-weight: bold;
+    background: var(--sl-color-gray-6);
+    border-radius: 4px;
+    padding: 4px;
+    margin: 0;
+  }
+
+  .nested code {
+    background: var(--sl-color-gray-5);
+  }
+
+  .required-flag {
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-red);
+  }
+</style>

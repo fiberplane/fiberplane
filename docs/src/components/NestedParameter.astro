@@ -1,0 +1,176 @@
+---
+// This component is used to display parameter documentation
+// for nested objects in the API spec.
+import { Markdown } from "@astropub/md";
+import { getSchema } from "@lib/openApiSchema";
+import { hasNestedProperties } from "@lib/utils";
+import type { OpenAPIV3 } from "openapi-types";
+import Parameter from "./Parameter.astro";
+
+interface Props {
+  name: string;
+  schema: OpenAPIV3.SchemaObject;
+}
+
+const { name, schema } = Astro.props;
+
+const openApiSpec = await getSchema();
+
+if (!openApiSpec) {
+  throw new Error("Schema not found");
+}
+
+if (name === "providerCell") {
+  // HACK: providerCell is a circular reference (it can return other cell types
+  // including itself which causes an infinite loop), we're escaping here so it
+  // doesn't blow the stack.
+  //
+  // will get back to this later
+  return;
+}
+
+if (!schema) {
+  console.log("No value for", name);
+  return;
+}
+
+function getOneOf(schema: OpenAPIV3.SchemaObject) {
+  if ("items" in schema) {
+    return schema?.items;
+  } else {
+    return schema.oneOf;
+  }
+}
+
+const oneOf = getOneOf(schema);
+
+// e.g.: "#/components/schemas/checkboxCell",
+function resolveOneOf(discriminator: OpenAPIV3.DiscriminatorObject) {
+  const mapping = discriminator.mapping;
+  if (!mapping) return;
+  return Object.entries(mapping).map(([_, ref]) => {
+    const key = ref.split("/").pop() as string;
+
+    const compSchemas = openApiSpec?.components?.schemas;
+
+    if (!compSchemas) {
+      throw new Error("No component schemas found");
+    }
+
+    return { [key]: compSchemas[key] };
+  });
+}
+
+type Properties = OpenAPIV3.SchemaObject["properties"];
+
+function getProperties(
+  schema: OpenAPIV3.ArraySchemaObject | OpenAPIV3.NonArraySchemaObject,
+): Properties | Properties[] | undefined {
+  if (schema.oneOf) {
+    if (schema?.discriminator) {
+      return resolveOneOf(schema?.discriminator);
+    }
+
+    return schema.oneOf.map((item) => {
+      return { [name]: item };
+    });
+  }
+
+  if (schema.type === "array") {
+    if ("oneOf" in schema?.items && schema?.items?.discriminator) {
+      return resolveOneOf(schema?.items?.discriminator);
+    }
+
+    const items = schema?.items as OpenAPIV3.ArraySchemaObject["items"];
+
+    if ("$ref" in items) {
+      throw new Error("Nested $ref not supported");
+    }
+    return items.properties;
+  }
+
+  if (schema.type === "object") {
+    if (schema.properties) {
+      return schema.properties;
+    }
+
+    if (
+      schema.additionalProperties &&
+      typeof schema.additionalProperties === "object" &&
+      "properties" in schema.additionalProperties
+    ) {
+      return schema.additionalProperties.properties;
+    }
+  }
+}
+
+const required = schema?.required;
+const properties = getProperties(schema);
+
+if (!properties || properties?.length === 0) {
+  return;
+}
+---
+
+<details>
+  {
+    oneOf ? (
+      <summary>Possible values</summary>
+    ) : (
+      <summary>Nested attributes</summary>
+    )
+  }
+
+  <ul class="nested-parameters">
+    {
+      Array.isArray(properties)
+        ? properties.map((item) => {
+            const nestedName = Object.keys(item!)[0];
+            const nestedSchema = item![nestedName];
+            if ("$ref" in nestedSchema) {
+              throw new Error("Nested $ref not supported");
+            }
+            return (
+              <Parameter
+                name={nestedName}
+                type={nestedSchema?.type}
+                format={nestedSchema?.format}
+                required={required?.includes(nestedName)}
+                description={nestedSchema?.description}
+              >
+                {hasNestedProperties(nestedSchema) && (
+                  <Astro.self name={nestedName} schema={nestedSchema} />
+                )}
+              </Parameter>
+            );
+          })
+        : Object.entries(properties).map(([nestedName, nestedSchema]) => {
+            if ("$ref" in nestedSchema) {
+              throw new Error("Nested $ref not supported");
+            }
+            return (
+              <Parameter
+                name={nestedName}
+                type={nestedSchema?.type}
+                format={nestedSchema?.format}
+                required={required?.includes(nestedName)}
+                description={nestedSchema?.description}
+              >
+                {hasNestedProperties(nestedSchema) && (
+                  <Astro.self name={nestedName} schema={nestedSchema} />
+                )}
+              </Parameter>
+            );
+          })
+    }
+  </ul>
+</details>
+
+<style>
+  ul {
+    list-style: none;
+    padding: 0 var(--sl-content-pad-x) var(--sl-content-pad-x);
+    background-color: var(--sl-color-gray-6);
+    border-left: 3px solid var(--sl-color-gray-5);
+  }
+</style>

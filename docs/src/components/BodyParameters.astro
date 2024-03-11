@@ -1,0 +1,103 @@
+---
+import { Markdown, markdown } from "@astropub/md";
+import NestedParameter from "@components/NestedParameter.astro";
+import { hasNestedProperties } from "@lib/utils";
+import { OpenAPIV3 } from "openapi-types";
+import Parameter from "./Parameter.astro";
+
+interface Props {
+  requestBody: OpenAPIV3.RequestBodyObject;
+}
+
+const { requestBody } = Astro.props;
+
+function getFormatForBody() {
+  if (requestBody.content["application/json"]) {
+    return requestBody.content["application/json"];
+  }
+
+  if (requestBody.content["multipart/form-data"]) {
+    return requestBody.content["multipart/form-data"];
+  }
+
+  return;
+}
+
+const format = getFormatForBody();
+
+if (!format) {
+  return;
+}
+
+if (format.schema && "$ref" in format.schema) {
+  return;
+}
+
+const properties = format?.schema?.properties;
+const required = format?.schema?.required;
+
+if (!properties) {
+  return;
+}
+
+function getType(value: OpenAPIV3.SchemaObject) {
+  if (value.oneOf) {
+    return "one of";
+  }
+
+  if (!value.type) {
+    return;
+  }
+
+  if (value.type === "array") {
+    const items = value.items as OpenAPIV3.SchemaObject;
+    const of = items.type ? items.type : "object"; // TODO: handle more complex types
+    return "array of " + of;
+  }
+
+  if (value.type === "object") {
+    return "object";
+  }
+
+  return value.type;
+}
+---
+
+<>
+  <h4>Body parameters</h4>
+  <p>{requestBody?.description}</p>
+  <ul>
+    {
+      Object.entries(properties).map(([name, schema]) => {
+        if ("$ref" in schema) {
+          return;
+        }
+
+        return (
+          <Parameter
+            {name}
+            type={getType(schema)}
+            format={schema.format}
+            required={required?.includes(name)}
+            description={schema?.description}
+          >
+            {hasNestedProperties(schema) && (
+              <NestedParameter name={name} {schema} />
+            )}
+          </Parameter>
+        );
+      })
+    }
+  </ul>
+</>
+
+<style>
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  h4 {
+    font-size: var(--sl-text-h6) !important;
+  }
+</style>

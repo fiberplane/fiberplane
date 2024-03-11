@@ -1,0 +1,47 @@
+---
+import Parameter from "@components/Parameter.astro";
+import type { OpenAPIV3 } from "openapi-types";
+
+interface Props {
+  parameters: (OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject)[];
+}
+
+const { parameters } = Astro.props;
+---
+
+<>
+  <h4>Path parameters</h4>
+  <ul>
+    {
+      parameters.map((parameter) => {
+        if ("$ref" in parameter) {
+          throw new Error("References are not supported in path parameters");
+        }
+
+        const { name, required, description } = parameter;
+        const schema = parameter.schema as OpenAPIV3.SchemaObject;
+
+        return (
+          <Parameter
+            name={name}
+            type={schema.type}
+            format={schema.format}
+            required={required}
+            description={description}
+          />
+        );
+      })
+    }
+  </ul>
+</>
+
+<style>
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  h4 {
+    font-size: var(--sl-text-h6) !important;
+  }
+</style>
