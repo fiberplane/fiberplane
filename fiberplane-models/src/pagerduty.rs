@@ -26,8 +26,11 @@ use typed_builder::TypedBuilder;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 
-#[cfg(feature = "axum")]
-use axum::response::IntoResponse;
+#[cfg(feature = "axum_06")]
+use {
+    axum_06::http::StatusCode,
+    axum_06::response::{IntoResponse, Response},
+};
 
 /// A new PagerDuty receiver. This will be used in the create endpoint.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, TypedBuilder)]
@@ -121,10 +124,9 @@ impl From<AuthError> for PagerDutyReceiverCreateError {
     }
 }
 
-#[cfg(feature = "axum")]
+#[cfg(feature = "axum_06")]
 impl IntoResponse for PagerDutyReceiverCreateError {
-    fn into_response(self) -> axum::response::Response {
-        use axum::http::StatusCode;
+    fn into_response(self) -> Response {
         let body = serde_json::to_string(&self).expect("should never fail!");
         let status_code = match self {
             PagerDutyReceiverCreateError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
@@ -168,10 +170,9 @@ impl From<AuthError> for PagerDutyReceiverGetError {
     }
 }
 
-#[cfg(feature = "axum")]
+#[cfg(feature = "axum_06")]
 impl IntoResponse for PagerDutyReceiverGetError {
-    fn into_response(self) -> axum::response::Response {
-        use axum::http::StatusCode;
+    fn into_response(self) -> Response {
         let body = serde_json::to_string(&self).expect("should never fail!");
         let status_code = match self {
             PagerDutyReceiverGetError::NotFound => StatusCode::NOT_FOUND,
@@ -215,10 +216,9 @@ impl From<AuthError> for PagerDutyReceiverUpdateError {
     }
 }
 
-#[cfg(feature = "axum")]
+#[cfg(feature = "axum_06")]
 impl IntoResponse for PagerDutyReceiverUpdateError {
-    fn into_response(self) -> axum::response::Response {
-        use axum::http::StatusCode;
+    fn into_response(self) -> Response {
         let body = serde_json::to_string(&self).expect("should never fail!");
         let status_code = match self {
             PagerDutyReceiverUpdateError::NotFound => StatusCode::NOT_FOUND,
@@ -262,10 +262,9 @@ impl From<AuthError> for PagerDutyReceiverDeleteError {
     }
 }
 
-#[cfg(feature = "axum")]
+#[cfg(feature = "axum_06")]
 impl IntoResponse for PagerDutyReceiverDeleteError {
-    fn into_response(self) -> axum::response::Response {
-        use axum::http::StatusCode;
+    fn into_response(self) -> Response {
         let body = serde_json::to_string(&self).expect("should never fail!");
         let status_code = match self {
             PagerDutyReceiverDeleteError::NotFound => StatusCode::NOT_FOUND,
@@ -305,10 +304,9 @@ impl From<AuthError> for PagerDutyReceiverListError {
     }
 }
 
-#[cfg(feature = "axum")]
+#[cfg(feature = "axum_06")]
 impl IntoResponse for PagerDutyReceiverListError {
-    fn into_response(self) -> axum::response::Response {
-        use axum::http::StatusCode;
+    fn into_response(self) -> Response {
         let body = serde_json::to_string(&self).expect("should never fail!");
         let status_code = match self {
             PagerDutyReceiverListError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,

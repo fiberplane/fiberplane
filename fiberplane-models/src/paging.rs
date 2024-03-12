@@ -7,10 +7,11 @@ use typed_builder::TypedBuilder;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 
-#[cfg(feature = "axum")]
+#[cfg(feature = "axum_06")]
 use {
-    axum::response::{IntoResponse, Response},
-    axum::Json,
+    axum_06::http::{HeaderMap, HeaderValue},
+    axum_06::response::{IntoResponse, Response},
+    axum_06::Json,
 };
 
 /// HTTP header key that will be added on a list endpoint indicating whether
@@ -103,10 +104,8 @@ impl<T> PagedVec<T> {
         self.map(|value| Into::<B>::into(value))
     }
 
-    #[cfg(feature = "axum")]
-    pub fn unpack(self) -> (Vec<T>, axum::http::HeaderMap) {
-        use axum::http::{HeaderMap, HeaderValue};
-
+    #[cfg(feature = "axum_06")]
+    pub fn unpack(self) -> (Vec<T>, HeaderMap) {
         let has_more_results = &self.has_more_results.to_string();
         let has_more_results = HeaderValue::from_str(has_more_results).unwrap(); // Safe because .to_string does not result in invalid ascii
 
@@ -123,7 +122,7 @@ impl<T> PagedVec<T> {
     }
 }
 
-#[cfg(feature = "axum")]
+#[cfg(feature = "axum_06")]
 impl<T> IntoResponse for PagedVec<T>
 where
     T: Serialize,
