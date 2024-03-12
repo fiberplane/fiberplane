@@ -368,38 +368,35 @@ fn generate_route(
     }
 
     if use_new_style {
-        match resolve(
+        if let Some(ResolvedReference::Responses(response)) = resolve(
             ResolveTarget::Response(&operation.responses.default.as_ref()),
             components,
         )? {
-            Some(ResolvedReference::Responses(response)) => {
-                let json_media = response
-                    .content
-                    .get("application/json")
-                    .expect("default error should have application/json");
-                let schema = json_media
-                    .schema
-                    .as_ref()
-                    .ok_or_else(|| anyhow!("need a schema"))?;
-                if let Some(reference) = &schema.reference {
-                    if let Some((_, reference_name)) = reference.rsplit_once('/') {
-                        write!(
-                            writer,
-                            ", ApiClientError<models::{}>",
-                            reference_name.to_case(Case::Pascal)
-                        )?;
-                    } else {
-                        write!(
-                            writer,
-                            ", ApiClientError<models::{}>",
-                            reference.to_case(Case::Pascal)
-                        )?;
-                    }
+            let json_media = response
+                .content
+                .get("application/json")
+                .expect("default error should have application/json");
+            let schema = json_media
+                .schema
+                .as_ref()
+                .ok_or_else(|| anyhow!("need a schema"))?;
+            if let Some(reference) = &schema.reference {
+                if let Some((_, reference_name)) = reference.rsplit_once('/') {
+                    write!(
+                        writer,
+                        ", ApiClientError<models::{}>",
+                        reference_name.to_case(Case::Pascal)
+                    )?;
                 } else {
-                    panic!("not supported, go away");
+                    write!(
+                        writer,
+                        ", ApiClientError<models::{}>",
+                        reference.to_case(Case::Pascal)
+                    )?;
                 }
+            } else {
+                panic!("not supported, go away");
             }
-            _ => (),
         }
     }
 

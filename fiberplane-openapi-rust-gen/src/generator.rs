@@ -53,7 +53,7 @@ fn generate_crate(document: OpenApi, args: &GeneratorArgs) -> Result<()> {
     generate_api_client(&src_directory)?;
 
     if let Some(components) = &document.components {
-        generate_routes(&document.paths, &src_directory, &components, &args.models)?;
+        generate_routes(&document.paths, &src_directory, components, &args.models)?;
     }
 
     Ok(())
