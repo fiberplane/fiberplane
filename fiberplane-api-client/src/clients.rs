@@ -43,5 +43,7 @@ pub fn non_production_client(env: Option<&str>) -> Result<crate::api_client::Api
     })
 }
 
-#[deprecated(note = "Use `crate::ApiClient` instead")]
+#[deprecated(
+    note = "Use `fiberplane_api_client::ApiClient` or `fiberplane::fiberplane_api_client::ApiClient` instead"
+)]
 pub type ApiClient = crate::ApiClient;

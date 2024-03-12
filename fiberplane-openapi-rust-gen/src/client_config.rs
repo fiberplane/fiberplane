@@ -176,11 +176,12 @@ fn generate_client_method(server: &Server, writer: &mut BufWriter<File>) -> Resu
 
 fn generate_client_type(writer: &mut BufWriter<File>) -> Result<()> {
     // Keep this here for backwards compatibility
-
+    writeln!(writer, "#[deprecated(")?;
     writeln!(
         writer,
-        "#[deprecated(note = \"Use `crate::ApiClient` instead\")]"
+        r#"note = "Use `fiberplane_api_client::ApiClient` or `fiberplane::fiberplane_api_client::ApiClient` instead""#
     )?;
+    writeln!(writer, ")]")?;
     writeln!(writer, "pub type ApiClient = crate::ApiClient;")?;
 
     Ok(())
