@@ -3,7 +3,10 @@ import { debounce } from "throttle-debounce";
 
 import { useIntersectionObserver, useMeasure } from "../hooks";
 import { mergeRefs } from "../utils";
-import { ChartSizeContext, ChartSizeContextValue } from "./ChartSizeContext";
+import {
+  ChartSizeContext,
+  type ChartSizeContextValue,
+} from "./ChartSizeContext";
 
 type Props = {
   children: React.ReactNode;

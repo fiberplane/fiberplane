@@ -1,7 +1,7 @@
 import { useHandler } from "@fiberplane/hooks";
 import { useEffect, useRef, useState } from "react";
 
-import {
+import type {
   AbstractChart,
   Area,
   AreaPoint,
@@ -136,7 +136,7 @@ function getClosestSeriesAndPointWithCoordinates<S, P>(
   }
 
   let closestSeriesAndPoint: [S, P, ChartCoordinates] | null = null;
-  let closestDistance: Distance = [Infinity, 0];
+  let closestDistance: Distance = [Number.POSITIVE_INFINITY, 0];
   for (const shapeList of chart.shapeLists) {
     for (const shape of shapeList.shapes) {
       const closest = getClosestPointWithDistance(shape, coords);
@@ -224,7 +224,7 @@ function getClosestPointWithDistanceForLine<P>(
   coords: ChartCoordinates,
 ): [P, ChartCoordinates, Distance] | null {
   let closestPoint: Point<P> | null = null;
-  let closestDistance: Distance = [Infinity, 0];
+  let closestDistance: Distance = [Number.POSITIVE_INFINITY, 0];
   for (const point of line.points) {
     const distance = getDistance(coords, point);
     if (isCloser(distance, closestDistance)) {

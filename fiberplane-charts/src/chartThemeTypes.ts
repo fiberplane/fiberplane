@@ -1,5 +1,5 @@
 // Separate internal types from the public API to avoid exposing
-import { ChartTheme } from "./theme";
+import type { ChartTheme } from "./theme";
 
 export type Theme = Required<ChartTheme>;
 

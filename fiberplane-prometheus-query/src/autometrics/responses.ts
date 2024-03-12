@@ -1,5 +1,5 @@
 import { sortBy } from "../utils";
-import {
+import type {
   AmSeriesWithLatencyObjective,
   AmSeriesWithSuccessObjective,
   LatencyObjective,

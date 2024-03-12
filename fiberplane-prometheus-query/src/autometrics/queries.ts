@@ -1,6 +1,6 @@
 import type { TimeRange } from "../providerTypes";
 import { getPrometheusWindowFromTimeRange } from "../utils";
-import {
+import type {
   LatencyObjective,
   Objective,
   ScopedFunction,
@@ -21,7 +21,7 @@ export const metricTypes = ["request_rate", "error_ratio", "latency"] as const;
 /**
  * Type of metric supported by Autometrics for generating queries.
  */
-export type MetricType = typeof metricTypes[number];
+export type MetricType = (typeof metricTypes)[number];
 
 /**
  * Returns whether the given string is a valid {@link MetricType}.

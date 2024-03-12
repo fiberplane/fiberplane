@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
 import type { Dimensions, Scales } from "../types";
-import { Range, createLinearScaleForRange } from "../utils";
+import { type Range, createLinearScaleForRange } from "../utils";
 import type { MouseInteractionState } from "./useInteractiveControls";
 
 /**

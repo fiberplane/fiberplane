@@ -4,11 +4,11 @@ import { styled } from "styled-components";
 import {
   ChartSizeContainerProvider,
   CoreChart,
-  CoreChartProps,
-  TickFormatters,
+  type CoreChartProps,
+  type TickFormatters,
 } from "../CoreChart";
-import { TimeseriesSourceData, generateFromTimeseries } from "../Mondrian";
-import { Metric, Timeseries } from "../providerTypes";
+import { type TimeseriesSourceData, generateFromTimeseries } from "../Mondrian";
+import type { Metric, Timeseries } from "../providerTypes";
 
 type Props = Pick<
   CoreChartProps<Timeseries, Metric>,

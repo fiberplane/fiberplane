@@ -28,6 +28,7 @@ export function ChartContent<S, P>({
             areaGradientShown={areaGradientShown}
             color={getShapeListColor(shapeList.source, listIndex)}
             focused={shapeList === focusedShapeList}
+            // biome-ignore lint/suspicious/noArrayIndexKey: We don't have a unique key for the shape.
             key={`${listIndex}-${shapeIndex}`}
             strokeWidth={strokeWidth}
             scales={scales}

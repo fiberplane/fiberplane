@@ -44,7 +44,7 @@ test("it doesn't split when no interval is given", () => {
 test("it splits metrics when it finds a NaN value", () => {
   expect(
     splitIntoContinuousLines(
-      [getMetric(0, 10), getMetric(1, NaN), getMetric(2, 20)],
+      [getMetric(0, 10), getMetric(1, Number.NaN), getMetric(2, 20)],
       300, // s,
     ),
   ).toEqual([[getMetric(0, 10)], [getMetric(2, 20)]]);

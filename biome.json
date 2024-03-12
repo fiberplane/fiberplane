@@ -19,7 +19,8 @@
       "node_modules/**",
       "target/**",
       "**/providerTypes.ts",
-      "**/*.json"
+      "**/*.json",
+      "**/*.astro"
     ]
   }
 }

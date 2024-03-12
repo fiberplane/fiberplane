@@ -4,9 +4,9 @@ import { styled } from "styled-components";
 
 import { ChartSizeContainerProvider, CoreChart } from "../CoreChart";
 import { HEIGHT, MARGINS } from "../CoreChart/constants";
-import { SeriesSource, ShapeList, generate } from "../Mondrian";
+import { type SeriesSource, type ShapeList, generate } from "../Mondrian";
 import { TimeseriesLegend } from "../TimeseriesLegend";
-import { Theme } from "../chartThemeTypes";
+import type { Theme } from "../chartThemeTypes";
 import type { Metric, ProviderEvent, Timeseries } from "../providerTypes";
 import { ChartThemeContext, defaultChartTheme } from "../theme";
 import { ChartControls } from "./ChartControls";

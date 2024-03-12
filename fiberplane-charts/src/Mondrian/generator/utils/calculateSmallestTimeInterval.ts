@@ -17,7 +17,7 @@ export function calculateSmallestTimeInterval(
 
   timestamps.sort();
 
-  let smallestInterval = Infinity;
+  let smallestInterval = Number.POSITIVE_INFINITY;
   for (let i = 1; i < timestamps.length; i++) {
     const interval = timestamps[i] - timestamps[i - 1];
     if (interval < smallestInterval) {

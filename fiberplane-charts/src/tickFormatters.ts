@@ -145,9 +145,11 @@ export function getExponentFormatter(): TickFormatter {
       }
 
       return `${adjusted.toFixed(1)}e${exponent}`;
-    } else if (absoluteValue < Number.EPSILON) {
+    }
+    if (absoluteValue < Number.EPSILON) {
       return "0";
-    } else if (absoluteValue < 0.01) {
+    }
+    if (absoluteValue < 0.01) {
       let adjusted = value * 1000;
       let exponent = -3;
       while (Math.abs(adjusted) < 1) {
@@ -156,13 +158,14 @@ export function getExponentFormatter(): TickFormatter {
       }
 
       return `${adjusted.toFixed(1)}e${exponent}`;
-    } else if (absoluteValue < 0.1) {
-      return value.toFixed(2);
-    } else if (value === Math.round(value)) {
-      return value.toString();
-    } else {
-      return value.toFixed(1);
     }
+    if (absoluteValue < 0.1) {
+      return value.toFixed(2);
+    }
+    if (value === Math.round(value)) {
+      return value.toString();
+    }
+    return value.toFixed(1);
   };
 }
 
@@ -171,9 +174,8 @@ export function getPercentageFormatter(): TickFormatter {
     const percentageValue = value * 100;
     if (percentageValue === Math.round(percentageValue)) {
       return `${percentageValue}%`;
-    } else {
-      return `${percentageValue.toFixed(1)}%`;
     }
+    return `${percentageValue.toFixed(1)}%`;
   };
 }
 
@@ -213,11 +215,11 @@ function getScientificFormatterForUnits(
 
     if (Math.abs(adjusted) === 0) {
       return "0";
-    } else if (adjusted >= 10 || adjusted === Math.round(adjusted)) {
-      return `${adjusted.toFixed(0)}${unit}`; // avoid unnecessary `.0` suffix
-    } else {
-      return `${adjusted.toFixed(1)}${unit}`;
     }
+    if (adjusted >= 10 || adjusted === Math.round(adjusted)) {
+      return `${adjusted.toFixed(0)}${unit}`; // avoid unnecessary `.0` suffix
+    }
+    return `${adjusted.toFixed(1)}${unit}`;
   };
 }
 
@@ -279,13 +281,14 @@ class DurationUnit {
   static forValue(value: number): DurationUnit {
     if (value >= 24 * 3600) {
       return DurationUnit.Days;
-    } else if (value >= 3600) {
-      return DurationUnit.Hours;
-    } else if (value >= 60) {
-      return DurationUnit.Minutes;
-    } else {
-      return DurationUnit.Seconds;
     }
+    if (value >= 3600) {
+      return DurationUnit.Hours;
+    }
+    if (value >= 60) {
+      return DurationUnit.Minutes;
+    }
+    return DurationUnit.Seconds;
   }
 
   constructor(private unit: "days" | "hours" | "minutes" | "seconds") {}
@@ -358,25 +361,32 @@ class ScientificUnit {
   static forValue(value: number): ScientificUnit {
     if (value >= 1e12) {
       return ScientificUnit.Tera;
-    } else if (value >= 1e9) {
-      return ScientificUnit.Giga;
-    } else if (value >= 1e6) {
-      return ScientificUnit.Mega;
-    } else if (value >= 1e3) {
-      return ScientificUnit.Kilo;
-    } else if (value >= 1e3) {
-      return ScientificUnit.Kilo;
-    } else if (value >= 1) {
-      return ScientificUnit.None;
-    } else if (value >= 1e-3) {
-      return ScientificUnit.Milli;
-    } else if (value >= 1e-6) {
-      return ScientificUnit.Micro;
-    } else if (value >= 1e-9) {
-      return ScientificUnit.Nano;
-    } else {
-      return ScientificUnit.Pico;
     }
+    if (value >= 1e9) {
+      return ScientificUnit.Giga;
+    }
+    if (value >= 1e6) {
+      return ScientificUnit.Mega;
+    }
+    if (value >= 1e3) {
+      return ScientificUnit.Kilo;
+    }
+    if (value >= 1e3) {
+      return ScientificUnit.Kilo;
+    }
+    if (value >= 1) {
+      return ScientificUnit.None;
+    }
+    if (value >= 1e-3) {
+      return ScientificUnit.Milli;
+    }
+    if (value >= 1e-6) {
+      return ScientificUnit.Micro;
+    }
+    if (value >= 1e-9) {
+      return ScientificUnit.Nano;
+    }
+    return ScientificUnit.Pico;
   }
 
   isBiggerThan(other: ScientificUnit): boolean {
@@ -422,9 +432,8 @@ class ScientificUnit {
   nextLargest(): ScientificUnit | null {
     if (this.step > -4) {
       return new ScientificUnit(this.step - 1);
-    } else {
-      return null;
     }
+    return null;
   }
 
   toString(): string {
@@ -465,15 +474,18 @@ function getTimeScaleForAxis(axis: Axis): TimeScale {
   const delta = Math.abs(axis.maxValue - axis.minValue);
   if (delta > 10 * 24 * 3600) {
     return "day_in_month";
-  } else if (delta > 24 * 3600) {
-    return "day_in_week";
-  } else if (delta > 3600) {
-    return "hours";
-  } else if (delta > 60) {
-    return "minutes";
-  } else if (delta > 1) {
-    return "seconds";
-  } else {
-    return "milliseconds";
   }
+  if (delta > 24 * 3600) {
+    return "day_in_week";
+  }
+  if (delta > 3600) {
+    return "hours";
+  }
+  if (delta > 60) {
+    return "minutes";
+  }
+  if (delta > 1) {
+    return "seconds";
+  }
+  return "milliseconds";
 }

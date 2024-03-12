@@ -14,10 +14,10 @@ export function sortBy<T, U extends number | string>(
     const priorityB = getPriorityFn(b);
     if (priorityA < priorityB) {
       return reverse === true ? 1 : -1;
-    } else if (priorityA > priorityB) {
-      return reverse === true ? -1 : 1;
-    } else {
-      return 0;
     }
+    if (priorityA > priorityB) {
+      return reverse === true ? -1 : 1;
+    }
+    return 0;
   });
 }

@@ -2,7 +2,7 @@ import { Fragment, memo, useContext, useLayoutEffect } from "react";
 import { css, styled } from "styled-components";
 
 import { Container, Icon } from "../BaseComponents";
-import { WithChartTheme } from "../chartThemeTypes";
+import type { WithChartTheme } from "../chartThemeTypes";
 import { useMeasure } from "../hooks";
 import type { Timeseries } from "../providerTypes";
 import { ChartThemeContext } from "../theme";

@@ -6,7 +6,7 @@ import { GridWithAxes } from "./GridWithAxes";
 import { ZoomBar } from "./ZoomBar";
 import { CHART_SHAPE_OVERFLOW_MARGIN } from "./constants";
 import {
-  InteractiveControlsState,
+  type InteractiveControlsState,
   useInteractiveControls,
   useMouseControls,
   useScales,

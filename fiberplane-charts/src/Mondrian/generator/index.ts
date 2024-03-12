@@ -68,9 +68,8 @@ export function generateFromTimeseries(
     return input.stackingType === "none"
       ? generateLineChartFromTimeseries(input)
       : generateStackedLineChartFromTimeseries(input);
-  } else {
-    return input.stackingType === "none"
-      ? generateBarChartFromTimeseries(input)
-      : generateStackedBarChartFromTimeseries(input);
   }
+  return input.stackingType === "none"
+    ? generateBarChartFromTimeseries(input)
+    : generateStackedBarChartFromTimeseries(input);
 }
