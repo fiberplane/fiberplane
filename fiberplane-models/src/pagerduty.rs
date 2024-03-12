@@ -338,17 +338,6 @@ pub enum PagerDutyReceiverListSortFields {
     UpdatedAt,
 }
 
-impl PagerDutyReceiverListSortFields {
-    #[inline]
-    pub fn to_sql(&self) -> &'static str {
-        match self {
-            PagerDutyReceiverListSortFields::Name => "name",
-            PagerDutyReceiverListSortFields::CreatedAt => "created_at",
-            PagerDutyReceiverListSortFields::UpdatedAt => "updated_at",
-        }
-    }
-}
-
 impl SortField for PagerDutyReceiverListSortFields {
     #[inline]
     fn default_sort_field() -> Self {
