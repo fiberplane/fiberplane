@@ -372,14 +372,19 @@ fn generate_route(
             ResolveTarget::Response(&operation.responses.default.as_ref()),
             components,
         )? {
-            let json_media = response
-                .content
-                .get("application/json")
-                .expect("default error should have application/json");
-            let schema = json_media
-                .schema
-                .as_ref()
-                .ok_or_else(|| anyhow!("need a schema"))?;
+            let json_media = response.content.get("application/json").ok_or_else(|| {
+                anyhow!(
+                    "default error to have application/json content type (OperationID: {})",
+                    method_name
+                )
+            })?;
+            let schema = json_media.schema.as_ref().ok_or_else(|| {
+                anyhow!(
+                    "application/json media does not have a schema defined (OperationID: {})",
+                    method_name
+                )
+            })?;
+
             if let Some(reference) = &schema.reference {
                 if let Some((_, reference_name)) = reference.rsplit_once('/') {
                     write!(
@@ -395,7 +400,10 @@ fn generate_route(
                     )?;
                 }
             } else {
-                panic!("not supported, go away");
+                bail!(
+                    "Currently only responses with references are supported (OperationID: {})",
+                    method_name
+                )
             }
         }
     }
