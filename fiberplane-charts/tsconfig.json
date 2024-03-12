@@ -12,7 +12,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "types": ["jest"]
+    "types": ["jest"],
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
 }
