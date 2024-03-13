@@ -108,6 +108,7 @@ import EyeSlashIcon from "./icons/EyeSlash.svg";
 import FacebookLogoIcon from "./icons/FacebookLogo.svg";
 import FiberplaneLogoIcon from "./icons/FiberplaneLogo.svg";
 import FiberplaneLogoCrackedIcon from "./icons/FiberplaneLogoCracked.svg";
+import FiberplaneLogoInverted from "./icons/FiberplaneLogoInverted.svg";
 import FiberplaneLogoType from "./icons/FiberplaneLogoType.svg";
 import FigmaLogoIcon from "./icons/FigmaLogo.svg";
 import FileIcon from "./icons/File.svg";
@@ -215,6 +216,7 @@ import ModulesDuotoneIcon from "./icons/ModulesDuotone.svg";
 import MoneyDuotoneIcon from "./icons/MoneyDuotone.svg";
 import MoonIcon from "./icons/Moon.svg";
 import MoonDuotoneIcon from "./icons/MoonDuotone.svg";
+import NewNotebookIcon from "./icons/NewNotebook.svg";
 import NoteIcon from "./icons/Note.svg";
 import NoteBlankIcon from "./icons/NoteBlank.svg";
 import NotePencilIcon from "./icons/NotePencil.svg";
@@ -247,6 +249,7 @@ import QuestionIcon from "./icons/Question.svg";
 import QuotesIcon from "./icons/Quotes.svg";
 import RobotIcon from "./icons/Robot.svg";
 import RocketIcon from "./icons/Rocket.svg";
+import RocketDuotoneIcon from "./icons/RocketDuotone.svg";
 import ScissorsIcon from "./icons/Scissors.svg";
 import SearchDuotoneIcon from "./icons/SearchDuotone.svg";
 import SettingsDuotoneIcon from "./icons/SettingsDuotone.svg";
@@ -423,6 +426,7 @@ export const ICON_MAP = {
   eye: EyeIcon,
   facebook_logo: FacebookLogoIcon,
   fiberplane_logo_cracked: FiberplaneLogoCrackedIcon,
+  fiberplane_logo_inverted: FiberplaneLogoInverted,
   fiberplane_logo_type: FiberplaneLogoType,
   fiberplane_logo: FiberplaneLogoIcon,
   figma_logo: FigmaLogoIcon,
@@ -531,6 +535,7 @@ export const ICON_MAP = {
   money_duotone: MoneyDuotoneIcon,
   moon_duotone: MoonDuotoneIcon,
   moon: MoonIcon,
+  new_notebook: NewNotebookIcon,
   note_blank: NoteBlankIcon,
   note_pencil: NotePencilIcon,
   note: NoteIcon,
@@ -562,6 +567,7 @@ export const ICON_MAP = {
   question: QuestionIcon,
   quotes: QuotesIcon,
   robot: RobotIcon,
+  rocket_duotone: RocketDuotoneIcon,
   rocket: RocketIcon,
   scissors: ScissorsIcon,
   search_duotone: SearchDuotoneIcon,
