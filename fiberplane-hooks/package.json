@@ -19,9 +19,9 @@
     "@swc/core": "^1.4.7",
     "@types/react": "^18.2.65",
     "react": "^18.2.0",
-    "rollup": "^3.29.4",
-    "rollup-plugin-dts": "^5.3.1",
-    "rollup-plugin-swc3": "^0.10.4",
+    "rollup": "^4.13.0",
+    "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-swc3": "^0.11.0",
     "typescript": "^5.4.2"
   },
   "scripts": {
