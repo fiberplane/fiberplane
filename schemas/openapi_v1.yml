@@ -2524,6 +2524,191 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/frontMatterSchemaRow"
+    pagerDutyReceiver:
+      type: object
+      required:
+        - name
+        - securityKey
+        - createdAt
+        - updatedAt
+      properties:
+        name:
+          type: string
+          format: name
+        incidentCreatedTemplateName:
+          type: string
+          format: name
+        securityKey:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    newPagerDutyReceiver:
+      type: object
+      properties:
+        incidentCreatedTemplateName:
+          type: string
+          format: name
+    updatePagerDutyReceiver:
+      type: object
+      properties:
+        incidentCreatedTemplateName:
+          type: string
+          format: name
+        regenerate_security_key:
+          type: boolean
+    pagerDutyReceiverCreateError:
+      oneOf:
+        - $ref: "#/components/schemas/internalServerError"
+        - $ref: "#/components/schemas/unauthorizedError"
+        - $ref: "#/components/schemas/unauthenticatedError"
+        - $ref: "#/components/schemas/pagerDutyReceiverCreateErrorDuplicateName"
+        - $ref: "#/components/schemas/pagerDutyReceiverCreateErrorCreationTemplateNotFound"
+      discriminator:
+        propertyName: error
+        mapping:
+          internal_server_error: "#/components/schemas/internalServerError"
+          unauthorized: "#/components/schemas/unauthorizedError"
+          unauthenticated: "#/components/schemas/unauthenticatedError"
+          duplicate_name: "#/components/schemas/pagerDutyReceiverCreateErrorDuplicateName"
+          creation_template_not_found: "#/components/schemas/pagerDutyReceiverCreateErrorCreationTemplateNotFound"
+    pagerDutyReceiverCreateErrorDuplicateName:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "duplicate_name"
+    pagerDutyReceiverCreateErrorCreationTemplateNotFound:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "creation_template_not_found"
+    pagerDutyReceiverGetError:
+      oneOf:
+        - $ref: "#/components/schemas/internalServerError"
+        - $ref: "#/components/schemas/unauthorizedError"
+        - $ref: "#/components/schemas/unauthenticatedError"
+        - $ref: "#/components/schemas/pagerDutyReceiverGetErrorNotFound"
+      discriminator:
+        propertyName: error
+        mapping:
+          internal_server_error: "#/components/schemas/internalServerError"
+          unauthorized: "#/components/schemas/unauthorizedError"
+          unauthenticated: "#/components/schemas/unauthenticatedError"
+          not_found: "#/components/schemas/pagerDutyReceiverGetErrorNotFound"
+    pagerDutyReceiverGetErrorNotFound:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "not_found"
+    pagerDutyReceiverUpdateError:
+      oneOf:
+        - $ref: "#/components/schemas/internalServerError"
+        - $ref: "#/components/schemas/unauthorizedError"
+        - $ref: "#/components/schemas/unauthenticatedError"
+        - $ref: "#/components/schemas/pagerDutyReceiverUpdateErrorNotFound"
+        - $ref: "#/components/schemas/pagerDutyReceiverUpdateErrorCreationTemplateNotFound"
+      discriminator:
+        propertyName: error
+        mapping:
+          internal_server_error: "#/components/schemas/internalServerError"
+          unauthorized:  "#/components/schemas/unauthorizedError"
+          unauthenticated:  "#/components/schemas/unauthenticatedError"
+          not_found: "#/components/schemas/pagerDutyReceiverUpdateErrorNotFound"
+          creation_template_not_found: "#/components/schemas/pagerDutyReceiverUpdateErrorCreationTemplateNotFound"
+    pagerDutyReceiverUpdateErrorNotFound:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "not_found"
+    pagerDutyReceiverUpdateErrorCreationTemplateNotFound:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "creation_template_not_found"
+    pagerDutyReceiverDeleteError:
+      oneOf:
+        - $ref: "#/components/schemas/internalServerError"
+        - $ref: "#/components/schemas/unauthorizedError"
+        - $ref: "#/components/schemas/unauthenticatedError"
+        - $ref: "#/components/schemas/pagerDutyReceiverDeleteErrorNotFound"
+      discriminator:
+        propertyName: error
+        mapping:
+          internal_server_error: "#/components/schemas/internalServerError"
+          unauthorized:  "#/components/schemas/unauthorizedError"
+          unauthenticated:  "#/components/schemas/unauthenticatedError"
+          not_found: "#/components/schemas/pagerDutyReceiverDeleteErrorNotFound"
+    pagerDutyReceiverDeleteErrorNotFound:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "not_found"
+    pagerDutyReceiverListError:
+      oneOf:
+        - $ref: "#/components/schemas/internalServerError"
+        - $ref: "#/components/schemas/unauthorizedError"
+        - $ref: "#/components/schemas/unauthenticatedError"
+      discriminator:
+        propertyName: error
+        mapping:
+          internal_server_error: "#/components/schemas/internalServerError"
+          unauthorized:  "#/components/schemas/unauthorizedError"
+          unauthenticated:  "#/components/schemas/unauthenticatedError"
+    internalServerError:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "internal_server_error"
+    unauthorizedError:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "unauthorized"
+    unauthenticatedError:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "unauthenticated"
+
   parameters:
     sortDirection:
       in: query
@@ -2685,6 +2870,14 @@ components:
       required: false
       schema:
         type: string
+    pagerDutyReceiverName:
+      name: pagerDutyReceiverName
+      in: path
+      description: The name of the PagerDuty receiver
+      required: true
+      schema:
+        type: string
+        format: name
   responses:
     thread:
       description: OK
@@ -4990,3 +5183,136 @@ paths:
       responses:
         "200":
           description: OK.
+  /api/workspaces/{workspaceId}/pagerduty/receivers:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      operationId: pagerduty_receiver_list
+      x-new-style: true
+      summary: Retrieve all PagerDuty receivers
+      description: TODO
+      tags:
+        - PagerDuty Receivers
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/limit"
+        - in: query
+          name: sort_by
+          description: Sort the resulting list by the following field (defaults to name)
+          schema:
+            type: string
+            enum:
+              - "name"
+              - "created_at"
+              - "updated_at"
+          required: false
+        - $ref: "#/components/parameters/sortDirection"
+      responses:
+        "200":
+          description: OK.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/pagerDutyReceiver"
+        default:
+          description: Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/pagerDutyReceiverListError"
+  /api/workspaces/{workspaceId}/pagerduty/receivers/{pagerDutyReceiverName}:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+      - $ref: "#/components/parameters/pagerDutyReceiverName"
+    post:
+      operationId: pagerduty_receiver_create
+      x-new-style: true
+      summary: Create a new PagerDuty receiver
+      description: TODO
+      tags:
+        - PagerDuty Receivers
+      requestBody:
+        description: New PagerDuty receiver
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/newPagerDutyReceiver"
+      responses:
+        "200":
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/pagerDutyReceiver"
+        default:
+          description: Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/pagerDutyReceiverCreateError"
+    get:
+      operationId: pagerduty_receiver_get
+      x-new-style: true
+      summary: Retrieve a single pagerduty receiver
+      description: TODO
+      tags:
+        - PagerDuty Receivers
+      responses:
+        "200":
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/pagerDutyReceiver"
+        default:
+          description: Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/pagerDutyReceiverGetError"
+    patch:
+      operationId: pagerduty_receiver_update
+      x-new-style: true
+      summary: Update a PagerDuty receiver
+      description: TODO
+      tags:
+        - PagerDuty Receivers
+      requestBody:
+        description: New PagerDuty receiver
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/updatePagerDutyReceiver"
+      responses:
+        "200":
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/pagerDutyReceiver"
+        default:
+          description: Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/pagerDutyReceiverUpdateError"
+    delete:
+      operationId: pagerduty_receiver_delete
+      x-new-style: true
+      summary: Delete a single pagerduty receiver
+      description: TODO
+      tags:
+        - PagerDuty Receivers
+      responses:
+        "200":
+          description: OK.
+        default:
+          description: Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/pagerDutyReceiverDeleteError"

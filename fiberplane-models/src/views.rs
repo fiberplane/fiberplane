@@ -1,6 +1,7 @@
 use crate::labels::Label;
 use crate::names::Name;
-use crate::sorting::{NotebookSortFields, Pagination, SortDirection, Sorting, ViewSortFields};
+use crate::paging::Pagination;
+use crate::sorting::{NotebookSortFields, SortDirection, Sorting, ViewSortFields};
 use crate::timestamps::Timestamp;
 use base64uuid::Base64Uuid;
 #[cfg(feature = "fp-bindgen")]

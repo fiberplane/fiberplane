@@ -53,6 +53,24 @@ pub(crate) fn generate_client_configs(servers: &[Server], src_path: &Path) -> Re
         .context("Failed to flush output for `builder.rs`")
 }
 
+pub(crate) fn generate_api_client(src_path: &Path) -> Result<()> {
+    // https://stackoverflow.com/a/50691004/11494565
+    let file = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .append(false)
+        .open(src_path.join("api_client.rs"))
+        .context("Failed to open or create api_client.rs file")?;
+
+    let mut writer = BufWriter::new(file);
+
+    writeln!(writer, "{}", include_str!("../files/api_client.rs"))?;
+
+    writer
+        .flush()
+        .context("Failed to flush output for `api_client.rs`")
+}
+
 fn generate_config_method(writer: &mut BufWriter<File>) -> Result<()> {
     writeln!(writer, "pub fn default_config(")?;
     writeln!(writer, "    timeout: Option<Duration>,")?;
@@ -102,7 +120,7 @@ fn generate_client_method(server: &Server, writer: &mut BufWriter<File>) -> Resu
         }
     }
 
-    writeln!(writer, ") -> Result<ApiClient> {{")?;
+    writeln!(writer, ") -> Result<crate::api_client::ApiClient> {{")?;
 
     let variables: Vec<String> = server
         .variables
@@ -146,7 +164,7 @@ fn generate_client_method(server: &Server, writer: &mut BufWriter<File>) -> Resu
     writeln!(writer, "        None,")?;
     writeln!(writer, "    )?;\n")?;
 
-    writeln!(writer, "    Ok(ApiClient {{")?;
+    writeln!(writer, "    Ok(crate::api_client::ApiClient {{")?;
     writeln!(writer, "        client: config,")?;
     writeln!(writer, "        server: Url::parse(url).context(\"Failed to parse base url from Open API document\")?,")?;
     writeln!(writer, "    }})")?;
@@ -157,37 +175,20 @@ fn generate_client_method(server: &Server, writer: &mut BufWriter<File>) -> Resu
 }
 
 fn generate_client_type(writer: &mut BufWriter<File>) -> Result<()> {
-    writeln!(writer, "#[derive(Debug)]")?;
-    writeln!(writer, "pub struct ApiClient {{")?;
-    writeln!(writer, "    pub client: Client,")?;
-    writeln!(writer, "    pub server: Url,")?;
-    writeln!(writer, "}}\n")?;
-
-    writeln!(writer, "impl ApiClient {{")?;
-
+    // Keep this here for backwards compatibility
+    writeln!(writer, "#[deprecated(")?;
     writeln!(
         writer,
-        "    pub fn request(&self, method: Method, endpoint: &str) -> Result<RequestBuilder> {{"
+        r#"note = "Use `fiberplane_api_client::ApiClient` or `fiberplane::fiberplane_api_client::ApiClient` instead""#
     )?;
-    writeln!(writer, "        let url = self.server.join(endpoint)?;\n")?;
-
-    writeln!(writer, "        Ok(self.client.request(method, url))")?;
-    writeln!(writer, "    }}\n")?;
-
-    writeln!(
-        writer,
-        "    pub fn builder(base_url: Url) -> ApiClientBuilder {{"
-    )?;
-    writeln!(writer, "        ApiClientBuilder::new(base_url)")?;
-    writeln!(writer, "    }}")?;
-
-    writeln!(writer, "}}")?;
+    writeln!(writer, ")]")?;
+    writeln!(writer, "pub type ApiClient = crate::ApiClient;")?;
 
     Ok(())
 }
 
 fn generate_builder(writer: &mut BufWriter<File>) -> Result<()> {
-    writeln!(writer, "use crate::clients::ApiClient;")?;
+    writeln!(writer, "use crate::api_client::ApiClient;")?;
     writeln!(writer, "use anyhow::Result;")?;
     writeln!(writer, "use reqwest::{{header, Url}};")?;
     writeln!(writer, "use std::time::Duration;\n")?;

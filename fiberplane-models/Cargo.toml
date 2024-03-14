@@ -17,6 +17,7 @@ clap = ["dep:clap"]
 fp-bindgen = ["base64uuid/fp-bindgen", "dep:fp-bindgen"]
 
 [dependencies]
+axum_06 = { package = "axum", version = "0.6", optional = true }
 base64 = "0.13"
 base64uuid = { workspace = true, default-features = false }
 bytes = { workspace = true }

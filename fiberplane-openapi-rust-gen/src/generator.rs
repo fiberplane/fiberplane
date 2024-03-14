@@ -1,5 +1,5 @@
 use crate::args::GeneratorArgs;
-use crate::client_config::generate_client_configs;
+use crate::client_config::{generate_api_client, generate_client_configs};
 use crate::routes::generate_routes;
 use anyhow::{anyhow, bail, Context, Result};
 use cargo_toml::{
@@ -50,9 +50,10 @@ fn generate_crate(document: OpenApi, args: &GeneratorArgs) -> Result<()> {
     let src_directory = args.output.join("src");
 
     generate_client_configs(&document.servers, &src_directory)?;
+    generate_api_client(&src_directory)?;
 
-    if let Some(components) = document.components {
-        generate_routes(&document.paths, &src_directory, &components, &args.models)?;
+    if let Some(components) = &document.components {
+        generate_routes(&document.paths, &src_directory, components, &args.models)?;
     }
 
     Ok(())
@@ -185,8 +186,11 @@ fn add_dependencies(dependencies: &mut DepsSet, args: &GeneratorArgs) -> Result<
         "fiberplane-models".to_string(),
         fp_dependency("fiberplane-models", args, Vec::new()),
     );
-
     dependencies.insert("bytes".to_string(), Dependency::Simple("1".to_string()));
+
+    dependencies.insert("thiserror".to_string(), Dependency::Simple("1".to_string()));
+
+    dependencies.insert("url".to_string(), Dependency::Simple("2".to_string()));
 
     Ok(())
 }

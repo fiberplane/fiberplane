@@ -10,6 +10,7 @@ use okapi::openapi3::{
 use okapi::Map;
 use regex::Regex;
 use schemars::schema::{Schema, SingleOrVec};
+use serde_json::Value;
 use std::borrow::Borrow;
 use std::fs::{File, OpenOptions};
 use std::io::{BufWriter, Write};
@@ -34,19 +35,20 @@ pub(crate) fn generate_routes(
 
     let mut writer = BufWriter::new(file);
 
-    writeln!(writer, "#![allow(clippy::too_many_arguments)]")?;
     writeln!(writer, "#![forbid(unsafe_code)]")?;
+    writeln!(writer, "#![allow(clippy::too_many_arguments)]")?;
     writeln!(writer, "#![allow(unused_mut)]")?;
     writeln!(writer, "#![allow(unused_variables)]")?;
-    writeln!(writer, "#![allow(unused_imports)]\n")?;
-
-    writeln!(writer, "use anyhow::{{Context as _, Result}};")?;
-    writeln!(writer, "use crate::clients::ApiClient;")?;
-    writeln!(writer, "use reqwest::Method;")?;
-
+    writeln!(writer, "#![allow(unused_imports)]")?;
+    writeln!(writer)?;
+    writeln!(writer, "mod api_client;")?;
     writeln!(writer, "pub mod builder;")?;
-    writeln!(writer, "pub mod clients;\n")?;
-
+    writeln!(writer, "pub mod clients;")?;
+    writeln!(writer)?;
+    writeln!(writer, "use anyhow::{{Context as _, Result}};")?;
+    writeln!(writer, "pub use api_client::{{ApiClient, ApiClientError}};")?;
+    writeln!(writer, "use reqwest::Method;")?;
+    writeln!(writer)?;
     writeln!(writer, "pub(crate) mod models {{")?;
 
     for model in models {
@@ -55,11 +57,12 @@ pub(crate) fn generate_routes(
 
     writeln!(writer, "}}\n")?;
 
-    for (endpoint, item) in paths {
-        // this is so ugly omg 😭
+    writeln!(writer, "impl ApiClient {{")?;
+
+    for (path, item) in paths {
         if let Some(operation) = &item.get {
             generate_route(
-                endpoint,
+                path,
                 "GET",
                 operation,
                 &item.parameters,
@@ -69,7 +72,7 @@ pub(crate) fn generate_routes(
         }
         if let Some(operation) = &item.put {
             generate_route(
-                endpoint,
+                path,
                 "PUT",
                 operation,
                 &item.parameters,
@@ -79,7 +82,7 @@ pub(crate) fn generate_routes(
         }
         if let Some(operation) = &item.post {
             generate_route(
-                endpoint,
+                path,
                 "POST",
                 operation,
                 &item.parameters,
@@ -89,7 +92,7 @@ pub(crate) fn generate_routes(
         }
         if let Some(operation) = &item.delete {
             generate_route(
-                endpoint,
+                path,
                 "DELETE",
                 operation,
                 &item.parameters,
@@ -99,7 +102,7 @@ pub(crate) fn generate_routes(
         }
         if let Some(operation) = &item.patch {
             generate_route(
-                endpoint,
+                path,
                 "PATCH",
                 operation,
                 &item.parameters,
@@ -113,19 +116,32 @@ pub(crate) fn generate_routes(
         writeln!(writer)?;
     }
 
-    writer.flush().context("Failed to flush api.rs")?;
+    writeln!(writer, "}}")?;
+
+    writer.flush().context("Failed to flush lib.rs")?;
 
     Ok(())
 }
 
 fn generate_route(
-    endpoint: &str,
+    path: &str,
     method: &str,
     operation: &Operation,
     shared_parameters: &[RefOr<Parameter>],
     writer: &mut BufWriter<File>,
     components: &Components,
 ) -> Result<()> {
+    let use_new_style = operation
+        .extensions
+        .get("x-new-style")
+        .map_or(false, |value| {
+            if let Value::Bool(value) = value {
+                *value
+            } else {
+                false
+            }
+        });
+
     if let Some(description) = &operation.description {
         writeln!(writer, "#[doc = r#\"{description}\"#]")?;
     }
@@ -133,10 +149,10 @@ fn generate_route(
     let method_name = operation
         .operation_id
         .as_ref()
-        .ok_or_else(|| anyhow!("\"{} {}\" does not have operation_id", method, endpoint))?;
+        .ok_or_else(|| anyhow!("\"{} {}\" does not have operation_id", method, path))?;
 
     writeln!(writer, "pub async fn {method_name}(")?;
-    writeln!(writer, "    client: &ApiClient,")?;
+    writeln!(writer, "    &self,")?;
 
     for raw_param in shared_parameters.iter().chain(&operation.parameters) {
         match resolve(ResolveTarget::Parameter(&Some(raw_param)), components)? {
@@ -259,6 +275,7 @@ fn generate_route(
     write!(writer, ") -> Result<")?;
 
     let mut response_type = None;
+    let mut array_response = false;
 
     match resolve(
         ResolveTarget::Response(&operation.responses.responses.get("200")),
@@ -281,6 +298,7 @@ fn generate_route(
                         write!(writer, "models::{}", reference.to_case(Case::Pascal))?;
                     }
                 } else if let Some(array) = &schema.array {
+                    array_response = true;
                     match &array.items {
                         Some(SingleOrVec::Single(single)) => match single.deref() {
                             Schema::Bool(_) => eprintln!("unsupported bool for array items"),
@@ -291,7 +309,14 @@ fn generate_route(
                                     schema.reference.as_deref(),
                                     false,
                                 )?;
-                                write!(writer, "Vec<{type_}>")?;
+
+                                if use_new_style {
+                                    // New styles requires list to be wrapped in
+                                    // a `PagedVec`.
+                                    write!(writer, "models::PagedVec<{type_}>")?;
+                                } else {
+                                    write!(writer, "Vec<{type_}>")?;
+                                }
                             }
                         },
                         Some(SingleOrVec::Vec(vec)) => {
@@ -342,18 +367,64 @@ fn generate_route(
         }
     }
 
+    if use_new_style {
+        if let Some(ResolvedReference::Responses(response)) = resolve(
+            ResolveTarget::Response(&operation.responses.default.as_ref()),
+            components,
+        )? {
+            let json_media = response.content.get("application/json").ok_or_else(|| {
+                anyhow!(
+                    "default error to have application/json content type (OperationID: {})",
+                    method_name
+                )
+            })?;
+            let schema = json_media.schema.as_ref().ok_or_else(|| {
+                anyhow!(
+                    "application/json media does not have a schema defined (OperationID: {})",
+                    method_name
+                )
+            })?;
+
+            if let Some(reference) = &schema.reference {
+                if let Some((_, reference_name)) = reference.rsplit_once('/') {
+                    write!(
+                        writer,
+                        ", ApiClientError<models::{}>",
+                        reference_name.to_case(Case::Pascal)
+                    )?;
+                } else {
+                    write!(
+                        writer,
+                        ", ApiClientError<models::{}>",
+                        reference.to_case(Case::Pascal)
+                    )?;
+                }
+            } else {
+                bail!(
+                    "Currently only responses with references are supported (OperationID: {})",
+                    method_name
+                )
+            }
+        }
+    }
+
     // RETURN TYPE
 
     writeln!(writer, "> {{")?;
 
-    generate_function_body(
-        endpoint,
-        method,
-        operation,
-        writer,
-        components,
-        response_type,
-    )?;
+    if use_new_style {
+        generate_function_body_new_style(
+            path,
+            method,
+            operation,
+            writer,
+            components,
+            response_type,
+            array_response,
+        )?;
+    } else {
+        generate_function_body(path, method, operation, writer, components, response_type)?;
+    }
 
     writeln!(writer, "\n}}\n")?;
 
@@ -368,7 +439,7 @@ fn generate_function_body(
     components: &Components,
     response_type: Option<ResponseType>,
 ) -> Result<()> {
-    writeln!(writer, "    let mut builder = client.request(",)?;
+    writeln!(writer, "    let mut builder = self.request(",)?;
     writeln!(writer, "        Method::{method},")?;
 
     // https://stackoverflow.com/a/413077/11494565
@@ -487,6 +558,140 @@ fn generate_function_body(
             None => ResponseType::fallback_response_part(),
         }
     )?;
+
+    Ok(())
+}
+
+fn generate_function_body_new_style(
+    endpoint: &str,
+    method: &str,
+    operation: &Operation,
+    writer: &mut BufWriter<File>,
+    components: &Components,
+    _response_type: Option<ResponseType>,
+    array_response: bool,
+) -> Result<()> {
+    writeln!(writer, "    let path = ")?;
+
+    // https://stackoverflow.com/a/413077/11494565
+    let regex = Regex::new(r"\{(.*?)\}").context("Failed to build regex")?;
+    let mut arguments = vec![];
+
+    for captures in regex.captures_iter(endpoint) {
+        let capture = captures
+            .get(1)
+            .ok_or_else(|| anyhow!("unreachable: always two capture groups (0 + 1)"))?;
+
+        arguments.push(capture.as_str());
+    }
+
+    if !arguments.is_empty() {
+        write!(writer, "        &format!(\"{endpoint}\", ")?;
+
+        for arg in arguments {
+            write!(writer, "{} = {}, ", arg, arg.to_case(Case::Snake))?;
+        }
+
+        write!(writer, ");")?;
+    } else {
+        write!(writer, "        \"{endpoint};\"")?;
+    }
+    writeln!(writer)?;
+
+    writeln!(
+        writer,
+        "let mut req = self.request(Method::{method}, path)?;"
+    )?;
+
+    writeln!(writer)?;
+
+    // Query strings as parameters
+    for ref_or in &operation.parameters {
+        let option = Some(ref_or);
+        let option = resolve(ResolveTarget::Parameter(&option), components)?;
+
+        if let Some(ResolvedReference::Parameter(parameter)) = option {
+            match parameter.location.as_str() {
+                "path" => continue,
+                "query" => {
+                    let mut parameter_name = parameter.name.to_case(Case::Snake);
+
+                    if !parameter.required {
+                        writeln!(
+                            writer,
+                            "    if let Some({parameter_name}) = {parameter_name} {{",
+                        )?;
+                    }
+
+                    if let ParameterValue::Schema { schema, .. } = &parameter.value {
+                        let type_ = map_type(
+                            schema.format.as_deref(),
+                            schema.instance_type.as_ref(),
+                            schema.reference.as_deref(),
+                            true,
+                        )
+                        .with_context(|| {
+                            format!(
+                                "Failed to map type for parameter {}. Schema: {:?}",
+                                &parameter.name, schema
+                            )
+                        })?;
+
+                        // special handling for types that need to be converted to strings
+                        if type_ == "fiberplane_models::timestamps::Timestamp" {
+                            parameter_name = format!("{parameter_name}.to_string()")
+                        } else if type_ == "std::collections::HashMap<String, String>" {
+                            parameter_name = format!("serde_json::to_string(&{parameter_name})?")
+                        }
+                    }
+
+                    writeln!(
+                        writer,
+                        "        req = req.query(&[(\"{}\", {})]);",
+                        parameter.name, parameter_name
+                    )?;
+
+                    if !parameter.required {
+                        writeln!(writer, "    }}")?;
+                    }
+                }
+                location => eprintln!("unknown `in`: {location}"),
+            }
+        }
+    }
+
+    writeln!(writer)?;
+    // Request body
+    if let Some(request_body) = &operation.request_body {
+        match resolve(ResolveTarget::RequestBody(&Some(request_body)), components)? {
+            Some(ResolvedReference::RequestBody(body)) => {
+                if body.content.get("application/json").is_some() {
+                    writeln!(writer, "let req = req.json(&payload);")?;
+                } else if body.content.get("multipart/form-data").is_some() {
+                    writeln!(writer, "let req = req.form(&payload);")?;
+                } else if body.content.get("application/octet-stream").is_some() {
+                    writeln!(writer, "let req = req.body(payload);")?;
+                } else {
+                    eprintln!("Unsupported type(s): {:?}", body.content);
+                }
+            }
+            Some(resolved) => bail!(
+                "resolved to unexpected type {:?}, expected `RequestBody`",
+                resolved
+            ),
+            None => write!(writer, "()")?,
+        }
+    }
+    write!(writer, "")?;
+    writeln!(writer)?;
+
+    writeln!(writer)?;
+    if array_response {
+        write!(writer, "self.do_req_paged(req).await")?;
+    } else {
+        write!(writer, "self.do_req(req).await")?;
+    }
+    writeln!(writer)?;
 
     Ok(())
 }

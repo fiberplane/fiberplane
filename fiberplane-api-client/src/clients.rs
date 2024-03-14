@@ -20,43 +20,30 @@ pub fn default_config(
         .build()?)
 }
 
-pub fn production_client() -> Result<ApiClient> {
+pub fn production_client() -> Result<crate::api_client::ApiClient> {
     let url = "https://studio.fiberplane.com/";
 
     let config = default_config(Some(Duration::from_secs(30)), None, None)?;
 
-    Ok(ApiClient {
+    Ok(crate::api_client::ApiClient {
         client: config,
         server: Url::parse(url).context("Failed to parse base url from Open API document")?,
     })
 }
 
-pub fn non_production_client(env: Option<&str>) -> Result<ApiClient> {
+pub fn non_production_client(env: Option<&str>) -> Result<crate::api_client::ApiClient> {
     let env = env.unwrap_or("dev");
     let url = &format!("https://{env}.fiberplane.io/", env = env);
 
     let config = default_config(Some(Duration::from_secs(30)), None, None)?;
 
-    Ok(ApiClient {
+    Ok(crate::api_client::ApiClient {
         client: config,
         server: Url::parse(url).context("Failed to parse base url from Open API document")?,
     })
 }
 
-#[derive(Debug)]
-pub struct ApiClient {
-    pub client: Client,
-    pub server: Url,
-}
-
-impl ApiClient {
-    pub fn request(&self, method: Method, endpoint: &str) -> Result<RequestBuilder> {
-        let url = self.server.join(endpoint)?;
-
-        Ok(self.client.request(method, url))
-    }
-
-    pub fn builder(base_url: Url) -> ApiClientBuilder {
-        ApiClientBuilder::new(base_url)
-    }
-}
+#[deprecated(
+    note = "Use `fiberplane_api_client::ApiClient` or `fiberplane::fiberplane_api_client::ApiClient` instead"
+)]
+pub type ApiClient = crate::ApiClient;
