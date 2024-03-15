@@ -17,7 +17,7 @@
   "devDependencies": {
     "@rollup/plugin-typescript": "^11.1.6",
     "@swc/core": "^1.4.7",
-    "@types/react": "^18.2.65",
+    "@types/react": "^18.2.66",
     "react": "^18.2.0",
     "rollup": "^4.13.0",
     "rollup-plugin-dts": "^6.1.0",
