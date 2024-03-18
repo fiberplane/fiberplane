@@ -26,12 +26,6 @@ use typed_builder::TypedBuilder;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 
-#[cfg(feature = "axum_06")]
-use {
-    axum_06::http::StatusCode,
-    axum_06::response::{IntoResponse, Response},
-};
-
 /// A new PagerDuty receiver. This will be used in the create endpoint.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, TypedBuilder)]
 #[non_exhaustive]
@@ -118,6 +112,25 @@ pub enum PagerDutyReceiverCreateError {
     Auth(AuthError),
 }
 
+impl PagerDutyReceiverCreateError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    pub fn status_code(&self) -> http::StatusCode {
+        match self {
+            PagerDutyReceiverCreateError::InternalServerError => {
+                http::StatusCode::INTERNAL_SERVER_ERROR
+            }
+            PagerDutyReceiverCreateError::CreationTemplateNotFound => http::StatusCode::BAD_REQUEST,
+            PagerDutyReceiverCreateError::Auth(AuthError::Unauthenticated) => {
+                http::StatusCode::UNAUTHORIZED
+            }
+            PagerDutyReceiverCreateError::Auth(AuthError::Unauthorized) => {
+                http::StatusCode::FORBIDDEN
+            }
+            PagerDutyReceiverCreateError::DuplicateName => http::StatusCode::BAD_REQUEST,
+        }
+    }
+}
+
 impl From<AuthError> for PagerDutyReceiverCreateError {
     fn from(value: AuthError) -> Self {
         PagerDutyReceiverCreateError::Auth(value)
@@ -125,18 +138,20 @@ impl From<AuthError> for PagerDutyReceiverCreateError {
 }
 
 #[cfg(feature = "axum_06")]
-impl IntoResponse for PagerDutyReceiverCreateError {
-    fn into_response(self) -> Response {
-        let body = serde_json::to_string(&self).expect("should never fail!");
-        let status_code = match self {
-            PagerDutyReceiverCreateError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            PagerDutyReceiverCreateError::CreationTemplateNotFound => StatusCode::BAD_REQUEST,
-            PagerDutyReceiverCreateError::Auth(AuthError::Unauthenticated) => {
-                StatusCode::UNAUTHORIZED
-            }
-            PagerDutyReceiverCreateError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
-            PagerDutyReceiverCreateError::DuplicateName => StatusCode::BAD_REQUEST,
-        };
+impl axum_06::response::IntoResponse for PagerDutyReceiverCreateError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for PagerDutyReceiverCreateError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
 
         (status_code, body).into_response()
     }
@@ -164,6 +179,22 @@ pub enum PagerDutyReceiverGetError {
     Auth(AuthError),
 }
 
+impl PagerDutyReceiverGetError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    pub fn status_code(&self) -> http::StatusCode {
+        match self {
+            PagerDutyReceiverGetError::NotFound => http::StatusCode::NOT_FOUND,
+            PagerDutyReceiverGetError::InternalServerError => {
+                http::StatusCode::INTERNAL_SERVER_ERROR
+            }
+            PagerDutyReceiverGetError::Auth(AuthError::Unauthenticated) => {
+                http::StatusCode::UNAUTHORIZED
+            }
+            PagerDutyReceiverGetError::Auth(AuthError::Unauthorized) => http::StatusCode::FORBIDDEN,
+        }
+    }
+}
+
 impl From<AuthError> for PagerDutyReceiverGetError {
     fn from(value: AuthError) -> Self {
         PagerDutyReceiverGetError::Auth(value)
@@ -171,15 +202,20 @@ impl From<AuthError> for PagerDutyReceiverGetError {
 }
 
 #[cfg(feature = "axum_06")]
-impl IntoResponse for PagerDutyReceiverGetError {
-    fn into_response(self) -> Response {
-        let body = serde_json::to_string(&self).expect("should never fail!");
-        let status_code = match self {
-            PagerDutyReceiverGetError::NotFound => StatusCode::NOT_FOUND,
-            PagerDutyReceiverGetError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            PagerDutyReceiverGetError::Auth(AuthError::Unauthenticated) => StatusCode::UNAUTHORIZED,
-            PagerDutyReceiverGetError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
-        };
+impl axum_06::response::IntoResponse for PagerDutyReceiverGetError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for PagerDutyReceiverGetError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
 
         (status_code, body).into_response()
     }
@@ -210,25 +246,45 @@ pub enum PagerDutyReceiverUpdateError {
     Auth(AuthError),
 }
 
+impl PagerDutyReceiverUpdateError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    pub fn status_code(&self) -> http::StatusCode {
+        match self {
+            PagerDutyReceiverUpdateError::NotFound => http::StatusCode::NOT_FOUND,
+            PagerDutyReceiverUpdateError::InternalServerError => {
+                http::StatusCode::INTERNAL_SERVER_ERROR
+            }
+            PagerDutyReceiverUpdateError::CreationTemplateNotFound => http::StatusCode::BAD_REQUEST,
+            PagerDutyReceiverUpdateError::Auth(AuthError::Unauthenticated) => {
+                http::StatusCode::UNAUTHORIZED
+            }
+            PagerDutyReceiverUpdateError::Auth(AuthError::Unauthorized) => {
+                http::StatusCode::FORBIDDEN
+            }
+        }
+    }
+}
+
 impl From<AuthError> for PagerDutyReceiverUpdateError {
     fn from(value: AuthError) -> Self {
         PagerDutyReceiverUpdateError::Auth(value)
     }
 }
-
 #[cfg(feature = "axum_06")]
-impl IntoResponse for PagerDutyReceiverUpdateError {
-    fn into_response(self) -> Response {
-        let body = serde_json::to_string(&self).expect("should never fail!");
-        let status_code = match self {
-            PagerDutyReceiverUpdateError::NotFound => StatusCode::NOT_FOUND,
-            PagerDutyReceiverUpdateError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            PagerDutyReceiverUpdateError::CreationTemplateNotFound => StatusCode::BAD_REQUEST,
-            PagerDutyReceiverUpdateError::Auth(AuthError::Unauthenticated) => {
-                StatusCode::UNAUTHORIZED
-            }
-            PagerDutyReceiverUpdateError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
-        };
+impl axum_06::response::IntoResponse for PagerDutyReceiverUpdateError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for PagerDutyReceiverUpdateError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
 
         (status_code, body).into_response()
     }
@@ -262,18 +318,39 @@ impl From<AuthError> for PagerDutyReceiverDeleteError {
     }
 }
 
-#[cfg(feature = "axum_06")]
-impl IntoResponse for PagerDutyReceiverDeleteError {
-    fn into_response(self) -> Response {
-        let body = serde_json::to_string(&self).expect("should never fail!");
-        let status_code = match self {
-            PagerDutyReceiverDeleteError::NotFound => StatusCode::NOT_FOUND,
-            PagerDutyReceiverDeleteError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            PagerDutyReceiverDeleteError::Auth(AuthError::Unauthenticated) => {
-                StatusCode::UNAUTHORIZED
+impl PagerDutyReceiverDeleteError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    pub fn status_code(&self) -> http::StatusCode {
+        match self {
+            PagerDutyReceiverDeleteError::NotFound => http::StatusCode::NOT_FOUND,
+            PagerDutyReceiverDeleteError::InternalServerError => {
+                http::StatusCode::INTERNAL_SERVER_ERROR
             }
-            PagerDutyReceiverDeleteError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
-        };
+            PagerDutyReceiverDeleteError::Auth(AuthError::Unauthenticated) => {
+                http::StatusCode::UNAUTHORIZED
+            }
+            PagerDutyReceiverDeleteError::Auth(AuthError::Unauthorized) => {
+                http::StatusCode::FORBIDDEN
+            }
+        }
+    }
+}
+
+#[cfg(feature = "axum_06")]
+impl axum_06::response::IntoResponse for PagerDutyReceiverDeleteError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for PagerDutyReceiverDeleteError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
 
         (status_code, body).into_response()
     }
@@ -298,6 +375,23 @@ pub enum PagerDutyReceiverListError {
     Auth(AuthError),
 }
 
+impl PagerDutyReceiverListError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    pub fn status_code(&self) -> http::StatusCode {
+        match self {
+            PagerDutyReceiverListError::InternalServerError => {
+                http::StatusCode::INTERNAL_SERVER_ERROR
+            }
+            PagerDutyReceiverListError::Auth(AuthError::Unauthenticated) => {
+                http::StatusCode::UNAUTHORIZED
+            }
+            PagerDutyReceiverListError::Auth(AuthError::Unauthorized) => {
+                http::StatusCode::FORBIDDEN
+            }
+        }
+    }
+}
+
 impl From<AuthError> for PagerDutyReceiverListError {
     fn from(value: AuthError) -> Self {
         PagerDutyReceiverListError::Auth(value)
@@ -305,16 +399,20 @@ impl From<AuthError> for PagerDutyReceiverListError {
 }
 
 #[cfg(feature = "axum_06")]
-impl IntoResponse for PagerDutyReceiverListError {
-    fn into_response(self) -> Response {
-        let body = serde_json::to_string(&self).expect("should never fail!");
-        let status_code = match self {
-            PagerDutyReceiverListError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            PagerDutyReceiverListError::Auth(AuthError::Unauthenticated) => {
-                StatusCode::UNAUTHORIZED
-            }
-            PagerDutyReceiverListError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
-        };
+impl axum_06::response::IntoResponse for PagerDutyReceiverListError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for PagerDutyReceiverListError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
 
         (status_code, body).into_response()
     }
