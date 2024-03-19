@@ -62,6 +62,7 @@ import ChartPieSliceIcon from "./icons/ChartPieSlice.svg";
 import ChatCircleIcon from "./icons/ChatCircle.svg";
 import ChatCircleDotsIcon from "./icons/ChatCircleDots.svg";
 import ChatsCircleIcon from "./icons/ChatsCircle.svg";
+import ChatsTearDropIcon from "./icons/ChatsTearDrop.svg";
 import CheckIcon from "./icons/Check.svg";
 import CheckCircleIcon from "./icons/CheckCircle.svg";
 import CheckSquareIcon from "./icons/CheckSquare.svg";
@@ -511,6 +512,7 @@ export const ICON_MAP = {
   link_break: LinkBreakIcon,
   link_out_duotone: LinkOutDuotoneIcon,
   link_out: LinkOutIcon,
+  chats_teardrop: ChatsTearDropIcon,
   link: LinkIcon,
   linkedin_logo: LinkedinLogoIcon,
   linux_logo: LinuxLogoIcon,
