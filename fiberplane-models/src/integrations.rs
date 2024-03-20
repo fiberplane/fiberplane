@@ -68,10 +68,7 @@ pub struct WorkspaceIntegrationSummary {
 #[non_exhaustive]
 #[serde(rename_all = "lowercase")]
 pub enum WorkspaceIntegrationId {
-    // Temporary integration ID. This exists solely so that `fp-bindgen` generates a valid type
-    // for the Typescript side while there aren't any providers yet. NEEDS to be removed once
-    // we have our first workspace integration
-    Todo,
+    PagerDutyWebhook,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Display, EnumIter)]
