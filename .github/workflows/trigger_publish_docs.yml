@@ -6,7 +6,8 @@ on:
 jobs:
   trigger-deploy:
     uses: ./.github/workflows/publish_docs.yml
-    secrets:
-      AWS_ROLE_GITHUB_ACTIONS: ${{ secrets.AWS_ROLE_GITHUB_ACTIONS }}
+    with:
       DOCS_BUCKET_ID: ${{ vars.DOCS_BUCKET_ID }}
       DOCS_CLOUDFRONT_ID: ${{ vars.DOCS_CLOUDFRONT_ID }}
+    secrets:
+      AWS_ROLE_GITHUB_ACTIONS: ${{ secrets.AWS_ROLE_GITHUB_ACTIONS }}

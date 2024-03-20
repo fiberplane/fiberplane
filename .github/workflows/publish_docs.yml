@@ -4,10 +4,13 @@ on:
   workflow_call:
     secrets:
       AWS_ROLE_GITHUB_ACTIONS:
-        required: true
+      required: true
+    inputs:
       DOCS_BUCKET_ID:
+        type: "string"
         required: true
       DOCS_CLOUDFRONT_ID:
+        type: "string"
         required: true
 
 jobs:
@@ -37,11 +40,11 @@ jobs:
 
       - name: Sync to S3 bucket
         run: |
-          aws s3 sync --delete ./dist/ s3://${{ secrets.DOCS_BUCKET_ID }}
+          aws s3 sync --delete ./dist/ s3://${{ inputs.DOCS_BUCKET_ID }}
 
       - name: Invalidate CloudFront
         run: |
           aws cloudfront create-invalidation \
-          --distribution-id ${{ secrets.DOCS_CLOUDFRONT_ID }} \
+          --distribution-id ${{ inputs.DOCS_CLOUDFRONT_ID }} \
             --paths '/*'
 
