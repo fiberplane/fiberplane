@@ -116,7 +116,7 @@ pub struct UpdatePagerDutyReceiver {
     fp(rust_module = "fiberplane_models::pagerduty")
 )]
 #[non_exhaustive]
-#[serde(tag = "error", rename_all = "snake_case")]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum PagerDutyReceiverCreateError {
     #[error("Name of the PagerDuty receiver is already in use")]
     DuplicateName,
@@ -128,7 +128,6 @@ pub enum PagerDutyReceiverCreateError {
     InternalServerError,
 
     /// Common auth errors.
-    #[serde(untagged)]
     #[error(transparent)]
     Auth(AuthError),
 }
@@ -142,17 +141,14 @@ impl From<AuthError> for PagerDutyReceiverCreateError {
 #[cfg(feature = "axum_06")]
 impl IntoResponse for PagerDutyReceiverCreateError {
     fn into_response(self) -> Response {
-        let body = serde_json::to_string(&self).expect("should never fail!");
         let status_code = match self {
             PagerDutyReceiverCreateError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
             PagerDutyReceiverCreateError::CreationTemplateNotFound => StatusCode::BAD_REQUEST,
-            PagerDutyReceiverCreateError::Auth(AuthError::Unauthenticated) => {
-                StatusCode::UNAUTHORIZED
-            }
-            PagerDutyReceiverCreateError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
             PagerDutyReceiverCreateError::DuplicateName => StatusCode::BAD_REQUEST,
+            PagerDutyReceiverCreateError::Auth(auth_error) => auth_error.status_code(),
         };
 
+        let body = serde_json::to_string(&self).expect("serializing should not be able to fail");
         (status_code, body).into_response()
     }
 }
@@ -165,7 +161,7 @@ impl IntoResponse for PagerDutyReceiverCreateError {
     fp(rust_module = "fiberplane_models::pagerduty")
 )]
 #[non_exhaustive]
-#[serde(tag = "error", rename_all = "snake_case")]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum PagerDutyReceiverGetError {
     #[error("PagerDuty receiver not found")]
     NotFound,
@@ -174,7 +170,6 @@ pub enum PagerDutyReceiverGetError {
     InternalServerError,
 
     /// Common auth errors.
-    #[serde(untagged)]
     #[error(transparent)]
     Auth(AuthError),
 }
@@ -188,13 +183,12 @@ impl From<AuthError> for PagerDutyReceiverGetError {
 #[cfg(feature = "axum_06")]
 impl IntoResponse for PagerDutyReceiverGetError {
     fn into_response(self) -> Response {
-        let body = serde_json::to_string(&self).expect("should never fail!");
         let status_code = match self {
             PagerDutyReceiverGetError::NotFound => StatusCode::NOT_FOUND,
             PagerDutyReceiverGetError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            PagerDutyReceiverGetError::Auth(AuthError::Unauthenticated) => StatusCode::UNAUTHORIZED,
-            PagerDutyReceiverGetError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
+            PagerDutyReceiverGetError::Auth(auth_error) => auth_error.status_code(),
         };
+        let body = serde_json::to_string(&self).expect("serializing should not be able to fail");
 
         (status_code, body).into_response()
     }
@@ -208,7 +202,7 @@ impl IntoResponse for PagerDutyReceiverGetError {
     fp(rust_module = "fiberplane_models::pagerduty")
 )]
 #[non_exhaustive]
-#[serde(tag = "error", rename_all = "snake_case")]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum PagerDutyReceiverUpdateError {
     #[error("PagerDuty receiver not found")]
     NotFound,
@@ -220,7 +214,6 @@ pub enum PagerDutyReceiverUpdateError {
     InternalServerError,
 
     /// Common auth errors.
-    #[serde(untagged)]
     #[error(transparent)]
     Auth(AuthError),
 }
@@ -234,17 +227,14 @@ impl From<AuthError> for PagerDutyReceiverUpdateError {
 #[cfg(feature = "axum_06")]
 impl IntoResponse for PagerDutyReceiverUpdateError {
     fn into_response(self) -> Response {
-        let body = serde_json::to_string(&self).expect("should never fail!");
         let status_code = match self {
             PagerDutyReceiverUpdateError::NotFound => StatusCode::NOT_FOUND,
             PagerDutyReceiverUpdateError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
             PagerDutyReceiverUpdateError::CreationTemplateNotFound => StatusCode::BAD_REQUEST,
-            PagerDutyReceiverUpdateError::Auth(AuthError::Unauthenticated) => {
-                StatusCode::UNAUTHORIZED
-            }
-            PagerDutyReceiverUpdateError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
+            PagerDutyReceiverUpdateError::Auth(auth_error) => auth_error.status_code(),
         };
 
+        let body = serde_json::to_string(&self).expect("serializing should not be able to fail");
         (status_code, body).into_response()
     }
 }
@@ -257,7 +247,7 @@ impl IntoResponse for PagerDutyReceiverUpdateError {
     fp(rust_module = "fiberplane_models::pagerduty")
 )]
 #[non_exhaustive]
-#[serde(tag = "error", rename_all = "snake_case")]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum PagerDutyReceiverDeleteError {
     #[error("PagerDuty receiver not found")]
     NotFound,
@@ -266,7 +256,6 @@ pub enum PagerDutyReceiverDeleteError {
     InternalServerError,
 
     /// Common auth errors.
-    #[serde(untagged)]
     #[error(transparent)]
     Auth(AuthError),
 }
@@ -280,16 +269,13 @@ impl From<AuthError> for PagerDutyReceiverDeleteError {
 #[cfg(feature = "axum_06")]
 impl IntoResponse for PagerDutyReceiverDeleteError {
     fn into_response(self) -> Response {
-        let body = serde_json::to_string(&self).expect("should never fail!");
         let status_code = match self {
             PagerDutyReceiverDeleteError::NotFound => StatusCode::NOT_FOUND,
             PagerDutyReceiverDeleteError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            PagerDutyReceiverDeleteError::Auth(AuthError::Unauthenticated) => {
-                StatusCode::UNAUTHORIZED
-            }
-            PagerDutyReceiverDeleteError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
+            PagerDutyReceiverDeleteError::Auth(auth_error) => auth_error.status_code(),
         };
 
+        let body = serde_json::to_string(&self).expect("serializing should not be able to fail");
         (status_code, body).into_response()
     }
 }
@@ -302,13 +288,12 @@ impl IntoResponse for PagerDutyReceiverDeleteError {
     fp(rust_module = "fiberplane_models::pagerduty")
 )]
 #[non_exhaustive]
-#[serde(tag = "error", rename_all = "snake_case")]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum PagerDutyReceiverListError {
     #[error("Unknown error occurred")]
     InternalServerError,
 
     /// Common auth errors.
-    #[serde(untagged)]
     #[error(transparent)]
     Auth(AuthError),
 }
@@ -322,15 +307,12 @@ impl From<AuthError> for PagerDutyReceiverListError {
 #[cfg(feature = "axum_06")]
 impl IntoResponse for PagerDutyReceiverListError {
     fn into_response(self) -> Response {
-        let body = serde_json::to_string(&self).expect("should never fail!");
         let status_code = match self {
             PagerDutyReceiverListError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            PagerDutyReceiverListError::Auth(AuthError::Unauthenticated) => {
-                StatusCode::UNAUTHORIZED
-            }
-            PagerDutyReceiverListError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
+            PagerDutyReceiverListError::Auth(auth_error) => auth_error.status_code(),
         };
 
+        let body = serde_json::to_string(&self).expect("serializing should not be able to fail");
         (status_code, body).into_response()
     }
 }
