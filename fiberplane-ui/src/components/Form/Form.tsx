@@ -1,3 +1,4 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import type { ReactNode } from "react";
 import {
   type Control,
@@ -9,11 +10,13 @@ import {
   useForm,
 } from "react-hook-form";
 import styled from "styled-components";
+import type { ZodSchema } from "zod";
 
 type FormProps<TValues extends FieldValues> = {
   children: (control: Control<TValues>) => ReactNode;
   defaultValues?: DefaultValues<TValues>;
   errors?: FieldErrors<TValues>;
+  schema: ZodSchema<TValues>;
   submitErrorHandler: SubmitErrorHandler<TValues>;
   submitHandler: SubmitHandler<TValues>;
 };
@@ -22,12 +25,14 @@ export function Form<TValues extends FieldValues>({
   children,
   defaultValues,
   errors,
+  schema,
   submitErrorHandler,
   submitHandler,
 }: FormProps<TValues>) {
   const { control, handleSubmit, formState } = useForm<TValues>({
     defaultValues,
     errors,
+    resolver: zodResolver(schema)
   });
 
   return (
