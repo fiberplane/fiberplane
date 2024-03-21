@@ -35,6 +35,11 @@ use {
 /// A new PagerDuty receiver. This will be used in the create endpoint.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, TypedBuilder)]
 #[non_exhaustive]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::pagerduty")
+)]
 #[serde(rename_all = "camelCase")]
 pub struct NewPagerDutyReceiver {
     /// A reference to a template that will be expanded when a incident is
@@ -46,6 +51,11 @@ pub struct NewPagerDutyReceiver {
 /// PagerDutyReceiver represents a single PagerDuty receiver in Fiberplane.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, TypedBuilder)]
 #[non_exhaustive]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::pagerduty")
+)]
 #[serde(rename_all = "camelCase")]
 pub struct PagerDutyReceiver {
     /// Unique identifier for the PagerDuty receiver for a workspace.
@@ -74,6 +84,11 @@ pub struct PagerDutyReceiver {
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, TypedBuilder)]
 #[non_exhaustive]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::pagerduty")
+)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdatePagerDutyReceiver {
     /// A reference to a template that will be expanded when a incident is

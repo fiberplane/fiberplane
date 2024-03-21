@@ -23,5 +23,8 @@
     "test": "yarn workspaces foreach -W run test",
     "test-dist": "yarn workspaces foreach -W run test-dist",
     "type-check": "yarn workspaces foreach -Wp run type-check"
+  },
+  "dependencies": {
+    "react-hook-form": "^7.51.1"
   }
 }
