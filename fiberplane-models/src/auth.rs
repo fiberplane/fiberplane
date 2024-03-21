@@ -19,3 +19,21 @@ pub enum AuthError {
     #[error("credentials are not allowed to perform this action")]
     Unauthorized,
 }
+
+impl AuthError {
+    #[cfg(feature = "axum_06")]
+    pub fn status_code(&self) -> axum_06::http::StatusCode {
+        match self {
+            Self::Unauthenticated => axum_06::http::StatusCode::UNAUTHORIZED,
+            Self::Unauthorized => axum_06::http::StatusCode::FORBIDDEN,
+        }
+    }
+
+    #[cfg(feature = "axum_07")]
+    pub fn status_code(&self) -> axum_07::http::StatusCode {
+        match self {
+            Self::Unauthenticated => axum_07::http::StatusCode::UNAUTHORIZED,
+            Self::Unauthorized => axum_07::http::StatusCode::FORBIDDEN,
+        }
+    }
+}
