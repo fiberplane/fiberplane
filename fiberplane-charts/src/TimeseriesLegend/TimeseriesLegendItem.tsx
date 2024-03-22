@@ -1,4 +1,4 @@
-import { Fragment, memo, useContext, useLayoutEffect } from "react";
+import { Fragment, memo, useContext, useLayoutEffect, useRef } from "react";
 import { css, styled } from "styled-components";
 
 import { Container, Icon } from "../BaseComponents";
@@ -33,9 +33,16 @@ export function TimeseriesLegendItem({
   uniqueKeys,
 }: Props): JSX.Element {
   const [ref, { height }] = useMeasure<HTMLDivElement>();
+  const heightRef = useRef<number | null>(null);
 
   useLayoutEffect(() => {
-    if (height) {
+    const delta =
+      height && heightRef.current
+        ? Math.max(height, heightRef.current) -
+          Math.min(height, heightRef.current)
+        : undefined;
+    if (delta === undefined || delta > 1) {
+      heightRef.current = height;
       setSize(index, height);
     }
   }, [height, setSize, index]);
