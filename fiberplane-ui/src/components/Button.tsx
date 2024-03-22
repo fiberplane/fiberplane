@@ -176,6 +176,9 @@ function getButtonStyle(buttonStyle: ButtonStyle) {
         padding: 4px 2px;
         color: var(--color-fg-primary, #3755ed);
         border: 1px solid transparent;
+        border-radius: var(--radius-minimal, 6px);
+        min-height: unset;
+        max-height: 24px;
 
         &:hover {
           color: var(--color-fg-default, #000);
@@ -196,6 +199,9 @@ function getButtonStyle(buttonStyle: ButtonStyle) {
         padding: 4px 2px;
         color: var(--color-fg-muted, #8c898f);
         border: 1px solid transparent;
+        border-radius: var(--radius-minimal, 6px);
+        min-height: unset;
+        max-height: 24px;
 
         &:hover {
           background-color: var(--color-bg-hover, #ebeaed);
