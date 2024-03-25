@@ -2,15 +2,14 @@ name: Build and publish docs website
 
 on:
   workflow_call:
-    secrets:
-      AWS_ROLE_GITHUB_ACTIONS:
-      required: true
     inputs:
-      DOCS_BUCKET_ID:
-        type: "string"
+      docs_bucket_id:
+        description: The S3 bucket id where the built docs should be placed
+        type: string
         required: true
-      DOCS_CLOUDFRONT_ID:
-        type: "string"
+      docs_cloudfront_id:
+        description: The CloudFront instance that should be invalidated
+        type: string
         required: true
 
 jobs:
@@ -40,11 +39,11 @@ jobs:
 
       - name: Sync to S3 bucket
         run: |
-          aws s3 sync --delete ./dist/ s3://${{ inputs.DOCS_BUCKET_ID }}
+          aws s3 sync --delete ./dist/ s3://${{ inputs.docs_bucket_id }}
 
       - name: Invalidate CloudFront
         run: |
           aws cloudfront create-invalidation \
-          --distribution-id ${{ inputs.DOCS_CLOUDFRONT_ID }} \
+          --distribution-id ${{ inputs.docs_cloudfront_id }} \
             --paths '/*'
 
