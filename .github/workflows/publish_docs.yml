@@ -2,6 +2,9 @@ name: Build and publish docs website
 
 on:
   workflow_call:
+    secrets:
+      AWS_ROLE_GITHUB_ACTIONS:
+        required: true
     inputs:
       docs_bucket_id:
         description: The S3 bucket id where the built docs should be placed
