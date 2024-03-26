@@ -1,3 +1,7 @@
+// This simple script used to validate the OpenAPI schema uses
+// the same @readme/openapi-parser package that our docs builder 
+// relies on.
+
 import OpenAPIParser from "npm:@readme/openapi-parser";
 import type { OpenAPI } from "npm:openapi-types";
 
