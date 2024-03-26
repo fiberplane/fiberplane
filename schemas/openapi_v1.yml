@@ -2471,7 +2471,7 @@ components:
         id:
           type: string
           enum:
-            - "TODO"
+            - "pagerdutywebhook"
         status:
           type: object
           required:

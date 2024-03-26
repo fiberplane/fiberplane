@@ -42,7 +42,7 @@ export const StyledInput = styled.div`
 
   ${HiddenInputElement}:checked ~ & {
     border-color: var(--color-border-primary, #3755ed);
-    background-color: var(--color-bg-emphasis-primary-subtle, #e7e7e7);
+    background-color: var(--color-bg-subtle, #212326);
     color: var(--color-fg-primary, #3755ed);
   }
 

@@ -61,7 +61,9 @@ import ChartPieIcon from "./icons/ChartPie.svg";
 import ChartPieSliceIcon from "./icons/ChartPieSlice.svg";
 import ChatCircleIcon from "./icons/ChatCircle.svg";
 import ChatCircleDotsIcon from "./icons/ChatCircleDots.svg";
+import ChatTearDropIcon from "./icons/ChatTearDrop.svg";
 import ChatsCircleIcon from "./icons/ChatsCircle.svg";
+import ChatsTearDropIcon from "./icons/ChatsTearDrop.svg";
 import CheckIcon from "./icons/Check.svg";
 import CheckCircleIcon from "./icons/CheckCircle.svg";
 import CheckSquareIcon from "./icons/CheckSquare.svg";
@@ -378,7 +380,9 @@ export const ICON_MAP = {
   chart_pie: ChartPieIcon,
   chat_circle_dots: ChatCircleDotsIcon,
   chat_circle: ChatCircleIcon,
+  chat_tear_drop: ChatTearDropIcon,
   chats_circle: ChatsCircleIcon,
+  chats_teardrop: ChatsTearDropIcon,
   check_circle: CheckCircleIcon,
   check_square: CheckSquareIcon,
   check: CheckIcon,
