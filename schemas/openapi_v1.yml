@@ -2019,7 +2019,7 @@ components:
         iconName:
           type: string
         defaultValue:
-          $ref: "#/components/schemas/frontMatterDateTimeValue"
+          $ref: "#/components/schemas/frontMatterEnumDateTimeValue"
     frontMatterEnumDateTimeValue:
       type: string
       description: Representation of a dateTime _value_ in the front matter.
