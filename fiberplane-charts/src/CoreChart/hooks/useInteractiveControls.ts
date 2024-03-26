@@ -1,4 +1,4 @@
-import { useMemo, useReducer } from "react";
+import { useMemo, useReducer, useRef } from "react";
 
 import { identity, isMac } from "../../utils";
 
@@ -35,8 +35,9 @@ const defaultState: InteractiveControlsState = {
 export function useInteractiveControls(
   readOnly: boolean,
 ): InteractiveControls & InteractiveControlsState {
+  const reducer = readOnly ? identity : controlsStateReducer
   const [state, dispatch] = useReducer(
-    readOnly ? identity : controlsStateReducer,
+    reducer,
     defaultState,
   );
 
@@ -100,6 +101,7 @@ function createControls(
     },
 
     updatePressedKeys(event: PressedKeyEvent) {
+
       dispatch({
         type: "UPDATE_PRESSED_KEYS",
         payload: {
@@ -139,6 +141,13 @@ function controlsStateReducer(
       };
 
     case "UPDATE_PRESSED_KEYS":
+      if (
+        action.payload.dragKeyPressed === state.dragKeyPressed &&
+        action.payload.zoomKeyPressed === state.zoomKeyPressed
+      ) {
+        return state
+      }
+
       return { ...state, ...action.payload };
 
     case "ZOOM_START":

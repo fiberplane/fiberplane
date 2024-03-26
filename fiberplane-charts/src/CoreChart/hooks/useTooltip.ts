@@ -52,26 +52,26 @@ export function useTooltip<S, P>(props: Props<S, P>) {
   const showTooltipFn = props.showTooltip;
   const showTooltip = showTooltipFn
     ? (tip: GraphTooltip<S, P>) => {
-        setGraphTooltip(tip);
+      setGraphTooltip(tip);
 
-        const element: VirtualElement = {
-          getBoundingClientRect: (): DOMRect => {
-            const ctm = tip.element.getScreenCTM();
-            const point = tip.element.createSVGPoint();
-            point.x = tip.left;
-            point.y = tip.top;
+      const element: VirtualElement = {
+        getBoundingClientRect: (): DOMRect => {
+          const ctm = tip.element.getScreenCTM();
+          const point = tip.element.createSVGPoint();
+          point.x = tip.left;
+          point.y = tip.top;
 
-            const { x, y } = ctm
-              ? point.matrixTransform(ctm)
-              : { x: tip.left, y: tip.top };
+          const { x, y } = ctm
+            ? point.matrixTransform(ctm)
+            : { x: tip.left, y: tip.top };
 
-            return new DOMRect(x - 4, y - 4, 8, 8);
-          },
-          contextElement: tip.element,
-        };
+          return new DOMRect(x - 4, y - 4, 8, 8);
+        },
+        contextElement: tip.element,
+      };
 
-        closeFnRef.current = showTooltipFn(element, tip.sourcePoint);
-      }
+      closeFnRef.current = showTooltipFn(element, tip.sourcePoint);
+    }
     : noop;
 
   const closeTooltip = useHandler(() => {
