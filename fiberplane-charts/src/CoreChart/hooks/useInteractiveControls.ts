@@ -1,4 +1,4 @@
-import { useMemo, useReducer, useRef } from "react";
+import { useMemo, useReducer } from "react";
 
 import { identity, isMac } from "../../utils";
 
