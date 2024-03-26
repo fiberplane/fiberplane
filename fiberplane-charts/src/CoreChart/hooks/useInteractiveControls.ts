@@ -35,11 +35,8 @@ const defaultState: InteractiveControlsState = {
 export function useInteractiveControls(
   readOnly: boolean,
 ): InteractiveControls & InteractiveControlsState {
-  const reducer = readOnly ? identity : controlsStateReducer
-  const [state, dispatch] = useReducer(
-    reducer,
-    defaultState,
-  );
+  const reducer = readOnly ? identity : controlsStateReducer;
+  const [state, dispatch] = useReducer(reducer, defaultState);
 
   const controls = useMemo(() => createControls(dispatch), []);
 
@@ -101,7 +98,6 @@ function createControls(
     },
 
     updatePressedKeys(event: PressedKeyEvent) {
-
       dispatch({
         type: "UPDATE_PRESSED_KEYS",
         payload: {
@@ -145,7 +141,7 @@ function controlsStateReducer(
         action.payload.dragKeyPressed === state.dragKeyPressed &&
         action.payload.zoomKeyPressed === state.zoomKeyPressed
       ) {
-        return state
+        return state;
       }
 
       return { ...state, ...action.payload };
