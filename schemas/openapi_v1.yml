@@ -2003,9 +2003,9 @@ components:
         options:
           type: array
           items:
-            $ref: "#/components/schemas/frontMatterStringValue"
+            $ref: "#/components/schemas/frontMatterEnumStringValue"
         defaultValue:
-          $ref: "#/components/schemas/frontMatterStringValue"
+          $ref: "#/components/schemas/frontMatterEnumStringValue"
     frontMatterEnumStringValue:
       type: string
       description: Representation of a string _value_ in the front matter.
