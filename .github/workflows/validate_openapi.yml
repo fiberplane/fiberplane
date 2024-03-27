@@ -1,0 +1,18 @@
+name: Validate OpenAPI schema
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "schemas/openapi_v1.yml"
+
+jobs:
+  validate_schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - shell: bash
+        run: deno run --allow-read scripts/validate_openapi.ts
+
