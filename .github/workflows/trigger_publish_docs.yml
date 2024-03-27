@@ -3,7 +3,12 @@ name: Manually publish docs
 on:
   workflow_dispatch:
 
-
 jobs:
   trigger-deploy:
-    uses: fiberplane/fiberplane/.github/workflows/publish_docs.yml@main
+    uses: ./.github/workflows/publish_docs.yml
+    with:
+      docs_bucket_id: ${{ vars.DOCS_BUCKET_ID }}
+      docs_cloudfront_id: ${{ vars.DOCS_CLOUDFRONT_ID }}
+    secrets:
+      AWS_ROLE_GITHUB_ACTIONS: ${{ secrets.AWS_ROLE_GITHUB_ACTIONS }}
+

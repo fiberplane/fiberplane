@@ -1,54 +1,22 @@
-# Starlight Starter Kit: Basics
+# Fiberplane Docs
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+This is the source code for our docs site available on fiberplane.com/docs
 
-```
-npm create astro@latest -- --template starlight
-```
+It includes the written guides as well as references generated directly from the OpenAPI spec. The CLI and template references are for now directly copied from their respective folders - this will be updated to follow a similar pattern to be automatically generated from the source code later.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/starlight/tree/main/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/starlight/tree/main/examples/basics)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fwithastro%2Fstarlight%2Ftree%2Fmain%2Fexamples%2Fbasics&project-name=my-starlight-docs&repository-name=my-starlight-docs)
+### Architecture overview
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+The documentation site is an entirely static Astro site that uses Starlight framework for organizing and rendering documentation. Starlight framework provides very simple and good defaults for a documentation site: an interface for managing the sidebar and table of contents on each page, a search (built on Pagefind tool) that works out of the box, and a styling system that is accessible and looks good by default.
 
-## 🚀 Project Structure
+The entire site is hosted in the docs/ URL subdirectory on the fiberplane.com distribution alongside our Framer-hosted site. This is why you will find some of the files live in a somewhat awkward docs/docs/ subdirectory - this is a work around to ensure that all markdown pages render on `fiberplane.com/docs`
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
+The site renders the documentation from two sources:
 
-```
-.
-├── public/
-├── src/
-│   ├── assets/
-│   ├── content/
-│   │   ├── docs/
-│   │   └── config.ts
-│   └── env.d.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
-```
+Markdown files that are in the `src/content/docs/` subdirectory. These are pretty straightforward and they just render according to Starlight's conventions. As mentioned earlier the CLI and Templates reference are for now just these markdown files placed in their respective directories.
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+The OpenAPI spec that is rendered dynamically. This uses the underlying Astro's file-based routing engine to parse the openapi_v1.yml file and render the pages for each resource. For this, an in-house component had to be rolled.
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
+### How OpenAPI documentation is rendered
 
-Static assets, like favicons, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+The documentation is organized using the `tags` properties in the OpenAPI spec. Each tag corresponds with what we would consider a "resource" in Fiberplane: notebooks, templates, workspaces, events etc.
+Each tag then has a number of operations associated that are rendered in a single large page that is ctrl/cmd-f'able along with necessary path, request body parameters, and return schemas. Every path and operation makes use of the description property on the OpenAPI spec to render a rich markdown-supported documentation. The next phase in this project will entail a revision of the OpenAPI spec to ensure more of the relevant paths/parameters are better documented.
