@@ -1,4 +1,6 @@
-# How to add a new front matter type?
+---
+title: How to add a new front matter type?
+---
 
 This how to contain the general plan (and the gotchas to avoid) to add a new type of front matter value. The
 concrete example will be `PagerDuty`, but for any other type of front matter it would be the same thing.
