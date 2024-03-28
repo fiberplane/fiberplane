@@ -179,6 +179,7 @@ import GooglePlayLogoIcon from "./icons/GooglePlayLogo.svg";
 import GooglePodcastsLogoIcon from "./icons/GooglePodcastsLogo.svg";
 import GraphIcon from "./icons/Graph.svg";
 import GraphDuotoneIcon from "./icons/GraphDuotone.svg";
+import HashIcon from "./icons/Hash.svg";
 import HighlighterCircleIcon from "./icons/HighlighterCircle.svg";
 import ImageIcon from "./icons/Image.svg";
 import ImageSquareIcon from "./icons/ImageSquare.svg";
@@ -265,6 +266,7 @@ import SloDuotoneIcon from "./icons/SloDuotone.svg";
 import SortAscendingIcon from "./icons/SortAscending.svg";
 import SortDescendingIcon from "./icons/SortDescending.svg";
 import SourceIcon from "./icons/Source.svg";
+import SpinnerIcon from "./icons/Spinner.svg";
 import Sparkle from "./icons/Sparkle.svg";
 import SquaresFourIcon from "./icons/SquaresFour.svg";
 import StackIcon from "./icons/Stack.svg";
@@ -500,6 +502,7 @@ export const ICON_MAP = {
   google_podcasts_logo: GooglePodcastsLogoIcon,
   graph_duotone: GraphDuotoneIcon,
   graph: GraphIcon,
+  hash: HashIcon,
   highlighter_circle: HighlighterCircleIcon,
   image_square: ImageSquareIcon,
   image: ImageIcon,
@@ -586,6 +589,7 @@ export const ICON_MAP = {
   sort_ascending: SortAscendingIcon,
   sort_descending: SortDescendingIcon,
   source: SourceIcon,
+  spinner: SpinnerIcon,
   sparkle: Sparkle,
   squares_four: SquaresFourIcon,
   stack: StackIcon,
