@@ -104,6 +104,12 @@ export default defineConfig({
             },
           ],
         },
+        {
+          label: "Development",
+          autogenerate: {
+            directory: "docs/development",
+          },
+        },
       ],
     }),
   ],
