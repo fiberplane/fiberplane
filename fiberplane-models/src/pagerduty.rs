@@ -26,6 +26,12 @@ use typed_builder::TypedBuilder;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 
+#[cfg(feature = "axum_06")]
+use http_02::StatusCode;
+
+#[cfg(feature = "axum_07")]
+use http_1::StatusCode;
+
 /// A new PagerDuty receiver. This will be used in the create endpoint.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, TypedBuilder)]
 #[non_exhaustive]
@@ -114,19 +120,15 @@ pub enum PagerDutyReceiverCreateError {
 
 impl PagerDutyReceiverCreateError {
     #[cfg(any(feature = "axum_06", feature = "axum_07"))]
-    pub fn status_code(&self) -> http::StatusCode {
+    fn status_code(&self) -> StatusCode {
         match self {
-            PagerDutyReceiverCreateError::InternalServerError => {
-                http::StatusCode::INTERNAL_SERVER_ERROR
-            }
-            PagerDutyReceiverCreateError::CreationTemplateNotFound => http::StatusCode::BAD_REQUEST,
+            PagerDutyReceiverCreateError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            PagerDutyReceiverCreateError::CreationTemplateNotFound => StatusCode::BAD_REQUEST,
             PagerDutyReceiverCreateError::Auth(AuthError::Unauthenticated) => {
-                http::StatusCode::UNAUTHORIZED
+                StatusCode::UNAUTHORIZED
             }
-            PagerDutyReceiverCreateError::Auth(AuthError::Unauthorized) => {
-                http::StatusCode::FORBIDDEN
-            }
-            PagerDutyReceiverCreateError::DuplicateName => http::StatusCode::BAD_REQUEST,
+            PagerDutyReceiverCreateError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
+            PagerDutyReceiverCreateError::DuplicateName => StatusCode::BAD_REQUEST,
         }
     }
 }
@@ -181,16 +183,12 @@ pub enum PagerDutyReceiverGetError {
 
 impl PagerDutyReceiverGetError {
     #[cfg(any(feature = "axum_06", feature = "axum_07"))]
-    pub fn status_code(&self) -> http::StatusCode {
+    fn status_code(&self) -> StatusCode {
         match self {
-            PagerDutyReceiverGetError::NotFound => http::StatusCode::NOT_FOUND,
-            PagerDutyReceiverGetError::InternalServerError => {
-                http::StatusCode::INTERNAL_SERVER_ERROR
-            }
-            PagerDutyReceiverGetError::Auth(AuthError::Unauthenticated) => {
-                http::StatusCode::UNAUTHORIZED
-            }
-            PagerDutyReceiverGetError::Auth(AuthError::Unauthorized) => http::StatusCode::FORBIDDEN,
+            PagerDutyReceiverGetError::NotFound => StatusCode::NOT_FOUND,
+            PagerDutyReceiverGetError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            PagerDutyReceiverGetError::Auth(AuthError::Unauthenticated) => StatusCode::UNAUTHORIZED,
+            PagerDutyReceiverGetError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
         }
     }
 }
@@ -248,19 +246,15 @@ pub enum PagerDutyReceiverUpdateError {
 
 impl PagerDutyReceiverUpdateError {
     #[cfg(any(feature = "axum_06", feature = "axum_07"))]
-    pub fn status_code(&self) -> http::StatusCode {
+    fn status_code(&self) -> StatusCode {
         match self {
-            PagerDutyReceiverUpdateError::NotFound => http::StatusCode::NOT_FOUND,
-            PagerDutyReceiverUpdateError::InternalServerError => {
-                http::StatusCode::INTERNAL_SERVER_ERROR
-            }
-            PagerDutyReceiverUpdateError::CreationTemplateNotFound => http::StatusCode::BAD_REQUEST,
+            PagerDutyReceiverUpdateError::NotFound => StatusCode::NOT_FOUND,
+            PagerDutyReceiverUpdateError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            PagerDutyReceiverUpdateError::CreationTemplateNotFound => StatusCode::BAD_REQUEST,
             PagerDutyReceiverUpdateError::Auth(AuthError::Unauthenticated) => {
-                http::StatusCode::UNAUTHORIZED
+                StatusCode::UNAUTHORIZED
             }
-            PagerDutyReceiverUpdateError::Auth(AuthError::Unauthorized) => {
-                http::StatusCode::FORBIDDEN
-            }
+            PagerDutyReceiverUpdateError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
         }
     }
 }
@@ -320,18 +314,14 @@ impl From<AuthError> for PagerDutyReceiverDeleteError {
 
 impl PagerDutyReceiverDeleteError {
     #[cfg(any(feature = "axum_06", feature = "axum_07"))]
-    pub fn status_code(&self) -> http::StatusCode {
+    fn status_code(&self) -> StatusCode {
         match self {
-            PagerDutyReceiverDeleteError::NotFound => http::StatusCode::NOT_FOUND,
-            PagerDutyReceiverDeleteError::InternalServerError => {
-                http::StatusCode::INTERNAL_SERVER_ERROR
-            }
+            PagerDutyReceiverDeleteError::NotFound => StatusCode::NOT_FOUND,
+            PagerDutyReceiverDeleteError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
             PagerDutyReceiverDeleteError::Auth(AuthError::Unauthenticated) => {
-                http::StatusCode::UNAUTHORIZED
+                StatusCode::UNAUTHORIZED
             }
-            PagerDutyReceiverDeleteError::Auth(AuthError::Unauthorized) => {
-                http::StatusCode::FORBIDDEN
-            }
+            PagerDutyReceiverDeleteError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
         }
     }
 }
@@ -377,17 +367,13 @@ pub enum PagerDutyReceiverListError {
 
 impl PagerDutyReceiverListError {
     #[cfg(any(feature = "axum_06", feature = "axum_07"))]
-    pub fn status_code(&self) -> http::StatusCode {
+    fn status_code(&self) -> StatusCode {
         match self {
-            PagerDutyReceiverListError::InternalServerError => {
-                http::StatusCode::INTERNAL_SERVER_ERROR
-            }
+            PagerDutyReceiverListError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
             PagerDutyReceiverListError::Auth(AuthError::Unauthenticated) => {
-                http::StatusCode::UNAUTHORIZED
+                StatusCode::UNAUTHORIZED
             }
-            PagerDutyReceiverListError::Auth(AuthError::Unauthorized) => {
-                http::StatusCode::FORBIDDEN
-            }
+            PagerDutyReceiverListError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
         }
     }
 }

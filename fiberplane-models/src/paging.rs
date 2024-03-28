@@ -7,6 +7,12 @@ use typed_builder::TypedBuilder;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
 
+#[cfg(feature = "axum_06")]
+use http_02::{HeaderMap, HeaderValue};
+
+#[cfg(feature = "axum_07")]
+use http_1::{HeaderMap, HeaderValue};
+
 /// HTTP header key that will be added on a list endpoint indicating whether
 /// there are more results.
 ///
@@ -98,16 +104,16 @@ impl<T> PagedVec<T> {
     }
 
     #[cfg(any(feature = "axum_06", feature = "axum_07"))]
-    pub fn unpack(self) -> (Vec<T>, http::HeaderMap) {
+    pub fn unpack(self) -> (Vec<T>, HeaderMap) {
         let has_more_results = &self.has_more_results.to_string();
-        let has_more_results = http::HeaderValue::from_str(has_more_results).unwrap(); // Safe because .to_string does not result in invalid ascii
+        let has_more_results = HeaderValue::from_str(has_more_results).unwrap(); // Safe because .to_string does not result in invalid ascii
 
-        let mut map = http::HeaderMap::new();
+        let mut map = HeaderMap::new();
 
         map.insert(HAS_MORE_RESULTS_KEY, has_more_results);
         if let Some(total_results) = self.total_results {
             let total_results = &total_results.to_string();
-            let total_results = http::HeaderValue::from_str(total_results).unwrap(); // Safe because .to_string does not result in invalid ascii
+            let total_results = HeaderValue::from_str(total_results).unwrap(); // Safe because .to_string does not result in invalid ascii
             map.insert(TOTAL_RESULTS_KEY, total_results);
         }
 

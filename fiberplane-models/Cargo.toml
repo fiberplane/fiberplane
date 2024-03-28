@@ -13,8 +13,8 @@ version = "1.0.0-beta.13"
 crate-type = ["lib"]
 
 [features]
-axum_06 = ["dep:axum_06", "dep:http"]
-axum_07 = ["dep:axum_07", "dep:http"]
+axum_06 = ["dep:axum_06", "dep:http_02"]
+axum_07 = ["dep:axum_07", "dep:http_1"]
 clap = ["dep:clap"]
 fp-bindgen = ["base64uuid/fp-bindgen", "dep:fp-bindgen"]
 
@@ -34,7 +34,8 @@ fp-bindgen = { workspace = true, optional = true, features = [
     "serde-json-compat",
     "time-compat",
 ] }
-http = { version = "1", optional = true }
+http_1 = { package = "http", version = "1", optional = true }
+http_02 = { package = "http", version = "0.2", optional = true }
 rmpv = "1"
 rmp-serde = "1.0"
 serde = { workspace = true }
