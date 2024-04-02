@@ -14,7 +14,7 @@ bytes = { workspace = true }
 fp-bindgen-support = { workspace = true, features = ["async", "wasmer2_host"] }
 fiberplane-models = { workspace = true }
 rand = "0.8.0"
-reqwest = { version = "0.11.4", default-features = false, features = [
+reqwest = { version = "0.12", default-features = false, features = [
     "rustls-tls",
 ] }
 rmp-serde = "1.0.0"
