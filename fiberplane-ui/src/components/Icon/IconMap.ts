@@ -275,6 +275,7 @@ import StarIcon from "./icons/Star.svg";
 import SunIcon from "./icons/Sun.svg";
 import SunDuotoneIcon from "./icons/SunDuotone.svg";
 import TableIcon from "./icons/Table.svg";
+import TagIcon from "./icons/Tag.svg";
 import TargetDuotoneIcon from "./icons/TargetDuotone.svg";
 import TemplatesIcon from "./icons/Templates.svg";
 import TerminalIcon from "./icons/Terminal.svg";
@@ -598,6 +599,7 @@ export const ICON_MAP = {
   sun_duotone: SunDuotoneIcon,
   sun: SunIcon,
   table: TableIcon,
+  tag: TagIcon,
   target_duotone: TargetDuotoneIcon,
   templates: TemplatesIcon,
   terminal_window: TerminalWindowIcon,
