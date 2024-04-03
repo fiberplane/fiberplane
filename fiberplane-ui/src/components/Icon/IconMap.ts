@@ -268,6 +268,7 @@ import SortDescendingIcon from "./icons/SortDescending.svg";
 import SourceIcon from "./icons/Source.svg";
 import SpinnerIcon from "./icons/Spinner.svg";
 import Sparkle from "./icons/Sparkle.svg";
+import SparkleGradient from "./icons/SparkleGradient.svg";
 import SquaresFourIcon from "./icons/SquaresFour.svg";
 import StackIcon from "./icons/Stack.svg";
 import StackedIcon from "./icons/Stacked.svg";
@@ -592,6 +593,7 @@ export const ICON_MAP = {
   source: SourceIcon,
   spinner: SpinnerIcon,
   sparkle: Sparkle,
+  sparkle_gradient: SparkleGradient,
   squares_four: SquaresFourIcon,
   stack: StackIcon,
   stacked: StackedIcon,

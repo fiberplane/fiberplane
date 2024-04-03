@@ -5,7 +5,7 @@
   viewBox="0 0 20 20"
   fill="none"
 >
-  <rect opacity="0.2" x="4" y="3" width="12" height="14" fill="black" />
+  <rect opacity="0.2" x="4" y="3" width="12" height="14" fill="currentColor" />
   <path
     fill-rule="evenodd"
     clip-rule="evenodd"

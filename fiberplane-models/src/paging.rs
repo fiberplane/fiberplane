@@ -8,11 +8,10 @@ use typed_builder::TypedBuilder;
 use fp_bindgen::prelude::Serializable;
 
 #[cfg(feature = "axum_06")]
-use {
-    axum_06::http::{HeaderMap, HeaderValue},
-    axum_06::response::{IntoResponse, Response},
-    axum_06::Json,
-};
+use http_02::{HeaderMap, HeaderValue};
+
+#[cfg(feature = "axum_07")]
+use http_1::{HeaderMap, HeaderValue};
 
 /// HTTP header key that will be added on a list endpoint indicating whether
 /// there are more results.
@@ -104,7 +103,7 @@ impl<T> PagedVec<T> {
         self.map(|value| Into::<B>::into(value))
     }
 
-    #[cfg(feature = "axum_06")]
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
     pub fn unpack(self) -> (Vec<T>, HeaderMap) {
         let has_more_results = &self.has_more_results.to_string();
         let has_more_results = HeaderValue::from_str(has_more_results).unwrap(); // Safe because .to_string does not result in invalid ascii
@@ -123,14 +122,26 @@ impl<T> PagedVec<T> {
 }
 
 #[cfg(feature = "axum_06")]
-impl<T> IntoResponse for PagedVec<T>
+impl<T> axum_06::response::IntoResponse for PagedVec<T>
 where
     T: Serialize,
-    Json<Vec<T>>: IntoResponse,
+    axum_06::Json<Vec<T>>: axum_06::response::IntoResponse,
 {
-    fn into_response(self) -> Response {
+    fn into_response(self) -> axum_06::response::Response {
         let (results, headers) = self.unpack();
-        (headers, Json(results)).into_response()
+        (headers, axum_06::Json(results)).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl<T> axum_07::response::IntoResponse for PagedVec<T>
+where
+    T: Serialize,
+    axum_07::Json<Vec<T>>: axum_07::response::IntoResponse,
+{
+    fn into_response(self) -> axum_07::response::Response {
+        let (results, headers) = self.unpack();
+        (headers, axum_07::Json(results)).into_response()
     }
 }
 

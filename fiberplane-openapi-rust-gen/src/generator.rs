@@ -170,7 +170,7 @@ fn add_dependencies(dependencies: &mut DepsSet, args: &GeneratorArgs) -> Result<
                 "multipart".to_owned(),
                 "rustls-tls".to_owned(),
             ],
-            version: Some("0.11".to_owned()),
+            version: Some("0.12".to_owned()),
             ..Default::default()
         }),
     );

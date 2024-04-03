@@ -2003,12 +2003,9 @@ components:
         options:
           type: array
           items:
-            $ref: "#/components/schemas/frontMatterStringValue"
+            type: string
         defaultValue:
-          $ref: "#/components/schemas/frontMatterStringValue"
-    frontMatterEnumStringValue:
-      type: string
-      description: Representation of a string _value_ in the front matter.
+          type: string
     frontMatterDateTimeSchema:
       type: object
       required:
@@ -2019,10 +2016,8 @@ components:
         iconName:
           type: string
         defaultValue:
-          $ref: "#/components/schemas/frontMatterDateTimeValue"
-    frontMatterEnumDateTimeValue:
-      type: string
-      description: Representation of a dateTime _value_ in the front matter.
+          type: string
+          format: date-time
     frontMatterUserSchema:
       type: object
       required:

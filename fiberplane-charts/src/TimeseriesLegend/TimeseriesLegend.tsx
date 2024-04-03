@@ -28,7 +28,6 @@ export function TimeseriesLegend<S extends Timeseries, P>({
     useExpandable<HTMLDivElement>({ defaultHeight: DEFAULT_HEIGHT });
 
   const maxHeight = isExpanded ? EXPANDED_HEIGHT : DEFAULT_HEIGHT;
-
   const timeseriesData = useMemo(
     () => shapeLists.map((shapeList) => shapeList.source),
     [shapeLists],
@@ -84,6 +83,9 @@ export function TimeseriesLegend<S extends Timeseries, P>({
   const render = useHandler(({ data, index, style }: RenderProps) => {
     const shapeList = data[index];
     const timeseries = shapeList.source;
+    if (!timeseries) {
+      console.log("no time series");
+    }
     return (
       timeseries && (
         <TimeseriesLegendItem
