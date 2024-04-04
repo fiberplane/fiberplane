@@ -419,3 +419,50 @@ impl SortField for PagerDutyReceiverListSortFields {
         Self::Name
     }
 }
+
+/// Errors that can occur when listing PagerDuty receivers.
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::pagerduty")
+)]
+#[non_exhaustive]
+#[serde(tag = "error", rename_all = "snake_case")]
+pub enum PagerDutyReceiverWebhookError {
+    #[error("Unknown error occurred")]
+    InternalServerError,
+
+    #[error("A signature is required. Either it was not provided, contained invalid characters or didn't match against the secret.")]
+    InvalidSignature,
+}
+
+impl PagerDutyReceiverWebhookError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    fn status_code(&self) -> StatusCode {
+        match self {
+            PagerDutyReceiverWebhookError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            PagerDutyReceiverWebhookError::InvalidSignature => StatusCode::BAD_REQUEST,
+        }
+    }
+}
+
+#[cfg(feature = "axum_06")]
+impl axum_06::response::IntoResponse for PagerDutyReceiverWebhookError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for PagerDutyReceiverWebhookError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
