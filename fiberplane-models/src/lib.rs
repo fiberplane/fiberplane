@@ -28,6 +28,7 @@ pub mod auth;
 pub mod blobs;
 pub mod comments;
 pub mod data_sources;
+pub mod errors;
 pub mod events;
 pub mod files;
 pub mod formatting;
