@@ -15,6 +15,8 @@ major version hasn't changed.
 
 ## unreleased
 
+## [v1.0.0-beta.15] - 2024-03-27
+
 - `fiberplane-models`: Add extra types to front matter values, and add a value validation method to
   front matter schema entries.
 - `fiberplane-models`: The `updated_at` and `created_at` fields in the `IntegrationSummary` struct are now optional (#171)
