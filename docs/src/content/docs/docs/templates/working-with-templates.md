@@ -2,10 +2,9 @@
 title: Working with templates
 ---
 
-> ⚠️ Note
->
-> To work with templates you will need to have the Fiberplane CLI
-> installed. See: [CLI](doc:cli).
+:::note
+To work with templates you will need to have the Fiberplane CLI installed. See: [CLI](/docs/cli).
+:::
 
 The easiest way to get started with the template is create the structure you want in the Notebook and then in the top right corner click "Share > Download as Template”
 
@@ -15,14 +14,13 @@ You can then edit the template using a text editor of your choice. Save the temp
 
 ## Adding templates to your Fiberplane account
 
-You will need to add your template to your workspace to start using it in Fiberplane. To add the template run the following command in your terminal (See [CLI](doc:cli), to get started with the Fiberplane CLI):
+You will need to add your template to your workspace to start using it in Fiberplane. To add the template run the following command in your terminal (See [CLI](cli), to get started with the Fiberplane CLI):
 
 ```bash
 fp templates create /path/to/template.jsonnet
 ```
 
-The `fp templates create` command wil then ask you to provide the title and
-description of your template, and will add the template to your Fiberplane account.
+The `fp templates create` command will then ask you to provide the title and description of your template, and will add the template to your Fiberplane account.
 
 You can verify that the template is added by listing out all of your templates with `fp templates list` or by navigating to your Fiberplane home screen’s *Templates* tab.
 
