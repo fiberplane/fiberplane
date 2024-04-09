@@ -1,7 +1,7 @@
 use crate::notebooks::{
     front_matter::{
-        FrontMatterDateTimeValue, FrontMatterNumberValue, FrontMatterStringList,
-        FrontMatterStringValue, FrontMatterUserList, FrontMatterUserValue,
+        FrontMatterDateTimeValue, FrontMatterNumberValue, FrontMatterPagerDutyIncident,
+        FrontMatterStringList, FrontMatterStringValue, FrontMatterUserList, FrontMatterUserValue,
         FrontMatterValidationError, FrontMatterValue,
     },
     operations::FrontMatterSchemaRow,
@@ -127,6 +127,7 @@ pub enum FrontMatterValueSchema {
     String(FrontMatterStringSchema),
     DateTime(FrontMatterDateTimeSchema),
     User(FrontMatterUserSchema),
+    PagerDutyIncident(FrontMatterPagerDutyIncidentSchema),
 }
 
 impl FrontMatterValueSchema {
@@ -139,6 +140,7 @@ impl FrontMatterValueSchema {
             FrontMatterValueSchema::String(schema) => schema.validate_value(value),
             FrontMatterValueSchema::DateTime(schema) => schema.validate_value(value),
             FrontMatterValueSchema::User(schema) => schema.validate_value(value),
+            FrontMatterValueSchema::PagerDutyIncident(schema) => schema.validate_value(value),
         }
     }
 
@@ -151,6 +153,9 @@ impl FrontMatterValueSchema {
             FrontMatterValueSchema::String(schema) => schema.validate_front_matter_value(value),
             FrontMatterValueSchema::DateTime(schema) => schema.validate_front_matter_value(value),
             FrontMatterValueSchema::User(schema) => schema.validate_front_matter_value(value),
+            FrontMatterValueSchema::PagerDutyIncident(schema) => {
+                schema.validate_front_matter_value(value)
+            }
         }
     }
 }
@@ -501,4 +506,49 @@ pub struct FrontMatterAddRows {
 
     /// The new entries to add to the front matter schema, with their new values
     pub insertions: Vec<FrontMatterSchemaRow>,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::front_matter_schemas")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct FrontMatterPagerDutyIncidentSchema {
+    #[builder(default, setter(into))]
+    pub display_name: String,
+
+    #[builder(default, setter(into, strip_option))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon_name: Option<String>,
+}
+
+impl FrontMatterPagerDutyIncidentSchema {
+    pub fn validate_value(
+        &self,
+        value: serde_json::Value,
+    ) -> Result<FrontMatterValue, FrontMatterValidationError> {
+        Ok(FrontMatterPagerDutyIncident::try_from(value)?.into())
+    }
+
+    pub fn validate_front_matter_value(
+        &self,
+        value: &FrontMatterValue,
+    ) -> Result<(), FrontMatterValidationError> {
+        match value {
+            FrontMatterValue::PagerDutyIncident(_) => Ok(()),
+            other => Err(FrontMatterValidationError::wrong_variant(
+                other.get_type(),
+                "pagerduty_incident",
+            )),
+        }
+    }
+}
+
+impl From<FrontMatterPagerDutyIncidentSchema> for FrontMatterValueSchema {
+    fn from(v: FrontMatterPagerDutyIncidentSchema) -> Self {
+        Self::PagerDutyIncident(v)
+    }
 }

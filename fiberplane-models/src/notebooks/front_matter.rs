@@ -628,3 +628,19 @@ pub struct FrontMatterPagerDutyIncident {
     #[builder(default, setter())]
     pub html_url: Option<String>,
 }
+
+impl From<FrontMatterPagerDutyIncident> for FrontMatterValue {
+    fn from(v: FrontMatterPagerDutyIncident) -> Self {
+        Self::PagerDutyIncident(v)
+    }
+}
+
+impl TryFrom<serde_json::Value> for FrontMatterPagerDutyIncident {
+    type Error = FrontMatterValidationError;
+
+    fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
+        serde_json::from_value(value).map_err(|err| FrontMatterValidationError::Format {
+            message: format!("invalid pagerduty incident: {err}"),
+        })
+    }
+}
