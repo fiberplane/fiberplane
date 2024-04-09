@@ -12,7 +12,7 @@ Exported functions are functions that your provider implements, and that the run
 
 ### `get_supported_query_types`
 
-It is advised to use the [Provider Development Kit](https://docs.rs/fiberplane-pdk/latest/fiberplane_pdk/) rather than implementing this function manually. The [`pdk_query_types!`](https://docs.rs/fiberplane-pdk-macros/latest/fiberplane_pdk_macros/macro.pdk_query_types.html) macro can be used to generate this function for you. See the [tutorial](doc:create-a-provider) for more information about using the PDK.
+It is advised to use the [Provider Development Kit](https://docs.rs/fiberplane-pdk/latest/fiberplane_pdk/) rather than implementing this function manually. The [`pdk_query_types!`](https://docs.rs/fiberplane-pdk-macros/latest/fiberplane_pdk_macros/macro.pdk_query_types.html) macro can be used to generate this function for you. See the [tutorial](create-a-provider) for more information about using the PDK.
 
 #### Signature
 
@@ -26,7 +26,7 @@ Returns the query types supported by this provider. This function allows Studio 
 
 ### `invoke2`
 
-It is advised to use the [Provider Development Kit](https://docs.rs/fiberplane-pdk/latest/fiberplane_pdk/) rather than implementing this function manually. The [`pdk_query_types!`](https://docs.rs/fiberplane-pdk-macros/latest/fiberplane_pdk_macros/macro.pdk_query_types.html) macro can be used to generate this function for you. See the [tutorial](doc:create-a-provider) for more information about using the PDK.
+It is advised to use the [Provider Development Kit](https://docs.rs/fiberplane-pdk/latest/fiberplane_pdk/) rather than implementing this function manually. The [`pdk_query_types!`](https://docs.rs/fiberplane-pdk-macros/latest/fiberplane_pdk_macros/macro.pdk_query_types.html) macro can be used to generate this function for you. See the [tutorial](create-a-provider) for more information about using the PDK.
 
 #### Signature
 
