@@ -15,7 +15,7 @@ export const getStaticPaths = (async () => {
 
   return schema.tags.map((tag) => {
     return {
-      params: { tag: tag.name.toLowerCase() },
+      params: { tag: tag.name.trim().toLowerCase().replace(/\s+/g, "-") },
       props: { tag },
     };
   });
