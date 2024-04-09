@@ -130,7 +130,6 @@ pub enum GitHubAppDetailsError {
     InternalServerError,
 
     /// Common auth errors.
-    #[serde(untagged)]
     #[error(transparent)]
     Auth(AuthError),
 }
@@ -141,8 +140,7 @@ impl GitHubAppDetailsError {
         match self {
             GitHubAppDetailsError::NotInstalled => StatusCode::NOT_FOUND,
             GitHubAppDetailsError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            GitHubAppDetailsError::Auth(AuthError::Unauthenticated) => StatusCode::UNAUTHORIZED,
-            GitHubAppDetailsError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
+            GitHubAppDetailsError::Auth(err) => err.status_code(),
         }
     }
 }
@@ -197,7 +195,6 @@ pub enum GitHubAppInstallRedirectError {
     InternalServerError,
 
     /// Common auth errors.
-    #[serde(untagged)]
     #[error(transparent)]
     Auth(AuthError),
 }
@@ -210,10 +207,7 @@ impl GitHubAppInstallRedirectError {
             GitHubAppInstallRedirectError::InstallationAccessDenied => StatusCode::BAD_GATEWAY,
             GitHubAppInstallRedirectError::InstallationNotFound => StatusCode::BAD_REQUEST,
             GitHubAppInstallRedirectError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            GitHubAppInstallRedirectError::Auth(AuthError::Unauthenticated) => {
-                StatusCode::UNAUTHORIZED
-            }
-            GitHubAppInstallRedirectError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
+            GitHubAppInstallRedirectError::Auth(err) => err.status_code()
         }
     }
 }

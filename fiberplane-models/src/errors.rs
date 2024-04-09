@@ -23,7 +23,6 @@ pub enum GeneralError {
     InternalServerError,
 
     /// Common auth errors.
-    #[serde(untagged)]
     #[error(transparent)]
     Auth(AuthError),
 }
@@ -33,8 +32,7 @@ impl GeneralError {
     fn status_code(&self) -> StatusCode {
         match self {
             GeneralError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            GeneralError::Auth(AuthError::Unauthenticated) => StatusCode::UNAUTHORIZED,
-            GeneralError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
+            GeneralError::Auth(auth) => auth.status_code(),
         }
     }
 }
