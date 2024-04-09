@@ -38,7 +38,7 @@ pub type FrontMatter = BTreeMap<String, FrontMatterValue>;
 ///         .display_name("A number field that accepts single numbers")
 ///         .build())
 ///     .build();
-///     
+///
 /// // A value that came from an API boundary
 /// let good_value_from_api = json!(42);
 /// assert!(schema.validate_value(good_value_from_api.clone()).is_ok());
@@ -77,6 +77,9 @@ pub enum FrontMatterValue {
     Number(FrontMatterNumberValue),
     /// A list-of-numbers front matter value
     NumberList(FrontMatterNumberList),
+
+    /// A PagerDuty incident front matter value
+    PagerDutyIncident(FrontMatterPagerDutyIncident),
 }
 
 /// Error from validating a JSON object as a correct front matter value
@@ -136,6 +139,7 @@ impl FrontMatterValue {
             FrontMatterValue::DateTimeList(_) => "date_time_list",
             FrontMatterValue::User(_) => "user",
             FrontMatterValue::UserList(_) => "user_list",
+            FrontMatterValue::PagerDutyIncident(_) => "pagerduty_incident",
         }
     }
 }
@@ -598,4 +602,29 @@ impl std::ops::Deref for FrontMatterUserList {
     fn deref(&self) -> &Self::Target {
         &self.0
     }
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::front_matter")
+)]
+#[non_exhaustive]
+pub struct FrontMatterPagerDutyIncident {
+    /// Incident ID
+    pub incident_id: String,
+
+    /// Title as indicated by PagerDuty
+    pub title: String,
+
+    /// The status of the incident
+    pub status: String,
+
+    /// The date the incident was created
+    pub creation_date: Timestamp,
+
+    /// Incident URL
+    #[builder(default, setter())]
+    pub html_url: Option<String>,
 }
