@@ -44,16 +44,16 @@ export default defineConfig({
             directory: "docs/templates",
           },
         },
-        // {
-        //   label: "Integrations",
-        //   autogenerate: {
-        //     directory: "docs/integrations",
-        //   },
-        // },
         {
           label: "Providers",
           autogenerate: {
             directory: "docs/providers",
+          },
+        },
+        {
+          label: "Webhooks",
+          autogenerate: {
+            directory: "docs/webhooks",
           },
         },
         {
