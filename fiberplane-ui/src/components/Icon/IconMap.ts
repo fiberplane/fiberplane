@@ -14,6 +14,7 @@ import ArrowDownIcon from "./icons/ArrowDown.svg";
 import ArrowLeftIcon from "./icons/ArrowLeft.svg";
 import ArrowOutIcon from "./icons/ArrowOut.svg";
 import ArrowRightIcon from "./icons/ArrowRight.svg";
+import ArrowSquareInIcon from "./icons/ArrowSquareIn.svg";
 import ArrowSquareLeftDuotoneIcon from "./icons/ArrowSquareLeftDuotone.svg";
 import ArrowUpIcon from "./icons/ArrowUp.svg";
 import ArrowsClockwiseIcon from "./icons/ArrowsClockwise.svg";
@@ -334,6 +335,7 @@ export const ICON_MAP = {
   arrow_left: ArrowLeftIcon,
   arrow_out: ArrowOutIcon,
   arrow_right: ArrowRightIcon,
+  arrow_square_in: ArrowSquareInIcon,
   arrow_square_left_duotone: ArrowSquareLeftDuotoneIcon,
   arrow_up: ArrowUpIcon,
   arrows_clockwise: ArrowsClockwiseIcon,
@@ -587,8 +589,8 @@ export const ICON_MAP = {
   sort_ascending: SortAscendingIcon,
   sort_descending: SortDescendingIcon,
   source: SourceIcon,
-  sparkle: Sparkle,
   sparkle_gradient: SparkleGradient,
+  sparkle: Sparkle,
   squares_four: SquaresFourIcon,
   stack: StackIcon,
   stacked: StackedIcon,
