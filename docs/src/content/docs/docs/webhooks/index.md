@@ -99,7 +99,7 @@ You will always be automatically subscribed to the `ping` category, which only i
 For more information about this very specific event, see [below](#ping-event).
 
 For a complete list of available webhook events and their payloads,
-see [Webhook events and payloads](doc:webhook-events).
+see [Webhook events and payloads](webhook-events).
 
 ## `ping` event
 
@@ -116,4 +116,4 @@ it again. This will send a new `ping` event, which your endpoint will now handle
 your webhook will be enabled and receive payloads.
 
 For more information about the `ping` event and the payload it sends with it,
-see the [`ping` event](doc:webhook-events#ping) documentation.
+see the [`ping` event](webhook-events#ping) documentation.

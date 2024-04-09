@@ -23,7 +23,7 @@ Every delivery includes custom headers
 
 | Header                   | Description                                                                                 | Reference                                          |
 |--------------------------|---------------------------------------------------------------------------------------------|----------------------------------------------------|
-| `X-Fiberplane-Signature` | HMAC SHA512 signature of this payload                                                       | See [Securing your webhook](doc:webhooks-security) |
+| `X-Fiberplane-Signature` | HMAC SHA512 signature of this payload                                                       | See [Securing your webhook](webhooks-security) |
 | `X-Fiberplane-Timestamp` | Date and time at which this webhook payload was sent as a RFC 3339 formatted timestamp      |                                                    |
 | `X-Fiberplane-ETag`      | SHA-512 hash of the request body. Must be used to prevent double handling of the same event |                                                    |
 
@@ -102,7 +102,7 @@ Category: `ping` (0)
 
 This event occurs when creating a new webhook or updating an existing one. It is used to verify
 whenever the endpoint works correctly. If the endpoint fails to respond with a `2xx` status code,
-the webhook will be disabled. For more information see the [Webhooks introduction](doc:webhooks#ping-event).
+the webhook will be disabled. For more information see the [Webhooks introduction](webhooks#ping-event).
 
 The `payload` property is an empty object.
 
