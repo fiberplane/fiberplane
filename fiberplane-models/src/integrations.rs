@@ -207,7 +207,7 @@ impl GitHubAppInstallRedirectError {
             GitHubAppInstallRedirectError::InstallationAccessDenied => StatusCode::BAD_GATEWAY,
             GitHubAppInstallRedirectError::InstallationNotFound => StatusCode::BAD_REQUEST,
             GitHubAppInstallRedirectError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            GitHubAppInstallRedirectError::Auth(err) => err.status_code()
+            GitHubAppInstallRedirectError::Auth(err) => err.status_code(),
         }
     }
 }
