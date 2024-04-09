@@ -1,5 +1,6 @@
 import starlight from "@astrojs/starlight";
 import markdownIntegration from "@astropub/md";
+import pagefind from "astro-pagefind";
 import { defineConfig } from "astro/config";
 
 // https://astro.build/config
@@ -11,6 +12,7 @@ export default defineConfig({
     port: 1111,
   },
   integrations: [
+    pagefind(),
     markdownIntegration(),
     starlight({
       title: "Fiberplane Docs",
@@ -37,21 +39,27 @@ export default defineConfig({
           ],
         },
         {
-          label: "Integrations",
-          autogenerate: {
-            directory: "docs/integrations",
-          },
-        },
-        {
           label: "Templates",
           autogenerate: {
             directory: "docs/templates",
           },
         },
+        // {
+        //   label: "Integrations",
+        //   autogenerate: {
+        //     directory: "docs/integrations",
+        //   },
+        // },
         {
           label: "Providers",
           autogenerate: {
             directory: "docs/providers",
+          },
+        },
+        {
+          label: "CLI",
+          autogenerate: {
+            directory: "docs/cli",
           },
         },
         {
