@@ -17,7 +17,7 @@ use http_1::StatusCode;
     fp(rust_module = "fiberplane_models::errors")
 )]
 #[non_exhaustive]
-#[serde(tag = "error", rename_all = "snake_case")]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum GeneralError {
     #[error("unknown error occurred")]
     InternalServerError,

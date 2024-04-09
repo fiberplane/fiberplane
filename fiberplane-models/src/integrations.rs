@@ -121,7 +121,7 @@ pub struct GitHubAppDetails {
     fp(rust_module = "fiberplane_models::integrations")
 )]
 #[non_exhaustive]
-#[serde(tag = "error", rename_all = "snake_case")]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum GitHubAppDetailsError {
     #[error("The GitHub app was not yet installed")]
     NotInstalled,
@@ -182,7 +182,7 @@ pub type GitHubAppInstallFlowError = GeneralError;
     fp(rust_module = "fiberplane_models::integrations")
 )]
 #[non_exhaustive]
-#[serde(tag = "error", rename_all = "snake_case")]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum GitHubAppInstallRedirectError {
     #[error("The provided code could not be exchanged into a Bearer token by GitHub")]
     InvalidCode,
