@@ -628,6 +628,7 @@ pub struct FrontMatterPagerDutyIncident {
 
     /// Incident URL
     #[builder(default, setter())]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub html_url: Option<String>,
 }
 
