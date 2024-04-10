@@ -484,7 +484,37 @@ local notebook = {
       self
     ),
 
+    /**
+     * Add a front matter value and schema to the notebook. Recommended to be
+     * used with the `frontmatter` object.
+     *
+     * TODO: Add signature
+     * TODO: Add ability to add array
+     */
+    addFrontMatter(value):: self {
+      frontMatter+: value.frontMatter,
+      frontMatterSchema+: value.frontMatterSchema,
+    },
+
   },
+};
+
+local frontMatter = {
+  /**
+    * TODO: Add docs
+    */
+  pagerdutyIncident(frontMatterValue, key='pagerduty_incident', displayName='PagerDuty Incident'):: {
+    frontMatterSchema: [{
+      "key": key,
+      "schema": {
+        "type": "pagerduty_incident",
+        "displayName": displayName
+      }
+    }],
+    frontMatter: {
+      [key]: frontMatterValue
+    }
+  }
 };
 
 /**
@@ -869,4 +899,9 @@ local snippet = function(cells)
    * @borrows format.FormattedContent#link as link
    */
   format: formattedContent(),
+
+  /**
+   * TODO: add docs
+   */
+  frontMatter: frontMatter,
 }

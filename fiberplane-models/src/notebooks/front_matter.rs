@@ -79,6 +79,7 @@ pub enum FrontMatterValue {
     NumberList(FrontMatterNumberList),
 
     /// A PagerDuty incident front matter value
+    #[serde(rename = "pagerduty_incident")]
     PagerDutyIncident(FrontMatterPagerDutyIncident),
 }
 

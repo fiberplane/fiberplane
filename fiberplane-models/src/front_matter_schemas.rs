@@ -127,6 +127,8 @@ pub enum FrontMatterValueSchema {
     String(FrontMatterStringSchema),
     DateTime(FrontMatterDateTimeSchema),
     User(FrontMatterUserSchema),
+
+    #[serde(rename = "pagerduty_incident")]
     PagerDutyIncident(FrontMatterPagerDutyIncidentSchema),
 }
 
