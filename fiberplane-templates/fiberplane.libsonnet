@@ -505,16 +505,16 @@ local frontMatter = {
     */
   pagerdutyIncident(frontMatterValue, key='pagerduty_incident', displayName='PagerDuty Incident'):: {
     frontMatterSchema: [{
-      "key": key,
-      "schema": {
-        "type": "pagerduty_incident",
-        "displayName": displayName
-      }
+      key: key,
+      schema: {
+        type: 'pagerduty_incident',
+        displayName: displayName,
+      },
     }],
     frontMatter: {
-      [key]: frontMatterValue
-    }
-  }
+      [key]: frontMatterValue,
+    },
+  },
 };
 
 /**
