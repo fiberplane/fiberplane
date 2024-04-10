@@ -180,6 +180,7 @@ import GooglePlayLogoIcon from "./icons/GooglePlayLogo.svg";
 import GooglePodcastsLogoIcon from "./icons/GooglePodcastsLogo.svg";
 import GraphIcon from "./icons/Graph.svg";
 import GraphDuotoneIcon from "./icons/GraphDuotone.svg";
+import HashIcon from "./icons/Hash.svg";
 import HighlighterCircleIcon from "./icons/HighlighterCircle.svg";
 import ImageIcon from "./icons/Image.svg";
 import ImageSquareIcon from "./icons/ImageSquare.svg";
@@ -268,6 +269,7 @@ import SortDescendingIcon from "./icons/SortDescending.svg";
 import SourceIcon from "./icons/Source.svg";
 import Sparkle from "./icons/Sparkle.svg";
 import SparkleGradient from "./icons/SparkleGradient.svg";
+import SpinnerIcon from "./icons/Spinner.svg";
 import SquaresFourIcon from "./icons/SquaresFour.svg";
 import StackIcon from "./icons/Stack.svg";
 import StackedIcon from "./icons/Stacked.svg";
@@ -275,6 +277,7 @@ import StarIcon from "./icons/Star.svg";
 import SunIcon from "./icons/Sun.svg";
 import SunDuotoneIcon from "./icons/SunDuotone.svg";
 import TableIcon from "./icons/Table.svg";
+import TagIcon from "./icons/Tag.svg";
 import TargetDuotoneIcon from "./icons/TargetDuotone.svg";
 import TemplatesIcon from "./icons/Templates.svg";
 import TerminalIcon from "./icons/Terminal.svg";
@@ -503,6 +506,7 @@ export const ICON_MAP = {
   google_podcasts_logo: GooglePodcastsLogoIcon,
   graph_duotone: GraphDuotoneIcon,
   graph: GraphIcon,
+  hash: HashIcon,
   highlighter_circle: HighlighterCircleIcon,
   image_square: ImageSquareIcon,
   image: ImageIcon,
@@ -591,6 +595,7 @@ export const ICON_MAP = {
   source: SourceIcon,
   sparkle_gradient: SparkleGradient,
   sparkle: Sparkle,
+  spinner: SpinnerIcon,
   squares_four: SquaresFourIcon,
   stack: StackIcon,
   stacked: StackedIcon,
@@ -598,6 +603,7 @@ export const ICON_MAP = {
   sun_duotone: SunDuotoneIcon,
   sun: SunIcon,
   table: TableIcon,
+  tag: TagIcon,
   target_duotone: TargetDuotoneIcon,
   templates: TemplatesIcon,
   terminal_window: TerminalWindowIcon,
