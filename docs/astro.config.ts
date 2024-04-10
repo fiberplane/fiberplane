@@ -2,6 +2,7 @@ import starlight from "@astrojs/starlight";
 import markdownIntegration from "@astropub/md";
 import pagefind from "astro-pagefind";
 import { defineConfig } from "astro/config";
+import { mermaid } from "./integrations/astro-mermaid";
 
 // https://astro.build/config
 export default defineConfig({
@@ -10,6 +11,9 @@ export default defineConfig({
   },
   server: {
     port: 1111,
+  },
+  markdown: {
+    remarkPlugins: [mermaid],
   },
   integrations: [
     pagefind(),
@@ -24,6 +28,7 @@ export default defineConfig({
       social: {
         github: "https://github.com/fiberplane/fiberplane",
       },
+      components: { Footer: "@components/Footer.astro" },
       sidebar: [
         {
           label: "Start Here",
