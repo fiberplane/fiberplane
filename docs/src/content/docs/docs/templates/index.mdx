@@ -11,43 +11,42 @@ Templates are defined by a Jsonnet file that is added to your Fiberplane account
 Templates export a Jsonnet function that accepts some parameters and creates a Notebook using the helper functions provided by the Fiberplane Jsonnet library (fiberplane.libsonnet). See an example template below:
 
 ```jsonnet
-local fp = import 'fiberplane.libsonnet';
+local fp = import "fiberplane.libsonnet";
 local c = fp.cell;
 
 function(
-    incidentName='Service Outage'
+  incidentName="Service Outage"
 )
   fp.notebook
-    .new('Incident Response for: ' + incidentName)
-    .setTimeRangeRelative(minutes=60)
-    .addCells([
-      c.text('Hello World!')
-    ])
+  .new("Incident Response for: " + incidentName)
+  .setTimeRangeRelative(minutes=60)
+  .addCells([
+    c.text("Hello World!"),
+  ])
 ```
 
 Let’s break it down line by line:
 
 ```jsonnet
+// Import a helper Jsonnet library for working with Fiberplane notebooks.
 
-# Import a helper Jsonnet library for working with Fiberplane notebooks.
-
-local fp = import 'fiberplane.libsonnet';
+local fp = import "fiberplane.libsonnet";
 local c = fp.cell;
 
-# Call a Jsonnet function passing a string ‘API Outage’ as a parameter incidentName. 
+// Call a Jsonnet function passing a string ‘API Outage’ as a parameter incidentName.
 
-function(incidentName='API Outage') 
+function(incidentName="API Outage")
 
-# Initiate a Fiberplane notebook.
+  // Initiate a Fiberplane notebook.
 
   fp.notebook
 
-# Calls a method that adds a title for the notebook passing a hardcoded string 
-# and the parameter concatenated.
+  // Calls a method that adds a title for the notebook passing a hardcoded string
+  // and the parameter concatenated.
 
-  .new('Incident Response for: ' + incidentName) 
+  .new("Incident Response for: " + incidentName)
 
-# Sets the time range for the notebook to be relative to last hour
+  # Sets the time range for the notebook to be relative to last hour
 
   .setTimeRangeRelative(minutes=60)
 ```

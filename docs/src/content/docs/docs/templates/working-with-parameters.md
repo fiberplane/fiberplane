@@ -9,11 +9,10 @@ Parameters are values that can be inserted in the notebook programmatically when
 ```jsonnet
 function(incidentName)
   fp.notebook
-  .new('Incident Response for: ' + incidentName)
+  .new("Incident Response for: " + incidentName)
   .addCells([
-    c.text('Hello World!'),
+    c.text("Hello World!"),
   ])
-
 ```
 
 In the above code snippet, from our example template, we initiate a parameter called `incidentName`. When the template is invoked, all instances of it in the template will be replaced by its value. Parameters can be set for any part of the template, meaning that any part of the notebook can be programmatically set on creation: title, time range, labels, text, PromQL, Elasticsearch queries, etc.
@@ -27,11 +26,11 @@ You can provide a default value for the template like this:
 
 ```jsonnet
 function(incidentName="API Outage")
-		fp.notebook
-			.new('Incident Response for: ' + incidentName)
-			.addCells([
-				c.text('Hello World!'),
-			])
+  fp.notebook
+  .new("Incident Response for: " + incidentName)
+  .addCells([
+    c.text("Hello World!"),
+  ])
 ```
 
 In this case if there are no values that are passed to the template when it's invoked, the template will resolve with the provided default value and create a notebook.
@@ -48,12 +47,12 @@ Here’s a simple nested JSON object that designates an event ID, type (incident
 
 ```json
 {
-   "event":{
-      "id":"13F",
-      "type":"incident",
-      "environment":"production",
-      "assignee":"Paul Atreides"
-   }
+  "event": {
+    "id": "13F",
+    "type": "incident",
+    "environment": "production",
+    "assignee": "Paul Atreides"
+  }
 }
 ```
 
@@ -62,16 +61,16 @@ And here’s our example template adjusted that takes advantage of the data in t
 ```jsonnet
 function(
   event={
-    id: '',
-    environment: '',
-    assignee: '',
+    id: "",
+    environment: "",
+    assignee: "",
   }
 )
   fp.notebook
-  .new('Incident Response - ' + event.id)
+  .new("Incident Response - " + event.id)
   .addCells([
-    c.text('Environment: ' + event.environment),
-    c.text('On-call: ' +
+    c.text("Environment: " + event.environment),
+    c.text("On-call: " +
            event.assignees),
   ])
 ```
@@ -86,21 +85,22 @@ Let’s say our example data includes 3 on-call engineers listed in an array (as
 
 ```json
 {
-	"event": {
-		"id": "13F",
-		"type": "incident",
-		"environment": "production",
-		"assignees": [
-			{
-				"name": "Paul Atreides" 
-			},
-			{ 
-				"name": "Duncan Idaho" },
-			{ 
-				"name": "Gurney Halleck"
-			}
-		]
-	}
+  "event": {
+    "id": "13F",
+    "type": "incident",
+    "environment": "production",
+    "assignees": [
+      {
+        "name": "Paul Atreides"
+      },
+      {
+        "name": "Duncan Idaho"
+      },
+      {
+        "name": "Gurney Halleck"
+      }
+    ]
+  }
 }
 ```
 
@@ -115,21 +115,21 @@ Here’s how the final result looks like in our example template:
 ```jsonnet
 function(
   event={
-    id: '',
-    type: '',
-    environment: '',
+    id: "",
+    type: "",
+    environment: "",
     assignees: [
       {
-        name: '',
+        name: "",
       },
     ],
   }
 )
   fp.notebook
-  .new('Incident Response - ' + event.id)
+  .new("Incident Response - " + event.id)
   .addCells([
-    c.text('Environment: ' + event.environment),
-    c.text('On-call:'),
+    c.text("Environment: " + event.environment),
+    c.text("On-call:"),
     std.map(
       function(assignees)
         c.listItem.unordered(assignees.name),
