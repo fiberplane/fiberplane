@@ -34,6 +34,11 @@ use http_1::StatusCode;
 
 /// A new PagerDuty receiver. This will be used in the create endpoint.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::pagerduty")
+)]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct NewPagerDutyReceiver {
@@ -50,6 +55,11 @@ pub struct NewPagerDutyReceiver {
 
 /// PagerDutyReceiver represents a single PagerDuty receiver in Fiberplane.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::pagerduty")
+)]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct PagerDutyReceiver {
@@ -79,6 +89,11 @@ pub struct PagerDutyReceiver {
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, TypedBuilder)]
 #[non_exhaustive]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::pagerduty")
+)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdatePagerDutyReceiver {
     /// A reference to a template that will be expanded when a incident is
