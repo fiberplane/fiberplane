@@ -19,6 +19,7 @@ major version hasn't changed.
   front matter schema entries.
 - `fiberplane-models`: The `updated_at` and `created_at` fields in the `IntegrationSummary` struct are now optional (#171)
 - Add `PagerDutyWebhooks` to `WorkspaceIntegrationId` (#189)
+- Replace a secret provided by Fiberplane with one provided by PagerDuty (#196)
 
 ## [v1.0.0-beta.14] - 2024-03-07
 

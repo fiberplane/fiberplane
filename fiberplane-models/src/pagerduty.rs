@@ -41,6 +41,11 @@ pub struct NewPagerDutyReceiver {
     /// created. If this is empty then no template will be expanded.
     #[builder(default, setter())]
     pub incident_created_template_name: Option<Name>,
+
+    /// A secret as defined by PagerDuty when creating the webhook. This secret
+    /// will be use to verify that any incoming webhooks are valid.
+    #[builder(default, setter(into))]
+    pub secret: Option<String>,
 }
 
 /// PagerDutyReceiver represents a single PagerDuty receiver in Fiberplane.
@@ -56,12 +61,12 @@ pub struct PagerDutyReceiver {
     #[builder(default, setter())]
     pub incident_created_template_name: Option<Name>,
 
-    /// A shared security-key that should be set in the PagerDuty webhook
-    /// customer header.
-    pub security_key: String,
-
     /// The URL that should be set in the PagerDuty webhook.
     pub webhook_url: String,
+
+    /// A secret is set on the PagerDuty receiver. This will verify any incoming
+    /// webhooks against this secret and drops requests that do no pass.
+    pub secret_set: bool,
 
     /// Timestamp that the PagerDuty receiver was created.
     #[builder(setter(into))]
@@ -86,11 +91,17 @@ pub struct UpdatePagerDutyReceiver {
     )]
     pub incident_created_template_name: Option<Option<Name>>,
 
-    /// If this value is set to true, then a new random security-key will be
-    /// generated. This new value will be part of the response.
-    #[builder(default, setter())]
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub regenerate_security_key: bool,
+    /// A secret as defined by PagerDuty when creating the webhook. This secret
+    /// will be use to verify that any incoming webhooks are valid.
+    ///
+    /// Set this to `None` to remove the secret and disable verification.
+    #[builder(default, setter(into))]
+    #[serde(
+        default,
+        deserialize_with = "crate::deserialize_some",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub secret: Option<Option<String>>,
 }
 
 /// Errors that can occur when creating a new PagerDuty receiver.
@@ -101,7 +112,7 @@ pub struct UpdatePagerDutyReceiver {
     fp(rust_module = "fiberplane_models::pagerduty")
 )]
 #[non_exhaustive]
-#[serde(tag = "error", rename_all = "snake_case")]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum PagerDutyReceiverCreateError {
     #[error("Name of the PagerDuty receiver is already in use")]
     DuplicateName,
@@ -113,7 +124,6 @@ pub enum PagerDutyReceiverCreateError {
     InternalServerError,
 
     /// Common auth errors.
-    #[serde(untagged)]
     #[error(transparent)]
     Auth(AuthError),
 }
@@ -124,11 +134,8 @@ impl PagerDutyReceiverCreateError {
         match self {
             PagerDutyReceiverCreateError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
             PagerDutyReceiverCreateError::CreationTemplateNotFound => StatusCode::BAD_REQUEST,
-            PagerDutyReceiverCreateError::Auth(AuthError::Unauthenticated) => {
-                StatusCode::UNAUTHORIZED
-            }
-            PagerDutyReceiverCreateError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
             PagerDutyReceiverCreateError::DuplicateName => StatusCode::BAD_REQUEST,
+            PagerDutyReceiverCreateError::Auth(auth_err) => auth_err.status_code(),
         }
     }
 }
@@ -167,7 +174,7 @@ impl axum_07::response::IntoResponse for PagerDutyReceiverCreateError {
     fp(rust_module = "fiberplane_models::pagerduty")
 )]
 #[non_exhaustive]
-#[serde(tag = "error", rename_all = "snake_case")]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum PagerDutyReceiverGetError {
     #[error("PagerDuty receiver not found")]
     NotFound,
@@ -176,7 +183,6 @@ pub enum PagerDutyReceiverGetError {
     InternalServerError,
 
     /// Common auth errors.
-    #[serde(untagged)]
     #[error(transparent)]
     Auth(AuthError),
 }
@@ -187,8 +193,7 @@ impl PagerDutyReceiverGetError {
         match self {
             PagerDutyReceiverGetError::NotFound => StatusCode::NOT_FOUND,
             PagerDutyReceiverGetError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            PagerDutyReceiverGetError::Auth(AuthError::Unauthenticated) => StatusCode::UNAUTHORIZED,
-            PagerDutyReceiverGetError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
+            PagerDutyReceiverGetError::Auth(auth_err) => auth_err.status_code(),
         }
     }
 }
@@ -227,7 +232,7 @@ impl axum_07::response::IntoResponse for PagerDutyReceiverGetError {
     fp(rust_module = "fiberplane_models::pagerduty")
 )]
 #[non_exhaustive]
-#[serde(tag = "error", rename_all = "snake_case")]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum PagerDutyReceiverUpdateError {
     #[error("PagerDuty receiver not found")]
     NotFound,
@@ -239,7 +244,6 @@ pub enum PagerDutyReceiverUpdateError {
     InternalServerError,
 
     /// Common auth errors.
-    #[serde(untagged)]
     #[error(transparent)]
     Auth(AuthError),
 }
@@ -251,10 +255,7 @@ impl PagerDutyReceiverUpdateError {
             PagerDutyReceiverUpdateError::NotFound => StatusCode::NOT_FOUND,
             PagerDutyReceiverUpdateError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
             PagerDutyReceiverUpdateError::CreationTemplateNotFound => StatusCode::BAD_REQUEST,
-            PagerDutyReceiverUpdateError::Auth(AuthError::Unauthenticated) => {
-                StatusCode::UNAUTHORIZED
-            }
-            PagerDutyReceiverUpdateError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
+            PagerDutyReceiverUpdateError::Auth(auth_err) => auth_err.status_code(),
         }
     }
 }
@@ -292,7 +293,7 @@ impl axum_07::response::IntoResponse for PagerDutyReceiverUpdateError {
     fp(rust_module = "fiberplane_models::pagerduty")
 )]
 #[non_exhaustive]
-#[serde(tag = "error", rename_all = "snake_case")]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum PagerDutyReceiverDeleteError {
     #[error("PagerDuty receiver not found")]
     NotFound,
@@ -301,7 +302,6 @@ pub enum PagerDutyReceiverDeleteError {
     InternalServerError,
 
     /// Common auth errors.
-    #[serde(untagged)]
     #[error(transparent)]
     Auth(AuthError),
 }
@@ -318,10 +318,7 @@ impl PagerDutyReceiverDeleteError {
         match self {
             PagerDutyReceiverDeleteError::NotFound => StatusCode::NOT_FOUND,
             PagerDutyReceiverDeleteError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            PagerDutyReceiverDeleteError::Auth(AuthError::Unauthenticated) => {
-                StatusCode::UNAUTHORIZED
-            }
-            PagerDutyReceiverDeleteError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
+            PagerDutyReceiverDeleteError::Auth(auth_err) => auth_err.status_code(),
         }
     }
 }
@@ -354,13 +351,12 @@ impl axum_07::response::IntoResponse for PagerDutyReceiverDeleteError {
     fp(rust_module = "fiberplane_models::pagerduty")
 )]
 #[non_exhaustive]
-#[serde(tag = "error", rename_all = "snake_case")]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum PagerDutyReceiverListError {
     #[error("Unknown error occurred")]
     InternalServerError,
 
     /// Common auth errors.
-    #[serde(untagged)]
     #[error(transparent)]
     Auth(AuthError),
 }
@@ -370,10 +366,7 @@ impl PagerDutyReceiverListError {
     fn status_code(&self) -> StatusCode {
         match self {
             PagerDutyReceiverListError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            PagerDutyReceiverListError::Auth(AuthError::Unauthenticated) => {
-                StatusCode::UNAUTHORIZED
-            }
-            PagerDutyReceiverListError::Auth(AuthError::Unauthorized) => StatusCode::FORBIDDEN,
+            PagerDutyReceiverListError::Auth(auth_err) => auth_err.status_code(),
         }
     }
 }
@@ -424,5 +417,52 @@ impl SortField for PagerDutyReceiverListSortFields {
     #[inline]
     fn default_sort_field() -> Self {
         Self::Name
+    }
+}
+
+/// Errors that can occur when listing PagerDuty receivers.
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::pagerduty")
+)]
+#[non_exhaustive]
+#[serde(tag = "error", rename_all = "snake_case")]
+pub enum PagerDutyReceiverWebhookError {
+    #[error("Unknown error occurred")]
+    InternalServerError,
+
+    #[error("A signature is required. Either it was not provided, contained invalid characters or didn't match against the secret.")]
+    InvalidSignature,
+}
+
+impl PagerDutyReceiverWebhookError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    fn status_code(&self) -> StatusCode {
+        match self {
+            PagerDutyReceiverWebhookError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            PagerDutyReceiverWebhookError::InvalidSignature => StatusCode::BAD_REQUEST,
+        }
+    }
+}
+
+#[cfg(feature = "axum_06")]
+impl axum_06::response::IntoResponse for PagerDutyReceiverWebhookError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for PagerDutyReceiverWebhookError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
     }
 }
