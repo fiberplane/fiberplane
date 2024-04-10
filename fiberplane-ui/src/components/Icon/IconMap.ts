@@ -228,6 +228,7 @@ import NotebookDuotoneIcon from "./icons/NotebookDuotone.svg";
 import NotebookMenuIcon from "./icons/NotebookMenu.svg";
 import NotepadIcon from "./icons/Notepad.svg";
 import NotifcationIcon from "./icons/Notifcation.svg";
+import PagerDutyColorIcon from "./icons/PagerDutyColor.svg";
 import PaperPlaneTiltIcon from "./icons/PaperPlaneTilt.svg";
 import PaperclipIcon from "./icons/Paperclip.svg";
 import PencilSimpleIcon from "./icons/PencilSimple.svg";
@@ -551,6 +552,7 @@ export const ICON_MAP = {
   notebook: NotebookIcon,
   notepad: NotepadIcon,
   notifcation: NotifcationIcon,
+  pager_duty_color: PagerDutyColorIcon,
   paper_plane_tilt: PaperPlaneTiltIcon,
   paperclip: PaperclipIcon,
   pencil_simple: PencilSimpleIcon,
