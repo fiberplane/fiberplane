@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@astrojs/check": "0.5.10",
+    "@astrojs/markdown-remark": "^5.0.0",
     "@astrojs/starlight": "0.21.2",
     "@astrojs/vue": "4.0.9",
     "@astropub/md": "^0.4.0",
@@ -29,6 +30,8 @@
     "@scalar/swagger-parser": "^0.5.15",
     "astro": "4.5.10",
     "astro-pagefind": "^1.5.0",
-    "sharp": "^0.33.3"
+    "mermaid": "^10.9.0",
+    "sharp": "^0.33.3",
+    "unist-util-visit": "^5.0.0"
   }
 }
