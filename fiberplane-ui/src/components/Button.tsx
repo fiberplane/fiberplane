@@ -71,7 +71,6 @@ export const buttonStyling = css<StyledButtonTransientProps>(
       /* reset default button styles */
 
       font: var(--font-buttons-md, 500 14px / 16px Inter);
-      min-height: 36px;
 
       display: flex;
       justify-content: center;
@@ -83,14 +82,9 @@ export const buttonStyling = css<StyledButtonTransientProps>(
       box-shadow: var(--shadow-xxs, 0px 1px 2px 0px rgb(0 0 0 / 5%));
       transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out,
         border-color 0.2s ease-in-out, box-shadow 0.1s ease-in-out 0.05s;
+      cursor: pointer;
 
       ${buttonStyle}
-
-      &:focus,
-      &:hover,
-      &:active {
-        cursor: pointer;
-      }
 
       &:disabled {
         cursor: not-allowed;
@@ -136,6 +130,7 @@ function getButtonStyle(buttonStyle: ButtonStyle) {
   switch (buttonStyle) {
     case "primary":
       return css`
+        min-height: 36px;
         background-color: var(--color-button-primary-bg-default, #3755ed);
         color: var(--color-button-primary-fg-default, #fff);
 
@@ -151,6 +146,7 @@ function getButtonStyle(buttonStyle: ButtonStyle) {
       `;
     case "secondary":
       return css`
+        min-height: 36px;
         background-color: var(--color-button-secondary-bg, #fff);
         color: var(--color-button-secondary-fg, #111114);
         border: 1px solid var(--color-button-secondary-border, #d6d4d9);
@@ -198,7 +194,7 @@ function getButtonStyle(buttonStyle: ButtonStyle) {
         border: 1px solid transparent;
 
         &:hover {
-          background-color: var(--color-bg-hover, #ebeaed);
+          color: var(--color-fg-default, #000000);
         }
 
         &:focus,
@@ -212,7 +208,7 @@ function getButtonStyle(buttonStyle: ButtonStyle) {
 
         &.active, /* Adding the .active class here too for NavLinks */
         &:active {
-          color: var(--color-fg-primary, #3755ed);
+          color: var(--color-fg-default, #000000);
         }
 
         &:disabled {

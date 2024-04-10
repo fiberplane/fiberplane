@@ -79,6 +79,7 @@ pub enum FrontMatterValue {
     NumberList(FrontMatterNumberList),
 
     /// A PagerDuty incident front matter value
+    #[serde(rename = "pagerduty_incident")]
     PagerDutyIncident(FrontMatterPagerDutyIncident),
 }
 
@@ -627,6 +628,7 @@ pub struct FrontMatterPagerDutyIncident {
 
     /// Incident URL
     #[builder(default, setter())]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub html_url: Option<String>,
 }
 
