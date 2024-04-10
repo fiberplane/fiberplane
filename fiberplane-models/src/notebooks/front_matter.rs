@@ -611,6 +611,7 @@ impl std::ops::Deref for FrontMatterUserList {
     fp(rust_module = "fiberplane_models::notebooks::front_matter")
 )]
 #[non_exhaustive]
+#[serde(rename_all = "camelCase")]
 pub struct FrontMatterPagerDutyIncident {
     /// Incident ID
     pub incident_id: String,
