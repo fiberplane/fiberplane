@@ -1,5 +1,4 @@
 use crate::auth::AuthError;
-use crate::errors::GeneralError;
 use crate::timestamps::Timestamp;
 #[cfg(feature = "fp-bindgen")]
 use fp_bindgen::prelude::Serializable;
@@ -171,7 +170,62 @@ impl axum_07::response::IntoResponse for GitHubAppDetailsError {
     }
 }
 
-pub type GitHubAppInstallFlowError = GeneralError;
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
+pub enum GitHubAppInstallFlowError {
+    #[error("the integration has already been installed for this workspace")]
+    AlreadyInstalled,
+
+    #[error("unknown error occurred")]
+    InternalServerError,
+
+    /// Common auth errors.
+    #[error(transparent)]
+    Auth(AuthError),
+}
+
+impl GitHubAppInstallFlowError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    fn status_code(&self) -> StatusCode {
+        match self {
+            GitHubAppInstallFlowError::AlreadyInstalled => StatusCode::CONFLICT,
+            GitHubAppInstallFlowError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            GitHubAppInstallFlowError::Auth(auth) => auth.status_code(),
+        }
+    }
+}
+
+impl From<AuthError> for GitHubAppInstallFlowError {
+    fn from(value: AuthError) -> Self {
+        GitHubAppInstallFlowError::Auth(value)
+    }
+}
+
+#[cfg(feature = "axum_06")]
+impl axum_06::response::IntoResponse for GitHubAppInstallFlowError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for GitHubAppInstallFlowError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
 #[cfg_attr(
@@ -230,6 +284,63 @@ impl axum_06::response::IntoResponse for GitHubAppInstallRedirectError {
 
 #[cfg(feature = "axum_07")]
 impl axum_07::response::IntoResponse for GitHubAppInstallRedirectError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
+pub enum GitHubAppUninstallError {
+    #[error("the integration is not installed")]
+    NotInstalled,
+
+    #[error("unknown error occurred")]
+    InternalServerError,
+
+    /// Common auth errors.
+    #[error(transparent)]
+    Auth(AuthError),
+}
+
+impl GitHubAppUninstallError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    fn status_code(&self) -> StatusCode {
+        match self {
+            GitHubAppUninstallError::NotInstalled => StatusCode::NOT_FOUND,
+            GitHubAppUninstallError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            GitHubAppUninstallError::Auth(err) => err.status_code(),
+        }
+    }
+}
+
+impl From<AuthError> for GitHubAppUninstallError {
+    fn from(value: AuthError) -> Self {
+        GitHubAppUninstallError::Auth(value)
+    }
+}
+
+#[cfg(feature = "axum_06")]
+impl axum_06::response::IntoResponse for GitHubAppUninstallError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for GitHubAppUninstallError {
     fn into_response(self) -> axum_07::response::Response {
         let body = serde_json::to_string(&self).expect("unable to serialize error body");
         let status_code = self.status_code();

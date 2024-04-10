@@ -2745,12 +2745,36 @@ components:
         - $ref: "#/components/schemas/internalServerError"
         - $ref: "#/components/schemas/unauthorizedError"
         - $ref: "#/components/schemas/unauthenticatedError"
+        - $ref: "#/components/schemas/gitHubAppAlreadyInstalledError"
       discriminator:
         propertyName: error
         mapping:
           internal_server_error: "#/components/schemas/internalServerError"
           unauthorized:  "#/components/schemas/unauthorizedError"
           unauthenticated:  "#/components/schemas/unauthenticatedError"
+          already_installed: "#/components/schemas/gitHubAppAlreadyInstalledError"
+    gitHubAppAlreadyInstalledError:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "already_installed"
+    gitHubAppUninstallError:
+      oneOf:
+        - $ref: "#/components/schemas/internalServerError"
+        - $ref: "#/components/schemas/unauthorizedError"
+        - $ref: "#/components/schemas/unauthenticatedError"
+        - $ref: "#/components/schemas/gitHubAppNotInstalledError"
+      discriminator:
+        propertyName: error
+        mapping:
+          internal_server_error: "#/components/schemas/internalServerError"
+          unauthorized: "#/components/schemas/unauthorizedError"
+          unauthenticated: "#/components/schemas/unauthenticatedError"
+          not_installed: "#/components/schemas/gitHubAppNotInstalledError"
 
   parameters:
     sortDirection:
@@ -5401,3 +5425,22 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/gitHubAppInstallFlowError"
+  /api/workspaces/{workspaceId}/integrations/github/uninstall:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      operationId: integrations_github_app_uninstall
+      x-new-style: true
+      summary: Uninstall GitHub app on the current workspace
+      description: Uninstall GitHub app on the current workspace
+      tags:
+        - Integrations
+      responses:
+        "307":
+          description: OK. Follow Location header
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/gitHubAppUninstallError"

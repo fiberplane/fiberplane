@@ -1140,6 +1140,20 @@ For authenticating with the API see the Authentication section in the docs
         self.do_req(req).await
     }
 
+    #[doc = r#"Uninstall GitHub app on the current workspace"#]
+    pub async fn integrations_github_app_uninstall(
+        &self,
+        workspace_id: base64uuid::Base64Uuid,
+    ) -> Result<(), ApiClientError<models::GitHubAppUninstallError>> {
+        let path = &format!(
+            "/api/workspaces/{workspaceId}/integrations/github/uninstall",
+            workspaceId = workspace_id,
+        );
+        let mut req = self.request(Method::GET, path)?;
+
+        self.do_req(req).await
+    }
+
     #[doc = r#"Retrieves a list of pending workspace invitations"#]
     pub async fn workspace_invite_get(
         &self,
