@@ -348,3 +348,63 @@ impl axum_07::response::IntoResponse for GitHubAppUninstallError {
         (status_code, body).into_response()
     }
 }
+
+#[derive(Serialize, Debug, Error)]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
+pub enum GitHubAppWebhookError {
+    #[error("signature was not sent with the request")]
+    SignatureMissing,
+
+    #[error("signature header was sent with the request but incorrectly formatted")]
+    SignatureInvalid,
+
+    #[error("unsupported signature algorithm, only sha256 is supported")]
+    SignatureAlgorithmUnsupported,
+
+    #[error("signature mismatch")]
+    SignatureMismatch,
+
+    #[error("failed to parse payload as JSON")]
+    InvalidJson,
+
+    #[error("invalid github app config")]
+    InvalidConfig,
+
+    #[error("unknown error occurred")]
+    InternalServerError,
+}
+
+impl GitHubAppWebhookError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    fn status_code(&self) -> StatusCode {
+        match self {
+            GitHubAppWebhookError::SignatureMissing => StatusCode::BAD_REQUEST,
+            GitHubAppWebhookError::SignatureInvalid => StatusCode::BAD_REQUEST,
+            GitHubAppWebhookError::SignatureAlgorithmUnsupported => StatusCode::BAD_REQUEST,
+            GitHubAppWebhookError::SignatureMismatch => StatusCode::BAD_REQUEST,
+            GitHubAppWebhookError::InvalidJson => StatusCode::BAD_REQUEST,
+            GitHubAppWebhookError::InvalidConfig => StatusCode::INTERNAL_SERVER_ERROR,
+            GitHubAppWebhookError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+        }
+    }
+}
+
+#[cfg(feature = "axum_06")]
+impl axum_06::response::IntoResponse for GitHubAppWebhookError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for GitHubAppWebhookError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
