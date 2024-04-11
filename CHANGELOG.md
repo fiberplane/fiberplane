@@ -15,6 +15,7 @@ major version hasn't changed.
 
 ## unreleased
 
+- `fiberplane-charts`: Add configuration to MetricsChart for number of ticks you'd prefer to see on an axis (defaults to previously hard-coded values)
 - `fiberplane-models`: Add extra types to front matter values, and add a value validation method to
   front matter schema entries.
 - `fiberplane-models`: The `updated_at` and `created_at` fields in the `IntegrationSummary` struct are now optional (#171)
