@@ -11,6 +11,8 @@ title: Fiberplane Templates reference
 <dd><p>Functions for creating notebook cells</p></dd>
 <dt><a href="#format">`format`</a> : <code>object</code></dt>
 <dd><p>Functions for formatting text</p></dd>
+<dt><a href="#frontMatter">`frontMatter`</a> : <code>object</code></dt>
+<dd><p>Functions for creating frontmatter</p></dd>
 </dl>
 
 ## Functions
@@ -47,6 +49,7 @@ fp.notebook.new('My Notebook')
         * [`.addFrontMatterSchema(frontMatterSchema)`](#notebook.Notebook+addFrontMatterSchema) ⇒ [<code>Notebook</code>](#notebook.Notebook)
         * [`.addFrontMatterValue(key, value)`](#notebook.Notebook+addFrontMatterValue) ⇒ [<code>Notebook</code>](#notebook.Notebook)
         * [`.addFrontMatterValues(vals)`](#notebook.Notebook+addFrontMatterValues) ⇒ [<code>Notebook</code>](#notebook.Notebook)
+        * [`.addFrontMatter(value)`](#notebook.Notebook+addFrontMatter) ⇒ [<code>Notebook</code>](#notebook.Notebook)
     * [`.new(title)`](#notebook.new) ⇒ [<code>Notebook</code>](#notebook.Notebook)
 
 <a name="notebook.Notebook"></a>
@@ -70,6 +73,7 @@ fp.notebook.new('My Notebook')
     * [`.addFrontMatterSchema(frontMatterSchema)`](#notebook.Notebook+addFrontMatterSchema) ⇒ [<code>Notebook</code>](#notebook.Notebook)
     * [`.addFrontMatterValue(key, value)`](#notebook.Notebook+addFrontMatterValue) ⇒ [<code>Notebook</code>](#notebook.Notebook)
     * [`.addFrontMatterValues(vals)`](#notebook.Notebook+addFrontMatterValues) ⇒ [<code>Notebook</code>](#notebook.Notebook)
+    * [`.addFrontMatter(value)`](#notebook.Notebook+addFrontMatter) ⇒ [<code>Notebook</code>](#notebook.Notebook)
 
 <a name="notebook.Notebook+setTimeRangeRelative"></a>
 
@@ -248,6 +252,24 @@ notebook.addFrontMatterValues({
  status: 'Created',
  ticket: 23
 })
+```
+<a name="notebook.Notebook+addFrontMatter"></a>
+
+#### `notebook.addFrontMatter(value)` ⇒ [<code>Notebook</code>](#notebook.Notebook)
+<p>Add a front matter value and schema to the notebook. Recommended to be
+used with the <code>frontmatter.*</code> helpers.</p>
+
+**Kind**: instance method of [<code>Notebook</code>](#notebook.Notebook)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| value | <code>object</code> | <p>Map of frontMatter and frontMatterSchema to add to the notebook.</p> |
+
+**Example**  
+```js
+notebook.addFrontMatter(
+  frontMatter.pagerdutyIncident(pagerduty_frontmatter)
+)
 ```
 <a name="notebook.new"></a>
 
@@ -852,6 +874,31 @@ fmt.link('Example', 'https://example.com')
 ```js
 fmt.link('https://example.com')
 ```
+<a name="frontMatter"></a>
+
+## `frontMatter` : <code>object</code>
+<p>Functions for creating frontmatter</p>
+
+**Kind**: global namespace  
+**Example** *(Adding a PagerDuty incident to a notebook)*  
+```js
+notebook.addFrontMatter(
+  frontMatter.pagerdutyIncident(pagerduty_frontmatter)
+)
+```
+<a name="frontMatter.pagerdutyIncident"></a>
+
+### `frontMatter.pagerdutyIncident(frontMatterValue, key, displayName)` ⇒ <code>object</code>
+<p>Creates a PagerDuty Incident frontmatter value and schema.</p>
+
+**Kind**: static method of [<code>frontMatter</code>](#frontMatter)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| frontMatterValue | <code>string</code> | <p>The value of the front matter as defined by the api. Recommended to use the value provided by the PagerDuty integration.</p> |
+| key | <code>string</code> | <p>The key of the front matter entry</p> |
+| displayName | <code>string</code> | <p>The display name of the front matter entry</p> |
+
 <a name="snippet"></a>
 
 ## `snippet(cells)` ⇒ [<code>Array.&lt;Cell&gt;</code>](#cell.Cell)
@@ -870,4 +917,3 @@ fp.snippet([
  c.code('This is a snippet'),
 ])
 ```
-
