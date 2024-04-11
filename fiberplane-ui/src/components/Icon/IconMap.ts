@@ -17,6 +17,7 @@ import ArrowRightIcon from "./icons/ArrowRight.svg";
 import ArrowSquareInIcon from "./icons/ArrowSquareIn.svg";
 import ArrowSquareLeftDuotoneIcon from "./icons/ArrowSquareLeftDuotone.svg";
 import ArrowUpIcon from "./icons/ArrowUp.svg";
+import ArrowUpRightIcon from "./icons/ArrowUpRight.svg";
 import ArrowsClockwiseIcon from "./icons/ArrowsClockwise.svg";
 import ArrowsDownUpIcon from "./icons/ArrowsDownUp.svg";
 import ArrowsLeftRightIcon from "./icons/ArrowsLeftRight.svg";
@@ -342,6 +343,7 @@ export const ICON_MAP = {
   arrow_square_in: ArrowSquareInIcon,
   arrow_square_left_duotone: ArrowSquareLeftDuotoneIcon,
   arrow_up: ArrowUpIcon,
+  arrow_up_right: ArrowUpRightIcon,
   arrows_clockwise: ArrowsClockwiseIcon,
   arrows_down_up: ArrowsDownUpIcon,
   arrows_left_right: ArrowsLeftRightIcon,
