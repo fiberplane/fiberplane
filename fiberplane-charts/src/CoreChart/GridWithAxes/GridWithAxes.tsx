@@ -131,6 +131,11 @@ export function getTicks(
   numTicks: number,
   getMaxAllowedTick: (ticks: Array<number>, maxValue: number) => number,
 ): Array<number> {
+  // If we only want two ticks, just render the min and max
+  if (numTicks === 2) {
+    console.log("getTicks: numTicks === 2");
+    return [axis.minValue, axis.maxValue];
+  }
   const suggestions = axis.tickSuggestions;
   const { ticks, interval } = suggestions
     ? getTicksAndIntervalFromSuggestions(axis, suggestions, numTicks)
