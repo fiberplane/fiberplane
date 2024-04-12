@@ -1,5 +1,0 @@
----
-title: Template API Reference
-slug: templates-api
-category: 63d9318843747e1151ab4e1a
----
