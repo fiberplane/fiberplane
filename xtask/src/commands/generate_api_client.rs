@@ -16,6 +16,7 @@ pub fn handle_generate_api_client_command() -> TaskResult {
             "fiberplane_models::blobs::*".to_owned(),
             "fiberplane_models::comments::*".to_owned(),
             "fiberplane_models::data_sources::*".to_owned(),
+            "fiberplane_models::errors::*".to_owned(),
             "fiberplane_models::events::*".to_owned(),
             "fiberplane_models::files::*".to_owned(),
             "fiberplane_models::formatting::*".to_owned(),

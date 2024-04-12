@@ -2467,6 +2467,7 @@ components:
           type: string
           enum:
             - "pagerdutywebhook"
+            - "githubapp"
         status:
           type: object
           required:
@@ -2703,6 +2704,77 @@ components:
           type: string
           enum:
             - "unauthenticated"
+    gitHubAppDetails:
+      type: object
+      required:
+        - orgId
+        - orgName
+        - createdAt
+      properties:
+        orgId:
+          type: integer
+        orgName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    gitHubAppDetailsError:
+      oneOf:
+        - $ref: "#/components/schemas/internalServerError"
+        - $ref: "#/components/schemas/unauthorizedError"
+        - $ref: "#/components/schemas/unauthenticatedError"
+        - $ref: "#/components/schemas/gitHubAppNotInstalledError"
+      discriminator:
+        propertyName: error
+        mapping:
+          internal_server_error: "#/components/schemas/internalServerError"
+          unauthorized:  "#/components/schemas/unauthorizedError"
+          unauthenticated:  "#/components/schemas/unauthenticatedError"
+          not_found: "#/components/schemas/gitHubAppNotInstalledError"
+    gitHubAppNotInstalledError:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "not_installed"
+    gitHubAppInstallFlowError:
+      oneOf:
+        - $ref: "#/components/schemas/internalServerError"
+        - $ref: "#/components/schemas/unauthorizedError"
+        - $ref: "#/components/schemas/unauthenticatedError"
+        - $ref: "#/components/schemas/gitHubAppAlreadyInstalledError"
+      discriminator:
+        propertyName: error
+        mapping:
+          internal_server_error: "#/components/schemas/internalServerError"
+          unauthorized:  "#/components/schemas/unauthorizedError"
+          unauthenticated:  "#/components/schemas/unauthenticatedError"
+          already_installed: "#/components/schemas/gitHubAppAlreadyInstalledError"
+    gitHubAppAlreadyInstalledError:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "already_installed"
+    gitHubAppUninstallError:
+      oneOf:
+        - $ref: "#/components/schemas/internalServerError"
+        - $ref: "#/components/schemas/unauthorizedError"
+        - $ref: "#/components/schemas/unauthenticatedError"
+        - $ref: "#/components/schemas/gitHubAppNotInstalledError"
+      discriminator:
+        propertyName: error
+        mapping:
+          internal_server_error: "#/components/schemas/internalServerError"
+          unauthorized: "#/components/schemas/unauthorizedError"
+          unauthenticated: "#/components/schemas/unauthenticatedError"
+          not_installed: "#/components/schemas/gitHubAppNotInstalledError"
 
   parameters:
     sortDirection:
@@ -5311,3 +5383,64 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/pagerDutyReceiverDeleteError"
+  /api/workspaces/{workspaceId}/integrations/github:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      operationId: integrations_github_app_get
+      x-new-style: true
+      summary: Gets details about the GitHub app integration
+      description: Get details about the GitHub app integration
+      tags:
+        - Integrations
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/gitHubAppDetails"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/gitHubAppDetailsError"
+  /api/workspaces/{workspaceId}/integrations/github/install:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      operationId: integrations_github_app_install
+      x-new-style: true
+      summary: Install GitHub app to the current workspace
+      description: Install GitHub app to the current workspace
+      tags:
+        - Integrations
+      responses:
+        "307":
+          description: OK. Follow Location header
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/gitHubAppInstallFlowError"
+  /api/workspaces/{workspaceId}/integrations/github/uninstall:
+    parameters:
+      - $ref: "#/components/parameters/workspaceId"
+    get:
+      operationId: integrations_github_app_uninstall
+      x-new-style: true
+      summary: Uninstall GitHub app on the current workspace
+      description: Uninstall GitHub app on the current workspace
+      tags:
+        - Integrations
+      responses:
+        "307":
+          description: OK. Follow Location header
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/gitHubAppUninstallError"
