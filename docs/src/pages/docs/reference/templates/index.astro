@@ -1,0 +1,24 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { Markdown } from "@astropub/md";
+import jsdoc2md from "jsdoc-to-markdown";
+import type { RenderOptions, JsdocOptions } from "jsdoc-to-markdown";
+
+const libsonnetPath = "../fiberplane-templates/fiberplane.libsonnet";
+const jsdocConfigPath = "../fiberplane-templates/jsdoc.json";
+
+const renderOptions: RenderOptions & JsdocOptions = {
+  "example-lang": "jsonnet",
+  separators: true,
+  files: libsonnetPath,
+  configure: jsdocConfigPath,
+};
+
+const renderedMarkdown = await jsdoc2md.render(renderOptions);
+
+// TODO: parse headings separately to generate a better TOC
+---
+
+<StarlightPage frontmatter={{ title: "Templates reference" }}>
+  <Markdown of={renderedMarkdown} />
+</StarlightPage>

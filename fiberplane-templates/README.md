@@ -79,7 +79,7 @@ various use cases such as incident response, root cause analysis, etc.
 
 ## Template API Documentation
 
-See the [generated API docs](https://docs.fiberplane.com/reference/templates-api).
+See the [generated API docs](https://fiberplane.com/docs/reference/templates).
 
 ## Development
 
@@ -112,17 +112,7 @@ cargo test --lib --examples
 
 The Jsonnet library API documentation is generated from
 [JSDoc](https://jsdoc.app/) comments in
-[fiberplane.libsonnet](./fiberplane.libsonnet) using
-[jsdoc-to-markdown](https://github.com/jsdoc2md/jsdoc-to-markdown).
+[fiberplane.libsonnet](./fiberplane.libsonnet)/
 
-To (re)generate the documentation, you can use this Docker command:
-
-```shell
-docker run --rm -v $PWD:$PWD node:17 npx -y jsdoc-to-markdown -c $PWD/jsdoc.json $PWD/fiberplane.libsonnet > docs/template_api.md
-```
-
-Alternatively, you can use Node.js directly by using the following command:
-
-```shell
-npx -y jsdoc-to-markdown -c jsdoc.json fiberplane.libsonnet > docs/template_api.md
-```
+To generate an updated documentation make sure to trigger a documentation site
+rebuild after the changes in `fiberplane.libsonnet` file are merged.
