@@ -133,7 +133,6 @@ export function getTicks(
 ): Array<number> {
   // If we only want two ticks, just render the min and max
   if (numTicks === 2) {
-    console.log("getTicks: numTicks === 2");
     return [axis.minValue, axis.maxValue];
   }
   const suggestions = axis.tickSuggestions;
