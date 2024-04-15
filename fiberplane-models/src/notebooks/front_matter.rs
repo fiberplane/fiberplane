@@ -81,6 +81,9 @@ pub enum FrontMatterValue {
     /// A PagerDuty incident front matter value
     #[serde(rename = "pagerduty_incident")]
     PagerDutyIncident(FrontMatterPagerDutyIncident),
+
+    #[serde(rename = "github_pull_request")]
+    GitHubPullRequest(FrontMatterGitHubPullRequest),
 }
 
 /// Error from validating a JSON object as a correct front matter value
@@ -141,6 +144,7 @@ impl FrontMatterValue {
             FrontMatterValue::User(_) => "user",
             FrontMatterValue::UserList(_) => "user_list",
             FrontMatterValue::PagerDutyIncident(_) => "pagerduty_incident",
+            FrontMatterValue::GitHubPullRequest(_) => "github_pull_request",
         }
     }
 }
@@ -644,6 +648,56 @@ impl TryFrom<serde_json::Value> for FrontMatterPagerDutyIncident {
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
         serde_json::from_value(value).map_err(|err| FrontMatterValidationError::Format {
             message: format!("invalid pagerduty incident: {err}"),
+        })
+    }
+}
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::front_matter")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct FrontMatterGitHubPullRequest {
+    /// The pull request number
+    pub number: u64,
+
+    /// The pull request title
+    pub title: String,
+
+    /// The pull request state
+    pub state: String,
+
+    /// The pull request creation date
+    pub creation_date: Timestamp,
+
+    /// The pull request URL
+    #[builder(default, setter())]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub html_url: Option<String>,
+
+    /// The pull request author
+    /// This is a user object
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub author_display_name: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub author_username: Option<String>,
+}
+
+impl From<FrontMatterGitHubPullRequest> for FrontMatterValue {
+    fn from(v: FrontMatterGitHubPullRequest) -> Self {
+        Self::GitHubPullRequest(v)
+    }
+}
+
+impl TryFrom<serde_json::Value> for FrontMatterGitHubPullRequest {
+    type Error = FrontMatterValidationError;
+
+    fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
+        serde_json::from_value(value).map_err(|err| FrontMatterValidationError::Format {
+            message: format!("invalid github pull request: {err}"),
         })
     }
 }
