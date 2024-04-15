@@ -57,6 +57,16 @@ export type CoreChartProps<S, P> = {
   gridStrokeColor?: string;
 
   /**
+   * Override the suggested number of ticks along the X axis. (default: 12)
+   */
+  numXTicks?: number;
+
+  /**
+   * Override the suggested number of ticks along the Y axis. (default: 8)
+   */
+  numYTicks?: number;
+
+  /**
    * Handler that is invoked when the time range is changed.
    *
    * If no handler is specified, no UI for changing the time range is
