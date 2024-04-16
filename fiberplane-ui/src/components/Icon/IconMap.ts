@@ -17,6 +17,7 @@ import ArrowRightIcon from "./icons/ArrowRight.svg";
 import ArrowSquareInIcon from "./icons/ArrowSquareIn.svg";
 import ArrowSquareLeftDuotoneIcon from "./icons/ArrowSquareLeftDuotone.svg";
 import ArrowUpIcon from "./icons/ArrowUp.svg";
+import ArrowUpRightIcon from "./icons/ArrowUpRight.svg";
 import ArrowsClockwiseIcon from "./icons/ArrowsClockwise.svg";
 import ArrowsDownUpIcon from "./icons/ArrowsDownUp.svg";
 import ArrowsLeftRightIcon from "./icons/ArrowsLeftRight.svg";
@@ -229,6 +230,7 @@ import NotebookDuotoneIcon from "./icons/NotebookDuotone.svg";
 import NotebookMenuIcon from "./icons/NotebookMenu.svg";
 import NotepadIcon from "./icons/Notepad.svg";
 import NotifcationIcon from "./icons/Notifcation.svg";
+import PagerDutyColorIcon from "./icons/PagerDutyColor.svg";
 import PaperPlaneTiltIcon from "./icons/PaperPlaneTilt.svg";
 import PaperclipIcon from "./icons/Paperclip.svg";
 import PencilSimpleIcon from "./icons/PencilSimple.svg";
@@ -341,6 +343,7 @@ export const ICON_MAP = {
   arrow_square_in: ArrowSquareInIcon,
   arrow_square_left_duotone: ArrowSquareLeftDuotoneIcon,
   arrow_up: ArrowUpIcon,
+  arrow_up_right: ArrowUpRightIcon,
   arrows_clockwise: ArrowsClockwiseIcon,
   arrows_down_up: ArrowsDownUpIcon,
   arrows_left_right: ArrowsLeftRightIcon,
@@ -555,6 +558,7 @@ export const ICON_MAP = {
   notebook: NotebookIcon,
   notepad: NotepadIcon,
   notifcation: NotifcationIcon,
+  pager_duty_color: PagerDutyColorIcon,
   paper_plane_tilt: PaperPlaneTiltIcon,
   paperclip: PaperclipIcon,
   pencil_simple: PencilSimpleIcon,
