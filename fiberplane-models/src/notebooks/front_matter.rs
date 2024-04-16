@@ -651,6 +651,18 @@ impl TryFrom<serde_json::Value> for FrontMatterPagerDutyIncident {
         })
     }
 }
+
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::front_matter")
+)]
+pub struct GitHubUser {
+    pub display_name: String,
+    pub username: String,
+}
+
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
@@ -679,11 +691,25 @@ pub struct FrontMatterGitHubPullRequest {
 
     /// The pull request author
     /// This is a user object
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub author_display_name: Option<String>,
+    #[builder(default)]
+    #[serde(default)]
+    pub author: GitHubUser,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub author_username: Option<String>,
+    #[builder(default)]
+    #[serde(default)]
+    pub assignees: Vec<GitHubUser>,
+
+    pub body: String,
+
+    pub closed_at: Option<Timestamp>,
+
+    pub commits: u32,
+
+    pub draft: bool,
+
+    pub labels: Vec<String>,
+
+    pub updated_at: Timestamp,
 }
 
 impl From<FrontMatterGitHubPullRequest> for FrontMatterValue {
