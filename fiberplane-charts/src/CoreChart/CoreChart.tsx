@@ -23,6 +23,8 @@ export function CoreChart<S, P>({
   shapeStrokeWidth = 1,
   showTooltip,
   timeRange,
+  numXTicks = 12,
+  numYTicks = 8,
   ...props
 }: CoreChartProps<S, P>): JSX.Element {
   const interactiveControls = useInteractiveControls(readOnly);
@@ -111,6 +113,8 @@ export function CoreChart<S, P>({
         <GridWithAxes
           {...props}
           chart={chart}
+          numXTicks={numXTicks}
+          numYTicks={numYTicks}
           scales={scales}
           tickFormatters={tickFormatters}
         />

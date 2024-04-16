@@ -1,0 +1,246 @@
+---
+title: Quickstart
+sidebar:
+    order: 0
+---
+import { Steps, Tabs, TabItem } from "@astrojs/starlight/components";
+
+Fiberplane Studio helps developer teams build better incident workflows and automated, data-rich incident reviews.
+
+## Workflow
+
+Fiberplane workflow relies on three key principles:
+
+- describe and **template** your incident review requirements in code
+- **integrate** with your alerting and on-call tooling and automate your reviews
+- **query** and attach your observability data where needed
+
+## Creating your first template
+
+Templates are central feature in Fiberplane enabling you to create incident workflows and programmatically set structure for your postmortems.
+
+In this guide we will create our first template, upload it to Fiberplane, and add it to our incident workflow. 
+
+### Prerequisites
+
+A Fiberplane account: go to [https://fiberplane.com/](https://fiberplane.com/) and sign up for an account.
+
+### Steps
+
+<Steps>
+
+1. #### Download, install, and authenticate the CLI
+
+    Fiberplane CLI is the main tool to programmatically interact with Fiberplane resources (notebooks, templates, and daemons) from your local machine.
+
+    <Tabs>
+      <TabItem label="Homebrew">
+        ```bash title="Installing Fiberplane CLI..."
+        brew install fiberplane/tap/fp
+        ```
+      </TabItem>
+      <TabItem label="Install script">
+        ```bash title="Installing Fiberplane CLI..."
+        curl --proto '=https' --tlsv1.2 -sSf https://fp.dev/install.sh | sh
+        ```
+      </TabItem>
+      <TabItem label="Compile from source">
+        Fiberplane CLI source code is available [ on GitHub ](https://github.com/fiberplane/fp).
+        
+        Ensure that you have the Rust toolchain installed and then:
+        ```bash title="Installing Fiberplane CLI..."
+        git clone https://github.com/fiberplane/fp
+        cd fp
+        cargo build --release
+        ```
+      </TabItem>
+    </Tabs>
+
+    Once installed you can authenticate the CLI by running:
+
+    ```sh title="Authenticating Fiberplane CLI..."
+    fp login
+    ```
+
+2. #### Initialize a template
+
+    To initialize a basic template in the current directory run:
+
+    ```sh title="Initializing a Fiberplane template..."
+    fp templates init
+    ```
+    The command will scaffold a template and save it to a file `template.jsonnet` in the current directory.
+
+    ```jsonnet
+    // ./template.jsonnet
+    local fp = import 'fiberplane.libsonnet';
+    local c = fp.cell;
+    local fmt = fp.format;
+
+    function(
+      title='Replace me!'
+    )
+      fp.notebook
+      .new(title)
+      .setTimeRangeRelative(minutes=60)
+      .addLabels({})
+      .addCells([
+        c.h1('This is a section'),
+        c.text('You can add any types of cells and pre-fill content'),
+      ])
+    ```
+
+3. #### Create the template in Fiberplane
+
+    Run the following command to create the template in Fiberplane passing in our source file `template.jsonnet` as an argument.
+
+    ```sh title="Creating a template in Fiberplane..."
+    fp templates create ./template.jsonnet
+    ```
+
+    The command will prompt you for the title and description of your template, and will add the template to your Fiberplane account.
+
+    You can verify that the template is added by listing out all of your templates with `fp templates list` or by navigating to your Fiberplane home screen’s *Templates* tab.
+
+</Steps>
+
+## Adding a data source
+
+Data sources can be added to Fiberplane notebooks using the Providers. Providers enable you to query them even if they are not exposed to the wider internet (using the Fiberplane Daemon).
+
+#### How Providers work
+
+Whenever you execute a data query in the notebook:
+
+1. The query is forwarded to the Fiberplane Daemon `fpd` installed in your cluster;
+2. The `fpd` then queries the Provider data source (e.g. your Prometheus or
+	 Elastic instance);
+3. When the Provider returns the data, the `fpd` processes, encrypts, and then
+	 returns it back to the Studio.
+
+### Set up the Fiberplane Daemon
+
+The Fiberplane Daemon is a package that runs in your infrastructure. It enables you to connect the Fiberplane Studio to the data sources in your cluster(s) securely without exposing them to the Internet.
+
+The Fiberplane Daemon is available as a [container on Docker Hub](https://hub.docker.com/r/fiberplane/fpd).
+
+
+<Steps>
+1. #### Create an API Token
+
+    ##### In the Studio
+
+    In order for the Daemon to receive queries from Fiberplane Notebooks, it needs to be authorized. This step will generate a **Daemon API Token** that will be needed in later steps.
+
+    You can do it in the Settings > FPD menu or using our CLI tool.
+
+    ![Register a proxy](@assets/images/register_an_fpd.png)
+
+    In order for the Daemon to talk to the Fiberplane Studio successfully it needs to be successfully authorized. This step will generate a **Daemon API Token** that will be needed later.
+
+    Go to your Fiberplane Settings page.
+
+    Click **`+ New`** to register a proxy with a name that identifies the cluster you will install it into (for example, "Production"). This will generate and display a Daemon API Token that the proxy will use to authenticate with the Fiberplane Studio.
+    Copy the Daemon API Token generated in Step 2 for the next step.
+
+
+    ##### Using the CLI
+
+    Make sure you have the Fiberplane CLI installed.
+
+    To register a daemon run a command:
+
+    ```shell title="Creating an API token..."
+    fp daemon create my-daemon
+    ```
+
+    You can leave out the daemon name to have one randomly generated, but we recommend naming it according to the environment it will be deployed to (for example, `production`). Note that daemon names must follow the [Fiberplane name format](faq#resource-names).
+
+2. #### Configure the data sources
+
+    We need to provide instructions for the daemon to look for data source APIs in the correct places. To do that create a `data_sources.yaml` in your working directory. Here's an example configuration
+
+    ```yaml
+    # data_sources.yaml
+    - name: prometheus-prod
+      eescription: Prometheus (Production)
+      providerType: prometheus # any of the currently supported Providers
+      config:
+        # Replace the following line with your Prometheus URL
+        url: http://prometheus
+    ```
+
+3. #### Deploy the daemon
+
+    We can now deploy and authenticate the daemon using the API Token we have created earlier.
+
+    <Tabs>
+      <TabItem label="Docker">
+
+        Run the following command (or add the equivalent of `docker-compose`) in your terminal. Replace `<FPD_API_TOKEN>` with the API token you have created earlier.
+
+        ```bash title="Deploying daemon as a Docker container..." "<FPD_API_TOKEN>"
+        docker run \
+          -v "$PWD/data_sources.yaml:/app/data_sources.yaml" \
+          fiberplane/fpd:v2 \
+          --token=<FPD_API_TOKEN>
+        ```
+      </TabItem>
+      <TabItem label="Kubernetes (Helm)">
+
+        The fastest way to add the Fiberplane Daemon `fpd` to your cluster is using the officially maintained Helm chart.
+
+    :::note
+    It is also possible to install the daemon manually using manifests, see [Deploy to Kubernetes](docs/deploy-to-kubernetes) for instructions.
+    :::
+
+        Add the Fiberplane Helm chart repository
+
+        ```bash
+        helm repo add fiberplane https://fiberplane.github.io/helm-charts
+        ```
+
+        Create an `fpd-values.yaml` file
+
+        ```yaml "FPD_API_TOKEN"
+        # fpd-values.yaml
+        fiberplane:
+            fpd_token: <FPD_API_TOKEN> # created in the studio or by running fp daemon create
+            data_sources: # list of data sources using fiberplane data source schema
+            - name: prometheus-prod
+              description: prometheus in prod
+              providertype: prometheus
+              config:
+                url: http://prometheus
+            - name: loki-prod
+              description: loki in prod
+              providertype: loki
+              config:
+                url: http://loki
+        ```
+
+        Run Helm install providing the values file as an argument
+
+        ```shell
+        helm install -f fpd-values.yaml fiberplane/fiberplane-daemon
+        ```
+
+      </TabItem>
+    </Tabs>
+
+
+
+</Steps>
+
+## Next steps
+
+Let's recap what we have done here so far:
+- we have successfully created and initialized our first Template
+- we have initialized and deployed our first Fiberplane Daemon `fpd`
+- we have configured the `fpd` to query the data sources in our closed off internal system
+
+Where do we go from here? We can:
+- set up a dedicated folder in our code for Fiberplane Templates and a GitHub Action to automatically update it when things change;
+- connect more Providers to Fiberplane so we can have multiple sources of data in our notebooks;
+- learn how to send data from our terminal sessions to notebooks.
+

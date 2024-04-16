@@ -68,7 +68,7 @@ Timestamps allow you to insert datetime snippets easily and make them stand out 
 Anywhere in a Notebook you can use the slash menu to bring up the cell type
 selector. Once selected it will create a new cell on the selected type (or if it's the first item, convert the cell in place).
 
-![cellcontrols.gif](/docs/notebooks/cellcontrols.gif)
+![Cell controls menu](/docs/notebooks/cellcontrols.gif)
 
 ## Cell types
 
@@ -98,16 +98,10 @@ Once a discussion is created it is marked as "Open". You can resolve and close t
 
 Comments can be edited or removed by the author by clicking the three dots on the right-hand side.
 
-![Untitled](@assets/images/discussion-cell.png)
+![Discussion cells](@assets/images/discussion-cell.png)
 
 ### Provider cells
 
 Provider cells include cells for querying various data sources. Depending on what you have configured these can be e.g. Prometheus metrics, Elasticsearch or other.
 
-Currently available Providers:
-
-[Prometheus](doc:prometheus)
-
-[Elasticsearch](doc:elasticsearch)
-
-[Grafana Loki](doc:grafana-loki)
+[Read more about setting up providers here](/docs/providers)

@@ -1,6 +1,8 @@
 import starlight from "@astrojs/starlight";
 import markdownIntegration from "@astropub/md";
+import pagefind from "astro-pagefind";
 import { defineConfig } from "astro/config";
+import { mermaid } from "./integrations/astro-mermaid";
 
 // https://astro.build/config
 export default defineConfig({
@@ -10,7 +12,11 @@ export default defineConfig({
   server: {
     port: 1111,
   },
+  markdown: {
+    remarkPlugins: [mermaid],
+  },
   integrations: [
+    pagefind(),
     markdownIntegration(),
     starlight({
       title: "Fiberplane Docs",
@@ -22,6 +28,7 @@ export default defineConfig({
       social: {
         github: "https://github.com/fiberplane/fiberplane",
       },
+      components: { Footer: "@components/Footer.astro" },
       sidebar: [
         {
           label: "Start Here",
@@ -37,12 +44,6 @@ export default defineConfig({
           ],
         },
         {
-          label: "Integrations",
-          autogenerate: {
-            directory: "docs/integrations",
-          },
-        },
-        {
           label: "Templates",
           autogenerate: {
             directory: "docs/templates",
@@ -52,6 +53,18 @@ export default defineConfig({
           label: "Providers",
           autogenerate: {
             directory: "docs/providers",
+          },
+        },
+        {
+          label: "Webhooks",
+          autogenerate: {
+            directory: "docs/webhooks",
+          },
+        },
+        {
+          label: "CLI",
+          autogenerate: {
+            directory: "docs/cli",
           },
         },
         {

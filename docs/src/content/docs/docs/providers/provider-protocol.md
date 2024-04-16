@@ -1,8 +1,8 @@
 ---
-title: Provider Protocol Explanation
+title: Understanding the Provider protocol
 ---
 
-This page explains how the interactions between Fiberplane Studio and a provider happen to interactively add cells to a notebook. If you want to know how to write a provider, please refer to the [tutorial](doc:create-a-provider).
+This page explains how the interactions between Fiberplane Studio and a provider happen to interactively add cells to a notebook. If you want to know how to write a provider, please refer to the [tutorial](create-a-provider).
 
 You should know what a notebook and cells are in Fiberplane context.
 
@@ -11,13 +11,13 @@ In the following page, a few words are important to define:
 - **Third Party Resource**: the external resource from which to fetch data. For example, for the Prometheus provider, the third-party resource is the actual instance of Prometheus.
 - **Data Source**: a data source is a configuration that specifies which third-party resource a provider should connect to. For example, you can configure 2 Prometheus data sources with the Prometheus Provider, each talking to a different instance.
 - **Slash command**: a command that is presented after typing `/` in a notebook.
-- **Blob**, **ProviderRequest**: data types from the [provider protocol](doc:provider-protocol-reference)
+- **Blob**, **ProviderRequest**: data types from the [provider protocol](provider-protocol-reference)
 - **Provider Cell**: a special type of notebook cell, that is configured to execute queries using a specific provider.
 
 ## Summary sequence diagram
 
 In the sequence diagram below, all "critical" sections are named after one of the functions of the
-[provider protocol](doc:provider-protocol-reference).
+[provider protocol](provider-protocol-reference).
 
 ```mermaid
 sequenceDiagram
@@ -74,7 +74,7 @@ Before Studio can allow users to run actions connected to a third party resource
 
 ### Built-in Fiberplane providers
 
-When Fiberplane builds and adds a provider integration first hand, we bundle those providers with Studio so that it will know about it in any cases. This allows users to configure direct data sources for these providers, as explained in the [Adding a data source](doc:quickstart) tutorial.
+When Fiberplane builds and adds a provider integration first hand, we bundle those providers with Studio so that it will know about it in any cases. This allows users to configure direct data sources for these providers, as explained in the [Adding a data source](quickstart) tutorial.
 
 ### Custom providers (through Fiberplane Daemon)
 

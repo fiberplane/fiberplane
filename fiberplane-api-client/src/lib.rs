@@ -16,6 +16,7 @@ pub(crate) mod models {
     pub(crate) use fiberplane_models::blobs::*;
     pub(crate) use fiberplane_models::comments::*;
     pub(crate) use fiberplane_models::data_sources::*;
+    pub(crate) use fiberplane_models::errors::*;
     pub(crate) use fiberplane_models::events::*;
     pub(crate) use fiberplane_models::files::*;
     pub(crate) use fiberplane_models::formatting::*;
@@ -1109,6 +1110,48 @@ For authenticating with the API see the Authentication section in the docs
         let response = builder.send().await?.error_for_status()?.json().await?;
 
         Ok(response)
+    }
+
+    #[doc = r#"Get details about the GitHub app integration"#]
+    pub async fn integrations_github_app_get(
+        &self,
+        workspace_id: base64uuid::Base64Uuid,
+    ) -> Result<models::GitHubAppDetails, ApiClientError<models::GitHubAppDetailsError>> {
+        let path = &format!(
+            "/api/workspaces/{workspaceId}/integrations/github",
+            workspaceId = workspace_id,
+        );
+        let mut req = self.request(Method::GET, path)?;
+
+        self.do_req(req).await
+    }
+
+    #[doc = r#"Install GitHub app to the current workspace"#]
+    pub async fn integrations_github_app_install(
+        &self,
+        workspace_id: base64uuid::Base64Uuid,
+    ) -> Result<(), ApiClientError<models::GitHubAppInstallFlowError>> {
+        let path = &format!(
+            "/api/workspaces/{workspaceId}/integrations/github/install",
+            workspaceId = workspace_id,
+        );
+        let mut req = self.request(Method::GET, path)?;
+
+        self.do_req(req).await
+    }
+
+    #[doc = r#"Uninstall GitHub app on the current workspace"#]
+    pub async fn integrations_github_app_uninstall(
+        &self,
+        workspace_id: base64uuid::Base64Uuid,
+    ) -> Result<(), ApiClientError<models::GitHubAppUninstallError>> {
+        let path = &format!(
+            "/api/workspaces/{workspaceId}/integrations/github/uninstall",
+            workspaceId = workspace_id,
+        );
+        let mut req = self.request(Method::GET, path)?;
+
+        self.do_req(req).await
     }
 
     #[doc = r#"Retrieves a list of pending workspace invitations"#]

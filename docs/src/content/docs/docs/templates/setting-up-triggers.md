@@ -1,5 +1,5 @@
 ---
-title: Working with triggers
+title: Setting up triggers
 ---
 
 Triggers enable you to invoke Fiberplane Templates and create notebooks via a Webhook call. This can be used to automatically create notebooks from alerts, deploy notifications, or connect it to your customer support tools.
@@ -28,23 +28,21 @@ Let’s take our earlier example template:
 
 ```jsonnet
 function(
-    incidentName
+  incidentName
 )
   fp.notebook
-    .new('Incident Response for: ' + incidentName)
-    .addCells([
-      c.text('Hello World!'),
-    ])
+  .new("Incident Response for: " + incidentName)
+  .addCells([
+    c.text("Hello World!"),
+  ])
 ```
 
 After having created a trigger URL for this template we can send a simple POST request with a JSON body:
 
 ```bash
-POST https://fiberplane.com/api/triggers/:id/:secret_key
-Content-type: application/json
-{
-    "incidentName": "API Outage"
-}
+curl -X POST https://studio.fiberplane.com/api/triggers/your_id/your_secret_key \
+     -H "Content-type: application/json" \
+     -d '{"incidentName": "API Outage"}'
 ```
 
 And a new notebook with a title “API Outage” will be created!

@@ -7,7 +7,7 @@ concrete example will be `PagerDuty`, but for any other type of front matter it 
 
 This is where the type information will get transmitted to API consumers.
 
-```patch
+```diff lang="rust"
  #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Display)]
  #[cfg_attr(
      feature = "fp-bindgen",
@@ -40,7 +40,7 @@ marked as `serde(untagged)`
 
 (This means that on deserialization, all variants are tested in order)
 
-```patch
+```diff lang="rust"
  #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Display)]
  #[cfg_attr(
      feature = "fp-bindgen",

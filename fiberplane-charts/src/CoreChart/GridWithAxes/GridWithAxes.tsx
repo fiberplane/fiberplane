@@ -27,6 +27,8 @@ type Props = {
   scales: Scales;
   shouldAnimateYScale?: boolean;
   tickFormatters: TickFormatters;
+  numXTicks: number;
+  numYTicks: number;
 };
 
 export const GridWithAxes = memo(function GridWithAxes({
@@ -35,6 +37,8 @@ export const GridWithAxes = memo(function GridWithAxes({
   gridRowsShown = true,
   axisLinesShown = true,
   gridDasharray,
+  numXTicks, // NOTE - default should be set in CoreChart
+  numYTicks, // NOTE - default should be set in CoreChart
   scales,
   shouldAnimateYScale,
   tickFormatters,
@@ -53,12 +57,12 @@ export const GridWithAxes = memo(function GridWithAxes({
   );
 
   const xTicks = useMemo(
-    () => getTicks(xAxis, xMax, xScale, 12, getMaxXTickValue),
-    [xAxis, xMax, xScale],
+    () => getTicks(xAxis, xMax, xScale, numXTicks, getMaxXTickValue),
+    [xAxis, xMax, xScale, numXTicks],
   );
   const yTicks = useMemo(
-    () => getTicks(yAxis, yMax, animatedScale, 8, getMaxYTickValue),
-    [yAxis, yMax, animatedScale],
+    () => getTicks(yAxis, yMax, animatedScale, numYTicks, getMaxYTickValue),
+    [yAxis, yMax, animatedScale, numYTicks],
   );
 
   return (
@@ -127,6 +131,10 @@ export function getTicks(
   numTicks: number,
   getMaxAllowedTick: (ticks: Array<number>, maxValue: number) => number,
 ): Array<number> {
+  // If we only want two ticks, just render the min and max
+  if (numTicks === 2) {
+    return [axis.minValue, axis.maxValue];
+  }
   const suggestions = axis.tickSuggestions;
   const { ticks, interval } = suggestions
     ? getTicksAndIntervalFromSuggestions(axis, suggestions, numTicks)

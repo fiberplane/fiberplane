@@ -1,0 +1,82 @@
+---
+title: Getting started with Providers
+sidebar:
+    order: 0
+    label: Getting started
+---
+
+import NameConvention from "@snippets/name-convention.md"
+
+Providers are full-stack plugins in Fiberplane that allow you to pull in live data directly from your infrastructure data sources into your Notebooks. They are compiled to WebAssembly and can run both on the Studio and the `fpd`.
+
+Your data sources can be added from the Studio using direct access (if your data sources URL are open) or using the `data_sources.yaml` file that is then passed in the Docker or Kubernetes configuration. Here’s an example configuration file for connecting to a single Prometheus instance:
+
+```yaml
+# data_sources.yaml
+
+- name: prometheus-prod
+  description: Prometheus (Production)
+  providerType: prometheus
+  config:
+      url: http://prometheus:9090
+```
+
+<NameConvention />
+
+## Supported providers
+
+These are currently officially supported Providers in Fiberplane Studio
+
+#### Prometheus
+
+`providerType: prometheus`
+
+Write and run PromQL queries, and display Prometheus charts and tables alongside the rest of your content (any Prometheus API compatible vendor supported).
+
+##### Configuration
+
+| Property | Values |
+| -------- | ------ |
+| `url`    | The base URL where the Prometheus API endpoints can be discovered |
+| `token`  | If accessing your Prometheus requires authentication |
+
+#### Elasticsearch
+
+`providerType: elasticsearch`
+
+Write and run Lucene queries, and show Elasticsearch logs alongside the rest of your content.
+
+##### Configuration
+
+| Property | Values |
+| -------- | ------ |
+| `url`    | The base URL where the Elasticsearch API endpoints can be discovered. Example: `http://username:password@elasticsearch:9200` |
+| `token`  | If accessing your Elasticsearch requires authentication |
+
+#### Grafana Loki
+
+`providerType: loki`
+
+Write and run LogQL queries, and display Grafana Loki logs output alongside the rest of your content.
+
+##### Configuration
+
+| Property | Values |
+| -------- | ------ |
+| `url`    | The base URL where the Loki API endpoints can be discovered. |
+| `token`  | If accessing your Loki requires authentication |
+
+#### Parseable
+
+`providerType: parseable`
+
+Parseable is a simple but powerful log analytics engine that enables users to query logs with SQL.
+
+##### Configuration
+
+| Property | Values |
+| -------- | ------ |
+| `endpoint`    | The base URL where the Parseable API endpoints can be discovered. |
+| `username`  | Your Parseable instance authentication details |
+| `password`  | Your Parseable instance authentication details |
+

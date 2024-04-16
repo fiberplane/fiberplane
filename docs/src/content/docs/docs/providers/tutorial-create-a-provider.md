@@ -1,5 +1,7 @@
 ---
-title: Create a provider
+title: Creating a Provider
+sidebar:
+    order: 1
 ---
 
 This tutorial aims to help you create and modify your first provider. It will not touch "advanced" cell types like the graph and the log cells, but will help you integrate a third-party resource so that any output from it can be added to a notebook with only a `/` command (we call those "slash commands").

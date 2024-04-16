@@ -13,21 +13,27 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.5.3",
+    "@types/jsdoc-to-markdown": "^7.0.6",
     "openapi-types": "^12.1.3",
     "prettier": "^3.2.5",
     "prettier-plugin-astro": "^0.13.0",
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@astrojs/check": "0.5.3",
-    "@astrojs/starlight": "^0.19.0",
-    "@astrojs/vue": "^4.0.8",
+    "@astrojs/check": "0.5.10",
+    "@astrojs/markdown-remark": "^5.0.0",
+    "@astrojs/starlight": "0.21.2",
+    "@astrojs/vue": "4.0.9",
     "@astropub/md": "^0.4.0",
     "@readme/httpsnippet": "^8.1.4",
     "@readme/openapi-parser": "^2.5.0",
     "@scalar/api-reference": "^1.13.9",
     "@scalar/swagger-parser": "^0.5.15",
-    "astro": "4.4.0",
-    "sharp": "^0.32.5"
+    "astro": "4.5.10",
+    "astro-pagefind": "^1.5.0",
+    "jsdoc-to-markdown": "^8.0.1",
+    "mermaid": "^10.9.0",
+    "sharp": "^0.33.3",
+    "unist-util-visit": "^5.0.0"
   }
 }

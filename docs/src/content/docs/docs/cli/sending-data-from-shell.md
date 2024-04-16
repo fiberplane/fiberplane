@@ -1,29 +1,21 @@
 ---
-title: Sending data from shell to Notebook
+title: Sending data from shell 
 ---
 
-If you’re an SRE or infrastructure engineer - chances are you spend much of your
-work time in your shell. Besides querying providers from the Fiberplane
-notebook, you can easily send your shell command and output data to a notebook
-to examine and share with your colleagues.
+If you’re an SRE or infrastructure engineer - chances are you spend much of your time in your shell. Besides querying providers from the Fiberplane notebook, you can easily send your shell command and output data to a notebook to examine and share with your colleagues.
 
-You can achieve this with the `run` or `shell` commands in the Fiberplane CLI
-tool.
+You can achieve this with the `run` or `shell` commands in the Fiberplane CLI tool.
 
-The `fp run` command will run your specified command in a subshell and send the
-output to a specified notebook.
+The `fp run` command will run your specified command in a subshell and send the output to a specified notebook.
 
-The `fp shell` command will start recording and broadcasting your shell session
-to a specified notebook. It is useful for peer debugging sessions or simply when
-you want to have an easily accessible command history log for debugging
+The `fp shell` command will start recording and broadcasting your shell session to a specified notebook. It is useful for peer debugging sessions or simply when you want to have an easily accessible command history log for debugging
 documentation.
 
 ### Initial setup
 
-Make sure you have the Fiberplane CLI installed and you’re logged in. See:
-[CLI](doc:cli) for installation instructions.
+Make sure you have the Fiberplane CLI installed and you’re logged in. See: [CLI](/docs/cli) for installation instructions.
 
-## Run `fp run`
+## `fp run`
 
 You can now run your shell command and send the output to the notebook.
 
@@ -46,10 +38,6 @@ notebook by running something like:
 ❯ fp run podman logs <pod_id>
 ```
 
-And here’s how that will look like in the notebook:
-
-![Untitled](@assets/images/Untitled.png)
-
 ### Rich output
 
 Currently all of the commands and their output is sent to a simple code cell.
@@ -59,7 +47,7 @@ as opposed to in a stream of text. Fiberplane will recognize some of these
 commands and will apply the appropriate formatting for logs (currently supported
 for Kubernetes and Github Actions logs).
 
-## Run `fp shell`
+## `fp shell`
 
 You can now start recording and broadcasting your shell session to a specified notebook.
 
@@ -74,7 +62,6 @@ extend the cell and append the result.
 Hit CTRL-D to exit the recorded session and stop the recording. The notebook
 will save the start and end times of the recorded shell session.
 
-> 💡 Note
->
-> `fp shell` will only work with non-interactive shell programs (e.g.:
-> it will not display vim in there)
+:::note
+`fp shell` will only work with non-interactive shell programs (e.g.: it will not display vim in there)
+:::

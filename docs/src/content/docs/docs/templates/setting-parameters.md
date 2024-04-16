@@ -1,27 +1,24 @@
 --- 
-title: Working with parameters 
+title: Setting parameters 
 ---
 
-Parameters are values that can be inserted in the notebook programmatically when a template is invoked. They’re like arguments in a CLI commands or content objects in some front-end templating languages like Liquid.
+Parameters are values that can be inserted in the notebook programmatically when a template is invoked. They’re like arguments in a CLI commands or content objects in a classic front-end templating language like Liquid.
 
 ## Basic parameter usage
 
 ```jsonnet
 function(incidentName)
   fp.notebook
-  .new('Incident Response for: ' + incidentName)
+  .new("Incident Response for: " + incidentName)
   .addCells([
-    c.text('Hello World!'),
+    c.text("Hello World!"),
   ])
-
 ```
 
 In the above code snippet, from our example template, we initiate a parameter called `incidentName`. When the template is invoked, all instances of it in the template will be replaced by its value. Parameters can be set for any part of the template, meaning that any part of the notebook can be programmatically set on creation: title, time range, labels, text, PromQL, Elasticsearch queries, etc.
-
-> ⚠️ Note
->
-> Parameters *must always* have a value, otherwise invoking a template
-> will fail.
+:::note
+Parameters *must always* have a value, otherwise invoking a template will fail.
+:::
 
 ### Default parameter values
 
@@ -29,34 +26,33 @@ You can provide a default value for the template like this:
 
 ```jsonnet
 function(incidentName="API Outage")
-		fp.notebook
-			.new('Incident Response for: ' + incidentName)
-			.addCells([
-				c.text('Hello World!'),
-			])
+  fp.notebook
+  .new("Incident Response for: " + incidentName)
+  .addCells([
+    c.text("Hello World!"),
+  ])
 ```
 
 In this case if there are no values that are passed to the template when it's invoked, the template will resolve with the provided default value and create a notebook.
 
-> 📘 Note
->
-> If you’re providing several parameters to a function, parameters
-> without a default value must be listed first.
+:::note
+If you’re providing several parameters to a function, parameters without a default value must be listed first.
+:::
 
 ## Object and array parameters
 
-Parameters can be simple strings like above or numbers but they can also be objects or arrays. An object parameter could be a payload from an API response or a Webhook event that gets passed to a Fiberplane template and includes a bundle of data you want the template to work with (more on that in the [Triggers section](doc:working-with-triggers)).
+Parameters can be simple strings like above or numbers but they can also be objects or arrays. An object parameter could be a payload from an API response or a Webhook event that gets passed to a Fiberplane template and includes a bundle of data you want the template to work with (more on that in the [Triggers section](working-with-triggers)).
 
 Here’s a simple nested JSON object that designates an event ID, type (incident), environment (production), and our first on-call engineer:
 
 ```json
 {
-   "event":{
-      "id":"13F",
-      "type":"incident",
-      "environment":"production",
-      "assignee":"Paul Atreides"
-   }
+  "event": {
+    "id": "13F",
+    "type": "incident",
+    "environment": "production",
+    "assignee": "Paul Atreides"
+  }
 }
 ```
 
@@ -65,16 +61,16 @@ And here’s our example template adjusted that takes advantage of the data in t
 ```jsonnet
 function(
   event={
-    id: '',
-    environment: '',
-    assignee: '',
+    id: "",
+    environment: "",
+    assignee: "",
   }
 )
   fp.notebook
-  .new('Incident Response - ' + event.id)
+  .new("Incident Response - " + event.id)
   .addCells([
-    c.text('Environment: ' + event.environment),
-    c.text('On-call: ' +
+    c.text("Environment: " + event.environment),
+    c.text("On-call: " +
            event.assignees),
   ])
 ```
@@ -89,21 +85,22 @@ Let’s say our example data includes 3 on-call engineers listed in an array (as
 
 ```json
 {
-	"event": {
-		"id": "13F",
-		"type": "incident",
-		"environment": "production",
-		"assignees": [
-			{
-				"name": "Paul Atreides" 
-			},
-			{ 
-				"name": "Duncan Idaho" },
-			{ 
-				"name": "Gurney Halleck"
-			}
-		]
-	}
+  "event": {
+    "id": "13F",
+    "type": "incident",
+    "environment": "production",
+    "assignees": [
+      {
+        "name": "Paul Atreides"
+      },
+      {
+        "name": "Duncan Idaho"
+      },
+      {
+        "name": "Gurney Halleck"
+      }
+    ]
+  }
 }
 ```
 
@@ -118,21 +115,21 @@ Here’s how the final result looks like in our example template:
 ```jsonnet
 function(
   event={
-    id: '',
-    type: '',
-    environment: '',
+    id: "",
+    type: "",
+    environment: "",
     assignees: [
       {
-        name: '',
+        name: "",
       },
     ],
   }
 )
   fp.notebook
-  .new('Incident Response - ' + event.id)
+  .new("Incident Response - " + event.id)
   .addCells([
-    c.text('Environment: ' + event.environment),
-    c.text('On-call:'),
+    c.text("Environment: " + event.environment),
+    c.text("On-call:"),
     std.map(
       function(assignees)
         c.listItem.unordered(assignees.name),
