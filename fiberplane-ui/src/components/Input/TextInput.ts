@@ -2,7 +2,7 @@ import { styled } from "styled-components";
 
 export const TextInput = styled.input`
   background-color: var(--color-input-bg, #fff);
-  border: 1px solid var(--color-input-border, #d6d4d9);
+  border: 1px solid var(--color-input-border-default, #d6d4d9);
   border-radius: var(--radius-default, 10px);
   color: var(--color-input-fg-input, #000);
   padding: 6px 12px;
