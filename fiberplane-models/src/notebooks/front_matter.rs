@@ -658,9 +658,10 @@ impl TryFrom<serde_json::Value> for FrontMatterPagerDutyIncident {
     derive(Serializable),
     fp(rust_module = "fiberplane_models::notebooks::front_matter")
 )]
+#[serde(rename_all = "camelCase")]
 pub struct GitHubUser {
-    pub display_name: String,
-    pub username: String,
+    pub login: String,
+    pub avatar_url: String,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
@@ -710,6 +711,8 @@ pub struct FrontMatterGitHubPullRequest {
     pub labels: Vec<String>,
 
     pub updated_at: Timestamp,
+
+    pub merged: bool,
 }
 
 impl From<FrontMatterGitHubPullRequest> for FrontMatterValue {
