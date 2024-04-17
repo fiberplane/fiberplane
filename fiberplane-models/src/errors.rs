@@ -1,5 +1,4 @@
 use crate::auth::AuthError;
-use fp_bindgen::prelude::Serializable;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -8,6 +7,9 @@ use http_02::StatusCode;
 
 #[cfg(feature = "axum_07")]
 use http_1::StatusCode;
+
+#[cfg(feature = "fp-bindgen")]
+use fp_bindgen::prelude::Serializable;
 
 /// General high level error that can be aliased to a specific error
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
