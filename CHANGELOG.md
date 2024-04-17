@@ -15,6 +15,7 @@ major version hasn't changed.
 
 ## unreleased
 
+- `fiberplane-ui`: Fix input border colors in dark mode (use `--color-input-border-default` instead of `--color-input-border`)
 - `fiberplane-charts`: Add configuration to MetricsChart for number of ticks you'd prefer to see on an axis (defaults to previously hard-coded values)
 - `fiberplane-models`: Add extra types to front matter values, and add a value validation method to
   front matter schema entries.
