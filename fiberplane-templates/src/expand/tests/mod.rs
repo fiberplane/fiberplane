@@ -1,3 +1,5 @@
+mod frontmatter_tests;
+
 use super::*;
 use crate::types::{TemplateParameter, TemplateParameterType};
 use crate::*;
