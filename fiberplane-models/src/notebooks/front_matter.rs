@@ -690,13 +690,25 @@ pub struct FrontMatterGitHubPullRequest {
     #[builder(setter(into))]
     pub author: String,
 
+    /// GitHub Avatar URL of the author
+    #[builder(setter(into))]
+    pub author_avatar_url: String,
+
     /// Assignee of this pull request
     #[builder(setter(into))]
-    pub assignee: String,
+    pub assignee: Option<String>,
 
-    /// Current status of this pull request
+    /// State of the pull request
     #[builder(setter(into))]
-    pub status: String,
+    pub state: String,
+
+    /// Whenever the pull request is a draft
+    #[builder(setter())]
+    pub draft: bool,
+
+    /// Whenever the pull request was merged
+    #[builder(setter())]
+    pub merged: bool,
 
     /// Timestamp of the last update received by Fiberplane to this pull request. May be outdated
     /// if there are changes that the GitHub webhook has not yet sent out
