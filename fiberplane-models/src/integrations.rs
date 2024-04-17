@@ -367,8 +367,20 @@ pub enum GitHubAppWebhookError {
     #[error("failed to parse payload as JSON")]
     InvalidJson,
 
+    #[error("payload did not contain installation id")]
+    NoInstallation,
+
+    #[error("installation id is not registered with us")]
+    InstallationIdUnknown,
+
     #[error("invalid github app config")]
     InvalidConfig,
+
+    #[error("event header missing")]
+    EventMissing,
+
+    #[error("event header contains non ascii characters")]
+    EventInvalid,
 
     #[error("unknown error occurred")]
     InternalServerError,
@@ -383,7 +395,11 @@ impl GitHubAppWebhookError {
             GitHubAppWebhookError::SignatureAlgorithmUnsupported => StatusCode::BAD_REQUEST,
             GitHubAppWebhookError::SignatureMismatch => StatusCode::BAD_REQUEST,
             GitHubAppWebhookError::InvalidJson => StatusCode::BAD_REQUEST,
+            GitHubAppWebhookError::NoInstallation => StatusCode::BAD_REQUEST,
+            GitHubAppWebhookError::InstallationIdUnknown => StatusCode::NOT_FOUND,
             GitHubAppWebhookError::InvalidConfig => StatusCode::INTERNAL_SERVER_ERROR,
+            GitHubAppWebhookError::EventMissing => StatusCode::BAD_REQUEST,
+            GitHubAppWebhookError::EventInvalid => StatusCode::BAD_REQUEST,
             GitHubAppWebhookError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
