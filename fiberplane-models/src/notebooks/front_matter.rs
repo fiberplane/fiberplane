@@ -686,6 +686,18 @@ pub struct FrontMatterGitHubPullRequest {
     #[builder(setter())]
     pub number: u64,
 
+    /// Title of the pull request
+    #[builder(setter(into))]
+    pub title: String,
+
+    /// Branch name of this PR
+    #[builder(setter(into))]
+    pub branch: String,
+
+    /// Amount of commits in this PR
+    #[builder(setter())]
+    pub commits: u64,
+
     /// Creator of the pull request
     #[builder(setter(into))]
     pub author: String,
@@ -698,6 +710,18 @@ pub struct FrontMatterGitHubPullRequest {
     #[builder(setter(into))]
     pub assignee: Option<String>,
 
+    /// GitHub avatar URL of the assignee
+    #[builder(setter(into))]
+    pub assignee_avatar_url: Option<String>,
+
+    /// Labels attached to this PR
+    #[builder(setter())]
+    pub labels: Vec<String>,
+
+    /// Reviewers requested for this PR
+    #[builder(setter())]
+    pub reviewers: Vec<String>,
+
     /// State of the pull request
     #[builder(setter(into))]
     pub state: String,
@@ -709,6 +733,10 @@ pub struct FrontMatterGitHubPullRequest {
     /// Whenever the pull request was merged
     #[builder(setter())]
     pub merged: bool,
+
+    /// Timestamp when this pull request was created
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
 
     /// Timestamp of the last update received by Fiberplane to this pull request. May be outdated
     /// if there are changes that the GitHub webhook has not yet sent out
