@@ -662,15 +662,11 @@ impl TryFrom<serde_json::Value> for FrontMatterPagerDutyIncident {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct FrontMatterGitHubPullRequest {
-    /// HTML url of this GitHub pull request. This is the only required value when creating
-    /// this front matter schema. Every other field is marked as optional and will be automatically
-    /// populated by the backend whenever front matter values get updated or an incoming GitHub
-    /// webhook got handled.
+    /// HTML url of this GitHub pull request
     pub html_url: String,
 
     /// Global unique ID of the GitHub pull request. This gets used to find this very front matter
     /// within all notebooks whenever a webhook from GitHub gets handled. GitHub assigns this ID.
-    #[builder(setter())]
     pub id: u64,
 
     /// The owner of the repository where this pull request was created on
@@ -682,8 +678,7 @@ pub struct FrontMatterGitHubPullRequest {
     pub repo_name: String,
 
     /// The pull request number within this repository. Please note that GitHub
-    /// treats pull request and issue numbers as the same.
-    #[builder(setter())]
+    /// treats pull request and issue numbers as the same
     pub number: u64,
 
     /// Title of the pull request
@@ -695,7 +690,6 @@ pub struct FrontMatterGitHubPullRequest {
     pub branch: String,
 
     /// Amount of commits in this PR
-    #[builder(setter())]
     pub commits: u64,
 
     /// Creator of the pull request
@@ -715,11 +709,9 @@ pub struct FrontMatterGitHubPullRequest {
     pub assignee_avatar_url: Option<String>,
 
     /// Labels attached to this PR
-    #[builder(setter())]
     pub labels: Vec<String>,
 
     /// Reviewers requested for this PR
-    #[builder(setter())]
     pub reviewers: Vec<String>,
 
     /// State of the pull request
@@ -727,11 +719,9 @@ pub struct FrontMatterGitHubPullRequest {
     pub state: String,
 
     /// Whenever the pull request is a draft
-    #[builder(setter())]
     pub draft: bool,
 
     /// Whenever the pull request was merged
-    #[builder(setter())]
     pub merged: bool,
 
     /// Timestamp when this pull request was created
@@ -741,7 +731,7 @@ pub struct FrontMatterGitHubPullRequest {
     /// Timestamp of the last update received by Fiberplane to this pull request. May be outdated
     /// if there are changes that the GitHub webhook has not yet sent out
     #[builder(setter(into))]
-    pub last_updated: Timestamp,
+    pub updated_at: Timestamp,
 }
 
 impl From<FrontMatterGitHubPullRequest> for FrontMatterValue {
