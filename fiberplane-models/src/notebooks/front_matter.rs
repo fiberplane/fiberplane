@@ -57,6 +57,7 @@ pub type FrontMatter = BTreeMap<String, FrontMatterValue>;
 )]
 #[non_exhaustive]
 #[serde(untagged)]
+#[allow(clippy::large_enum_variant)]
 pub enum FrontMatterValue {
     /// A timestamp front matter value
     DateTime(FrontMatterDateTimeValue),
