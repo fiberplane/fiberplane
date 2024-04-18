@@ -80,7 +80,7 @@ pub enum FrontMatterValue {
 
     /// A PagerDuty incident front matter value
     #[serde(rename = "pagerduty_incident")]
-    PagerDutyIncident(FrontMatterPagerDutyIncident),
+    PagerDutyIncident(Box<FrontMatterPagerDutyIncident>),
 }
 
 /// Error from validating a JSON object as a correct front matter value
@@ -672,7 +672,7 @@ pub struct FrontMatterPagerDutyIncident {
 
 impl From<FrontMatterPagerDutyIncident> for FrontMatterValue {
     fn from(v: FrontMatterPagerDutyIncident) -> Self {
-        Self::PagerDutyIncident(v)
+        Self::PagerDutyIncident(Box::new(v))
     }
 }
 
