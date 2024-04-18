@@ -42,6 +42,11 @@ type Props = {
   placeholder?: string;
 
   /**
+   * @deprecated still used by some field validators in old form handling
+   */
+  trailingIcon?: React.ElementType<React.SVGProps<SVGSVGElement>>;
+
+  /**
    * The value of the selected option, if any.
    */
   value?: string;
@@ -61,6 +66,7 @@ export function Select({
   onChange,
   options,
   placeholder,
+  trailingIcon: TrailingIcon,
   value,
   ...attributes
 }: Props): JSX.Element {
@@ -113,6 +119,7 @@ export function Select({
         ) : (
           <Placeholder>{placeholder}</Placeholder>
         )}
+        {TrailingIcon && <TrailingIcon />}
         <Icon iconType="double_arrow" />
       </SelectButton>
 

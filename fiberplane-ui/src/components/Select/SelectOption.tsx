@@ -50,7 +50,7 @@ const Label = styled.label`
   ${({ theme }) => css`
     min-width: max-content;
     font: ${theme.font.body.md.medium};
-    padding: 4px;
+    padding: 8px 12px;
     display: flex;
     align-items: center;
     gap: 12px;
