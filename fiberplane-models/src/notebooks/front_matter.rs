@@ -57,7 +57,6 @@ pub type FrontMatter = BTreeMap<String, FrontMatterValue>;
 )]
 #[non_exhaustive]
 #[serde(untagged)]
-#[allow(clippy::large_enum_variant)]
 pub enum FrontMatterValue {
     /// A timestamp front matter value
     DateTime(FrontMatterDateTimeValue),
@@ -85,7 +84,7 @@ pub enum FrontMatterValue {
 
     /// A GitHub pull request front matter value
     #[serde(rename = "github_pull_request")]
-    GitHubPullRequest(FrontMatterGitHubPullRequest),
+    GitHubPullRequest(Box<FrontMatterGitHubPullRequest>),
 }
 
 /// Error from validating a JSON object as a correct front matter value
@@ -747,7 +746,7 @@ pub struct FrontMatterGitHubPullRequest {
 
 impl From<FrontMatterGitHubPullRequest> for FrontMatterValue {
     fn from(v: FrontMatterGitHubPullRequest) -> Self {
-        Self::GitHubPullRequest(v)
+        Self::GitHubPullRequest(Box::new(v))
     }
 }
 
