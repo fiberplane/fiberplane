@@ -81,6 +81,10 @@ pub enum FrontMatterValue {
     /// A PagerDuty incident front matter value
     #[serde(rename = "pagerduty_incident")]
     PagerDutyIncident(Box<FrontMatterPagerDutyIncident>),
+
+    /// A GitHub pull request front matter value
+    #[serde(rename = "github_pull_request")]
+    GitHubPullRequest(Box<FrontMatterGitHubPullRequest>),
 }
 
 /// Error from validating a JSON object as a correct front matter value
@@ -141,6 +145,7 @@ impl FrontMatterValue {
             FrontMatterValue::User(_) => "user",
             FrontMatterValue::UserList(_) => "user_list",
             FrontMatterValue::PagerDutyIncident(_) => "pagerduty_incident",
+            FrontMatterValue::GitHubPullRequest(_) => "github_pull_request",
         }
     }
 }
@@ -720,4 +725,101 @@ pub enum PagerDutyResourceReferenceType {
     Team,
     User,
     WorkflowTrigger,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::front_matter")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct FrontMatterGitHubPullRequest {
+    /// HTML url of this GitHub pull request
+    pub html_url: String,
+
+    /// Global unique ID of the GitHub pull request. This gets used to find this very front matter
+    /// within all notebooks whenever a webhook from GitHub gets handled. GitHub assigns this ID.
+    pub id: u64,
+
+    /// The owner of the repository where this pull request was created on
+    #[builder(setter(into))]
+    pub repo_owner: String,
+
+    /// The name of the repository where this pull request was created on
+    #[builder(setter(into))]
+    pub repo_name: String,
+
+    /// The pull request number within this repository. Please note that GitHub
+    /// treats pull request and issue numbers as the same
+    pub number: u64,
+
+    /// Title of the pull request
+    #[builder(setter(into))]
+    pub title: String,
+
+    /// Branch name of this PR
+    #[builder(setter(into))]
+    pub branch: String,
+
+    /// Amount of commits in this PR
+    pub commits: u64,
+
+    /// Creator of the pull request
+    #[builder(setter(into))]
+    pub author: String,
+
+    /// GitHub Avatar URL of the author
+    #[builder(setter(into))]
+    pub author_avatar_url: String,
+
+    /// Assignee of this pull request
+    #[builder(setter(into))]
+    pub assignee: Option<String>,
+
+    /// GitHub avatar URL of the assignee
+    #[builder(setter(into))]
+    pub assignee_avatar_url: Option<String>,
+
+    /// Labels attached to this PR
+    pub labels: Vec<String>,
+
+    /// Reviewers requested for this PR
+    pub reviewers: Vec<String>,
+
+    /// State of the pull request
+    #[builder(setter(into))]
+    pub state: String,
+
+    /// Whenever the pull request is a draft
+    pub draft: bool,
+
+    /// Whenever the pull request was merged
+    pub merged: bool,
+
+    /// Timestamp when this pull request was created
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+
+    /// Timestamp of the last update received by Fiberplane to this pull request. May be outdated
+    /// if there are changes that the GitHub webhook has not yet sent out
+    #[builder(setter(into))]
+    pub updated_at: Timestamp,
+}
+
+impl From<FrontMatterGitHubPullRequest> for FrontMatterValue {
+    fn from(v: FrontMatterGitHubPullRequest) -> Self {
+        Self::GitHubPullRequest(Box::new(v))
+    }
+}
+
+impl TryFrom<Value> for FrontMatterGitHubPullRequest {
+    type Error = FrontMatterValidationError;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        serde_json::from_value(value).map_err(|err| FrontMatterValidationError::Format {
+            message: format!("invalid github pull request: {err}"),
+        })
+    }
 }
