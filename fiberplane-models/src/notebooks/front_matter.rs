@@ -627,7 +627,16 @@ pub struct FrontMatterPagerDutyIncident {
     pub status: String,
 
     /// The date the incident was created
-    pub creation_date: Timestamp,
+    #[builder(default = Timestamp::now_utc(), setter(into))]
+    pub created_at: Timestamp,
+
+    /// Timestamp that the PagerDuty receiver was last updated.
+    #[builder(default = Timestamp::now_utc(), setter(into))]
+    pub updated_at: Timestamp,
+
+    /// Timestamp that the PagerDuty receiver was last updated.
+    #[builder(default, setter(into))]
+    pub resolved_at: Option<Timestamp>,
 
     /// URL to the incident api endpoint
     pub api_url: String,
