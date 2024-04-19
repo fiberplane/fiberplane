@@ -80,7 +80,11 @@ pub enum FrontMatterValue {
 
     /// A PagerDuty incident front matter value
     #[serde(rename = "pagerduty_incident")]
-    PagerDutyIncident(FrontMatterPagerDutyIncident),
+    PagerDutyIncident(Box<FrontMatterPagerDutyIncident>),
+
+    /// A GitHub pull request front matter value
+    #[serde(rename = "github_pull_request")]
+    GitHubPullRequest(Box<FrontMatterGitHubPullRequest>),
 }
 
 /// Error from validating a JSON object as a correct front matter value
@@ -141,6 +145,7 @@ impl FrontMatterValue {
             FrontMatterValue::User(_) => "user",
             FrontMatterValue::UserList(_) => "user_list",
             FrontMatterValue::PagerDutyIncident(_) => "pagerduty_incident",
+            FrontMatterValue::GitHubPullRequest(_) => "github_pull_request",
         }
     }
 }
@@ -614,8 +619,11 @@ impl std::ops::Deref for FrontMatterUserList {
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub struct FrontMatterPagerDutyIncident {
-    /// Incident ID
+    /// Unique incident ID
     pub incident_id: String,
+
+    /// User friendly identifier for the incident
+    pub number: u64,
 
     /// Title as indicated by PagerDuty
     pub title: String,
@@ -624,17 +632,52 @@ pub struct FrontMatterPagerDutyIncident {
     pub status: String,
 
     /// The date the incident was created
-    pub creation_date: Timestamp,
+    #[builder(default = Timestamp::now_utc(), setter(into))]
+    pub created_at: Timestamp,
 
-    /// Incident URL
-    #[builder(default, setter())]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub html_url: Option<String>,
+    /// Timestamp that the PagerDuty receiver was last updated.
+    #[builder(default = Timestamp::now_utc(), setter(into))]
+    pub updated_at: Timestamp,
+
+    /// Timestamp that the PagerDuty receiver was last updated.
+    #[builder(default, setter(into))]
+    pub resolved_at: Option<Timestamp>,
+
+    /// URL to the incident api endpoint
+    pub api_url: String,
+
+    /// URL to the incident web page
+    pub html_url: String,
+
+    /// The incident key is used to deduplicate incidents.
+    pub incident_key: String,
+
+    /// The service that the incident is associated with
+    #[builder(default, setter(into))]
+    pub service: Option<PagerDutyResourceReference>,
+
+    #[builder(default, setter(into))]
+    pub escalation_policy: Option<PagerDutyResourceReference>,
+
+    #[builder(default, setter(into))]
+    pub priority: Option<PagerDutyResourceReference>,
+
+    #[builder(default, setter(into))]
+    pub urgency: Option<String>,
+
+    #[builder(default, setter(into))]
+    pub resolve_reason: Option<String>,
+
+    #[builder(default, setter(into))]
+    pub assignees: Option<String>,
+
+    #[builder(default, setter(into))]
+    pub teams: Option<String>,
 }
 
 impl From<FrontMatterPagerDutyIncident> for FrontMatterValue {
     fn from(v: FrontMatterPagerDutyIncident) -> Self {
-        Self::PagerDutyIncident(v)
+        Self::PagerDutyIncident(Box::new(v))
     }
 }
 
@@ -644,6 +687,139 @@ impl TryFrom<serde_json::Value> for FrontMatterPagerDutyIncident {
     fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
         serde_json::from_value(value).map_err(|err| FrontMatterValidationError::Format {
             message: format!("invalid pagerduty incident: {err}"),
+        })
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::front_matter")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct PagerDutyResourceReference {
+    pub id: String,
+    pub summary: String,
+    pub api_url: String,
+    pub html_url: String,
+
+    #[serde(rename = "type")]
+    pub ty: PagerDutyResourceReferenceType,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Display)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::front_matter")
+)]
+#[non_exhaustive]
+pub enum PagerDutyResourceReferenceType {
+    EscalationPolicy,
+    Incident,
+    IncidentWorkflow,
+    Priority,
+    Service,
+    Team,
+    User,
+    WorkflowTrigger,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::front_matter")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct FrontMatterGitHubPullRequest {
+    /// HTML url of this GitHub pull request
+    pub html_url: String,
+
+    /// Global unique ID of the GitHub pull request. This gets used to find this very front matter
+    /// within all notebooks whenever a webhook from GitHub gets handled. GitHub assigns this ID.
+    pub id: u64,
+
+    /// The owner of the repository where this pull request was created on
+    #[builder(setter(into))]
+    pub repo_owner: String,
+
+    /// The name of the repository where this pull request was created on
+    #[builder(setter(into))]
+    pub repo_name: String,
+
+    /// The pull request number within this repository. Please note that GitHub
+    /// treats pull request and issue numbers as the same
+    pub number: u64,
+
+    /// Title of the pull request
+    #[builder(setter(into))]
+    pub title: String,
+
+    /// Branch name of this PR
+    #[builder(setter(into))]
+    pub branch: String,
+
+    /// Amount of commits in this PR
+    pub commits: u64,
+
+    /// Creator of the pull request
+    #[builder(setter(into))]
+    pub author: String,
+
+    /// GitHub Avatar URL of the author
+    #[builder(setter(into))]
+    pub author_avatar_url: String,
+
+    /// Assignee of this pull request
+    #[builder(setter(into))]
+    pub assignee: Option<String>,
+
+    /// GitHub avatar URL of the assignee
+    #[builder(setter(into))]
+    pub assignee_avatar_url: Option<String>,
+
+    /// Labels attached to this PR
+    pub labels: Vec<String>,
+
+    /// Reviewers requested for this PR
+    pub reviewers: Vec<String>,
+
+    /// State of the pull request
+    #[builder(setter(into))]
+    pub state: String,
+
+    /// Whenever the pull request is a draft
+    pub draft: bool,
+
+    /// Whenever the pull request was merged
+    pub merged: bool,
+
+    /// Timestamp when this pull request was created
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+
+    /// Timestamp of the last update received by Fiberplane to this pull request. May be outdated
+    /// if there are changes that the GitHub webhook has not yet sent out
+    #[builder(setter(into))]
+    pub updated_at: Timestamp,
+}
+
+impl From<FrontMatterGitHubPullRequest> for FrontMatterValue {
+    fn from(v: FrontMatterGitHubPullRequest) -> Self {
+        Self::GitHubPullRequest(Box::new(v))
+    }
+}
+
+impl TryFrom<Value> for FrontMatterGitHubPullRequest {
+    type Error = FrontMatterValidationError;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        serde_json::from_value(value).map_err(|err| FrontMatterValidationError::Format {
+            message: format!("invalid github pull request: {err}"),
         })
     }
 }

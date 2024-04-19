@@ -367,8 +367,20 @@ pub enum GitHubAppWebhookError {
     #[error("failed to parse payload as JSON")]
     InvalidJson,
 
+    #[error("payload did not contain installation id")]
+    NoInstallation,
+
+    #[error("installation id is not registered with us")]
+    InstallationIdUnknown,
+
     #[error("invalid github app config")]
     InvalidConfig,
+
+    #[error("event header missing")]
+    EventMissing,
+
+    #[error("event header contains non ascii characters")]
+    EventInvalid,
 
     #[error("unknown error occurred")]
     InternalServerError,
@@ -383,7 +395,11 @@ impl GitHubAppWebhookError {
             GitHubAppWebhookError::SignatureAlgorithmUnsupported => StatusCode::BAD_REQUEST,
             GitHubAppWebhookError::SignatureMismatch => StatusCode::BAD_REQUEST,
             GitHubAppWebhookError::InvalidJson => StatusCode::BAD_REQUEST,
+            GitHubAppWebhookError::NoInstallation => StatusCode::BAD_REQUEST,
+            GitHubAppWebhookError::InstallationIdUnknown => StatusCode::NOT_FOUND,
             GitHubAppWebhookError::InvalidConfig => StatusCode::INTERNAL_SERVER_ERROR,
+            GitHubAppWebhookError::EventMissing => StatusCode::BAD_REQUEST,
+            GitHubAppWebhookError::EventInvalid => StatusCode::BAD_REQUEST,
             GitHubAppWebhookError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
@@ -406,5 +422,86 @@ impl axum_07::response::IntoResponse for GitHubAppWebhookError {
         let status_code = self.status_code();
 
         (status_code, body).into_response()
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct GitHubAppAddPullRequest {
+    /// The url of the GitHub pull request
+    pub url: String,
+}
+
+#[derive(Serialize, Debug, Error)]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
+pub enum GitHubAppAddPullRequestError {
+    #[error("access denied to repository")]
+    AccessDenied,
+
+    #[error("provided url is invalid")]
+    InvalidUrl,
+
+    #[error("integration not installed")]
+    IntegrationNotInstalled,
+
+    #[error("refresh token expired, please re-link integration")]
+    RefreshTokenExpired,
+
+    #[error("didnt receive new refresh token from GitHub")]
+    RefreshTokenNotReceived,
+
+    #[error("unknown error occurred")]
+    InternalServerError,
+
+    #[error(transparent)]
+    Auth(AuthError),
+}
+
+impl GitHubAppAddPullRequestError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    fn status_code(&self) -> StatusCode {
+        match self {
+            GitHubAppAddPullRequestError::AccessDenied => StatusCode::UNAUTHORIZED,
+            GitHubAppAddPullRequestError::InvalidUrl => StatusCode::BAD_REQUEST,
+            GitHubAppAddPullRequestError::IntegrationNotInstalled => {
+                StatusCode::PRECONDITION_FAILED
+            }
+            GitHubAppAddPullRequestError::RefreshTokenExpired => StatusCode::GONE,
+            GitHubAppAddPullRequestError::RefreshTokenNotReceived => StatusCode::BAD_GATEWAY,
+            GitHubAppAddPullRequestError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            GitHubAppAddPullRequestError::Auth(auth) => auth.status_code(),
+        }
+    }
+}
+
+#[cfg(feature = "axum_06")]
+impl axum_06::response::IntoResponse for GitHubAppAddPullRequestError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for GitHubAppAddPullRequestError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+impl From<AuthError> for GitHubAppAddPullRequestError {
+    fn from(value: AuthError) -> Self {
+        GitHubAppAddPullRequestError::Auth(value)
     }
 }

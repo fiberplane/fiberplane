@@ -8,7 +8,7 @@ export const buttonStyling = css(() => {
 
   return css`
     --color: var(--button-normal-color);
-    --backgroundColor: var(--button-normal-backgroundColor);
+    --background: var(--button-normal-backgroundColor);
 
     outline: none;
     cursor: pointer;
@@ -27,14 +27,7 @@ export const buttonStyling = css(() => {
     background-color: var(--background);
     border: 1px solid var(--background);
 
-    :focus,
-    :hover,
-    :active,
-    .active {
-      cursor: pointer;
-    }
-
-    :focus {
+    &:focus {
       border-color: ${theme.buttonFocusBorderColor};
       outline: ${theme.buttonFocusOutline};
 
@@ -55,7 +48,7 @@ export const buttonStyling = css(() => {
       --color: var(--button-active-color);
     }
 
-    :hover:not([data-disabled][data-dragging], [disabled]) {
+    &:hover:not([data-disabled][data-dragging], [disabled]) {
       --background: var(--button-hover-backgroundColor);
       --color: var(--button-hover-color);
       border: none;
