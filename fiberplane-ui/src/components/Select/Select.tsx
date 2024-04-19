@@ -10,7 +10,7 @@ import { Button } from "../Button";
 import { SelectOption as Option } from "./SelectOption";
 import { Icon } from "../Icon";
 
-type Props = {
+type SelectProps = {
   autoFocus?: boolean;
   className?: string;
 
@@ -69,7 +69,7 @@ export function Select({
   trailingIcon: TrailingIcon,
   value,
   ...attributes
-}: Props): JSX.Element {
+}: SelectProps): JSX.Element {
   const containerRef = useRef<HTMLButtonElement | null>(null);
   const { opened, setOpened, modalRef } = useOpen(containerRef);
 
@@ -178,12 +178,12 @@ const Placeholder = styled(Value)(
 `,
 );
 
-export const StyledAttachedPopup = styled(AttachedPopup)`
+const StyledAttachedPopup = styled(AttachedPopup)`
   min-width: 100%;
   z-index: 1;
 `;
 
-export const DropdownMenu = styled.div(
+const DropdownMenu = styled.div(
   ({ theme }) => css`
     display: flex;
     flex-direction: column;
@@ -194,13 +194,14 @@ export const DropdownMenu = styled.div(
     flex-grow: 1;
     background-color: ${theme.color.bg.elevated.default};
     border-radius: ${theme.radius.default};
+    border: 1px solid ${theme.color.border.muted};
     padding: 8px;
     box-shadow: ${theme.effect.shadow.m};
     width: 100%;
   `,
 );
 
-export const Root = styled.div`
+const Root = styled.div`
   height: min-content;
   position: relative;
 `;
