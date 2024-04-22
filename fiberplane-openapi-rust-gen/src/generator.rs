@@ -71,6 +71,7 @@ fn edit_cargo_toml(path: &Path, args: &GeneratorArgs) -> Result<()> {
         .read(false)
         .write(true)
         .create(true)
+        .truncate(true)
         .append(false)
         .open(&path)
         .context("Failed to open or create `Cargo.toml`")?;

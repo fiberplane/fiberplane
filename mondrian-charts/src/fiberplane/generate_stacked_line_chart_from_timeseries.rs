@@ -78,9 +78,7 @@ fn create_point_for_metric<'source>(
     metric: &'source Metric,
     args: &mut BarArgs,
 ) -> Option<AreaPoint<&'source Metric>> {
-    let Some(bucket_value) = args.buckets.get_mut(&metric.time) else {
-        return None;
-    };
+    let bucket_value = args.buckets.get_mut(&metric.time)?;
 
     let time = get_time_from_timestamp(metric.time);
     let value = if args.is_percentage {

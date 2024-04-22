@@ -70,9 +70,7 @@ fn create_bar_shape<'source>(
         return None;
     };
 
-    let Some(bucket_value) = args.buckets.get_mut(&metric.time) else {
-        return None;
-    };
+    let bucket_value = args.buckets.get_mut(&metric.time)?;
 
     let time = get_time_from_timestamp(metric.time);
     let value = if args.is_percentage {

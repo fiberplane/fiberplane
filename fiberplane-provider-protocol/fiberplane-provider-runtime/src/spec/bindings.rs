@@ -68,9 +68,9 @@ impl Runtime {
         let query_type = serialize_to_vec(&query_type);
         let response = serialize_to_vec(&response);
         let result = self.create_cells_raw(query_type, response);
-        let result = result.map(|ref data| deserialize_from_slice(data));
-        result
+        result.map(|ref data| deserialize_from_slice(data))
     }
+
     pub fn create_cells_raw(
         &self,
         query_type: Vec<u8>,
@@ -113,9 +113,9 @@ impl Runtime {
         let mime_type = serialize_to_vec(&mime_type);
         let query = serialize_to_vec(&query);
         let result = self.extract_data_raw(response, mime_type, query);
-        let result = result.map(|ref data| deserialize_from_slice(data));
-        result
+        result.map(|ref data| deserialize_from_slice(data))
     }
+
     pub fn extract_data_raw(
         &self,
         response: Vec<u8>,
@@ -149,9 +149,9 @@ impl Runtime {
     /// statically bundled with Studio.
     pub fn get_config_schema(&self) -> Result<ConfigSchema, InvocationError> {
         let result = self.get_config_schema_raw();
-        let result = result.map(|ref data| deserialize_from_slice(data));
-        result
+        result.map(|ref data| deserialize_from_slice(data))
     }
+
     pub fn get_config_schema_raw(&self) -> Result<Vec<u8>, InvocationError> {
         let function = self
             .instance
@@ -176,9 +176,9 @@ impl Runtime {
         let config = serialize_to_vec(&config);
         let result = self.get_supported_query_types_raw(config);
         let result = result.await;
-        let result = result.map(|ref data| deserialize_from_slice(data));
-        result
+        result.map(|ref data| deserialize_from_slice(data))
     }
+
     pub async fn get_supported_query_types_raw(
         &self,
         config: Vec<u8>,
@@ -206,9 +206,9 @@ impl Runtime {
         let request = serialize_to_vec(&request);
         let result = self.invoke2_raw(request);
         let result = result.await;
-        let result = result.map(|ref data| deserialize_from_slice(data));
-        result
+        result.map(|ref data| deserialize_from_slice(data))
     }
+
     pub async fn invoke2_raw(&self, request: Vec<u8>) -> Result<Vec<u8>, InvocationError> {
         let request = export_to_guest_raw(&self.env, request);
         let function = self

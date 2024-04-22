@@ -10,6 +10,7 @@ pub(crate) fn generate_client_configs(servers: &[Server], src_path: &Path) -> Re
     let file = OpenOptions::new()
         .write(true)
         .create(true)
+        .truncate(true)
         .append(false)
         .open(src_path.join("clients.rs"))
         .context("Failed to open or create clients.rs file")?;
@@ -40,6 +41,7 @@ pub(crate) fn generate_client_configs(servers: &[Server], src_path: &Path) -> Re
     let file = OpenOptions::new()
         .write(true)
         .create(true)
+        .truncate(true)
         .append(false)
         .open(src_path.join("builder.rs"))
         .context("Failed to open or create builder.rs file")?;
@@ -58,6 +60,7 @@ pub(crate) fn generate_api_client(src_path: &Path) -> Result<()> {
     let file = OpenOptions::new()
         .write(true)
         .create(true)
+        .truncate(true)
         .append(false)
         .open(src_path.join("api_client.rs"))
         .context("Failed to open or create api_client.rs file")?;

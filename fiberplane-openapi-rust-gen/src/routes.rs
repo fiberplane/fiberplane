@@ -29,6 +29,7 @@ pub(crate) fn generate_routes(
     let file = OpenOptions::new()
         .write(true)
         .create(true)
+        .truncate(true)
         .append(false)
         .open(path)
         .context("Failed to open or create lib.rs file")?;
