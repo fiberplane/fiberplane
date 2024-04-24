@@ -1,4 +1,5 @@
-name: Rust crate audit
+---
+name: Audit Rust code
 
 on:
   push:
@@ -6,20 +7,20 @@ on:
     paths:
       - "**/Cargo.toml"
       - "**/Cargo.lock"
+      - "**/deny.toml"
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "43 1 * * *"
+  workflow_dispatch:
 
 jobs:
-  security_audit:
+  rust_audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - name: setup-git-credentials
-        uses: de-vri-es/setup-git-credentials@v2
+      - uses: actions/checkout@v4
         with:
-          credentials: "https://fiberplanebot:${{ secrets.PRIVATE_GITHUB_TOKEN }}@github.com/"
+          fetch-depth: 0
+          submodules: recursive
 
-      - uses: actions-rs/audit-check@v1
+      - uses: EmbarkStudios/cargo-deny-action@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          credentials: https://fiberplanebot:${{ secrets.PRIVATE_GITHUB_TOKEN }}@github.com/
