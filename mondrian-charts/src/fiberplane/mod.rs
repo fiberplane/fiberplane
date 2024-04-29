@@ -38,15 +38,13 @@ pub fn generate<'source>(
         time_range,
     } = input;
 
-    let Some(chart) = generate_from_timeseries(TimeseriesSourceData {
+    let chart = generate_from_timeseries(TimeseriesSourceData {
         graph_type,
         stacking_type,
         timeseries_data,
         time_range,
         additional_values: &target_latency.iter().cloned().collect::<Vec<_>>(),
-    }) else {
-        return None;
-    };
+    })?;
 
     let mut chart: MondrianChart<SeriesSource, PointSource> = chart.into();
 

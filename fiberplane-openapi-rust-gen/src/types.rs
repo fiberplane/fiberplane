@@ -156,6 +156,7 @@ pub(crate) fn resolve<'a>(
 
 #[derive(Debug, Clone)]
 pub(crate) enum ResolvedReference<'a> {
+    #[allow(dead_code)]
     Schema(Cow<'a, SchemaObject>),
     Parameter(Cow<'a, Parameter>),
     Responses(Cow<'a, Response>),

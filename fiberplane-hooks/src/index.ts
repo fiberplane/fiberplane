@@ -5,4 +5,5 @@ export * from "./useKeyPressEvent";
 export * from "./useLocalStorage";
 export * from "./useMedia";
 export * from "./useOpen";
+export * from "./usePrevious";
 export * from "./useThemeSelect";
