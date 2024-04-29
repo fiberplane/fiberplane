@@ -1,6 +1,8 @@
 import { useEffect } from "react";
+
 import { useLocalStorage } from "./useLocalStorage";
 import { useMedia } from "./useMedia";
+import { usePrevious } from "./usePrevious";
 
 type Theme = "dark" | "light";
 
@@ -25,8 +27,14 @@ export function useThemeSelect() {
   // default theme.
   const theme: Theme =
     storedTheme && isValidTheme(storedTheme) ? storedTheme : systemDefaultTheme;
+  const previousTheme = usePrevious(theme);
 
   useEffect(() => {
+    // Prevent setting the data attribute when the theme hasn't changed.
+    if (!previousTheme || previousTheme === theme) {
+      return;
+    }
+
     // By setting `data-switching` we can apply a transition to the theme change
     // in CSS.
     document.body.dataset.switching = "true";
