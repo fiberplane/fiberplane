@@ -30,22 +30,21 @@ export function useThemeSelect() {
   const previousTheme = usePrevious(theme);
 
   useEffect(() => {
-    // Prevent setting the data attribute when the theme hasn't changed.
-    if (!previousTheme || previousTheme === theme) {
-      return;
-    }
-
-    // By setting `data-switching` we can apply a transition to the theme change
-    // in CSS.
-    document.body.dataset.switching = "true";
-    const listenerId = setTimeout(() => {
-      document.body.dataset.switching = "false";
-    }, 100);
-
     // Set the theme on the `document.body` element. If there's no stored theme,
     // we remove the `data-theme` attribute so the system's preferred color
     // scheme is used.
     document.body.dataset.theme = storedTheme ? theme : "";
+
+    let listenerId: ReturnType<typeof setTimeout>;
+
+    // By setting `data-switching` we can apply a transition to the theme change
+    // in CSS.
+    if (previousTheme && previousTheme !== theme) {
+      document.body.dataset.switching = "true";
+      listenerId = setTimeout(() => {
+        document.body.dataset.switching = "false";
+      }, 100);
+    }
 
     return () => {
       clearTimeout(listenerId);
