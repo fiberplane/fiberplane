@@ -11,7 +11,7 @@ export default defineConfig([
       sourcemap: true,
       compact: true,
     },
-    external: ["react", "eventemitter3"],
+    external: ["react", "eventemitter3", "react-use"],
     plugins: [swc(defineRollupSwcOption({ sourceMaps: true }))],
   },
   {

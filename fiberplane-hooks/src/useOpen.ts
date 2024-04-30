@@ -1,6 +1,7 @@
-import { useHandler, useKeyPressEvent } from "@fiberplane/hooks";
 import { useRef, useState } from "react";
-import useClickAway from "react-use/lib/useClickAway";
+import { useKeyPressEvent } from "react-use";
+import { useClickAway } from "react-use";
+import { useHandler } from "./useHandler";
 
 /**
  * Allows for easy open/close behavior that will close when:

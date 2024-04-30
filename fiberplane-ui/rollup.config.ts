@@ -12,7 +12,7 @@ export default defineConfig([
       sourcemap: true,
       compact: true,
     },
-    external: ["react", "react/jsx-runtime", "styled-components"],
+    external: ["react", "react/jsx-runtime", "styled-components", "framer-motion", "react-popper", "@fiberplane/hooks"],
     plugins: [
       svgr({
         svgoConfig: {
