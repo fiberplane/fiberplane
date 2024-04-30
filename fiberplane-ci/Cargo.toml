@@ -25,7 +25,7 @@ reqwest = { version = "0.12", default-features = false, features = [
 secrecy = { version = "0.8.0", features = ["serde", "bytes"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
-taplo = "0.12"
+taplo = "0.13"
 thiserror = "1"
 time = { workspace = true }
 
