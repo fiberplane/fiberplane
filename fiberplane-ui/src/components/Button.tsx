@@ -175,6 +175,14 @@ function getButtonStyle(buttonStyle: ButtonStyle) {
         background-color: var(--color-bg-danger, #ffebf0);
         color: var(--color-fg-danger, #bf1b44);
         border: 1px solid var(--color-border-danger, #f53667);
+
+        &&:focus,
+        &&:focus-visible {
+          box-shadow: var(
+            --focus-error,
+            0px 0px 0px 4px rgb(245 54 103 / 20%)
+          );
+        }
       `;
     case "tertiary-color":
       return css`
