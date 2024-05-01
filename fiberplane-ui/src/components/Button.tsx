@@ -29,25 +29,23 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref,
   ) {
-    switch (buttonType) {
-      case "textButton":
-        return (
-          <StyledTextButton
-            ref={ref}
-            $buttonStyle={buttonStyle}
-            {...elementProps}
-          >
-            {children}
-          </StyledTextButton>
-        );
-
-      default:
-        return (
-          <StyledButton ref={ref} $buttonStyle={buttonStyle} {...elementProps}>
-            {children}
-          </StyledButton>
-        );
+    if (buttonType === "textButton") {
+      return (
+        <StyledTextButton
+          ref={ref}
+          $buttonStyle={buttonStyle}
+          {...elementProps}
+        >
+          {children}
+        </StyledTextButton>
+      );
     }
+
+    return (
+      <StyledButton ref={ref} $buttonStyle={buttonStyle} {...elementProps}>
+        {children}
+      </StyledButton>
+    );
   },
 );
 
@@ -175,7 +173,8 @@ function getButtonStyle(buttonStyle: ButtonStyle) {
       return css`
         min-height: 36px;
         background-color: var(--color-bg-danger, #ffebf0);
-        color: var(--color-fg-danger-fg, #bf1b44);
+        color: var(--color-fg-danger, #bf1b44);
+        border: 1px solid var(--color-border-danger, #f53667);
       `;
     case "tertiary-color":
       return css`
