@@ -1,14 +1,14 @@
 import { forwardRef } from "react";
 import { css, styled } from "styled-components";
 
-export type ButtonStyle =
+type ButtonStyle =
   | "primary"
   | "secondary"
   | "tertiary-color"
   | "tertiary-grey"
   | "danger";
 
-export type ButtonStyleProps = {
+type ButtonStyleProps = {
   buttonStyle?: ButtonStyle;
   buttonType?: "button" | "textButton";
 };
