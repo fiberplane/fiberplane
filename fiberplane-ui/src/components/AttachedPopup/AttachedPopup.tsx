@@ -1,17 +1,14 @@
 import { useHandler } from "@fiberplane/hooks";
 import type { Placement, Rect, VirtualElement } from "@popperjs/core";
 import { motion, useReducedMotion } from "framer-motion";
-import type React from "react";
 import {
   type ForwardedRef,
-  createContext,
   forwardRef,
   useImperativeHandle,
   useState,
 } from "react";
 import { type StrictModifier, usePopper } from "react-popper";
 import { styled } from "styled-components";
-import { noop } from "../../utils";
 
 const ANIMATION_DISTANCE = 10;
 
@@ -46,34 +43,27 @@ export type AttachedPopupProps = {
 
   placement?: Placement;
 
-  withArrow?: boolean;
-
   /**
    * Exposes Popper's mainAxis property on the preventOverflow modifier, defaults to true.
    */
   preventMainAxisOverflow?: boolean;
-};
 
-type ArrowContextApi = {
-  setRef(element: null | HTMLElement): void;
-  style: React.CSSProperties;
+  /**
+   * Delay before show-animation into ui (default: 0 milliseconds)
+   */
+  onEnterDelayMs?: number;
 };
-
-export const ArrowContext = createContext<ArrowContextApi>({
-  setRef: noop,
-  style: {},
-});
 
 export const AttachedPopup = forwardRef(function AttachedPopup(
   {
-    children: originalChildren,
+    children,
     element,
     className,
     offset = [0, 0],
     placement = "bottom",
-    withArrow = false,
     role,
     preventMainAxisOverflow = true,
+    onEnterDelayMs = 0,
   }: AttachedPopupProps,
   forwardedRef: ForwardedRef<{
     update: () => Promise<void>;
@@ -82,7 +72,6 @@ export const AttachedPopup = forwardRef(function AttachedPopup(
   const shouldReduceMotion = useReducedMotion();
 
   const [content, setContent] = useState<HTMLElement | null>(null);
-  const [arrowElement, setArrowElement] = useState<null | HTMLElement>(null);
 
   const modifiers: Array<StrictModifier> = [
     { name: "offset", options: { offset } },
@@ -94,13 +83,6 @@ export const AttachedPopup = forwardRef(function AttachedPopup(
       },
     },
   ];
-
-  if (withArrow) {
-    modifiers.push({
-      name: "arrow",
-      options: { element: arrowElement },
-    });
-  }
 
   const {
     styles,
@@ -121,19 +103,6 @@ export const AttachedPopup = forwardRef(function AttachedPopup(
     update,
   }));
 
-  const children = withArrow ? (
-    <ArrowContext.Provider
-      value={{
-        setRef: setArrowElement,
-        style: styles.arrow || {},
-      }}
-    >
-      {originalChildren}
-    </ArrowContext.Provider>
-  ) : (
-    originalChildren
-  );
-
   return (
     <PopperContainer
       className={className}
@@ -143,12 +112,22 @@ export const AttachedPopup = forwardRef(function AttachedPopup(
       {...attributes.popper}
     >
       <motion.div
-        transition={{ duration: shouldReduceMotion ? 0 : 0.1, ease: "easeOut" }}
+        transition={{
+          duration: shouldReduceMotion ? 0 : 0.1,
+          ease: "easeOut",
+        }}
         variants={{
           show: {
             opacity: 1,
             x: 0,
             y: 0,
+            // Only add the transition here for a nonzero and truthy delay,
+            // otherwise we get weird behavior in the side nav when hovering between nav icons
+            ...(onEnterDelayMs && {
+              transition: {
+                delay: onEnterDelayMs / 1000,
+              },
+            }),
           },
           hide: {
             opacity: 0,
