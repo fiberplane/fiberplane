@@ -1,7 +1,12 @@
 import { forwardRef } from "react";
 import { css, styled } from "styled-components";
 
-type ButtonStyle = "primary" | "secondary" | "tertiary-color" | "tertiary-grey";
+export type ButtonStyle =
+  | "primary"
+  | "secondary"
+  | "tertiary-color"
+  | "tertiary-grey"
+  | "danger";
 
 export type ButtonStyleProps = {
   buttonStyle?: ButtonStyle;
@@ -165,6 +170,12 @@ function getButtonStyle(buttonStyle: ButtonStyle) {
           background-color: var(--color-button-secondary-bg, #fff);
           color: var(--color-fg-subtle, #bcb9bf);
         }
+      `;
+    case "danger":
+      return css`
+        min-height: 36px;
+        background-color: var(--color-bg-danger, #ffebf0);
+        color: var(--color-fg-danger-fg, #bf1b44);
       `;
     case "tertiary-color":
       return css`
