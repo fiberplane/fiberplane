@@ -11,6 +11,7 @@ import { ChartThemeContext } from "../theme";
 import { findUniqueKeys, noop } from "../utils";
 import { TimeseriesLegendItem } from "./TimeseriesLegendItem";
 import type { TimeseriesLegendProps } from "./types";
+import { debounce } from "throttle-debounce";
 
 const DEFAULT_HEIGHT = 293;
 const DEFAULT_SIZE = 30;
@@ -46,6 +47,11 @@ export function TimeseriesLegend<S extends Timeseries, P>({
 
   const getSize = (index: number) => sizeMap.current.get(index) ?? DEFAULT_SIZE;
 
+  const updateListSizes = useMemo(
+    () => debounce(10, () => listRef.current?.resetAfterIndex(0, true)),
+    [listRef],
+  );
+
   const setSize = useHandler((index: number, size: number) => {
     const oldSize = getSize(index);
     if (oldSize === size) {
@@ -53,7 +59,7 @@ export function TimeseriesLegend<S extends Timeseries, P>({
     }
 
     sizeMap.current.set(index, size);
-    listRef.current?.resetAfterIndex(index);
+    updateListSizes();
     heightRef.current += size - oldSize;
 
     if (heightRef.current < maxHeight) {

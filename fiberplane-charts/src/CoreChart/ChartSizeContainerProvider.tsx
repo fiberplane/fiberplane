@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { debounce } from "throttle-debounce";
 
-import { useIntersectionObserver, useMeasure } from "../hooks";
+import { useMeasure } from "../hooks";
 import { mergeRefs } from "../utils";
 import {
   ChartSizeContext,
@@ -34,10 +34,6 @@ export function ChartSizeContainerProvider({
   const intersectionRef = useRef<HTMLDivElement>(null);
   const ref = mergeRefs([measureRef, intersectionRef]);
 
-  const intersections = useIntersectionObserver(
-    intersectionRef,
-    intersectionOptions,
-  );
   const [value, setValue] = useState<ChartSizeContextValue>({
     xMax: 0,
     yMax: 0,
@@ -73,9 +69,7 @@ export function ChartSizeContainerProvider({
 
   return (
     <div ref={ref} className={className}>
-      {value.width > 0 &&
-      value.height > 0 &&
-      intersections.some((intersection) => intersection.isIntersecting) ? (
+      {value.width > 0 && value.height > 0 ? (
         <ChartSizeContext.Provider value={value}>
           {children}
         </ChartSizeContext.Provider>
@@ -90,8 +84,3 @@ function ChartSkeleton({ height }: { height: number }) {
   return <div style={{ height }} />;
 }
 
-const intersectionOptions = {
-  root: null,
-  rootMargin: "0px",
-  threshold: 0,
-};
