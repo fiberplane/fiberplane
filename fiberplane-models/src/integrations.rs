@@ -436,6 +436,9 @@ impl axum_07::response::IntoResponse for GitHubAppWebhookError {
 pub struct GitHubAppAddPullRequest {
     /// The url of the GitHub pull request
     pub url: String,
+
+    /// Display name of the front matter schema that should be displayed
+    pub display_name: Option<String>,
 }
 
 #[derive(Serialize, Debug, Error)]
@@ -448,13 +451,16 @@ pub enum GitHubAppAddPullRequestError {
     InvalidUrl,
 
     #[error("integration not installed")]
-    IntegrationNotInstalled,
+    NotInstalled,
 
     #[error("refresh token expired, please re-link integration")]
     RefreshTokenExpired,
 
     #[error("didnt receive new refresh token from GitHub")]
     RefreshTokenNotReceived,
+
+    #[error("this pull request was already linked")]
+    DuplicatePullRequest,
 
     #[error("unknown error occurred")]
     InternalServerError,
@@ -469,11 +475,10 @@ impl GitHubAppAddPullRequestError {
         match self {
             GitHubAppAddPullRequestError::AccessDenied => StatusCode::UNAUTHORIZED,
             GitHubAppAddPullRequestError::InvalidUrl => StatusCode::BAD_REQUEST,
-            GitHubAppAddPullRequestError::IntegrationNotInstalled => {
-                StatusCode::PRECONDITION_FAILED
-            }
+            GitHubAppAddPullRequestError::NotInstalled => StatusCode::PRECONDITION_FAILED,
             GitHubAppAddPullRequestError::RefreshTokenExpired => StatusCode::GONE,
             GitHubAppAddPullRequestError::RefreshTokenNotReceived => StatusCode::BAD_GATEWAY,
+            GitHubAppAddPullRequestError::DuplicatePullRequest => StatusCode::CONFLICT,
             GitHubAppAddPullRequestError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
             GitHubAppAddPullRequestError::Auth(auth) => auth.status_code(),
         }
