@@ -42,13 +42,29 @@ export function TimeseriesLegend<S extends Timeseries, P>({
   );
   const listRef = useRef<VariableSizeList<Array<ShapeList<S, P>>>>(null);
   const sizeMap = useRef(new Map<number, number>());
+  if (timeseriesData.length === 0) {
+    console.log(
+      "timeseriesData",
+      timeseriesData.length,
+      "with default size",
+      DEFAULT_SIZE,
+    );
+  }
   const heightRef = useRef(timeseriesData.length * DEFAULT_SIZE);
-  const update = useForceUpdate();
+  const rawUpdate = useForceUpdate();
+  const update = useMemo(
+    () =>
+      debounce(4, () => {
+        console.log("triggering update");
+        rawUpdate();
+      }),
+    [rawUpdate],
+  );
 
   const getSize = (index: number) => sizeMap.current.get(index) ?? DEFAULT_SIZE;
 
   const updateListSizes = useMemo(
-    () => debounce(10, () => listRef.current?.resetAfterIndex(0, true)),
+    () => debounce(0, () => listRef.current?.resetAfterIndex(0, true)),
     [listRef],
   );
 
@@ -109,22 +125,31 @@ export function TimeseriesLegend<S extends Timeseries, P>({
     );
   });
 
+  console.log("height", heightRef.current, maxHeight);
+
   return (
-    <ChartLegendContainer onMouseOut={onMouseOut}>
-      <VariableSizeList
-        estimatedItemSize={DEFAULT_HEIGHT}
-        height={Math.min(heightRef.current, maxHeight)}
-        onScroll={onScroll}
-        outerRef={ref}
-        width="100%"
-        ref={listRef}
-        itemCount={shapeLists.length}
-        itemData={shapeLists}
-        itemSize={getSize}
+    <ChartLegendContainer onMouseOut={onMouseOut} $maxHeight={maxHeight}>
+      <div
+        style={{
+          flex: "1 1 auto",
+          height: `${Math.min(heightRef.current, maxHeight)}px`,
+        }}
       >
-        {render}
-      </VariableSizeList>
-      {gradient}
+        <VariableSizeList
+          estimatedItemSize={DEFAULT_HEIGHT}
+          height={Math.min(heightRef.current, maxHeight)}
+          onScroll={onScroll}
+          innerRef={ref}
+          width="100%"
+          ref={listRef}
+          itemCount={shapeLists.length}
+          itemData={shapeLists}
+          itemSize={getSize}
+        >
+          {render}
+        </VariableSizeList>
+        {gradient}
+      </div>
       {footerShown && (
         <Footer>
           <Results>{resultsText}</Results>
@@ -143,12 +168,15 @@ const Footer = styled.div`
   justify-content: space-between;
 `;
 
-const ChartLegendContainer = styled(Container)`
+const ChartLegendContainer = styled(Container)<{ $maxHeight: number }>(
+  ({ $maxHeight }) => css`
   flex-direction: column;
   padding: 10px 0 0;
   position: relative;
   word-wrap: break-word;
-`;
+  max-height: ${$maxHeight + 50}px
+  `,
+);
 
 const Results = styled.span(() => {
   const theme = useContext(ChartThemeContext);

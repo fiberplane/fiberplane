@@ -1,12 +1,19 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { debounce } from "throttle-debounce";
 
 import { useMeasure } from "../hooks";
-import { mergeRefs } from "../utils";
 import {
   ChartSizeContext,
   type ChartSizeContextValue,
 } from "./ChartSizeContext";
+import { mergeRefs } from "../utils";
 
 type Props = {
   children: React.ReactNode;
@@ -31,8 +38,8 @@ export function ChartSizeContainerProvider({
 }: Props) {
   const [measureRef, { width, height: measuredHeight }] =
     useMeasure<HTMLDivElement>();
-  const intersectionRef = useRef<HTMLDivElement>(null);
-  const ref = mergeRefs([measureRef, intersectionRef]);
+  const initialMeasureRef = useRef<HTMLDivElement>(null);
+  const ref = mergeRefs([measureRef, initialMeasureRef]);
 
   const [value, setValue] = useState<ChartSizeContextValue>({
     xMax: 0,
@@ -46,10 +53,20 @@ export function ChartSizeContainerProvider({
   });
 
   const height = overrideHeight ?? measuredHeight;
-  const updateValue = useMemo(
-    () =>
-      debounce(100, (width: number, height: number) =>
-        setValue({
+  const rawUpdateValue = useCallback(
+    (width: number, height: number) => {
+      setValue((prev) => {
+        if (
+          width === prev.width &&
+          height === prev.height &&
+          prev.marginTop === marginTop &&
+          prev.marginRight === marginRight &&
+          prev.marginBottom === marginBottom &&
+          prev.marginLeft === marginLeft
+        ) {
+          return prev;
+        }
+        return {
           xMax: width - marginLeft - marginRight,
           yMax: height - marginTop - marginBottom,
           width,
@@ -58,9 +75,22 @@ export function ChartSizeContainerProvider({
           marginRight,
           marginBottom,
           marginLeft,
-        }),
-      ),
+        };
+      });
+    },
     [marginTop, marginRight, marginBottom, marginLeft],
+  );
+
+  useLayoutEffect(() => {
+    if (initialMeasureRef.current) {
+      const size = initialMeasureRef.current.getBoundingClientRect();
+      rawUpdateValue(size.width, size.height);
+    }
+  }, []);
+
+  const updateValue = useMemo(
+    () => debounce(100, rawUpdateValue),
+    [rawUpdateValue],
   );
 
   useEffect(() => {
@@ -83,4 +113,3 @@ export function ChartSizeContainerProvider({
 function ChartSkeleton({ height }: { height: number }) {
   return <div style={{ height }} />;
 }
-

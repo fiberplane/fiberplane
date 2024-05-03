@@ -58,6 +58,7 @@ const InnerMetricsChart = memo(function InnerMetricsChart(
     timeseriesData,
   } = props;
 
+  console.log("timeseriesData", timeseriesData);
   const chart = useMemo(
     () =>
       generate({
