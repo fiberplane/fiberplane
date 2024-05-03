@@ -166,7 +166,7 @@ pub fn cells_to_snippet(cells: &[Cell]) -> String {
 
 fn write_preamble(writer: &mut CodeWriter) {
     writer.println(
-        "// For documentation on Fiberplane Templates, see: https://docs.fiberplane.com/templates",
+        "// For documentation on Fiberplane Templates, see: https://fiberplane.com/docs/templates",
     );
     writer.println(format!("local fp = import '{FIBERPLANE_LIBRARY_PATH}';"));
     writer.println("local c = fp.cell;");
