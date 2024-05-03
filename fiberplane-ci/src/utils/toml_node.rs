@@ -43,7 +43,7 @@ impl TomlNode {
     pub fn find_all_matches(
         &self,
         path: &str,
-    ) -> Option<impl Iterator<Item = (Keys, Node)> + ExactSizeIterator> {
+    ) -> Option<impl ExactSizeIterator<Item = (Keys, Node)>> {
         let keys = path.parse::<Keys>().ok()?;
         self.node.find_all_matches(keys, false).ok()
     }
