@@ -1,14 +1,14 @@
-import { useOpen } from "@fiberplane/hooks";
 import type { Placement } from "@popperjs/core";
 import { AnimatePresence } from "framer-motion";
 import { useEffect, useRef } from "react";
 import { css, styled } from "styled-components";
 
+import { useOpen } from "@fiberplane/hooks";
 import { cancelEvent, noop } from "../../utils";
 import { AttachedPopup } from "../AttachedPopup";
 import { Button } from "../Button";
-import { SelectOption as Option } from "./SelectOption";
 import { Icon } from "../Icon";
+import { SelectOption as Option } from "./SelectOption";
 
 type SelectProps = {
   autoFocus?: boolean;
