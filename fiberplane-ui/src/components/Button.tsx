@@ -1,9 +1,14 @@
 import { forwardRef } from "react";
 import { css, styled } from "styled-components";
 
-type ButtonStyle = "primary" | "secondary" | "tertiary-color" | "tertiary-grey";
+type ButtonStyle =
+  | "primary"
+  | "secondary"
+  | "tertiary-color"
+  | "tertiary-grey"
+  | "danger";
 
-export type ButtonStyleProps = {
+type ButtonStyleProps = {
   buttonStyle?: ButtonStyle;
   buttonType?: "button" | "textButton";
 };
@@ -24,25 +29,23 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref,
   ) {
-    switch (buttonType) {
-      case "textButton":
-        return (
-          <StyledTextButton
-            ref={ref}
-            $buttonStyle={buttonStyle}
-            {...elementProps}
-          >
-            {children}
-          </StyledTextButton>
-        );
-
-      default:
-        return (
-          <StyledButton ref={ref} $buttonStyle={buttonStyle} {...elementProps}>
-            {children}
-          </StyledButton>
-        );
+    if (buttonType === "textButton") {
+      return (
+        <StyledTextButton
+          ref={ref}
+          $buttonStyle={buttonStyle}
+          {...elementProps}
+        >
+          {children}
+        </StyledTextButton>
+      );
     }
+
+    return (
+      <StyledButton ref={ref} $buttonStyle={buttonStyle} {...elementProps}>
+        {children}
+      </StyledButton>
+    );
   },
 );
 
@@ -164,6 +167,21 @@ function getButtonStyle(buttonStyle: ButtonStyle) {
           border-color: var(--color-border-muted, #ebeaed);
           background-color: var(--color-button-secondary-bg, #fff);
           color: var(--color-fg-subtle, #bcb9bf);
+        }
+      `;
+    case "danger":
+      return css`
+        min-height: 36px;
+        background-color: var(--color-bg-danger, #ffebf0);
+        color: var(--color-fg-danger, #bf1b44);
+        border: 1px solid var(--color-border-danger, #f53667);
+
+        &&:focus,
+        &&:focus-visible {
+          box-shadow: var(
+            --focus-error,
+            0px 0px 0px 4px rgb(245 54 103 / 20%)
+          );
         }
       `;
     case "tertiary-color":
