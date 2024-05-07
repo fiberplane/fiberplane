@@ -669,10 +669,10 @@ pub struct FrontMatterPagerDutyIncident {
     pub resolve_reason: Option<String>,
 
     #[builder(default, setter(into))]
-    pub assignees: Option<String>,
+    pub assignees: Vec<String>,
 
     #[builder(default, setter(into))]
-    pub teams: Option<String>,
+    pub teams: Vec<String>,
 }
 
 impl From<FrontMatterPagerDutyIncident> for FrontMatterValue {
