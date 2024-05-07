@@ -1,9 +1,9 @@
-use crate::notebooks::front_matter::FrontMatterGitHubPullRequest;
 use crate::notebooks::{
     front_matter::{
-        FrontMatterDateTimeValue, FrontMatterNumberValue, FrontMatterPagerDutyIncident,
-        FrontMatterStringList, FrontMatterStringValue, FrontMatterUserList, FrontMatterUserValue,
-        FrontMatterValidationError, FrontMatterValue,
+        FrontMatterDateTimeValue, FrontMatterGitHubPullRequest, FrontMatterNumberValue,
+        FrontMatterPagerDutyIncident, FrontMatterStringList, FrontMatterStringValue,
+        FrontMatterUserList, FrontMatterUserValue, FrontMatterValidationError, FrontMatterValue,
+        FrontMatterZoomMeeting,
     },
     operations::FrontMatterSchemaRow,
 };
@@ -134,6 +134,9 @@ pub enum FrontMatterValueSchema {
 
     #[serde(rename = "github_pull_request")]
     GitHubPullRequest(FrontMatterGitHubPullRequestSchema),
+
+    #[serde(rename = "zoom_meeting")]
+    ZoomMeeting(FrontMatterZoomMeetingSchema),
 }
 
 impl FrontMatterValueSchema {
@@ -148,6 +151,7 @@ impl FrontMatterValueSchema {
             FrontMatterValueSchema::User(schema) => schema.validate_value(value),
             FrontMatterValueSchema::PagerDutyIncident(schema) => schema.validate_value(value),
             FrontMatterValueSchema::GitHubPullRequest(schema) => schema.validate_value(value),
+            FrontMatterValueSchema::ZoomMeeting(schema) => schema.validate_value(value),
         }
     }
 
@@ -164,6 +168,9 @@ impl FrontMatterValueSchema {
                 schema.validate_front_matter_value(value)
             }
             FrontMatterValueSchema::GitHubPullRequest(schema) => {
+                schema.validate_front_matter_value(value)
+            }
+            FrontMatterValueSchema::ZoomMeeting(schema) => {
                 schema.validate_front_matter_value(value)
             }
         }
@@ -605,5 +612,50 @@ impl FrontMatterGitHubPullRequestSchema {
 impl From<FrontMatterGitHubPullRequestSchema> for FrontMatterValueSchema {
     fn from(v: FrontMatterGitHubPullRequestSchema) -> Self {
         Self::GitHubPullRequest(v)
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::front_matter_schemas")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct FrontMatterZoomMeetingSchema {
+    #[builder(default, setter(into))]
+    pub display_name: String,
+
+    #[builder(default, setter(into, strip_option))]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon_name: Option<String>,
+}
+
+impl FrontMatterZoomMeetingSchema {
+    pub fn validate_value(
+        &self,
+        value: Value,
+    ) -> Result<FrontMatterValue, FrontMatterValidationError> {
+        Ok(FrontMatterZoomMeeting::try_from(value)?.into())
+    }
+
+    pub fn validate_front_matter_value(
+        &self,
+        value: &FrontMatterValue,
+    ) -> Result<(), FrontMatterValidationError> {
+        match value {
+            FrontMatterValue::ZoomMeeting(_) => Ok(()),
+            other => Err(FrontMatterValidationError::wrong_variant(
+                other.get_type(),
+                "zoom_meeting",
+            )),
+        }
+    }
+}
+
+impl From<FrontMatterZoomMeetingSchema> for FrontMatterValueSchema {
+    fn from(v: FrontMatterZoomMeetingSchema) -> Self {
+        Self::ZoomMeeting(v)
     }
 }
