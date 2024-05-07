@@ -49,7 +49,7 @@ export function useThemeSelect() {
     return () => {
       clearTimeout(listenerId);
     };
-  }, [theme, storedTheme]);
+  }, [theme, storedTheme, previousTheme]);
 
   return {
     /**
