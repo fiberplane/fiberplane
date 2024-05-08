@@ -867,11 +867,11 @@ pub struct FrontMatterZoomMeeting {
 
     /// Timestamp when this meeting created
     #[builder(setter(into))]
-    pub created_at: Timestamp,
+    pub created_at: Option<Timestamp>,
 
     /// Timestamp when this meeting will start
     #[builder(setter(into))]
-    pub start_time: Timestamp,
+    pub start_time: Option<Timestamp>,
 }
 
 impl From<FrontMatterZoomMeeting> for FrontMatterValue {

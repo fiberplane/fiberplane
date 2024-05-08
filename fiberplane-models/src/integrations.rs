@@ -508,6 +508,19 @@ impl From<AuthError> for GitHubAppAddPullRequestError {
 }
 
 // *** ZOOM *** //
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct ZoomAppDetails {
+    /// Timestamp when this integration was installed
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+}
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
 #[cfg_attr(
@@ -748,7 +761,7 @@ impl axum_07::response::IntoResponse for ZoomAppInstallRedirectError {
 #[serde(rename_all = "camelCase")]
 pub struct ZoomAppAddMeeting {
     /// The meeting id of the Zoom meeting
-    pub meeting_id: String,
+    pub meeting_id: i64,
 }
 
 #[derive(Serialize, Debug, Error)]
