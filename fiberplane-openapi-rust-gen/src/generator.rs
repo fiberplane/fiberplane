@@ -70,8 +70,7 @@ fn edit_cargo_toml(path: &Path, args: &GeneratorArgs) -> Result<()> {
     let mut file = OpenOptions::new()
         .read(false)
         .write(true)
-        .create(true)
-        .truncate(true)
+        .create(false)
         .append(false)
         .open(&path)
         .context("Failed to open or create `Cargo.toml`")?;

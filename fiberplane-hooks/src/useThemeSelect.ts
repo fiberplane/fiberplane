@@ -29,6 +29,8 @@ export function useThemeSelect() {
     storedTheme && isValidTheme(storedTheme) ? storedTheme : systemDefaultTheme;
   const previousTheme = usePrevious(theme);
 
+  /* biome-ignore lint/correctness/useExhaustiveDependencies: don't provide
+  `previousTheme` as a dependency */
   useEffect(() => {
     // Set the theme on the `document.body` element. If there's no stored theme,
     // we remove the `data-theme` attribute so the system's preferred color
