@@ -166,7 +166,7 @@ export type AutoSuggestRequest = {
     /**
      * The query type of the provider we're requesting suggestions for.
      */
-    query_type: string;
+    queryType: string;
 
     /**
      * The field in the query form we're requesting suggestions for.
@@ -181,7 +181,7 @@ export type AutoSuggestRequest = {
      * in Studio, and follows the format of
      * cells [Query Data](crate::ProviderCell::query_data).
      */
-    other_field_data?: string;
+    otherFieldData?: string;
 };
 
 /**

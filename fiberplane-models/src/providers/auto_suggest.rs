@@ -13,7 +13,6 @@ use typed_builder::TypedBuilder;
     fp(rust_module = "fiberplane_models::providers")
 )]
 #[non_exhaustive]
-#[serde(rename_all = "camelCase")]
 pub struct AutoSuggestRequest {
     /// The value of the field being typed by the user, up to the focus offset.
     pub query: String,
