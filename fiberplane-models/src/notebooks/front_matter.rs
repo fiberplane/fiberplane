@@ -839,7 +839,7 @@ impl TryFrom<Value> for FrontMatterGitHubPullRequest {
 #[serde(rename_all = "camelCase")]
 pub struct FrontMatterZoomMeeting {
     /// ID of the Zoom meeting
-    pub id: u64,
+    pub id: i64,
 
     /// UUID of the Zoom meeting, necessary to fetch meeting summary
     pub uuid: String,

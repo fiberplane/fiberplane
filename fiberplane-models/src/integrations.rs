@@ -741,3 +741,85 @@ impl axum_07::response::IntoResponse for ZoomAppInstallRedirectError {
         (status_code, body).into_response()
     }
 }
+
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct ZoomAppAddMeeting {
+    /// The meeting id of the Zoom meeting
+    pub meeting_id: String,
+}
+
+#[derive(Serialize, Debug, Error)]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
+pub enum ZoomAppAddMeetingError {
+    #[error("access denied to meeting")]
+    AccessDenied,
+
+    #[error("provided meeting id is invalid")]
+    InvalidMeetingId,
+
+    #[error("integration not installed")]
+    IntegrationNotInstalled,
+
+    #[error("refresh token expired, please re-link integration")]
+    RefreshTokenExpired,
+
+    #[error("didnt receive new refresh token from Zoom")]
+    RefreshTokenNotReceived,
+
+    #[error("unknown error occurred")]
+    InternalServerError,
+
+    #[error(transparent)]
+    Auth(AuthError),
+}
+
+impl ZoomAppAddMeetingError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    fn status_code(&self) -> StatusCode {
+        match self {
+            ZoomAppAddMeetingError::AccessDenied => StatusCode::UNAUTHORIZED,
+            ZoomAppAddMeetingError::InvalidMeetingId => StatusCode::BAD_REQUEST,
+            ZoomAppAddMeetingError::IntegrationNotInstalled => {
+                StatusCode::PRECONDITION_FAILED
+            }
+            ZoomAppAddMeetingError::RefreshTokenExpired => StatusCode::GONE,
+            ZoomAppAddMeetingError::RefreshTokenNotReceived => StatusCode::BAD_GATEWAY,
+            ZoomAppAddMeetingError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            ZoomAppAddMeetingError::Auth(auth) => auth.status_code(),
+        }
+    }
+}
+
+#[cfg(feature = "axum_06")]
+impl axum_06::response::IntoResponse for ZoomAppAddMeetingError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for ZoomAppAddMeetingError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+impl From<AuthError> for ZoomAppAddMeetingError {
+    fn from(value: AuthError) -> Self {
+        ZoomAppAddMeetingError::Auth(value)
+    }
+}
