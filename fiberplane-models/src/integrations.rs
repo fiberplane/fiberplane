@@ -565,7 +565,6 @@ impl axum_07::response::IntoResponse for ZoomAppInstallFlowError {
     }
 }
 
-
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
 #[cfg_attr(
     feature = "fp-bindgen",
@@ -623,7 +622,6 @@ impl axum_07::response::IntoResponse for ZoomAppDetailsError {
     }
 }
 
-
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
 #[cfg_attr(
     feature = "fp-bindgen",
@@ -680,7 +678,6 @@ impl axum_07::response::IntoResponse for ZoomAppUninstallError {
         (status_code, body).into_response()
     }
 }
-
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
 #[cfg_attr(
@@ -742,7 +739,6 @@ impl axum_07::response::IntoResponse for ZoomAppInstallRedirectError {
     }
 }
 
-
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
@@ -787,9 +783,7 @@ impl ZoomAppAddMeetingError {
         match self {
             ZoomAppAddMeetingError::AccessDenied => StatusCode::UNAUTHORIZED,
             ZoomAppAddMeetingError::InvalidMeetingId => StatusCode::BAD_REQUEST,
-            ZoomAppAddMeetingError::IntegrationNotInstalled => {
-                StatusCode::PRECONDITION_FAILED
-            }
+            ZoomAppAddMeetingError::IntegrationNotInstalled => StatusCode::PRECONDITION_FAILED,
             ZoomAppAddMeetingError::RefreshTokenExpired => StatusCode::GONE,
             ZoomAppAddMeetingError::RefreshTokenNotReceived => StatusCode::BAD_GATEWAY,
             ZoomAppAddMeetingError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
