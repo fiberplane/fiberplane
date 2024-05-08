@@ -76,6 +76,7 @@ pub struct WorkspaceIntegrationSummary {
 pub enum WorkspaceIntegrationId {
     PagerDutyWebhook,
     GitHubApp,
+    ZoomApp,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Display, EnumIter)]
@@ -705,8 +706,6 @@ impl ZoomAppInstallRedirectError {
     fn status_code(&self) -> StatusCode {
         match self {
             ZoomAppInstallRedirectError::InvalidCode => StatusCode::BAD_REQUEST,
-            ZoomAppInstallRedirectError::InstallationAccessDenied => StatusCode::BAD_GATEWAY,
-            ZoomAppInstallRedirectError::InstallationNotFound => StatusCode::BAD_REQUEST,
             ZoomAppInstallRedirectError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
             ZoomAppInstallRedirectError::Auth(err) => err.status_code(),
         }
