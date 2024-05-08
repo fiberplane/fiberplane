@@ -680,3 +680,64 @@ impl axum_07::response::IntoResponse for ZoomAppUninstallError {
         (status_code, body).into_response()
     }
 }
+
+
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
+// TODO - Map to Zoom's error paths instead of GitHub's
+pub enum ZoomAppInstallRedirectError {
+    #[error("The provided code could not be exchanged into a Bearer token by Zoom")]
+    InvalidCode,
+
+    #[error("Unknown error occurred")]
+    InternalServerError,
+
+    /// Common auth errors.
+    #[error(transparent)]
+    Auth(AuthError),
+}
+
+impl ZoomAppInstallRedirectError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    fn status_code(&self) -> StatusCode {
+        match self {
+            ZoomAppInstallRedirectError::InvalidCode => StatusCode::BAD_REQUEST,
+            ZoomAppInstallRedirectError::InstallationAccessDenied => StatusCode::BAD_GATEWAY,
+            ZoomAppInstallRedirectError::InstallationNotFound => StatusCode::BAD_REQUEST,
+            ZoomAppInstallRedirectError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            ZoomAppInstallRedirectError::Auth(err) => err.status_code(),
+        }
+    }
+}
+
+impl From<AuthError> for ZoomAppInstallRedirectError {
+    fn from(value: AuthError) -> Self {
+        ZoomAppInstallRedirectError::Auth(value)
+    }
+}
+
+#[cfg(feature = "axum_06")]
+impl axum_06::response::IntoResponse for ZoomAppInstallRedirectError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for ZoomAppInstallRedirectError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
