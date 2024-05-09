@@ -97,7 +97,8 @@ fn expands_add_frontmatter_string() {
         fp.notebook.new('Notebook')
             .addFrontMatter([
                 fm.string('string', 'value', 'A field with string value'),
-                fm.string('string-2', 'value-2')
+                fm.string('string-2', 'value-2'),
+                fm.string('string-3', ['value-3', 'value-4'])
             ])
     "#;
     let output = expand_template(template, ARGS).unwrap();
@@ -118,12 +119,21 @@ fn expands_add_frontmatter_string() {
                     .build(),
             )
             .build(),
+        FrontMatterSchemaEntry::builder()
+            .key("string-3")
+            .schema(
+                FrontMatterStringSchema::builder()
+                    .display_name("String")
+                    .build(),
+            )
+            .build(),
     ]
     .into();
     assert_eq!(output.front_matter_schema, expected_schema);
     let expected_front_matter: BTreeMap<String, FrontMatterValue> = [
         ("string".to_string(), json!("value").into()),
         ("string-2".to_string(), json!("value-2").into()),
+        ("string-3".to_string(), json!(["value-3", "value-4"]).into()),
     ]
     .into();
     assert_eq!(output.front_matter, expected_front_matter);
@@ -194,20 +204,37 @@ fn expands_add_frontmatter_user() {
         fp.notebook.new('Notebook')
             .addFrontMatter([
                 fm.user('user', 'base64-encoded-user'),
+                fm.user('user-2', ['base64-encoded-user', 'base64-encoded-user'])
             ])
     "#;
     let output = expand_template(template, ARGS).unwrap();
-    let expected_schema: FrontMatterSchema = vec![FrontMatterSchemaEntry::builder()
-        .key("user")
-        .schema(
-            FrontMatterUserSchema::builder()
-                .display_name("User")
-                .build(),
-        )
-        .build()]
+    let expected_schema: FrontMatterSchema = vec![
+        FrontMatterSchemaEntry::builder()
+            .key("user")
+            .schema(
+                FrontMatterUserSchema::builder()
+                    .display_name("User")
+                    .build(),
+            )
+            .build(),
+        FrontMatterSchemaEntry::builder()
+            .key("user-2")
+            .schema(
+                FrontMatterUserSchema::builder()
+                    .display_name("User")
+                    .build(),
+            )
+            .build(),
+    ]
     .into();
     assert_eq!(output.front_matter_schema, expected_schema);
-    let expected_front_matter: BTreeMap<String, FrontMatterValue> =
-        [("user".to_string(), json!("base64-encoded-user").into())].into();
+    let expected_front_matter: BTreeMap<String, FrontMatterValue> = [
+        ("user".to_string(), json!("base64-encoded-user").into()),
+        (
+            "user-2".to_string(),
+            json!(["base64-encoded-user", "base64-encoded-user"]).into(),
+        ),
+    ]
+    .into();
     assert_eq!(output.front_matter, expected_front_matter);
 }

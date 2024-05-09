@@ -511,10 +511,18 @@ local notebook = {
   },
 };
 
-local createFrontMatterValueWithSchema(key, value, schemaType, displayName, validatorType='string') =
-  // Validate the key and value types, and if they are valid return the front matter schema and value
-  if validate.string('front matter field ' + key + 'key', key) == key &&
-     validate[validatorType]('front matter field ' + key + 'value', value) == value then
+local createFrontMatterValueWithSchema(key, value, schemaType, displayName, validatorType='string', supportsMultiple=false) =
+  // Validate the key and value types
+  local validatedKey = validate.string(key + ' key', key);
+  local validatedValue = if supportsMultiple && std.type(value) == 'array' then
+    std.mapWithIndex(
+      function(index, item)
+        validate[validatorType](key + '.' + index, item),
+      value
+    ) else validate[validatorType](key, value);
+
+  // If they are valid return the front matter schema and value
+  if validatedKey == key && validatedValue == value then
     {
       frontMatterSchema: [{
         key: key,
@@ -547,12 +555,12 @@ local frontMatter = {
     *
     * @function frontMatter.string
     * @param {string} key - The key of the front matter entry
-    * @param {string} value - String value of the front matter entry
+    * @param {(string|string[])} value - A single string value of the front matter entry or an array of them
     * @param {string} [displayName="String"] - The display name of the front matter entry
     * @returns {object}
     */
   string(key, value, displayName='String')::
-    createFrontMatterValueWithSchema(key, value, 'string', displayName),
+    createFrontMatterValueWithSchema(key, value, 'string', displayName, 'string', true),
   /**
     * Creates a datetime frontmatter value and schema. If incorrect datetime is provided, falls back to string.
     *
@@ -569,12 +577,12 @@ local frontMatter = {
     *
     * @function frontMatter.user
     * @param {string} key - The key of the front matter entry
-    * @param {string} value - UUID of the user
+    * @param {(string|string[])} value -  A single UUID of the user or an array of them
     * @param {string} [displayName="User"] - The display name of the front matter entry
     * @returns {object}
     */
   user(key, value, displayName='User')::
-    createFrontMatterValueWithSchema(key, value, 'user', displayName),
+    createFrontMatterValueWithSchema(key, value, 'user', displayName, 'string', true),
   /**
     * Creates a PagerDuty Incident frontmatter value and schema.
     *
