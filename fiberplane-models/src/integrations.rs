@@ -349,7 +349,7 @@ impl axum_07::response::IntoResponse for GitHubAppUninstallError {
     }
 }
 
-#[derive(Serialize, Debug, Error)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
 #[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum GitHubAppWebhookError {
     #[error("signature was not sent with the request")]
@@ -444,7 +444,7 @@ pub struct GitHubAppAddPullRequest {
     pub display_name: Option<String>,
 }
 
-#[derive(Serialize, Debug, Error)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
 #[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum GitHubAppAddPullRequestError {
     #[error("access denied to repository")]
