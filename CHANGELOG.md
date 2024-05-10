@@ -25,6 +25,14 @@ major version hasn't changed.
 - Add models required for GitHub app workspace-level integration (#198)
 - Add PagerDuty incident frontmatter object (#201)
 - Add `addFrontMatter` and `frontMatter.pagerdutyIncident` to `fiberplane.libsonnet` (#201)
+- `fiberplane-ui`: Implement form validation according to the design system
+- `fiberplane-ui`: Move `Select` over from `studio` and implement new designs
+- `fiberplane-ui`: Move `TabList` over from `studio` add support for non-`<Link />` tabs
+- `fiberplane-ui`: Move `AttachedPopup` over from `studio`
+- `fiberplane-ui`: Move `stopPropagation` and `cancelEvent` from `studio` to `utils`
+- `fiberplane-hooks`: Introduce `useClickAway`
+- `fiberplane-hooks`: Move `useOpen` from `studio`
+- `fiberplane-hooks`: Introduce `useDocumentEventHandler`
 
 ## [v1.0.0-beta.14] - 2024-03-07
 
