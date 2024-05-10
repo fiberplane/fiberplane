@@ -343,12 +343,12 @@ fn generate_route(
                 if response_type.is_none() {
                     response_type = Some(ResponseType::Json);
                 }
-            } else if response.content.get("text/plain").is_some() {
+            } else if response.content.contains_key("text/plain") {
                 response_type = Some(ResponseType::Text);
                 write!(writer, "String")?;
             } else {
                 // octet-stream should be `bytes::Bytes` so don't warn about it when we reach this fallback
-                if response.content.get("application/octet-stream").is_none() {
+                if !response.content.contains_key("application/octet-stream") {
                     let keys: Vec<_> = response.content.keys().collect();
                     eprintln!(
                         "warn: unknown response mime type(s), falling back to `bytes::Bytes`: {keys:?}"
@@ -528,11 +528,11 @@ fn generate_function_body(
     if let Some(request_body) = &operation.request_body {
         match resolve(ResolveTarget::RequestBody(&Some(request_body)), components)? {
             Some(ResolvedReference::RequestBody(body)) => {
-                if body.content.get("application/json").is_some() {
+                if body.content.contains_key("application/json") {
                     writeln!(writer, "    builder = builder.json(&payload);")?;
-                } else if body.content.get("multipart/form-data").is_some() {
+                } else if body.content.contains_key("multipart/form-data") {
                     writeln!(writer, "    builder = builder.form(&payload);")?;
-                } else if body.content.get("application/octet-stream").is_some() {
+                } else if body.content.contains_key("application/octet-stream") {
                     writeln!(writer, "    builder = builder.body(payload);")?;
                 } else {
                     eprintln!("Unsupported type(s): {:?}", body.content);
@@ -666,11 +666,11 @@ fn generate_function_body_new_style(
     if let Some(request_body) = &operation.request_body {
         match resolve(ResolveTarget::RequestBody(&Some(request_body)), components)? {
             Some(ResolvedReference::RequestBody(body)) => {
-                if body.content.get("application/json").is_some() {
+                if body.content.contains_key("application/json") {
                     writeln!(writer, "let req = req.json(&payload);")?;
-                } else if body.content.get("multipart/form-data").is_some() {
+                } else if body.content.contains_key("multipart/form-data") {
                     writeln!(writer, "let req = req.form(&payload);")?;
-                } else if body.content.get("application/octet-stream").is_some() {
+                } else if body.content.contains_key("application/octet-stream") {
                     writeln!(writer, "let req = req.body(payload);")?;
                 } else {
                     eprintln!("Unsupported type(s): {:?}", body.content);
