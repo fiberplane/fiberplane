@@ -435,9 +435,12 @@ impl axum_07::response::IntoResponse for GitHubAppWebhookError {
 #[serde(rename_all = "camelCase")]
 pub struct GitHubAppAddPullRequest {
     /// The url of the GitHub pull request
+    #[builder(setter(into))]
     pub url: String,
 
     /// Display name of the front matter schema that should be displayed
+    #[builder(default, setter(into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub display_name: Option<String>,
 }
 
@@ -459,8 +462,8 @@ pub enum GitHubAppAddPullRequestError {
     #[error("didnt receive new refresh token from GitHub")]
     RefreshTokenNotReceived,
 
-    #[error("this pull request was already linked")]
-    DuplicatePullRequest,
+    #[error("this issue or pull request was already linked")]
+    DuplicateResource,
 
     #[error("unknown error occurred")]
     InternalServerError,
@@ -478,7 +481,7 @@ impl GitHubAppAddPullRequestError {
             GitHubAppAddPullRequestError::NotInstalled => StatusCode::PRECONDITION_FAILED,
             GitHubAppAddPullRequestError::RefreshTokenExpired => StatusCode::GONE,
             GitHubAppAddPullRequestError::RefreshTokenNotReceived => StatusCode::BAD_GATEWAY,
-            GitHubAppAddPullRequestError::DuplicatePullRequest => StatusCode::CONFLICT,
+            GitHubAppAddPullRequestError::DuplicateResource => StatusCode::CONFLICT,
             GitHubAppAddPullRequestError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
             GitHubAppAddPullRequestError::Auth(auth) => auth.status_code(),
         }

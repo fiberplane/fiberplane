@@ -2800,7 +2800,7 @@ components:
           not_installed: "#/components/schemas/gitHubAppNotInstalledError"
           refresh_token_expired: "#/components/schemas/gitHubAppRefreshTokenExpired"
           refresh_token_not_received: "#/components/schemas/gitHubAppRefreshTokenNotReceived"
-          duplicate_pull_request: "#/components/schemas/gitHubAppDuplicatePullRequest"
+          duplicate_pull_request: "#/components/schemas/gitHubAppDuplicateResource"
           internal_server_error: "#/components/schemas/internalServerError"
           unauthorized: "#/components/schemas/unauthorizedError"
           unauthenticated: "#/components/schemas/unauthenticatedError"
@@ -2840,7 +2840,7 @@ components:
           type: string
           enum:
             - "refresh_token_not_received"
-    gitHubAppDuplicatePullRequest:
+    gitHubAppDuplicateResource:
       type: object
       required:
         - error
@@ -2848,7 +2848,7 @@ components:
         error:
           type: string
           enum:
-            - "duplicate_pull_request"
+            - "duplicate_resource"
   parameters:
     sortDirection:
       in: query
