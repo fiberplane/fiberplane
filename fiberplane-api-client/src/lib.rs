@@ -462,6 +462,23 @@ If you wish to delete a single key instead of the whole object, use the `patch` 
         Ok(response)
     }
 
+    #[doc = r#"Add a GitHub pull request to the notebooks front matter"#]
+    pub async fn integrations_github_app_pull_request_front_matter_add(
+        &self,
+        notebook_id: base64uuid::Base64Uuid,
+        payload: models::GitHubAppAddPullRequest,
+    ) -> Result<(), ApiClientError<models::GitHubAppAddPullRequestError>> {
+        let path = &format!(
+            "/api/notebooks/{notebookId}/integrations/github/pull_request",
+            notebookId = notebook_id,
+        );
+        let mut req = self.request(Method::POST, path)?;
+
+        let req = req.json(&payload);
+
+        self.do_req(req).await
+    }
+
     #[doc = r#"Convert the notebook cells to a snippet"#]
     pub async fn notebook_convert_to_snippet(
         &self,
