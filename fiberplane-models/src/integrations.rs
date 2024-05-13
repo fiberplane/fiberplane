@@ -349,7 +349,7 @@ impl axum_07::response::IntoResponse for GitHubAppUninstallError {
     }
 }
 
-#[derive(Serialize, Debug, Error)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
 #[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum GitHubAppWebhookError {
     #[error("signature was not sent with the request")]
@@ -435,10 +435,23 @@ impl axum_07::response::IntoResponse for GitHubAppWebhookError {
 #[serde(rename_all = "camelCase")]
 pub struct GitHubAppAddPullRequest {
     /// The url of the GitHub pull request
+    #[builder(setter(into))]
     pub url: String,
+
+    /// Key which will be used to internally refer to this GitHub pull request front matter.
+    /// If not specified, falls back to `github_pull_request_<id>`
+    #[builder(default, setter(into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub key: Option<String>,
+
+    /// Display name of the front matter schema that should be displayed.
+    /// If not specified, falls back to `GitHub pull request`
+    #[builder(default, setter(into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub display_name: Option<String>,
 }
 
-#[derive(Serialize, Debug, Error)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
 #[serde(tag = "error", content = "details", rename_all = "snake_case")]
 pub enum GitHubAppAddPullRequestError {
     #[error("access denied to repository")]
@@ -448,13 +461,16 @@ pub enum GitHubAppAddPullRequestError {
     InvalidUrl,
 
     #[error("integration not installed")]
-    IntegrationNotInstalled,
+    NotInstalled,
 
     #[error("refresh token expired, please re-link integration")]
     RefreshTokenExpired,
 
     #[error("didnt receive new refresh token from GitHub")]
     RefreshTokenNotReceived,
+
+    #[error("this issue or pull request was already linked")]
+    DuplicateResource,
 
     #[error("unknown error occurred")]
     InternalServerError,
@@ -469,11 +485,10 @@ impl GitHubAppAddPullRequestError {
         match self {
             GitHubAppAddPullRequestError::AccessDenied => StatusCode::UNAUTHORIZED,
             GitHubAppAddPullRequestError::InvalidUrl => StatusCode::BAD_REQUEST,
-            GitHubAppAddPullRequestError::IntegrationNotInstalled => {
-                StatusCode::PRECONDITION_FAILED
-            }
+            GitHubAppAddPullRequestError::NotInstalled => StatusCode::PRECONDITION_FAILED,
             GitHubAppAddPullRequestError::RefreshTokenExpired => StatusCode::GONE,
             GitHubAppAddPullRequestError::RefreshTokenNotReceived => StatusCode::BAD_GATEWAY,
+            GitHubAppAddPullRequestError::DuplicateResource => StatusCode::CONFLICT,
             GitHubAppAddPullRequestError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
             GitHubAppAddPullRequestError::Auth(auth) => auth.status_code(),
         }

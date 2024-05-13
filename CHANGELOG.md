@@ -25,6 +25,8 @@ major version hasn't changed.
 - Add models required for GitHub app workspace-level integration (#198)
 - Add PagerDuty incident frontmatter object (#201)
 - Add `addFrontMatter` and `frontMatter.pagerdutyIncident` to `fiberplane.libsonnet` (#201)
+- `fiberplane-api-client`: New endpoint `integrations_github_app_pull_request_front_matter_add` has been added (#218)
+- `fiberplane-models`: New fields `key` and `display_name` has been added to `GitHubAppAddPullRequest` (#218)
 
 ## [v1.0.0-beta.14] - 2024-03-07
 

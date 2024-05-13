@@ -2775,7 +2775,83 @@ components:
           unauthorized: "#/components/schemas/unauthorizedError"
           unauthenticated: "#/components/schemas/unauthenticatedError"
           not_installed: "#/components/schemas/gitHubAppNotInstalledError"
-
+    gitHubAppAddPullRequest:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          description: URL of the GitHub pull request
+        key:
+          type: string
+          description: Key which will be used to internally refer to this GitHub pull request front matter
+        display_name:
+          type: string
+          description: Display name of the Front Matter schema
+    gitHubAppAddPullRequestError:
+      oneOf:
+        - $ref: "#/components/schemas/internalServerError"
+        - $ref: "#/components/schemas/unauthorizedError"
+        - $ref: "#/components/schemas/unauthenticatedError"
+        - $ref: "#/components/schemas/gitHubAppNotInstalledError"
+      discriminator:
+        propertyName: error
+        mapping:
+          access_denied: "#/components/schemas/gitHubAppAccessDenied"
+          invalid_url: "#/components/schemas/gitHubAppInvalidUrl"
+          not_installed: "#/components/schemas/gitHubAppNotInstalledError"
+          refresh_token_expired: "#/components/schemas/gitHubAppRefreshTokenExpired"
+          refresh_token_not_received: "#/components/schemas/gitHubAppRefreshTokenNotReceived"
+          duplicate_pull_request: "#/components/schemas/gitHubAppDuplicateResource"
+          internal_server_error: "#/components/schemas/internalServerError"
+          unauthorized: "#/components/schemas/unauthorizedError"
+          unauthenticated: "#/components/schemas/unauthenticatedError"
+    gitHubAppAccessDenied:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "access_denied"
+    gitHubAppInvalidUrl:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "invalid_url"
+    gitHubAppRefreshTokenExpired:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "refresh_token_expired"
+    gitHubAppRefreshTokenNotReceived:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "refresh_token_not_received"
+    gitHubAppDuplicateResource:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          enum:
+            - "duplicate_resource"
   parameters:
     sortDirection:
       in: query
@@ -3271,6 +3347,32 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/threadSummary"
+  /api/notebooks/{notebookId}/integrations/github/pull_request:
+    parameters:
+      - $ref: "#/components/parameters/notebookId"
+    post:
+      operationId: integrations_github_app_pull_request_front_matter_add
+      summary: Add a GitHub pull request to the notebooks front matter
+      description: Add a GitHub pull request to the notebooks front matter
+      x-new-style: true
+      tags:
+        - Notebooks
+        - Front Matter Schema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/gitHubAppAddPullRequest"
+      responses:
+        "200":
+          description: OK
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/gitHubAppAddPullRequestError"
   /api/notebooks/{notebookId}/front_matter:
     parameters:
       - $ref: "#/components/parameters/notebookId"
