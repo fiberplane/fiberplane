@@ -587,7 +587,7 @@ For authenticating with the API see the Authentication section in the docs
         provider: &str,
         cli_redirect_port: Option<i32>,
         redirect: Option<&str>,
-    ) -> Result<models::OidLinkupLocation> {
+    ) -> Result<models::SoftRedirect> {
         let mut builder = self.request(
             Method::POST,
             &format!("/api/oidc/linkup/{provider}", provider = provider,),
@@ -1147,7 +1147,7 @@ For authenticating with the API see the Authentication section in the docs
     pub async fn integrations_github_app_install(
         &self,
         workspace_id: base64uuid::Base64Uuid,
-    ) -> Result<(), ApiClientError<models::GitHubAppInstallFlowError>> {
+    ) -> Result<models::SoftRedirect, ApiClientError<models::GitHubAppInstallFlowError>> {
         let path = &format!(
             "/api/workspaces/{workspaceId}/integrations/github/install",
             workspaceId = workspace_id,
@@ -1161,7 +1161,7 @@ For authenticating with the API see the Authentication section in the docs
     pub async fn integrations_github_app_uninstall(
         &self,
         workspace_id: base64uuid::Base64Uuid,
-    ) -> Result<(), ApiClientError<models::GitHubAppUninstallError>> {
+    ) -> Result<models::SoftRedirect, ApiClientError<models::GitHubAppUninstallError>> {
         let path = &format!(
             "/api/workspaces/{workspaceId}/integrations/github/uninstall",
             workspaceId = workspace_id,
