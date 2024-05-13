@@ -2783,6 +2783,9 @@ components:
         url:
           type: string
           description: URL of the GitHub pull request
+        key:
+          type: string
+          description: Key which will be used to internally refer to this GitHub pull request front matter
         display_name:
           type: string
           description: Display name of the Front Matter schema

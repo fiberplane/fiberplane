@@ -438,7 +438,14 @@ pub struct GitHubAppAddPullRequest {
     #[builder(setter(into))]
     pub url: String,
 
-    /// Display name of the front matter schema that should be displayed
+    /// Key which will be used to internally refer to this GitHub pull request front matter.
+    /// If not specified, falls back to `github_pull_request_<id>`
+    #[builder(default, setter(into))]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub key: Option<String>,
+
+    /// Display name of the front matter schema that should be displayed.
+    /// If not specified, falls back to `GitHub pull request`
     #[builder(default, setter(into))]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub display_name: Option<String>,
