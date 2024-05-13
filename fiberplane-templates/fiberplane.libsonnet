@@ -511,10 +511,10 @@ local notebook = {
   },
 };
 
-local createFrontMatterValueWithSchema(key, value, schemaType, displayName, validatorType='string', supportsMultiple=false) =
+local createFrontMatterValueWithSchema(key, value, schemaType, displayName, validatorType='string') =
   // Validate the key and value types
   local validatedKey = validate.string(key + ' key', key);
-  local validatedValue = if supportsMultiple && std.type(value) == 'array' then
+  local validatedValue = if std.type(value) == 'array' then
     std.mapWithIndex(
       function(index, item)
         validate[validatorType](key + '.' + index, item),
@@ -544,7 +544,7 @@ local frontMatter = {
     *
     * @function frontMatter.number
     * @param {string} key - The key of the front matter entry
-    * @param {number} value - Number value of the front matter entry
+    * @param {(number|number[])} value - Number value of the front matter entry or an array of them
     * @param {string} [displayName="Number"] - The display name of the front matter entry
     * @returns {object}
     */
@@ -560,13 +560,13 @@ local frontMatter = {
     * @returns {object}
     */
   string(key, value, displayName='String')::
-    createFrontMatterValueWithSchema(key, value, 'string', displayName, 'string', true),
+    createFrontMatterValueWithSchema(key, value, 'string', displayName, 'string'),
   /**
     * Creates a datetime frontmatter value and schema. If incorrect datetime is provided, falls back to string.
     *
     * @function frontMatter.datetime
     * @param {string} key - The key of the front matter entry
-    * @param {string} value - DateTime value of the front matter entry
+    * @param {(string|string[])} value - DateTime value of the front matter entry or an array of them
     * @param {string} [displayName="DateTime"] - The display name of the front matter entry
     * @returns {object}
     */
@@ -582,7 +582,7 @@ local frontMatter = {
     * @returns {object}
     */
   user(key, value, displayName='User')::
-    createFrontMatterValueWithSchema(key, value, 'user', displayName, 'string', true),
+    createFrontMatterValueWithSchema(key, value, 'user', displayName, 'string'),
   /**
     * Creates a PagerDuty Incident frontmatter value and schema.
     *

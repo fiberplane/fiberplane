@@ -56,7 +56,8 @@ fn expands_add_frontmatter_number() {
         fp.notebook.new('Notebook')
             .addFrontMatter([
                 fm.number('number', 42, 'Number of issues'),
-                fm.number('number-2', 13)
+                fm.number('number-2', 13),
+                fm.number('number-3', [1, 96])
             ])
     "#;
     let output = expand_template(template, ARGS).unwrap();
@@ -77,12 +78,21 @@ fn expands_add_frontmatter_number() {
                     .build(),
             )
             .build(),
+        FrontMatterSchemaEntry::builder()
+            .key("number-3")
+            .schema(
+                FrontMatterNumberSchema::builder()
+                    .display_name("Number")
+                    .build(),
+            )
+            .build(),
     ]
     .into();
     assert_eq!(output.front_matter_schema, expected_schema);
     let expected_front_matter: BTreeMap<String, FrontMatterValue> = [
         ("number".to_string(), json!(42).into()),
         ("number-2".to_string(), json!(13).into()),
+        ("number-3".to_string(), json!([1, 96]).into()),
     ]
     .into();
     assert_eq!(output.front_matter, expected_front_matter);
@@ -146,23 +156,40 @@ fn expands_add_frontmatter_datetime() {
         local fp = import 'fiberplane.libsonnet';
         local fm = fp.frontMatter;
         fp.notebook.new('Notebook')
-            .addFrontMatter(
-                fm.dateTime('datetime', '2021-01-01T00:00:00Z')
-            )
+            .addFrontMatter([
+                fm.dateTime('datetime', '2021-01-01T00:00:00Z'),
+                fm.dateTime('datetime-2', ['2021-01-01T00:00:00Z', '2021-01-01T00:00:00Z'])
+            ])
     "#;
     let output = expand_template(template, ARGS).unwrap();
-    let expected_schema: FrontMatterSchema = vec![FrontMatterSchemaEntry::builder()
-        .key("datetime")
-        .schema(
-            FrontMatterDateTimeSchema::builder()
-                .display_name("DateTime")
-                .build(),
-        )
-        .build()]
+    let expected_schema: FrontMatterSchema = vec![
+        FrontMatterSchemaEntry::builder()
+            .key("datetime")
+            .schema(
+                FrontMatterDateTimeSchema::builder()
+                    .display_name("DateTime")
+                    .build(),
+            )
+            .build(),
+        FrontMatterSchemaEntry::builder()
+            .key("datetime-2")
+            .schema(
+                FrontMatterDateTimeSchema::builder()
+                    .display_name("DateTime")
+                    .build(),
+            )
+            .build(),
+    ]
     .into();
     assert_eq!(output.front_matter_schema, expected_schema);
-    let expected_front_matter: BTreeMap<String, FrontMatterValue> =
-        [("datetime".to_string(), json!("2021-01-01T00:00:00Z").into())].into();
+    let expected_front_matter: BTreeMap<String, FrontMatterValue> = [
+        ("datetime".to_string(), json!("2021-01-01T00:00:00Z").into()),
+        (
+            "datetime-2".to_string(),
+            json!(["2021-01-01T00:00:00Z", "2021-01-01T00:00:00Z"]).into(),
+        ),
+    ]
+    .into();
     assert_eq!(output.front_matter, expected_front_matter);
 }
 
