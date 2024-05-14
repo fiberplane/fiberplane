@@ -443,6 +443,7 @@ impl PagerDutyReceiverWebhookError {
                 StatusCode::INTERNAL_SERVER_ERROR
             }
             PagerDutyReceiverWebhookError::SerializationFailed => StatusCode::INTERNAL_SERVER_ERROR,
+            PagerDutyReceiverWebhookError::UnsupportedEvent => StatusCode::NOT_IMPLEMENTED,
         }
     }
 }
