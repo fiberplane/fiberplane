@@ -25,6 +25,8 @@ major version hasn't changed.
 - Add models required for GitHub app workspace-level integration (#198)
 - Add PagerDuty incident frontmatter object (#201)
 - Add `addFrontMatter` and `frontMatter.pagerdutyIncident` to `fiberplane.libsonnet` (#201)
+- `fiberplane-api-client`: New endpoint `integrations_github_app_pull_request_front_matter_add` has been added (#218)
+- `fiberplane-models`: New fields `key` and `display_name` has been added to `GitHubAppAddPullRequest` (#218)
 - `fiberplane-ui`: Implement form validation according to the design system
 - `fiberplane-ui`: Move `Select` over from `studio` and implement new designs
 - `fiberplane-ui`: Move `TabList` over from `studio` add support for non-`<Link />` tabs
