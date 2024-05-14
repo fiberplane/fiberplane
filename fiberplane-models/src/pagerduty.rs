@@ -416,9 +416,6 @@ pub enum PagerDutyReceiverWebhookError {
     #[error("failed to expand template")]
     TemplateExpansionFailed,
 
-    #[error("failed to serialize into json")]
-    SerializationFailed,
-
     #[error("Unknown error occurred")]
     InternalServerError,
 
@@ -442,7 +439,6 @@ impl PagerDutyReceiverWebhookError {
             PagerDutyReceiverWebhookError::TemplateExpansionFailed => {
                 StatusCode::INTERNAL_SERVER_ERROR
             }
-            PagerDutyReceiverWebhookError::SerializationFailed => StatusCode::INTERNAL_SERVER_ERROR,
             PagerDutyReceiverWebhookError::UnsupportedEvent => StatusCode::NOT_IMPLEMENTED,
         }
     }
