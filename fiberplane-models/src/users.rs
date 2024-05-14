@@ -69,7 +69,7 @@ pub struct OidConnection {
 )]
 #[non_exhaustive]
 #[serde(rename_all = "camelCase")]
-pub struct OidLinkupLocation {
+pub struct SoftRedirect {
     #[builder(setter(into))]
     pub location: String,
 }
