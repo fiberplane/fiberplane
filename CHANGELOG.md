@@ -29,6 +29,7 @@ major version hasn't changed.
 - `fiberplane-models`: New fields `key` and `display_name` has been added to `GitHubAppAddPullRequest` (#218)
 - `fiberplane-models`: Rename `OidLinkupLocation` to `SoftRedirect` (#224)
 - `fiberplane-models`: New variants have been added to `PagerDutyReceiverWebhookError` (#226)
+- `fiberplane-models`: Documentation now matches reality for PagerDuty and GitHub integrations (#227)
 
 ## [v1.0.0-beta.14] - 2024-03-07
 
