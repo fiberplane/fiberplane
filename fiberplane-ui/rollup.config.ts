@@ -19,7 +19,7 @@ export default defineConfig([
       "react",
       "react-popper",
       "react/jsx-runtime",
-      "styled-components"
+      "styled-components",
     ],
     plugins: [
       svgr({
