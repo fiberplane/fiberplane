@@ -8,7 +8,15 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "correctness": {
+        "useExhaustiveDependencies": {
+          "level": "error",
+          "options": {
+            "hooks": [{ "name": "useHandler", "stableResult": 1 }]
+          }
+        }
+      }
     }
   },
   "files": {
