@@ -13,12 +13,13 @@ export default defineConfig([
       compact: true,
     },
     external: [
-      "react",
-      "react/jsx-runtime",
-      "styled-components",
-      "framer-motion",
-      "react-popper",
       "@fiberplane/hooks",
+      "@popperjs/core",
+      "framer-motion",
+      "react",
+      "react-popper",
+      "react/jsx-runtime",
+      "styled-components"
     ],
     plugins: [
       svgr({
