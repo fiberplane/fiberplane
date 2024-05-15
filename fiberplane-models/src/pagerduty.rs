@@ -395,6 +395,27 @@ impl SortField for PagerDutyReceiverListSortFields {
 #[non_exhaustive]
 #[serde(tag = "error", rename_all = "snake_case")]
 pub enum PagerDutyReceiverWebhookError {
+    #[error("this event is unsupported")]
+    UnsupportedEvent,
+
+    #[error("already exists")]
+    Duplicate,
+
+    #[error("expected front matter to be of type `PagerDutyIncident` but it was not")]
+    UnexpectedFrontMatterType,
+
+    #[error("incident in front matter does not match the received incident from the webhook")]
+    MismatchingIncident,
+
+    #[error("failed to parse payload as JSON")]
+    InvalidJson,
+
+    #[error("template not found")]
+    TemplateNotFound,
+
+    #[error("failed to expand template")]
+    TemplateExpansionFailed,
+
     #[error("Unknown error occurred")]
     InternalServerError,
 
@@ -408,6 +429,17 @@ impl PagerDutyReceiverWebhookError {
         match self {
             PagerDutyReceiverWebhookError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
             PagerDutyReceiverWebhookError::InvalidSignature => StatusCode::BAD_REQUEST,
+            PagerDutyReceiverWebhookError::Duplicate => StatusCode::CONFLICT,
+            PagerDutyReceiverWebhookError::UnexpectedFrontMatterType => {
+                StatusCode::PRECONDITION_FAILED
+            }
+            PagerDutyReceiverWebhookError::MismatchingIncident => StatusCode::BAD_REQUEST,
+            PagerDutyReceiverWebhookError::InvalidJson => StatusCode::BAD_REQUEST,
+            PagerDutyReceiverWebhookError::TemplateNotFound => StatusCode::NOT_FOUND,
+            PagerDutyReceiverWebhookError::TemplateExpansionFailed => {
+                StatusCode::INTERNAL_SERVER_ERROR
+            }
+            PagerDutyReceiverWebhookError::UnsupportedEvent => StatusCode::NOT_IMPLEMENTED,
         }
     }
 }
