@@ -41,7 +41,7 @@ pub type FrontMatter = BTreeMap<String, FrontMatterValue>;
 ///
 /// // A value that came from an API boundary
 /// let good_value_from_api = json!(42);
-/// assert!(schema.validate_value(good_value_from_api.clone()).is_ok());
+/// assert!(schema.validate_value(good_value_from_api).is_ok());
 ///
 /// // Another value (that has the wrong type)
 /// let bad_value_from_api = json!("2022-10-08T13:29:00.78Z");
@@ -639,7 +639,7 @@ pub struct FrontMatterPagerDutyIncident {
     #[builder(default = Timestamp::now_utc(), setter(into))]
     pub updated_at: Timestamp,
 
-    /// Timestamp that the PagerDuty receiver was last updated.
+    /// Timestamp when this incident was resolved
     #[builder(default, setter(into))]
     pub resolved_at: Option<Timestamp>,
 
@@ -709,7 +709,7 @@ pub struct PagerDutyResourceReference {
     pub ty: PagerDutyResourceReferenceType,
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Display)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize, Display)]
 #[cfg_attr(
     feature = "fp-bindgen",
     derive(Serializable),
@@ -739,8 +739,7 @@ pub struct FrontMatterGitHubPullRequest {
     /// HTML url of this GitHub pull request
     pub html_url: String,
 
-    /// Global unique ID of the GitHub pull request. This gets used to find this very front matter
-    /// within all notebooks whenever a webhook from GitHub gets handled. GitHub assigns this ID.
+    /// Global unique ID of the GitHub pull request. GitHub assigns this ID.
     pub id: u64,
 
     /// The owner of the repository where this pull request was created on
@@ -782,10 +781,10 @@ pub struct FrontMatterGitHubPullRequest {
     #[builder(setter(into))]
     pub assignee_avatar_url: Option<String>,
 
-    /// Labels attached to this PR
+    /// Labels attached to this pull request
     pub labels: Vec<String>,
 
-    /// Reviewers requested for this PR
+    /// Reviewers requested for this pull request
     pub reviewers: Vec<String>,
 
     /// State of the pull request
@@ -802,8 +801,9 @@ pub struct FrontMatterGitHubPullRequest {
     #[builder(setter(into))]
     pub created_at: Timestamp,
 
-    /// Timestamp of the last update received by Fiberplane to this pull request. May be outdated
-    /// if there are changes that the GitHub webhook has not yet sent out
+    /// Timestamp of the last update made to this pull request. Please note that
+    /// this includes both changes made to the pull request (e.g label added)
+    /// as well as actual code changes
     #[builder(setter(into))]
     pub updated_at: Timestamp,
 }
