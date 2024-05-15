@@ -28,6 +28,7 @@ major version hasn't changed.
 - `fiberplane-api-client`: New endpoint `integrations_github_app_pull_request_front_matter_add` has been added (#218)
 - `fiberplane-models`: New fields `key` and `display_name` has been added to `GitHubAppAddPullRequest` (#218)
 - `fiberplane-models`: Rename `OidLinkupLocation` to `SoftRedirect` (#224)
+- `fiberplane-models`: New variants have been added to `PagerDutyReceiverWebhookError` (#226)
 - `fiberplane-ui`: Implement form validation according to the design system
 - `fiberplane-ui`: Move `Select` over from `studio` and implement new designs
 - `fiberplane-ui`: Move `TabList` over from `studio` add support for non-`<Link />` tabs
