@@ -1,6 +1,6 @@
 export * from "./features";
 // export * from "./useClickAway";
-export * from "./useDocumentEventHandler";
+// export * from "./useDocumentEventHandler";
 export * from "./useEffectOnce";
 export * from "./useHandler";
 export * from "./useKeyPressEvent";
