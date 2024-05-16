@@ -5,7 +5,8 @@ import { defineRollupSwcOption, swc } from "rollup-plugin-swc3";
 
 export default defineConfig([
   {
-    input: "src/index.ts",
+    input: "src/components/index.ts",
+    // input: "src/index.ts",
     output: {
       file: "dist/index.js",
       format: "es",
@@ -13,11 +14,11 @@ export default defineConfig([
       compact: true,
     },
     external: [
-      "@fiberplane/hooks",
-      "@popperjs/core",
-      "framer-motion",
+      // "@fiberplane/hooks",
+      // "@popperjs/core",
+      // "framer-motion",
       "react",
-      "react-popper",
+      // "react-popper",
       "react/jsx-runtime",
       "styled-components",
     ],
@@ -45,7 +46,8 @@ export default defineConfig([
     ],
   },
   {
-    input: "src/index.ts",
+    input: "src/components/index.ts",
+    // input: "src/index.ts",
     output: {
       file: "dist/index.d.ts",
       format: "es",
