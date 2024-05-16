@@ -1,4 +1,4 @@
-// export * from "./AttachedPopup";
+export * from "./AttachedPopup";
 export * from "./Button";
 export * from "./Icon";
 export * from "./IconButton";
