@@ -38,7 +38,7 @@ major version hasn't changed.
 - `fiberplane-hooks`: Introduce `useClickAway`
 - `fiberplane-hooks`: Move `useOpen` from `studio`
 - `fiberplane-hooks`: Introduce `useDocumentEventHandler`
-- `fiberplane-charts`: Updated `framer-motion` from `^10.18.0` to `^11.1.9`
+- `fiberplane-charts`: Updated `framer-motion` from `^10.18.0` to `^11.2.3`
 
 ## [v1.0.0-beta.14] - 2024-03-07
 
