@@ -17,7 +17,7 @@
   "dependencies": {
     "@fiberplane/hooks": "workspace:^",
     "@popperjs/core": "^2.11.8",
-    "framer-motion": "^10.18.0",
+    "framer-motion": "^11.2.3",
     "lodash.merge": "^4.6.2",
     "react-popper": "^2.3.0"
   },
