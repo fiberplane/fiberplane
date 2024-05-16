@@ -16,7 +16,7 @@ export default defineConfig([
     external: [
       // "@fiberplane/hooks",
       // "@popperjs/core",
-      // "framer-motion",
+      "framer-motion",
       "react",
       // "react-popper",
       "react/jsx-runtime",
