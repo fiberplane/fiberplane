@@ -1,4 +1,4 @@
-import { useDocumentEventHandler } from "./useDocumentEventHandler";
+// import { useDocumentEventHandler } from "./useDocumentEventHandler";
 import { useHandler } from "./useHandler";
 
 /**
@@ -16,5 +16,5 @@ export function useKeyPressEvent(
     }
   });
 
-  useDocumentEventHandler("keydown", onKeyDown);
+  // useDocumentEventHandler("keydown", onKeyDown);
 }
