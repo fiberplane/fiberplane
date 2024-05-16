@@ -1,5 +1,5 @@
 export * from "./features";
-// export * from "./useClickAway";
+export * from "./useClickAway";
 export * from "./useDocumentEventHandler";
 export * from "./useEffectOnce";
 export * from "./useHandler";
