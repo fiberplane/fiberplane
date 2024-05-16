@@ -5,8 +5,7 @@ import { defineRollupSwcOption, swc } from "rollup-plugin-swc3";
 
 export default defineConfig([
   {
-    input: "src/components/index.ts",
-    // input: "src/index.ts",
+    input: "src/index.ts",
     output: {
       file: "dist/index.js",
       format: "es",
@@ -46,8 +45,7 @@ export default defineConfig([
     ],
   },
   {
-    input: "src/components/index.ts",
-    // input: "src/index.ts",
+    input: "src/index.ts",
     output: {
       file: "dist/index.d.ts",
       format: "es",
