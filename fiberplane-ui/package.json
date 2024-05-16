@@ -19,7 +19,6 @@
   },
   "devDependencies": {
     "@fiberplane/hooks": "workspace:^",
-    "@popperjs/core": "^2.11.8",
     "@rollup/plugin-typescript": "^11.1.6",
     "@svgr/rollup": "^6.5.1",
     "@swc/core": "^1.4.7",
@@ -29,7 +28,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-is": "^18.2.0",
-    "react-popper": "^2.3.0",
     "rollup": "^4.13.0",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-import-css": "^3.5.0",
@@ -39,11 +37,9 @@
     "typescript": "^5.4.2"
   },
   "peerDependencies": {
-    "@popperjs/core": "^2.11.8",
     "framer-motion": "10.18.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-popper": "^2.3.0",
     "styled-components": "^6.1.1"
   },
   "scripts": {
