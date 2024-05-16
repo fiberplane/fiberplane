@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@fiberplane/hooks": "workspace:^",
-    "framer-motion": "^11.1.9",
+    "framer-motion": "^11.2.3",
     "react-window": "^1.8.10",
     "throttle-debounce": "^5.0.0"
   },
