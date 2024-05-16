@@ -1,3 +1,3 @@
 export * from "./components";
 
-export { cancelEvent, stopPropagation } from "./utils";
+// export { cancelEvent, stopPropagation } from "./utils";
