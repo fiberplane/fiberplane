@@ -16,5 +16,8 @@ export function useKeyPressEvent(
     }
   });
 
+  // unused.........
+  console.log(onKeyDown);
+
   // useDocumentEventHandler("keydown", onKeyDown);
 }
