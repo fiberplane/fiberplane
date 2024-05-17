@@ -595,7 +595,7 @@ fn generate_function_body_new_style(
 
         write!(writer, ");")?;
     } else {
-        write!(writer, "        \"{endpoint};\"")?;
+        write!(writer, "        \"{endpoint}\";")?;
     }
     writeln!(writer)?;
 

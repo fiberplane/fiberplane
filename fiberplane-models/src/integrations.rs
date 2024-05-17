@@ -11,6 +11,8 @@ use strum_macros::{Display, EnumIter};
 use thiserror::Error;
 use typed_builder::TypedBuilder;
 
+pub mod slack;
+
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
 #[cfg_attr(
     feature = "fp-bindgen",
@@ -42,6 +44,7 @@ pub struct PersonalIntegrationSummary {
 #[serde(rename_all = "lowercase")]
 pub enum PersonalIntegrationId {
     GitHub,
+    Slack,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
