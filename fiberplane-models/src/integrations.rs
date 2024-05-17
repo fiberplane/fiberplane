@@ -76,6 +76,7 @@ pub struct WorkspaceIntegrationSummary {
 pub enum WorkspaceIntegrationId {
     PagerDutyWebhook,
     GitHubApp,
+    ZoomApp,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, Display, EnumIter)]
@@ -518,5 +519,328 @@ impl axum_07::response::IntoResponse for GitHubAppAddPullRequestError {
 impl From<AuthError> for GitHubAppAddPullRequestError {
     fn from(value: AuthError) -> Self {
         GitHubAppAddPullRequestError::Auth(value)
+    }
+}
+
+// *** ZOOM *** //
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct ZoomAppDetails {
+    /// Timestamp when this integration was installed
+    #[builder(setter(into))]
+    pub created_at: Timestamp,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
+pub enum ZoomAppInstallFlowError {
+    #[error("the integration has already been installed for this workspace")]
+    AlreadyInstalled,
+
+    #[error("unknown error occurred")]
+    InternalServerError,
+
+    /// Common auth errors.
+    #[error(transparent)]
+    Auth(AuthError),
+}
+
+impl ZoomAppInstallFlowError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    fn status_code(&self) -> StatusCode {
+        match self {
+            ZoomAppInstallFlowError::AlreadyInstalled => StatusCode::CONFLICT,
+            ZoomAppInstallFlowError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            ZoomAppInstallFlowError::Auth(auth) => auth.status_code(),
+        }
+    }
+}
+
+impl From<AuthError> for ZoomAppInstallFlowError {
+    fn from(value: AuthError) -> Self {
+        ZoomAppInstallFlowError::Auth(value)
+    }
+}
+
+#[cfg(feature = "axum_06")]
+impl axum_06::response::IntoResponse for ZoomAppInstallFlowError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for ZoomAppInstallFlowError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
+pub enum ZoomAppDetailsError {
+    #[error("The Zoom app was not yet installed")]
+    NotInstalled,
+
+    #[error("Unknown error occurred")]
+    InternalServerError,
+
+    /// Common auth errors.
+    #[error(transparent)]
+    Auth(AuthError),
+}
+
+impl ZoomAppDetailsError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    fn status_code(&self) -> StatusCode {
+        match self {
+            ZoomAppDetailsError::NotInstalled => StatusCode::NOT_FOUND,
+            ZoomAppDetailsError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            ZoomAppDetailsError::Auth(err) => err.status_code(),
+        }
+    }
+}
+
+impl From<AuthError> for ZoomAppDetailsError {
+    fn from(value: AuthError) -> Self {
+        ZoomAppDetailsError::Auth(value)
+    }
+}
+
+#[cfg(feature = "axum_06")]
+impl axum_06::response::IntoResponse for ZoomAppDetailsError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for ZoomAppDetailsError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
+pub enum ZoomAppUninstallError {
+    #[error("the integration is not installed")]
+    NotInstalled,
+
+    #[error("unknown error occurred")]
+    InternalServerError,
+
+    /// Common auth errors.
+    #[error(transparent)]
+    Auth(AuthError),
+}
+
+impl ZoomAppUninstallError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    fn status_code(&self) -> StatusCode {
+        match self {
+            ZoomAppUninstallError::NotInstalled => StatusCode::NOT_FOUND,
+            ZoomAppUninstallError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            ZoomAppUninstallError::Auth(err) => err.status_code(),
+        }
+    }
+}
+
+impl From<AuthError> for ZoomAppUninstallError {
+    fn from(value: AuthError) -> Self {
+        ZoomAppUninstallError::Auth(value)
+    }
+}
+
+#[cfg(feature = "axum_06")]
+impl axum_06::response::IntoResponse for ZoomAppUninstallError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for ZoomAppUninstallError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq, Error)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
+// TODO - Map to Zoom's error paths instead of GitHub's
+pub enum ZoomAppInstallRedirectError {
+    #[error("The provided code could not be exchanged into a Bearer token by Zoom")]
+    InvalidCode,
+
+    #[error("Unknown error occurred")]
+    InternalServerError,
+
+    /// Common auth errors.
+    #[error(transparent)]
+    Auth(AuthError),
+}
+
+impl ZoomAppInstallRedirectError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    fn status_code(&self) -> StatusCode {
+        match self {
+            ZoomAppInstallRedirectError::InvalidCode => StatusCode::BAD_REQUEST,
+            ZoomAppInstallRedirectError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            ZoomAppInstallRedirectError::Auth(err) => err.status_code(),
+        }
+    }
+}
+
+impl From<AuthError> for ZoomAppInstallRedirectError {
+    fn from(value: AuthError) -> Self {
+        ZoomAppInstallRedirectError::Auth(value)
+    }
+}
+
+#[cfg(feature = "axum_06")]
+impl axum_06::response::IntoResponse for ZoomAppInstallRedirectError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for ZoomAppInstallRedirectError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::integrations")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct ZoomAppAddMeeting {
+    /// The meeting id of the Zoom meeting
+    pub meeting_id: i64,
+}
+
+#[derive(Serialize, Debug, Error)]
+#[serde(tag = "error", content = "details", rename_all = "snake_case")]
+pub enum ZoomAppAddMeetingError {
+    #[error("access denied to meeting")]
+    AccessDenied,
+
+    #[error("provided meeting id is invalid")]
+    InvalidMeetingId,
+
+    #[error("integration not installed")]
+    IntegrationNotInstalled,
+
+    #[error("refresh token expired, please re-link integration")]
+    RefreshTokenExpired,
+
+    #[error("didnt receive new refresh token from Zoom")]
+    RefreshTokenNotReceived,
+
+    #[error("unknown error occurred")]
+    InternalServerError,
+
+    #[error(transparent)]
+    Auth(AuthError),
+}
+
+impl ZoomAppAddMeetingError {
+    #[cfg(any(feature = "axum_06", feature = "axum_07"))]
+    fn status_code(&self) -> StatusCode {
+        match self {
+            ZoomAppAddMeetingError::AccessDenied => StatusCode::UNAUTHORIZED,
+            ZoomAppAddMeetingError::InvalidMeetingId => StatusCode::BAD_REQUEST,
+            ZoomAppAddMeetingError::IntegrationNotInstalled => StatusCode::PRECONDITION_FAILED,
+            ZoomAppAddMeetingError::RefreshTokenExpired => StatusCode::GONE,
+            ZoomAppAddMeetingError::RefreshTokenNotReceived => StatusCode::BAD_GATEWAY,
+            ZoomAppAddMeetingError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            ZoomAppAddMeetingError::Auth(auth) => auth.status_code(),
+        }
+    }
+}
+
+#[cfg(feature = "axum_06")]
+impl axum_06::response::IntoResponse for ZoomAppAddMeetingError {
+    fn into_response(self) -> axum_06::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+#[cfg(feature = "axum_07")]
+impl axum_07::response::IntoResponse for ZoomAppAddMeetingError {
+    fn into_response(self) -> axum_07::response::Response {
+        let body = serde_json::to_string(&self).expect("unable to serialize error body");
+        let status_code = self.status_code();
+
+        (status_code, body).into_response()
+    }
+}
+
+impl From<AuthError> for ZoomAppAddMeetingError {
+    fn from(value: AuthError) -> Self {
+        ZoomAppAddMeetingError::Auth(value)
     }
 }

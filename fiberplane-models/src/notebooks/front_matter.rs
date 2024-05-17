@@ -85,6 +85,10 @@ pub enum FrontMatterValue {
     /// A GitHub pull request front matter value
     #[serde(rename = "github_pull_request")]
     GitHubPullRequest(Box<FrontMatterGitHubPullRequest>),
+
+    /// A Zoom meeting front matter value
+    #[serde(rename = "zoom_meeting")]
+    ZoomMeeting(Box<FrontMatterZoomMeeting>),
 }
 
 /// Error from validating a JSON object as a correct front matter value
@@ -146,6 +150,7 @@ impl FrontMatterValue {
             FrontMatterValue::UserList(_) => "user_list",
             FrontMatterValue::PagerDutyIncident(_) => "pagerduty_incident",
             FrontMatterValue::GitHubPullRequest(_) => "github_pull_request",
+            FrontMatterValue::ZoomMeeting(_) => "zoom_meeting",
         }
     }
 }
@@ -820,6 +825,67 @@ impl TryFrom<Value> for FrontMatterGitHubPullRequest {
     fn try_from(value: Value) -> Result<Self, Self::Error> {
         serde_json::from_value(value).map_err(|err| FrontMatterValidationError::Format {
             message: format!("invalid github pull request: {err}"),
+        })
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Serialize, TypedBuilder)]
+#[cfg_attr(
+    feature = "fp-bindgen",
+    derive(Serializable),
+    fp(rust_module = "fiberplane_models::notebooks::front_matter")
+)]
+#[non_exhaustive]
+#[serde(rename_all = "camelCase")]
+pub struct FrontMatterZoomMeeting {
+    /// ID of the Zoom meeting
+    pub id: i64,
+
+    /// UUID of the Zoom meeting, necessary to fetch meeting summary
+    pub uuid: String,
+
+    /// Topic of the Zoom meeting (meeting name)
+    #[builder(setter(into))]
+    pub topic: String,
+
+    /// The type of meeting
+    pub r#type: u8,
+
+    /// The host of the meeting
+    #[builder(setter(into))]
+    pub host_email: String,
+
+    /// A URL that a host or an alternative host can use to start the meeting
+    pub start_url: Option<String>,
+
+    /// The URL for participants to join the meeting
+    pub join_url: Option<String>,
+
+    /// Status of the meeting (e.g., "waiting" or "started")
+    #[builder(setter(into))]
+    pub status: Option<String>,
+
+    /// Timestamp when this meeting created
+    #[builder(setter(into))]
+    pub created_at: Option<Timestamp>,
+
+    /// Timestamp when this meeting will start
+    #[builder(setter(into))]
+    pub start_time: Option<Timestamp>,
+}
+
+impl From<FrontMatterZoomMeeting> for FrontMatterValue {
+    fn from(v: FrontMatterZoomMeeting) -> Self {
+        Self::ZoomMeeting(Box::new(v))
+    }
+}
+
+impl TryFrom<Value> for FrontMatterZoomMeeting {
+    type Error = FrontMatterValidationError;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        serde_json::from_value(value).map_err(|err| FrontMatterValidationError::Format {
+            message: format!("invalid zoom meeting: {err}"),
         })
     }
 }
