@@ -48,7 +48,6 @@ const TabListContainer = styled.header(
   display: flex;
   gap: 40px;
   border-bottom: 1px solid ${theme.color.border.muted};
-  overflow-x: scroll;
 `,
 );
 
