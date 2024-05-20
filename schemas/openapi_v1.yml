@@ -2434,6 +2434,7 @@ components:
           type: string
           enum:
             - "github"
+            - "slack"
         status:
           type: object
           required:
@@ -2852,6 +2853,70 @@ components:
           type: string
           enum:
             - "duplicate_resource"
+    slackInstallError:
+      oneOf:
+        - $ref: "#/components/schemas/internalServerError"
+        - $ref: "#/components/schemas/unauthorizedError"
+        - $ref: "#/components/schemas/unauthenticatedError"
+        - $ref: "#/components/schemas/slackServiceError"
+        - $ref: "#/components/schemas/tokenCreationError"
+      discriminator:
+        propertyName: error
+        mapping:
+          internal_server_error: "#/components/schemas/internalServerError"
+          unauthorized:  "#/components/schemas/unauthorizedError"
+          unauthenticated:  "#/components/schemas/unauthenticatedError"
+          slack_service: "#/components/schemas/slackServiceError"
+          token_creation: "#/components/schemas/tokenCreationError"
+    slackServiceError:
+      type: object
+      required:
+        - error
+        - details
+      properties:
+        error:
+          type: string
+          enum:
+            - "slack_service"
+        details:
+          type: string
+    tokenCreationError:
+      type: object
+      required:
+        - error
+        - details
+      properties:
+        error:
+          type: string
+          enum:
+            - "token_creation"
+        details:
+          type: string
+    slackUninstallError:
+      oneOf:
+        - $ref: "#/components/schemas/internalServerError"
+        - $ref: "#/components/schemas/unauthorizedError"
+        - $ref: "#/components/schemas/unauthenticatedError"
+        - $ref: "#/components/schemas/tokenDeletionError"
+      discriminator:
+        propertyName: error
+        mapping:
+          internal_server_error: "#/components/schemas/internalServerError"
+          unauthorized: "#/components/schemas/unauthorizedError"
+          unauthenticated: "#/components/schemas/unauthenticatedError"
+          token_deletion: "#/components/schemas/tokenDeletionError"
+    tokenDeletionError:
+      type: object
+      required:
+        - error
+        - details
+      properties:
+        error:
+          type: string
+          enum:
+            - "token_deletion"
+        details:
+          type: string
   parameters:
     sortDirection:
       in: query
@@ -5554,3 +5619,41 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/gitHubAppUninstallError"
+  /api/integrations/slack/install:
+    get:
+      operationId: integrations_slack_install
+      x-new-style: true
+      summary: Install Slack Integration for the current user
+      description: Install Slack Integration for the current user
+      tags:
+        - Integrations
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/softRedirect"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/slackInstallError"
+  /api/integrations/slack/uninstall:
+    get:
+      operationId: integrations_slack_uninstall
+      x-new-style: true
+      summary: Unlink Slack and Fiberplane accounts
+      description: Unlink Slack and Fiberplane accounts
+      tags:
+        - Integrations
+      responses:
+        "200":
+          description: OK
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/slackUninstallError"

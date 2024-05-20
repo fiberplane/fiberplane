@@ -21,6 +21,7 @@ pub(crate) mod models {
     pub(crate) use fiberplane_models::files::*;
     pub(crate) use fiberplane_models::formatting::*;
     pub(crate) use fiberplane_models::front_matter_schemas::*;
+    pub(crate) use fiberplane_models::integrations::slack::*;
     pub(crate) use fiberplane_models::integrations::*;
     pub(crate) use fiberplane_models::labels::*;
     pub(crate) use fiberplane_models::names::*;
@@ -91,6 +92,26 @@ impl ApiClient {
         let response = builder.send().await?.error_for_status()?;
 
         Ok(())
+    }
+
+    #[doc = r#"Install Slack Integration for the current user"#]
+    pub async fn integrations_slack_install(
+        &self,
+    ) -> Result<models::SoftRedirect, ApiClientError<models::SlackInstallError>> {
+        let path = "/api/integrations/slack/install";
+        let mut req = self.request(Method::GET, path)?;
+
+        self.do_req(req).await
+    }
+
+    #[doc = r#"Unlink Slack and Fiberplane accounts"#]
+    pub async fn integrations_slack_uninstall(
+        &self,
+    ) -> Result<(), ApiClientError<models::SlackUninstallError>> {
+        let path = "/api/integrations/slack/uninstall";
+        let mut req = self.request(Method::GET, path)?;
+
+        self.do_req(req).await
     }
 
     #[doc = r#"Deletes a pending workspace invitation"#]
