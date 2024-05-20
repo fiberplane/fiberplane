@@ -30,6 +30,9 @@ major version hasn't changed.
 - `fiberplane-models`: Rename `OidLinkupLocation` to `SoftRedirect` (#224)
 - `fiberplane-models`: New variants have been added to `PagerDutyReceiverWebhookError` (#226)
 - `fiberplane-models`: Documentation now matches reality for PagerDuty and GitHub integrations (#227)
+- `fiberplane-models`: New models added to communicate with the new version of Slack integration (#228)
+- `fiberplane-api-client`: New endpoints (beta) for slack integration: `integrations_slack_install`, and
+  `integrations_slack_uninstall` (#228)
 
 ## [v1.0.0-beta.14] - 2024-03-07
 
