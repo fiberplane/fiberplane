@@ -21,6 +21,6 @@ export const useClickAway = (
     },
   );
 
-  useDocumentEventHandler('mousedown', eventHandler);
-  useDocumentEventHandler('touchstart', eventHandler);
+  useDocumentEventHandler("mousedown", eventHandler);
+  useDocumentEventHandler("touchstart", eventHandler);
 };
