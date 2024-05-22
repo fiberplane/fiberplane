@@ -2,9 +2,9 @@ import svgr from "@svgr/rollup";
 import { defineConfig } from "rollup";
 import dts from "rollup-plugin-dts";
 import { defineRollupSwcOption, swc } from "rollup-plugin-swc3";
-import { peerDependencies } from "./package.json";
+import pkg from "./package.json" with { type: "json" };
 
-const external = Object.keys(peerDependencies);
+const external = Object.keys(pkg.peerDependencies);
 
 export default defineConfig([
   {
