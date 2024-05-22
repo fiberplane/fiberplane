@@ -2,6 +2,9 @@ import svgr from "@svgr/rollup";
 import { defineConfig } from "rollup";
 import dts from "rollup-plugin-dts";
 import { defineRollupSwcOption, swc } from "rollup-plugin-swc3";
+import { peerDependencies } from "./package.json";
+
+const external = Object.keys(peerDependencies);
 
 export default defineConfig([
   {
@@ -12,15 +15,7 @@ export default defineConfig([
       sourcemap: true,
       compact: true,
     },
-    external: [
-      "@fiberplane/hooks",
-      "@popperjs/core",
-      "framer-motion",
-      "react",
-      "react-popper",
-      "react/jsx-runtime",
-      "styled-components",
-    ],
+    external,
     plugins: [
       svgr({
         svgoConfig: {
@@ -59,7 +54,7 @@ export default defineConfig([
       format: "es",
       compact: true,
     },
-    external: ["react/jsx-runtime", "styled-components", "lodash.merge"],
+    external,
     plugins: [
       svgr({
         svgoConfig: {
