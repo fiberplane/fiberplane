@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
-import { styled } from "styled-components";
+import { css, styled } from "styled-components";
 
-import { Button } from "./Button/Button";
+import { Button } from "./Button";
 import { Icon } from "./Icon";
 
 type IconButtonProps = Omit<
@@ -11,17 +11,23 @@ type IconButtonProps = Omit<
   Pick<React.ComponentProps<typeof Icon>, "iconType">;
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  function IconButton({ iconType, ...buttonProps }, ref) {
+  function IconButton({ buttonSize, iconType, ...buttonProps }, ref) {
+    const iconSize = buttonSize === "small" ? 16 : 20;
+
     return (
-      <StyledButton {...buttonProps} ref={ref}>
-        <Icon iconType={iconType} />
+      <StyledButton {...buttonProps} $buttonSize={buttonSize} ref={ref}>
+        <Icon iconType={iconType} height={iconSize} width={iconSize} />
       </StyledButton>
     );
   },
 );
 
-const StyledButton = styled(Button)`
-  padding: unset;
-  width: 36px;
-  aspect-ratio: 1;
-`;
+const StyledButton = styled(Button)<{
+  $buttonSize: IconButtonProps["buttonSize"];
+}>(
+  ({ $buttonSize }) => css`
+    padding: unset;
+    aspect-ratio: 1;
+    width: ${$buttonSize === "small" ? 28 : 36}px;
+  `,
+);
