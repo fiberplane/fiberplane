@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import { styled } from "styled-components";
 
-import { Button } from "./Button";
+import { Button } from "./Button/Button";
 import { Icon } from "./Icon";
 
 type IconButtonProps = Omit<
