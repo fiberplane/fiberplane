@@ -14,7 +14,9 @@ type ButtonProps = Omit<
   React.ComponentProps<typeof StyledButton>,
   "$buttonSize" | "$buttonStyle"
 > &
-  ButtonStyleProps;
+  ButtonStyleProps & {
+    isActive?: boolean;
+  };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   function Button(
@@ -23,16 +25,20 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       buttonSize = "medium",
       buttonStyle = "primary",
       buttonType = "button",
+      isActive = false,
       ...elementProps
     },
     ref,
   ) {
+    const className = isActive ? "active" : undefined;
+
     if (buttonType === "textButton") {
       return (
         <StyledTextButton
           ref={ref}
           $buttonSize={buttonSize}
           $buttonStyle={buttonStyle}
+          className={className}
           {...elementProps}
         >
           {children}
@@ -45,6 +51,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         $buttonSize={buttonSize}
         $buttonStyle={buttonStyle}
+        className={className}
         {...elementProps}
       >
         {children}
