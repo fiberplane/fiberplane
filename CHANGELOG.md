@@ -15,6 +15,15 @@ major version hasn't changed.
 
 ## unreleased
 
+- `fiberplane-markdown`: markdown to notebook behavior updated: 
+  - store syntax/language if specified in code
+  - added support for prometheus provider cells using a special code   syntax:
+    ```
+      ``` promql
+      # fiberplane-provider-query
+      node_network_transmit_bytes_total[30s]
+      ```
+    ```
 - `fiberplane-ui`: Fix input border colors in dark mode (use `--color-input-border-default` instead of `--color-input-border`)
 - `fiberplane-charts`: Add configuration to MetricsChart for number of ticks you'd prefer to see on an axis (defaults to previously hard-coded values)
 - `fiberplane-models`: Add extra types to front matter values, and add a value validation method to
