@@ -39,6 +39,8 @@ major version hasn't changed.
 - `fiberplane-hooks`: Move `useOpen` from `studio`
 - `fiberplane-hooks`: Introduce `useDocumentEventHandler`
 - `fiberplane-charts`: Updated `framer-motion` from `^10.18.0` to `^11.2.3`
+- `fiberplane-templates`: Add jsonnet helpers to create front matter schema's and values: `frontMatter.number`, `frontMatter.string`, `frontMatter.dateTime` and `frontMatter.user`
+- `fiberplane-templates`: Update `addFrontMatter` to handle arrays of values
 
 ## [v1.0.0-beta.14] - 2024-03-07
 

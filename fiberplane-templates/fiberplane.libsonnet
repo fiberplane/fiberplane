@@ -489,22 +489,100 @@ local notebook = {
      * used with the `frontmatter.*` helpers.
      *
      * @function notebook.Notebook#addFrontMatter
-     * @param {object} value - Map of frontMatter and frontMatterSchema to add to the notebook.
+     * @param {object | object[]} value - Map of frontMatter and frontMatterSchema to add to the notebook or an array of such objects
      * @returns {notebook.Notebook}
      *
      * @example notebook.addFrontMatter(
      *   frontMatter.pagerdutyIncident(pagerduty_frontmatter)
      * )
      */
-    addFrontMatter(value):: self {
-      frontMatter+: value.frontMatter,
-      frontMatterSchema+: value.frontMatterSchema,
-    },
-
+    addFrontMatter(value)::
+      if std.isArray(value) then
+        std.foldl(
+          function(nb, v)
+            nb.addFrontMatter(v),
+          value,
+          self
+        )
+      else self {
+        frontMatter+: value.frontMatter,
+        frontMatterSchema+: value.frontMatterSchema,
+      },
   },
 };
 
+local createFrontMatterValueWithSchema(key, value, schemaType, displayName, validatorType='string') =
+  // Validate the key and value types
+  local validatedKey = validate.string(key + ' key', key);
+  local validatedValue = if std.type(value) == 'array' then
+    std.mapWithIndex(
+      function(index, item)
+        validate[validatorType](key + '.' + index, item),
+      value
+    ) else validate[validatorType](key, value);
+
+  // If they are valid return the front matter schema and value
+  if validatedKey == key && validatedValue == value then
+    {
+      frontMatterSchema: [{
+        key: key,
+        schema: {
+          type: schemaType,
+          displayName: displayName,
+        },
+      }],
+      frontMatter: {
+        [key]: value,
+      },
+    } else {
+    frontMatterSchema: [],
+    frontMatter: {},
+  };
 local frontMatter = {
+  /**
+    * Creates a number frontmatter value and schema.
+    *
+    * @function frontMatter.number
+    * @param {string} key - The key of the front matter entry
+    * @param {(number|number[])} value - Number value of the front matter entry or an array of them
+    * @param {string} [displayName="Number"] - The display name of the front matter entry
+    * @returns {object}
+    */
+  number(key, value, displayName='Number')::
+    createFrontMatterValueWithSchema(key, value, 'number', displayName, 'number'),
+  /**
+    * Creates a string frontmatter value and schema.
+    *
+    * @function frontMatter.string
+    * @param {string} key - The key of the front matter entry
+    * @param {(string|string[])} value - A single string value of the front matter entry or an array of them
+    * @param {string} [displayName="String"] - The display name of the front matter entry
+    * @returns {object}
+    */
+  string(key, value, displayName='String')::
+    createFrontMatterValueWithSchema(key, value, 'string', displayName, 'string'),
+  /**
+    * Creates a datetime frontmatter value and schema. If incorrect datetime is provided, falls back to string.
+    *
+    * @function frontMatter.datetime
+    * @param {string} key - The key of the front matter entry
+    * @param {(string|string[])} value - DateTime value of the front matter entry or an array of them
+    * @param {string} [displayName="DateTime"] - The display name of the front matter entry
+    * @returns {object}
+    */
+  dateTime(key, value, displayName='DateTime')::
+    createFrontMatterValueWithSchema(key, value, 'date_time', displayName),
+  /**
+    * Creates a user frontmatter value and schema.
+    *
+    * @function frontMatter.user
+    * @param {string} key - The key of the front matter entry
+    * @param {(string|string[])} value -  A single UUID of the user or an array of them
+    * @param {string} [displayName="User"] - The display name of the front matter entry
+    * @returns {object}
+    */
+  user(key, value, displayName='User')::
+    createFrontMatterValueWithSchema(key, value, 'user', displayName, 'string'),
   /**
     * Creates a PagerDuty Incident frontmatter value and schema.
     *
