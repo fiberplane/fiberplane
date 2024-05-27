@@ -126,14 +126,14 @@ function getButtonSizeStyles(buttonSize: ButtonSize) {
     case "small":
       return css`
         padding: 8px 16px;
-        font: var(--font-buttons-md, 500 14px / 16px Inter);
+        font: var(--font-buttons-sm, 500 12px / 16px Inter);
         border-radius: var(--radius-default, 10px);
         min-height: 28px;
       `;
     default:
       return css`
         padding: 8px 12px;
-        font: var(--font-buttons-sm, 500 12px / 16px Inter);
+        font: var(--font-buttons-md, 500 14px / 16px Inter);
         border-radius: var(--radius-default, 8px);
         min-height: 32px;
       `;
