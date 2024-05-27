@@ -14,6 +14,7 @@ use tracing::warn;
 #[cfg(test)]
 mod tests;
 
+const PROVIDER_CELL_DIRECTIVE: &str = "# fiberplane-provider-query\n";
 /// Convert Markdown to a Fiberplane notebook
 ///
 /// This parses the first heading as the notebook title and
@@ -125,13 +126,11 @@ impl<'a> MarkdownConverter<'a> {
                         }
                     } else if let Some(ref syntax) = self.current_code_block_syntax {
                         // Check for magic string that indicates a query/provider cell
-                        if content
-                            .trim_start()
-                            .starts_with("# fiberplane-provider-query\n")
+                        if content.trim_start().starts_with(PROVIDER_CELL_DIRECTIVE)
                             && syntax.to_lowercase() == "promql"
                         {
                             let query = content
-                                .strip_prefix("# fiberplane-provider-query\n")
+                                .strip_prefix(PROVIDER_CELL_DIRECTIVE)
                                 .unwrap()
                                 .strip_suffix('\n')
                                 .unwrap();
