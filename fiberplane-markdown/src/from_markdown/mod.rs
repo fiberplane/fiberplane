@@ -285,9 +285,7 @@ impl<'a> MarkdownConverter<'a> {
                         self.current_code_block_syntax = Some("".to_string());
                     }
                 }
-                // self.current_code_block_syntax = Some(kind.as_str());
                 self.current_cell = None;
-                // self.new_cell(Cell::Code(CodeCell::default()));
             }
             Tag::List(start_number) => {
                 let (start_number, list_type) = if let Some(start_number) = start_number {
@@ -370,7 +368,6 @@ impl<'a> MarkdownConverter<'a> {
                 }
             }
             Tag::CodeBlock(_) => {
-                // self.in_code_block = false;
                 if let Some(mut cell) = self.current_cell.take() {
                     if let Cell::Code(cell) = &mut cell {
                         // Code blocks keep the newline that separates the content from the final ```,
