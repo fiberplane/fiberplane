@@ -123,8 +123,7 @@ impl<'a> MarkdownConverter<'a> {
                             cell_text.push_str(&content);
                             continue;
                         }
-                    } else if self.current_code_block_syntax.is_some() {
-                        let syntax = self.current_code_block_syntax.take().unwrap();
+                    } else if let Some(syntax) = self.current_code_block_syntax {
 
                         // Check for magic string that indicates a query/provider cell
                         if content
