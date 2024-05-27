@@ -1,5 +1,5 @@
 use super::*;
-use fiberplane_models::notebooks::CodeCell;
+use fiberplane_models::{notebooks::CodeCell, query_data::get_query_field};
 use test_case::test_case;
 
 #[test_case("# Title\nContent", "Title"; "h1")]
@@ -118,7 +118,7 @@ fn parsing_rich_text() {
 fn parsing_code_blocks() {
     let cells = markdown_to_cells(
         "
-```
+``` bash
 Some code
 ```
 
@@ -128,6 +128,11 @@ on multiple lines
 ```",
     );
     assert_eq!(cells[0].content(), Some("Some code"));
+    if let Cell::Code(cell) = &cells[0] {
+        assert_eq!(cell.syntax, Some("bash".to_string()));
+    } else {
+        panic!("expected code cell");
+    }
     assert!(matches!(cells[0], Cell::Code(_)));
     assert_eq!(
         cells[1].content(),
@@ -333,4 +338,25 @@ fn html_goes_into_code_cell() {
     assert_eq!(cells[0].content(), Some("<p>a</p>\n"));
     assert!(matches!(cells[1], Cell::Code(CodeCell { .. })));
     assert_eq!(cells[1].content(), Some("<p>b</p><div>hello</div>"));
+}
+
+#[test]
+fn parsing_prometheus_provider_cell() {
+    let markdown =
+        "``` promql\n# fiberplane-provider-query\nnode_scrape_collector_duration_seconds\n```\n";
+    let cells = markdown_to_cells(markdown);
+    assert_eq!(cells.len(), 1);
+    if let Cell::Provider(cell) = &cells[0] {
+        assert!(cell.intent.contains("prometheus"));
+        if let Some(query_data) = &cell.query_data {
+            assert_eq!(
+                get_query_field(query_data.as_str(), "query"),
+                "node_scrape_collector_duration_seconds"
+            );
+        } else {
+            panic!("expected query data");
+        }
+    } else {
+        panic!("expected prometheus provider cell");
+    }
 }

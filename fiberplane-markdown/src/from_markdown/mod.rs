@@ -1,11 +1,14 @@
 use fiberplane_models::formatting::{Annotation, AnnotationWithOffset};
 use fiberplane_models::notebooks::{
     Cell, CheckboxCell, CodeCell, DividerCell, HeadingCell, HeadingType, ImageCell, ListItemCell,
-    ListType, NewNotebook, TextCell,
+    ListType, NewNotebook, ProviderCell, TextCell,
 };
+use fiberplane_models::query_data::set_query_field;
 use fiberplane_models::timestamps::{NewTimeRange, RelativeTimeRange};
 use fiberplane_models::utils::char_count;
-use pulldown_cmark::{CowStr, Event::*, HeadingLevel, LinkType, Options, Parser, Tag};
+use pulldown_cmark::{
+    CodeBlockKind, CowStr, Event::*, HeadingLevel, LinkType, Options, Parser, Tag,
+};
 use tracing::warn;
 
 #[cfg(test)]
@@ -39,6 +42,7 @@ struct MarkdownConverter<'a> {
     cells: Vec<Cell>,
     /// If the title is the only H1 in the document, we will decrement the level of all other headings
     decrement_heading_level: bool,
+    current_code_block_syntax: Option<String>,
 }
 
 impl<'a> MarkdownConverter<'a> {
@@ -52,6 +56,7 @@ impl<'a> MarkdownConverter<'a> {
             current_cell: None,
             lists: Vec::new(),
             cells: Vec::new(),
+            current_code_block_syntax: None,
             decrement_heading_level: false,
         }
     }
@@ -118,8 +123,52 @@ impl<'a> MarkdownConverter<'a> {
                             cell_text.push_str(&content);
                             continue;
                         }
+                    } else if self.current_code_block_syntax.is_some() {
+                        let syntax = self.current_code_block_syntax.take().unwrap();
+
+                        // Check for magic string that indicates a query/provider cell
+                        if content
+                            .trim_start()
+                            .starts_with("# fiberplane-provider-query\n")
+                        {
+                            let query = content
+                                .strip_prefix("# fiberplane-provider-query\n")
+                                .unwrap()
+                                .strip_suffix("\n")
+                                .unwrap();
+
+                            let query_data = set_query_field(
+                                "application/x-www-form-urlencoded",
+                                "query",
+                                query.to_string(),
+                            );
+
+                            let cell = Cell::Provider(
+                                ProviderCell::builder()
+                                    .intent("prometheus,timeseries")
+                                    .query_data(query_data)
+                                    .build(),
+                            );
+
+                            self.new_cell(cell);
+                        } else {
+                            // Build a code cell with content and syntax unless syntax is an empty string
+                            let code_cell = if syntax.len() > 0 {
+                                CodeCell::builder()
+                                    .content(content.to_string())
+                                    .syntax(syntax.as_str())
+                                    .build()
+                            } else {
+                                CodeCell::builder().content(content.to_string()).build()
+                            };
+
+                            // Create a Code cell
+                            self.new_cell(Cell::Code(code_cell));
+                        }
+                        self.current_code_block_syntax = None;
+                    } else {
+                        self.new_text_cell(content.to_string());
                     }
-                    self.new_text_cell(content.to_string());
                 }
                 // Inline code
                 Code(content) => {
@@ -226,8 +275,18 @@ impl<'a> MarkdownConverter<'a> {
                 // We don't yet support block quotes so we'll just treat them as text cells
                 self.new_text_cell(String::new());
             }
-            Tag::CodeBlock(_) => {
-                self.new_cell(Cell::Code(CodeCell::default()));
+            Tag::CodeBlock(kind) => {
+                match kind {
+                    CodeBlockKind::Fenced(language) => {
+                        self.current_code_block_syntax = Some(language.to_string());
+                    }
+                    CodeBlockKind::Indented => {
+                        self.current_code_block_syntax = Some("".to_string());
+                    }
+                }
+                // self.current_code_block_syntax = Some(kind.as_str());
+                self.current_cell = None;
+                // self.new_cell(Cell::Code(CodeCell::default()));
             }
             Tag::List(start_number) => {
                 let (start_number, list_type) = if let Some(start_number) = start_number {
@@ -310,6 +369,7 @@ impl<'a> MarkdownConverter<'a> {
                 }
             }
             Tag::CodeBlock(_) => {
+                // self.in_code_block = false;
                 if let Some(mut cell) = self.current_cell.take() {
                     if let Cell::Code(cell) = &mut cell {
                         // Code blocks keep the newline that separates the content from the final ```,
