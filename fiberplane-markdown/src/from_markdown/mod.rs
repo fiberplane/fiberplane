@@ -123,8 +123,7 @@ impl<'a> MarkdownConverter<'a> {
                             cell_text.push_str(&content);
                             continue;
                         }
-                    } else if let Some(syntax) = self.current_code_block_syntax {
-
+                    } else if let Some(ref syntax) = self.current_code_block_syntax {
                         // Check for magic string that indicates a query/provider cell
                         if content
                             .trim_start()
@@ -134,13 +133,13 @@ impl<'a> MarkdownConverter<'a> {
                             let query = content
                                 .strip_prefix("# fiberplane-provider-query\n")
                                 .unwrap()
-                                .strip_suffix("\n")
+                                .strip_suffix('\n')
                                 .unwrap();
 
                             let query_data = set_query_field(
                                 "application/x-www-form-urlencoded",
                                 "query",
-                                query.to_string(),
+                                query,
                             );
 
                             let cell = Cell::Provider(
@@ -153,17 +152,19 @@ impl<'a> MarkdownConverter<'a> {
                             self.new_cell(cell);
                         } else {
                             // Build a code cell with content and syntax unless syntax is an empty string
-                            let code_cell = if syntax.len() > 0 {
-                                CodeCell::builder()
-                                    .content(content.to_string())
-                                    .syntax(syntax.as_str())
-                                    .build()
+                            let cell = if !syntax.is_empty() {
+                                Cell::Code(
+                                    CodeCell::builder()
+                                        .content(content.to_string())
+                                        .syntax(syntax.as_str())
+                                        .build(),
+                                )
                             } else {
-                                CodeCell::builder().content(content.to_string()).build()
+                                Cell::Code(CodeCell::builder().content(content.to_string()).build())
                             };
 
                             // Create a Code cell
-                            self.new_cell(Cell::Code(code_cell));
+                            self.new_cell(cell);
                         }
                         self.current_code_block_syntax = None;
                     } else {
