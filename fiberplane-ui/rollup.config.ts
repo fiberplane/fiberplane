@@ -2,17 +2,20 @@ import svgr from "@svgr/rollup";
 import { defineConfig } from "rollup";
 import dts from "rollup-plugin-dts";
 import { defineRollupSwcOption, swc } from "rollup-plugin-swc3";
+import pkg from "./package.json" with { type: "json" };
+
+const external = Object.keys(pkg.peerDependencies);
 
 export default defineConfig([
   {
-    input: "src/components/index.ts",
+    input: "src/index.ts",
     output: {
       file: "dist/index.js",
       format: "es",
       sourcemap: true,
       compact: true,
     },
-    external: ["react", "react/jsx-runtime", "styled-components"],
+    external,
     plugins: [
       svgr({
         svgoConfig: {
@@ -37,7 +40,7 @@ export default defineConfig([
     ],
   },
   {
-    input: "src/components/index.ts",
+    input: "src/index.ts",
     output: {
       file: "dist/index.d.ts",
       format: "es",
@@ -51,7 +54,7 @@ export default defineConfig([
       format: "es",
       compact: true,
     },
-    external: ["react/jsx-runtime", "styled-components", "lodash.merge"],
+    external,
     plugins: [
       svgr({
         svgoConfig: {

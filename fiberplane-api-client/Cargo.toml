@@ -37,7 +37,7 @@ description = "Generated API client for Fiberplane API"
 edition = "2021"
 name = "fiberplane-api-client"
 readme = "README.md"
-rust-version = "1.64"
+rust-version = "1.70"
 
 [package.license]
 workspace = true

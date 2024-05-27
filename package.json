@@ -12,7 +12,7 @@
     "fiberplane-ui"
   ],
   "devDependencies": {
-    "@biomejs/biome": "1.6.1",
+    "@biomejs/biome": "^1.7.3",
     "typescript": "^5.4.2"
   },
   "scripts": {

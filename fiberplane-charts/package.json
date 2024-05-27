@@ -30,14 +30,18 @@
   },
   "dependencies": {
     "@fiberplane/hooks": "workspace:^",
-    "framer-motion": "^10.18.0",
+    "framer-motion": "^11.2.3",
     "react-window": "^1.8.10",
     "throttle-debounce": "^5.0.0"
   },
   "peerDependencies": {
+    "@fiberplane/hooks": "^0.3.0",
+    "framer-motion": "^11.2.3",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "styled-components": "^6.1.1"
+    "react-window": "^1.8.10",
+    "styled-components": "^6.1.1",
+    "throttle-debounce": "^5.0.0"
   },
   "devDependencies": {
     "@svgr/rollup": "^6.5.1",

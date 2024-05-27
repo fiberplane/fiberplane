@@ -25,6 +25,20 @@ major version hasn't changed.
 - Add models required for GitHub app workspace-level integration (#198)
 - Add PagerDuty incident frontmatter object (#201)
 - Add `addFrontMatter` and `frontMatter.pagerdutyIncident` to `fiberplane.libsonnet` (#201)
+- `fiberplane-api-client`: New endpoint `integrations_github_app_pull_request_front_matter_add` has been added (#218)
+- `fiberplane-models`: New fields `key` and `display_name` has been added to `GitHubAppAddPullRequest` (#218)
+- `fiberplane-models`: Rename `OidLinkupLocation` to `SoftRedirect` (#224)
+- `fiberplane-models`: New variants have been added to `PagerDutyReceiverWebhookError` (#226)
+- `fiberplane-models`: Documentation now matches reality for PagerDuty and GitHub integrations (#227)
+- `fiberplane-ui`: Implement form validation according to the design system
+- `fiberplane-ui`: Move `Select` over from `studio` and implement new designs
+- `fiberplane-ui`: Move `TabList` over from `studio` add support for non-`<Link />` tabs
+- `fiberplane-ui`: Move `AttachedPopup` over from `studio`
+- `fiberplane-ui`: Move `stopPropagation` and `cancelEvent` from `studio` to `utils`
+- `fiberplane-hooks`: Introduce `useClickAway`
+- `fiberplane-hooks`: Move `useOpen` from `studio`
+- `fiberplane-hooks`: Introduce `useDocumentEventHandler`
+- `fiberplane-charts`: Updated `framer-motion` from `^10.18.0` to `^11.2.3`
 
 ## [v1.0.0-beta.14] - 2024-03-07
 

@@ -1,6 +1,9 @@
 import { defineConfig } from "rollup";
 import dts from "rollup-plugin-dts";
 import { defineRollupSwcOption, swc } from "rollup-plugin-swc3";
+import pkg from "./package.json" with { type: "json" };
+
+const external = Object.keys(pkg.peerDependencies);
 
 export default defineConfig([
   {
@@ -11,7 +14,7 @@ export default defineConfig([
       sourcemap: true,
       compact: true,
     },
-    external: ["react", "eventemitter3"],
+    external,
     plugins: [swc(defineRollupSwcOption({ sourceMaps: true }))],
   },
   {

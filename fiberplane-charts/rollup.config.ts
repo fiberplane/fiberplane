@@ -2,6 +2,9 @@ import svgr from "@svgr/rollup";
 import { defineConfig } from "rollup";
 import dts from "rollup-plugin-dts";
 import { defineRollupSwcOption, swc } from "rollup-plugin-swc3";
+import pkg from "./package.json" with { type: "json" };
+
+const external = Object.keys(pkg.peerDependencies);
 
 const config = defineConfig([
   {
@@ -12,15 +15,7 @@ const config = defineConfig([
       sourcemap: true,
       compact: true,
     },
-    external: [
-      "@fiberplane/hooks",
-      "framer-motion",
-      "react-window",
-      "react",
-      "react/jsx-runtime",
-      "styled-components",
-      "throttle-debounce",
-    ],
+    external,
     plugins: [
       svgr({
         svgoConfig: {
