@@ -130,6 +130,7 @@ impl<'a> MarkdownConverter<'a> {
                         if content
                             .trim_start()
                             .starts_with("# fiberplane-provider-query\n")
+                            && syntax.to_lowercase() == "promql"
                         {
                             let query = content
                                 .strip_prefix("# fiberplane-provider-query\n")
