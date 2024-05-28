@@ -93,15 +93,16 @@ pub enum Annotation {
     EndHighlight,
     StartItalics,
     EndItalics,
-    Label(Label),
-    StartLink { url: String },
-    EndLink,
-    Mention(Mention),
     StartStrikethrough,
     EndStrikethrough,
-    Timestamp { timestamp: Timestamp },
     StartUnderline,
     EndUnderline,
+    StartLink { url: String },
+    EndLink,
+    Label(Label),
+    Mention(Mention),
+    NotebookLink { url: String },
+    Timestamp { timestamp: Timestamp },
 }
 
 impl Annotation {
@@ -128,15 +129,16 @@ impl Annotation {
             Annotation::EndHighlight => Some(Annotation::StartHighlight),
             Annotation::StartItalics => Some(Annotation::EndItalics),
             Annotation::EndItalics => Some(Annotation::StartItalics),
-            Annotation::StartLink { .. } => Some(Annotation::EndLink),
-            Annotation::EndLink => None,
-            Annotation::Mention(_) => None,
-            Annotation::Timestamp { .. } => None,
             Annotation::StartStrikethrough => Some(Annotation::EndStrikethrough),
             Annotation::EndStrikethrough => Some(Annotation::StartStrikethrough),
             Annotation::StartUnderline => Some(Annotation::EndUnderline),
             Annotation::EndUnderline => Some(Annotation::StartUnderline),
+            Annotation::StartLink { .. } => Some(Annotation::EndLink),
+            Annotation::EndLink => None,
             Annotation::Label(_) => None,
+            Annotation::Mention(_) => None,
+            Annotation::NotebookLink { .. } => None,
+            Annotation::Timestamp { .. } => None,
         }
     }
 }
@@ -156,14 +158,16 @@ pub struct ActiveFormatting {
     pub code: bool,
     pub highlight: bool,
     pub italics: bool,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub link: Option<String>,
     pub strikethrough: bool,
     pub underline: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub link: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label: Option<Label>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub mention: Option<Mention>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub notebook_link: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub timestamp: Option<Timestamp>,
 }
@@ -221,6 +225,13 @@ impl ActiveFormatting {
     pub fn with_label(&self, label: impl Into<Option<Label>>) -> Self {
         Self {
             label: label.into(),
+            ..self.clone()
+        }
+    }
+
+    pub fn with_notebook_link(&self, notebook_link: impl Into<Option<String>>) -> Self {
+        Self {
+            notebook_link: notebook_link.into(),
             ..self.clone()
         }
     }
@@ -295,6 +306,11 @@ impl ActiveFormatting {
                 annotations.push(Annotation::Mention(mention.clone()))
             }
         }
+        if self.notebook_link != reference.notebook_link {
+            if let Some(url) = self.notebook_link.as_ref() {
+                annotations.push(Annotation::NotebookLink { url: url.clone() })
+            }
+        }
         if self.timestamp != reference.timestamp {
             if let Some(timestamp) = self.timestamp {
                 annotations.push(Annotation::Timestamp { timestamp })
@@ -314,15 +330,16 @@ impl ActiveFormatting {
             Annotation::EndHighlight => !self.highlight,
             Annotation::StartItalics => self.italics,
             Annotation::EndItalics => !self.italics,
-            Annotation::StartLink { .. } => self.link.is_some(),
-            Annotation::EndLink => self.link.is_none(),
-            Annotation::Mention(_) => self.mention.is_some(),
-            Annotation::Timestamp { .. } => self.timestamp.is_some(),
             Annotation::StartStrikethrough => self.strikethrough,
             Annotation::EndStrikethrough => !self.strikethrough,
             Annotation::StartUnderline => self.underline,
             Annotation::EndUnderline => !self.underline,
+            Annotation::StartLink { .. } => self.link.is_some(),
+            Annotation::EndLink => self.link.is_none(),
             Annotation::Label(_) => self.label.is_some(),
+            Annotation::Mention(_) => self.mention.is_some(),
+            Annotation::NotebookLink { .. } => self.link.is_some(),
+            Annotation::Timestamp { .. } => self.timestamp.is_some(),
         }
     }
 }
