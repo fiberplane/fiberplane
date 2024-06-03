@@ -148,6 +148,7 @@ function getTertiaryButtonSizeStyles(buttonSize: ButtonSize) {
         border-radius: var(--radius-lowest, 4px);
         min-height: 20px;
         gap: 4px;
+        box-shadow: none;
       `;
     default:
       return css`
@@ -155,6 +156,7 @@ function getTertiaryButtonSizeStyles(buttonSize: ButtonSize) {
         border-radius: var(--radius-default, 6px);
         min-height: 24px;
         gap: 6px;
+        box-shadow: none;
       `;
   }
 }
