@@ -10,7 +10,7 @@ import sampleOpenApiSpec from "./sample-openapi-spec.json" with {
   type: "json",
 };
 
-config({ path: "./.dev.vars" });
+config({path: "./.dev.vars"});
 
 // The SPA, when running locally, needs to proxy requests to the embedded API sometimes
 // It's nice to be able to configure this.
