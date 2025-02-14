@@ -13,7 +13,7 @@ export const initializeKeyValueFormData = (): DraftFormDataParameter[] => {
 /**
  * Type guard to determine if a {@link FormDataParameter} is a {@link DraftFormDataParameter}.
  */
-export const isDraftParameter = (
+export const isDraftElement = (
   parameter: FormDataParameter,
 ): parameter is DraftFormDataParameter => {
   return (
@@ -27,9 +27,9 @@ export const isDraftParameter = (
 /**
  * Count the number of non-draft parameters in a {@link FormDataParameter} list.
  */
-export const countParameters = (parameters: FormDataParameter[]): number => {
+export const countElements = (parameters: FormDataParameter[]): number => {
   return parameters.reduce((count, parameter) => {
-    if (isDraftParameter(parameter)) {
+    if (isDraftElement(parameter)) {
       return count;
     }
 
@@ -118,7 +118,7 @@ function modifyFormDataParameter<T>(
         const newParameter = mapNewValue(parameter, newValue);
 
         // When we change from draft to not draft, we want to enable the parameter
-        if (isDraftParameter(parameter) && !isDraftParameter(newParameter)) {
+        if (isDraftElement(parameter) && !isDraftElement(newParameter)) {
           newParameter.enabled = true;
         }
 
@@ -142,7 +142,7 @@ function generateUUID() {
 
 export function reduceFormDataParameters(parameters: FormDataParameter[]) {
   return parameters.reduce((o, param) => {
-    if (isDraftParameter(param)) {
+    if (isDraftElement(param)) {
       return o;
     }
     const { key, value, enabled } = param;
@@ -172,7 +172,7 @@ export const enforceTerminalDraftParameter = (
 ) => {
   const finalElement = parameters[parameters.length - 1];
   const hasTerminalDraftParameter = finalElement
-    ? isDraftParameter(finalElement)
+    ? isDraftElement(finalElement)
     : false;
   if (hasTerminalDraftParameter) {
     return parameters;
@@ -192,7 +192,7 @@ export const enforceTerminalDraftParameter = (
 export const enforceSingleTerminalDraftParameter = (
   parameters: FormDataParameter[],
 ) => {
-  const firstDraftParameterIndex = parameters.findIndex(isDraftParameter);
+  const firstDraftParameterIndex = parameters.findIndex(isDraftElement);
 
   const hasSingleTeriminalDraftParameter =
     firstDraftParameterIndex + 1 === parameters.length;
@@ -205,7 +205,7 @@ export const enforceSingleTerminalDraftParameter = (
     return concatDraftParameter(parameters);
   }
 
-  const nonDraftParameters = parameters.filter((p) => !isDraftParameter(p));
+  const nonDraftParameters = parameters.filter((p) => !isDraftElement(p));
   return concatDraftParameter(nonDraftParameters);
 };
 

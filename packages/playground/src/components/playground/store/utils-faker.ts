@@ -6,7 +6,7 @@ import {
   isSupportedRequestBodyObject,
   isSupportedSchemaObject,
 } from "@/lib/isOpenApi";
-import type { KeyValueParameter } from "./types";
+import type { KeyValueElement } from "./types";
 import { extractPathParams } from "./utils";
 
 type OutputData = {
@@ -179,10 +179,13 @@ export function generateFakeData(
 
 export function transformToFormParams(record: Record<string, OutputData>) {
   return Object.entries(record).map(
-    ([key, data]): KeyValueParameter => ({
+    ([key, data]): KeyValueElement => ({
       key,
       id: crypto.randomUUID(),
-      value: data.value,
+      data: {
+        type: "string" as const,
+        value: data.value,
+      },
       enabled: true,
       parameter: data.parameter,
     }),

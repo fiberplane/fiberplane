@@ -1,16 +1,16 @@
-import type { ChangeKeyValueParametersHandler } from "../../KeyValueForm/types";
-import type { KeyValueParameter } from "../../store";
+import type { ChangeKeyValueElementsHandler } from "../../KeyValueForm/types";
+import type { KeyValueElement } from "../../store";
 
 /**
- * Return a function to immutably update an element of a {@link KeyValueParameter[]} with a new `value` property.
+ * Return a function to immutably update an element of a {@link KeyValueElement[]} with a new `value` property.
  *
  * This function shells out to modifyKeyValuePathParameter, which has special logic for auto-enabling
  * a parameter when its value goes from falsy to truthy
  */
 export function createChangePathParamValue(
-  onChange: ChangeKeyValueParametersHandler,
-  allParameters: KeyValueParameter[],
-  parameter: KeyValueParameter,
+  onChange: ChangeKeyValueElementsHandler,
+  allParameters: KeyValueElement[],
+  parameter: KeyValueElement,
 ) {
   return modifyKeyValuePathParameter(
     onChange,
@@ -28,14 +28,14 @@ export function createChangePathParamValue(
 // Utils
 
 /**
- * Helper to create a function that immutably updates an element of a {@link KeyValueParameter[]} with a new property,
+ * Helper to create a function that immutably updates an element of a {@link KeyValueElement[]} with a new property,
  * then calls a callback with the new array.
  */
 function modifyKeyValuePathParameter<T>(
-  onChange: ChangeKeyValueParametersHandler,
-  allParameters: KeyValueParameter[],
-  parameter: KeyValueParameter,
-  mapNewValue: (p: KeyValueParameter, newValue: T) => KeyValueParameter,
+  onChange: ChangeKeyValueElementsHandler,
+  allParameters: KeyValueElement[],
+  parameter: KeyValueElement,
+  mapNewValue: (p: KeyValueElement, newValue: T) => KeyValueElement,
 ) {
   return (newValue: T) => {
     const newQueryParams = allParameters.map((otherParameter) => {
@@ -43,12 +43,12 @@ function modifyKeyValuePathParameter<T>(
         const newParameter = mapNewValue(parameter, newValue);
 
         // When we change from draft to not draft, we want to enable the parameter
-        if (!parameter.value && !!newParameter.value) {
+        if (!parameter.data.value && !!newParameter.data.value) {
           newParameter.enabled = true;
         }
 
         // If the new parameter is falsy, it cannot be enabled
-        if (!newParameter.value) {
+        if (!newParameter.data.value) {
           newParameter.enabled = false;
         }
 

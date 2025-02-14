@@ -1,17 +1,17 @@
 import type { CodeMirrorInputType } from "@/components/CodeMirrorEditor/CodeMirrorInput";
-import type { KeyValueParameter } from "../store";
+import type { KeyValueElement } from "../store";
 import { KeyValueFormRow } from "./KeyValueFormRow";
 import {
   createChangeEnabled,
   createChangeKey,
   createChangeValue,
-  isDraftParameter,
+  isDraftElement,
 } from "./data";
-import type { ChangeKeyValueParametersHandler } from "./types";
+import type { ChangeKeyValueElementsHandler } from "./types";
 
 type Props = {
-  keyValueParameters: KeyValueParameter[];
-  onChange: ChangeKeyValueParametersHandler;
+  keyValueElements: KeyValueElement[];
+  onChange: ChangeKeyValueElementsHandler;
   onSubmit?: () => void;
   keyPlaceholder?: string;
   keyInputType?: CodeMirrorInputType;
@@ -23,7 +23,7 @@ type Props = {
 export const KeyValueForm = (props: Props) => {
   const {
     onChange,
-    keyValueParameters,
+    keyValueElements,
     onSubmit,
     keyPlaceholder,
     keyInputType,
@@ -32,34 +32,29 @@ export const KeyValueForm = (props: Props) => {
     handleCmdB,
   } = props;
 
+  console.log("render", keyValueElements);
   return (
     <div className="flex flex-col gap-0">
-      {keyValueParameters.map((parameter) => {
-        const isDraft = isDraftParameter(parameter);
+      {keyValueElements.map((element) => {
+        const isDraft = isDraftElement(element);
         return (
           <KeyValueFormRow
-            key={parameter.id}
-            keyValueData={parameter}
+            key={element.id}
+            keyValueData={element}
             isDraft={isDraft}
             onChangeEnabled={createChangeEnabled(
               onChange,
-              keyValueParameters,
-              parameter,
+              keyValueElements,
+              element,
             )}
-            onChangeKey={createChangeKey(
-              onChange,
-              keyValueParameters,
-              parameter,
-            )}
+            onChangeKey={createChangeKey(onChange, keyValueElements, element)}
             onChangeValue={createChangeValue(
               onChange,
-              keyValueParameters,
-              parameter,
+              keyValueElements,
+              element,
             )}
             removeValue={() => {
-              onChange(
-                keyValueParameters.filter(({ id }) => parameter.id !== id),
-              );
+              onChange(keyValueElements.filter(({ id }) => element.id !== id));
             }}
             onSubmit={onSubmit}
             keyPlaceholder={keyPlaceholder}

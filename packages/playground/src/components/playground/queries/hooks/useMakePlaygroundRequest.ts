@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { reduceFormDataParameters } from "../../FormDataForm";
-import { reduceKeyValueParameters } from "../../KeyValueForm";
+import { reduceKeyValueElements } from "../../KeyValueForm";
 import type {
-  KeyValueParameter,
+  KeyValueElement,
   PlaygroundActiveResponse,
   PlaygroundBody,
   PlaygroundResponseBody,
@@ -52,20 +52,26 @@ function makePlaygroundRequest({
   path: string;
   method: string;
   body: PlaygroundBody;
-  headers: KeyValueParameter[];
-  pathParams?: KeyValueParameter[];
-  queryParams: KeyValueParameter[];
+  headers: KeyValueElement[];
+  pathParams?: KeyValueElement[];
+  queryParams: KeyValueElement[];
   route?: string;
 }): Promise<PlaygroundActiveResponse> {
   const queryParamsForUrl = new URLSearchParams();
   for (const param of queryParams) {
+    if (param.data.type === "file") {
+      console.warn("Unsupported query parameter value encountered (file)");
+      continue;
+    }
     if (param.enabled) {
-      queryParamsForUrl.set(param.key, param.value);
+      queryParamsForUrl.set(param.key, param.data.value);
     }
   }
 
   // NOTE - we add custom headers to record additional metadata about the request
-  const modHeaders = reduceKeyValueParameters(headers);
+  const modHeaders = reduceKeyValueElements(headers, {
+    stringValuesOnly: true,
+  });
 
   if (route) {
     modHeaders["x-fpx-route"] = route;
@@ -73,7 +79,7 @@ function makePlaygroundRequest({
   // HACK - Serialize path params into a header
   //        This could cause encoding issues if there are funky chars in the path params
   modHeaders["x-fpx-path-params"] = JSON.stringify(
-    reduceKeyValueParameters(pathParams ?? []),
+    reduceKeyValueElements(pathParams ?? []),
   );
 
   // HACK - This is the most secure code I've ever written
@@ -232,18 +238,32 @@ function createBody(body: PlaygroundBody) {
       return reduceFormDataParameters(body.value);
     }
     return createUrlEncodedBody(
-      reduceKeyValueParameters(
-        body.value.map((item) => ({
-          id: item.id,
-          enabled: item.enabled,
-          key: item.key,
-          parameter: {
-            name: item.key,
-            in: "body",
-          },
-          // HACK - We know these are all non-strings because of the `hasFile` case above
-          value: item.value.value as string,
-        })),
+      reduceKeyValueElements(
+        body.value.map(
+          (item): KeyValueElement => ({
+            id: item.id,
+            enabled: item.enabled,
+            key: item.key,
+            parameter: {
+              name: item.key,
+              in: "body",
+            },
+            // HACK - We know these are all non-strings because of the `hasFile` case above
+            data:
+              item.value.type === "file"
+                ? {
+                    type: "file",
+                    value: item.value.value,
+                  }
+                : {
+                    type: "string",
+                    value: item.value.value,
+                  },
+          }),
+        ),
+        {
+          stringValuesOnly: true,
+        },
       ),
     );
   }

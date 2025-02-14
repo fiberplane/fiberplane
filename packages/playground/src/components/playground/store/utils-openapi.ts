@@ -12,7 +12,7 @@ import { createFormDataParameter } from "../FormDataForm/data";
 import type { FormDataParameter } from "../FormDataForm/types";
 import { enforceTerminalDraftParameter } from "../KeyValueForm";
 import type { ApiRoute } from "../types";
-import type { KeyValueParameter, PlaygroundBody } from "./types";
+import type { KeyValueElement, PlaygroundBody } from "./types";
 
 /**
  * Filters query parameters to only include those that are either enabled or have a value
@@ -22,22 +22,22 @@ import type { KeyValueParameter, PlaygroundBody } from "./types";
  * @returns Filtered array of parameters with a terminal draft parameter
  */
 export function filterDisabledEmptyQueryParams(
-  currentQueryParams: KeyValueParameter[],
+  currentQueryParams: KeyValueElement[],
 ) {
   return enforceTerminalDraftParameter(
-    currentQueryParams.filter((param) => param.enabled || !!param.value),
+    currentQueryParams.filter((param) => param.enabled || !!param.data.value),
   );
 }
 
 /**
- * Extracts and merges query parameters from an OpenAPI specification with existing parameters
+ * Extracts and merges query parameters from an OpenAPI specification with current (key value) elements
  *
- * @param currentQueryParams - Current array of key-value parameters
+ * @param currentElements - Current array of key-value elements
  * @param route - Route object containing OpenAPI specification and path
  * @returns Merged array of parameters with a terminal draft parameter
  */
 export function extractQueryParamsFromOpenApiDefinition(
-  currentQueryParams: KeyValueParameter[],
+  currentElements: KeyValueElement[],
   route: ApiRoute,
 ) {
   const parameters: Array<SupportedParameterObject> = route.parameters ?? [];
@@ -52,14 +52,17 @@ export function extractQueryParamsFromOpenApiDefinition(
   const specQueryParams =
     parameters?.filter((param) => param.in === "query") ?? [];
 
-  // Convert OpenAPI params to KeyValueParameter format
-  const openApiQueryParams: KeyValueParameter[] = specQueryParams.map(
+  // Convert OpenAPI params to KeyValueElement format
+  const openApiQueryParams: Array<KeyValueElement> = specQueryParams.map(
     (param) => {
       const value = getStringValueFromSchema(param.schema);
       return {
         id: param.name,
         key: param.name,
-        value,
+        data: {
+          type: "string",
+          value,
+        },
         enabled: param.required || false,
         parameter: param,
       };
@@ -68,14 +71,14 @@ export function extractQueryParamsFromOpenApiDefinition(
 
   // Merge with existing parameters, preferring existing values
   const mergedParams = openApiQueryParams.map((openApiParam) => {
-    const existingParam = currentQueryParams.find(
+    const existingParam = currentElements.find(
       (p) => p.key === openApiParam.key,
     );
     return existingParam ?? openApiParam;
   });
 
   // Add any existing parameters that weren't in the OpenAPI spec
-  const additionalParams = currentQueryParams.filter(
+  const additionalParams = currentElements.filter(
     (param) => !openApiQueryParams.some((p) => p.key === param.key),
   );
 
@@ -136,7 +139,6 @@ export function extractFormDataFromOpenApiDefinition(
       }
     }
   }
-  // values.push(createFormDataParameter("", ""));
 
   return {
     type: "form-data",
@@ -156,32 +158,7 @@ export function extractJsonBodyFromOpenApiDefinition(
   currentBody: PlaygroundBody,
   mediaType: SupportedMediaTypeObject,
 ): PlaygroundBody {
-  // // FIXME - Just skip modifying file or form data bodies
-  // if (currentBody.type === "file" || currentBody.type === "form-data") {
-  //   return currentBody;
-  // }
-
-  // // If current body is not empty return current body
-  // if (currentBody.value?.trim()) {
-  //   return currentBody;
-  // }
-
-  // const requestBody =
-  //   route.operation.requestBody &&
-  //   isSupportedRequestBodyObject(route.operation.requestBody)
-  //     ? route.operation.requestBody
-  //     : undefined;
-
-  // if (requestBody?.content?.["application/json"]?.schema) {
-  //   return currentBody;
-  // }
-  // console.log(
-  //   'requestBody?.content?.["application/json"]?.schema',
-  //   requestBody?.content?.["application/json"]?.schema,
-  // );
-
   const schema = mediaType.schema;
-  // console.log("schema", schema, requestBody?.content);
   if (!schema || !isSupportedSchemaObject(schema)) {
     return currentBody;
   }

@@ -4,7 +4,7 @@ export type {
   PlaygroundResponseBody,
   PlaygroundActiveResponse,
   NavigationRoutesView,
-  KeyValueParameter,
+  KeyValueElement,
 } from "./types";
 export type { StudioState } from "./slices";
 export { PlaygroundBodySchema, type PlaygroundBodyType } from "./request-body";

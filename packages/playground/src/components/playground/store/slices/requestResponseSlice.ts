@@ -5,14 +5,16 @@ import {
   isSupportedOperationObject,
   isSupportedRequestBodyObject,
 } from "@/lib/isOpenApi";
-import { createObjectFromKeyValueParameters } from "@/utils";
 import type { StateCreator } from "zustand";
 import { enforceFormDataTerminalDraftParameter } from "../../FormDataForm";
-import { enforceTerminalDraftParameter } from "../../KeyValueForm";
+import {
+  enforceTerminalDraftParameter,
+  reduceKeyValueElements,
+} from "../../KeyValueForm";
 import type { ApiRoute } from "../../types";
 import { updateContentTypeHeaderInState } from "../content-type";
 import { setBodyTypeInState } from "../set-body-type";
-import type { KeyValueParameter, PlaygroundBody } from "../types";
+import type { KeyValueElement, PlaygroundBody } from "../types";
 import {
   addBaseUrl,
   extractPathParams,
@@ -211,7 +213,7 @@ export const requestResponseSlice: StateCreator<
       const params = apiCallState[id];
 
       params.pathParams = params.pathParams.map(
-        (pathParam: KeyValueParameter) => {
+        (pathParam: KeyValueElement) => {
           const replacement = pathParams?.find((p) => p?.key === pathParam.key);
           if (!replacement) {
             return pathParam;
@@ -509,7 +511,9 @@ export function constructFullPath(
   );
 
   const searchParams = new URLSearchParams(
-    createObjectFromKeyValueParameters(data.queryParams),
+    reduceKeyValueElements(data.queryParams, {
+      stringValuesOnly: true,
+    }),
   );
 
   return searchParams.size > 0

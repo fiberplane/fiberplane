@@ -142,8 +142,9 @@ export const RequestPanel = memo(function RequestPanel(
         />
         <KeyValueForm
           keyPlaceholder="param_name"
-          keyValueParameters={queryParams}
+          keyValueElements={queryParams}
           onChange={(params) => {
+            console.log("queryParams", params);
             setQueryParams(params);
           }}
           onSubmit={onSubmit}
@@ -159,7 +160,7 @@ export const RequestPanel = memo(function RequestPanel(
             />
             <PathParamForm
               keyPlaceholder="param_name"
-              keyValueParameters={pathParams}
+              keyValueElements={pathParams}
               onChange={(params) => {
                 setPathParams(params);
               }}
@@ -182,7 +183,7 @@ export const RequestPanel = memo(function RequestPanel(
         />
         <KeyValueForm
           keyPlaceholder="header-name"
-          keyValueParameters={requestHeaders}
+          keyValueElements={requestHeaders}
           onChange={(headers) => {
             setRequestHeaders(headers);
           }}
@@ -230,7 +231,7 @@ export const RequestPanel = memo(function RequestPanel(
           )}
           {body.type === "form-data" && (
             <FormDataForm
-              keyValueParameters={body.value}
+              keyValueElements={body.value}
               onChange={(params) => {
                 const requestBody = {
                   type: "form-data" as const,

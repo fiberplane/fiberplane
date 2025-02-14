@@ -8,7 +8,7 @@ import {
   createChangeEnabled,
   createChangeKey,
   createChangeValue,
-  isDraftParameter,
+  isDraftElement,
 } from "./data";
 import type {
   ChangeFormDataParametersHandler,
@@ -16,7 +16,7 @@ import type {
 } from "./types";
 
 type Props = {
-  keyValueParameters: FormDataParameter[];
+  keyValueElements: FormDataParameter[];
   onChange: ChangeFormDataParametersHandler;
   onSubmit?: () => void;
   handleCmdG?: () => void;
@@ -142,37 +142,31 @@ const FormDataFormRow = (props: FormDataRowProps) => {
 };
 
 export const FormDataForm = (props: Props) => {
-  const { onChange, keyValueParameters, onSubmit, handleCmdG, handleCmdB } =
+  const { onChange, keyValueElements, onSubmit, handleCmdG, handleCmdB } =
     props;
 
   return (
     <div className="flex flex-col gap-0">
-      {keyValueParameters.map((parameter) => {
-        const isDraft = isDraftParameter(parameter);
+      {keyValueElements.map((element) => {
+        const isDraft = isDraftElement(element);
         return (
           <FormDataFormRow
-            key={parameter.id}
-            parameter={parameter}
+            key={element.id}
+            parameter={element}
             isDraft={isDraft}
             onChangeEnabled={createChangeEnabled(
               onChange,
-              keyValueParameters,
-              parameter,
+              keyValueElements,
+              element,
             )}
-            onChangeKey={createChangeKey(
-              onChange,
-              keyValueParameters,
-              parameter,
-            )}
+            onChangeKey={createChangeKey(onChange, keyValueElements, element)}
             onChangeValue={createChangeValue(
               onChange,
-              keyValueParameters,
-              parameter,
+              keyValueElements,
+              element,
             )}
             removeValue={() => {
-              onChange(
-                keyValueParameters.filter(({ id }) => parameter.id !== id),
-              );
+              onChange(keyValueElements.filter(({ id }) => element.id !== id));
             }}
             onSubmit={onSubmit}
             handleCmdG={handleCmdG}

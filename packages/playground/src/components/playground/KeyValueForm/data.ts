@@ -1,34 +1,30 @@
-import type { KeyValueParameter } from "../store";
+import type { KeyValueElement } from "../store";
 import type {
-  ChangeKeyValueParametersHandler,
-  DraftKeyValueParameter,
+  ChangeKeyValueElementsHandler,
+  DraftKeyValueElement,
 } from "./types";
 
-export const createParameterId = () => generateUUID();
+export const createElementId = () => generateUUID();
 
-export const initializeKeyValueFormData = (): DraftKeyValueParameter[] => {
+export const initializeKeyValueFormData = (): DraftKeyValueElement[] => {
   return [];
 };
 
 /**
- * Type guard to determine if a {@link KeyValueParameter} is a {@link DraftKeyValueParameter}.
+ * Type guard to determine if a {@link KeyValueElement} is a {@link DraftKeyValueElement}.
  */
-export const isDraftParameter = (
-  parameter: Omit<KeyValueParameter, "parameter">,
-): parameter is Omit<DraftKeyValueParameter, "parameter"> => {
-  return (
-    parameter.enabled === false &&
-    parameter.key === "" &&
-    parameter.value === ""
-  );
+export const isDraftElement = (
+  element: Omit<KeyValueElement, "parameter">,
+): element is Omit<DraftKeyValueElement, "parameter"> => {
+  return element.enabled === false && element.key === "" && !element.data.value;
 };
 
 /**
- * Count the number of non-draft parameters in a {@link KeyValueParameter} list.
+ * Count the number of non-draft k/v elements in a {@link KeyValueElement} list.
  */
-export const countParameters = (parameters: KeyValueParameter[]): number => {
-  return parameters.reduce((count, parameter) => {
-    if (isDraftParameter(parameter)) {
+export const countParameters = (elements: KeyValueElement[]): number => {
+  return elements.reduce((count, element) => {
+    if (isDraftElement(element)) {
       return count;
     }
 
@@ -37,20 +33,20 @@ export const countParameters = (parameters: KeyValueParameter[]): number => {
 };
 
 /**
- * Return a function to immutably update an element of a {@link KeyValueParameter} list with a new `enabled` property.
+ * Return a function to immutably update an element of a {@link KeyValueElement} list with a new `enabled` property.
  */
 export function createChangeEnabled(
-  onChange: ChangeKeyValueParametersHandler,
-  allParameters: KeyValueParameter[],
-  parameter: KeyValueParameter,
+  onChange: ChangeKeyValueElementsHandler,
+  allElements: KeyValueElement[],
+  element: KeyValueElement,
 ) {
-  return modifyKeyValueParameter(
+  return modifyKeyValueElement(
     onChange,
-    allParameters,
-    parameter,
-    (parameterToModify, enabled: boolean) => {
+    allElements,
+    element,
+    (elementToModify, enabled: boolean): KeyValueElement => {
       return {
-        ...parameterToModify,
+        ...elementToModify,
         enabled,
       };
     },
@@ -58,23 +54,23 @@ export function createChangeEnabled(
 }
 
 /**
- * Return a function to immutably update an element of a {@link KeyValueParameter[]} with a new `key` property.
+ * Return a function to immutably update an element of a {@link KeyValueElement[]} with a new `key` property.
  */
 export function createChangeKey(
-  onChange: ChangeKeyValueParametersHandler,
-  allParameters: KeyValueParameter[],
-  parameter: KeyValueParameter,
+  onChange: ChangeKeyValueElementsHandler,
+  allElements: KeyValueElement[],
+  element: KeyValueElement,
 ) {
-  return modifyKeyValueParameter(
+  return modifyKeyValueElement(
     onChange,
-    allParameters,
-    parameter,
-    (parameterToModify, newKey: string) => {
+    allElements,
+    element,
+    (elementToModify, newKey: string): KeyValueElement => {
       const enabled =
-        parameterToModify.enabled ||
-        (!!parameterToModify.key && !!parameterToModify.value);
+        elementToModify.enabled ||
+        (!!elementToModify.key && !!elementToModify.data.value);
       return {
-        ...parameterToModify,
+        ...elementToModify,
         enabled,
         key: newKey,
       };
@@ -83,27 +79,41 @@ export function createChangeKey(
 }
 
 /**
- * Return a function to immutably update an element of a {@link KeyValueParameter[]} with a new `value` property.
+ * Return a function to immutably update an element of a {@link KeyValueElement[]} with a new `value` property.
  */
 export function createChangeValue(
-  onChange: ChangeKeyValueParametersHandler,
-  allParameters: KeyValueParameter[],
-  parameter: KeyValueParameter,
+  onChange: ChangeKeyValueElementsHandler,
+  allElements: KeyValueElement[],
+  element: KeyValueElement,
 ) {
-  return modifyKeyValueParameter(
+  return modifyKeyValueElement(
     onChange,
-    allParameters,
-    parameter,
-    (parameterToModify, newValue: string) => {
+    allElements,
+    element,
+    (elementToModify, newValue: string | File | undefined): KeyValueElement => {
+      console.log("eh", newValue);
       // Prefer to only enable the key/value if there's also a key set
       const enabled =
-        parameterToModify.enabled ||
-        (!!parameterToModify.key && !!parameterToModify.value);
-      return {
-        ...parameterToModify,
+        elementToModify.enabled ||
+        (!!elementToModify.key && !!elementToModify.data.value);
+      const value =
+        newValue === undefined || newValue instanceof File
+          ? {
+              type: "file" as const,
+              value: newValue,
+            }
+          : {
+              type: "string" as const,
+              value: newValue,
+            };
+      const toReturn = {
+        ...elementToModify,
         enabled,
-        value: newValue,
+        data: value,
       };
+
+      console.log("return ", toReturn);
+      return toReturn;
     },
   );
 }
@@ -111,30 +121,38 @@ export function createChangeValue(
 // Utils
 
 /**
- * Helper to create a function that immutably updates an element of a {@link KeyValueParameter[]} with a new property,
+ * Helper to create a function that immutably updates an element of a {@link KeyValueElement[]} with a new property,
  * then calls a callback with the new array.
  */
-function modifyKeyValueParameter<T>(
-  onChange: ChangeKeyValueParametersHandler,
-  allParameters: KeyValueParameter[],
-  parameter: KeyValueParameter,
-  mapNewValue: (p: KeyValueParameter, newValue: T) => KeyValueParameter,
+function modifyKeyValueElement<T>(
+  onChange: ChangeKeyValueElementsHandler,
+  allElements: KeyValueElement[],
+  element: KeyValueElement,
+  mapNewValue: (p: KeyValueElement, newValue: T) => KeyValueElement,
 ) {
   return (newValue: T) => {
-    const newQueryParams = allParameters.map((otherParameter) => {
-      if (parameter.id === otherParameter.id) {
-        const newParameter = mapNewValue(parameter, newValue);
+    const newQueryParams = allElements.map((otherElement): KeyValueElement => {
+      if (element.id === otherElement.id) {
+        const newElement = mapNewValue(element, newValue);
 
-        // When we change from draft to not draft, we want to enable the parameter
-        if (isDraftParameter(parameter) && !isDraftParameter(newParameter)) {
-          newParameter.enabled = true;
-        }
+        // // When we change from draft to not draft, we want to enable the parameter
+        // if (isDraftElement(element) && !isDraftElement(newElement)) {
+        //   newElement.enabled = true;
+        // }
+        // console.log("id match", element.id, newElement.data, newValue);
+        console.log("match");
+        console.dir(newElement);
 
-        return newParameter;
+        return newElement;
       }
 
-      return otherParameter;
+      console.log("returning otherElement", otherElement.id);
+      return otherElement;
     });
+    console.log(
+      "newQueryParams",
+      newQueryParams.filter((e) => e.key === "page"),
+    );
     onChange(newQueryParams);
   };
 }
@@ -148,21 +166,42 @@ function generateUUID() {
   return `${timeStamp}-${randomPart()}-${randomPart()}`;
 }
 
-export function reduceKeyValueParameters(
-  parameters: Array<Omit<KeyValueParameter, "parameter">>,
-) {
-  return parameters.reduce(
-    (o, param) => {
-      if (isDraftParameter(param)) {
-        return o;
+/**
+ * Overloaded function which allows
+ */
+export function reduceKeyValueElements(
+  elements: Array<Omit<KeyValueElement, "parameter">>,
+): Record<string, string | File>;
+export function reduceKeyValueElements(
+  elements: Array<Omit<KeyValueElement, "parameter">>,
+  options: { stringValuesOnly: true },
+): Record<string, string>;
+
+export function reduceKeyValueElements(
+  elements: Array<Omit<KeyValueElement, "parameter">>,
+  options?: { stringValuesOnly?: boolean },
+): Record<string, string | File> {
+  return elements.reduce(
+    (keyValueRecord, element) => {
+      if (isDraftElement(element)) {
+        return keyValueRecord;
       }
-      const { key, value, enabled } = param;
-      if (!enabled) {
-        return o;
+      const {
+        key,
+        data: { value, type },
+        enabled,
+      } = element;
+      // Don't append disabled or undefined (file) elements
+      if (!enabled || value === undefined) {
+        return keyValueRecord;
       }
-      o[key] = value;
-      return o;
+      // Skip file values if stringValuesOnly is true
+      if (options?.stringValuesOnly && type === "file") {
+        return keyValueRecord;
+      }
+      keyValueRecord[key] = value;
+      return keyValueRecord;
     },
-    {} as Record<string, string>,
+    {} as Record<string, string | File>,
   );
 }

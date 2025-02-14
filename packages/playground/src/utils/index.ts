@@ -1,8 +1,4 @@
-import { createParameterId } from "@/components/playground/KeyValueForm/data";
-import type {
-  KeyValueParameter,
-  PlaygroundBody,
-} from "@/components/playground/store";
+import type { PlaygroundBody } from "@/components/playground/store";
 import { PlaygroundBodySchema } from "@/components/playground/store";
 import { type ClassValue, clsx } from "clsx";
 import { format } from "date-fns";
@@ -217,28 +213,28 @@ export function constructPlaygroundBody(bodyValue: string): PlaygroundBody {
   };
 }
 
-export function createKeyValueParametersFromValues(
-  values: Array<{ key: string; value: string }>,
-) {
-  return values.map(({ key, value }) => {
-    return {
-      id: createParameterId(),
-      key,
-      value,
-      enabled: true,
-    };
-  });
-}
+// export function createKeyValueElementsFromValues(
+//   values: Array<{ key: string; value: string }>,
+// ): Array<Omit<KeyValueElement, "parameter">> {
+//   return values.map(({ key, value }) => {
+//     return {
+//       id: createElementId(),
+//       key,
+//       value: {},
+//       enabled: true,
+//     };
+//   });
+// }
 
-export function createObjectFromKeyValueParameters<
-  T extends Array<KeyValueParameter>,
->(parameters: T): Record<T[0]["key"], T[0]["value"]> {
-  const result: Record<string, string> = {};
-  for (const item of parameters) {
-    if (item.key && item.enabled) {
-      result[item.key] = item.value;
-    }
-  }
+// export function createObjectFromKeyValueElements<
+//   T extends Array<KeyValueElement>,
+// >(parameters: T): Record<T[number]["key"], T[number]["data"]["value"]> {
+//   const result: Record<string, string | File> = {};
+//   for (const item of parameters) {
+//     if (item.key && item.enabled) {
+//       result[item.key] = item.data.value;
+//     }
+//   }
 
-  return result;
-}
+//   return result;
+// }

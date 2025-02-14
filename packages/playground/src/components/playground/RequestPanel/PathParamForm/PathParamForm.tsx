@@ -1,12 +1,12 @@
 import { KeyValueFormRow } from "../../KeyValueForm";
 import { createChangeEnabled } from "../../KeyValueForm/data";
-import type { ChangeKeyValueParametersHandler } from "../../KeyValueForm/types";
-import type { KeyValueParameter } from "../../store";
+import type { ChangeKeyValueElementsHandler } from "../../KeyValueForm/types";
+import type { KeyValueElement } from "../../store";
 import { createChangePathParamValue } from "./data";
 
 type Props = {
-  keyValueParameters: KeyValueParameter[];
-  onChange: ChangeKeyValueParametersHandler;
+  keyValueElements: KeyValueElement[];
+  onChange: ChangeKeyValueElementsHandler;
   onSubmit?: () => void;
   keyPlaceholder?: string;
   handleCmdG?: () => void;
@@ -22,7 +22,7 @@ type Props = {
 export const PathParamForm = (props: Props) => {
   const {
     onChange,
-    keyValueParameters,
+    keyValueElements,
     onSubmit,
     keyPlaceholder,
     handleCmdG,
@@ -31,8 +31,8 @@ export const PathParamForm = (props: Props) => {
 
   return (
     <div className="space-y-2">
-      {keyValueParameters.map((parameter) => {
-        const isDraft = !parameter.value;
+      {keyValueElements.map((parameter) => {
+        const isDraft = !parameter.data.value;
         return (
           <KeyValueFormRow
             key={parameter.id}
@@ -40,12 +40,12 @@ export const PathParamForm = (props: Props) => {
             isDraft={isDraft}
             onChangeEnabled={createChangeEnabled(
               onChange,
-              keyValueParameters,
+              keyValueElements,
               parameter,
             )}
             onChangeValue={createChangePathParamValue(
               onChange,
-              keyValueParameters,
+              keyValueElements,
               parameter,
             )}
             onSubmit={onSubmit}

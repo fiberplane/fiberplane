@@ -1,12 +1,12 @@
 import { enforceTerminalDraftParameter } from "../KeyValueForm";
-import { isDraftParameter } from "../KeyValueForm/data";
+import { isDraftElement } from "../KeyValueForm/data";
 import { getRouteId } from "./slices/requestResponseSlice";
 import type {
   ApiCallData,
   RequestResponseSlice,
   RoutesSlice,
 } from "./slices/types";
-import type { KeyValueParameter, PlaygroundBody } from "./types";
+import type { KeyValueElement, PlaygroundBody } from "./types";
 
 /**
  * This makes sure to synchronize the content type header with the body type.
@@ -53,22 +53,22 @@ export function updateContentTypeHeaderInState(
 }
 
 function addHeader(
-  currentHeaders: KeyValueParameter[],
-  newHeader: KeyValueParameter,
+  currentHeaders: KeyValueElement[],
+  newHeader: KeyValueElement,
 ) {
-  return currentHeaders.filter((p) => !isDraftParameter(p)).concat(newHeader);
+  return currentHeaders.filter((p) => !isDraftElement(p)).concat(newHeader);
 }
 
 function updateHeader(
-  currentHeaders: KeyValueParameter[],
-  newHeader: KeyValueParameter,
+  currentHeaders: KeyValueElement[],
+  newHeader: KeyValueElement,
 ) {
   return currentHeaders.map((p) => (p.id === newHeader.id ? newHeader : p));
 }
 
 function removeHeader(
-  currentHeaders: KeyValueParameter[],
-  header: KeyValueParameter,
+  currentHeaders: KeyValueElement[],
+  header: KeyValueElement,
 ) {
   return currentHeaders.filter((p) => p.id !== header.id);
 }
@@ -110,7 +110,7 @@ function getCurrentContentType(state: ApiCallData) {
 
 function getUpdateOperation(
   state: RequestResponseSlice & Pick<RoutesSlice, "activeRoute">,
-  currentContentTypeHeader: KeyValueParameter | null,
+  currentContentTypeHeader: KeyValueElement | null,
 ) {
   const { activeRoute } = state;
   const canHaveBody =
@@ -132,8 +132,12 @@ function getUpdateOperation(
   const currentBody = params.body;
   const nextContentTypeValue = mapBodyToContentType(currentBody);
 
-  // `null` means "no change"
-  if (currentContentTypeHeader?.value?.startsWith(nextContentTypeValue)) {
+  const headerData = currentContentTypeHeader?.data;
+  if (
+    headerData?.type !== "string" ||
+    headerData.value.startsWith(nextContentTypeValue)
+  ) {
+    // `null` means "no change"
     return null;
   }
 
@@ -151,7 +155,10 @@ function getUpdateOperation(
       value: {
         id: crypto.randomUUID(),
         key: "Content-Type",
-        value: nextContentTypeValue,
+        data: {
+          type: "string" as const,
+          value: nextContentTypeValue,
+        },
         enabled: true,
         parameter: {
           name: "Content-Type",
@@ -174,7 +181,8 @@ function getUpdateOperation(
   if (
     currentBody.type === "form-data" &&
     currentBody.isMultipart &&
-    !currentContentTypeHeader.value?.startsWith("multipart/form-data")
+    currentContentTypeHeader.data?.type === "string" &&
+    !currentContentTypeHeader.data.value.startsWith("multipart/form-data")
   ) {
     return {
       type: "remove" as const,

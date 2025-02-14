@@ -10,11 +10,12 @@ import { FpRadioGroup, FpRadioGroupItem } from "@/components/ui/radio-group";
 import { isSupportedSchemaObject } from "@/lib/isOpenApi";
 import { cn, noop } from "@/utils";
 import { TrashIcon } from "@radix-ui/react-icons";
-import type { KeyValueParameter } from "../store";
+import { FileIcon } from "lucide-react";
+import type { KeyValueElement } from "../store";
 
 type KeyValueRowProps = {
   isDraft: boolean;
-  keyValueData: KeyValueParameter;
+  keyValueData: KeyValueElement;
   onChangeEnabled: (enabled: boolean) => void;
   onChangeKey?: (key: string) => void;
   onChangeValue: (value: string) => void;
@@ -42,12 +43,16 @@ export const KeyValueFormRow = (props: KeyValueRowProps) => {
     keyInputType,
     valueInputType,
   } = props;
-  const { enabled, key, value, parameter } = keyValueData;
+  const { enabled, key, data, parameter } = keyValueData;
 
   const schema =
     parameter.schema && isSupportedSchemaObject(parameter.schema)
       ? parameter.schema
       : undefined;
+
+  if (key === "page") {
+    console.log("data", data);
+  }
   return (
     <div className={cn("flex items-center gap-1 rounded p-0", "group")}>
       <Checkbox
@@ -69,9 +74,16 @@ export const KeyValueFormRow = (props: KeyValueRowProps) => {
         handleCmdG={handleCmdG}
         handleCmdB={handleCmdB}
       />
-      {schema?.enum ? (
+      {data.type === "file" ? (
+        <div className="h-8 flex-grow bg-transparent shadow-none px-2 py-0 text-sm border-none">
+          <Button variant="secondary" className="h-8">
+            <FileIcon className="w-3 h-3 mr-2" />
+            {data.value?.name ?? <em>No file selected</em>}
+          </Button>
+        </div>
+      ) : schema?.enum ? (
         <FpRadioGroup
-          defaultValue={value}
+          defaultValue={data.value}
           onValueChange={(value) => onChangeValue(value)}
           className="flex flex-wrap gap-2 w-[calc(100%-140px)]"
         >
@@ -91,7 +103,7 @@ export const KeyValueFormRow = (props: KeyValueRowProps) => {
       ) : schema && (schema.type === "number" || schema.type === "integer") ? (
         <div className="w-[calc(100%-140px)]">
           <Input
-            value={value}
+            value={data.value}
             type="number"
             placeholder="value"
             step={schema.type === "integer" ? 1 : undefined}
@@ -104,7 +116,7 @@ export const KeyValueFormRow = (props: KeyValueRowProps) => {
       ) : (
         <CodeMirrorInput
           className="w-[calc(100%-140px)]"
-          value={value}
+          value={data.value}
           placeholder="value"
           onChange={(value) => onChangeValue(value ?? "")}
           onSubmit={onSubmit}

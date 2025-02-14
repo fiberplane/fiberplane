@@ -10,7 +10,7 @@ import { safeParseJson } from "@/utils/safe-parse-json";
 import { z } from "zod";
 import type { StateCreator } from "zustand";
 import { enforceTerminalDraftParameter } from "../../KeyValueForm";
-import type { KeyValueParameter } from "../types";
+import type { KeyValueElement } from "../types";
 import type { StudioState } from "./types";
 
 const SETTINGS_STORAGE_KEY = "playground_settings";
@@ -45,7 +45,10 @@ const getInitialAuthHeaders = () =>
     {
       id: crypto.randomUUID(),
       key: "",
-      value: "",
+      data: {
+        type: "string",
+        value: "",
+      },
       enabled: false,
       parameter: {
         name: "",
@@ -55,7 +58,7 @@ const getInitialAuthHeaders = () =>
   ]);
 
 const loadSettingsFromStorage = (): {
-  persistentAuthHeaders: KeyValueParameter[];
+  persistentAuthHeaders: KeyValueElement[];
   authorizations: Authorization[];
   enabledFeatures: FeatureFlag[];
   isWorkflowsEnabled: boolean;
@@ -104,10 +107,13 @@ const loadSettingsFromStorage = (): {
   const isErrorReportingEnabled = enabledFeatures.includes(
     FEATURE_FLAG_ERROR_REPORTING,
   );
+  const persistentAuthHeaders = (parsed.persistentAuthHeaders || []).filter(
+    (element: Record<string, unknown>) => {
+      "parameter" in element && "data" in element;
+    },
+  );
   return {
-    persistentAuthHeaders: enforceTerminalDraftParameter(
-      parsed.persistentAuthHeaders || [],
-    ),
+    persistentAuthHeaders: enforceTerminalDraftParameter(persistentAuthHeaders),
     authorizations,
     enabledFeatures,
     isWorkflowsEnabled,
@@ -119,7 +125,7 @@ const loadSettingsFromStorage = (): {
 
 export interface SettingsSlice {
   // Auth headers that should be included in every request
-  persistentAuthHeaders: KeyValueParameter[];
+  persistentAuthHeaders: KeyValueElement[];
   // Auth tokens that can be used in requests
   // These are stored in local storage
   authorizations: Authorization[];
@@ -137,7 +143,7 @@ export interface SettingsSlice {
   ) => void;
   updateAuthorization: (authorization: Authorization) => void;
   removeAuthorization: (id: string) => void;
-  setPersistentAuthHeaders: (headers: KeyValueParameter[]) => void;
+  setPersistentAuthHeaders: (headers: KeyValueElement[]) => void;
   setFeatureEnabled: (feature: FeatureFlag, enabled: boolean) => void;
 }
 

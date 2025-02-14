@@ -67,13 +67,21 @@ export type PlaygroundActiveResponse = z.infer<
 >;
 
 /**
- * A "key-value parameter" is a record containing `key` and `value` properties.
+ * A "key-value element" is a record containing `key` and `value` properties.
  * It can be used to represent things like query parameters or headers.
  */
-export type KeyValueParameter = {
+export type KeyValueElement = {
   id: string;
   key: string;
-  value: string;
+  data:
+    | {
+        type: "string";
+        value: string;
+      }
+    | {
+        type: "file";
+        value: File | undefined;
+      };
   enabled: boolean;
   parameter: SupportedParameterObject;
 };

@@ -2,7 +2,7 @@ import type { findMatchedRoute } from "../routes";
 import type { ApiRoute } from "../types";
 import type { RequestMethod } from "../types";
 import type { Authorization } from "./slices/settingsSlice";
-import type { KeyValueParameter, PlaygroundState } from "./types";
+import type { KeyValueElement, PlaygroundState } from "./types";
 
 export const _getActiveRoute = (state: PlaygroundState): ApiRoute => {
   return (
@@ -75,10 +75,12 @@ export function extractPathParams(path: string) {
 export function mapPathParamKey(key: string) {
   return {
     key,
-    value: "",
+    data: {
+      value: "",
+      type: "string" as const,
+    },
     id: key,
     enabled: false,
-    type: "string" as const,
     parameter: {
       name: key,
       in: "path",
@@ -105,10 +107,16 @@ export function extractMatchedPathParams(
  */
 export function resolvePathWithParameters(
   path: string,
-  pathParams: KeyValueParameter[],
+  pathParams: KeyValueElement[],
 ) {
   return pathParams.reduce((acc, param) => {
-    return acc.replace(`{${param.key}}`, encodeURIComponent(param.value));
+    if (param.data.type === "file") {
+      console.warn(
+        "Files are not supported in path (source: `resolvePathWithParameters`)",
+      );
+      return acc;
+    }
+    return acc.replace(`{${param.key}}`, encodeURIComponent(param.data.value));
   }, path);
 }
 
