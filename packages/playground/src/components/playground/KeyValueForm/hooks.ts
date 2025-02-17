@@ -4,26 +4,6 @@ import type { KeyValueElement } from "../store";
 import { createKeyValueElement, isDraftElement } from "./data";
 import type { DraftKeyValueElement } from "./types";
 
-// const INITIAL_KEY_VALUE_ELEMENT: KeyValueElement = {
-//   id: createElementId(),
-//   key: "" as const,
-//   data: {
-//     type: "string" as const,
-//     value: "" as const,
-//   },
-//   enabled: false,
-//   parameter: {
-//     name: "",
-//     // We don't know where this element might be used, and it's not really relevant here either.
-//     // This key value element is for things that the user is adding beyond what's defined in the openapi spec/doc
-//     in: "query",
-//     // Schema seems to be optional, but we should assume "string" as the default value
-//     // schema: {
-//     //   type: "string",
-//     // },
-//   },
-// };
-
 export const useKeyValueForm = (initial?: KeyValueElement[]) => {
   const [internalList, updateInternalList] = useState<KeyValueElement[]>(
     initial ?? concatDraftElement([]),

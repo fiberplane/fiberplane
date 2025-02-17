@@ -109,8 +109,6 @@ export function extractFormDataFromOpenApiDefinition(
   mediaType: SupportedMediaTypeObject,
 ): PlaygroundBody {
   const values: Array<KeyValueElement> = [];
-  // debugger;
-  // // TODO handle examples?
   if (mediaType.schema && isSupportedSchemaObject(mediaType.schema)) {
     const schema = mediaType.schema;
     if (schema.type === "object") {

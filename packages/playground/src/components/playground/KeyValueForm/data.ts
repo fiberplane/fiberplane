@@ -1,6 +1,6 @@
 import {
+  type SupportedParameterObject,
   isSupportedSchemaObject,
-  SupportedParameterObject,
 } from "@/lib/isOpenApi";
 import type { KeyValueElement } from "../store";
 import type {

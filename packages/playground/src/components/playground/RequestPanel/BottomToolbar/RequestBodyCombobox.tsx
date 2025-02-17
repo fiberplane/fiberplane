@@ -32,7 +32,7 @@ const bodyTypes: RequestBodyTypeOption[] = [
   { value: "json", label: "JSON" },
   { value: "form-data", label: "Form" },
   { value: "file", label: "File" },
-] as const;
+];
 
 export type RequestBodyTypeDropdownProps = {
   requestBody: PlaygroundBody;

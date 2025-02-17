@@ -8,12 +8,10 @@ import {
 import { cn } from "@/utils";
 import { EraserIcon } from "@radix-ui/react-icons";
 import { memo } from "react";
-// import { FormDataForm } from "../FormDataForm";
 import { KeyValueForm } from "../KeyValueForm";
 import type { PlaygroundBody, RequestsPanelTab } from "../store";
 import { BottomToolbar } from "./BottomToolbar";
 import { FileUploadForm } from "./FileUploadForm";
-// import { PathParamForm } from "./PathParamForm";
 import "./styles.css";
 import {
   CodeMirrorJsonEditor,
