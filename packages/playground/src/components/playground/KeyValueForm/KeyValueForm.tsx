@@ -1,153 +1,62 @@
-import { CodeMirrorInput } from "@/components/CodeMirrorEditor";
 import type { CodeMirrorInputType } from "@/components/CodeMirrorEditor/CodeMirrorInput";
-import { Checkbox } from "@/components/ui/checkbox";
-import { cn, noop } from "@/utils";
-import { TrashIcon } from "@radix-ui/react-icons";
-import { useState } from "react";
-import type { KeyValueParameter } from "../store";
+import type { KeyValueElement } from "../store";
+import { KeyValueFormRow } from "./KeyValueFormRow";
 import {
   createChangeEnabled,
   createChangeKey,
   createChangeValue,
-  isDraftParameter,
+  isDraftElement,
 } from "./data";
-import type { ChangeKeyValueParametersHandler } from "./types";
+import type { ChangeKeyValueElementsHandler } from "./types";
 
 type Props = {
-  keyValueParameters: KeyValueParameter[];
-  onChange: ChangeKeyValueParametersHandler;
+  keyValueElements: KeyValueElement[];
+  onChange: ChangeKeyValueElementsHandler;
   onSubmit?: () => void;
   keyPlaceholder?: string;
   keyInputType?: CodeMirrorInputType;
   valueInputType?: CodeMirrorInputType;
+  showFileSelector?: boolean;
   handleCmdG?: () => void;
   handleCmdB?: () => void;
-};
-
-type KeyValueRowProps = {
-  isDraft: boolean;
-  parameter: KeyValueParameter;
-  onChangeEnabled: (enabled: boolean) => void;
-  onChangeKey?: (key: string) => void;
-  onChangeValue: (value: string) => void;
-  removeValue?: () => void;
-  onSubmit?: () => void;
-  handleCmdG?: () => void;
-  handleCmdB?: () => void;
-  keyPlaceholder?: string;
-  keyInputType?: CodeMirrorInputType;
-  valueInputType?: CodeMirrorInputType;
-};
-
-export const KeyValueRow = (props: KeyValueRowProps) => {
-  const {
-    isDraft,
-    onChangeEnabled,
-    onChangeKey,
-    onChangeValue,
-    removeValue,
-    parameter,
-    onSubmit,
-    handleCmdG,
-    handleCmdB,
-    keyPlaceholder = "name",
-    keyInputType,
-    valueInputType,
-  } = props;
-  const { enabled, key, value } = parameter;
-  const [isHovering, setIsHovering] = useState(false);
-  return (
-    <div
-      className={cn("flex items-center space-x-0 rounded p-0")}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-    >
-      <Checkbox
-        className="mr-1"
-        checked={enabled}
-        disabled={isDraft}
-        onCheckedChange={() => {
-          const handler = isDraft ? noop : () => onChangeEnabled(!enabled);
-          return handler();
-        }}
-      />
-      <CodeMirrorInput
-        className="w-[140px]"
-        value={key}
-        placeholder={keyPlaceholder}
-        readOnly={!onChangeKey}
-        onChange={(value) => onChangeKey?.(value ?? "")}
-        onSubmit={onSubmit}
-        inputType={keyInputType}
-        handleCmdG={handleCmdG}
-        handleCmdB={handleCmdB}
-      />
-      <CodeMirrorInput
-        className="w-[calc(100%-140px)]"
-        value={value}
-        placeholder="value"
-        onChange={(value) => onChangeValue(value ?? "")}
-        onSubmit={onSubmit}
-        inputType={valueInputType}
-        handleCmdG={handleCmdG}
-        handleCmdB={handleCmdB}
-      />
-      <div
-        className={cn("ml-1 flex invisible", {
-          visible: !isDraft && isHovering && !!removeValue,
-        })}
-      >
-        <TrashIcon
-          className={cn("w-4 h-4", {
-            "cursor-pointer": !isDraft,
-          })}
-          onClick={() => !isDraft && removeValue?.()}
-        />
-      </div>
-    </div>
-  );
 };
 
 export const KeyValueForm = (props: Props) => {
   const {
     onChange,
-    keyValueParameters,
+    keyValueElements,
     onSubmit,
     keyPlaceholder,
     keyInputType,
     valueInputType,
     handleCmdG,
     handleCmdB,
+    showFileSelector = false,
   } = props;
 
   return (
     <div className="flex flex-col gap-0">
-      {keyValueParameters.map((parameter) => {
-        const isDraft = isDraftParameter(parameter);
+      {keyValueElements.map((element) => {
+        const isDraft = isDraftElement(element);
         return (
-          <KeyValueRow
-            key={parameter.id}
-            parameter={parameter}
+          <KeyValueFormRow
+            key={element.id}
+            keyValueData={element}
             isDraft={isDraft}
+            showFileSelector={showFileSelector}
             onChangeEnabled={createChangeEnabled(
               onChange,
-              keyValueParameters,
-              parameter,
+              keyValueElements,
+              element,
             )}
-            onChangeKey={createChangeKey(
-              onChange,
-              keyValueParameters,
-              parameter,
-            )}
+            onChangeKey={createChangeKey(onChange, keyValueElements, element)}
             onChangeValue={createChangeValue(
               onChange,
-              keyValueParameters,
-              parameter,
+              keyValueElements,
+              element,
             )}
             removeValue={() => {
-              onChange(
-                keyValueParameters.filter(({ id }) => parameter.id !== id),
-              );
+              onChange(keyValueElements.filter(({ id }) => element.id !== id));
             }}
             onSubmit={onSubmit}
             keyPlaceholder={keyPlaceholder}

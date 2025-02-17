@@ -5,7 +5,7 @@ import type {
   ResponsePanelTab,
 } from "..";
 import type { ApiRoute } from "../../types";
-import type { KeyValueParameter, PlaygroundActiveResponse } from "../types";
+import type { KeyValueElement, PlaygroundActiveResponse } from "../types";
 import type { SettingsSlice } from "./settingsSlice";
 
 export interface RequestResponseSlice {
@@ -18,13 +18,13 @@ export interface RequestResponseSlice {
    * different ApiRoutes.
    */
   apiCallState: Record<string, ApiCallData>;
-  setCurrentPathParams: (pathParams: KeyValueParameter[]) => void;
+  setCurrentPathParams: (pathParams: KeyValueElement[]) => void;
   updateCurrentPathParamValues: (
     pathParams: { key: string; value: string }[],
   ) => void;
   clearCurrentPathParams: () => void;
-  setCurrentQueryParams: (queryParams: KeyValueParameter[]) => void;
-  setCurrentRequestHeaders: (headers: KeyValueParameter[]) => void;
+  setCurrentQueryParams: (queryParams: KeyValueElement[]) => void;
+  setCurrentRequestHeaders: (headers: KeyValueElement[]) => void;
   setCurrentAuthorizationId: (authorizationId: string | null) => void;
   setCurrentBody: (body: undefined | string | PlaygroundBody) => void;
   fillInFakeData: () => void;
@@ -48,9 +48,9 @@ export interface RequestResponseSlice {
  */
 export type ApiCallData = {
   body: PlaygroundBody;
-  pathParams: KeyValueParameter[];
-  queryParams: KeyValueParameter[];
-  requestHeaders: KeyValueParameter[];
+  pathParams: KeyValueElement[];
+  queryParams: KeyValueElement[];
+  requestHeaders: KeyValueElement[];
   /** ID of the user-defined auth scheme to use */
   authorizationId: "none" | string | null;
   /** The response received by the playground from an actual request against the api */

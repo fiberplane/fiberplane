@@ -71,25 +71,3 @@ export function SettingsMenu({
     </Menubar>
   );
 }
-
-// NOTE - IF we want to link to the Slack community or another doc page for the external api, this would be a good place to do it
-//        Or we can link to Fiberplane stuff...
-export function _MenuItemLinkOld({
-  href,
-  icon,
-  children,
-}: { href: string; icon: React.ReactNode; children: React.ReactNode }) {
-  return (
-    <MenubarItem className="pointer-cursor-auto px-2 py-1 select-none focus:bg-secondary focus:text-secondary-foreground cursor-pointer focus:outline-none focus:ring-1 rounded-lg">
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-2"
-      >
-        {icon}
-        {children}
-      </a>
-    </MenubarItem>
-  );
-}

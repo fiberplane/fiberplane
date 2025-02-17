@@ -1,5 +1,5 @@
+import type { SupportedParameterObject } from "@/lib/isOpenApi";
 import { z } from "zod";
-import type { PlaygroundBodySchema } from "./request-body";
 import type { StudioState } from "./slices";
 
 const PlaygroundResponseBodySchema = z.discriminatedUnion("type", [
@@ -65,20 +65,45 @@ export type PlaygroundActiveResponse = z.infer<
   typeof PlaygroundActiveResponseSchema
 >;
 
-export const KeyValueParameterSchema = z.object({
-  id: z.string(),
-  key: z.string(),
-  value: z.string(),
-  enabled: z.boolean(),
-});
-
 /**
- * A "key-value parameter" is a record containing `key` and `value` properties.
+ * A "key-value element" is a record containing `key` and `value` properties.
  * It can be used to represent things like query parameters or headers.
  */
-export type KeyValueParameter = z.infer<typeof KeyValueParameterSchema>;
+export type KeyValueElement = {
+  id: string;
+  key: string;
+  data:
+    | {
+        type: "string";
+        value: string;
+      }
+    | {
+        type: "file";
+        value: File | undefined;
+      };
+  enabled: boolean;
+  parameter: SupportedParameterObject;
+};
 
 export type PlaygroundState = StudioState;
 
-export type PlaygroundBody = z.infer<typeof PlaygroundBodySchema>;
+export type PlaygroundBody =
+  | {
+      type: "text";
+      value?: string;
+    }
+  | {
+      type: "json";
+      value?: string;
+    }
+  | {
+      type: "form-data";
+      isMultipart: boolean;
+      value: Array<KeyValueElement>;
+    }
+  | {
+      type: "file";
+      value?: File;
+    };
+export type PlaygroundBodyType = PlaygroundBody["type"];
 export type NavigationRoutesView = "list" | "fileTree";

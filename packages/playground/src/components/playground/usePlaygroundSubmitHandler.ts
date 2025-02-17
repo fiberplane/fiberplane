@@ -1,6 +1,6 @@
 import { useHandler } from "@fiberplane/hooks";
 import type { MakePlaygroundRequestQueryFn } from "./queries";
-import type { KeyValueParameter, PlaygroundBody } from "./store";
+import type { KeyValueElement, PlaygroundBody } from "./store";
 import { useServiceBaseUrl, useStudioStore } from "./store";
 import { useApiCallData } from "./store/hooks/useApiCallData";
 import { useCurrentAuthorization } from "./store/hooks/useCurrentAuthorization";
@@ -36,33 +36,44 @@ export function usePlaygroundSubmitHandler({
     const contentTypeHeader = canHaveBody ? getContentTypeHeader(body) : null;
     const contentLength = canHaveBody ? getContentLength(body) : null;
     const modifiedHeaders = [
-      contentTypeHeader
-        ? {
-            key: "Content-Type",
-            value: contentTypeHeader,
-            enabled: true,
-            id: "fpx-content-type",
-          }
-        : null,
-      contentLength !== null
-        ? {
-            key: "Content-Length",
-            value: contentLength,
-            enabled: true,
-            id: "fpx-content-length",
-          }
-        : null,
+      contentTypeHeader && {
+        key: "Content-Type",
+        data: {
+          type: "string" as const,
+          value: contentTypeHeader,
+        },
+        enabled: true,
+        id: "fpx-content-type",
+      },
+      contentLength !== null && {
+        key: "Content-Length",
+        data: {
+          type: "string" as const,
+          value: contentLength,
+        },
+        enabled: true,
+        id: "fpx-content-length",
+      },
       ...requestHeaders,
-    ].filter(
-      (element) => element && element.key.toLowerCase() !== "x-fpx-trace-id",
-    ) as KeyValueParameter[];
+    ]
+      .filter((element): element is KeyValueElement => !!element)
+      .filter(
+        (element) => element && element.key.toLowerCase() !== "x-fpx-trace-id",
+      );
 
     if (authorization && authorization.type === "bearer") {
       modifiedHeaders.push({
         id: authorization.id,
         key: "Authorization",
         enabled: true,
-        value: `Bearer ${authorization.token}`,
+        data: {
+          type: "string",
+          value: `Bearer ${authorization.token}`,
+        },
+        parameter: {
+          name: "Authorization",
+          in: "header",
+        },
       });
     }
 
@@ -100,7 +111,7 @@ function getContentTypeHeader(body: PlaygroundBody): string | null {
     case "form-data": {
       const shouldDeferToFetchItself =
         body.isMultipart ||
-        body.value.some((item) => item.value.type === "file");
+        body.value.some((item) => item.data.type === "file");
       // NOTE - We want the browser to handle setting this header automatically
       //        Since, it needs to determine the form boundary for multipart/form-data
       if (shouldDeferToFetchItself) {

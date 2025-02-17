@@ -38,12 +38,17 @@ export function CopyAsCurl() {
       method: activeRoute.method,
     });
 
-    const headers = requestHeaders.reduce((acc, { enabled, key, value }) => {
+    const headers = requestHeaders.reduce((acc, { enabled, key, data }) => {
       if (!enabled) {
         return acc;
       }
 
-      return `${acc} -H "${key}: ${value}"`;
+      if (data.type === "file") {
+        // skip: you can't put files in headers
+        return acc;
+      }
+
+      return `${acc} -H "${key}: ${data.value}"`;
     }, "");
 
     const data = payload ? `-d ${payload}` : "";

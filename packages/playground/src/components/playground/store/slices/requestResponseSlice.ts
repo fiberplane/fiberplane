@@ -1,15 +1,25 @@
-import { createObjectFromKeyValueParameters } from "@/utils";
+import {
+  type SupportedMediaTypeObject,
+  type SupportedParameterObject,
+  type SupportedReferenceObject,
+  type SupportedRequestBodyObject,
+  isSupportedOperationObject,
+  isSupportedParameterObject,
+  isSupportedRequestBodyObject,
+} from "@/lib/isOpenApi";
 import type { StateCreator } from "zustand";
-import { enforceFormDataTerminalDraftParameter } from "../../FormDataForm";
-import { enforceTerminalDraftParameter } from "../../KeyValueForm";
+import {
+  enforceTerminalDraftParameter,
+  reduceKeyValueElements,
+} from "../../KeyValueForm";
+import { createKeyValueElement } from "../../KeyValueForm/data";
 import type { ApiRoute } from "../../types";
 import { updateContentTypeHeaderInState } from "../content-type";
 import { setBodyTypeInState } from "../set-body-type";
-import type { KeyValueParameter } from "../types";
+import type { KeyValueElement, PlaygroundBody } from "../types";
 import {
   addBaseUrl,
-  extractPathParams,
-  mapPathParamKey,
+  extractPathParameterKeys,
   removeBaseUrl,
   resolvePathWithParameters,
 } from "../utils";
@@ -19,6 +29,7 @@ import {
   transformToFormParams,
 } from "../utils-faker";
 import {
+  extractFormDataFromOpenApiDefinition,
   extractJsonBodyFromOpenApiDefinition,
   extractQueryParamsFromOpenApiDefinition,
 } from "../utils-openapi";
@@ -203,7 +214,7 @@ export const requestResponseSlice: StateCreator<
       const params = apiCallState[id];
 
       params.pathParams = params.pathParams.map(
-        (pathParam: KeyValueParameter) => {
+        (pathParam: KeyValueElement) => {
           const replacement = pathParams?.find((p) => p?.key === pathParam.key);
           if (!replacement) {
             return pathParam;
@@ -300,7 +311,6 @@ export const requestResponseSlice: StateCreator<
       }
 
       const id = getRouteId(state.activeRoute);
-      console.log("setCurrentBody", body);
       state.apiCallState = {
         ...state.apiCallState,
       };
@@ -318,7 +328,7 @@ export const requestResponseSlice: StateCreator<
           params.body.type === "form-data"
             ? {
                 type: "form-data",
-                value: enforceFormDataTerminalDraftParameter([]),
+                value: enforceTerminalDraftParameter([]),
                 isMultipart: params.body.isMultipart,
               }
             : params.body.type === "file"
@@ -328,11 +338,9 @@ export const requestResponseSlice: StateCreator<
         params.body = { type: "text", value: body };
       } else {
         if (body.type === "form-data") {
-          const nextBodyValue = enforceFormDataTerminalDraftParameter(
-            body.value,
-          );
+          const nextBodyValue = enforceTerminalDraftParameter(body.value);
           const shouldForceMultipart = nextBodyValue.some(
-            (param) => param.value.value instanceof File,
+            (param) => param.data.value instanceof File,
           );
           params.body = {
             type: body.type,
@@ -396,13 +404,89 @@ export function createInitialApiCallData(route?: ApiRoute): ApiCallData {
     return data;
   }
 
-  data.pathParams = extractPathParams(route.path).map(mapPathParamKey);
+  const params = [
+    ...(route.parameters ?? []),
+    ...(route.operation.parameters || []),
+  ];
+  data.pathParams = extractPathParameterKeys(route.path).map((key: string) => {
+    const parameter = params.find(
+      (item) =>
+        isSupportedParameterObject(item) &&
+        item.name === key &&
+        item.in === "path",
+    ) as SupportedParameterObject | undefined;
+    return createKeyValueElement(key, undefined, parameter);
+  });
+
   data.queryParams = extractQueryParamsFromOpenApiDefinition(
     data.queryParams,
     route,
   );
-  data.body = extractJsonBodyFromOpenApiDefinition(data.body, route);
+
+  // Does the route support a body parameter?
+  if (
+    route.method !== "GET" &&
+    route.method !== "HEAD" &&
+    isSupportedOperationObject(route)
+  ) {
+    data.body = extractBodyFromOpenApiDefinition(
+      data.body,
+      route.operation.requestBody,
+      "application/json",
+    );
+  }
   return data;
+}
+
+const supportedBodyTypes = ["application/json", "multipart/form-data"] as const;
+type SupportedBodyContentType = (typeof supportedBodyTypes)[number];
+
+function extractBodyFromOpenApiDefinition(
+  currentBody: PlaygroundBody,
+  bodyObject: SupportedRequestBodyObject | SupportedReferenceObject | undefined,
+  preferredContentType: SupportedBodyContentType = "application/json",
+): PlaygroundBody {
+  if (bodyObject === undefined || !isSupportedRequestBodyObject(bodyObject)) {
+    return currentBody;
+  }
+
+  type ContentMap = {
+    contentType: SupportedBodyContentType;
+    mediaType: SupportedMediaTypeObject;
+  };
+  const contentTypes = Object.entries(bodyObject.content)
+    .filter(([contentType]) =>
+      supportedBodyTypes.includes(contentType as SupportedBodyContentType),
+    )
+    .map(
+      ([contentType, mediaTypeObject]): ContentMap => ({
+        contentType: contentType as SupportedBodyContentType,
+        mediaType: mediaTypeObject as SupportedMediaTypeObject,
+      }),
+    );
+
+  const extract = ({ contentType, mediaType }: ContentMap): PlaygroundBody => {
+    switch (contentType) {
+      case "application/json": {
+        return extractJsonBodyFromOpenApiDefinition(currentBody, mediaType);
+      }
+
+      case "multipart/form-data": {
+        return extractFormDataFromOpenApiDefinition(mediaType);
+      }
+
+      default: {
+        // This will cause a type error if we haven't handled all possible content types
+        const _exhaustiveCheck: never = contentType;
+        throw new Error(`Unhandled content type: ${_exhaustiveCheck}`);
+      }
+    }
+  };
+
+  const content =
+    contentTypes.find((item) => item.contentType === preferredContentType) ||
+    contentTypes[0];
+  return content ? extract(content) : currentBody;
 }
 
 export function createEmptyApiCallData(): ApiCallData {
@@ -438,7 +522,9 @@ export function constructFullPath(
   );
 
   const searchParams = new URLSearchParams(
-    createObjectFromKeyValueParameters(data.queryParams),
+    reduceKeyValueElements(data.queryParams, {
+      stringValuesOnly: true,
+    }),
   );
 
   return searchParams.size > 0

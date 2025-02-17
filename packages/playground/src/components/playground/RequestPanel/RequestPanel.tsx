@@ -8,12 +8,10 @@ import {
 import { cn } from "@/utils";
 import { EraserIcon } from "@radix-ui/react-icons";
 import { memo } from "react";
-import { FormDataForm } from "../FormDataForm";
 import { KeyValueForm } from "../KeyValueForm";
 import type { PlaygroundBody, RequestsPanelTab } from "../store";
 import { BottomToolbar } from "./BottomToolbar";
 import { FileUploadForm } from "./FileUploadForm";
-import { PathParamForm } from "./PathParamForm";
 import "./styles.css";
 import {
   CodeMirrorJsonEditor,
@@ -40,7 +38,6 @@ export const RequestPanel = memo(function RequestPanel(
     activeRoute,
     clearCurrentPathParams: clearPathParams,
     fillInFakeData,
-    handleRequestBodyTypeChange,
     setActiveRequestsPanelTab,
     setCurrentBody: setBody,
     setCurrentPathParams: setPathParams,
@@ -53,7 +50,6 @@ export const RequestPanel = memo(function RequestPanel(
     "activeRoute",
     "clearCurrentPathParams",
     "fillInFakeData",
-    "handleRequestBodyTypeChange",
     "setActiveRequestsPanelTab",
     "setCurrentBody",
     "setCurrentPathParams",
@@ -142,10 +138,8 @@ export const RequestPanel = memo(function RequestPanel(
         />
         <KeyValueForm
           keyPlaceholder="param_name"
-          keyValueParameters={queryParams}
-          onChange={(params) => {
-            setQueryParams(params);
-          }}
+          keyValueElements={queryParams}
+          onChange={(params) => setQueryParams(params)}
           onSubmit={onSubmit}
           handleCmdG={fillInFakeData}
           handleCmdB={toggleSideBar}
@@ -157,9 +151,9 @@ export const RequestPanel = memo(function RequestPanel(
               handleClearData={clearPathParams}
               className="mt-4"
             />
-            <PathParamForm
+            <KeyValueForm
               keyPlaceholder="param_name"
-              keyValueParameters={pathParams}
+              keyValueElements={pathParams}
               onChange={(params) => {
                 setPathParams(params);
               }}
@@ -182,7 +176,7 @@ export const RequestPanel = memo(function RequestPanel(
         />
         <KeyValueForm
           keyPlaceholder="header-name"
-          keyValueParameters={requestHeaders}
+          keyValueElements={requestHeaders}
           onChange={(headers) => {
             setRequestHeaders(headers);
           }}
@@ -229,8 +223,9 @@ export const RequestPanel = memo(function RequestPanel(
             />
           )}
           {body.type === "form-data" && (
-            <FormDataForm
-              keyValueParameters={body.value}
+            <KeyValueForm
+              keyValueElements={body.value}
+              showFileSelector
               onChange={(params) => {
                 const requestBody = {
                   type: "form-data" as const,
@@ -267,9 +262,7 @@ export const RequestPanel = memo(function RequestPanel(
         </FpTabsContent>
       )}
 
-      <BottomToolbar
-        handleRequestBodyTypeChange={handleRequestBodyTypeChange}
-      />
+      <BottomToolbar />
     </FpTabs>
   );
 });

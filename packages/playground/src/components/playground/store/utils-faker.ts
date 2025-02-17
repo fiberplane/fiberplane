@@ -6,12 +6,17 @@ import {
   isSupportedRequestBodyObject,
   isSupportedSchemaObject,
 } from "@/lib/isOpenApi";
-import { extractPathParams } from "./utils";
+import type { KeyValueElement } from "./types";
+import { extractPathParameterKeys } from "./utils";
 
+type OutputData = {
+  value: string;
+  parameter: SupportedParameterObject;
+};
 type FakeDataOutput = {
-  queryParams: Record<string, string>;
-  headers: Record<string, string>;
-  pathParams: Record<string, string>;
+  queryParams: Record<string, OutputData>;
+  headers: Record<string, OutputData>;
+  pathParams: Record<string, OutputData>;
   body: unknown;
 };
 
@@ -101,7 +106,7 @@ export function generateFakeData(
   };
 
   // Handle path parameters
-  const pathParamNames = extractPathParams(path);
+  const pathParamNames = extractPathParameterKeys(path);
   const pathParamSpecs =
     routeSpec.parameters?.filter(
       (p) => isSupportedParameterObject(p) && p.in === "path",
@@ -113,14 +118,19 @@ export function generateFakeData(
       (p) => isSupportedParameterObject(p) && p.name === paramName,
     ) as SupportedParameterObject | undefined;
     if (paramSpec?.schema && isSupportedSchemaObject(paramSpec.schema)) {
-      output.pathParams[paramName] = String(
-        generateSmartFakeValue(paramSpec.schema, paramName),
-      );
+      output.pathParams[paramName] = {
+        value: String(generateSmartFakeValue(paramSpec.schema, paramName)),
+        parameter: paramSpec,
+      };
     } else {
       // Fallback if no spec is found - generate based on name
-      output.pathParams[paramName] = String(
-        generateSmartFakeValue({ type: "string" }, paramName),
-      );
+      output.pathParams[paramName] = {
+        value: String(generateSmartFakeValue({ type: "string" }, paramName)),
+        parameter: paramSpec ?? {
+          name: paramName,
+          in: "path",
+        },
+      };
     }
   }
 
@@ -138,9 +148,15 @@ export function generateFakeData(
       );
 
       if (param.in === "query") {
-        output.queryParams[param.name] = String(fakeValue);
+        output.queryParams[param.name] = {
+          value: String(fakeValue),
+          parameter: param,
+        };
       } else if (param.in === "header") {
-        output.headers[param.name] = String(fakeValue);
+        output.headers[param.name] = {
+          value: String(fakeValue),
+          parameter: param,
+        };
       }
     }
   }
@@ -161,13 +177,19 @@ export function generateFakeData(
   return output;
 }
 
-export function transformToFormParams(record: Record<string, string>) {
-  return Object.entries(record).map(([key, value]) => ({
-    key,
-    id: crypto.randomUUID(),
-    value,
-    enabled: true,
-  }));
+export function transformToFormParams(record: Record<string, OutputData>) {
+  return Object.entries(record).map(
+    ([key, data]): KeyValueElement => ({
+      key,
+      id: crypto.randomUUID(),
+      data: {
+        type: "string" as const,
+        value: data.value,
+      },
+      enabled: true,
+      parameter: data.parameter,
+    }),
+  );
 }
 
 export function transformToFormBody(body: unknown) {
