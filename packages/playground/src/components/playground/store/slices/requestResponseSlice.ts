@@ -309,7 +309,6 @@ export const requestResponseSlice: StateCreator<
       }
 
       const id = getRouteId(state.activeRoute);
-      console.log("setCurrentBody", body);
       state.apiCallState = {
         ...state.apiCallState,
       };
@@ -408,9 +407,6 @@ export function createInitialApiCallData(route?: ApiRoute): ApiCallData {
     data.queryParams,
     route,
   );
-  if (route.operation.requestBody) {
-    console.log(route.operation.requestBody);
-  }
 
   // Does the route support a body parameter?
   if (
@@ -453,10 +449,8 @@ function extractBodyFromOpenApiDefinition(
         mediaType: mediaTypeObject as SupportedMediaTypeObject,
       }),
     );
-  console.log("types", Object.keys(bodyObject.content), contentTypes);
 
   const extract = ({ contentType, mediaType }: ContentMap): PlaygroundBody => {
-    console.log("exact extract", contentType);
     switch (contentType) {
       case "application/json": {
         return extractJsonBodyFromOpenApiDefinition(currentBody, mediaType);
@@ -464,9 +458,12 @@ function extractBodyFromOpenApiDefinition(
       case "multipart/form-data": {
         return extractFormDataFromOpenApiDefinition(mediaType);
       }
+      default: {
+        // This will cause a type error if we haven't handled all possible content types
+        const _exhaustiveCheck: never = contentType;
+        throw new Error(`Unhandled content type: ${_exhaustiveCheck}`);
+      }
     }
-
-    return currentBody;
   };
 
   const content =

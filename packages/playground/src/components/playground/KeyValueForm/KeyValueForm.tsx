@@ -34,7 +34,6 @@ export const KeyValueForm = (props: Props) => {
     showFileSelector = false,
   } = props;
 
-  console.log("render", keyValueElements);
   return (
     <div className="flex flex-col gap-0">
       {keyValueElements.map((element) => {

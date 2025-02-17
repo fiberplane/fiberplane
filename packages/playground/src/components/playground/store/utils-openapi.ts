@@ -103,7 +103,6 @@ export function extractFormDataFromOpenApiDefinition(
   // // TODO handle examples?
   if (mediaType.schema && isSupportedSchemaObject(mediaType.schema)) {
     const schema = mediaType.schema;
-    console.log("schema", schema);
     if (schema.type === "object") {
       if (schema.additionalProperties) {
         console.warn(

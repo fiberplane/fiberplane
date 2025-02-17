@@ -143,10 +143,7 @@ export const RequestPanel = memo(function RequestPanel(
         <KeyValueForm
           keyPlaceholder="param_name"
           keyValueElements={queryParams}
-          onChange={(params) => {
-            console.log("queryParams", params);
-            setQueryParams(params);
-          }}
+          onChange={(params) => setQueryParams(params)}
           onSubmit={onSubmit}
           handleCmdG={fillInFakeData}
           handleCmdB={toggleSideBar}

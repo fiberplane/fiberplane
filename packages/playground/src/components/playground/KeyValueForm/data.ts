@@ -91,7 +91,6 @@ export function createChangeValue(
     allElements,
     element,
     (elementToModify, newValue: string | File | undefined): KeyValueElement => {
-      console.log("eh", newValue);
       // Prefer to only enable the key/value if there's also a key set
       const enabled =
         elementToModify.enabled ||
@@ -112,7 +111,6 @@ export function createChangeValue(
         data: value,
       };
 
-      console.log("return ", toReturn);
       return toReturn;
     },
   );
@@ -139,20 +137,12 @@ function modifyKeyValueElement<T>(
         // if (isDraftElement(element) && !isDraftElement(newElement)) {
         //   newElement.enabled = true;
         // }
-        // console.log("id match", element.id, newElement.data, newValue);
-        console.log("match");
-        console.dir(newElement);
 
         return newElement;
       }
 
-      console.log("returning otherElement", otherElement.id);
       return otherElement;
     });
-    console.log(
-      "newQueryParams",
-      newQueryParams.filter((e) => e.key === "page"),
-    );
     onChange(newQueryParams);
   };
 }
