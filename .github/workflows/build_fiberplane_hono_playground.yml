@@ -66,9 +66,6 @@ jobs:
       - name: Test @fiberplane/hono
         run: pnpm --filter @fiberplane/hono test
 
-      - name: Test Embedded Hono
-        run: pnpm --filter @fiberplane/hono test
-
       # Building
 
       - name: Build api, frontend and client libra
