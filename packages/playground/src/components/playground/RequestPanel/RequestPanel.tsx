@@ -8,7 +8,7 @@ import {
 import { cn } from "@/utils";
 import { EraserIcon } from "@radix-ui/react-icons";
 import { memo } from "react";
-import { FormDataForm } from "../FormDataForm";
+// import { FormDataForm } from "../FormDataForm";
 import { KeyValueForm } from "../KeyValueForm";
 import type { PlaygroundBody, RequestsPanelTab } from "../store";
 import { BottomToolbar } from "./BottomToolbar";
@@ -230,8 +230,9 @@ export const RequestPanel = memo(function RequestPanel(
             />
           )}
           {body.type === "form-data" && (
-            <FormDataForm
+            <KeyValueForm
               keyValueElements={body.value}
+              showFileSelector
               onChange={(params) => {
                 const requestBody = {
                   type: "form-data" as const,

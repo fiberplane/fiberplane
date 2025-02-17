@@ -233,7 +233,7 @@ function createBody(body: PlaygroundBody) {
   if (body.type === "form-data") {
     const isMultipart = !!body.isMultipart;
     // FIXME - Remove this eventually and provide a dialogue in the ui when someone adds a non-text file to a urlencoded form (a la httpie)
-    const hasFile = body.value.some((item) => item.value.type === "file");
+    const hasFile = body.value.some((item) => item.data.type === "file");
     if (isMultipart || hasFile) {
       return reduceFormDataParameters(body.value);
     }
@@ -250,14 +250,14 @@ function createBody(body: PlaygroundBody) {
             },
             // HACK - We know these are all non-strings because of the `hasFile` case above
             data:
-              item.value.type === "file"
+              item.data.type === "file"
                 ? {
                     type: "file",
-                    value: item.value.value,
+                    value: item.data.value,
                   }
                 : {
                     type: "string",
-                    value: item.value.value,
+                    value: item.data.value,
                   },
           }),
         ),

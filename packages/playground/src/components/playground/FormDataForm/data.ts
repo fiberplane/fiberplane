@@ -1,5 +1,7 @@
+import { isDraftElement } from "../KeyValueForm/data";
+import type { KeyValueElement } from "../store";
 import type {
-  ChangeFormDataParametersHandler,
+  // ChangeFormDataParametersHandler,
   DraftFormDataParameter,
   FormDataParameter,
 } from "./types";
@@ -10,95 +12,95 @@ export const initializeKeyValueFormData = (): DraftFormDataParameter[] => {
   return [];
 };
 
-/**
- * Type guard to determine if a {@link FormDataParameter} is a {@link DraftFormDataParameter}.
- */
-export const isDraftElement = (
-  parameter: FormDataParameter,
-): parameter is DraftFormDataParameter => {
-  return (
-    parameter.enabled === false &&
-    parameter.key === "" &&
-    parameter.value.type === "text" &&
-    parameter.value.value === ""
-  );
-};
+// // /**
+// //  * Type guard to determine if a {@link FormDataParameter} is a {@link DraftFormDataParameter}.
+// //  */
+// // export const isDraftElement = (
+// //   parameter: FormDataParameter,
+// // ): parameter is DraftFormDataParameter => {
+// //   return (
+// //     parameter.enabled === false &&
+// //     parameter.key === "" &&
+// //     parameter.value.type === "text" &&
+// //     parameter.value.value === ""
+// //   );
+// // };
 
-/**
- * Count the number of non-draft parameters in a {@link FormDataParameter} list.
- */
-export const countElements = (parameters: FormDataParameter[]): number => {
-  return parameters.reduce((count, parameter) => {
-    if (isDraftElement(parameter)) {
-      return count;
-    }
+// /**
+//  * Count the number of non-draft parameters in a {@link FormDataParameter} list.
+//  */
+// export const countElements = (parameters: KeyValueElement[]): number => {
+//   return parameters.reduce((count, parameter) => {
+//     if (isDraftElement(parameter)) {
+//       return count;
+//     }
 
-    return count + 1;
-  }, 0);
-};
+//     return count + 1;
+//   }, 0);
+// };
 
-/**
- * Return a function to immutably update an element of a {@link FormDataParameter} list with a new `enabled` property.
- */
-export function createChangeEnabled(
-  onChange: ChangeFormDataParametersHandler,
-  allParameters: FormDataParameter[],
-  parameter: FormDataParameter,
-) {
-  return modifyFormDataParameter(
-    onChange,
-    allParameters,
-    parameter,
-    (parameterToModify, enabled: boolean) => {
-      return {
-        ...parameterToModify,
-        enabled,
-      };
-    },
-  );
-}
+// /**
+//  * Return a function to immutably update an element of a {@link FormDataParameter} list with a new `enabled` property.
+//  */
+// export function createChangeEnabled(
+//   onChange: ChangeFormDataParametersHandler,
+//   allParameters: FormDataParameter[],
+//   parameter: FormDataParameter,
+// ) {
+//   return modifyFormDataParameter(
+//     onChange,
+//     allParameters,
+//     parameter,
+//     (parameterToModify, enabled: boolean) => {
+//       return {
+//         ...parameterToModify,
+//         enabled,
+//       };
+//     },
+//   );
+// }
 
-/**
- * Return a function to immutably update an element of a {@link FormDataParameter[]} with a new `key` property.
- */
-export function createChangeKey(
-  onChange: ChangeFormDataParametersHandler,
-  allParameters: FormDataParameter[],
-  parameter: FormDataParameter,
-) {
-  return modifyFormDataParameter(
-    onChange,
-    allParameters,
-    parameter,
-    (parameterToModify, newKey: string) => {
-      return {
-        ...parameterToModify,
-        key: newKey,
-      };
-    },
-  );
-}
+// /**
+//  * Return a function to immutably update an element of a {@link FormDataParameter[]} with a new `key` property.
+//  */
+// export function createChangeKey(
+//   onChange: ChangeFormDataParametersHandler,
+//   allParameters: FormDataParameter[],
+//   parameter: FormDataParameter,
+// ) {
+//   return modifyFormDataParameter(
+//     onChange,
+//     allParameters,
+//     parameter,
+//     (parameterToModify, newKey: string) => {
+//       return {
+//         ...parameterToModify,
+//         key: newKey,
+//       };
+//     },
+//   );
+// }
 
-/**
- * Return a function to immutably update an element of a {@link FormDataParameter[]} with a new `value` property.
- */
-export function createChangeValue(
-  onChange: ChangeFormDataParametersHandler,
-  allParameters: FormDataParameter[],
-  parameter: FormDataParameter,
-) {
-  return modifyFormDataParameter(
-    onChange,
-    allParameters,
-    parameter,
-    (parameterToModify, newValue: FormDataParameter["value"]) => {
-      return {
-        ...parameterToModify,
-        value: newValue,
-      };
-    },
-  );
-}
+// /**
+//  * Return a function to immutably update an element of a {@link FormDataParameter[]} with a new `value` property.
+//  */
+// export function createChangeValue(
+//   onChange: ChangeFormDataParametersHandler,
+//   allParameters: FormDataParameter[],
+//   parameter: FormDataParameter,
+// ) {
+//   return modifyFormDataParameter(
+//     onChange,
+//     allParameters,
+//     parameter,
+//     (parameterToModify, newValue: FormDataParameter["value"]) => {
+//       return {
+//         ...parameterToModify,
+//         value: newValue,
+//       };
+//     },
+//   );
+// }
 
 // Utils
 
@@ -106,30 +108,30 @@ export function createChangeValue(
  * Helper to create a function that immutably updates an element of a {@link FormDataParameter[]} with a new property,
  * then calls a callback with the new array.
  */
-function modifyFormDataParameter<T>(
-  onChange: ChangeFormDataParametersHandler,
-  allParameters: FormDataParameter[],
-  parameter: FormDataParameter,
-  mapNewValue: (p: FormDataParameter, newValue: T) => FormDataParameter,
-) {
-  return (newValue: T) => {
-    const newQueryParams = allParameters.map((otherParameter) => {
-      if (parameter.id === otherParameter.id) {
-        const newParameter = mapNewValue(parameter, newValue);
+// function modifyFormDataParameter<T>(
+//   onChange: ChangeFormDataParametersHandler,
+//   allParameters: KeyValueElement[],
+//   parameter: KeyValueElement,
+//   mapNewValue: (p: KeyValueElement, newValue: T) => KeyValueElement,
+// ) {
+//   return (newValue: T) => {
+//     const newQueryParams = allParameters.map((otherParameter) => {
+//       if (parameter.id === otherParameter.id) {
+//         const newParameter = mapNewValue(parameter, newValue);
 
-        // When we change from draft to not draft, we want to enable the parameter
-        if (isDraftElement(parameter) && !isDraftElement(newParameter)) {
-          newParameter.enabled = true;
-        }
+//         // When we change from draft to not draft, we want to enable the parameter
+//         if (isDraftElement(parameter) && !isDraftElement(newParameter)) {
+//           newParameter.enabled = true;
+//         }
 
-        return newParameter;
-      }
+//         return newParameter;
+//       }
 
-      return otherParameter;
-    });
-    onChange(newQueryParams);
-  };
-}
+//       return otherParameter;
+//     });
+//     onChange(newQueryParams);
+//   };
+// }
 
 /**
  * Quick and dirty uuid utility
@@ -140,20 +142,23 @@ function generateUUID() {
   return `${timeStamp}-${randomPart()}-${randomPart()}`;
 }
 
-export function reduceFormDataParameters(parameters: FormDataParameter[]) {
+export function reduceFormDataParameters(parameters: KeyValueElement[]) {
   return parameters.reduce((o, param) => {
     if (isDraftElement(param)) {
       return o;
     }
-    const { key, value, enabled } = param;
+
+    const { key, data, enabled } = param;
     if (!enabled) {
       return o;
     }
-    if (value.type === "text") {
-      o.append(key, value.value);
-    } else {
-      o.append(key, value.value, value.name);
+
+    if (data.type === "string") {
+      o.append(key, data.value);
+    } else if (data.value) {
+      o.append(key, data.value, data.value.name);
     }
+
     return o;
   }, new FormData());
 }
@@ -167,18 +172,16 @@ export function reduceFormDataParameters(parameters: FormDataParameter[]) {
  * Otherwise, return the array with a new draft parameter appended.
  *
  */
-export const enforceTerminalDraftParameter = (
-  parameters: FormDataParameter[],
-) => {
-  const finalElement = parameters[parameters.length - 1];
+export const enforceTerminalDraftParameter = (elements: KeyValueElement[]) => {
+  const finalElement = elements[elements.length - 1];
   const hasTerminalDraftParameter = finalElement
     ? isDraftElement(finalElement)
     : false;
   if (hasTerminalDraftParameter) {
-    return parameters;
+    return elements;
   }
 
-  return concatDraftParameter(parameters);
+  return concatDraftParameter(elements);
 };
 
 /**
@@ -190,7 +193,7 @@ export const enforceTerminalDraftParameter = (
  * If there are multiple draft parameters, all will be filtered out, and a new draft parameter will be appended at the end.
  */
 export const enforceSingleTerminalDraftParameter = (
-  parameters: FormDataParameter[],
+  parameters: KeyValueElement[],
 ) => {
   const firstDraftParameterIndex = parameters.findIndex(isDraftElement);
 
@@ -212,7 +215,7 @@ export const enforceSingleTerminalDraftParameter = (
 /**
  * Helper to immutably add a {@link DraftFormDataParameter} to the end of an array.
  */
-const concatDraftParameter = (parameters: FormDataParameter[]) => {
+const concatDraftParameter = (parameters: KeyValueElement[]) => {
   const DRAFT_PARAMETER: DraftFormDataParameter = {
     id: createParameterId(),
     enabled: false,
@@ -236,3 +239,35 @@ export const createFormDataParameter = (key: string, value: string) => {
     },
   };
 };
+
+/**
+ * Create a key value element of type T and set matching type for the value
+ */
+export function createKeyValueElement(
+  key: string,
+  value: KeyValueElement["data"]["value"],
+): KeyValueElement {
+  const data =
+    typeof value === "string"
+      ? {
+          type: "string" as const,
+          value: value,
+        }
+      : {
+          type: "file" as const,
+          value: value,
+        };
+
+  return {
+    id: createParameterId(),
+    key,
+    enabled: true,
+    data,
+    parameter: {
+      name: key,
+      in: "formData",
+    },
+  };
+}
+
+// }

@@ -7,9 +7,7 @@ import {
   isSupportedSchemaObject,
 } from "@/lib/isOpenApi";
 import { z } from "zod";
-import { enforceFormDataTerminalDraftParameter } from "../FormDataForm";
-import { createFormDataParameter } from "../FormDataForm/data";
-import type { FormDataParameter } from "../FormDataForm/types";
+import { createKeyValueElement } from "../FormDataForm/data";
 import { enforceTerminalDraftParameter } from "../KeyValueForm";
 import type { ApiRoute } from "../types";
 import type { KeyValueElement, PlaygroundBody } from "./types";
@@ -100,7 +98,7 @@ const JsonSchemaProperty: JsonSchemaPropertyType = z.object({
 export function extractFormDataFromOpenApiDefinition(
   mediaType: SupportedMediaTypeObject,
 ): PlaygroundBody {
-  const values: Array<FormDataParameter> = [];
+  const values: Array<KeyValueElement> = [];
 
   // // TODO handle examples?
   if (mediaType.schema && isSupportedSchemaObject(mediaType.schema)) {
@@ -128,7 +126,7 @@ export function extractFormDataFromOpenApiDefinition(
             propertySchemaType,
           )
         ) {
-          const newParameter = createFormDataParameter(
+          const newParameter = createKeyValueElement(
             key,
             String(propertySchema.default || ""),
           );
@@ -143,7 +141,7 @@ export function extractFormDataFromOpenApiDefinition(
   return {
     type: "form-data",
     isMultipart: true,
-    value: enforceFormDataTerminalDraftParameter(values),
+    value: enforceTerminalDraftParameter(values),
   };
 }
 

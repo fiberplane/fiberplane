@@ -1,7 +1,7 @@
-import { enforceFormDataTerminalDraftParameter } from "../FormDataForm";
-import type { PlaygroundBodyType } from "./request-body";
+import { enforceTerminalDraftParameter } from "../KeyValueForm";
 import { getRouteId } from "./slices/requestResponseSlice";
 import type { RequestResponseSlice, RoutesSlice } from "./slices/types";
+import type { PlaygroundBodyType } from "./types";
 
 /**
  * This reducer is responsible for setting the body type of the request.
@@ -43,7 +43,7 @@ export function setBodyTypeInState(
     params.body = {
       type: newBodyType,
       isMultipart: !!isMultipart,
-      value: enforceFormDataTerminalDraftParameter([]),
+      value: enforceTerminalDraftParameter([]),
     };
     return;
   }
@@ -66,5 +66,5 @@ export function setBodyTypeInState(
   const isNonTextOldBody =
     Array.isArray(oldBodyValue) || oldBodyValue instanceof File;
   const newBodyValue = isNonTextOldBody ? "" : oldBodyValue;
-  params.body = { type: newBodyType, value: newBodyValue }; //,
+  params.body = { type: newBodyType, value: newBodyValue };
 }

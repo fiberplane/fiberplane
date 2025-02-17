@@ -1,6 +1,7 @@
 import type { SupportedParameterObject } from "@/lib/isOpenApi";
 import { z } from "zod";
-import type { PlaygroundBodySchema } from "./request-body";
+// import type { PlaygroundBodyType } from "./request-body";
+// import type { PlaygroundBodySchema } from "./request-body";
 import type { StudioState } from "./slices";
 
 const PlaygroundResponseBodySchema = z.discriminatedUnion("type", [
@@ -88,5 +89,23 @@ export type KeyValueElement = {
 
 export type PlaygroundState = StudioState;
 
-export type PlaygroundBody = z.infer<typeof PlaygroundBodySchema>;
+export type PlaygroundBody =
+  | {
+      type: "text";
+      value?: string;
+    }
+  | {
+      type: "json";
+      value?: string;
+    }
+  | {
+      type: "form-data";
+      isMultipart: boolean;
+      value: Array<KeyValueElement>;
+    }
+  | {
+      type: "file";
+      value?: File;
+    };
+export type PlaygroundBodyType = PlaygroundBody["type"];
 export type NavigationRoutesView = "list" | "fileTree";

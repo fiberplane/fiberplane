@@ -111,7 +111,7 @@ function getContentTypeHeader(body: PlaygroundBody): string | null {
     case "form-data": {
       const shouldDeferToFetchItself =
         body.isMultipart ||
-        body.value.some((item) => item.value.type === "file");
+        body.value.some((item) => item.data.type === "file");
       // NOTE - We want the browser to handle setting this header automatically
       //        Since, it needs to determine the form boundary for multipart/form-data
       if (shouldDeferToFetchItself) {

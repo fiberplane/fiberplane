@@ -19,7 +19,8 @@ import {
 import { cn } from "@/utils";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { useMemo, useState } from "react";
-import type { PlaygroundBody, PlaygroundBodyType } from "../../store";
+import type { PlaygroundBody } from "../../store";
+import type { PlaygroundBodyType } from "../../store/types";
 
 type RequestBodyTypeOption = {
   value: PlaygroundBodyType;
@@ -31,7 +32,7 @@ const bodyTypes: RequestBodyTypeOption[] = [
   { value: "json", label: "JSON" },
   { value: "form-data", label: "Form" },
   { value: "file", label: "File" },
-];
+] as const;
 
 export type RequestBodyTypeDropdownProps = {
   requestBody: PlaygroundBody;

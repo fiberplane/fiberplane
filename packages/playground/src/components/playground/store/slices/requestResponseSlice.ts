@@ -6,7 +6,6 @@ import {
   isSupportedRequestBodyObject,
 } from "@/lib/isOpenApi";
 import type { StateCreator } from "zustand";
-import { enforceFormDataTerminalDraftParameter } from "../../FormDataForm";
 import {
   enforceTerminalDraftParameter,
   reduceKeyValueElements,
@@ -328,7 +327,7 @@ export const requestResponseSlice: StateCreator<
           params.body.type === "form-data"
             ? {
                 type: "form-data",
-                value: enforceFormDataTerminalDraftParameter([]),
+                value: enforceTerminalDraftParameter([]),
                 isMultipart: params.body.isMultipart,
               }
             : params.body.type === "file"
@@ -338,11 +337,9 @@ export const requestResponseSlice: StateCreator<
         params.body = { type: "text", value: body };
       } else {
         if (body.type === "form-data") {
-          const nextBodyValue = enforceFormDataTerminalDraftParameter(
-            body.value,
-          );
+          const nextBodyValue = enforceTerminalDraftParameter(body.value);
           const shouldForceMultipart = nextBodyValue.some(
-            (param) => param.value.value instanceof File,
+            (param) => param.data.value instanceof File,
           );
           params.body = {
             type: body.type,

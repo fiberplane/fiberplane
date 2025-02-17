@@ -16,6 +16,7 @@ type Props = {
   keyPlaceholder?: string;
   keyInputType?: CodeMirrorInputType;
   valueInputType?: CodeMirrorInputType;
+  showFileSelector?: boolean;
   handleCmdG?: () => void;
   handleCmdB?: () => void;
 };
@@ -30,6 +31,7 @@ export const KeyValueForm = (props: Props) => {
     valueInputType,
     handleCmdG,
     handleCmdB,
+    showFileSelector = false,
   } = props;
 
   console.log("render", keyValueElements);
@@ -42,6 +44,7 @@ export const KeyValueForm = (props: Props) => {
             key={element.id}
             keyValueData={element}
             isDraft={isDraft}
+            showFileSelector={showFileSelector}
             onChangeEnabled={createChangeEnabled(
               onChange,
               keyValueElements,

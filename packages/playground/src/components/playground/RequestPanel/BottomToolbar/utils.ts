@@ -21,8 +21,8 @@ export function getBodyValue({
         const urlEncodedFormData = new URLSearchParams();
 
         for (const field of body.value) {
-          if (field.enabled && field.value.type === "text") {
-            urlEncodedFormData.append(field.key, field.value.value);
+          if (field.enabled && field.data.type === "string") {
+            urlEncodedFormData.append(field.key, field.data.value);
           }
         }
 

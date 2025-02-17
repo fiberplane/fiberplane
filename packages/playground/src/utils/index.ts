@@ -1,5 +1,3 @@
-import type { PlaygroundBody } from "@/components/playground/store";
-import { PlaygroundBodySchema } from "@/components/playground/store";
 import { type ClassValue, clsx } from "clsx";
 import { format } from "date-fns";
 import { twMerge } from "tailwind-merge";
@@ -196,22 +194,22 @@ export function formatHeaders(headers: Record<string, string>): string {
     .join("\n");
 }
 
-export function constructPlaygroundBody(bodyValue: string): PlaygroundBody {
-  try {
-    const parsed = JSON.parse(bodyValue);
-    const result = PlaygroundBodySchema.safeParse(parsed);
-    if (result.success) {
-      return result.data;
-    }
-  } catch {
-    // swallow error
-  }
+// export function constructPlaygroundBody(bodyValue: string): PlaygroundBody {
+//   try {
+//     const parsed = JSON.parse(bodyValue);
+//     const result = PlaygroundBodySchema.safeParse(parsed);
+//     if (result.success) {
+//       return result.data;
+//     }
+//   } catch {
+//     // swallow error
+//   }
 
-  return {
-    type: "text",
-    value: bodyValue,
-  };
-}
+//   return {
+//     type: "text",
+//     value: bodyValue,
+//   };
+// }
 
 // export function createKeyValueElementsFromValues(
 //   values: Array<{ key: string; value: string }>,

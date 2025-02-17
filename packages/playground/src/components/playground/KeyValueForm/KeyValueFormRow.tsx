@@ -9,8 +9,10 @@ import { FpLabel } from "@/components/ui/label";
 import { FpRadioGroup, FpRadioGroupItem } from "@/components/ui/radio-group";
 import { isSupportedSchemaObject } from "@/lib/isOpenApi";
 import { cn, noop } from "@/utils";
+import { useHandler } from "@fiberplane/hooks";
 import { TrashIcon } from "@radix-ui/react-icons";
 import { FileIcon } from "lucide-react";
+import { useRef } from "react";
 import type { KeyValueElement } from "../store";
 
 type KeyValueRowProps = {
@@ -18,7 +20,6 @@ type KeyValueRowProps = {
   keyValueData: KeyValueElement;
   onChangeEnabled: (enabled: boolean) => void;
   onChangeKey?: (key: string) => void;
-  onChangeValue: (value: string) => void;
   removeValue?: () => void;
   onSubmit?: () => void;
   handleCmdG?: () => void;
@@ -26,7 +27,16 @@ type KeyValueRowProps = {
   keyPlaceholder?: string;
   keyInputType?: CodeMirrorInputType;
   valueInputType?: CodeMirrorInputType;
-};
+} & (
+  | {
+      onChangeValue: (value: string | File) => void;
+      showFileSelector: true;
+    }
+  | {
+      onChangeValue: (value: string) => void;
+      showFileSelector?: false;
+    }
+);
 
 export const KeyValueFormRow = (props: KeyValueRowProps) => {
   const {
@@ -40,19 +50,30 @@ export const KeyValueFormRow = (props: KeyValueRowProps) => {
     handleCmdG,
     handleCmdB,
     keyPlaceholder = "name",
+    showFileSelector,
     keyInputType,
     valueInputType,
   } = props;
   const { enabled, key, data, parameter } = keyValueData;
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const schema =
     parameter.schema && isSupportedSchemaObject(parameter.schema)
       ? parameter.schema
       : undefined;
 
-  if (key === "page") {
-    console.log("data", data);
-  }
+  const handleFileChange = useHandler(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (!showFileSelector) {
+        return;
+      }
+      const file = event.target.files?.[0];
+      if (file) {
+        onChangeValue(file);
+      }
+    },
+  );
+
   return (
     <div className={cn("flex items-center gap-1 rounded p-0", "group")}>
       <Checkbox
@@ -114,17 +135,37 @@ export const KeyValueFormRow = (props: KeyValueRowProps) => {
           />
         </div>
       ) : (
-        <CodeMirrorInput
-          className="w-[calc(100%-140px)]"
-          value={data.value}
-          placeholder="value"
-          onChange={(value) => onChangeValue(value ?? "")}
-          onSubmit={onSubmit}
-          inputType={valueInputType}
-          handleCmdG={handleCmdG}
-          handleCmdB={handleCmdB}
-        />
+        <>
+          <CodeMirrorInput
+            className="w-[calc(100%-140px)]"
+            value={data.value}
+            placeholder="value"
+            onChange={(value) => onChangeValue(value ?? "")}
+            onSubmit={onSubmit}
+            inputType={valueInputType}
+            handleCmdG={handleCmdG}
+            handleCmdB={handleCmdB}
+          />
+          {showFileSelector && !data.value && (
+            <div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <FileIcon className="w-4 h-4" />
+              </Button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </div>
+          )}
+        </>
       )}
+
       <div
         className={cn("flex invisible items-center", {
           "group-focus-within:visible group-hover:visible":
