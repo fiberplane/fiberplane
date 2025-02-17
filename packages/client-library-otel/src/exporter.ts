@@ -6,14 +6,9 @@ import {
 import { createExportTraceServiceRequest } from "@opentelemetry/otlp-transformer";
 import type { SpanExporter } from "@opentelemetry/sdk-trace-base";
 import { isWrapped } from "./utils";
-
+import { getLogger } from "./logger";
 // Freeze the web standard fetch function so that we can use it below without being affected by monkeypatching
 const webStandardFetch = fetch;
-
-// TODO - Remove this
-if (isWrapped(webStandardFetch)) {
-  throw new Error("Fetch is already wrapped");
-}
 
 export interface OTLPExporterConfig {
   url: string;
@@ -97,9 +92,9 @@ export class FPOTLPExporter implements SpanExporter {
       body,
     };
 
-    // TODO - Remove this
     if (isWrapped(webStandardFetch)) {
-      throw new Error("Fetch is already wrapped");
+      getLogger("error").error("Fetch is already wrapped, cannot send traces.");
+      throw new Error("Fetch is already wrapped, cannot send traces.");
     }
 
     webStandardFetch(this.url, params)
