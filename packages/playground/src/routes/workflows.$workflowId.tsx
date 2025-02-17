@@ -34,15 +34,18 @@ import {
   ArrowDownToDot,
   ChevronDown,
   Edit,
+  Copy,
   Play,
   StepBack,
   StepForward,
+  Check,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { z } from "zod";
 import { useShallow } from "zustand/react/shallow";
-import { isOpenApiV2, isOpenApiV3x } from "../lib/isOpenApi";
+import { isOpenApiV2, isOpenApiV3x } from "../lib/isOpenApiV2";
+import { useMountedPath } from "@/hooks/use-mounted-path";
 
 type OpenAPIOperation = OpenAPI.Operation;
 export const Route = createFileRoute("/workflows/$workflowId")({
@@ -154,6 +157,7 @@ function WorkflowDetail() {
             {workflow.description && (
               <p className="text-sm text-foreground">{workflow.description}</p>
             )}
+            <WorkflowUrl workflowId={workflow.workflowId} />
           </div>
         </div>
 
@@ -228,11 +232,11 @@ function WorkflowDetail() {
                   search={
                     stepIndex > 0
                       ? (prev) => ({
-                          ...prev,
-                          stepId:
-                            workflow.steps[stepIndex - 1]?.stepId ??
-                            prev.stepId,
-                        })
+                        ...prev,
+                        stepId:
+                          workflow.steps[stepIndex - 1]?.stepId ??
+                          prev.stepId,
+                      })
                       : undefined
                   }
                 >
@@ -250,11 +254,11 @@ function WorkflowDetail() {
                   search={
                     stepIndex < workflow.steps.length - 1 && stepIndex !== -1
                       ? (prev) => {
-                          return {
-                            ...prev,
-                            stepId: workflow.steps[stepIndex + 1]?.stepId,
-                          };
-                        }
+                        return {
+                          ...prev,
+                          stepId: workflow.steps[stepIndex + 1]?.stepId,
+                        };
+                      }
                       : undefined
                   }
                 >
@@ -733,8 +737,8 @@ function StepDetails({
                             {String(
                               JSON.stringify(
                                 (stepState as ExecuteStepResult)?.headers ??
-                                  result?.headers ??
-                                  {},
+                                result?.headers ??
+                                {},
                                 null,
                                 2,
                               ),
@@ -748,7 +752,7 @@ function StepDetails({
                             {String(
                               JSON.stringify(
                                 (stepState as ExecuteStepResult)?.data ??
-                                  result?.data,
+                                result?.data,
                                 null,
                                 2,
                               ),
@@ -1102,6 +1106,44 @@ function OutputItem({
             </div>
           </>
         )}
+      </div>
+    </div>
+  );
+}
+
+interface CopyableUrlProps {
+  workflowId: string;
+}
+
+function WorkflowUrl({ workflowId }: CopyableUrlProps) {
+  const mountedPath = useMountedPath();
+  const { isCopied, copyToClipboard } = useCopyToClipboard();
+
+  const workflowUrl = `${window.location.origin}${mountedPath}/w/${workflowId}`;
+
+  return (
+    <div className="mt-3 py-1.5 pb-2 rounded-lg bg-muted">
+      <div className="mx-2">
+        <div className="p-1.5 pt-0.5 text-sm font-medium">
+          Run this workflow by making a POST request to
+        </div>
+        <div className="flex items-center gap-2 overflow-x-auto text-sm">
+          <code className="text-accent truncate max-w-[400px] p-2 rounded-md bg-background">
+            {workflowUrl}
+          </code>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            onClick={() => copyToClipboard(workflowUrl)}
+            className="w-auto h-auto p-1 rounded-sm text-foreground hover:text-foreground"
+          >
+            {isCopied ? (
+              <Check className="w-4 h-4" />
+            ) : (
+              <Copy className="w-4 h-4" />
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );
