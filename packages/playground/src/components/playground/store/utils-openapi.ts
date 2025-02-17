@@ -1,7 +1,6 @@
 import {
   type SupportedMediaTypeObject,
   type SupportedParameterObject,
-  type SupportedReferenceObject,
   type SupportedSchemaObject,
   isSupportedParameterObject,
   isSupportedSchemaObject,
@@ -226,44 +225,4 @@ function generateSampleFromSchema(
     default:
       return null;
   }
-}
-
-function getValueFromSchema(
-  schema: undefined | SupportedSchemaObject | SupportedReferenceObject,
-  options: {
-    // biome-ignore lint/suspicious/noExplicitAny: openapi supports many different types of values
-    defaultValue: any;
-    allowDefaultValue: boolean;
-    allowExample: boolean;
-  },
-  // biome-ignore lint/suspicious/noExplicitAny: openapi supports many different types of values
-): any {
-  if (!schema || !isSupportedSchemaObject(schema)) {
-    return options.defaultValue;
-  }
-
-  if (options.allowDefaultValue && "default" in schema) {
-    return schema.default;
-  }
-
-  if (options.allowExample && "example" in schema) {
-    return schema.example;
-  }
-
-  return options.defaultValue;
-}
-
-function getStringValueFromSchema(
-  schema: undefined | SupportedSchemaObject | SupportedReferenceObject,
-  options: {
-    defaultValue: string;
-    allowDefaultValue: boolean;
-    allowExample: boolean;
-  } = {
-    defaultValue: "",
-    allowDefaultValue: true,
-    allowExample: true,
-  },
-): string {
-  return String(getValueFromSchema(schema, options));
 }

@@ -20,11 +20,7 @@ import { cn } from "@/utils";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
-import {
-  type PlaygroundBody,
-  useStudioStore,
-  useStudioStoreRaw,
-} from "../../store";
+import { useStudioStore, useStudioStoreRaw } from "../../store";
 import { useApiCallData } from "../../store/hooks/useApiCallData";
 import type { PlaygroundBodyType } from "../../store/types";
 import { rawGetActiveRoute } from "../../store/utils";

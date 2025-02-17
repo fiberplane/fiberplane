@@ -20,7 +20,6 @@ import type { KeyValueElement, PlaygroundBody } from "../types";
 import {
   addBaseUrl,
   extractPathParameterKeys,
-  mapPathParamKey,
   removeBaseUrl,
   resolvePathWithParameters,
 } from "../utils";
@@ -418,6 +417,7 @@ export function createInitialApiCallData(route?: ApiRoute): ApiCallData {
     ) as SupportedParameterObject | undefined;
     return createKeyValueElement(key, undefined, parameter);
   });
+
   data.queryParams = extractQueryParamsFromOpenApiDefinition(
     data.queryParams,
     route,

@@ -1,4 +1,3 @@
-import type { findMatchedRoute } from "../routes";
 import type { ApiRoute } from "../types";
 import type { RequestMethod } from "../types";
 import type { Authorization } from "./slices/settingsSlice";
@@ -70,35 +69,6 @@ export function extractPathParameterKeys(path: string) {
     result.push(paramName);
   }
   return result;
-}
-
-export function mapPathParamKey(key: string) {
-  return {
-    key,
-    data: {
-      value: "",
-      type: "string" as const,
-    },
-    id: key,
-    enabled: false,
-    parameter: {
-      name: key,
-      in: "path",
-    },
-  };
-}
-
-export function extractMatchedPathParams(
-  matchedRoute: ReturnType<typeof findMatchedRoute>,
-) {
-  return Object.entries(matchedRoute?.pathParams ?? {}).map(([key, value]) => {
-    const nextValue = value === `{${key}}` ? "" : value;
-    return {
-      ...mapPathParamKey(key),
-      value: nextValue,
-      enabled: !!nextValue,
-    };
-  });
 }
 
 /**
