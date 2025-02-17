@@ -1,5 +1,4 @@
 import { SpanKind, context } from "@opentelemetry/api";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { Resource } from "@opentelemetry/resources";
 import {
   BasicTracerProvider,
@@ -20,6 +19,8 @@ import {
   ENV_FPX_LOG_LEVEL,
   ENV_FPX_SERVICE_NAME,
 } from "./constants";
+// import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { FPOTLPExporter } from "./exporter";
 import { getLogger } from "./logger";
 import { measure } from "./measure";
 import {
@@ -354,16 +355,13 @@ function setupTracerProvider(options: {
     }),
   });
 
-  const headers: Record<string, string> | undefined = options.authToken
+  const headers: Record<string, string> = options.authToken
     ? { Authorization: `Bearer ${options.authToken}` }
-    : undefined;
+    : {};
 
-  const exporter = new OTLPTraceExporter({
+  const exporter = new FPOTLPExporter({
     url: options.endpoint,
-    // HACK - Only add headers because if we add an empty header object,
-    //        the OTLPTraceExporter will think we're in the browser for some odd reason.
-    //        (This happened to us in Cloudflare Workers)
-    ...(headers && { headers }),
+    headers,
   });
   provider.addSpanProcessor(
     new SimpleSpanProcessor(exporter),

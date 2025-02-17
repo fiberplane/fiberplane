@@ -7,8 +7,10 @@
   "version": "0.8.0-canary.1",
   "dependencies": {
     "@opentelemetry/api": "~1.9.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.52.1",
-    "@opentelemetry/exporter-trace-otlp-proto": "^0.52.1",
+    "@opentelemetry/core": "1.9.0",
+    "@opentelemetry/exporter-trace-otlp-http": "0.35.0",
+    "@opentelemetry/otlp-exporter-base": "0.35.0",
+    "@opentelemetry/otlp-transformer": "0.35.0",
     "@opentelemetry/resources": "^1.28.0",
     "@opentelemetry/sdk-trace-base": "^1.28.0",
     "@opentelemetry/semantic-conventions": "^1.28.0",
