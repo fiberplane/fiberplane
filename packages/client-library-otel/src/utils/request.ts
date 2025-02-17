@@ -351,7 +351,9 @@ export function cloneRequestForAttributes(
   // HACK - Duplicate request to be able to read the body and other metadata
   //        in the middleware without messing up the original request
   const clonedRequest = isLocal ? request.clone() : request;
-  const [body1, body2] = clonedRequest.body ? clonedRequest.body.tee() : [null, null];
+  const [body1, body2] = clonedRequest.body
+    ? clonedRequest.body.tee()
+    : [null, null];
 
   // In order to keep `onStart` synchronous (below), we construct
   // some necessary attributes here, using a cloned request
