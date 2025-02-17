@@ -7,8 +7,8 @@ import {
   isSupportedSchemaObject,
 } from "@/lib/isOpenApi";
 import { z } from "zod";
-import { createKeyValueElement } from "../FormDataForm/data";
 import { enforceTerminalDraftParameter } from "../KeyValueForm";
+import { createKeyValueElement } from "../KeyValueForm/data";
 import type { ApiRoute } from "../types";
 import type { KeyValueElement, PlaygroundBody } from "./types";
 

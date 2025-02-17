@@ -1,16 +1,16 @@
 import { isDraftElement } from "../KeyValueForm/data";
 import type { KeyValueElement } from "../store";
-import type {
-  // ChangeFormDataParametersHandler,
-  DraftFormDataParameter,
-  FormDataParameter,
-} from "./types";
+// import type {
+//   // ChangeFormDataParametersHandler,
+//   // DraftFormDataParameter,
+//   // FormDataParameter,
+// } from "./types";
 
-export const createParameterId = () => generateUUID();
+// export const createParameterId = () => generateUUID();
 
-export const initializeKeyValueFormData = (): DraftFormDataParameter[] => {
-  return [];
-};
+// export const initializeKeyValueFormData = (): DraftFormDataParameter[] => {
+//   return [];
+// };
 
 // // /**
 // //  * Type guard to determine if a {@link FormDataParameter} is a {@link DraftFormDataParameter}.
@@ -133,14 +133,14 @@ export const initializeKeyValueFormData = (): DraftFormDataParameter[] => {
 //   };
 // }
 
-/**
- * Quick and dirty uuid utility
- */
-function generateUUID() {
-  const timeStamp = new Date().getTime().toString(36);
-  const randomPart = () => Math.random().toString(36).substring(2, 15);
-  return `${timeStamp}-${randomPart()}-${randomPart()}`;
-}
+// /**
+//  * Quick and dirty uuid utility
+//  */
+// function generateUUID() {
+//   const timeStamp = new Date().getTime().toString(36);
+//   const randomPart = () => Math.random().toString(36).substring(2, 15);
+//   return `${timeStamp}-${randomPart()}-${randomPart()}`;
+// }
 
 export function reduceFormDataParameters(parameters: KeyValueElement[]) {
   return parameters.reduce((o, param) => {
@@ -163,111 +163,79 @@ export function reduceFormDataParameters(parameters: KeyValueElement[]) {
   }, new FormData());
 }
 
-/**
- * NOTE - We're using this instead of enforceSingleTerminalDraftParameter
- *        in order to preserve focus on the last parameter when you delete all of a key.
- *        (Hard to explain, just know this is preferable to `enforceSingleTerminalDraftParameter` for UI behavior.)
- *
- * If the final element of the array is a {@link DraftFormDataParameter}, return the array
- * Otherwise, return the array with a new draft parameter appended.
- *
- */
-export const enforceTerminalDraftParameter = (elements: KeyValueElement[]) => {
-  const finalElement = elements[elements.length - 1];
-  const hasTerminalDraftParameter = finalElement
-    ? isDraftElement(finalElement)
-    : false;
-  if (hasTerminalDraftParameter) {
-    return elements;
-  }
+// /**
+//  * NOTE - We're using this instead of enforceSingleTerminalDraftParameter
+//  *        in order to preserve focus on the last parameter when you delete all of a key.
+//  *        (Hard to explain, just know this is preferable to `enforceSingleTerminalDraftParameter` for UI behavior.)
+//  *
+//  * If the final element of the array is a {@link DraftFormDataParameter}, return the array
+//  * Otherwise, return the array with a new draft parameter appended.
+//  *
+//  */
+// export const enforceTerminalDraftParameter = (elements: KeyValueElement[]) => {
+//   const finalElement = elements[elements.length - 1];
+//   const hasTerminalDraftParameter = finalElement
+//     ? isDraftElement(finalElement)
+//     : false;
+//   if (hasTerminalDraftParameter) {
+//     return elements;
+//   }
 
-  return concatDraftParameter(elements);
-};
+//   return concatDraftParameter(elements);
+// };
 
-/**
- * NOTE - This is the desired behavior, but does not play nicely with focus in the UI.
- *
- * If the final element of the array is a {@link DraftFormDataParameter}, return the array
- * Otherwise, return the array with a new draft parameter appended.
- *
- * If there are multiple draft parameters, all will be filtered out, and a new draft parameter will be appended at the end.
- */
-export const enforceSingleTerminalDraftParameter = (
-  parameters: KeyValueElement[],
-) => {
-  const firstDraftParameterIndex = parameters.findIndex(isDraftElement);
+// /**
+//  * NOTE - This is the desired behavior, but does not play nicely with focus in the UI.
+//  *
+//  * If the final element of the array is a {@link DraftFormDataParameter}, return the array
+//  * Otherwise, return the array with a new draft parameter appended.
+//  *
+//  * If there are multiple draft parameters, all will be filtered out, and a new draft parameter will be appended at the end.
+//  */
+// export const enforceSingleTerminalDraftParameter = (
+//   parameters: KeyValueElement[],
+// ) => {
+//   const firstDraftParameterIndex = parameters.findIndex(isDraftElement);
 
-  const hasSingleTeriminalDraftParameter =
-    firstDraftParameterIndex + 1 === parameters.length;
+//   const hasSingleTeriminalDraftParameter =
+//     firstDraftParameterIndex + 1 === parameters.length;
 
-  if (hasSingleTeriminalDraftParameter) {
-    return parameters;
-  }
+//   if (hasSingleTeriminalDraftParameter) {
+//     return parameters;
+//   }
 
-  if (firstDraftParameterIndex === -1) {
-    return concatDraftParameter(parameters);
-  }
+//   if (firstDraftParameterIndex === -1) {
+//     return concatDraftParameter(parameters);
+//   }
 
-  const nonDraftParameters = parameters.filter((p) => !isDraftElement(p));
-  return concatDraftParameter(nonDraftParameters);
-};
+//   const nonDraftParameters = parameters.filter((p) => !isDraftElement(p));
+//   return concatDraftParameter(nonDraftParameters);
+// };
 
-/**
- * Helper to immutably add a {@link DraftFormDataParameter} to the end of an array.
- */
-const concatDraftParameter = (parameters: KeyValueElement[]) => {
-  const DRAFT_PARAMETER: DraftFormDataParameter = {
-    id: createParameterId(),
-    enabled: false,
-    key: "",
-    value: {
-      type: "text",
-      value: "",
-    },
-  };
-  return [...parameters, DRAFT_PARAMETER];
-};
+// /**
+//  * Helper to immutably add a {@link DraftFormDataParameter} to the end of an array.
+//  */
+// const concatDraftParameter = (parameters: KeyValueElement[]) => {
+//   const DRAFT_PARAMETER: DraftFormDataParameter = {
+//     id: createParameterId(),
+//     enabled: false,
+//     key: "",
+//     value: {
+//       type: "text",
+//       value: "",
+//     },
+//   };
+//   return [...parameters, DRAFT_PARAMETER];
+// };
 
-export const createFormDataParameter = (key: string, value: string) => {
-  return {
-    id: createParameterId(),
-    enabled: true,
-    key,
-    value: {
-      type: "text" as const,
-      value,
-    },
-  };
-};
-
-/**
- * Create a key value element of type T and set matching type for the value
- */
-export function createKeyValueElement(
-  key: string,
-  value: KeyValueElement["data"]["value"],
-): KeyValueElement {
-  const data =
-    typeof value === "string"
-      ? {
-          type: "string" as const,
-          value: value,
-        }
-      : {
-          type: "file" as const,
-          value: value,
-        };
-
-  return {
-    id: createParameterId(),
-    key,
-    enabled: true,
-    data,
-    parameter: {
-      name: key,
-      in: "formData",
-    },
-  };
-}
-
-// }
+// export const createFormDataParameter = (key: string, value: string) => {
+//   return {
+//     id: createParameterId(),
+//     enabled: true,
+//     key,
+//     value: {
+//       type: "text" as const,
+//       value,
+//     },
+//   };
+// };

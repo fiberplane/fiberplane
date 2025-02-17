@@ -55,6 +55,7 @@ export function RequestBodyTypeDropdown({
       bodyTypes.find((type) => type.value === requestBodyType)?.label ?? "Body"
     );
   }, [requestBodyType]);
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <div className="flex items-center gap-4">
@@ -84,9 +85,9 @@ export function RequestBodyTypeDropdown({
           <div className="flex items-center gap-1">
             <Switch
               checked={requestBody.isMultipart}
-              onCheckedChange={(checked) => {
-                handleRequestBodyTypeChange("form-data", checked);
-              }}
+              onCheckedChange={(checked) =>
+                handleRequestBodyTypeChange("form-data", checked)
+              }
             />
             <span className="text-xs text-muted-foreground">Multipart</span>
           </div>

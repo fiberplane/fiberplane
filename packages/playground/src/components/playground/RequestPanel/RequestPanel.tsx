@@ -13,7 +13,7 @@ import { KeyValueForm } from "../KeyValueForm";
 import type { PlaygroundBody, RequestsPanelTab } from "../store";
 import { BottomToolbar } from "./BottomToolbar";
 import { FileUploadForm } from "./FileUploadForm";
-import { PathParamForm } from "./PathParamForm";
+// import { PathParamForm } from "./PathParamForm";
 import "./styles.css";
 import {
   CodeMirrorJsonEditor,
@@ -158,7 +158,7 @@ export const RequestPanel = memo(function RequestPanel(
               handleClearData={clearPathParams}
               className="mt-4"
             />
-            <PathParamForm
+            <KeyValueForm
               keyPlaceholder="param_name"
               keyValueElements={pathParams}
               onChange={(params) => {

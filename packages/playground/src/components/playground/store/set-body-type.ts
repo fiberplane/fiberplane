@@ -24,6 +24,8 @@ export function setBodyTypeInState(
     return;
   }
   const id = getRouteId(state.activeRoute || state);
+  // Duplicate current params/object
+  state.apiCallState[id] = { ...state.apiCallState[id] };
   const params = state.apiCallState[id];
   const oldBodyValue = params.body.value;
   const oldBodyType = params.body.type;
@@ -32,7 +34,7 @@ export function setBodyTypeInState(
   if (oldBodyType === newBodyType) {
     // HACK - Refactor
     if (params.body.type === "form-data") {
-      params.body.isMultipart = !!isMultipart;
+      params.body = { ...params.body, isMultipart: !!isMultipart };
     }
 
     return;

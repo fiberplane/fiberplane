@@ -205,3 +205,33 @@ export function reduceKeyValueElements(
     {} as Record<string, string | File>,
   );
 }
+
+/**
+ * Create a key value element of type T and set matching type for the value
+ */
+export function createKeyValueElement(
+  key: string,
+  value: KeyValueElement["data"]["value"],
+): KeyValueElement {
+  const data =
+    typeof value === "string"
+      ? {
+          type: "string" as const,
+          value: value,
+        }
+      : {
+          type: "file" as const,
+          value: value,
+        };
+
+  return {
+    id: createElementId(),
+    key,
+    enabled: true,
+    data,
+    parameter: {
+      name: key,
+      in: "formData",
+    },
+  };
+}
