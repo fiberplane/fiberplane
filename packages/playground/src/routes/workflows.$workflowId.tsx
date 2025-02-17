@@ -37,15 +37,18 @@ import {
   ChevronDown,
   Copy,
   Edit,
+  Copy,
   Play,
   StepBack,
   StepForward,
+  Check,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { z } from "zod";
 import { useShallow } from "zustand/react/shallow";
 import { isOpenApiV2, isOpenApiV3x } from "../lib/isOpenApiV2";
+import { useMountedPath } from "@/hooks/use-mounted-path";
 
 type OpenAPIOperation = OpenAPI.Operation;
 export const Route = createFileRoute("/workflows/$workflowId")({
@@ -231,11 +234,11 @@ function WorkflowDetail() {
                   search={
                     stepIndex > 0
                       ? (prev) => ({
-                          ...prev,
-                          stepId:
-                            workflow.steps[stepIndex - 1]?.stepId ??
-                            prev.stepId,
-                        })
+                        ...prev,
+                        stepId:
+                          workflow.steps[stepIndex - 1]?.stepId ??
+                          prev.stepId,
+                      })
                       : undefined
                   }
                 >
@@ -253,11 +256,11 @@ function WorkflowDetail() {
                   search={
                     stepIndex < workflow.steps.length - 1 && stepIndex !== -1
                       ? (prev) => {
-                          return {
-                            ...prev,
-                            stepId: workflow.steps[stepIndex + 1]?.stepId,
-                          };
-                        }
+                        return {
+                          ...prev,
+                          stepId: workflow.steps[stepIndex + 1]?.stepId,
+                        };
+                      }
                       : undefined
                   }
                 >
@@ -742,8 +745,8 @@ function StepDetails({
                             {String(
                               JSON.stringify(
                                 (stepState as ExecuteStepResult)?.headers ??
-                                  result?.headers ??
-                                  {},
+                                result?.headers ??
+                                {},
                                 null,
                                 2,
                               ),
@@ -757,7 +760,7 @@ function StepDetails({
                             {String(
                               JSON.stringify(
                                 (stepState as ExecuteStepResult)?.data ??
-                                  result?.data,
+                                result?.data,
                                 null,
                                 2,
                               ),
