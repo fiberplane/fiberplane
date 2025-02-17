@@ -1,6 +1,7 @@
 import { type Env, Hono } from "hono";
 import { logIfDebug } from "./debug.js";
 import createApiRoutes from "./routes/api/index.js";
+import createTracesApiRoute from "./routes/api/traces.js";
 import createEmbeddedPlayground from "./routes/playground.js";
 import type { FiberplaneAppType, ResolvedEmbeddedOptions } from "./types.js";
 
@@ -23,6 +24,23 @@ export function createRouter<E extends Env>(
     await next();
   });
 
+  // If the OpenTelemetry endpoint is present, we create the internal traces API router
+  if (otelEndpoint) {
+    logIfDebug(
+      isDebugEnabled,
+      "OpenTelemetry Endpoint Present. Creating internal traces API router.",
+    );
+    app.route("/api/traces", createTracesApiRoute(otelEndpoint));
+  } else {
+    logIfDebug(
+      isDebugEnabled,
+      "OpenTelemetry Endpoint *NOT* Present. Internal traces API router disabled.",
+    );
+    app.use("/api/traces/*", async (c) => {
+      return c.json({ error: "OpenTelemetry endpoint is not set" }, 401);
+    });
+  }
+
   // If the API key is present, we create the internal API router
   // Otherwise, we return a 402 error for all internal API requests
   if (apiKey) {
@@ -30,11 +48,11 @@ export function createRouter<E extends Env>(
       isDebugEnabled,
       "Fiberplane API Key Present. Creating internal API router.",
     );
-    app.route("/api", createApiRoutes(apiKey, otelEndpoint));
+    app.route("/api", createApiRoutes(apiKey));
   } else {
     logIfDebug(
       isDebugEnabled,
-      "Fiberplane API Key *Not* Present. Internal API router disabled.",
+      "Fiberplane API Key *NOT* Present. Internal API router disabled.",
     );
     app.use("/api/*", async (c) => {
       return c.json({ error: "Fiberplane API key is not set" }, 402);
