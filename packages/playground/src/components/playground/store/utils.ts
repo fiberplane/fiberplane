@@ -4,7 +4,7 @@ import type { RequestMethod } from "../types";
 import type { Authorization } from "./slices/settingsSlice";
 import type { KeyValueElement, PlaygroundState } from "./types";
 
-export const _getActiveRoute = (state: PlaygroundState): ApiRoute => {
+export const rawGetActiveRoute = (state: PlaygroundState): ApiRoute => {
   return (
     state.activeRoute ?? {
       // id: Number.NEGATIVE_INFINITY,

@@ -455,9 +455,11 @@ function extractBodyFromOpenApiDefinition(
       case "application/json": {
         return extractJsonBodyFromOpenApiDefinition(currentBody, mediaType);
       }
+
       case "multipart/form-data": {
         return extractFormDataFromOpenApiDefinition(mediaType);
       }
+
       default: {
         // This will cause a type error if we haven't handled all possible content types
         const _exhaustiveCheck: never = contentType;

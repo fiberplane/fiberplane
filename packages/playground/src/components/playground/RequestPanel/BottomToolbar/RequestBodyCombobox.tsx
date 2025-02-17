@@ -19,8 +19,15 @@ import {
 import { cn } from "@/utils";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { useMemo, useState } from "react";
-import type { PlaygroundBody } from "../../store";
+import { useShallow } from "zustand/react/shallow";
+import {
+  type PlaygroundBody,
+  useStudioStore,
+  useStudioStoreRaw,
+} from "../../store";
+import { useApiCallData } from "../../store/hooks/useApiCallData";
 import type { PlaygroundBodyType } from "../../store/types";
+import { rawGetActiveRoute } from "../../store/utils";
 
 type RequestBodyTypeOption = {
   value: PlaygroundBodyType;
@@ -34,20 +41,19 @@ const bodyTypes: RequestBodyTypeOption[] = [
   { value: "file", label: "File" },
 ];
 
-export type RequestBodyTypeDropdownProps = {
-  requestBody: PlaygroundBody;
-  handleRequestBodyTypeChange: (
-    contentType: PlaygroundBodyType,
-    isMultipart?: boolean,
-  ) => void;
-  isDisabled: boolean;
-};
+export function RequestBodyTypeDropdown() {
+  const isDisabled = useStudioStoreRaw(
+    useShallow((state) => {
+      const { method } = rawGetActiveRoute(state);
+      return method === "GET" || method === "HEAD";
+    }),
+  );
 
-export function RequestBodyTypeDropdown({
-  requestBody,
-  handleRequestBodyTypeChange,
-  isDisabled,
-}: RequestBodyTypeDropdownProps) {
+  const { handleRequestBodyTypeChange } = useStudioStore(
+    "handleRequestBodyTypeChange",
+  );
+  const { body: requestBody } = useApiCallData("body");
+
   const [open, setOpen] = useState(false);
   const requestBodyType = requestBody.type;
   const bodyTypeLabel = useMemo(() => {

@@ -246,3 +246,24 @@ function getValueFromParameter(parameter: SupportedParameterObject) {
 
   return String(parameter.schema) || "";
 }
+
+export function keyValueElementsToFormData(elements: KeyValueElement[]) {
+  return elements.reduce((o, param) => {
+    if (isDraftElement(param)) {
+      return o;
+    }
+
+    const { key, data, enabled } = param;
+    if (!enabled) {
+      return o;
+    }
+
+    if (data.type === "string") {
+      o.append(key, data.value);
+    } else if (data.value) {
+      o.append(key, data.value, data.value.name);
+    }
+
+    return o;
+  }, new FormData());
+}

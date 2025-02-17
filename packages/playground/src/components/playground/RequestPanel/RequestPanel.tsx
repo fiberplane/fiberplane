@@ -38,7 +38,6 @@ export const RequestPanel = memo(function RequestPanel(
     activeRoute,
     clearCurrentPathParams: clearPathParams,
     fillInFakeData,
-    handleRequestBodyTypeChange,
     setActiveRequestsPanelTab,
     setCurrentBody: setBody,
     setCurrentPathParams: setPathParams,
@@ -51,7 +50,6 @@ export const RequestPanel = memo(function RequestPanel(
     "activeRoute",
     "clearCurrentPathParams",
     "fillInFakeData",
-    "handleRequestBodyTypeChange",
     "setActiveRequestsPanelTab",
     "setCurrentBody",
     "setCurrentPathParams",
@@ -264,9 +262,7 @@ export const RequestPanel = memo(function RequestPanel(
         </FpTabsContent>
       )}
 
-      <BottomToolbar
-        handleRequestBodyTypeChange={handleRequestBodyTypeChange}
-      />
+      <BottomToolbar />
     </FpTabs>
   );
 });

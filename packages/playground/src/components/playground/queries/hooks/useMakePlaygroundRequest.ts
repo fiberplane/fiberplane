@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { reduceFormDataParameters } from "../../FormDataForm";
 import { reduceKeyValueElements } from "../../KeyValueForm";
+import { keyValueElementsToFormData } from "../../KeyValueForm/data";
 import type {
   KeyValueElement,
   PlaygroundActiveResponse,
@@ -235,7 +235,7 @@ function createBody(body: PlaygroundBody) {
     // FIXME - Remove this eventually and provide a dialogue in the ui when someone adds a non-text file to a urlencoded form (a la httpie)
     const hasFile = body.value.some((item) => item.data.type === "file");
     if (isMultipart || hasFile) {
-      return reduceFormDataParameters(body.value);
+      return keyValueElementsToFormData(body.value);
     }
     return createUrlEncodedBody(
       reduceKeyValueElements(
