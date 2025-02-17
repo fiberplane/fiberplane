@@ -13,7 +13,7 @@ export function createRouter<E extends Env>(
   // Important: whatever gets passed to createEmbeddedPlayground
   // is passed to the playground, aka is on the HTML
   // We therefore remove the apiKey
-  const { apiKey, fpxEndpoint, debug, ...sanitizedOptions } = options;
+  const { apiKey, otelEndpoint, debug, ...sanitizedOptions } = options;
 
   const app = new Hono<E & FiberplaneAppType>();
   const isDebugEnabled = debug ?? false;
@@ -30,7 +30,7 @@ export function createRouter<E extends Env>(
       isDebugEnabled,
       "Fiberplane API Key Present. Creating internal API router.",
     );
-    app.route("/api", createApiRoutes(apiKey, fpxEndpoint));
+    app.route("/api", createApiRoutes(apiKey, otelEndpoint));
   } else {
     logIfDebug(
       isDebugEnabled,

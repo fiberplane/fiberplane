@@ -33,12 +33,29 @@ export interface EmbeddedOptions {
    * _Without an API key, certain features like the Workflow Builder will be disabled._
    */
   apiKey?: string;
+
   /**
    * (Optional) URL of a custom CDN to use for the embedded playground UI.
    *
    * If not provided, the default CDN will be used.
    */
   cdn?: string;
+
+  /**
+   * (Optional) URL of the Fiberplane OpenTelemetry collector endpoint.
+   *
+   * If not provided, the middleware will attempt to fall back to the `FIBERPLANE_OTEL_ENDPOINT` environment variable.
+   * If provided, the middleware will use this endpoint for sending telemetry data, ignoring the `FIBERPLANE_OTEL_ENDPOINT` environment variable.
+   *
+   * @example
+   * ```ts
+   * const app = new Hono();
+   * app.use('/*', createFiberplane({
+   *   otelEndpoint: 'https://otel.mydomain.com/v1/traces'
+   * }));
+   * ```
+   */
+  otelEndpoint?: string;
 
   /**
    * Enable debug statements
@@ -48,7 +65,7 @@ export interface EmbeddedOptions {
 
 export interface ResolvedEmbeddedOptions extends EmbeddedOptions {
   mountedPath: string;
-  fpxEndpoint?: string;
+  otelEndpoint?: string;
 }
 
 export interface SanitizedEmbeddedOptions

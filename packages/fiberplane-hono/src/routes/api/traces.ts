@@ -5,7 +5,7 @@ import type { FiberplaneAppType } from "../../types.js";
 // Using Record<string, unknown> as a simpler type for JSON data
 type ApiResponse = Record<string, unknown> | Array<Record<string, unknown>>;
 
-export default function createTracesApiRoute(fpxEndpoint?: string) {
+export default function createTracesApiRoute(otelEndpoint?: string) {
   const app = new Hono<FiberplaneAppType>();
 
   app.get("/", async (c) => {
@@ -15,18 +15,18 @@ export default function createTracesApiRoute(fpxEndpoint?: string) {
       "- GET / -",
       "Proxying request to fiberplane api",
     );
-    if (!fpxEndpoint) {
+    if (!otelEndpoint) {
       logIfDebug(
         c,
         "[traces]",
         "- GET / -",
-        "fpx endpoint undefined, returning early",
+        "otel endpoint undefined, returning early",
       );
       return c.json({ error: "Tracing is not enabled" }, 500);
     }
     try {
-      const fpxBaseUrl = new URL(fpxEndpoint).origin;
-      const requestUrl = `${fpxBaseUrl}/v1/traces`;
+      const otelBaseUrl = getOtelBaseUrl(otelEndpoint);
+      const requestUrl = `${otelBaseUrl}/v1/traces`;
       const response = await fetch(requestUrl, {
         headers: {
           "Content-Type": "application/json",
@@ -55,13 +55,13 @@ export default function createTracesApiRoute(fpxEndpoint?: string) {
       "- GET /:traceId/spans -",
       "Proxying request to fiberplane api",
     );
-    if (!fpxEndpoint) {
+    if (!otelEndpoint) {
       return c.json({ error: "Tracing is not enabled" }, 500);
     }
     try {
-      const fpxBaseUrl = new URL(fpxEndpoint).origin;
+      const otelBaseUrl = getOtelBaseUrl(otelEndpoint);
       const traceId = c.req.param("traceId");
-      const requestUrl = `${fpxBaseUrl}/v1/traces/${traceId}/spans`;
+      const requestUrl = `${otelBaseUrl}/v1/traces/${traceId}/spans`;
       const response = await fetch(requestUrl, {
         headers: {
           "Content-Type": "application/json",
@@ -84,4 +84,9 @@ export default function createTracesApiRoute(fpxEndpoint?: string) {
   });
 
   return app;
+}
+
+function getOtelBaseUrl(otelEndpoint: string) {
+  const url = new URL(otelEndpoint);
+  return url.origin;
 }
