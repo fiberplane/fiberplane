@@ -7,9 +7,7 @@
   "version": "0.8.0-canary.1",
   "dependencies": {
     "@opentelemetry/api": "~1.9.0",
-    "@opentelemetry/core": "1.9.0",
     "@opentelemetry/exporter-trace-otlp-http": "0.35.0",
-    "@opentelemetry/otlp-exporter-base": "0.35.0",
     "@opentelemetry/otlp-transformer": "0.35.0",
     "@opentelemetry/resources": "^1.28.0",
     "@opentelemetry/sdk-trace-base": "^1.28.0",
@@ -20,9 +18,6 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@cloudflare/workers-types": "^4.20241112.0",
-    "@swc/cli": "^0.4.0",
-    "@swc/core": "^1.9.3",
-    "@swc/plugin-transform-imports": "^2.0.12",
     "hono": "^4.6.12",
     "nodemon": "^3.1.7",
     "rimraf": "^6.0.1",
