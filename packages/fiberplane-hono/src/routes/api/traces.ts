@@ -5,7 +5,10 @@ import type { FiberplaneAppType } from "../../types.js";
 // Using Record<string, unknown> as a simpler type for JSON data
 type ApiResponse = Record<string, unknown> | Array<Record<string, unknown>>;
 
-export default function createTracesApiRoute(otelEndpoint?: string) {
+export default function createTracesApiRoute(
+  otelEndpoint?: string,
+  otelToken?: string,
+) {
   const app = new Hono<FiberplaneAppType>();
 
   app.get("/", async (c) => {
@@ -15,6 +18,7 @@ export default function createTracesApiRoute(otelEndpoint?: string) {
       "- GET / -",
       "Proxying request to fiberplane api",
     );
+
     if (!otelEndpoint) {
       logIfDebug(
         c,
@@ -22,8 +26,25 @@ export default function createTracesApiRoute(otelEndpoint?: string) {
         "- GET / -",
         "otel endpoint undefined, returning early",
       );
-      return c.json({ error: "Tracing is not enabled" }, 500);
+      return c.json({ error: "Tracing is not enabled" }, 402);
     }
+
+    if (!otelToken) {
+      logIfDebug(
+        c,
+        "[traces]",
+        "- GET / -",
+        "otel token undefined, skipping auth header",
+      );
+    } else {
+      logIfDebug(
+        c,
+        "[traces]",
+        "- GET / -",
+        "otel token defined, adding auth header",
+      );
+    }
+
     try {
       const otelBaseUrl = getOtelBaseUrl(otelEndpoint);
       const requestUrl = `${otelBaseUrl}/v1/traces`;
@@ -31,6 +52,7 @@ export default function createTracesApiRoute(otelEndpoint?: string) {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          ...(otelToken ? { Authorization: `Bearer ${otelToken}` } : {}),
         },
       });
       logIfDebug(
@@ -55,9 +77,20 @@ export default function createTracesApiRoute(otelEndpoint?: string) {
       "- GET /:traceId/spans -",
       "Proxying request to fiberplane api",
     );
+
     if (!otelEndpoint) {
-      return c.json({ error: "Tracing is not enabled" }, 500);
+      return c.json({ error: "Tracing is not enabled" }, 402);
     }
+
+    if (!otelToken) {
+      logIfDebug(
+        c,
+        "[traces]",
+        "- GET /:traceId/spans -",
+        "otel token undefined, skipping auth header",
+      );
+    }
+
     try {
       const otelBaseUrl = getOtelBaseUrl(otelEndpoint);
       const traceId = c.req.param("traceId");
@@ -66,6 +99,7 @@ export default function createTracesApiRoute(otelEndpoint?: string) {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          ...(otelToken ? { Authorization: `Bearer ${otelToken}` } : {}),
         },
       });
       logIfDebug(

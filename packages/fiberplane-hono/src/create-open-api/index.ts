@@ -80,6 +80,7 @@ export function createOpenAPISpec(
       };
 
       return {
+        // biome-ignore lint/performance/noAccumulatingSpread: TODO - fix this
         ...paths,
         [openApiPath]: {
           ...paths[openApiPath],

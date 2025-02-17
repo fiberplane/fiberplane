@@ -14,7 +14,8 @@ export function createRouter<E extends Env>(
   // Important: whatever gets passed to createEmbeddedPlayground
   // is passed to the playground, aka is on the HTML
   // We therefore remove the apiKey
-  const { apiKey, otelEndpoint, debug, ...sanitizedOptions } = options;
+  const { apiKey, otelEndpoint, otelToken, debug, ...sanitizedOptions } =
+    options;
 
   const app = new Hono<E & FiberplaneAppType>();
   const isDebugEnabled = debug ?? false;
@@ -30,7 +31,7 @@ export function createRouter<E extends Env>(
       isDebugEnabled,
       "OpenTelemetry Endpoint Present. Creating internal traces API router.",
     );
-    app.route("/api/traces", createTracesApiRoute(otelEndpoint));
+    app.route("/api/traces", createTracesApiRoute(otelEndpoint, otelToken));
   } else {
     logIfDebug(
       isDebugEnabled,

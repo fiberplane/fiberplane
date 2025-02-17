@@ -17,6 +17,7 @@ export const createFiberplane =
 
     const { mountedPath, internalPath } = getPaths(c);
     const otelEndpoint = getOtelEndpoint(c);
+    const otelToken = getOtelToken(c);
 
     logIfDebug(debug, "mountedPath:", mountedPath);
     logIfDebug(debug, "internalPath:", internalPath);
@@ -27,6 +28,7 @@ export const createFiberplane =
       cdn: options.cdn ?? CDN_URL,
       mountedPath,
       otelEndpoint,
+      otelToken,
       ...options,
       // Add the api key with a fallback to the env var FIBERPLANE_API_KEY
       apiKey,
@@ -82,6 +84,10 @@ function getPaths(c: Context): { mountedPath: string; internalPath: string } {
  */
 function getOtelEndpoint(c: Context): string | undefined {
   return c?.env?.FIBERPLANE_OTEL_ENDPOINT || c?.env?.FPX_ENDPOINT;
+}
+
+function getOtelToken(c: Context): string | undefined {
+  return c?.env?.FIBERPLANE_OTEL_TOKEN || c?.env?.FPX_AUTH_TOKEN;
 }
 
 function getApiKey(c: Context, debug?: boolean): string | undefined {

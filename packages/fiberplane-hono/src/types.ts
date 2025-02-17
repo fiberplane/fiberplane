@@ -58,6 +58,13 @@ export interface EmbeddedOptions {
   otelEndpoint?: string;
 
   /**
+   * (Optional) OpenTelemetry token to use for the embedded playground api.
+   *
+   * If not provided, the middleware will attempt to fall back to the `FIBERPLANE_OTEL_TOKEN` environment variable.
+   */
+  otelToken?: string;
+
+  /**
    * Enable debug statements
    */
   debug?: boolean;
@@ -65,7 +72,6 @@ export interface EmbeddedOptions {
 
 export interface ResolvedEmbeddedOptions extends EmbeddedOptions {
   mountedPath: string;
-  otelEndpoint?: string;
 }
 
 export interface SanitizedEmbeddedOptions
