@@ -77,7 +77,7 @@ function getPaths(c: Context): { mountedPath: string; internalPath: string } {
 }
 
 function getFpxEndpoint(c: Context): string | undefined {
-  return c?.env?.FPX_ENDPOINT;
+  return c?.env?.FIBERPLANE_OTEL_ENDPOINT || c?.env?.FPX_ENDPOINT;
 }
 
 function getApiKey(c: Context, debug?: boolean): string | undefined {
