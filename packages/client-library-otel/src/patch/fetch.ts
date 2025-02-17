@@ -28,9 +28,8 @@ export function patchFetch(options: {
         },
         onSuccess: async (span, responsePromise) => {
           const response = await responsePromise;
-          const attributeResponse = response.clone();
           const attributes = await getResponseAttributes(
-            attributeResponse,
+            response,
             options,
           );
           span.setAttributes(attributes);

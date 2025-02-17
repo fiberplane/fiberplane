@@ -311,7 +311,8 @@ export async function getResponseAttributes(
   };
 
   if (isLocal) {
-    const responseText = await tryGetResponseBodyAsText(response);
+    const clonedResponse = response.clone();
+    const responseText = await tryGetResponseBodyAsText(clonedResponse);
     if (responseText) {
       attributes[FPX_RESPONSE_BODY] = responseText;
     }
