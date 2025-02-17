@@ -55,7 +55,7 @@ jobs:
       - name: Lint all workspaces (eslint or other linters)
         run: pnpm --recursive lint:ci
 
-      - name: Typecheck all workspaces
+      - name: Typecheck @fiberplane/playground and @fiberplane/hono packages
         run: pnpm --filter @fiberplane/playground --filter @fiberplane/hono typecheck
 
       # Testing

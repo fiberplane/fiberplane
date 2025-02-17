@@ -58,7 +58,7 @@ jobs:
       - name: Lint all workspaces (eslint or other linters)
         run: pnpm --recursive lint:ci
 
-      - name: Typecheck all workspaces
+      - name: Typecheck @fiberplane/studio-frontend and @fiberplane/studio packages
         run: |
           pnpm \
             --filter=@fiberplane/studio-frontend \
