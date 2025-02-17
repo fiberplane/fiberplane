@@ -32,15 +32,15 @@ type KeyValueRowValueProps = {
   keyInputType?: CodeMirrorInputType;
   valueInputType?: CodeMirrorInputType;
 } & (
-    | {
+  | {
       onChangeValue: (value: string | File) => void;
       showFileSelector: true;
     }
-    | {
+  | {
       onChangeValue: (value: string) => void;
       showFileSelector?: false;
     }
-  );
+);
 
 export function KeyValueFormRowValue(props: KeyValueRowValueProps) {
   const {
@@ -165,7 +165,7 @@ export function KeyValueFormRowValue(props: KeyValueRowValueProps) {
                             "py-0.25",
                             "focus:bg-muted",
                             "aria-checked:bg-muted aria-checked:focus:text-accent-foreground",
-                            "cursor-pointer"
+                            "cursor-pointer",
                           )}
                         >
                           <div
