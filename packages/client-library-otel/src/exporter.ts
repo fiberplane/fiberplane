@@ -5,8 +5,8 @@ import {
 } from "@opentelemetry/otlp-exporter-base";
 import { createExportTraceServiceRequest } from "@opentelemetry/otlp-transformer";
 import type { SpanExporter } from "@opentelemetry/sdk-trace-base";
-import { isWrapped } from "./utils";
 import { getLogger } from "./logger";
+import { isWrapped } from "./utils";
 // Freeze the web standard fetch function so that we can use it below without being affected by monkeypatching
 const webStandardFetch = fetch;
 
