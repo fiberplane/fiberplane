@@ -15,7 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { FpTabsContent, FpTabsList, FpTabsTrigger } from "@/components/ui/tabs";
 import { FpTabs } from "@/components/ui/tabs";
-import { useShake } from "@/hooks";
+import { useCopyToClipboard, useShake } from "@/hooks";
+import { useMountedPath } from "@/hooks/use-mounted-path";
 import { useOpenApiParse } from "@/lib/hooks/useOpenApiParse";
 import { useOpenApiSpec } from "@/lib/hooks/useOpenApiSpec";
 import { workflowQueryOptions } from "@/lib/hooks/useWorkflows";
@@ -32,7 +33,9 @@ import {
 } from "@tanstack/react-router";
 import {
   ArrowDownToDot,
+  Check,
   ChevronDown,
+  Copy,
   Edit,
   Copy,
   Play,
