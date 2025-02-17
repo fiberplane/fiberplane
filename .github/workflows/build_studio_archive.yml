@@ -1,5 +1,4 @@
-# This workflow will be triggered by a GitHub pull-request.
-name: Build node packages
+name: Build Studio v1
 
 on:
   pull_request:
@@ -7,18 +6,12 @@ on:
     paths:
       - "apps/studio/studio-api/**"
       - "apps/studio/studio-frontend/**"
-      - "packages/client-library-otel/**"
-      - "packages/fiberplane-hono/**"
-      - "packages/playground/**"
-
   push:
     branches: ["main", "release-*"]
     paths:
       - "apps/studio/studio-api/**"
       - "apps/studio/studio-frontend/**"
-      - "packages/client-library-otel/**"
-      - "packages/fiberplane-hono/**"
-      - "packages/playground/**"
+
 env:
   CARGO_TERM_COLOR: always
   FORCE_COLOR: true
@@ -66,24 +59,19 @@ jobs:
         run: pnpm --recursive lint:ci
 
       - name: Typecheck all workspaces
-        run: pnpm --recursive typecheck
+        run: |
+          pnpm \
+            --filter=@fiberplane/studio-frontend \
+            --filter=@fiberplane/studio \
+          typecheck
 
       # Testing
-
-      - name: Test Playground
-        run: pnpm --filter @fiberplane/playground test
 
       - name: Test Studio API
         run: pnpm --filter @fiberplane/studio test
 
       - name: Test Studio Frontend
         run: pnpm --filter @fiberplane/studio-frontend test
-
-      - name: Test Client Library
-        run: pnpm --filter @fiberplane/hono-otel test
-
-      - name: Test Embedded Hono
-        run: pnpm --filter @fiberplane/hono test
 
       # Building
 
@@ -92,7 +80,6 @@ jobs:
           pnpm \
             --filter=@fiberplane/studio-frontend \
             --filter=@fiberplane/studio \
-            --filter=@fiberplane/hono-otel \
             build
 
       # Release a preview version
