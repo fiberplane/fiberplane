@@ -241,10 +241,10 @@ function getValueFromParameter(parameter: SupportedParameterObject) {
       return String(parameter.schema.default);
     }
 
-    return String(parameter.example || parameter.schema.example);
+    return String(parameter.example || parameter.schema.example || "");
   }
 
-  return String(parameter.schema || "");
+  return String(parameter.example || "");
 }
 
 export function keyValueElementsToFormData(elements: KeyValueElement[]) {

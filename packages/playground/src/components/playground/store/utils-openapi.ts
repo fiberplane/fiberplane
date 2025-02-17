@@ -50,9 +50,7 @@ export function extractQueryParamsFromOpenApiDefinition(
 
   // Convert OpenAPI params to KeyValueElement format
   const openApiQueryParams: Array<KeyValueElement> = specQueryParams.map(
-    (parameter) => {
-      return createKeyValueElement(parameter.name, undefined, parameter);
-    },
+    (parameter) => createKeyValueElement(parameter.name, undefined, parameter),
   );
 
   // Merge with existing parameters, preferring existing values
