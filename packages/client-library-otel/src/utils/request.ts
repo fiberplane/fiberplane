@@ -272,7 +272,8 @@ async function tryGetResponseBodyAsText(
 
   try {
     if (response.body) {
-      return await streamToString(response.body as ReadableStream);
+      const clonedResponse = response.clone();
+      return await streamToString(clonedResponse.body as ReadableStream);
     }
   } catch {
     // swallow error
@@ -311,8 +312,7 @@ export async function getResponseAttributes(
   };
 
   if (isLocal) {
-    const clonedResponse = response.clone();
-    const responseText = await tryGetResponseBodyAsText(clonedResponse);
+    const responseText = await tryGetResponseBodyAsText(response);
     if (responseText) {
       attributes[FPX_RESPONSE_BODY] = responseText;
     }

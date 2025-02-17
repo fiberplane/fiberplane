@@ -262,8 +262,6 @@ export function instrument(app: HonoLikeApp, config?: FpxConfigOptions) {
               onSuccess: async (span, response) => {
                 span.addEvent("first-response");
 
-                const attributesResponse = response.clone();
-
                 const updateSpan = async (response: Response) => {
                   const attributes = await getResponseAttributes(response, {
                     isLocal: FPX_IS_LOCAL,
@@ -272,7 +270,7 @@ export function instrument(app: HonoLikeApp, config?: FpxConfigOptions) {
                   span.end();
                 };
 
-                promiseStore.add(updateSpan(attributesResponse));
+                promiseStore.add(updateSpan(response));
               },
               checkResult: async (result) => {
                 const r = await result;
