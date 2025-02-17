@@ -38,32 +38,21 @@ export function extractQueryParamsFromOpenApiDefinition(
   currentElements: KeyValueElement[],
   route: ApiRoute,
 ) {
-  const parameters: Array<SupportedParameterObject> = route.parameters ?? [];
-  if (route.operation.parameters) {
-    parameters.push(
-      ...(route.operation.parameters.filter(
-        isSupportedParameterObject,
-      ) as Array<SupportedParameterObject>),
-    );
-  }
+  const parameters = [
+    ...(route.parameters ?? []),
+    ...(route.operation.parameters || []),
+  ];
+
   // Extract query parameters from OpenAPI spec
   const specQueryParams =
-    parameters?.filter((param) => param.in === "query") ?? [];
+    (parameters?.filter(
+      (param) => isSupportedParameterObject(param) && param.in === "query",
+    ) as Array<SupportedParameterObject>) ?? [];
 
   // Convert OpenAPI params to KeyValueElement format
   const openApiQueryParams: Array<KeyValueElement> = specQueryParams.map(
-    (param) => {
-      const value = getStringValueFromSchema(param.schema);
-      return {
-        id: param.name,
-        key: param.name,
-        data: {
-          type: "string",
-          value,
-        },
-        enabled: param.required || false,
-        parameter: param,
-      };
+    (parameter) => {
+      return createKeyValueElement(parameter.name, undefined, parameter);
     },
   );
 

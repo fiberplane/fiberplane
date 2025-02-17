@@ -1,8 +1,10 @@
 import {
   type SupportedMediaTypeObject,
+  type SupportedParameterObject,
   type SupportedReferenceObject,
   type SupportedRequestBodyObject,
   isSupportedOperationObject,
+  isSupportedParameterObject,
   isSupportedRequestBodyObject,
 } from "@/lib/isOpenApi";
 import type { StateCreator } from "zustand";
@@ -10,13 +12,14 @@ import {
   enforceTerminalDraftParameter,
   reduceKeyValueElements,
 } from "../../KeyValueForm";
+import { createKeyValueElement } from "../../KeyValueForm/data";
 import type { ApiRoute } from "../../types";
 import { updateContentTypeHeaderInState } from "../content-type";
 import { setBodyTypeInState } from "../set-body-type";
 import type { KeyValueElement, PlaygroundBody } from "../types";
 import {
   addBaseUrl,
-  extractPathParams,
+  extractPathParameterKeys,
   mapPathParamKey,
   removeBaseUrl,
   resolvePathWithParameters,
@@ -402,7 +405,19 @@ export function createInitialApiCallData(route?: ApiRoute): ApiCallData {
     return data;
   }
 
-  data.pathParams = extractPathParams(route.path).map(mapPathParamKey);
+  const params = [
+    ...(route.parameters ?? []),
+    ...(route.operation.parameters || []),
+  ];
+  data.pathParams = extractPathParameterKeys(route.path).map((key: string) => {
+    const parameter = params.find(
+      (item) =>
+        isSupportedParameterObject(item) &&
+        item.name === key &&
+        item.in === "path",
+    ) as SupportedParameterObject | undefined;
+    return createKeyValueElement(key, undefined, parameter);
+  });
   data.queryParams = extractQueryParamsFromOpenApiDefinition(
     data.queryParams,
     route,

@@ -7,7 +7,7 @@ import {
   isSupportedSchemaObject,
 } from "@/lib/isOpenApi";
 import type { KeyValueElement } from "./types";
-import { extractPathParams } from "./utils";
+import { extractPathParameterKeys } from "./utils";
 
 type OutputData = {
   value: string;
@@ -106,7 +106,7 @@ export function generateFakeData(
   };
 
   // Handle path parameters
-  const pathParamNames = extractPathParams(path);
+  const pathParamNames = extractPathParameterKeys(path);
   const pathParamSpecs =
     routeSpec.parameters?.filter(
       (p) => isSupportedParameterObject(p) && p.in === "path",

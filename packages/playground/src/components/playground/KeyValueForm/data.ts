@@ -244,7 +244,7 @@ function getValueFromParameter(parameter: SupportedParameterObject) {
     return String(parameter.example || parameter.schema.example);
   }
 
-  return String(parameter.schema) || "";
+  return String(parameter.schema || "");
 }
 
 export function keyValueElementsToFormData(elements: KeyValueElement[]) {

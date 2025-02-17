@@ -47,7 +47,7 @@ export function apiRouteToInputMethod(route: ApiRoute): RequestMethod {
  * @param path
  * @returns
  */
-export function extractPathParams(path: string) {
+export function extractPathParameterKeys(path: string) {
   const regex = /\/{([^}]+)}/g;
 
   const result: Array<string> = [];
