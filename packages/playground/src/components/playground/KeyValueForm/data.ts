@@ -1,3 +1,7 @@
+import {
+  isSupportedSchemaObject,
+  SupportedParameterObject,
+} from "@/lib/isOpenApi";
 import type { KeyValueElement } from "../store";
 import type {
   ChangeKeyValueElementsHandler,
@@ -201,8 +205,16 @@ export function reduceKeyValueElements(
  */
 export function createKeyValueElement(
   key: string,
-  value: KeyValueElement["data"]["value"],
+  initialValue?: KeyValueElement["data"]["value"],
+  referenceParameter?: SupportedParameterObject,
 ): KeyValueElement {
+  const parameter = referenceParameter || {
+    name: key,
+    in: "formData",
+  };
+
+  const value = initialValue ?? getValueFromParameter(parameter);
+
   const data =
     typeof value === "string"
       ? {
@@ -219,9 +231,18 @@ export function createKeyValueElement(
     key,
     enabled: true,
     data,
-    parameter: {
-      name: key,
-      in: "formData",
-    },
+    parameter,
   };
+}
+
+function getValueFromParameter(parameter: SupportedParameterObject) {
+  if (parameter.schema && isSupportedSchemaObject(parameter.schema)) {
+    if (parameter.schema.default) {
+      return String(parameter.schema.default);
+    }
+
+    return String(parameter.example || parameter.schema.example);
+  }
+
+  return String(parameter.schema) || "";
 }

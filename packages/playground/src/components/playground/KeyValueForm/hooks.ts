@@ -1,36 +1,32 @@
 import { useMemo, useState } from "react";
 
 import type { KeyValueElement } from "../store";
-import { createElementId, isDraftElement } from "./data";
+import { createKeyValueElement, isDraftElement } from "./data";
 import type { DraftKeyValueElement } from "./types";
 
-const INITIAL_KEY_VALUE_ELEMENT: KeyValueElement = {
-  id: createElementId(),
-  key: "" as const,
-  data: {
-    type: "string" as const,
-    value: "" as const,
-  },
-  enabled: false,
-  parameter: {
-    name: "",
-    // We don't know where this element might be used, and it's not really relevant here either.
-    // This key value element is for things that the user is adding beyond what's defined in the openapi spec/doc
-    in: "query",
-    // Schema seems to be optional, but we should assume "string" as the default value
-    // schema: {
-    //   type: "string",
-    // },
-  },
-};
+// const INITIAL_KEY_VALUE_ELEMENT: KeyValueElement = {
+//   id: createElementId(),
+//   key: "" as const,
+//   data: {
+//     type: "string" as const,
+//     value: "" as const,
+//   },
+//   enabled: false,
+//   parameter: {
+//     name: "",
+//     // We don't know where this element might be used, and it's not really relevant here either.
+//     // This key value element is for things that the user is adding beyond what's defined in the openapi spec/doc
+//     in: "query",
+//     // Schema seems to be optional, but we should assume "string" as the default value
+//     // schema: {
+//     //   type: "string",
+//     // },
+//   },
+// };
 
 export const useKeyValueForm = (initial?: KeyValueElement[]) => {
   const [internalList, updateInternalList] = useState<KeyValueElement[]>(
-    initial ?? [
-      {
-        ...INITIAL_KEY_VALUE_ELEMENT,
-      },
-    ],
+    initial ?? concatDraftElement([]),
   );
 
   const { elements: keyValueElements } = useKeyValueElements(internalList);
@@ -120,10 +116,9 @@ export const enforceSingleTerminalDraftElement = (
  * Helper to immutabily add a {@link DraftKeyValueElement} to the end of an array.
  */
 const concatDraftElement = (elements: KeyValueElement[]) => {
-  const DRAFT_ELEMENT: DraftKeyValueElement = {
-    ...INITIAL_KEY_VALUE_ELEMENT,
-    id: createElementId(),
+  const draftElement: DraftKeyValueElement = {
+    ...createKeyValueElement(""),
     enabled: false,
   };
-  return [...elements, DRAFT_ELEMENT];
+  return [...elements, draftElement];
 };

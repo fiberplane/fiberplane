@@ -95,11 +95,21 @@ const JsonSchemaProperty: JsonSchemaPropertyType = z.object({
   required: z.array(z.string()).optional(),
 });
 
+const SUPPORTED_FORM_DATA_SCHEMA_TYPES = [
+  "string",
+  "number",
+  "integer",
+  "boolean",
+] as const;
+
+type SupportedFormDataSchemaTypes =
+  (typeof SUPPORTED_FORM_DATA_SCHEMA_TYPES)[number];
+
 export function extractFormDataFromOpenApiDefinition(
   mediaType: SupportedMediaTypeObject,
 ): PlaygroundBody {
   const values: Array<KeyValueElement> = [];
-
+  // debugger;
   // // TODO handle examples?
   if (mediaType.schema && isSupportedSchemaObject(mediaType.schema)) {
     const schema = mediaType.schema;
@@ -121,15 +131,41 @@ export function extractFormDataFromOpenApiDefinition(
         const propertySchemaType = propertySchema.type || "";
         if (
           !Array.isArray(propertySchemaType) &&
-          ["string", "number", "integer", "boolean"].includes(
-            propertySchemaType,
+          SUPPORTED_FORM_DATA_SCHEMA_TYPES.includes(
+            propertySchemaType as SupportedFormDataSchemaTypes,
           )
         ) {
-          const newParameter = createKeyValueElement(
-            key,
-            String(propertySchema.default || ""),
-          );
+          const parameter = {
+            name: key,
+            description: propertySchema.description,
+            in: "formData",
+            schema: {
+              type: propertySchemaType as SupportedFormDataSchemaTypes,
+              description: propertySchema.description,
+              format: propertySchema.format,
+              default: propertySchema.default,
+              // Numeric validation
+              minimum: propertySchema.minimum,
+              maximum: propertySchema.maximum,
+              exclusiveMinimum: !!propertySchema.exclusiveMinimum,
+              exclusiveMaximum: !!propertySchema.exclusiveMaximum,
+              multipleOf: propertySchema.multipleOf,
+              // String validation
+              pattern: propertySchema.pattern,
+              minLength: propertySchema.minLength,
+              maxLength: propertySchema.maxLength,
+              // Enums
+              enum: propertySchema.enum,
+              // Metadata
+              title: propertySchema.title,
+              deprecated: propertySchema.deprecated,
+              readOnly: propertySchema.readOnly,
+              writeOnly: propertySchema.writeOnly,
+              example: propertySchema.example,
+            },
+          };
 
+          const newParameter = createKeyValueElement(key, undefined, parameter);
           newParameter.enabled = !!schema.required?.includes(key);
           values.push(newParameter);
         }
