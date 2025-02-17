@@ -36,7 +36,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
+// import { useHotkeys } from "react-hotkeys-hook";
 import ReactMarkdown from "react-markdown";
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -233,7 +233,8 @@ function TraceDetailAssistant({
   // Check cache and request summary when component mounts
   useEffect(() => {
     const cachedData = queryClient.getQueryData(queryKey);
-    if (!cachedData) {
+    // biome-ignore lint/correctness/noConstantCondition: Need to hide this feature for now
+    if (false && !cachedData) {
       getSummary({ traceId: trace.traceId, spans: trace.spans });
     }
   }, [getSummary, trace.traceId, trace.spans, queryClient, queryKey]);
@@ -312,7 +313,8 @@ function TraceDetailLayout({
   children: React.ReactNode;
   trace: { traceId: string; spans: TraceDetailSpansResponse };
 }) {
-  const [sidePanel, setSidePanel] = useState<"open" | "closed">("open");
+  // NOTE - The assistant panel is closed by default, because it's currently HIDDEN in the UI.
+  const [sidePanel, setSidePanel] = useState<"open" | "closed">("closed");
   const isLgScreen = useIsLgScreen();
   const width = getMainSectionWidth();
 
@@ -323,7 +325,7 @@ function TraceDetailLayout({
     setSidePanel((prev) => (prev === "open" ? "closed" : "open"));
   });
 
-  useHotkeys("mod+b", toggleSidePanel);
+  // useHotkeys("mod+b", toggleSidePanel);
 
   return (
     <>

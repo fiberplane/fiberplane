@@ -16,17 +16,19 @@ export const createFiberplane =
     const apiKey = options.apiKey ?? getApiKey(c, debug);
 
     const { mountedPath, internalPath } = getPaths(c);
-    const fpxEndpoint = getFpxEndpoint(c);
+    const otelEndpoint = getOtelEndpoint(c);
+    const otelToken = getOtelToken(c);
 
     logIfDebug(debug, "mountedPath:", mountedPath);
     logIfDebug(debug, "internalPath:", internalPath);
-    logIfDebug(debug, "fpxEndpoint:", fpxEndpoint);
+    logIfDebug(debug, "otelEndpoint:", otelEndpoint);
 
     // Forward request to embedded router, continuing middleware chain if no route matches
     const router = createRouter({
       cdn: options.cdn ?? CDN_URL,
       mountedPath,
-      fpxEndpoint,
+      otelEndpoint,
+      otelToken,
       ...options,
       // Add the api key with a fallback to the env var FIBERPLANE_API_KEY
       apiKey,
@@ -75,9 +77,17 @@ function getPaths(c: Context): { mountedPath: string; internalPath: string } {
     internalPath,
   };
 }
+/**
+ * Gets the OpenTelemetry endpoint from environment variables.
+ * Checks both FIBERPLANE_OTEL_ENDPOINT and the legacy FPX_ENDPOINT.
+ * Used to determine where to send telemetry data.
+ */
+function getOtelEndpoint(c: Context): string | undefined {
+  return c?.env?.FIBERPLANE_OTEL_ENDPOINT || c?.env?.FPX_ENDPOINT;
+}
 
-function getFpxEndpoint(c: Context): string | undefined {
-  return c?.env?.FPX_ENDPOINT;
+function getOtelToken(c: Context): string | undefined {
+  return c?.env?.FIBERPLANE_OTEL_TOKEN || c?.env?.FPX_AUTH_TOKEN;
 }
 
 function getApiKey(c: Context, debug?: boolean): string | undefined {

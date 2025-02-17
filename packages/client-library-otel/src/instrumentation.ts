@@ -1,5 +1,4 @@
 import { SpanKind, context } from "@opentelemetry/api";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { Resource } from "@opentelemetry/resources";
 import {
   BasicTracerProvider,
@@ -11,11 +10,17 @@ import type { ExecutionContext } from "hono";
 // TODO figure out we can use something else
 import { AsyncLocalStorageContextManager } from "./async-hooks";
 import {
+  ENV_FIBERPLANE_OTEL_ENDPOINT,
+  ENV_FIBERPLANE_OTEL_LOG_LEVEL,
+  ENV_FIBERPLANE_OTEL_TOKEN,
+  ENV_FIBERPLANE_SERVICE_NAME,
   ENV_FPX_AUTH_TOKEN,
   ENV_FPX_ENDPOINT,
   ENV_FPX_LOG_LEVEL,
   ENV_FPX_SERVICE_NAME,
 } from "./constants";
+// import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { FPOTLPExporter } from "./exporter";
 import { getLogger } from "./logger";
 import { measure } from "./measure";
 import {
@@ -33,10 +38,12 @@ import {
 } from "./routes";
 import type { HonoLikeApp, HonoLikeEnv, HonoLikeFetch } from "./types";
 import {
+  cloneRequestForAttributes,
   getFromEnv,
   getRequestAttributes,
   getResponseAttributes,
   getRootRequestAttributes,
+  isInLocalMode,
 } from "./utils";
 
 /**
@@ -110,20 +117,45 @@ export function instrument(app: HonoLikeApp, config?: FpxConfigOptions) {
             | null
             | Record<string, string | null>;
 
-          // NOTE - We do *not* want to have a default for the FPX_ENDPOINT,
+          // NOTE - We do *not* want to have a default for the FIBERPLANE_OTEL_ENDPOINT (prev: FPX_ENDPOINT),
           //        so that people won't accidentally deploy to production with our middleware and
           //        start sending data to the default url.
-          const endpoint = getFromEnv(env, ENV_FPX_ENDPOINT);
+          const endpoint = getFromEnv(env, [
+            ENV_FIBERPLANE_OTEL_ENDPOINT,
+            ENV_FPX_ENDPOINT,
+          ]);
           const isEnabled = !!endpoint && typeof endpoint === "string";
+          const isFiberplaneEndpointLocalhost: boolean =
+            endpoint?.includes("localhost") ?? false;
 
-          const authToken = getFromEnv(env, ENV_FPX_AUTH_TOKEN);
+          const authToken = getFromEnv(env, [
+            // FIBERPLANE_OTEL_TOKEN takes precedence over FPX_AUTH_TOKEN
+            ENV_FIBERPLANE_OTEL_TOKEN,
+            // FPX_AUTH_TOKEN is the fallback, here for backwards compatibility
+            ENV_FPX_AUTH_TOKEN,
+          ]);
 
           const FPX_LOG_LEVEL = libraryDebugMode
             ? "debug"
-            : getFromEnv(env, ENV_FPX_LOG_LEVEL);
+            : getFromEnv(env, [
+                // FIBERPLANE_OTEL_LOG_LEVEL takes precedence over FPX_LOG_LEVEL
+                ENV_FIBERPLANE_OTEL_LOG_LEVEL,
+                // FPX_LOG_LEVEL is the fallback, here for backwards compatibility
+                ENV_FPX_LOG_LEVEL,
+              ]);
           const logger = getLogger(FPX_LOG_LEVEL);
           // NOTE - This should only log if the FPX_LOG_LEVEL is "debug"
           logger.debug("Library debug mode is enabled");
+
+          const FPX_IS_LOCAL = isInLocalMode(
+            env,
+            isFiberplaneEndpointLocalhost,
+          );
+          logger.debug(
+            FPX_IS_LOCAL
+              ? "Library local mode is enabled"
+              : "Library local mode is disabled",
+          );
 
           if (!isEnabled) {
             logger.debug(
@@ -152,8 +184,12 @@ export function instrument(app: HonoLikeApp, config?: FpxConfigOptions) {
             return response;
           }
 
+          // TODO - Could set from url host if we want
           const serviceName =
-            getFromEnv(env, ENV_FPX_SERVICE_NAME) ?? "unknown";
+            getFromEnv(env, [
+              ENV_FIBERPLANE_SERVICE_NAME,
+              ENV_FPX_SERVICE_NAME,
+            ]) ?? "unknown";
 
           // Patch all functions we want to monitor in the runtime
           if (monitorCfBindings) {
@@ -163,7 +199,7 @@ export function instrument(app: HonoLikeApp, config?: FpxConfigOptions) {
             patchConsole();
           }
           if (monitorFetch) {
-            patchFetch();
+            patchFetch({ isLocal: FPX_IS_LOCAL });
           }
 
           const provider = setupTracerProvider({
@@ -179,7 +215,12 @@ export function instrument(app: HonoLikeApp, config?: FpxConfigOptions) {
           //        This will place the request in the promise store, so that we can
           //        send the routes in the background while still ensuring the request
           //        completes as usual.
-          sendRoutes(webStandardFetch, endpoint, app, logger, promiseStore);
+          //
+          // NOTE - We only want to send routes to the local endpoint (Studio), because it's
+          //        not needed for the remote endpoint (Fiberplane API).
+          if (FPX_IS_LOCAL) {
+            sendRoutes(webStandardFetch, endpoint, app, logger, promiseStore);
+          }
 
           // Enable tracing for waitUntil
           const proxyExecutionCtx =
@@ -187,40 +228,10 @@ export function instrument(app: HonoLikeApp, config?: FpxConfigOptions) {
 
           const activeContext = propagateFpxTraceId(request);
 
-          // HACK - Duplicate request to be able to read the body and other metadata
-          //        in the middleware without messing up the original request
-          const clonedRequest = request.clone();
-          const [body1, body2] = clonedRequest.body
-            ? clonedRequest.body.tee()
-            : [null, null];
-
-          // In order to keep `onStart` synchronous (below), we construct
-          // some necessary attributes here, using a cloned request
-          const requestForAttributes = new Request(clonedRequest.url, {
-            method: request.method,
-            headers: new Headers(request.headers),
-            body: body1,
-
-            // NOTE - This is a workaround to support node environments
-            //        Which will throw errors when body is a stream but duplex is not set
-            //        https://github.com/nodejs/node/issues/46221
-            // @ts-expect-error - duplex is available in nodejs-compat but cloudflare types
-            // don't seem to pick it up
-            duplex: body1 ? "half" : undefined,
-          });
-
-          // Replace the original request's body with the second stream
-          const newRequest = new Request(clonedRequest, {
-            body: body2,
-            headers: new Headers(request.headers),
-            method: request.method,
-            // NOTE - This is a workaround to support node environments
-            //        Which will throw errors when body is a stream but duplex is not set
-            //        https://github.com/nodejs/node/issues/46221
-            // @ts-expect-error - duplex is available in nodejs-compat but cloudflare types
-            // don't seem to pick it up
-            duplex: body2 ? "half" : undefined,
-          });
+          const { requestForAttributes, newRequest } =
+            cloneRequestForAttributes(request, {
+              isLocal: FPX_IS_LOCAL,
+            });
 
           // Parse the body and headers for the root request.
           //
@@ -229,6 +240,9 @@ export function instrument(app: HonoLikeApp, config?: FpxConfigOptions) {
           const rootRequestAttributes = await getRootRequestAttributes(
             requestForAttributes,
             env,
+            {
+              isLocal: FPX_IS_LOCAL,
+            },
           );
 
           const measuredFetch = measure(
@@ -237,7 +251,9 @@ export function instrument(app: HonoLikeApp, config?: FpxConfigOptions) {
               spanKind: SpanKind.SERVER,
               onStart: (span, [request]) => {
                 const requestAttributes = {
-                  ...getRequestAttributes(request),
+                  ...getRequestAttributes(request, undefined, {
+                    isLocal: FPX_IS_LOCAL,
+                  }),
                   ...rootRequestAttributes,
                 };
                 span.setAttributes(requestAttributes);
@@ -246,15 +262,15 @@ export function instrument(app: HonoLikeApp, config?: FpxConfigOptions) {
               onSuccess: async (span, response) => {
                 span.addEvent("first-response");
 
-                const attributesResponse = response.clone();
-
                 const updateSpan = async (response: Response) => {
-                  const attributes = await getResponseAttributes(response);
+                  const attributes = await getResponseAttributes(response, {
+                    isLocal: FPX_IS_LOCAL,
+                  });
                   span.setAttributes(attributes);
                   span.end();
                 };
 
-                promiseStore.add(updateSpan(attributesResponse));
+                promiseStore.add(updateSpan(response));
               },
               checkResult: async (result) => {
                 const r = await result;
@@ -312,7 +328,7 @@ function setupTracerProvider(options: {
     ? { Authorization: `Bearer ${options.authToken}` }
     : {};
 
-  const exporter = new OTLPTraceExporter({
+  const exporter = new FPOTLPExporter({
     url: options.endpoint,
     headers,
   });
