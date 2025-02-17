@@ -2,11 +2,13 @@ import path from "node:path";
 import replace from "@rollup/plugin-replace";
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react-swc";
-import { defineConfig, type Plugin } from "vite";
+import { config } from "dotenv";
+import { type Plugin, defineConfig } from "vite";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import svgr from "vite-plugin-svgr";
-import { config } from "dotenv";
-import sampleOpenApiSpec from "./sample-openapi-spec.json" with { type: "json" };
+import sampleOpenApiSpec from "./sample-openapi-spec.json" with {
+  type: "json",
+};
 
 config({ path: "./.dev.vars" });
 
