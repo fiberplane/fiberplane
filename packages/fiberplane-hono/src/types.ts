@@ -1,5 +1,31 @@
 export interface EmbeddedOptions {
   /**
+   * OpenAPI spec to use for the embedded playground.
+   * Pass either a `url` property to the JSON spec document,
+   * or a `content` property to the JSON-stringified spec document.
+   *
+   * @example
+   * ```ts
+   * const app = new Hono();
+   *
+   * // app code...
+   *
+   * app.use('/*', createFiberplane({
+   *   openapi: {
+   *     url: '/openapi.json',
+   *     // or
+   *     content: JSON.stringify({
+   *       openapi: '3.0.0',
+   *       info: { title: 'My API', version: '1.0.0' },
+   *       paths: { ... }
+   *     })
+   *   }
+   * }));
+   * ```
+   */
+  openapi?: OpenAPIOptions;
+
+  /**
    * (Optional) Fiberplane API key to use for the embedded playground api.
    *
    * The middleware will attempt to fall back to the `FIBERPLANE_API_KEY` environment variable if not set as an option.
@@ -13,7 +39,6 @@ export interface EmbeddedOptions {
    * If not provided, the default CDN will be used.
    */
   cdn?: string;
-  openapi?: OpenAPIOptions;
 
   /**
    * Enable debug statements
