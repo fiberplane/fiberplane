@@ -1,4 +1,7 @@
 import type { Env, Hono } from "hono";
+import type { OpenAPIHono } from "@hono/zod-openapi";
+
+type AnyHono<E extends Env> = Hono<E> | OpenAPIHono<E>;
 
 export interface EmbeddedOptions<E extends Env> {
   /**
@@ -19,7 +22,7 @@ export interface EmbeddedOptions<E extends Env> {
   /**
    * The Hono app to use for the embedded runner.
    */
-  app: Hono<E>;
+  app: AnyHono<E>;
   /**
    * Enable debug statements
    */
@@ -31,7 +34,7 @@ export interface ResolvedEmbeddedOptions<E extends Env>
   // cdn is required in resolved options
   mountedPath: string;
   fpxEndpoint?: string;
-  userApp: Hono<E>;
+  userApp: AnyHono<E>;
   userEnv: Env;
   /** URL of the CDN to use for the embedded playground UI */
   cdn: string;
@@ -58,7 +61,7 @@ export interface OpenAPIOptions {
 export interface FiberplaneAppType<E extends Env> {
   Variables: {
     debug: boolean;
-    userApp: Hono<E>;
+    userApp: AnyHono<E>;
     userEnv: E;
   };
 }

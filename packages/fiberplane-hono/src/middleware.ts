@@ -8,9 +8,7 @@ const VERSION = packageJson.version;
 const CDN_URL = `https://cdn.jsdelivr.net/npm/@fiberplane/hono@${VERSION}/dist/playground/`;
 
 export const createFiberplane =
-  <E extends Env & { Variables: { userApp: Hono<E>; userEnv: Env } }>(
-    options: EmbeddedOptions<E>,
-  ): MiddlewareHandler =>
+  <E extends Env>(options: EmbeddedOptions<E>): MiddlewareHandler =>
   async (c, next) => {
     const debug = options.debug ?? false;
     const userApp = options.app;
