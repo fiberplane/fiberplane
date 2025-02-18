@@ -91,7 +91,7 @@ function injectPlaygroundDevConfig(): Plugin {
         mountedPath: "/",
         openapi: {
           // Comment out the url to use the sample OpenAPI spec
-          url: "http://localhost:7676/api/openapi.json",
+          url: "http://localhost:8787/openapi.json",
           // content: JSON.stringify(sampleOpenApiSpec),
         },
       };
