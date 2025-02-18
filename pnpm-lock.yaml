@@ -825,6 +825,9 @@ importers:
 
   packages/fiberplane-hono:
     dependencies:
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.4.7
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -1068,6 +1071,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.5.1)
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.4.7
       globals:
         specifier: ^15.14.0
         version: 15.14.0
