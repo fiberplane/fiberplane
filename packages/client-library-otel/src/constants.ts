@@ -56,10 +56,9 @@ export const FPX_REQUEST_HANDLER_SOURCE_CODE =
 /**
  * OpenTelemetry advises that instrumentations should require explicit configuration of which headers to capture.
  *
- * We want to minimize configuration, so instead,
- * we've chosen to ignore the following headers by default.
+ * We want to minimize configuration, so instead, we've chosen to ignore the following headers by default.
  *
- * In practice, we only redact their values when running in production mode.
+ * In practice, the library only redacts their values when running in "production" mode.
  */
 export const IGNORED_HEADERS = new Set([
   "authorization",

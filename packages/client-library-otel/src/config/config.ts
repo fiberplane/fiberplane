@@ -6,11 +6,11 @@ import {
   getOtelToken,
   getServiceName,
 } from "./resolvers";
-import type { FpxConfig, FpxConfigOptions } from "./types";
+import type { FpxConfig, FpxConfigOptions, FpxMode } from "./types";
 
 export type FpResolvedConfig = {
   enabled: boolean;
-  mode: "local" | "production";
+  mode: FpxMode;
   otelEndpoint: string | null;
   otelToken: string | null;
   logLevel: string | null;
@@ -23,7 +23,7 @@ export type FpResolvedConfig = {
   };
 };
 
-const DEFAULT_CONFIG = Object.freeze({
+export const DEFAULT_CONFIG = Object.freeze({
   libraryDebugMode: false,
   monitor: {
     fetch: true,

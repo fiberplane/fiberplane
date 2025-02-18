@@ -1,4 +1,11 @@
 /**
+ * Runtime mode of the client library.
+ * - "local" mode will send the kitchen sink with every trace: env vars, request bodies, etc.
+ * - "production" mode will attempt to redact sensitive data, and not send request bodies, env vars, etc.
+ */
+export type FpxMode = "local" | "production";
+
+/**
  * The type for the configuration object passed to `instrument`,
  * all properties should be optional.
  *
@@ -7,7 +14,7 @@
 export type FpxConfigOptions = Partial<
   FpxConfig & {
     monitor: Partial<FpxConfig["monitor"]>;
-    mode?: "local" | "production";
+    mode?: FpxMode;
   }
 >;
 /**

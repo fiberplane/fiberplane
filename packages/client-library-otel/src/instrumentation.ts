@@ -9,7 +9,12 @@ import { SEMRESATTRS_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 import type { ExecutionContext } from "hono";
 // TODO figure out if we can use something else
 import { AsyncLocalStorageContextManager } from "./async-hooks";
-import { type FpxConfigOptions, resolveConfig } from "./config";
+import {
+  type FpxConfigOptions,
+  getFpResolvedConfig,
+  resolveConfig,
+  setFpResolvedConfig,
+} from "./config";
 import { FPOTLPExporter } from "./exporter";
 import { getLogger } from "./logger";
 import { measure } from "./measure";
@@ -140,21 +145,21 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
             );
           }
 
-          // Enable tracing for waitUntil
+          // Enable tracing for waitUntil (Cloudflare only - allows us to still trace promises that extend beyond the life of the request itself)
           const proxyExecutionCtx =
             executionContext && patchWaitUntil(executionContext, promiseStore);
 
           const activeContext = propagateFpxTraceId(request);
+          setFpResolvedConfig(activeContext, resolvedConfig);
 
           const { requestForAttributes, newRequest } =
             cloneRequestForAttributes(request, {
               isLocal: FPX_IS_LOCAL,
             });
 
-          // Parse the body and headers for the root request.
-          //
-          // NOTE - This will add some latency, and it will serialize the env object.
-          //        We should not do this in production!
+          // Parse the headers for the root request.
+          // In "local" mode, this will also parse the body, which does add some latency.
+          // NOTE - We invoke this outside of the measure call, so that we can use the cloned request body for attributes in "local" mode
           const rootRequestAttributes = await getRootRequestAttributes(
             requestForAttributes,
             env,
@@ -168,6 +173,10 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
               name: "request",
               spanKind: SpanKind.SERVER,
               onStart: (span, [request]) => {
+                logger.debug(
+                  "root request - onStart - config ",
+                  JSON.stringify(getFpResolvedConfig(), null, 2),
+                );
                 const requestAttributes = {
                   ...getRequestAttributes(request, undefined, {
                     isLocal: FPX_IS_LOCAL,
@@ -178,6 +187,11 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
               },
               endSpanManually: true,
               onSuccess: async (span, response) => {
+                logger.debug(
+                  "root request - onSuccess - config ",
+                  JSON.stringify(getFpResolvedConfig(), null, 2),
+                );
+
                 span.addEvent("first-response");
 
                 const updateSpan = async (response: Response) => {
@@ -236,6 +250,7 @@ function setupTracerProvider(options: {
   const asyncHooksContextManager = new AsyncLocalStorageContextManager();
   asyncHooksContextManager.enable();
   context.setGlobalContextManager(asyncHooksContextManager);
+
   const provider = new BasicTracerProvider({
     resource: new Resource({
       [SEMRESATTRS_SERVICE_NAME]: options.serviceName,
@@ -250,6 +265,7 @@ function setupTracerProvider(options: {
     url: options.endpoint,
     headers,
   });
+
   provider.addSpanProcessor(
     new SimpleSpanProcessor(exporter),
     // new BatchSpanProcessor(exporter, {
@@ -258,5 +274,6 @@ function setupTracerProvider(options: {
     // }),
   );
   provider.register();
+
   return provider;
 }
