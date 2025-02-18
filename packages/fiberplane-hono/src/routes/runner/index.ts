@@ -15,6 +15,48 @@ import {
 } from "./resolvers.js";
 import { resolveOutputs } from "./resolvers.js";
 import { getWorkflowById } from "./utils.js";
+import { HTTPException } from "hono/http-exception";
+
+interface WorkflowErrorResponse {
+  error: {
+    type: "WORKFLOW_ERROR";
+    message: string;
+    details: {
+      stepId: string;
+      method: string;
+      path: string;
+    };
+  };
+}
+
+class WorkflowError extends HTTPException {
+  constructor(
+    status: number,
+    message: string,
+    public readonly stepId: string,
+    public readonly operation: { method: string; path: string },
+    public readonly cause?: unknown,
+  ) {
+    super(status as 400 | 401 | 403 | 404 | 500, {
+      message,
+      cause,
+    });
+  }
+
+  toResponse(): WorkflowErrorResponse {
+    return {
+      error: {
+        type: "WORKFLOW_ERROR",
+        message: this.message,
+        details: {
+          stepId: this.stepId,
+          method: this.operation.method,
+          path: this.operation.path,
+        },
+      },
+    };
+  }
+}
 
 export default function createRunnerRoute<E extends Env>(apiKey: string) {
   const runner = new Hono<E & FiberplaneAppType<E>>().post(
@@ -34,8 +76,15 @@ export default function createRunnerRoute<E extends Env>(apiKey: string) {
         return c.json({ error: errorMessage }, 400);
       }
 
-      const result = await executeWorkflow(workflow, body);
-      return c.json(result);
+      try {
+        const result = await executeWorkflow(workflow, body);
+        return c.json(result);
+      } catch (error) {
+        if (error instanceof WorkflowError) {
+          return c.json(error.toResponse(), error.status);
+        }
+        throw error;
+      }
     },
   );
 
@@ -51,14 +100,34 @@ async function executeWorkflow(
     steps: {},
   };
 
-  // Execute steps sequentially
   for (const step of workflow.steps) {
-    const resolvedParams = await resolveStepParams(step, workflowContext);
-    const response = await executeStep(step, resolvedParams);
-    const outputs = resolveStepOutputs(step, response);
-    workflowContext.steps[step.stepId] = {
-      ...(outputs ? { outputs } : {}),
-    };
+    try {
+      const resolvedParams = await resolveStepParams(step, workflowContext);
+      const response = await executeStep(step, resolvedParams);
+      if (response.statusCode >= 400) {
+        throw new WorkflowError(
+          response.statusCode,
+          `Workflow ${workflow.workflowId} failed. Failed at ${step.stepId}, operation: ${step.operation.method.toUpperCase()} ${step.operation.path}. Error: ${response.body}`,
+          step.stepId,
+          step.operation,
+        );
+      }
+      const outputs = resolveStepOutputs(step, response);
+      workflowContext.steps[step.stepId] = {
+        ...(outputs ? { outputs } : {}),
+      };
+    } catch (error) {
+      if (error instanceof WorkflowError) {
+        throw error;
+      }
+
+      throw new WorkflowError(
+        500,
+        `Workflow ${workflow.workflowId} failed. Failed at ${step.stepId}, operation: ${step.operation.method.toUpperCase()} ${step.operation.path}. Error: ${error}`,
+        step.stepId,
+        step.operation,
+      );
+    }
   }
 
   return resolveOutputs(workflow, workflowContext);
