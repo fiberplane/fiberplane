@@ -79,13 +79,11 @@ export function createOpenAPISpec(
         },
       };
 
-      return {
-        ...paths,
-        [openApiPath]: {
-          ...paths[openApiPath],
-          [methodLower]: operation,
-        },
+      paths[openApiPath] = {
+        ...paths[openApiPath],
+        [methodLower]: operation,
       };
+      return paths;
     }, {} as OpenAPIV3.PathsObject);
 
   return {
