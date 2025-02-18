@@ -18,8 +18,10 @@ export default defineConfig({
   integrations: [
     starlight({
       logo: {
-        src: "@/assets/fp-logo.svg",
-        replacesTitle: false
+        dark: "@/assets/fp-logo-dark.png",
+        light: "@/assets/fp-logo-light.png",
+        replacesTitle: true,
+        alt: "Fiberplane icon logo & text"
       },
       title: "Fiberplane",
       description:
@@ -44,13 +46,52 @@ export default defineConfig({
         {
           label: "nav",
           items: [
-            { link: "/changelog", label: "Changelog" },
+            { link: "/docs/get-started", label: "Docs" },
             { link: "/blog", label: "Blog" },
-            { link: "/docs", label: "Docs" }
+            { link: "/changelog", label: "Changelog" }
           ]
         }
       ],
+      favicon: "/favicon.svg",
       head: [
+        {
+          tag: "link",
+          attrs: {
+            rel: "icon",
+            type: "image/png",
+            href: "/favicon-96x96.png",
+            sizes: "96x96"
+          }
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "shortcut icon",
+            href: "/favicon.ico"
+          }
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "apple-touch-icon",
+            sizes: "180x180",
+            href: "/apple-touch-icon.png"
+          }
+        },
+        {
+          tag: "meta",
+          attrs: {
+            name: "apple-mobile-web-app-title",
+            content: "Fiberplane"
+          }
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "manifest",
+            href: "/site.webmanifest"
+          }
+        },
         {
           tag: "script",
           attrs: {
@@ -74,6 +115,7 @@ export default defineConfig({
       ],
       components: {
         Banner: "@/components/Banner.astro",
+        Head: "@/components/Head.astro",
         Header: "@/components/Header.astro",
         Hero: "@/components/Hero.astro",
         Pagination: "@/components/Pagination.astro",
