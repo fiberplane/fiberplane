@@ -29,24 +29,21 @@ Fogwatch is an [open-source](https://github.com/fiberplane/fogwatch) terminal-ba
 
 ## Key Features
 
-
 Watch your Worker logs as they happen, with zero delay. No more refreshing dashboards or waiting for logs to propagate – see exactly what's happening right now.
-
 
 Fogwatch features a modern, vim-inspired terminal interface that feels natural to developers. Navigate through logs with familiar keybindings (`j`/`k` for scrolling, `h`/`l` for switching views), and enjoy a distraction-free monitoring experience.
 
-
 The status code frequency chart at the top of the interface gives you an immediate visual understanding of your Worker's health. Spot patterns and anomalies at a glance.
 
-
 Quickly focus on what matters with built-in filters:
+
 - Filter by status codes (2xx, 4xx, 5xx)
 - Search through logs
 - Filter by HTTP methods
 - Adjustable sampling rates for high-traffic Workers
 
-
 Configure Fogwatch your way through:
+
 - Command-line arguments
 - Environment variables
 - Configuration files (fogwatch.toml)
@@ -87,12 +84,15 @@ While Cloudflare's dashboard provides basic logging capabilities, Fogwatch bring
 Fogwatch is built with Rust, chosen for its performance, reliability, and excellent async runtime support. The application architecture leverages several key components:
 
 ### Terminal Interface
+
 The UI is powered by [ratatui](https://github.com/ratatui-org/ratatui), a Rust library for building rich terminal user interfaces. This gives us:
+
 - Efficient screen updates with double buffering
 - Cross-platform terminal manipulation
 - Custom widgets for visualizing log data and status code charts
 
 ### Real-time Processing
+
 - Async WebSocket connections handle real-time log streaming
 - Lock-free data structures ensure smooth UI updates even under heavy log volume
 - Event-driven architecture separates UI rendering from log processing
@@ -102,6 +102,7 @@ The combination of Rust's zero-cost abstractions and ratatui's efficient renderi
 ## What's Next?
 
 The roadmap for Fogwatch includes exciting features like:
+
 - Enhanced filtering with path pattern matching and response time filters
 - Expanded analytics with request rate metrics and error tracking
 - Quality of life improvements like auto-reconnect and session persistence
@@ -110,4 +111,4 @@ The roadmap for Fogwatch includes exciting features like:
 
 Whether you're debugging a production issue or monitoring your Workers' performance, Fogwatch provides the visibility you need. Give it a try today and experience a better way to monitor your Cloudflare Workers.
 
-Check out the [GitHub repository](https://github.com/fiberplane/fogwatch) to learn more or contribute to the project. 
+Check out the [GitHub repository](https://github.com/fiberplane/fogwatch) to learn more or contribute to the project.
