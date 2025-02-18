@@ -11,7 +11,6 @@ import type { ExecutionContext } from "hono";
 import { AsyncLocalStorageContextManager } from "./async-hooks";
 import {
   type FpxConfigOptions,
-  getFpResolvedConfig,
   resolveConfig,
   setFpResolvedConfig,
 } from "./config";
