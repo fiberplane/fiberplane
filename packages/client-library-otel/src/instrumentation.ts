@@ -149,8 +149,11 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
           const proxyExecutionCtx =
             executionContext && patchWaitUntil(executionContext, promiseStore);
 
-          const activeContext = propagateFpxTraceId(request);
-          setFpResolvedConfig(activeContext, resolvedConfig);
+          // Create the context for the request
+          // - Propagate the trace ID
+          // - Set the resolved config
+          let activeContext = propagateFpxTraceId(request);
+          activeContext = setFpResolvedConfig(activeContext, resolvedConfig);
 
           const { requestForAttributes, newRequest } =
             cloneRequestForAttributes(request, {

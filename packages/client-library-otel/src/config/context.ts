@@ -19,6 +19,6 @@ export function getFpResolvedConfig(): FpResolvedConfig | undefined {
 export function setFpResolvedConfig(
   context: Context,
   config: FpResolvedConfig,
-) {
-  context.setValue(FPX_CONFIG_KEY, config);
+): Context {
+  return context.setValue(FPX_CONFIG_KEY, config);
 }
