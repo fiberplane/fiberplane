@@ -21,7 +21,7 @@ import type {
   HonoResponse,
   InitParam,
   InputParam,
-} from "../types";
+} from "../types/hono-types";
 import { getPlatformSafeEnv } from "./env";
 import { safelySerializeJSON } from "./json";
 

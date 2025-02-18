@@ -6,7 +6,7 @@ import {
   respondWithRoutes,
   sendRoutes,
 } from "./routes";
-import type { HonoLikeApp, HonoLikeFetch } from "./types";
+import type { HonoLikeApp, HonoLikeFetch } from "./types/hono-types";
 
 describe("routes", () => {
   describe("isRouteInspectorRequest", () => {

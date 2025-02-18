@@ -1,5 +1,5 @@
 import { ENV_FIBERPLANE_ENVIRONMENT } from "../constants";
-import { getFromEnv } from "./env";
+import { getFromEnv } from "../utils";
 
 /**
  * The client library needs to be aware of whether it is in production. In production, we will NOT send certain sensitive data (see below).

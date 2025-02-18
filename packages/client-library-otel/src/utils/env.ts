@@ -1,3 +1,5 @@
+export type FpHonoEnv = Record<string, string | null> | null | undefined;
+
 /**
  * In Hono-node environments, env vars are not available on the `env` object that's passed to `app.fetch`.
  * This helper will also check process.env and Deno.env.toObject() and fallback to that if the env var is not present on the `env` object.

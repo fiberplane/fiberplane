@@ -57,7 +57,11 @@ export function getLogger(level: unknown) {
        */
       acc[level] = (message?: unknown, ...optionalParams: unknown[]) => {
         if (shouldLog(level)) {
-          ourConsole[level]("[@fiberplane]", message, ...optionalParams);
+          ourConsole[level](
+            "[@fiberplane/hono-otel]",
+            message,
+            ...optionalParams,
+          );
         }
       };
       return acc;

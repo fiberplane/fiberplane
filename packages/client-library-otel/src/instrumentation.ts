@@ -7,19 +7,9 @@ import {
 } from "@opentelemetry/sdk-trace-base";
 import { SEMRESATTRS_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 import type { ExecutionContext } from "hono";
-// TODO figure out we can use something else
+// TODO figure out if we can use something else
 import { AsyncLocalStorageContextManager } from "./async-hooks";
-import {
-  ENV_FIBERPLANE_OTEL_ENDPOINT,
-  ENV_FIBERPLANE_OTEL_LOG_LEVEL,
-  ENV_FIBERPLANE_OTEL_TOKEN,
-  ENV_FIBERPLANE_SERVICE_NAME,
-  ENV_FPX_AUTH_TOKEN,
-  ENV_FPX_ENDPOINT,
-  ENV_FPX_LOG_LEVEL,
-  ENV_FPX_SERVICE_NAME,
-} from "./constants";
-// import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { type FpxConfigOptions, resolveConfig } from "./config";
 import { FPOTLPExporter } from "./exporter";
 import { getLogger } from "./logger";
 import { measure } from "./measure";
@@ -38,56 +28,15 @@ import {
 } from "./routes";
 import type { HonoLikeApp, HonoLikeEnv, HonoLikeFetch } from "./types";
 import {
+  type FpHonoEnv,
   cloneRequestForAttributes,
-  getFromEnv,
   getRequestAttributes,
   getResponseAttributes,
   getRootRequestAttributes,
-  isInLocalMode,
 } from "./utils";
 
-/**
- * The type for the configuration object we use to configure the instrumentation
- * Different from @FpxConfigOptions because all properties are required
- *
- * @internal
- */
-type FpxConfig = {
-  /** Enable library debug logging */
-  libraryDebugMode: boolean;
-  monitor: {
-    /** Send data to FPX about each `fetch` call made during a handler's lifetime */
-    fetch: boolean;
-    /** Send data to FPX about each `console.*` call made during a handler's lifetime */
-    logging: boolean;
-    /** Proxy Cloudflare bindings to add instrumentation */
-    cfBindings: boolean;
-  };
-};
-
-/**
- * The type for the configuration object the user might pass to `instrument`
- * Different from @FpxConfig because all properties are optional
- *
- * @public
- */
-type FpxConfigOptions = Partial<
-  FpxConfig & {
-    monitor: Partial<FpxConfig["monitor"]>;
-  }
->;
-
-const defaultConfig = {
-  libraryDebugMode: false,
-  monitor: {
-    fetch: true,
-    logging: true,
-    cfBindings: true,
-  },
-};
-
-export function instrument(app: HonoLikeApp, config?: FpxConfigOptions) {
-  // Freeze the web standard fetch function so that we can use it below to report registered routes back to fpx studio
+export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
+  // Freeze the web standard fetch function so that we can use it without creating new spans
   const webStandardFetch = fetch;
 
   return new Proxy(app, {
@@ -98,98 +47,61 @@ export function instrument(app: HonoLikeApp, config?: FpxConfigOptions) {
         const originalFetch = value as HonoLikeFetch;
         return async function fetch(
           request: Request,
-          // Name this "rawEnv" because we coerce it below into something that's easier to work with
+          // Named this "rawEnv" because we coerce it below
           rawEnv: HonoLikeEnv,
           executionContext?: ExecutionContext,
         ) {
-          // Merge the default config with the user's config
+          // Coerce the rawEnv to an FpHonoEnv, since it's easier to work with
+          const env = rawEnv as FpHonoEnv;
+
+          const resolvedConfig = resolveConfig(userConfig, env);
           const {
-            libraryDebugMode,
+            otelEndpoint,
+            otelToken: authToken,
+            serviceName,
             monitor: {
               fetch: monitorFetch,
               logging: monitorLogging,
               cfBindings: monitorCfBindings,
             },
-          } = mergeConfigs(defaultConfig, config);
+          } = resolvedConfig;
 
-          const env = rawEnv as
-            | undefined
-            | null
-            | Record<string, string | null>;
+          const logger = getLogger(resolvedConfig.logLevel);
+          // NOTE - Only prints if debug mode is enabled
+          logger.debug("Library debug logging is enabled");
 
-          // NOTE - We do *not* want to have a default for the FIBERPLANE_OTEL_ENDPOINT (prev: FPX_ENDPOINT),
-          //        so that people won't accidentally deploy to production with our middleware and
-          //        start sending data to the default url.
-          const endpoint = getFromEnv(env, [
-            ENV_FIBERPLANE_OTEL_ENDPOINT,
-            ENV_FPX_ENDPOINT,
-          ]);
-          const isEnabled = !!endpoint && typeof endpoint === "string";
-          const isFiberplaneEndpointLocalhost: boolean =
-            endpoint?.includes("localhost") ?? false;
+          logger.debug(`mode: ${resolvedConfig.mode}`);
 
-          const authToken = getFromEnv(env, [
-            // FIBERPLANE_OTEL_TOKEN takes precedence over FPX_AUTH_TOKEN
-            ENV_FIBERPLANE_OTEL_TOKEN,
-            // FPX_AUTH_TOKEN is the fallback, here for backwards compatibility
-            ENV_FPX_AUTH_TOKEN,
-          ]);
-
-          const FPX_LOG_LEVEL = libraryDebugMode
-            ? "debug"
-            : getFromEnv(env, [
-                // FIBERPLANE_OTEL_LOG_LEVEL takes precedence over FPX_LOG_LEVEL
-                ENV_FIBERPLANE_OTEL_LOG_LEVEL,
-                // FPX_LOG_LEVEL is the fallback, here for backwards compatibility
-                ENV_FPX_LOG_LEVEL,
-              ]);
-          const logger = getLogger(FPX_LOG_LEVEL);
-          // NOTE - This should only log if the FPX_LOG_LEVEL is "debug"
-          logger.debug("Library debug mode is enabled");
-
-          const FPX_IS_LOCAL = isInLocalMode(
-            env,
-            isFiberplaneEndpointLocalhost,
-          );
-          logger.debug(
-            FPX_IS_LOCAL
-              ? "Library local mode is enabled"
-              : "Library local mode is disabled",
-          );
-
-          if (!isEnabled) {
+          if (!resolvedConfig.enabled || !otelEndpoint) {
             logger.debug(
-              "@fiberplane/hono-otel is missing FPX_ENDPOINT. Skipping instrumentation",
+              "missing FIBERPLANE_OTEL_ENDPOINT. Skipping instrumentation",
             );
             return await originalFetch(request, rawEnv, executionContext);
           }
 
           // Ignore instrumentation for requests that have the x-fpx-ignore header
-          // This is useful for not triggering infinite loops when the OpenAPI spec is fetched from Studio
+          // This is a useful escape hatch, please keep that in mind if you're tempted to remove it.
           if (request.headers.get("x-fpx-ignore")) {
-            logger.debug("Ignoring request");
+            logger.debug(
+              "Ignoring request due to x-fpx-ignore header: ",
+              request.url?.toString?.(),
+            );
             return await originalFetch(request, rawEnv, executionContext);
           }
 
-          // If the request is from the route inspector, send latest routes to the Studio API and respond with 200 OK
+          // If the request is from the Fiberplane Studio route inspector,
+          // send latest routes to the Studio API and respond with 200 OK
           if (isRouteInspectorRequest(request)) {
-            logger.debug("Responding to route inspector request");
             const response = await respondWithRoutes(
               webStandardFetch,
-              endpoint,
+              otelEndpoint,
               app,
               logger,
             );
-            logger.debug("Response from route submission", response);
             return response;
           }
 
-          // TODO - Could set from url host if we want
-          const serviceName =
-            getFromEnv(env, [
-              ENV_FIBERPLANE_SERVICE_NAME,
-              ENV_FPX_SERVICE_NAME,
-            ]) ?? "unknown";
+          const FPX_IS_LOCAL = resolvedConfig.mode === "local";
 
           // Patch all functions we want to monitor in the runtime
           if (monitorCfBindings) {
@@ -204,7 +116,7 @@ export function instrument(app: HonoLikeApp, config?: FpxConfigOptions) {
 
           const provider = setupTracerProvider({
             serviceName,
-            endpoint,
+            endpoint: otelEndpoint,
             authToken: authToken || undefined,
           });
 
@@ -219,7 +131,13 @@ export function instrument(app: HonoLikeApp, config?: FpxConfigOptions) {
           // NOTE - We only want to send routes to the local endpoint (Studio), because it's
           //        not needed for the remote endpoint (Fiberplane API).
           if (FPX_IS_LOCAL) {
-            sendRoutes(webStandardFetch, endpoint, app, logger, promiseStore);
+            sendRoutes(
+              webStandardFetch,
+              otelEndpoint,
+              app,
+              logger,
+              promiseStore,
+            );
           }
 
           // Enable tracing for waitUntil
@@ -341,22 +259,4 @@ function setupTracerProvider(options: {
   );
   provider.register();
   return provider;
-}
-
-/**
- * Last-in-wins deep merge for FpxConfig
- */
-function mergeConfigs(
-  fallbackConfig: FpxConfig,
-  userConfig?: FpxConfigOptions,
-): FpxConfig {
-  const libraryDebugMode =
-    typeof userConfig?.libraryDebugMode === "boolean"
-      ? userConfig.libraryDebugMode
-      : fallbackConfig.libraryDebugMode;
-
-  return {
-    libraryDebugMode,
-    monitor: Object.assign(fallbackConfig.monitor, userConfig?.monitor),
-  };
 }

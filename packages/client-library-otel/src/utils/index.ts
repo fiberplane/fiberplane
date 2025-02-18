@@ -1,9 +1,8 @@
-export { getFromEnv } from "./env";
+export { getFromEnv, type FpHonoEnv } from "./env";
 export * from "./errors";
 export * from "./json";
 export * from "./request";
 export * from "./wrapper";
-export { isInLocalMode } from "./local-mode";
 export { cloneResponse } from "./response";
 
 export function isPromiseLike<T>(value: unknown): value is PromiseLike<T> {
