@@ -176,10 +176,6 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
               name: "request",
               spanKind: SpanKind.SERVER,
               onStart: (span, [request]) => {
-                logger.debug(
-                  "root request - onStart - config ",
-                  JSON.stringify(getFpResolvedConfig(), null, 2),
-                );
                 const requestAttributes = {
                   ...getRequestAttributes(request, undefined, {
                     isLocal: FPX_IS_LOCAL,
@@ -190,11 +186,6 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
               },
               endSpanManually: true,
               onSuccess: async (span, response) => {
-                logger.debug(
-                  "root request - onSuccess - config ",
-                  JSON.stringify(getFpResolvedConfig(), null, 2),
-                );
-
                 span.addEvent("first-response");
 
                 const updateSpan = async (response: Response) => {
