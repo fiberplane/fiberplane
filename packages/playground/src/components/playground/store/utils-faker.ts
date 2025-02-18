@@ -1,22 +1,35 @@
-import type {
-  OpenAPIOperation,
-  OpenAPISchema,
-} from "../RequestPanel/RouteDocumentation";
-import { extractPathParams } from "./utils";
+import {
+  type SupportedOperationObject,
+  type SupportedParameterObject,
+  type SupportedSchemaObject,
+  isSupportedParameterObject,
+  isSupportedRequestBodyObject,
+  isSupportedSchemaObject,
+} from "@/lib/isOpenApi";
+import type { KeyValueElement } from "./types";
+import { extractPathParameterKeys } from "./utils";
 
+type OutputData = {
+  value: string;
+  parameter: SupportedParameterObject;
+};
 type FakeDataOutput = {
-  queryParams: Record<string, string>;
-  headers: Record<string, string>;
-  pathParams: Record<string, string>;
+  queryParams: Record<string, OutputData>;
+  headers: Record<string, OutputData>;
+  pathParams: Record<string, OutputData>;
   body: unknown;
 };
 
 function generateSmartFakeValue(
-  schema: OpenAPISchema,
+  schema: SupportedSchemaObject,
   fieldName: string,
 ): unknown {
   // Handle array type
-  if (schema.type === "array" && schema.items) {
+  if (
+    schema.type === "array" &&
+    schema.items &&
+    isSupportedSchemaObject(schema.items)
+  ) {
     return [generateSmartFakeValue(schema.items, `${fieldName}Item`)];
   }
 
@@ -82,7 +95,7 @@ function generateSmartFakeValue(
 }
 
 export function generateFakeData(
-  routeSpec: OpenAPIOperation,
+  routeSpec: SupportedOperationObject,
   path: string,
 ): FakeDataOutput {
   const output: FakeDataOutput = {
@@ -93,57 +106,90 @@ export function generateFakeData(
   };
 
   // Handle path parameters
-  const pathParamNames = extractPathParams(path);
+  const pathParamNames = extractPathParameterKeys(path);
   const pathParamSpecs =
-    routeSpec.parameters?.filter((p) => p.in === "path") || [];
+    routeSpec.parameters?.filter(
+      (p) => isSupportedParameterObject(p) && p.in === "path",
+    ) || [];
 
   // Map path parameters to their specs if available
   for (const paramName of pathParamNames) {
-    const paramSpec = pathParamSpecs.find((p) => p.name === paramName);
-    if (paramSpec?.schema) {
-      output.pathParams[paramName] = String(
-        generateSmartFakeValue(paramSpec.schema, paramName),
-      );
+    const paramSpec = pathParamSpecs.find(
+      (p) => isSupportedParameterObject(p) && p.name === paramName,
+    ) as SupportedParameterObject | undefined;
+    if (paramSpec?.schema && isSupportedSchemaObject(paramSpec.schema)) {
+      output.pathParams[paramName] = {
+        value: String(generateSmartFakeValue(paramSpec.schema, paramName)),
+        parameter: paramSpec,
+      };
     } else {
       // Fallback if no spec is found - generate based on name
-      output.pathParams[paramName] = String(
-        generateSmartFakeValue({ type: "string" }, paramName),
-      );
+      output.pathParams[paramName] = {
+        value: String(generateSmartFakeValue({ type: "string" }, paramName)),
+        parameter: paramSpec ?? {
+          name: paramName,
+          in: "path",
+        },
+      };
     }
   }
 
   // Handle query and header parameters
   if (routeSpec.parameters) {
-    for (const param of routeSpec.parameters) {
-      const fakeValue = generateSmartFakeValue(param.schema || {}, param.name);
+    const parameters = routeSpec.parameters.filter(
+      isSupportedParameterObject,
+    ) as Array<SupportedParameterObject>;
+    for (const param of parameters) {
+      const fakeValue = generateSmartFakeValue(
+        param.schema && isSupportedSchemaObject(param.schema)
+          ? param.schema
+          : {},
+        isSupportedParameterObject(param) ? param.name : "",
+      );
 
       if (param.in === "query") {
-        output.queryParams[param.name] = String(fakeValue);
+        output.queryParams[param.name] = {
+          value: String(fakeValue),
+          parameter: param,
+        };
       } else if (param.in === "header") {
-        output.headers[param.name] = String(fakeValue);
+        output.headers[param.name] = {
+          value: String(fakeValue),
+          parameter: param,
+        };
       }
     }
   }
 
   // Handle request body
   if (
-    routeSpec.requestBody?.content &&
+    routeSpec.requestBody &&
+    isSupportedRequestBodyObject(routeSpec.requestBody) &&
+    routeSpec.requestBody.content &&
     "application/json" in routeSpec.requestBody.content
   ) {
     const bodySchema = routeSpec.requestBody.content["application/json"].schema;
-    output.body = generateSmartFakeValue(bodySchema, "root");
+    if (bodySchema && isSupportedSchemaObject(bodySchema)) {
+      output.body = generateSmartFakeValue(bodySchema, "root");
+    }
   }
 
   return output;
 }
 
-export function transformToFormParams(record: Record<string, string>) {
-  return Object.entries(record).map(([key, value]) => ({
-    key,
-    id: crypto.randomUUID(),
-    value,
-    enabled: true,
-  }));
+export function transformToFormParams(record: Record<string, OutputData>) {
+  return Object.entries(record).map(
+    ([key, data]): KeyValueElement => ({
+      key,
+      id: crypto.randomUUID(),
+      data: {
+        type: "string" as const,
+        value: data.value,
+      },
+      enabled: true,
+      parameter: data.parameter,
+    }),
+  );
 }
 
 export function transformToFormBody(body: unknown) {

@@ -1,7 +1,6 @@
+import type { SupportedParameterObject } from "@/lib/isOpenApi";
 import { z } from "zod";
-import { ApiRouteSchema } from "../types";
-import { PlaygroundBodySchema } from "./request-body";
-import { RequestsPanelTabSchema, ResponsePanelTabSchema } from "./tabs";
+import type { StudioState } from "./slices";
 
 const PlaygroundResponseBodySchema = z.discriminatedUnion("type", [
   z.object({
@@ -66,68 +65,45 @@ export type PlaygroundActiveResponse = z.infer<
   typeof PlaygroundActiveResponseSchema
 >;
 
-export const KeyValueParameterSchema = z.object({
-  id: z.string(),
-  key: z.string(),
-  value: z.string(),
-  enabled: z.boolean(),
-});
-
 /**
- * A "key-value parameter" is a record containing `key` and `value` properties.
+ * A "key-value element" is a record containing `key` and `value` properties.
  * It can be used to represent things like query parameters or headers.
  */
-export type KeyValueParameter = z.infer<typeof KeyValueParameterSchema>;
+export type KeyValueElement = {
+  id: string;
+  key: string;
+  data:
+    | {
+        type: "string";
+        value: string;
+      }
+    | {
+        type: "file";
+        value: File | undefined;
+      };
+  enabled: boolean;
+  parameter: SupportedParameterObject;
+};
 
-export const PlaygroundStateSchema = z.object({
-  appRoutes: z.array(ApiRouteSchema).describe("All routes"),
-  activeRoute: ApiRouteSchema.nullable().describe(
-    "Indicates which route to highlight in the routes panel",
-  ),
+export type PlaygroundState = StudioState;
 
-  // Request form
-  serviceBaseUrl: z.string().describe("Base URL for requests"),
-  apiCallState: z.record(
-    z.string(),
-    z
-      .object({
-        body: PlaygroundBodySchema.describe("Body"),
-        pathParams: z
-          .array(KeyValueParameterSchema)
-          .describe("Path parameters and their corresponding values"),
-        queryParams: z
-          .array(KeyValueParameterSchema)
-          .describe("Query parameters to be sent with the request"),
-        requestHeaders: z
-          .array(KeyValueParameterSchema)
-          .describe("Headers to be sent with the request"),
-        // NOTE - This is used to force us to show a response body for a request that was most recently made
-        activeResponse: PlaygroundActiveResponseSchema.nullable().describe(
-          "The response to show in the response panel",
-        ),
-      })
-      .describe(
-        "Form data for a request against a given route, allows us to scope form data by route",
-      ),
-  ),
-
-  // Tabs
-  activeRequestsPanelTab: RequestsPanelTabSchema.describe(
-    "The tab to show in the requests panel",
-  ),
-  visibleRequestsPanelTabs: z
-    .array(RequestsPanelTabSchema)
-    .describe("The tabs to show in the requests panel"),
-
-  activeResponsePanelTab: ResponsePanelTabSchema.describe(
-    "The tab to show in the response panel",
-  ),
-  visibleResponsePanelTabs: z
-    .array(ResponsePanelTabSchema)
-    .describe("The tabs to show in the response panel"),
-});
-
-export type PlaygroundState = z.infer<typeof PlaygroundStateSchema>;
-
-export type PlaygroundBody = z.infer<typeof PlaygroundBodySchema>;
+export type PlaygroundBody =
+  | {
+      type: "text";
+      value?: string;
+    }
+  | {
+      type: "json";
+      value?: string;
+    }
+  | {
+      type: "form-data";
+      isMultipart: boolean;
+      value: Array<KeyValueElement>;
+    }
+  | {
+      type: "file";
+      value?: File;
+    };
+export type PlaygroundBodyType = PlaygroundBody["type"];
 export type NavigationRoutesView = "list" | "fileTree";

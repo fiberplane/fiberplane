@@ -7,13 +7,11 @@ import {
 } from "@/components/ui/tabs";
 import { cn } from "@/utils";
 import { EraserIcon } from "@radix-ui/react-icons";
-import { memo, useMemo } from "react";
-import { FormDataForm } from "../FormDataForm";
+import { memo } from "react";
 import { KeyValueForm } from "../KeyValueForm";
 import type { PlaygroundBody, RequestsPanelTab } from "../store";
 import { BottomToolbar } from "./BottomToolbar";
 import { FileUploadForm } from "./FileUploadForm";
-import { PathParamForm } from "./PathParamForm";
 import "./styles.css";
 import {
   CodeMirrorJsonEditor,
@@ -24,7 +22,7 @@ import { useStudioStore } from "../store";
 import { useApiCallData } from "../store/hooks/useApiCallData";
 import { AuthSelector } from "./AuthSelector";
 import { Faker } from "./Faker";
-import { RouteDocumentation, isOpenApiOperation } from "./RouteDocumentation";
+import { RouteDocumentation } from "./RouteDocumentation";
 
 type RequestPanelProps = {
   onSubmit: () => void;
@@ -36,31 +34,29 @@ export const RequestPanel = memo(function RequestPanel(
   const { onSubmit } = props;
 
   const {
-    setCurrentBody: setBody,
-    setCurrentRequestHeaders: setRequestHeaders,
-    setCurrentQueryParams: setQueryParams,
-    setCurrentPathParams: setPathParams,
-    clearCurrentPathParams: clearPathParams,
-    handleRequestBodyTypeChange,
     activeRequestsPanelTab,
-    setActiveRequestsPanelTab,
-    visibleRequestsPanelTabs,
     activeRoute,
-    togglePanel,
+    clearCurrentPathParams: clearPathParams,
     fillInFakeData,
+    setActiveRequestsPanelTab,
+    setCurrentBody: setBody,
+    setCurrentPathParams: setPathParams,
+    setCurrentQueryParams: setQueryParams,
+    setCurrentRequestHeaders: setRequestHeaders,
+    togglePanel,
+    visibleRequestsPanelTabs,
   } = useStudioStore(
-    "setCurrentBody",
-    "setCurrentRequestHeaders",
-    "setCurrentQueryParams",
-    "setCurrentPathParams",
-    "clearCurrentPathParams",
-    "handleRequestBodyTypeChange",
     "activeRequestsPanelTab",
-    "setActiveRequestsPanelTab",
-    "visibleRequestsPanelTabs",
     "activeRoute",
-    "togglePanel",
+    "clearCurrentPathParams",
     "fillInFakeData",
+    "setActiveRequestsPanelTab",
+    "setCurrentBody",
+    "setCurrentPathParams",
+    "setCurrentQueryParams",
+    "setCurrentRequestHeaders",
+    "togglePanel",
+    "visibleRequestsPanelTabs",
   );
 
   const { body, pathParams, queryParams, requestHeaders } = useApiCallData(
@@ -84,15 +80,7 @@ export const RequestPanel = memo(function RequestPanel(
   };
 
   const shouldShowBody = shouldShowRequestTab("body");
-  const openApiSpec = useMemo(() => {
-    try {
-      return JSON.parse(activeRoute?.openApiSpec ?? "{}");
-    } catch (_e) {
-      return null;
-    }
-  }, [activeRoute?.openApiSpec]);
-  const shouldShowDocs = isOpenApiOperation(openApiSpec);
-
+  const showDocs = !!activeRoute;
   return (
     <FpTabs
       value={activeRequestsPanelTab}
@@ -129,7 +117,7 @@ export const RequestPanel = memo(function RequestPanel(
             </span>
           )}
         </FpTabsTrigger>
-        {shouldShowDocs && <FpTabsTrigger value="docs">Docs</FpTabsTrigger>}
+        {showDocs && <FpTabsTrigger value="docs">Docs</FpTabsTrigger>}
 
         <div className="flex items-center justify-end flex-grow ml-auto">
           <Faker />
@@ -150,10 +138,8 @@ export const RequestPanel = memo(function RequestPanel(
         />
         <KeyValueForm
           keyPlaceholder="param_name"
-          keyValueParameters={queryParams}
-          onChange={(params) => {
-            setQueryParams(params);
-          }}
+          keyValueElements={queryParams}
+          onChange={(params) => setQueryParams(params)}
           onSubmit={onSubmit}
           handleCmdG={fillInFakeData}
           handleCmdB={toggleSideBar}
@@ -165,9 +151,9 @@ export const RequestPanel = memo(function RequestPanel(
               handleClearData={clearPathParams}
               className="mt-4"
             />
-            <PathParamForm
+            <KeyValueForm
               keyPlaceholder="param_name"
-              keyValueParameters={pathParams}
+              keyValueElements={pathParams}
               onChange={(params) => {
                 setPathParams(params);
               }}
@@ -190,7 +176,7 @@ export const RequestPanel = memo(function RequestPanel(
         />
         <KeyValueForm
           keyPlaceholder="header-name"
-          keyValueParameters={requestHeaders}
+          keyValueElements={requestHeaders}
           onChange={(headers) => {
             setRequestHeaders(headers);
           }}
@@ -237,8 +223,9 @@ export const RequestPanel = memo(function RequestPanel(
             />
           )}
           {body.type === "form-data" && (
-            <FormDataForm
-              keyValueParameters={body.value}
+            <KeyValueForm
+              keyValueElements={body.value}
+              showFileSelector
               onChange={(params) => {
                 const requestBody = {
                   type: "form-data" as const,
@@ -266,15 +253,16 @@ export const RequestPanel = memo(function RequestPanel(
           )}
         </FpTabsContent>
       )}
-      {shouldShowDocs && (
+      {showDocs && (
         <FpTabsContent value="docs">
-          <RouteDocumentation openApiSpec={openApiSpec} route={activeRoute} />
+          <RouteDocumentation
+            operation={activeRoute.operation}
+            route={activeRoute}
+          />
         </FpTabsContent>
       )}
 
-      <BottomToolbar
-        handleRequestBodyTypeChange={handleRequestBodyTypeChange}
-      />
+      <BottomToolbar />
     </FpTabs>
   );
 });

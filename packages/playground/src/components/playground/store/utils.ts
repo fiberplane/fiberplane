@@ -1,16 +1,16 @@
-import type { findMatchedRoute } from "../routes";
 import type { ApiRoute } from "../types";
 import type { RequestMethod } from "../types";
 import type { Authorization } from "./slices/settingsSlice";
-import type { KeyValueParameter, PlaygroundState } from "./types";
+import type { KeyValueElement, PlaygroundState } from "./types";
 
-export const _getActiveRoute = (state: PlaygroundState): ApiRoute => {
+export const rawGetActiveRoute = (state: PlaygroundState): ApiRoute => {
   return (
     state.activeRoute ?? {
-      id: Number.NEGATIVE_INFINITY,
+      // id: Number.NEGATIVE_INFINITY,
       path: "",
       method: "GET",
-      openApiSpec: null,
+      operation: {},
+      // openApiSpec: null,
     }
   );
 };
@@ -46,7 +46,7 @@ export function apiRouteToInputMethod(route: ApiRoute): RequestMethod {
  * @param path
  * @returns
  */
-export function extractPathParams(path: string) {
+export function extractPathParameterKeys(path: string) {
   const regex = /\/{([^}]+)}/g;
 
   const result: Array<string> = [];
@@ -71,33 +71,22 @@ export function extractPathParams(path: string) {
   return result;
 }
 
-export function mapPathParamKey(key: string) {
-  return { key, value: "", id: key, enabled: false };
-}
-
-export function extractMatchedPathParams(
-  matchedRoute: ReturnType<typeof findMatchedRoute>,
-) {
-  return Object.entries(matchedRoute?.pathParams ?? {}).map(([key, value]) => {
-    const nextValue = value === `{${key}}` ? "" : value;
-    return {
-      ...mapPathParamKey(key),
-      value: nextValue,
-      enabled: !!nextValue,
-    };
-  });
-}
-
 /**
  * Given an OpenAPI path and a list of path parameters,
  * replace the path parameters in the path with the actual values
  */
 export function resolvePathWithParameters(
   path: string,
-  pathParams: KeyValueParameter[],
+  pathParams: KeyValueElement[],
 ) {
   return pathParams.reduce((acc, param) => {
-    return acc.replace(`{${param.key}}`, encodeURIComponent(param.value));
+    if (param.data.type === "file") {
+      console.warn(
+        "Files are not supported in path (source: `resolvePathWithParameters`)",
+      );
+      return acc;
+    }
+    return acc.replace(`{${param.key}}`, encodeURIComponent(param.data.value));
   }, path);
 }
 

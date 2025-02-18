@@ -1,7 +1,15 @@
+import {
+  type SupportedMediaTypeObject,
+  type SupportedParameterObject,
+  type SupportedSchemaObject,
+  isSupportedParameterObject,
+  isSupportedSchemaObject,
+} from "@/lib/isOpenApi";
 import { z } from "zod";
 import { enforceTerminalDraftParameter } from "../KeyValueForm";
+import { createKeyValueElement } from "../KeyValueForm/data";
 import type { ApiRoute } from "../types";
-import type { KeyValueParameter, PlaygroundBody } from "./types";
+import type { KeyValueElement, PlaygroundBody } from "./types";
 
 /**
  * Filters query parameters to only include those that are either enabled or have a value
@@ -11,57 +19,50 @@ import type { KeyValueParameter, PlaygroundBody } from "./types";
  * @returns Filtered array of parameters with a terminal draft parameter
  */
 export function filterDisabledEmptyQueryParams(
-  currentQueryParams: KeyValueParameter[],
+  currentQueryParams: KeyValueElement[],
 ) {
   return enforceTerminalDraftParameter(
-    currentQueryParams.filter((param) => param.enabled || !!param.value),
+    currentQueryParams.filter((param) => param.enabled || !!param.data.value),
   );
 }
 
 /**
- * Extracts and merges query parameters from an OpenAPI specification with existing parameters
+ * Extracts and merges query parameters from an OpenAPI specification with current (key value) elements
  *
- * @param currentQueryParams - Current array of key-value parameters
+ * @param currentElements - Current array of key-value elements
  * @param route - Route object containing OpenAPI specification and path
  * @returns Merged array of parameters with a terminal draft parameter
  */
 export function extractQueryParamsFromOpenApiDefinition(
-  currentQueryParams: KeyValueParameter[],
+  currentElements: KeyValueElement[],
   route: ApiRoute,
 ) {
-  if (!route.openApiSpec) {
-    return enforceTerminalDraftParameter(currentQueryParams);
-  }
-
-  const parsedSpec = safeParseOpenApiSpec(route.openApiSpec, route.path);
-  if (!parsedSpec) {
-    return enforceTerminalDraftParameter(currentQueryParams);
-  }
+  const parameters = [
+    ...(route.parameters ?? []),
+    ...(route.operation.parameters || []),
+  ];
 
   // Extract query parameters from OpenAPI spec
   const specQueryParams =
-    parsedSpec.parameters?.filter((param) => param.in === "query") ?? [];
+    (parameters?.filter(
+      (param) => isSupportedParameterObject(param) && param.in === "query",
+    ) as Array<SupportedParameterObject>) ?? [];
 
-  // Convert OpenAPI params to KeyValueParameter format
-  const openApiQueryParams: KeyValueParameter[] = specQueryParams.map(
-    (param) => ({
-      id: param.name,
-      key: param.name,
-      value: param.schema.example?.toString() ?? "",
-      enabled: param.required,
-    }),
+  // Convert OpenAPI params to KeyValueElement format
+  const openApiQueryParams: Array<KeyValueElement> = specQueryParams.map(
+    (parameter) => createKeyValueElement(parameter.name, undefined, parameter),
   );
 
   // Merge with existing parameters, preferring existing values
   const mergedParams = openApiQueryParams.map((openApiParam) => {
-    const existingParam = currentQueryParams.find(
+    const existingParam = currentElements.find(
       (p) => p.key === openApiParam.key,
     );
     return existingParam ?? openApiParam;
   });
 
   // Add any existing parameters that weren't in the OpenAPI spec
-  const additionalParams = currentQueryParams.filter(
+  const additionalParams = currentElements.filter(
     (param) => !openApiQueryParams.some((p) => p.key === param.key),
   );
 
@@ -80,52 +81,87 @@ const JsonSchemaProperty: JsonSchemaPropertyType = z.object({
   required: z.array(z.string()).optional(),
 });
 
-const OpenApiParameterSchema = z.object({
-  parameters: z
-    .array(
-      z.object({
-        schema: z.object({
-          type: z.string(),
-          example: z.any().optional(),
-        }),
-        required: z.boolean(),
-        name: z.string(),
-        in: z.enum(["path", "query", "header", "cookie"]),
-      }),
-    )
-    .optional(),
-  requestBody: z
-    .object({
-      content: z.object({
-        "application/json": z.object({
-          schema: JsonSchemaProperty,
-        }),
-      }),
-    })
-    .optional(),
-  responses: z.record(z.string(), z.any()).optional(),
-});
+const SUPPORTED_FORM_DATA_SCHEMA_TYPES = [
+  "string",
+  "number",
+  "integer",
+  "boolean",
+] as const;
 
-/**
- * Validates and parses an OpenAPI specification string against a defined schema
- * @param openApiSpec - OpenAPI specification as a JSON string
- * @param routePath - Route path for error logging purposes
- * @returns Parsed OpenAPI specification object or null if parsing fails
- */
-function safeParseOpenApiSpec(openApiSpec: string, routePath: string) {
-  try {
-    const spec = JSON.parse(openApiSpec);
-    const parsedSpec = OpenApiParameterSchema.safeParse(spec);
-    if (!parsedSpec.success) {
-      console.warn(
-        `Data in openApiSpec for ${routePath} was not in expected format. Here is the error: ${parsedSpec.error?.format?.()}`,
-      );
-      return null;
+type SupportedFormDataSchemaTypes =
+  (typeof SUPPORTED_FORM_DATA_SCHEMA_TYPES)[number];
+
+export function extractFormDataFromOpenApiDefinition(
+  mediaType: SupportedMediaTypeObject,
+): PlaygroundBody {
+  const values: Array<KeyValueElement> = [];
+  if (mediaType.schema && isSupportedSchemaObject(mediaType.schema)) {
+    const schema = mediaType.schema;
+    if (schema.type === "object") {
+      if (schema.additionalProperties) {
+        console.warn(
+          "Additional properties detected, but aren't handled currently",
+        );
+      }
+
+      const { properties = {} } = schema;
+      for (const key of Object.keys(properties)) {
+        const propertySchema = properties[key];
+        if (!isSupportedSchemaObject(propertySchema)) {
+          continue;
+        }
+
+        // Const supported types
+        const propertySchemaType = propertySchema.type || "";
+        if (
+          !Array.isArray(propertySchemaType) &&
+          SUPPORTED_FORM_DATA_SCHEMA_TYPES.includes(
+            propertySchemaType as SupportedFormDataSchemaTypes,
+          )
+        ) {
+          const parameter = {
+            name: key,
+            description: propertySchema.description,
+            in: "formData",
+            schema: {
+              type: propertySchemaType as SupportedFormDataSchemaTypes,
+              description: propertySchema.description,
+              format: propertySchema.format,
+              default: propertySchema.default,
+              // Numeric validation
+              minimum: propertySchema.minimum,
+              maximum: propertySchema.maximum,
+              exclusiveMinimum: !!propertySchema.exclusiveMinimum,
+              exclusiveMaximum: !!propertySchema.exclusiveMaximum,
+              multipleOf: propertySchema.multipleOf,
+              // String validation
+              pattern: propertySchema.pattern,
+              minLength: propertySchema.minLength,
+              maxLength: propertySchema.maxLength,
+              // Enums
+              enum: propertySchema.enum,
+              // Metadata
+              title: propertySchema.title,
+              deprecated: propertySchema.deprecated,
+              readOnly: propertySchema.readOnly,
+              writeOnly: propertySchema.writeOnly,
+              example: propertySchema.example,
+            },
+          };
+
+          const newParameter = createKeyValueElement(key, undefined, parameter);
+          newParameter.enabled = !!schema.required?.includes(key);
+          values.push(newParameter);
+        }
+      }
     }
-    return parsedSpec.data;
-  } catch {
-    return null;
   }
+
+  return {
+    type: "form-data",
+    isMultipart: true,
+    value: enforceTerminalDraftParameter(values),
+  };
 }
 
 /**
@@ -137,29 +173,13 @@ function safeParseOpenApiSpec(openApiSpec: string, routePath: string) {
  */
 export function extractJsonBodyFromOpenApiDefinition(
   currentBody: PlaygroundBody,
-  route: ApiRoute,
+  mediaType: SupportedMediaTypeObject,
 ): PlaygroundBody {
-  // If no OpenAPI spec exists, return current body
-  if (!route.openApiSpec) {
+  const schema = mediaType.schema;
+  if (!schema || !isSupportedSchemaObject(schema)) {
     return currentBody;
   }
 
-  // FIXME - Just skip modifying file or form data bodies
-  if (currentBody.type === "file" || currentBody.type === "form-data") {
-    return currentBody;
-  }
-
-  // If current body is not empty return current body
-  if (currentBody.value?.trim()) {
-    return currentBody;
-  }
-
-  const parsedSpec = safeParseOpenApiSpec(route.openApiSpec, route.path);
-  if (!parsedSpec?.requestBody?.content?.["application/json"]?.schema) {
-    return currentBody;
-  }
-
-  const schema = parsedSpec.requestBody.content["application/json"].schema;
   try {
     const sampleBody = generateSampleFromSchema(schema);
     return {
@@ -167,13 +187,13 @@ export function extractJsonBodyFromOpenApiDefinition(
       value: JSON.stringify(sampleBody, null, 2),
     };
   } catch (error) {
-    console.warn(`Failed to generate sample body for ${route.path}:`, error);
+    console.warn("Failed to generate sample body", error);
     return currentBody;
   }
 }
 
 function generateSampleFromSchema(
-  schema: z.infer<typeof JsonSchemaProperty>,
+  schema: SupportedSchemaObject,
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 ): any {
   if (schema.example !== undefined) {
