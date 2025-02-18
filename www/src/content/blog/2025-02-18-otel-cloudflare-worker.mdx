@@ -12,7 +12,7 @@ tags:
 
 import PackageManagers from "@/components/PackageManagers.astro";
 import { LinkCard } from "@astrojs/starlight/components";
-import playgroundVideo from "../../assets/blog/2025-02-12-playground.mov";
+import otelworker from "../../assets/blog/2025-02-18-otel-worker.mov";
 
 In today's distributed systems landscape, observability is crucial for understanding
 and debugging complex applications. Today, I'm excited to share details about
@@ -44,6 +44,28 @@ the specifics for running our OTLP ingestion code on Cloudflare.
 This includes:  the workers-rs code, a Store implementation that targets
 Cloudflare's D1 database, and a WebSocket implementation that leverages
 [Durable Objects](https://developers.cloudflare.com/durable-objects/)  for maintaining persistent connections.
+
+
+<video
+  autoplay
+  disablePictureInPicture
+  loop
+  muted
+  playsinline
+  preload
+  width="100%"
+  style="border-radius: 0.5rem;"
+>
+  <source src={otelworker} type="video/mp4" />
+  <p>
+    Your browser does not support the video tag.
+
+    Alternatively, let us know by
+    <a href="https://github.com/fiberplane/fpx/issues/new">opening an issue
+    </a> on GitHub!
+
+  </p>
+</video>
 
 The `otel-worker-cli` is our Swiss Army knife for interacting with the
 otel-worker system, whether you're developing locally or managing a
