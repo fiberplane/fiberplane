@@ -50,9 +50,9 @@ export function getPlatformSafeEnv(honoEnv: unknown) {
   }
 
   if (hasDenoEnv) {
-    const denoEnv = (globalThis as unknown as DenoEnv).env.toObject();
+    const denoEnv = (globalThis as unknown as DenoEnv)?.Deno?.env?.toObject?.();
     return {
-      ...denoEnv,
+      ...(denoEnv ?? {}),
       ...(typeof honoEnv === "object" && honoEnv !== null ? honoEnv : {}),
     };
   }
@@ -68,15 +68,20 @@ function runtimeHasProcessEnv() {
 }
 
 type DenoEnv = {
-  env: {
-    toObject: () => Record<string, string>;
+  Deno: {
+    env: {
+      toObject: () => Record<string, string>;
+    };
   };
 };
 
 function runtimeHasDenoEnv(): boolean {
-  return (
-    typeof (globalThis as unknown as DenoEnv)?.env?.toObject === "function"
-  );
+  try {
+    const denoGlobal = (globalThis as unknown as DenoEnv).Deno;
+    return typeof denoGlobal?.env?.toObject === "function";
+  } catch {
+    return false;
+  }
 }
 
 /**
