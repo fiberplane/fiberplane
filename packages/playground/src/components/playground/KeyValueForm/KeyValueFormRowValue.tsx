@@ -3,6 +3,7 @@ import {
   type CodeMirrorInputType,
 } from "@/components/CodeMirrorEditor/CodeMirrorInput";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   FpDropdownMenu,
   FpDropdownMenuContent,
@@ -14,14 +15,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { FpLabel } from "@/components/ui/label";
 import { FpRadioGroup, FpRadioGroupItem } from "@/components/ui/radio-group";
-import { isSupportedSchemaObject, type SupportedSchemaObject } from "@/lib/isOpenApi";
+import {
+  type SupportedSchemaObject,
+  isSupportedSchemaObject,
+} from "@/lib/isOpenApi";
 import { cn, isMac } from "@/utils";
 import { useHandler } from "@fiberplane/hooks";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { FileIcon, XIcon } from "lucide-react";
 import { useRef } from "react";
 import type { KeyValueElement } from "../store";
-import { Checkbox } from "@/components/ui/checkbox";
 
 type KeyValueRowValueProps = {
   keyValueData: KeyValueElement;
@@ -32,15 +35,15 @@ type KeyValueRowValueProps = {
   keyPlaceholder?: string;
   valueInputType?: CodeMirrorInputType;
 } & (
-    | {
+  | {
       onChangeValue: (value: string | File) => void;
       showFileSelector: true;
     }
-    | {
+  | {
       onChangeValue: (value: string) => void;
       showFileSelector?: false;
     }
-  );
+);
 
 export function KeyValueFormRowValue(props: KeyValueRowValueProps) {
   const {
@@ -84,7 +87,8 @@ export function KeyValueFormRowValue(props: KeyValueRowValueProps) {
       <div
         className={`flex-1 grid ${showFileSelector ? "grid-cols-[1fr_20px]" : ""} items-center gap-2`}
       >
-        {data.type === "file" || (schema && schema.type === "string" && schema.format === "binary") ? (
+        {data.type === "file" ||
+        (schema && schema.type === "string" && schema.format === "binary") ? (
           <KeyValueFile
             onChangeValue={onChangeValue}
             value={data.type === "file" ? data.value : undefined}
@@ -104,10 +108,7 @@ export function KeyValueFormRowValue(props: KeyValueRowValueProps) {
             handleCmdG={handleCmdG}
           />
         ) : schema?.type === "boolean" ? (
-          <KeyValueBoolean
-            onChangeValue={onChangeValue}
-            value={data.value}
-          />
+          <KeyValueBoolean onChangeValue={onChangeValue} value={data.value} />
         ) : (
           <>
             <KeyValueString
@@ -120,10 +121,13 @@ export function KeyValueFormRowValue(props: KeyValueRowValueProps) {
             />
             {showFileSelector && (
               <div>
-                <div className={cn("flex",
-                  "pointer-events-none group-focus-within:pointer-events-auto group-hover:pointer-events-auto",
-                  "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100"
-                )}>
+                <div
+                  className={cn(
+                    "flex",
+                    "pointer-events-none group-focus-within:pointer-events-auto group-hover:pointer-events-auto",
+                    "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100",
+                  )}
+                >
                   <Button
                     type="button"
                     variant="ghost"
@@ -140,13 +144,12 @@ export function KeyValueFormRowValue(props: KeyValueRowValueProps) {
           </>
         )}
       </div>
-    </div >
+    </div>
   );
 }
 
-
 function KeyValueFile(props: {
-  value: File | undefined,
+  value: File | undefined;
   onChangeValue(value: File | string): void;
 }) {
   const { onChangeValue, value } = props;
@@ -192,8 +195,8 @@ text-muted-foreground"
           <XIcon className="w-3 h-3 mr-0" />
         </Button>
       )}
-    </div>);
-
+    </div>
+  );
 }
 function KeyValueString(props: {
   value: string;
@@ -213,7 +216,6 @@ function KeyValueString(props: {
   } = props;
 
   return (
-
     <div>
       <CodeMirrorInput
         value={value}
@@ -225,7 +227,7 @@ function KeyValueString(props: {
         handleCmdB={handleCmdB}
       />
     </div>
-  )
+  );
 }
 
 function KeyValueNumber(props: {
@@ -235,22 +237,14 @@ function KeyValueNumber(props: {
   handleCmdG?: () => void;
   handleCmdB?: () => void;
   onSubmit?: () => void;
-
-
 }) {
-  const {
-    value,
-    schema,
-    onChangeValue,
-    handleCmdB,
-    handleCmdG,
-    onSubmit,
-  } = props;
+  const { value, schema, onChangeValue, handleCmdB, handleCmdG, onSubmit } =
+    props;
   const { onKeyDown } = useKeyboardShortcuts({
     handleCmdB,
     handleCmdG,
     onSubmit,
-  })
+  });
   // const
   return (
     <Input
@@ -264,7 +258,7 @@ function KeyValueNumber(props: {
       className="p-0 pl-1.5 border-transparent [&:not(:focus)]:no-spinner focus-visible:ring-primary shadow-none h-7 invalid:[&:not(:focus)]:border-danger invalid:[&:not(:focus)]:animate-shake"
       onChange={(event) => onChangeValue(event.target.value)}
     />
-  )
+  );
 }
 
 function useKeyboardShortcuts({
@@ -278,13 +272,14 @@ function useKeyboardShortcuts({
 }) {
   const onKeyDown = useHandler((event: React.KeyboardEvent<HTMLElement>) => {
     const isMod = isMac ? event.metaKey : event.ctrlKey;
-    const otherModifiers = event.shiftKey && event.altKey && (isMac ? event.ctrlKey : event.metaKey);
+    const otherModifiers =
+      event.shiftKey && event.altKey && (isMac ? event.ctrlKey : event.metaKey);
     if (!isMod || otherModifiers) {
       return;
     }
 
     if (handleCmdB && event.key === "b") {
-      handleCmdB()
+      handleCmdB();
     }
 
     if (handleCmdG && event.key === "g") {
@@ -294,7 +289,6 @@ function useKeyboardShortcuts({
     if (onSubmit && event.key === "Enter") {
       onSubmit();
     }
-
   });
 
   return {
@@ -306,12 +300,8 @@ function KeyValueEnum(props: {
   value: string;
   enumValues: Array<string>;
   onChangeValue(value: string): void;
-
 }) {
-  const {
-    enumValues,
-    value, onChangeValue,
-  } = props;
+  const { enumValues, value, onChangeValue } = props;
 
   if (enumValues.length <= 4) {
     return (
@@ -351,7 +341,7 @@ function KeyValueEnum(props: {
             "group/dropdown",
           )}
         >
-          <div className="grow-1 w-full text-start px-2">
+          <div className="grow-1 w-full text-start text-sm text-muted-foreground px-2">
             {value || "Select an option"}
           </div>
           <CaretSortIcon className="w-3 h-3 mr-1 flex-shrink-0 opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-data-[state=open]/dropdown:opacity-100" />
@@ -385,12 +375,12 @@ function KeyValueEnum(props: {
         </FpDropdownMenuPortal>
       </FpDropdownMenu>
     </div>
-  )
+  );
 }
 
 function KeyValueBoolean(props: {
   value: string;
-  onChangeValue(value: string): void
+  onChangeValue(value: string): void;
 }) {
   const { value, onChangeValue } = props;
 
