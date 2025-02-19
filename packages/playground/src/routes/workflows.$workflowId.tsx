@@ -33,9 +33,7 @@ import {
 } from "@tanstack/react-router";
 import {
   ArrowDownToDot,
-  Check,
   ChevronDown,
-  Copy,
   Edit,
   Copy,
   Play,
@@ -48,7 +46,6 @@ import { useState } from "react";
 import { z } from "zod";
 import { useShallow } from "zustand/react/shallow";
 import { isOpenApiV2, isOpenApiV3x } from "../lib/isOpenApiV2";
-import { useMountedPath } from "@/hooks/use-mounted-path";
 
 type OpenAPIOperation = OpenAPI.Operation;
 export const Route = createFileRoute("/workflows/$workflowId")({
@@ -206,17 +203,17 @@ function WorkflowDetail() {
             }
           >
             <div className="grid gap-1">
-              <div className="grid gap-2">
+              <div className="grid">
                 {workflow.steps.map((step, index) => (
-                  <div key={step.stepId}>
-                    <StepperItem
-                      index={index}
-                      stepId={step.stepId}
-                      operation={step.operation}
-                      description={step.description}
-                      selected={selectedStep.stepId === step.stepId}
-                    />
-                  </div>
+                  <StepperItem
+                    key={step.stepId}
+                    index={index}
+                    stepId={step.stepId}
+                    operation={step.operation}
+                    description={step.description}
+                    selected={selectedStep.stepId === step.stepId}
+                  />
+
                 ))}
               </div>
 
@@ -406,21 +403,28 @@ const StepperItem = (
       to="."
       search={(prev) => ({ ...prev, stepId })}
       className={cn(
-        `grid grid-cols-[auto_1fr] gap-4 rounded-md cursor-pointer relative before:content-[""] first:before:absolute before:h-full before:bottom-[16px] before:border-l before:border-l-foreground before:left-[20px] z-0 py-2 px-2`,
-        index === 0 ? "before:hidden" : "before:block",
+        "rounded-md cursor-pointer relative",
+        `before:content-[""] before:absolute before:border-l before:border-l-foreground before:left-[20px] before:z-10`,
+        "before:h-[calc(100%-16px)] before:top-8 last:before:hidden",
+        // index === 0 ? "before:hidden" : "before:block",
         selected ? "bg-primary/10" : "hover:bg-muted",
       )}
     >
-      <div
-        className={cn(
-          "w-6 h-6 rounded-full flex items-center justify-center z-10 relative",
-          selected ? "bg-primary/30" : "bg-accent/95",
-        )}
-      >
-        <span className="text-primary-foreground">{index + 1}</span>
+      <div className="grid grid-cols-[auto_1fr] gap-4 py-2 px-2">
+        <div
+          className={cn(
+            "w-6 h-6 rounded-full flex items-center justify-center z-10 relative",
+            selected ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground",
+
+          )}
+        >
+          <span className="text-primary-foreground">{index + 1}</span>
+        </div>
+        <div>{description}
+
+        </div>
       </div>
-      <div>{description}</div>
-    </Link>
+    </Link >
   );
 };
 
