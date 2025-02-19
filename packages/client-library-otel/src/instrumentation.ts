@@ -15,7 +15,7 @@ import {
   setFpResolvedConfig,
 } from "./config";
 import { FPOTLPExporter } from "./exporter";
-import { getLogger } from "./logger";
+import { type FpxLogger, getLogger } from "./logger";
 import { measure } from "./measure";
 import {
   patchCloudflareBindings,
@@ -30,7 +30,7 @@ import {
   respondWithRoutes,
   sendRoutes,
 } from "./routes";
-import type { HonoLikeApp, HonoLikeEnv, HonoLikeFetch } from "./types";
+import type { FetchFn, HonoLikeApp, HonoLikeEnv, HonoLikeFetch } from "./types";
 import {
   type FpHonoEnv,
   cloneRequestForAttributes,
@@ -39,10 +39,11 @@ import {
   getRootRequestAttributes,
 } from "./utils";
 
-export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
-  // Freeze the web standard fetch function so that we can use it without creating new spans
-  const webStandardFetch = fetch;
+// Freeze the web standard fetch function so that we can use it without creating new spans
+// In the future, we could allow the user to set their own custom "fetchFn"
+const webStandardFetch = fetch;
 
+export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
   return new Proxy(app, {
     // Intercept the `fetch` function on the Hono app instance
     get(target, prop, receiver) {
@@ -71,14 +72,15 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
           } = resolvedConfig;
 
           const logger = getLogger(resolvedConfig.logLevel);
+
           // NOTE - Only prints if debug mode is enabled
           logger.debug("Library debug logging is enabled");
 
-          logger.debug(`mode: ${resolvedConfig.mode}`);
+          logger.debug(`Library mode: ${resolvedConfig.mode}`);
 
           if (!resolvedConfig.enabled || !otelEndpoint) {
             logger.debug(
-              "missing FIBERPLANE_OTEL_ENDPOINT. Skipping instrumentation",
+              "Missing FIBERPLANE_OTEL_ENDPOINT. Skipping instrumentation",
             );
             return await originalFetch(request, rawEnv, executionContext);
           }
@@ -120,8 +122,10 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
 
           const provider = setupTracerProvider({
             serviceName,
-            endpoint: otelEndpoint,
+            otelEndpoint,
             authToken: authToken || undefined,
+            fetchFn: webStandardFetch,
+            logger,
           });
 
           const promiseStore = new PromiseStore();
@@ -236,9 +240,13 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
 
 function setupTracerProvider(options: {
   serviceName: string;
-  endpoint: string;
+  otelEndpoint: string;
   authToken?: string;
+  fetchFn: FetchFn;
+  logger: FpxLogger;
 }) {
+  const { otelEndpoint, authToken, serviceName, fetchFn, logger } = options;
+
   // We need to use async hooks to be able to propagate context
   const asyncHooksContextManager = new AsyncLocalStorageContextManager();
   asyncHooksContextManager.enable();
@@ -246,18 +254,22 @@ function setupTracerProvider(options: {
 
   const provider = new BasicTracerProvider({
     resource: new Resource({
-      [SEMRESATTRS_SERVICE_NAME]: options.serviceName,
+      [SEMRESATTRS_SERVICE_NAME]: serviceName,
     }),
   });
 
-  const headers: Record<string, string> = options.authToken
-    ? { Authorization: `Bearer ${options.authToken}` }
+  const headers: Record<string, string> = authToken
+    ? { Authorization: `Bearer ${authToken}` }
     : {};
 
-  const exporter = new FPOTLPExporter({
-    url: options.endpoint,
-    headers,
-  });
+  const exporter = new FPOTLPExporter(
+    {
+      url: otelEndpoint,
+      headers,
+    },
+    fetchFn,
+    logger,
+  );
 
   provider.addSpanProcessor(
     new SimpleSpanProcessor(exporter),

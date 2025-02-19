@@ -5,10 +5,9 @@ import {
 } from "@opentelemetry/otlp-exporter-base";
 import { createExportTraceServiceRequest } from "@opentelemetry/otlp-transformer";
 import type { SpanExporter } from "@opentelemetry/sdk-trace-base";
-import { getLogger } from "./logger";
+import type { FpxLogger } from "./logger";
+import type { FetchFn } from "./types";
 import { isWrapped } from "./utils";
-// Freeze the web standard fetch function so that we can use it below without being affected by monkeypatching
-const webStandardFetch = fetch;
 
 export interface OTLPExporterConfig {
   url: string;
@@ -16,7 +15,7 @@ export interface OTLPExporterConfig {
 }
 
 const defaultHeaders: Record<string, string> = {
-  // TODO - add user agent in the same way the OTLPTraceExporter does
+  // INVESTIGATE - add user agent in the same way the OTLPTraceExporter does
   accept: "application/json",
   "content-type": "application/json",
 };
@@ -33,9 +32,21 @@ const defaultHeaders: Record<string, string> = {
 export class FPOTLPExporter implements SpanExporter {
   private headers: Record<string, string>;
   private url: string;
-  constructor(config: OTLPExporterConfig) {
+  private fetchFn: FetchFn;
+  private logger: FpxLogger;
+
+  constructor(config: OTLPExporterConfig, fetchFn: FetchFn, logger: FpxLogger) {
     this.url = config.url;
     this.headers = Object.assign({}, defaultHeaders, config.headers);
+    this.fetchFn = fetchFn;
+    this.logger = logger;
+
+    if (isWrapped(this.fetchFn)) {
+      this.logger.error(
+        "FPOTLPExporter's fetch function is already instrumented, so we cannot send traces without causing an infinite loop",
+      );
+      throw new Error("FPOTLPExporter fetchFn cannot be instrumented");
+    }
   }
 
   // biome-ignore lint/suspicious/noExplicitAny: items really can be anything
@@ -92,12 +103,7 @@ export class FPOTLPExporter implements SpanExporter {
       body,
     };
 
-    if (isWrapped(webStandardFetch)) {
-      getLogger("error").error("Fetch is already wrapped, cannot send traces.");
-      throw new Error("Fetch is already wrapped, cannot send traces.");
-    }
-
-    webStandardFetch(this.url, params)
+    this.fetchFn(this.url, params)
       .then(async (response) => {
         if (response.ok) {
           onSuccess();
