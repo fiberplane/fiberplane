@@ -5,7 +5,10 @@ import type { FiberplaneAppType } from "../../types.js";
 // Using Record<string, unknown> as a simpler type for JSON data
 type ApiResponse = Record<string, unknown> | Array<Record<string, unknown>>;
 
-export default function createTracesApiRoute(fpxEndpoint?: string) {
+export default function createTracesApiRoute(
+  otelEndpoint?: string,
+  otelToken?: string,
+) {
   const app = new Hono<FiberplaneAppType>();
 
   app.get("/", async (c) => {
@@ -15,22 +18,41 @@ export default function createTracesApiRoute(fpxEndpoint?: string) {
       "- GET / -",
       "Proxying request to fiberplane api",
     );
-    if (!fpxEndpoint) {
+
+    if (!otelEndpoint) {
       logIfDebug(
         c,
         "[traces]",
         "- GET / -",
-        "fpx endpoint undefined, returning early",
+        "otel endpoint undefined, returning early",
       );
-      return c.json({ error: "Tracing is not enabled" }, 500);
+      return c.json({ error: "Tracing is not enabled" }, 402);
     }
+
+    if (!otelToken) {
+      logIfDebug(
+        c,
+        "[traces]",
+        "- GET / -",
+        "otel token undefined, skipping auth header",
+      );
+    } else {
+      logIfDebug(
+        c,
+        "[traces]",
+        "- GET / -",
+        "otel token defined, adding auth header",
+      );
+    }
+
     try {
-      const fpxBaseUrl = new URL(fpxEndpoint).origin;
-      const requestUrl = `${fpxBaseUrl}/v1/traces`;
+      const otelBaseUrl = getOtelBaseUrl(otelEndpoint);
+      const requestUrl = `${otelBaseUrl}/v1/traces`;
       const response = await fetch(requestUrl, {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          ...(otelToken ? { Authorization: `Bearer ${otelToken}` } : {}),
         },
       });
       logIfDebug(
@@ -55,17 +77,29 @@ export default function createTracesApiRoute(fpxEndpoint?: string) {
       "- GET /:traceId/spans -",
       "Proxying request to fiberplane api",
     );
-    if (!fpxEndpoint) {
-      return c.json({ error: "Tracing is not enabled" }, 500);
+
+    if (!otelEndpoint) {
+      return c.json({ error: "Tracing is not enabled" }, 402);
     }
+
+    if (!otelToken) {
+      logIfDebug(
+        c,
+        "[traces]",
+        "- GET /:traceId/spans -",
+        "otel token undefined, skipping auth header",
+      );
+    }
+
     try {
-      const fpxBaseUrl = new URL(fpxEndpoint).origin;
+      const otelBaseUrl = getOtelBaseUrl(otelEndpoint);
       const traceId = c.req.param("traceId");
-      const requestUrl = `${fpxBaseUrl}/v1/traces/${traceId}/spans`;
+      const requestUrl = `${otelBaseUrl}/v1/traces/${traceId}/spans`;
       const response = await fetch(requestUrl, {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          ...(otelToken ? { Authorization: `Bearer ${otelToken}` } : {}),
         },
       });
       logIfDebug(
@@ -84,4 +118,9 @@ export default function createTracesApiRoute(fpxEndpoint?: string) {
   });
 
   return app;
+}
+
+function getOtelBaseUrl(otelEndpoint: string) {
+  const url = new URL(otelEndpoint);
+  return url.origin;
 }

@@ -1,6 +1,6 @@
 import type { FpxLogger } from "./logger";
 import type { PromiseStore } from "./promiseStore";
-import type { HonoLikeApp } from "./types";
+import type { HonoLikeApp } from "./types/hono-types";
 
 type FetchFn = typeof fetch;
 
@@ -74,10 +74,16 @@ export async function respondWithRoutes(
   logger: FpxLogger,
 ) {
   try {
+    logger.debug("Responding to route inspector request");
     const success = await sendRoutes(fetchFn, fpxEndpoint, app, logger);
-    return new Response(success ? "OK" : "Error sending routes to FPX", {
-      status: success ? 200 : 500,
-    });
+    const response = new Response(
+      success ? "OK" : "Error sending routes to FPX",
+      {
+        status: success ? 200 : 500,
+      },
+    );
+    logger.debug("Response from route submission", response);
+    return response;
   } catch (_e) {
     return new Response("Error sending routes to FPX", { status: 500 });
   }
