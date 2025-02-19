@@ -15,7 +15,8 @@ tags:
 import { LinkCard } from "@astrojs/starlight/components";
 import PackageManagers from "@/components/PackageManagers.astro";
 
-import videoSingleWorkerQueueArchitecture from "../../assets/blog/2025-02-17-single-worker-queue.mov";
+import videoSingleWorkerQueueArchitecture from "@/assets/blog/2025-02-17-single-worker-queue.mov";
+import videoSingleWorkerQueueArchitectureLight from "@/assets/blog/2025-02-17-single-worker-queue-light.mov";
 
 In the [last blog post](https://fiberplane.com/blog/asynchronous-tasks-in-cloudflare-part2/), I demonstrated how to decompose the sign-up and send-mail functions into two separate workers.
 One reason was to use Cloudflare Queues to scale the Workers logically independently.
@@ -50,7 +51,7 @@ messages in batches from the Queue.
 When a worker produces a message to a Queue and implements a consumer, Cloudflare will automatically scale up the worker when needed. This means our worker can scale horizontally based on the Queue's workload.
 
 <figure>
-  <video
+  <video class="light:sl-hidden"
     autoplay
     disablePictureInPicture
     loop
@@ -64,6 +65,28 @@ When a worker produces a message to a Queue and implements a consumer, Cloudflar
     <p>
       Your browser does not support the video tag. You can download the video
       <a href={videoSingleWorkerQueueArchitecture} download>here</a>.
+
+      Alternatively, let us know by
+      <a href="https://github.com/fiberplane/fpx/issues/new">opening an issue
+      </a> on GitHub!
+    </p>
+
+  </video>
+
+  <video class="dark:sl-hidden"
+    autoplay
+    disablePictureInPicture
+    loop
+    muted
+    playsinline
+    preload
+    width="100%"
+    style="border-radius: 0.5rem;"
+  >
+    <source src={videoSingleWorkerQueueArchitectureLight} type="video/mp4" />
+    <p>
+      Your browser does not support the video tag. You can download the video
+      <a href={videoSingleWorkerQueueArchitectureLight} download>here</a>.
 
       Alternatively, let us know by
       <a href="https://github.com/fiberplane/fpx/issues/new">opening an issue
@@ -182,7 +205,14 @@ export default {
 Make sure to include the `sign-up-queue` as a producer and consumer in your `wrangler.toml`. 
 The image below shows the architecture of a Worker with two Queue consumers. 
 
+<figure class="light:sl-hidden"> 
 ![Architecture with two Queues](@/assets/blog/2025-02-17-two-queues-architecture.png)
+</figure>
+
+<figure class="dark:sl-hidden"> 
+![Architecture with two Queues](@/assets/blog/2025-02-17-two-queues-architecture-light.png)
+</figure>
+
 
 
 ## Conclusion
