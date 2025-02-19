@@ -267,6 +267,8 @@ function setupTracerProvider(options: {
       url: otelEndpoint,
       headers,
     },
+    // NOTE - We bind the fetch function to globalThis so that it can be called
+    //        without a specific context. Otherwise, I got a runtime error.
     fetchFn.bind(globalThis),
     logger,
   );
