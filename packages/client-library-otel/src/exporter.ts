@@ -103,6 +103,8 @@ export class FPOTLPExporter implements SpanExporter {
       body,
     };
 
+    this.logger.debug(`Payload to send to OTLP (${body.length})\n`, body);
+
     this.fetchFn(this.url, params)
       .then(async (response) => {
         if (response.ok) {

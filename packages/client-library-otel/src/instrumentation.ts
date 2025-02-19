@@ -267,7 +267,7 @@ function setupTracerProvider(options: {
       url: otelEndpoint,
       headers,
     },
-    fetchFn,
+    fetchFn.bind(globalThis),
     logger,
   );
 
