@@ -1,6 +1,5 @@
 import { SpanKind } from "@opentelemetry/api";
 import shimmer from "shimmer";
-import type { FpResolvedConfig } from "../config/config";
 import { measure } from "../measure";
 import {
   getRequestAttributes,
@@ -10,7 +9,7 @@ import {
 
 const { wrap } = shimmer;
 
-export function patchFetch(options: FpResolvedConfig) {
+export function patchFetch() {
   // Check if the function is already patched
   // If it is, we don't want to patch it again
   if (isWrapped(globalThis.fetch)) {
@@ -23,11 +22,11 @@ export function patchFetch(options: FpResolvedConfig) {
         name: "fetch",
         spanKind: SpanKind.CLIENT,
         onStart: (span, [input, init]) => {
-          span.setAttributes(getRequestAttributes(input, init, options));
+          span.setAttributes(getRequestAttributes(input, init));
         },
         onSuccess: async (span, responsePromise) => {
           const response = await responsePromise;
-          const attributes = await getResponseAttributes(response, options);
+          const attributes = await getResponseAttributes(response);
           span.setAttributes(attributes);
         },
       },

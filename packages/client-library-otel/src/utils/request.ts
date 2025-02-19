@@ -308,7 +308,7 @@ async function streamToString(stream: ReadableStream) {
 
 export async function getResponseAttributes(
   response: GlobalResponse | HonoResponse,
-  config: FpResolvedConfig,
+  config?: FpResolvedConfig,
 ) {
   const resolvedConfig = config ?? getFpResolvedConfig();
   const logger = getLogger(resolvedConfig?.logLevel ?? "debug");

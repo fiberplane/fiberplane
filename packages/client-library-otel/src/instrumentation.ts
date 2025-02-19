@@ -117,7 +117,7 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
             patchConsole();
           }
           if (monitorFetch) {
-            patchFetch(resolvedConfig);
+            patchFetch();
           }
 
           const provider = setupTracerProvider({
