@@ -1,16 +1,21 @@
 import { dereference } from "@apidevtools/swagger-parser";
 import { useQuery } from "@tanstack/react-query";
+import { isOpenApiV2, type SupportedDocument } from "../isOpenApi";
 
 export function useOpenApiParse(spec: string | undefined) {
   return useQuery({
     queryKey: ["parse-openapi", spec],
-    queryFn: async () => {
+    queryFn: async (): Promise<SupportedDocument | null> => {
       if (!spec) {
         return null;
       }
 
       const parsed = JSON.parse(spec);
       const result = await dereference(parsed);
+      if (isOpenApiV2(result)) {
+        throw new Error("Unsupported OpenAPI document encountered");
+      }
+
       return result;
     },
     enabled: !!spec,

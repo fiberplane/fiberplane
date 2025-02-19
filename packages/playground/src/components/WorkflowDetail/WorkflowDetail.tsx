@@ -12,6 +12,8 @@ import { ListSection } from "./ListSection";
 import { StepDetails } from "./StepDetails";
 import { StepperItem } from "./StepperItem";
 import { WorkflowUrl } from "./WorkflowUrl";
+import type { SupportedDocument } from "@/lib/isOpenApi";
+import type { WorkflowStep } from "@/types";
 
 export function WorkflowDetail() {
   const { workflow } = Route.useLoaderData();
@@ -27,54 +29,6 @@ export function WorkflowDetail() {
   const { data: spec, error: loadingError } = useOpenApiSpec(openapi);
   const { data: validatedOpenApi, error: parsingError } = useOpenApiParse(spec);
 
-  const getOperationDetails = (operationObject: {
-    method: string;
-    path: string;
-  }) => {
-    if (!validatedOpenApi) {
-      return null;
-    }
-
-    if (!validatedOpenApi?.paths) {
-      return null;
-    }
-
-    const method = operationObject.method;
-    const path = operationObject.path;
-
-    const pathObj = validatedOpenApi.paths[path];
-    if (!pathObj) {
-      return null;
-    }
-
-    type PathObjKeys = keyof typeof pathObj;
-
-    // Assume that method results in a valid key
-    // Also assume that the keys we care about are all lowercase
-    const lowerCaseMethod = method.toLowerCase() as PathObjKeys;
-
-    // Ignore non-methods properties
-    const ignore = ["summary", "$ref", "description", "servers"] as const;
-    if (lowerCaseMethod in ignore) {
-      return null;
-    }
-
-    const operation = pathObj[lowerCaseMethod];
-    if (!operation || typeof operation === "string") {
-      return null;
-    }
-
-    if (Array.isArray(operation)) {
-      // TODO handle array of operations
-      return null;
-    }
-
-    return {
-      method,
-      path,
-      operation,
-    };
-  };
 
   if (loadingError || parsingError) {
     return (
@@ -183,11 +137,11 @@ export function WorkflowDetail() {
                   search={
                     stepIndex > 0
                       ? (prev) => ({
-                          ...prev,
-                          stepId:
-                            workflow.steps[stepIndex - 1]?.stepId ??
-                            prev.stepId,
-                        })
+                        ...prev,
+                        stepId:
+                          workflow.steps[stepIndex - 1]?.stepId ??
+                          prev.stepId,
+                      })
                       : undefined
                   }
                 >
@@ -205,11 +159,11 @@ export function WorkflowDetail() {
                   search={
                     stepIndex < workflow.steps.length - 1 && stepIndex !== -1
                       ? (prev) => {
-                          return {
-                            ...prev,
-                            stepId: workflow.steps[stepIndex + 1]?.stepId,
-                          };
-                        }
+                        return {
+                          ...prev,
+                          stepId: workflow.steps[stepIndex + 1]?.stepId,
+                        };
+                      }
                       : undefined
                   }
                 >
@@ -221,11 +175,11 @@ export function WorkflowDetail() {
         </div>
       </div>
 
-      {selectedStep && (
+      {selectedStep && validatedOpenApi && (
         <div className="col-span-2 overflow-y-auto">
           <StepDetails
             step={selectedStep}
-            operationDetails={getOperationDetails(selectedStep.operation)}
+            operationDetails={getOperationDetails(validatedOpenApi, selectedStep.operation)}
             nextStepId={
               stepIndex < workflow.steps.length - 1
                 ? workflow.steps[stepIndex + 1].stepId
@@ -239,4 +193,49 @@ export function WorkflowDetail() {
       )}
     </div>
   );
+}
+function getOperationDetails(validatedOpenApi: SupportedDocument, operationObject: WorkflowStep["operation"]) {
+  if (!validatedOpenApi) {
+    return null;
+  }
+
+  if (!validatedOpenApi?.paths) {
+    return null;
+  }
+
+  const method = operationObject.method;
+  const path = operationObject.path;
+
+  const pathObj = validatedOpenApi.paths[path];
+  if (!pathObj) {
+    return null;
+  }
+
+  type PathObjKeys = keyof typeof pathObj;
+
+  // Assume that method results in a valid key
+  // Also assume that the keys we care about are all lowercase
+  const lowerCaseMethod = method.toLowerCase() as PathObjKeys;
+
+  // Ignore non-methods properties
+  const ignore = ["summary", "$ref", "description", "servers"] as const;
+  if (lowerCaseMethod in ignore) {
+    return null;
+  }
+
+  const operation = pathObj[lowerCaseMethod];
+  if (!operation || typeof operation === "string") {
+    return null;
+  }
+
+  if (Array.isArray(operation)) {
+    // TODO handle array of operations
+    return null;
+  }
+
+  return {
+    method,
+    path,
+    operation,
+  };
 }
