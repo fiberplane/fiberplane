@@ -33,13 +33,13 @@ import {
 } from "@tanstack/react-router";
 import {
   ArrowDownToDot,
+  Check,
   ChevronDown,
-  Edit,
   Copy,
+  Edit,
   Play,
   StepBack,
   StepForward,
-  Check,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
@@ -213,7 +213,6 @@ function WorkflowDetail() {
                     description={step.description}
                     selected={selectedStep.stepId === step.stepId}
                   />
-
                 ))}
               </div>
 
@@ -232,11 +231,11 @@ function WorkflowDetail() {
                   search={
                     stepIndex > 0
                       ? (prev) => ({
-                        ...prev,
-                        stepId:
-                          workflow.steps[stepIndex - 1]?.stepId ??
-                          prev.stepId,
-                      })
+                          ...prev,
+                          stepId:
+                            workflow.steps[stepIndex - 1]?.stepId ??
+                            prev.stepId,
+                        })
                       : undefined
                   }
                 >
@@ -254,11 +253,11 @@ function WorkflowDetail() {
                   search={
                     stepIndex < workflow.steps.length - 1 && stepIndex !== -1
                       ? (prev) => {
-                        return {
-                          ...prev,
-                          stepId: workflow.steps[stepIndex + 1]?.stepId,
-                        };
-                      }
+                          return {
+                            ...prev,
+                            stepId: workflow.steps[stepIndex + 1]?.stepId,
+                          };
+                        }
                       : undefined
                   }
                 >
@@ -414,17 +413,16 @@ const StepperItem = (
         <div
           className={cn(
             "w-6 h-6 rounded-full flex items-center justify-center z-10 relative",
-            selected ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground",
-
+            selected
+              ? "bg-primary text-primary-foreground"
+              : "bg-accent text-accent-foreground",
           )}
         >
           <span className="text-primary-foreground">{index + 1}</span>
         </div>
-        <div>{description}
-
-        </div>
+        <div>{description}</div>
       </div>
-    </Link >
+    </Link>
   );
 };
 
@@ -744,8 +742,8 @@ function StepDetails({
                             {String(
                               JSON.stringify(
                                 (stepState as ExecuteStepResult)?.headers ??
-                                result?.headers ??
-                                {},
+                                  result?.headers ??
+                                  {},
                                 null,
                                 2,
                               ),
@@ -759,7 +757,7 @@ function StepDetails({
                             {String(
                               JSON.stringify(
                                 (stepState as ExecuteStepResult)?.data ??
-                                result?.data,
+                                  result?.data,
                                 null,
                                 2,
                               ),

@@ -1,5 +1,5 @@
-import type { Env, Hono } from "hono";
 import type { OpenAPIHono } from "@hono/zod-openapi";
+import type { Env, Hono } from "hono";
 
 type AnyHono<E extends Env> = Hono<E> | OpenAPIHono<E>;
 

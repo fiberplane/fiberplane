@@ -4,6 +4,7 @@ import { Validator } from "@cfworker/json-schema";
 import { sValidator } from "@hono/standard-validator";
 import { type Env, Hono } from "hono";
 import { getContext } from "hono/context-storage";
+import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 import type { Step, Workflow } from "../../schemas/workflows.js";
 import type { FiberplaneAppType } from "../../types.js";
@@ -15,7 +16,6 @@ import {
 } from "./resolvers.js";
 import { resolveOutputs } from "./resolvers.js";
 import { getWorkflowById } from "./utils.js";
-import { HTTPException } from "hono/http-exception";
 
 interface WorkflowErrorResponse {
   error: {
