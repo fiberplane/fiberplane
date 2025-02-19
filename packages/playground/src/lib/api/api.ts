@@ -61,6 +61,7 @@ export const api = {
     );
   },
 
+  // TODO - Add limit query param once that ships
   getTraces: async () => {
     const data = await fpFetch("/api/traces");
     return {
@@ -84,7 +85,12 @@ export const api = {
   // NOTE - This uses browser fetch, since it does some specific error handling of the response
   getOpenApiSpec: async (path: string): Promise<string> => {
     try {
-      const response = await fetch(path);
+      const response = await fetch(path, {
+        // HACK - Force the @fiberplane/hono-otel client library to not trace request to the spec
+        headers: {
+          "x-fpx-ignore": "true",
+        },
+      });
       if (!response.ok) {
         const bodyText = await safeParseBodyText(response);
         throw new FetchOpenApiSpecError(
