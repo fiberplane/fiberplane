@@ -4,6 +4,7 @@ import {
   SEMATTRS_HTTP_RESPONSE_CONTENT_LENGTH,
   SEMATTRS_HTTP_SCHEME,
 } from "@opentelemetry/semantic-conventions";
+import { type FpResolvedConfig, getFpResolvedConfig } from "../config";
 import {
   EXTRA_SEMATTRS_HTTP_REQUEST_METHOD,
   EXTRA_SEMATTRS_HTTP_RESPONSE_STATUS_CODE,
@@ -16,6 +17,7 @@ import {
   FPX_RESPONSE_BODY,
   IGNORED_HEADERS,
 } from "../constants";
+import { getLogger } from "../logger";
 import type {
   GlobalResponse,
   HonoResponse,
@@ -125,14 +127,19 @@ async function formatRootRequestBody(request: Request) {
   };
 }
 
+/**
+ * Get the request attributes for a given request.
+ *
+ * The `config` param is optional, and if not provided,
+ * we will try to use the config that's currently in the active OpenTelemetry context.
+ */
 export function getRequestAttributes(
   input: InputParam,
   init: InitParam | undefined,
-  options: {
-    isLocal: boolean;
-  },
+  config?: FpResolvedConfig,
 ) {
-  const { isLocal } = options;
+  const resolvedConfig = config ?? getFpResolvedConfig();
+  const isLocal = resolvedConfig?.mode === "local";
   const requestMethod =
     typeof input === "string" || input instanceof URL ? "GET" : input.method;
   const requestUrl = input instanceof Request ? input.url : input;
@@ -301,11 +308,15 @@ async function streamToString(stream: ReadableStream) {
 
 export async function getResponseAttributes(
   response: GlobalResponse | HonoResponse,
-  options: {
-    isLocal: boolean;
-  },
+  config: FpResolvedConfig,
 ) {
-  const { isLocal } = options;
+  const resolvedConfig = config ?? getFpResolvedConfig();
+  const logger = getLogger(resolvedConfig?.logLevel ?? "debug");
+  if (!resolvedConfig) {
+    logger.debug("No config found in context, using default values");
+  }
+  const isLocal = resolvedConfig?.mode === "local";
+
   const attributes: Attributes = {
     [EXTRA_SEMATTRS_HTTP_RESPONSE_STATUS_CODE]: String(response.status),
     [SEMATTRS_HTTP_SCHEME]: response.url.split(":")[0],

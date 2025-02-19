@@ -117,7 +117,7 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
             patchConsole();
           }
           if (monitorFetch) {
-            patchFetch({ isLocal: FPX_IS_LOCAL });
+            patchFetch(resolvedConfig);
           }
 
           const provider = setupTracerProvider({
@@ -180,9 +180,7 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
               spanKind: SpanKind.SERVER,
               onStart: (span, [request]) => {
                 const requestAttributes = {
-                  ...getRequestAttributes(request, undefined, {
-                    isLocal: FPX_IS_LOCAL,
-                  }),
+                  ...getRequestAttributes(request, undefined, resolvedConfig),
                   ...rootRequestAttributes,
                 };
                 span.setAttributes(requestAttributes);
@@ -192,9 +190,10 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
                 span.addEvent("first-response");
 
                 const updateSpan = async (response: Response) => {
-                  const attributes = await getResponseAttributes(response, {
-                    isLocal: FPX_IS_LOCAL,
-                  });
+                  const attributes = await getResponseAttributes(
+                    response,
+                    resolvedConfig,
+                  );
                   span.setAttributes(attributes);
                   span.end();
                 };

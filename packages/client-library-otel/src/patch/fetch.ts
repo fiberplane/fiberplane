@@ -1,5 +1,6 @@
 import { SpanKind } from "@opentelemetry/api";
 import shimmer from "shimmer";
+import type { FpResolvedConfig } from "../config/config";
 import { measure } from "../measure";
 import {
   getRequestAttributes,
@@ -9,9 +10,7 @@ import {
 
 const { wrap } = shimmer;
 
-export function patchFetch(options: {
-  isLocal: boolean;
-}) {
+export function patchFetch(options: FpResolvedConfig) {
   // Check if the function is already patched
   // If it is, we don't want to patch it again
   if (isWrapped(globalThis.fetch)) {
