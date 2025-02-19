@@ -1,6 +1,6 @@
 import { dereference } from "@apidevtools/swagger-parser";
 import { useQuery } from "@tanstack/react-query";
-import { isOpenApiV2, type SupportedDocument } from "../isOpenApi";
+import { type SupportedDocument, isOpenApiV2 } from "../isOpenApi";
 
 export function useOpenApiParse(spec: string | undefined) {
   return useQuery({

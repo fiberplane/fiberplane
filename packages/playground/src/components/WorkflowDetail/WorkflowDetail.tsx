@@ -1,26 +1,118 @@
 import { Button } from "@/components/ui/button";
 
 import { useOpenApiParse } from "@/lib/hooks/useOpenApiParse";
-import { useOpenApiSpec } from "@/lib/hooks/useOpenApiSpec";
+import {
+  type OpenApiContext,
+  useOpenApiSpec,
+} from "@/lib/hooks/useOpenApiSpec";
+import type { SupportedDocument } from "@/lib/isOpenApi";
 import { cn } from "@/lib/utils";
 import { Route } from "@/routes/workflows.$workflowId";
-import { Link, useRouteContext, useSearch } from "@tanstack/react-router";
-import { Play, StepBack, StepForward } from "lucide-react";
+import type { Workflow, WorkflowStep } from "@/types";
+import {
+  Link,
+  // useRouteContext,
+  useSearch,
+} from "@tanstack/react-router";
+import { Eye, Play, StepBack, StepForward } from "lucide-react";
 import { CollapsibleList } from "./CollapsibleList";
 import { InputItem } from "./InputItem";
 import { ListSection } from "./ListSection";
+import { OutputItem } from "./OutputItem";
 import { StepDetails } from "./StepDetails";
 import { StepperItem } from "./StepperItem";
 import { WorkflowUrl } from "./WorkflowUrl";
-import type { SupportedDocument } from "@/lib/isOpenApi";
-import type { WorkflowStep } from "@/types";
 
 export function WorkflowDetail() {
   const { workflow } = Route.useLoaderData();
-  const openapi = useRouteContext({
-    from: "__root__",
-    select: (context) => context.openapi,
-  });
+  // const openapi = useRouteContext({
+  //   from: "__root__",
+  //   select: (context) => context.openapi,
+  // });
+
+  const testTitle = (
+    <div className="grid justify-between items-center grid-cols-[1fr_auto]">
+      <span>Test workflow</span>
+      <Button variant="primary" size="sm" className="h-6">
+        <Play />
+        Run
+      </Button>
+    </div>
+  );
+
+  return (
+    <div className="overflow-y-auto h-full">
+      <ListSection title={workflow.summary}>
+        <div className="grid gap-2.5">
+          <div className="text-sm text-muted-foreground columns-2">
+            {workflow.description}
+          </div>
+          <ListSection title="Steps">
+            <div>
+              {workflow.steps.map((step, index) => (
+                <StepperItem
+                  key={step.stepId}
+                  index={index}
+                  stepId={step.stepId}
+                  description={step.description}
+                  operation={step.operation}
+                />
+              ))}
+            </div>
+          </ListSection>
+          <ListSection title={testTitle}>
+            <WorkflowUrl workflowId={workflow.workflowId} />
+            <div className="grid grid-cols-2 gap-2">
+              <ListSection
+                title={
+                  <div className="grid grid-cols-[1fr_auto]">
+                    <span>Request body parameters</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-auto px-2"
+                    >
+                      <Eye />
+                      JSON
+                    </Button>
+                  </div>
+                }
+              >
+                <div>
+                  {Object.entries(workflow.inputs.properties).map(
+                    ([key, schema]) => (
+                      <InputItem
+                        workflow={workflow}
+                        key={key}
+                        propertyKey={key}
+                        schema={schema}
+                        value={""}
+                      />
+                    ),
+                  )}
+                </div>
+              </ListSection>
+              <ListSection title="Output">
+                {Object.entries(workflow.outputs).map(([key, output]) => (
+                  <OutputItem key={key} output={output} />
+                ))}
+              </ListSection>
+            </div>
+          </ListSection>
+        </div>
+      </ListSection>
+      {/* <OldWorkflowDetail
+        workflow={workflow}
+        openapi={openapi} /> */}
+    </div>
+  );
+}
+
+export function OldWorkflowDetail(props: {
+  workflow: Workflow;
+  openapi: OpenApiContext | undefined;
+}) {
+  const { workflow, openapi } = props;
   const { stepId } = useSearch({ from: Route.fullPath });
 
   const selectedStep =
@@ -28,7 +120,6 @@ export function WorkflowDetail() {
 
   const { data: spec, error: loadingError } = useOpenApiSpec(openapi);
   const { data: validatedOpenApi, error: parsingError } = useOpenApiParse(spec);
-
 
   if (loadingError || parsingError) {
     return (
@@ -137,11 +228,11 @@ export function WorkflowDetail() {
                   search={
                     stepIndex > 0
                       ? (prev) => ({
-                        ...prev,
-                        stepId:
-                          workflow.steps[stepIndex - 1]?.stepId ??
-                          prev.stepId,
-                      })
+                          ...prev,
+                          stepId:
+                            workflow.steps[stepIndex - 1]?.stepId ??
+                            prev.stepId,
+                        })
                       : undefined
                   }
                 >
@@ -159,11 +250,11 @@ export function WorkflowDetail() {
                   search={
                     stepIndex < workflow.steps.length - 1 && stepIndex !== -1
                       ? (prev) => {
-                        return {
-                          ...prev,
-                          stepId: workflow.steps[stepIndex + 1]?.stepId,
-                        };
-                      }
+                          return {
+                            ...prev,
+                            stepId: workflow.steps[stepIndex + 1]?.stepId,
+                          };
+                        }
                       : undefined
                   }
                 >
@@ -179,7 +270,10 @@ export function WorkflowDetail() {
         <div className="col-span-2 overflow-y-auto">
           <StepDetails
             step={selectedStep}
-            operationDetails={getOperationDetails(validatedOpenApi, selectedStep.operation)}
+            operationDetails={getOperationDetails(
+              validatedOpenApi,
+              selectedStep.operation,
+            )}
             nextStepId={
               stepIndex < workflow.steps.length - 1
                 ? workflow.steps[stepIndex + 1].stepId
@@ -194,7 +288,10 @@ export function WorkflowDetail() {
     </div>
   );
 }
-function getOperationDetails(validatedOpenApi: SupportedDocument, operationObject: WorkflowStep["operation"]) {
+function getOperationDetails(
+  validatedOpenApi: SupportedDocument,
+  operationObject: WorkflowStep["operation"],
+) {
   if (!validatedOpenApi) {
     return null;
   }

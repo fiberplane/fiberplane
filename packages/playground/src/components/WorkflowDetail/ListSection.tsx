@@ -8,11 +8,9 @@ export function ListSection({
   children: ReactNode;
 }) {
   return (
-    <div className="py-1.5 pb-2 rounded-lg bg-muted">
-      <div className="grid items-center mx-2">
-        <div className="p-1.5 pt-0.5 text-sm font-medium">{title}</div>
-        <div className="w-full p-2 rounded-md bg-background">{children}</div>
-      </div>
+    <div className="rounded-md border grid items-center bg-background">
+      <div className="px-3 py-2.5 text-sm font-medium border-b">{title}</div>
+      <div className="w-full py-2 px-3">{children}</div>
     </div>
   );
 }

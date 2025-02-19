@@ -14,10 +14,9 @@ export function StepperItem(
       to="."
       search={(prev) => ({ ...prev, stepId })}
       className={cn(
-        "rounded-md cursor-pointer relative",
+        "block rounded-md cursor-pointer relative",
         `before:content-[""] before:absolute before:border-l before:border-l-foreground before:left-[20px] before:z-10`,
-        "before:h-[calc(100%-16px)] before:top-8 last:before:hidden",
-        // index === 0 ? "before:hidden" : "before:block",
+        "before:h-[calc(100%)] before:top-8 last:before:hidden",
         selected ? "bg-primary/10" : "hover:bg-muted",
       )}
     >
@@ -27,7 +26,7 @@ export function StepperItem(
             "w-6 h-6 rounded-full flex items-center justify-center z-10 relative",
             selected
               ? "bg-primary text-primary-foreground"
-              : "bg-accent text-accent-foreground",
+              : "bg-secondary text-accent-foreground",
           )}
         >
           <span className="text-primary-foreground">{index + 1}</span>
