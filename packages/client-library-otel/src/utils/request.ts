@@ -4,7 +4,11 @@ import {
   SEMATTRS_HTTP_RESPONSE_CONTENT_LENGTH,
   SEMATTRS_HTTP_SCHEME,
 } from "@opentelemetry/semantic-conventions";
-import { type FpResolvedConfig, getFpResolvedConfig } from "../config";
+import {
+  type FpResolvedConfig,
+  getFpResolvedConfig,
+  resolveConfig,
+} from "../config";
 import {
   EXTRA_SEMATTRS_HTTP_REQUEST_METHOD,
   EXTRA_SEMATTRS_HTTP_RESPONSE_STATUS_CODE,
@@ -26,6 +30,7 @@ import type {
 } from "../types/hono-types";
 import { getPlatformSafeEnv } from "./env";
 import { safelySerializeJSON } from "./json";
+import { getShouldTraceEverything } from "./trace-everything";
 
 // There are so many different types of headers
 // and we want to support all of them so we can
@@ -55,19 +60,26 @@ export async function getRootRequestAttributes(
   honoEnv: unknown,
   config: FpResolvedConfig,
 ) {
-  const isLocal = config?.mode === "local";
-  let attributes: Attributes = {};
-
-  // HACK - We need to account for the fact that the Hono `env` is different across runtimes
-  //        If process.env is available, we use that, otherwise we use the `env` object from the Hono runtime
-  const env = getPlatformSafeEnv(honoEnv);
-
-  // Only send env vars when running in local mode
-  if (isLocal && env) {
-    attributes[FPX_REQUEST_ENV] = safelySerializeJSON(env);
+  const resolvedConfig = config ?? getFpResolvedConfig();
+  const shouldTraceEverything = getShouldTraceEverything(resolvedConfig);
+  const logger = getLogger(resolvedConfig?.logLevel ?? "debug");
+  if (!resolvedConfig) {
+    logger.debug("No config found in otel context, using default values");
   }
 
-  if (isLocal && request.body) {
+  let attributes: Attributes = {};
+
+  // NOTE - We only send env vars when running in "local" mode
+  if (shouldTraceEverything) {
+    // HACK - We need to account for the fact that the Hono `env` is different across runtimes
+    //        If process.env is available, we use that, otherwise we use the `env` object from the Hono runtime
+    const env = getPlatformSafeEnv(honoEnv);
+    if (env) {
+      attributes[FPX_REQUEST_ENV] = safelySerializeJSON(env);
+    }
+  }
+
+  if (shouldTraceEverything && request.body) {
     const bodyAttr = await formatRootRequestBody(request);
     if (bodyAttr) {
       attributes = {
@@ -84,7 +96,7 @@ export async function getRootRequestAttributes(
       attributes[`http.request.header.${key}`] = getSafeHeaderValue(
         key,
         value,
-        isLocal,
+        resolvedConfig,
       );
     }
   }
@@ -137,7 +149,12 @@ export function getRequestAttributes(
   config?: FpResolvedConfig,
 ) {
   const resolvedConfig = config ?? getFpResolvedConfig();
-  const isLocal = resolvedConfig?.mode === "local";
+  const shouldTraceEverything = getShouldTraceEverything(resolvedConfig);
+  const logger = getLogger(resolvedConfig?.logLevel ?? "debug");
+  if (!resolvedConfig) {
+    logger.debug("No config found in otel context, using default values");
+  }
+
   const requestMethod =
     typeof input === "string" || input instanceof URL ? "GET" : input.method;
   const requestUrl = input instanceof Request ? input.url : input;
@@ -162,7 +179,7 @@ export function getRequestAttributes(
   // Init should not be null or undefined - but we do call it with undefined for the root request
   if (init) {
     const { body } = init;
-    if (!isLocal && body != null) {
+    if (!shouldTraceEverything && body != null) {
       attributes[FPX_REQUEST_BODY] = formatBody(body);
     }
 
@@ -173,7 +190,7 @@ export function getRequestAttributes(
         attributes[`http.request.header.${key}`] = getSafeHeaderValue(
           key,
           value,
-          isLocal,
+          resolvedConfig,
         );
       }
     }
@@ -182,8 +199,13 @@ export function getRequestAttributes(
   return attributes;
 }
 
-function getSafeHeaderValue(key: string, value: string, isLocal: boolean) {
-  if (!isLocal && IGNORED_HEADERS.has(key.toLowerCase())) {
+function getSafeHeaderValue(
+  key: string,
+  value: string,
+  config?: FpResolvedConfig,
+) {
+  const shouldTraceEverything = getShouldTraceEverything(config);
+  if (!shouldTraceEverything && IGNORED_HEADERS.has(key.toLowerCase())) {
     return "REDACTED";
   }
 
@@ -309,18 +331,18 @@ export async function getResponseAttributes(
   config?: FpResolvedConfig,
 ) {
   const resolvedConfig = config ?? getFpResolvedConfig();
+  const shouldTraceEverything = getShouldTraceEverything(resolvedConfig);
   const logger = getLogger(resolvedConfig?.logLevel ?? "debug");
   if (!resolvedConfig) {
-    logger.debug("No config found in context, using default values");
+    logger.debug("No config found in otel context, using default values");
   }
-  const isLocal = resolvedConfig?.mode === "local";
 
   const attributes: Attributes = {
     [EXTRA_SEMATTRS_HTTP_RESPONSE_STATUS_CODE]: String(response.status),
     [SEMATTRS_HTTP_SCHEME]: response.url.split(":")[0],
   };
 
-  if (isLocal) {
+  if (shouldTraceEverything) {
     const responseText = await tryGetResponseBodyAsText(response);
     if (responseText) {
       attributes[FPX_RESPONSE_BODY] = responseText;
@@ -338,7 +360,7 @@ export async function getResponseAttributes(
     attributes[`http.response.header.${key}`] = getSafeHeaderValue(
       key,
       value,
-      isLocal,
+      resolvedConfig,
     );
   }
 
