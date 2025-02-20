@@ -25,7 +25,7 @@ import type {
 } from "../types/hono-types";
 import { getPlatformSafeEnv } from "./env";
 import { safelySerializeJSON } from "./json";
-import { getSensitiveHeaders } from "./sensitive-headers";
+import { getRedactedHeaders } from "./redacted-headers";
 import { getShouldTraceEverything } from "./trace-everything";
 
 // There are so many different types of headers
@@ -202,11 +202,11 @@ function getSafeHeaderValue(
 ) {
   // NOTE - This might not be necessary in Hono, since Hono headers are all lower case, but it's good to be safe
   const lowerCaseKey = key.toLowerCase();
-  const sensitiveHeaders = getSensitiveHeaders(config);
+  const redactedHeaders = getRedactedHeaders(config);
 
   const shouldTraceEverything = getShouldTraceEverything(config);
 
-  if (!shouldTraceEverything && sensitiveHeaders.has(lowerCaseKey)) {
+  if (!shouldTraceEverything && redactedHeaders.has(lowerCaseKey)) {
     return "REDACTED";
   }
 

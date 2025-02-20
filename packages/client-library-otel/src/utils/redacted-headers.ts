@@ -1,5 +1,5 @@
 import {
-  DEFAULT_SENSITIVE_HEADERS,
+  DEFAULT_REDACTED_HEADERS,
   type FpResolvedConfig,
   getFpResolvedConfig,
 } from "../config";
@@ -7,9 +7,9 @@ import {
 /**
  * Helper function to determine which headers to redact
  */
-export function getSensitiveHeaders(
+export function getRedactedHeaders(
   resolvedConfig?: FpResolvedConfig,
 ): Set<string> {
   const config = resolvedConfig ?? getFpResolvedConfig();
-  return config?.sensitiveHeaders ?? new Set(DEFAULT_SENSITIVE_HEADERS);
+  return config?.redactedHeaders ?? new Set(DEFAULT_REDACTED_HEADERS);
 }

@@ -1,3 +1,8 @@
+import type { DEFAULT_REDACTED_HEADERS } from "./config";
+
+// HACK - Just here to be able to reference the type in a docstring
+type _UnusedImport = typeof DEFAULT_REDACTED_HEADERS;
+
 /**
  * Runtime mode of the client library.
  * - "local" mode will send the kitchen sink with every trace: env vars, request bodies, etc.
@@ -24,8 +29,8 @@ export type FpxConfigOptions = Partial<
  * @internal
  */
 export type FpxConfig = {
-  /** Headers whose values should always be redacted */
-  sensitiveHeaders: Array<string>;
+  /** Headers whose values should always be redacted - these are merged with {@link DEFAULT_REDACTED_HEADERS} */
+  redactedHeaders: Array<string>;
 
   monitor: {
     /** Send data to FPX about each `fetch` call made during a handler's lifetime */

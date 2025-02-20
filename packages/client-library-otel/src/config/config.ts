@@ -11,7 +11,7 @@ import type { FpxConfig, FpxConfigOptions, FpxMode } from "./types";
 export type FpResolvedConfig = {
   enabled: boolean;
   mode: FpxMode;
-  sensitiveHeaders: Set<string>;
+  redactedHeaders: Set<string>;
   otelEndpoint: string | null;
   otelToken: string | null;
   logLevel: string | null;
@@ -31,7 +31,7 @@ export type FpResolvedConfig = {
  *
  * In practice, the library only redacts their values when running in "production" mode.
  */
-export const DEFAULT_SENSITIVE_HEADERS = [
+export const DEFAULT_REDACTED_HEADERS = [
   "authorization",
   "cookie",
   "set-cookie",
@@ -43,10 +43,10 @@ export const DEFAULT_SENSITIVE_HEADERS = [
   "www-authenticate",
   "proxy-authenticate",
   "x-real-ip",
-];
+] as const;
 
 export const DEFAULT_CONFIG = Object.freeze({
-  sensitiveHeaders: DEFAULT_SENSITIVE_HEADERS,
+  redactedHeaders: [...DEFAULT_REDACTED_HEADERS],
   libraryDebugMode: false,
   monitor: {
     fetch: true,
@@ -77,13 +77,11 @@ export function resolveConfig(
   const serviceName = getServiceName(env, "unknown");
 
   // TODO - Transform sensitive headers
-  const sensitiveHeaders = new Set(
-    config.sensitiveHeaders ?? DEFAULT_SENSITIVE_HEADERS,
-  );
+  const redactedHeaders = new Set(config.redactedHeaders);
 
   return {
     ...config,
-    sensitiveHeaders,
+    redactedHeaders,
     enabled,
     mode,
     otelEndpoint,
@@ -107,9 +105,9 @@ function mergeConfigs(
 
   return {
     libraryDebugMode,
-    sensitiveHeaders: mergeSensitiveHeaders(
-      fallbackConfig.sensitiveHeaders,
-      userConfig?.sensitiveHeaders,
+    redactedHeaders: mergeSensitiveHeaders(
+      fallbackConfig.redactedHeaders,
+      userConfig?.redactedHeaders,
     ),
     monitor: Object.assign({}, fallbackConfig.monitor, userConfig?.monitor),
   };
