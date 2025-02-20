@@ -200,7 +200,10 @@ describe("resolveReference", () => {
   });
 
   it("should resolve array indexing in step outputs", () => {
-    const result = resolveReference("$steps.listItems.outputs.items[1].id", mockWorkflowContext);
+    const result = resolveReference(
+      "$steps.listItems.outputs.items[1].id",
+      mockWorkflowContext,
+    );
     expect(result).toBe("item-2");
   });
 });

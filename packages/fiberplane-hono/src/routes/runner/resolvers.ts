@@ -1,5 +1,5 @@
-import jsonpointer from "jsonpointer";
 import { JSONPath } from "jsonpath-plus";
+import jsonpointer from "jsonpointer";
 // NOTE: most of this code is vibe-coded and haven't been rigurously tested
 // unit tests are green but hey ho
 import type { Step, StepParameter } from "../../schemas/workflows.js";
@@ -157,7 +157,12 @@ export function resolveReference(
     })[0];
 
     if (jsonPointerPath && result) {
-      return jsonpointer.get(result, jsonPointerPath.startsWith("/") ? jsonPointerPath : `/${jsonPointerPath}`);
+      return jsonpointer.get(
+        result,
+        jsonPointerPath.startsWith("/")
+          ? jsonPointerPath
+          : `/${jsonPointerPath}`,
+      );
     }
     return result;
   }
@@ -174,7 +179,10 @@ export function resolveReference(
   })[0];
 
   if (jsonPointerPath && result) {
-    return jsonpointer.get(result, jsonPointerPath.startsWith("/") ? jsonPointerPath : `/${jsonPointerPath}`);
+    return jsonpointer.get(
+      result,
+      jsonPointerPath.startsWith("/") ? jsonPointerPath : `/${jsonPointerPath}`,
+    );
   }
 
   return result;
