@@ -7,7 +7,6 @@ import {
 import {
   type FpResolvedConfig,
   getFpResolvedConfig,
-  getRedactedHeaders,
   getRedactedQueryParams,
   getShouldTraceEverything,
 } from "../../config";
@@ -31,6 +30,7 @@ import type {
 } from "../../types/hono-types";
 import { getPlatformSafeEnv } from "../env";
 import { safelySerializeJSON } from "../json";
+import { getSafeHeaderValue } from "./headers";
 
 // There are so many different types of headers
 // and we want to support all of them so we can
@@ -197,24 +197,6 @@ export function getRequestAttributes(
   }
 
   return attributes;
-}
-
-export function getSafeHeaderValue(
-  key: string,
-  value: string,
-  config?: FpResolvedConfig,
-) {
-  // NOTE - This might not be necessary in Hono, since Hono headers are all lower case, but it's good to be safe
-  const lowerCaseKey = key.toLowerCase();
-  const redactedHeaders = getRedactedHeaders(config);
-
-  const shouldTraceEverything = getShouldTraceEverything(config);
-
-  if (!shouldTraceEverything && redactedHeaders.has(lowerCaseKey)) {
-    return "REDACTED";
-  }
-
-  return value;
 }
 
 export function getRedactedUrl(url: URL, config?: FpResolvedConfig): string {
