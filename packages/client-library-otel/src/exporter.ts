@@ -28,6 +28,8 @@ const defaultHeaders: Record<string, string> = {
  *         _but only when we attached a `headers` object to the request._
  *
  *         The lack of browser APIs (XHR, sendBeacon) led to runtime errors.
+ *
+ *         Solution inspired by https://github.com/evanderkoogh/otel-cf-workers/blob/450435bc136d5b81aee655096aa4b8261f42d0c7/src/exporter.ts
  */
 export class FPOTLPExporter implements SpanExporter {
   private headers: Record<string, string>;
