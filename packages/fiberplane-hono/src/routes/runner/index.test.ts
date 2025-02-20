@@ -24,6 +24,15 @@ const mockWorkflow: Workflow = {
   },
   steps: [
     {
+      stepId: "checkContext",
+      description: "Try to access execution context",
+      operation: {
+        path: "/api/context-check",
+        method: "get"
+      },
+      successCriteria: [{ condition: "$response.statusCode === 200" }]
+    },
+    {
       stepId: "createResource",
       description: "Create a test resource",
       operation: {
@@ -97,6 +106,12 @@ describe("Workflow Runner", () => {
 
     app = new Hono();
 
+    app.get("/api/context-check", async (c) => {
+      // This should fail since executionCtx is not available
+      const ctx = c.executionCtx;
+      return c.json({ ctx });
+    });
+
     app.post("/api/resources", async (c) => {
       return c.json(
         {
@@ -162,6 +177,23 @@ describe("Workflow Runner", () => {
         status: "active",
       },
     });
+  });
+
+  it("should fail when trying to access executionCtx", async () => {
+    const res = await app.request("/w/test-workflow", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: "Test Resource",
+        description: "Test Description"
+      }),
+    });
+
+    expect(res.status).toBe(500);
+    const data = await res.json();
+    expect(data.error.details.stepId).toBe("checkContext");
   });
 
   it("should validate workflow inputs", async () => {
