@@ -10,7 +10,7 @@ import {
   getRedactedHeaders,
   getRedactedQueryParams,
   getShouldTraceEverything,
-} from "../config";
+} from "../../config";
 import {
   EXTRA_SEMATTRS_HTTP_REQUEST_METHOD,
   EXTRA_SEMATTRS_HTTP_RESPONSE_STATUS_CODE,
@@ -21,16 +21,16 @@ import {
   FPX_REQUEST_SCHEME,
   FPX_REQUEST_SEARCH,
   FPX_RESPONSE_BODY,
-} from "../constants";
-import { getLogger } from "../logger";
+} from "../../constants";
+import { getLogger } from "../../logger";
 import type {
   GlobalResponse,
   HonoResponse,
   InitParam,
   InputParam,
-} from "../types/hono-types";
-import { getPlatformSafeEnv } from "./env";
-import { safelySerializeJSON } from "./json";
+} from "../../types/hono-types";
+import { getPlatformSafeEnv } from "../env";
+import { safelySerializeJSON } from "../json";
 
 // There are so many different types of headers
 // and we want to support all of them so we can

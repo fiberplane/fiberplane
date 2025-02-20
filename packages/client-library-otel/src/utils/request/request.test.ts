@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { FpResolvedConfig } from "../config";
+import type { FpResolvedConfig } from "../../config";
 import { getRedactedUrl, getSafeHeaderValue } from "./request";
 
 const baseConfig: FpResolvedConfig = {
