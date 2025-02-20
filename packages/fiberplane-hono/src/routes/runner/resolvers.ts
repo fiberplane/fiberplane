@@ -1,7 +1,5 @@
 import { JSONPath } from "jsonpath-plus";
 import jsonpointer from "jsonpointer";
-// NOTE: most of this code is vibe-coded and haven't been rigurously tested
-// unit tests are green but hey ho
 import type { Step, StepParameter } from "../../schemas/workflows.js";
 import type { Workflow } from "../../schemas/workflows.js";
 
@@ -71,27 +69,6 @@ function resolveBody(
           : value;
       return acc;
     }, {});
-
-    // Apply replacements if any
-    // for (const { target, value } of replacements) {
-    //   if (!target || !value) {
-    //     continue;
-    //   }
-
-    //   const parts = target.split("/").filter(Boolean);
-    //   let current = resolvedBody;
-
-    //   // Navigate to the target location
-    //   for (let i = 0; i < parts.length - 1; i++) {
-    //     const part = parts[i];
-    //     current[part] = current[part] || {};
-    //     current = current[part] as Record<string, unknown>;
-    //   }
-
-    //   // Apply the replacement
-    //   const lastPart = parts[parts.length - 1];
-    //   current[lastPart] = value;
-    // }
 
     return resolvedBody;
   }
