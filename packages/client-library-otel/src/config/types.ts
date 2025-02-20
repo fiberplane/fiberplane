@@ -24,8 +24,9 @@ export type FpxConfigOptions = Partial<
  * @internal
  */
 export type FpxConfig = {
-  /** Enable library debug logging */
-  libraryDebugMode: boolean;
+  /** Headers whose values should always be redacted */
+  sensitiveHeaders: Array<string>;
+
   monitor: {
     /** Send data to FPX about each `fetch` call made during a handler's lifetime */
     fetch: boolean;
@@ -34,4 +35,7 @@ export type FpxConfig = {
     /** Proxy Cloudflare bindings to add instrumentation */
     cfBindings: boolean;
   };
+
+  /** Enable library debug logging */
+  libraryDebugMode: boolean;
 };

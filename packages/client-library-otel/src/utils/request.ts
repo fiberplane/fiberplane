@@ -4,11 +4,7 @@ import {
   SEMATTRS_HTTP_RESPONSE_CONTENT_LENGTH,
   SEMATTRS_HTTP_SCHEME,
 } from "@opentelemetry/semantic-conventions";
-import {
-  type FpResolvedConfig,
-  getFpResolvedConfig,
-  resolveConfig,
-} from "../config";
+import { type FpResolvedConfig, getFpResolvedConfig } from "../config";
 import {
   EXTRA_SEMATTRS_HTTP_REQUEST_METHOD,
   EXTRA_SEMATTRS_HTTP_RESPONSE_STATUS_CODE,
@@ -19,7 +15,6 @@ import {
   FPX_REQUEST_SCHEME,
   FPX_REQUEST_SEARCH,
   FPX_RESPONSE_BODY,
-  IGNORED_HEADERS,
 } from "../constants";
 import { getLogger } from "../logger";
 import type {
@@ -30,6 +25,7 @@ import type {
 } from "../types/hono-types";
 import { getPlatformSafeEnv } from "./env";
 import { safelySerializeJSON } from "./json";
+import { getSensitiveHeaders } from "./sensitive-headers";
 import { getShouldTraceEverything } from "./trace-everything";
 
 // There are so many different types of headers
@@ -52,8 +48,8 @@ export function headersToObject(headers: PossibleHeaders) {
 /**
  * Helper to get the request attributes for the root request.
  *
- * Requires that we have a cloned request, so we can get the body and headers
- * without consuming the original request.
+ * When tracing e.v.e.r.y.t.h.i.n.g, this requires that we have a cloned request,
+ * so we can get the body and headers without consuming the original request.
  */
 export async function getRootRequestAttributes(
   request: Request,
@@ -69,10 +65,10 @@ export async function getRootRequestAttributes(
 
   let attributes: Attributes = {};
 
-  // NOTE - We only send env vars when running in "local" mode
+  // NOTE - In practice, we only send env vars when running in "local" mode
   if (shouldTraceEverything) {
-    // HACK - We need to account for the fact that the Hono `env` is different across runtimes
-    //        If process.env is available, we use that, otherwise we use the `env` object from the Hono runtime
+    // We need to account for the fact that the Hono `env` is different across runtimes
+    // If process.env is available, we use that, otherwise we use the `env` object from the Hono runtime
     const env = getPlatformSafeEnv(honoEnv);
     if (env) {
       attributes[FPX_REQUEST_ENV] = safelySerializeJSON(env);
@@ -204,8 +200,13 @@ function getSafeHeaderValue(
   value: string,
   config?: FpResolvedConfig,
 ) {
+  // NOTE - This might not be necessary in Hono, since Hono headers are all lower case, but it's good to be safe
+  const lowerCaseKey = key.toLowerCase();
+  const sensitiveHeaders = getSensitiveHeaders(config);
+
   const shouldTraceEverything = getShouldTraceEverything(config);
-  if (!shouldTraceEverything && IGNORED_HEADERS.has(key.toLowerCase())) {
+
+  if (!shouldTraceEverything && sensitiveHeaders.has(lowerCaseKey)) {
     return "REDACTED";
   }
 

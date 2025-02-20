@@ -11,6 +11,7 @@ import type { FpxConfig, FpxConfigOptions, FpxMode } from "./types";
 export type FpResolvedConfig = {
   enabled: boolean;
   mode: FpxMode;
+  sensitiveHeaders: Set<string>;
   otelEndpoint: string | null;
   otelToken: string | null;
   logLevel: string | null;
@@ -23,7 +24,29 @@ export type FpResolvedConfig = {
   };
 };
 
+/**
+ * OpenTelemetry advises that instrumentations should require explicit configuration of which headers to capture.
+ *
+ * We want to minimize configuration, so instead, we've chosen to ignore the following headers by default.
+ *
+ * In practice, the library only redacts their values when running in "production" mode.
+ */
+export const DEFAULT_SENSITIVE_HEADERS = [
+  "authorization",
+  "cookie",
+  "set-cookie",
+  "x-api-key",
+  "x-amz-security-token",
+  "x-real-ip",
+  "x-forwarded-for",
+  "proxy-authorization",
+  "www-authenticate",
+  "proxy-authenticate",
+  "x-real-ip",
+];
+
 export const DEFAULT_CONFIG = Object.freeze({
+  sensitiveHeaders: DEFAULT_SENSITIVE_HEADERS,
   libraryDebugMode: false,
   monitor: {
     fetch: true,
@@ -53,8 +76,14 @@ export function resolveConfig(
   const logLevel = getLogLevel(config, env);
   const serviceName = getServiceName(env, "unknown");
 
+  // TODO - Transform sensitive headers
+  const sensitiveHeaders = new Set(
+    config.sensitiveHeaders ?? DEFAULT_SENSITIVE_HEADERS,
+  );
+
   return {
     ...config,
+    sensitiveHeaders,
     enabled,
     mode,
     otelEndpoint,
@@ -78,6 +107,20 @@ function mergeConfigs(
 
   return {
     libraryDebugMode,
+    sensitiveHeaders: mergeSensitiveHeaders(
+      fallbackConfig.sensitiveHeaders,
+      userConfig?.sensitiveHeaders,
+    ),
     monitor: Object.assign({}, fallbackConfig.monitor, userConfig?.monitor),
   };
+}
+
+function mergeSensitiveHeaders(
+  fallbackHeaders: Array<string>,
+  userHeaders: Array<string> | undefined,
+): Array<string> {
+  const lowerCaseUserHeaders = (userHeaders ?? []).map((header) =>
+    header.toLowerCase(),
+  );
+  return [...fallbackHeaders, ...lowerCaseUserHeaders];
 }

@@ -52,24 +52,3 @@ export const CF_BINDING_ERROR = "cf.binding.error";
 export const FPX_REQUEST_HANDLER_FILE = "fpx.http.request.handler.file";
 export const FPX_REQUEST_HANDLER_SOURCE_CODE =
   "fpx.http.request.handler.source_code";
-
-/**
- * OpenTelemetry advises that instrumentations should require explicit configuration of which headers to capture.
- *
- * We want to minimize configuration, so instead, we've chosen to ignore the following headers by default.
- *
- * In practice, the library only redacts their values when running in "production" mode.
- */
-export const IGNORED_HEADERS = new Set([
-  "authorization",
-  "cookie",
-  "set-cookie",
-  "x-api-key",
-  "x-amz-security-token",
-  "x-real-ip",
-  "x-forwarded-for",
-  "proxy-authorization",
-  "www-authenticate",
-  "proxy-authenticate",
-  "x-real-ip",
-]);
