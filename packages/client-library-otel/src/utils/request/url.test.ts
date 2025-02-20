@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { FpResolvedConfig } from "../../config";
-import { getRedactedUrl } from "./request";
+import { getRedactedUrl } from "./url";
 
 const baseConfig: FpResolvedConfig = {
   enabled: true,

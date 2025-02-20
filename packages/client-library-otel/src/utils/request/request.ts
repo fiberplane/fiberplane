@@ -7,7 +7,6 @@ import {
 import {
   type FpResolvedConfig,
   getFpResolvedConfig,
-  getRedactedQueryParams,
   getShouldTraceEverything,
 } from "../../config";
 import {
@@ -31,6 +30,7 @@ import type {
 import { getPlatformSafeEnv } from "../env";
 import { safelySerializeJSON } from "../json";
 import { getSafeHeaderValue } from "./headers";
+import { getRedactedUrl } from "./url";
 
 // There are so many different types of headers
 // and we want to support all of them so we can
@@ -197,25 +197,6 @@ export function getRequestAttributes(
   }
 
   return attributes;
-}
-
-export function getRedactedUrl(url: URL, config?: FpResolvedConfig): string {
-  const shouldTraceEverything = getShouldTraceEverything(config);
-
-  if (shouldTraceEverything) {
-    return url.toString();
-  }
-
-  const redactedUrl = new URL(url.toString());
-  const redactedQueryParams = getRedactedQueryParams(config);
-
-  for (const [key] of redactedUrl.searchParams.entries()) {
-    if (redactedQueryParams.has(key.toLowerCase())) {
-      redactedUrl.searchParams.set(key, "REDACTED");
-    }
-  }
-
-  return redactedUrl.toString();
 }
 
 function formatBody(body: BodyInit) {
