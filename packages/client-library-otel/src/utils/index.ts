@@ -1,7 +1,12 @@
 export { getFromEnv, type FpHonoEnv } from "./env";
 export * from "./errors";
 export * from "./json";
-export * from "./request";
+export {
+  getRootRequestAttributes,
+  getRequestAttributes,
+  getResponseAttributes,
+  cloneRequestForAttributes,
+} from "./request";
 export * from "./wrapper";
 export { cloneResponse } from "./response";
 

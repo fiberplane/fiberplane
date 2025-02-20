@@ -40,7 +40,7 @@ type PossibleHeaders =
   | HonoResponse["headers"]
   | GlobalResponse["headers"];
 
-export function headersToObject(headers: PossibleHeaders) {
+function headersToObject(headers: PossibleHeaders) {
   const returnObject: Record<string, string> = {};
   headers.forEach((value, key) => {
     returnObject[key] = value;
