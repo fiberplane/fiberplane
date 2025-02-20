@@ -34,9 +34,9 @@ import type { FetchFn, HonoLikeApp, HonoLikeEnv, HonoLikeFetch } from "./types";
 import {
   type FpHonoEnv,
   cloneRequestForAttributes,
+  getIncomingRequestAttributes,
   getRequestAttributes,
   getResponseAttributes,
-  getRootRequestAttributes,
 } from "./utils";
 
 // Freeze the web standard fetch function so that we can use it without creating new spans
@@ -164,7 +164,7 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
           // Parse the headers for the root request.
           // In "local" mode, this will also parse the body, which does add some latency.
           // NOTE - We invoke this outside of the measure call, so that we can use the cloned request body for attributes in "local" mode
-          const rootRequestAttributes = await getRootRequestAttributes(
+          const rootRequestAttributes = await getIncomingRequestAttributes(
             requestForAttributes,
             env,
             resolvedConfig,
