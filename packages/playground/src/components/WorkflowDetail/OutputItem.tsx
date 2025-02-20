@@ -1,5 +1,6 @@
 import { useWorkflowStore } from "@/lib/workflowStore";
 import { NOT_FOUND } from "./ParameterItem";
+import { useShallow } from "zustand/react/shallow";
 
 export function OutputItem({
   output,
@@ -8,13 +9,14 @@ export function OutputItem({
   output: { key: string; value: string };
   stepId?: string;
 }) {
-  const fullStepId = stepId
-    ? `$steps.${stepId}.outputs.${output.key}`
-    : output.key;
-  const { resolveRuntimeExpression } = useWorkflowStore();
-  const resolvedValue = resolveRuntimeExpression(fullStepId);
-  const value = resolvedValue === fullStepId ? NOT_FOUND : resolvedValue;
-
+  // const fullStepId = stepId
+  //   ? `$steps.${stepId}.outputs.${output.key}`
+  //   : output.key;
+  // const { resolveRuntimeExpression } = useWorkflowStore();
+  // const resolvedValue = resolveRuntimeExpression(fullStepId);
+  // const value = resolvedValue === fullStepId ? NOT_FOUND : resolvedValue;
+  const { outputValues } = useWorkflowStore(useShallow(({ outputValues }) => ({ outputValues })))
+  const value = outputValues[output.key] ?? NOT_FOUND
   return (
     <div className="text-sm grid grid-cols-[200px_auto] max-w-full overflow-hidden">
       <div>{output.key}</div>
@@ -34,9 +36,9 @@ export function OutputItem({
                 )}
               </code>
             </pre>
-            <div className="font-sans text-sm text-muted-foreground">
+            {/* <div className="font-sans text-sm text-muted-foreground">
               (value selector: {output.value})
-            </div>
+            </div> */}
           </>
         )}
       </div>
