@@ -1,6 +1,11 @@
 export { resolveConfig } from "./config";
 export type { FpxConfigOptions } from "./types";
-export { getFpResolvedConfig, setFpResolvedConfig } from "./context";
+export {
+  getFpResolvedConfig,
+  setFpResolvedConfig,
+  getRedactedHeaders,
+  getRedactedQueryParams,
+} from "./context";
 export type { FpResolvedConfig } from "./config";
 export {
   DEFAULT_REDACTED_HEADERS,

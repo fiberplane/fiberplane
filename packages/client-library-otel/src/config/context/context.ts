@@ -1,5 +1,5 @@
 import { type Context, context } from "@opentelemetry/api";
-import type { FpResolvedConfig } from "./config";
+import type { FpResolvedConfig } from "../config";
 
 /**
  * Unique symbol used to store/retrieve the FPX config on the active context.

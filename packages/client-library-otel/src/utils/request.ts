@@ -5,6 +5,7 @@ import {
   SEMATTRS_HTTP_SCHEME,
 } from "@opentelemetry/semantic-conventions";
 import { type FpResolvedConfig, getFpResolvedConfig } from "../config";
+import { getRedactedHeaders, getRedactedQueryParams } from "../config";
 import {
   EXTRA_SEMATTRS_HTTP_REQUEST_METHOD,
   EXTRA_SEMATTRS_HTTP_RESPONSE_STATUS_CODE,
@@ -25,8 +26,6 @@ import type {
 } from "../types/hono-types";
 import { getPlatformSafeEnv } from "./env";
 import { safelySerializeJSON } from "./json";
-import { getRedactedHeaders } from "./redacted-headers";
-import { getRedactedQueryParams } from "./redacted-query-params";
 import { getShouldTraceEverything } from "./trace-everything";
 
 // There are so many different types of headers
