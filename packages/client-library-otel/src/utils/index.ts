@@ -4,7 +4,6 @@ export * from "./json";
 export * from "./request";
 export * from "./wrapper";
 export { cloneResponse } from "./response";
-export { getShouldTraceEverything } from "./trace-everything";
 
 export function isPromiseLike<T>(value: unknown): value is PromiseLike<T> {
   return (

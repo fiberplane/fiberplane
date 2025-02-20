@@ -1,4 +1,5 @@
-import { type FpResolvedConfig, getFpResolvedConfig } from "../config";
+import type { FpResolvedConfig } from "../config";
+import { getFpResolvedConfig } from "./context";
 
 /**
  * Helper function to determine whether we want to record potentially sensitive data

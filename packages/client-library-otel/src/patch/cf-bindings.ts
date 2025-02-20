@@ -1,4 +1,5 @@
 import type { Span } from "@opentelemetry/api";
+import { getShouldTraceEverything } from "../config";
 import {
   CF_BINDING_ERROR,
   CF_BINDING_METHOD,
@@ -9,13 +10,11 @@ import {
 import { measure } from "../measure";
 import {
   errorToJson,
-  getShouldTraceEverything,
   isObject,
   isUintArray,
   objectWithKey,
   safelySerializeJSON,
 } from "../utils";
-
 /**
  * A key used to mark objects as proxied by us, so that we don't proxy them again.
  *

@@ -5,6 +5,7 @@ export {
   setFpResolvedConfig,
   getRedactedHeaders,
   getRedactedQueryParams,
+  getShouldTraceEverything,
 } from "./context";
 export type { FpResolvedConfig } from "./config";
 export {

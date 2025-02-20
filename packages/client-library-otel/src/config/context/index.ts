@@ -3,3 +3,4 @@
 export { getFpResolvedConfig, setFpResolvedConfig } from "./context";
 export { getRedactedHeaders } from "./redacted-headers";
 export { getRedactedQueryParams } from "./redacted-query-params";
+export { getShouldTraceEverything } from "./trace-everything";
