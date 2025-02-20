@@ -13,7 +13,11 @@ const navEntries = Astro.props.sidebar.map((entry) => {
   }
 
   const getFirstLinkHref = (entries: Array<typeof entry | Link>) => {
-    const firstElement = entries[0];
+    const firstElement = entries.at(0);
+    if (!firstElement) {
+      return "/";
+    }
+
     if (firstElement.type === "link") {
       return firstElement.href;
     }
