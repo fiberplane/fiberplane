@@ -14,7 +14,7 @@ export function WorkflowUrl({ workflowId }: CopyableUrlProps) {
   const workflowUrl = useWorkflowUrl(workflowId);
 
   return (
-    <div>
+    <div className="p-2">
       <div className="p-1.5 pt-0.5 text-sm font-medium">
         Run this workflow by making a POST request to
       </div>

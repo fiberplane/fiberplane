@@ -27,12 +27,15 @@ export function WorkflowDetail() {
             </div>
             <div className="border p-2 text-sm grid gap-2  text-muted-foreground">
               <h4 className="text-foreground/70">What are workflows?</h4>
-              Workflows are sequences of requests against the API that can be used as custom POST endpoints. Workflows request all the necessary data in one place and resolve intermediate values.
+              Workflows are sequences of requests against the API that can be
+              used as custom POST endpoints. Workflows request all the necessary
+              data in one place and resolve intermediate values.
             </div>
           </div>
           <div className="grid grid-cols-[2fr_1fr] items-start gap-2">
             <ListSection title={testTitle} contentClassName="p-0">
               <WorkflowUrl workflowId={workflow.workflowId} />
+
               <div className="grid grid-cols-2 items-start gap-2">
                 <ListSection
                   title={
@@ -55,7 +58,8 @@ export function WorkflowDetail() {
                     )}
                   </div>
                 </ListSection>
-                <ListSection title="Outputs">
+                <ListSection title="Outputs"
+                  contentClassName="grid gap-2">
                   {Object.entries(workflow.outputs).map(([key, output]) => (
                     <OutputItem key={key} output={output} />
                   ))}

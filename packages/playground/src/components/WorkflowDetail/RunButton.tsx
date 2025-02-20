@@ -1,11 +1,14 @@
 import { useWorkflowStore } from "@/lib/workflowStore";
+import type { JSONPropertyValueSchema, Workflow } from "@/types";
 import { Play } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "../ui/button";
 import { useExecuteWorkflow } from "./useExecuteWorkflow";
-import { JSONPropertyValueSchema, Workflow } from "@/types";
 
-export function RunButton({ id, workflow }: { id: string, workflow: Workflow }) {
+export function RunButton({
+  id,
+  workflow,
+}: { id: string; workflow: Workflow }) {
   const { mutate: executeWorkflow, isPending } = useExecuteWorkflow();
 
   const { inputValues } = useWorkflowStore(
@@ -32,8 +35,10 @@ export function RunButton({ id, workflow }: { id: string, workflow: Workflow }) 
   );
 }
 
-
-function parsedValues(inputValues: Record<string, string>, workflow: Workflow): Record<string, unknown> {
+function parsedValues(
+  inputValues: Record<string, string>,
+  workflow: Workflow,
+): Record<string, unknown> {
   const entries = Object.entries(inputValues).map(([key, value]) => {
     const schema = workflow.inputs.properties[key];
     if (schema) {
@@ -41,14 +46,16 @@ function parsedValues(inputValues: Record<string, string>, workflow: Workflow): 
     }
 
     return [key, value];
-  })
+  });
   return Object.fromEntries(entries);
 }
 
-function constrainValueToSchema(value: string, schema: JSONPropertyValueSchema) {
+function constrainValueToSchema(
+  value: string,
+  schema: JSONPropertyValueSchema,
+) {
   switch (schema.type) {
     case "boolean": {
-
       if (value.toLowerCase() === "true") {
         return true;
       }
@@ -79,7 +86,6 @@ function constrainValueToSchema(value: string, schema: JSONPropertyValueSchema) 
         return undefined;
       }
     }
-
   }
 
   return value;
