@@ -10,7 +10,7 @@ type OGImageOptions = Omit<
 export const ogImageOptions: OGImageOptions = {
   bgImage: {
     path: "./src/assets/og-bg.png",
-    position:"center",
+    position: "center",
     fit: "cover"
   },
   logo: {

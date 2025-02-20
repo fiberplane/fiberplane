@@ -1,6 +1,6 @@
 ---
 title: "New Fiberplane and HONC stack to support OpenAPI 3.0 specs for Typescript Developers"
-description: "Automatic OpenAPI 3.0 spec generation for \"vanilla\" Hono apps, enum support with number values, and a new HONC template app that includes automatic OpenAPI spec generation."
+description: 'Automatic OpenAPI 3.0 spec generation for "vanilla" Hono apps, enum support with number values, and a new HONC template app that includes automatic OpenAPI spec generation.'
 slug: honc-stack-openapi
 date: 2025-02-20
 author: Fiberplane Team
@@ -25,16 +25,16 @@ Our Hono API Playground automatically recognizes your routes because of OpenAPI�
 The `createOpenAPISpec` function automatically discovers your existing Hono routes, path parameters, and HTTP methods and converts them into a valid starter OpenAPI document that you can serve from your application. It is naturally not as extensive as a fully detailed spec, but it will get you started. Simply pass your Hono app instance and optional configuration to generate a specification that's ready to use with embeddable Fiberplane API Playground or any documentation tools.
 
 ```typescript
-import { createOpenAPISpec } from '@fiberplane/hono'
+import { createOpenAPISpec } from "@fiberplane/hono";
 
 // ...
 
-app.get('/openapi.json', (c) => {
+app.get("/openapi.json", (c) => {
   const spec = createOpenAPISpec(app, {
-    info: { title: 'Users API', version: '1.0.0' }
-  })
-  return c.json(spec)
-})
+    info: { title: "Users API", version: "1.0.0" }
+  });
+  return c.json(spec);
+});
 ```
 
 ### **Enum support: Validated values in API requests and responses**
@@ -47,7 +47,7 @@ You’ll also see improved support for form-data (we're now extracting more fiel
 
 ### **Generate an OpenAPI spec in the HONC stack template**
 
-If you’re not familiar with HONC, it’s our loosely opinionated stack that accelerates web development, featuring [Hono](https://hono.dev/) as a web framework, [Drizzle](https://orm.drizzle.team/) as an ORM, [Neon](https://neon.tech/) as a database, and [Cloudflare Workers](https://workers.cloudflare.com/). There are many sample apps plus a template to quickly spin up an app framework - and now the updated template for `create-honc-app` generates your OpenAPI spec for you. This is a great starting point for developers building with Hono who might normally breeze over creating a spec (*ahem not me!)* but now instead can make it part of their automated setup.
+If you’re not familiar with HONC, it’s our loosely opinionated stack that accelerates web development, featuring [Hono](https://hono.dev/) as a web framework, [Drizzle](https://orm.drizzle.team/) as an ORM, [Neon](https://neon.tech/) as a database, and [Cloudflare Workers](https://workers.cloudflare.com/). There are many sample apps plus a template to quickly spin up an app framework - and now the updated template for `create-honc-app` generates your OpenAPI spec for you. This is a great starting point for developers building with Hono who might normally breeze over creating a spec (_ahem not me!)_ but now instead can make it part of their automated setup.
 
 When you create a new HONC app, the `create-honc-app` CLI will ask you if you’d like an OpenAPI spec. Select "Yes", and your template will include the legendary [Zod OpenAPI Hono](https://hono.dev/examples/zod-openapi) extension to autogenerate an OpenAPI spec from your code.
 
