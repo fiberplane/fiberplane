@@ -1,4 +1,5 @@
 import type { Span } from "@opentelemetry/api";
+import { getFpResolvedConfig } from "../config";
 import {
   CF_BINDING_ERROR,
   CF_BINDING_METHOD,
@@ -317,6 +318,13 @@ function getCfBindingAttributes(
  * @param result - The result to add to the span
  */
 function addResultAttribute(span: Span, result: unknown) {
+  // NOTE - We don't want to show the result of a binding in production
+  const config = getFpResolvedConfig();
+  const isLocal = config?.mode === "local";
+  if (!isLocal) {
+    return;
+  }
+
   // HACK - Probably a smarter way to avoid serlializing massive amounts of binary data, but this works for now
   const isBinary = isUintArray(result);
   span.setAttributes({
