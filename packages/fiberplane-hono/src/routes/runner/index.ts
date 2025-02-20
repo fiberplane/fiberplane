@@ -6,6 +6,7 @@ import { type Env, Hono } from "hono";
 import { getContext } from "hono/context-storage";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
+import { logIfDebug } from "../../debug.js";
 import type { Step, Workflow } from "../../schemas/workflows.js";
 import type { FiberplaneAppType } from "../../types.js";
 import {
@@ -25,6 +26,7 @@ interface WorkflowErrorResponse {
       stepId: string;
       method: string;
       path: string;
+      parameters?: unknown;
     };
   };
 }
@@ -34,7 +36,11 @@ class WorkflowError extends HTTPException {
     status: number,
     message: string,
     public readonly stepId: string,
-    public readonly operation: { method: string; path: string },
+    public readonly operation: {
+      method: string;
+      path: string;
+      parameters?: unknown;
+    },
     public readonly cause?: unknown,
   ) {
     super(status as 400 | 401 | 403 | 404 | 500, {
@@ -52,6 +58,7 @@ class WorkflowError extends HTTPException {
           stepId: this.stepId,
           method: this.operation.method,
           path: this.operation.path,
+          parameters: this.operation.parameters,
         },
       },
     };
@@ -74,6 +81,18 @@ export default function createRunnerRoute<E extends Env>(apiKey: string) {
       if (!valid) {
         const errorMessage = errors.map((error) => error.error).join("\n");
         return c.json({ error: errorMessage }, 400);
+      }
+
+      const context = getContext<E & FiberplaneAppType<E>>();
+      const userApp = context.get("userApp");
+      if (!userApp) {
+        return c.json(
+          {
+            type: "CONFIGURATION_ERROR",
+            message: "Missing `app` parameter for @fiberplane/hono middleware",
+          },
+          500,
+        );
       }
 
       try {
@@ -107,9 +126,9 @@ async function executeWorkflow(
       if (response.statusCode >= 400) {
         throw new WorkflowError(
           response.statusCode,
-          `Workflow ${workflow.workflowId} failed. Failed at ${step.stepId}, operation: ${step.operation.method.toUpperCase()} ${step.operation.path}. Error: ${response.body}`,
+          `Workflow ${workflow.workflowId} failed. Failed at ${step.stepId}, operation: ${step.operation.method.toUpperCase()} ${step.operation.path}. Error: ${JSON.stringify(response.body, null, 2)}`,
           step.stepId,
-          step.operation,
+          { ...step.operation, parameters: resolvedParams },
         );
       }
       const outputs = resolveStepOutputs(step, response);
@@ -182,7 +201,6 @@ async function executeStep<E extends Env>(
   const response = await userApp.request(request, {}, userEnv);
 
   const responseBody = await response.json();
-
   return {
     statusCode: response.status,
     body: responseBody,
