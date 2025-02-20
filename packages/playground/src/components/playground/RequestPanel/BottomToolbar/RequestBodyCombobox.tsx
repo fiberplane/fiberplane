@@ -19,7 +19,11 @@ import {
 import { cn } from "@/utils";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { useMemo, useState } from "react";
-import type { PlaygroundBody, PlaygroundBodyType } from "../../store";
+import { useShallow } from "zustand/react/shallow";
+import { useStudioStore, useStudioStoreRaw } from "../../store";
+import { useApiCallData } from "../../store/hooks/useApiCallData";
+import type { PlaygroundBodyType } from "../../store/types";
+import { rawGetActiveRoute } from "../../store/utils";
 
 type RequestBodyTypeOption = {
   value: PlaygroundBodyType;
@@ -33,20 +37,19 @@ const bodyTypes: RequestBodyTypeOption[] = [
   { value: "file", label: "File" },
 ];
 
-export type RequestBodyTypeDropdownProps = {
-  requestBody: PlaygroundBody;
-  handleRequestBodyTypeChange: (
-    contentType: PlaygroundBodyType,
-    isMultipart?: boolean,
-  ) => void;
-  isDisabled: boolean;
-};
+export function RequestBodyTypeDropdown() {
+  const isDisabled = useStudioStoreRaw(
+    useShallow((state) => {
+      const { method } = rawGetActiveRoute(state);
+      return method === "GET" || method === "HEAD";
+    }),
+  );
 
-export function RequestBodyTypeDropdown({
-  requestBody,
-  handleRequestBodyTypeChange,
-  isDisabled,
-}: RequestBodyTypeDropdownProps) {
+  const { handleRequestBodyTypeChange } = useStudioStore(
+    "handleRequestBodyTypeChange",
+  );
+  const { body: requestBody } = useApiCallData("body");
+
   const [open, setOpen] = useState(false);
   const requestBodyType = requestBody.type;
   const bodyTypeLabel = useMemo(() => {
@@ -54,6 +57,7 @@ export function RequestBodyTypeDropdown({
       bodyTypes.find((type) => type.value === requestBodyType)?.label ?? "Body"
     );
   }, [requestBodyType]);
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <div className="flex items-center gap-4">
@@ -83,9 +87,9 @@ export function RequestBodyTypeDropdown({
           <div className="flex items-center gap-1">
             <Switch
               checked={requestBody.isMultipart}
-              onCheckedChange={(checked) => {
-                handleRequestBodyTypeChange("form-data", checked);
-              }}
+              onCheckedChange={(checked) =>
+                handleRequestBodyTypeChange("form-data", checked)
+              }
             />
             <span className="text-xs text-muted-foreground">Multipart</span>
           </div>

@@ -1,16 +1,25 @@
-import { createObjectFromKeyValueParameters } from "@/utils";
+import {
+  type SupportedMediaTypeObject,
+  type SupportedParameterObject,
+  type SupportedReferenceObject,
+  type SupportedRequestBodyObject,
+  isSupportedOperationObject,
+  isSupportedParameterObject,
+  isSupportedRequestBodyObject,
+} from "@/lib/isOpenApi";
 import type { StateCreator } from "zustand";
-import { enforceFormDataTerminalDraftParameter } from "../../FormDataForm";
-import { enforceTerminalDraftParameter } from "../../KeyValueForm";
-import { isOpenApiOperation } from "../../RequestPanel/RouteDocumentation";
+import {
+  enforceTerminalDraftParameter,
+  reduceKeyValueElements,
+} from "../../KeyValueForm";
+import { createKeyValueElement } from "../../KeyValueForm/data";
 import type { ApiRoute } from "../../types";
 import { updateContentTypeHeaderInState } from "../content-type";
 import { setBodyTypeInState } from "../set-body-type";
-import type { KeyValueParameter } from "../types";
+import type { KeyValueElement, PlaygroundBody } from "../types";
 import {
   addBaseUrl,
-  extractPathParams,
-  mapPathParamKey,
+  extractPathParameterKeys,
   removeBaseUrl,
   resolvePathWithParameters,
 } from "../utils";
@@ -20,6 +29,7 @@ import {
   transformToFormParams,
 } from "../utils-faker";
 import {
+  extractFormDataFromOpenApiDefinition,
   extractJsonBodyFromOpenApiDefinition,
   extractQueryParamsFromOpenApiDefinition,
 } from "../utils-openapi";
@@ -27,7 +37,7 @@ import type { ApiCallData, RequestResponseSlice, StudioState } from "./types";
 
 export const requestResponseSlice: StateCreator<
   StudioState,
-  [["zustand/immer", never], ["zustand/devtools", never]],
+  [["zustand/devtools", never]],
   [],
   RequestResponseSlice
 > = (set, get) => ({
@@ -44,46 +54,52 @@ export const requestResponseSlice: StateCreator<
   fillInFakeData: () => {
     const state = get();
     const { activeRoute } = state;
-    if (!activeRoute?.openApiSpec) {
-      console.error("No route spec found or parseable");
-      window.alert("No route spec found or parseable");
+    if (!activeRoute) {
+      console.error("No active route set");
+      window.alert("No active route set");
       return;
     }
 
     try {
-      const openApiSpec = JSON.parse(activeRoute.openApiSpec);
-      if (!isOpenApiOperation(openApiSpec)) {
-        console.error("Invalid OpenAPI spec");
-        window.alert("Invalid OpenAPI spec");
-        return;
-      }
+      const fakeData = generateFakeData(
+        activeRoute.operation,
+        activeRoute.path,
+      );
 
-      const fakeData = generateFakeData(openApiSpec, activeRoute.path);
       // Transform data to match form state types
-      set((state) => {
+      set((initialState: StudioState): StudioState => {
+        const state = { ...initialState };
         if (!state.activeRoute) {
           console.warn("Can't fill in fake data, there is no active route");
-          return;
+          return state;
         }
         const id = getRouteId(state.activeRoute);
+        state.apiCallState = {
+          ...state.apiCallState,
+        };
         const { apiCallState } = state;
+
         if (id in apiCallState === false) {
           apiCallState[id] = createInitialApiCallData(state.activeRoute);
+        } else {
+          apiCallState[id] = { ...apiCallState[id] };
         }
 
         const params = apiCallState[id];
-
         params.body = transformToFormBody(fakeData.body);
+
         const fakeQueryParams = transformToFormParams(fakeData.queryParams);
         if (fakeQueryParams.length > 0) {
           params.queryParams = enforceTerminalDraftParameter(
             transformToFormParams(fakeData.queryParams),
           );
         }
+
         const fakeHeaders = transformToFormParams(fakeData.headers);
         if (fakeHeaders.length > 0) {
           params.requestHeaders = enforceTerminalDraftParameter(fakeHeaders);
         }
+
         const fakePathParams = transformToFormParams(fakeData.pathParams).map(
           (param) => ({
             ...param,
@@ -94,6 +110,7 @@ export const requestResponseSlice: StateCreator<
         if (fakePathParams.length > 0) {
           params.pathParams = fakePathParams;
         }
+        return initialState;
       });
     } catch (e) {
       console.error("Error parsing OpenAPI spec:", e);
@@ -102,77 +119,102 @@ export const requestResponseSlice: StateCreator<
   },
 
   setCurrentAuthorizationId: (authorizationId: string | null) =>
-    set((state) => {
+    set((initialState: StudioState): StudioState => {
+      const state = { ...initialState };
       if (!state.activeRoute) {
         console.warn("Can't set current authorization id, no active route");
-        return;
+        return initialState;
       }
-      const id = getRouteId(state.activeRoute || state);
 
+      state.apiCallState = {
+        ...state.apiCallState,
+      };
       const { apiCallState } = state;
+
+      const id = getRouteId(state.activeRoute || state);
       if (id in apiCallState === false) {
         apiCallState[id] = createInitialApiCallData(state.activeRoute);
+      } else {
+        apiCallState[id] = { ...apiCallState[id] };
       }
 
       const params = apiCallState[id];
       params.authorizationId = authorizationId;
+      return state;
     }),
 
   setServiceBaseUrl: (serviceBaseUrl) =>
-    set((state) => {
+    set((initialState: StudioState): StudioState => {
+      const state = { ...initialState };
       if (state.serviceBaseUrl === serviceBaseUrl) {
-        return;
+        return initialState;
       }
-
       state.serviceBaseUrl = serviceBaseUrl;
 
       if (!state.activeRoute) {
-        return;
+        return state;
       }
 
       // The path might be changed, so verify that there's a default
       // `apiCallState` value
       const id = getRouteId(state.activeRoute);
       if (id in state.apiCallState === false) {
+        state.apiCallState = {
+          ...state.apiCallState,
+        };
         state.apiCallState[id] = createInitialApiCallData(state.activeRoute);
       }
+
+      return state;
     }),
 
   setCurrentPathParams: (pathParams) =>
-    set((state) => {
+    set((initialState: StudioState): StudioState => {
+      const state = { ...initialState };
       if (!state.activeRoute) {
         console.warn("Unable to set current path parameters: no active route");
-        return;
+        return initialState;
       }
 
-      const id = getRouteId(state.activeRoute);
-
+      state.apiCallState = {
+        ...state.apiCallState,
+      };
       const { apiCallState } = state;
+      const id = getRouteId(state.activeRoute);
       if (id in apiCallState === false) {
         apiCallState[id] = createInitialApiCallData(state.activeRoute);
+      } else {
+        apiCallState[id] = { ...apiCallState[id] };
       }
 
       const params = apiCallState[id];
       params.pathParams = pathParams;
+      return state;
     }),
 
   updateCurrentPathParamValues: (pathParams) =>
-    set((state) => {
+    set((initialState: StudioState): StudioState => {
+      const state = { ...initialState };
       if (!state.activeRoute) {
         console.warn("Unable to update current path parameter values");
-        return;
+        return initialState;
       }
-      const id = getRouteId(state.activeRoute || state);
 
+      const id = getRouteId(state.activeRoute || state);
+      state.apiCallState = {
+        ...state.apiCallState,
+      };
       const { apiCallState } = state;
       if (id in apiCallState === false) {
         apiCallState[id] = createInitialApiCallData(state.activeRoute);
+      } else {
+        apiCallState[id] = { ...apiCallState[id] };
       }
 
       const params = apiCallState[id];
 
       params.pathParams = params.pathParams.map(
-        (pathParam: KeyValueParameter) => {
+        (pathParam: KeyValueElement) => {
           const replacement = pathParams?.find((p) => p?.key === pathParam.key);
           if (!replacement) {
             return pathParam;
@@ -185,19 +227,27 @@ export const requestResponseSlice: StateCreator<
           };
         },
       );
+
+      return state;
     }),
 
   clearCurrentPathParams: () =>
-    set((state) => {
+    set((initialState: StudioState): StudioState => {
+      const state = { ...initialState };
       if (!state.activeRoute) {
         console.warn("No active route (clearCurrentPathParams)");
-        return;
+        return initialState;
       }
-      const id = getRouteId(state.activeRoute);
 
+      state.apiCallState = {
+        ...state.apiCallState,
+      };
       const { apiCallState } = state;
+      const id = getRouteId(state.activeRoute);
       if (id in apiCallState === false) {
         apiCallState[id] = createInitialApiCallData(state.activeRoute);
+      } else {
+        apiCallState[id] = { ...apiCallState[id] };
       }
 
       const params = apiCallState[id];
@@ -206,53 +256,70 @@ export const requestResponseSlice: StateCreator<
         value: "",
         enabled: false,
       }));
+
+      return state;
     }),
 
   setCurrentQueryParams: (queryParams) =>
-    set((state) => {
+    set((initialState: StudioState): StudioState => {
+      const state = { ...initialState };
       if (!state.activeRoute) {
         console.warn("No active route (setCurrentQueryParams)");
-        return;
+        return initialState;
       }
-      const id = getRouteId(state.activeRoute);
 
+      state.apiCallState = {
+        ...state.apiCallState,
+      };
       const { apiCallState } = state;
+      const id = getRouteId(state.activeRoute);
       if (id in apiCallState === false) {
         apiCallState[id] = createInitialApiCallData(state.activeRoute);
+      } else {
+        apiCallState[id] = { ...apiCallState[id] };
       }
 
       const params = apiCallState[id];
       params.queryParams = enforceTerminalDraftParameter(queryParams);
+      return state;
     }),
 
   setCurrentRequestHeaders: (headers) =>
-    set((state) => {
+    set((initialState: StudioState): StudioState => {
+      const state = { ...initialState };
       if (!state.activeRoute) {
         console.warn("No active route (setCurrentRequestHeaders)");
-        return;
+        return initialState;
       }
-      const id = getRouteId(state.activeRoute);
-
       const { apiCallState } = state;
+      const id = getRouteId(state.activeRoute);
       if (id in apiCallState === false) {
         apiCallState[id] = createInitialApiCallData(state.activeRoute);
       }
 
       const params = apiCallState[id];
       params.requestHeaders = enforceTerminalDraftParameter(headers);
+      return state;
     }),
 
   setCurrentBody: (body) =>
-    set((state) => {
+    set((initialState: StudioState): StudioState => {
+      const state = { ...initialState };
       if (!state.activeRoute) {
         console.warn("No active route (setCurrentBody)");
-        return;
+        return initialState;
       }
-      const id = getRouteId(state.activeRoute);
 
+      const id = getRouteId(state.activeRoute);
+      state.apiCallState = {
+        ...state.apiCallState,
+      };
       const { apiCallState } = state;
+
       if (id in apiCallState === false) {
         apiCallState[id] = createInitialApiCallData(state.activeRoute);
+      } else {
+        apiCallState[id] = { ...apiCallState[id] };
       }
 
       const params = apiCallState[id];
@@ -261,7 +328,7 @@ export const requestResponseSlice: StateCreator<
           params.body.type === "form-data"
             ? {
                 type: "form-data",
-                value: enforceFormDataTerminalDraftParameter([]),
+                value: enforceTerminalDraftParameter([]),
                 isMultipart: params.body.isMultipart,
               }
             : params.body.type === "file"
@@ -271,11 +338,9 @@ export const requestResponseSlice: StateCreator<
         params.body = { type: "text", value: body };
       } else {
         if (body.type === "form-data") {
-          const nextBodyValue = enforceFormDataTerminalDraftParameter(
-            body.value,
-          );
+          const nextBodyValue = enforceTerminalDraftParameter(body.value);
           const shouldForceMultipart = nextBodyValue.some(
-            (param) => param.value.value instanceof File,
+            (param) => param.data.value instanceof File,
           );
           params.body = {
             type: body.type,
@@ -291,12 +356,15 @@ export const requestResponseSlice: StateCreator<
           params.body = body;
         }
       }
+      return state;
     }),
 
   handleRequestBodyTypeChange: (requestBodyType, isMultipart) =>
-    set((state) => {
+    set((initialState: StudioState): StudioState => {
+      const state = { ...initialState };
       setBodyTypeInState(state, { type: requestBodyType, isMultipart });
       updateContentTypeHeaderInState(state);
+      return state;
     }),
 
   // TODO - change the function ref when the serviceBaseUrl is updated
@@ -304,8 +372,9 @@ export const requestResponseSlice: StateCreator<
     removeBaseUrl(get().serviceBaseUrl, path),
 
   setActiveResponse: (response) =>
-    set((state) => {
-      const { apiCallState, activeRoute } = state;
+    set((initialState: StudioState): StudioState => {
+      const state = { ...initialState };
+      const { activeRoute } = state;
       if (!activeRoute) {
         throw new Error("Unable to set active response: no active route");
         // return;
@@ -313,12 +382,19 @@ export const requestResponseSlice: StateCreator<
 
       const id = getRouteId(activeRoute);
 
+      state.apiCallState = {
+        ...state.apiCallState,
+      };
+      const { apiCallState } = state;
       if (id in apiCallState === false) {
         apiCallState[id] = createInitialApiCallData(activeRoute);
+      } else {
+        apiCallState[id] = { ...apiCallState[id] };
       }
 
       const apiData = apiCallState[id];
       apiData.activeResponse = response;
+      return state;
     }),
 });
 
@@ -328,13 +404,89 @@ export function createInitialApiCallData(route?: ApiRoute): ApiCallData {
     return data;
   }
 
-  data.pathParams = extractPathParams(route.path).map(mapPathParamKey);
+  const params = [
+    ...(route.parameters ?? []),
+    ...(route.operation.parameters || []),
+  ];
+  data.pathParams = extractPathParameterKeys(route.path).map((key: string) => {
+    const parameter = params.find(
+      (item) =>
+        isSupportedParameterObject(item) &&
+        item.name === key &&
+        item.in === "path",
+    ) as SupportedParameterObject | undefined;
+    return createKeyValueElement(key, undefined, parameter);
+  });
+
   data.queryParams = extractQueryParamsFromOpenApiDefinition(
     data.queryParams,
     route,
   );
-  data.body = extractJsonBodyFromOpenApiDefinition(data.body, route);
+
+  // Does the route support a body parameter?
+  if (
+    route.method !== "GET" &&
+    route.method !== "HEAD" &&
+    isSupportedOperationObject(route)
+  ) {
+    data.body = extractBodyFromOpenApiDefinition(
+      data.body,
+      route.operation.requestBody,
+      "application/json",
+    );
+  }
   return data;
+}
+
+const supportedBodyTypes = ["application/json", "multipart/form-data"] as const;
+type SupportedBodyContentType = (typeof supportedBodyTypes)[number];
+
+function extractBodyFromOpenApiDefinition(
+  currentBody: PlaygroundBody,
+  bodyObject: SupportedRequestBodyObject | SupportedReferenceObject | undefined,
+  preferredContentType: SupportedBodyContentType = "application/json",
+): PlaygroundBody {
+  if (bodyObject === undefined || !isSupportedRequestBodyObject(bodyObject)) {
+    return currentBody;
+  }
+
+  type ContentMap = {
+    contentType: SupportedBodyContentType;
+    mediaType: SupportedMediaTypeObject;
+  };
+  const contentTypes = Object.entries(bodyObject.content)
+    .filter(([contentType]) =>
+      supportedBodyTypes.includes(contentType as SupportedBodyContentType),
+    )
+    .map(
+      ([contentType, mediaTypeObject]): ContentMap => ({
+        contentType: contentType as SupportedBodyContentType,
+        mediaType: mediaTypeObject as SupportedMediaTypeObject,
+      }),
+    );
+
+  const extract = ({ contentType, mediaType }: ContentMap): PlaygroundBody => {
+    switch (contentType) {
+      case "application/json": {
+        return extractJsonBodyFromOpenApiDefinition(currentBody, mediaType);
+      }
+
+      case "multipart/form-data": {
+        return extractFormDataFromOpenApiDefinition(mediaType);
+      }
+
+      default: {
+        // This will cause a type error if we haven't handled all possible content types
+        const _exhaustiveCheck: never = contentType;
+        throw new Error(`Unhandled content type: ${_exhaustiveCheck}`);
+      }
+    }
+  };
+
+  const content =
+    contentTypes.find((item) => item.contentType === preferredContentType) ||
+    contentTypes[0];
+  return content ? extract(content) : currentBody;
 }
 
 export function createEmptyApiCallData(): ApiCallData {
@@ -370,7 +522,9 @@ export function constructFullPath(
   );
 
   const searchParams = new URLSearchParams(
-    createObjectFromKeyValueParameters(data.queryParams),
+    reduceKeyValueElements(data.queryParams, {
+      stringValuesOnly: true,
+    }),
   );
 
   return searchParams.size > 0

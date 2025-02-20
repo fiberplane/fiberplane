@@ -10,7 +10,7 @@ import { safeParseJson } from "@/utils/safe-parse-json";
 import { z } from "zod";
 import type { StateCreator } from "zustand";
 import { enforceTerminalDraftParameter } from "../../KeyValueForm";
-import type { KeyValueParameter } from "../types";
+import type { KeyValueElement } from "../types";
 import type { StudioState } from "./types";
 
 const SETTINGS_STORAGE_KEY = "playground_settings";
@@ -45,13 +45,20 @@ const getInitialAuthHeaders = () =>
     {
       id: crypto.randomUUID(),
       key: "",
-      value: "",
+      data: {
+        type: "string",
+        value: "",
+      },
       enabled: false,
+      parameter: {
+        name: "",
+        in: "header",
+      },
     },
   ]);
 
 const loadSettingsFromStorage = (): {
-  persistentAuthHeaders: KeyValueParameter[];
+  persistentAuthHeaders: KeyValueElement[];
   authorizations: Authorization[];
   enabledFeatures: FeatureFlag[];
   isWorkflowsEnabled: boolean;
@@ -100,10 +107,13 @@ const loadSettingsFromStorage = (): {
   const isErrorReportingEnabled = enabledFeatures.includes(
     FEATURE_FLAG_ERROR_REPORTING,
   );
+  const persistentAuthHeaders = (parsed.persistentAuthHeaders || []).filter(
+    (element: Record<string, unknown>) => {
+      "parameter" in element && "data" in element;
+    },
+  );
   return {
-    persistentAuthHeaders: enforceTerminalDraftParameter(
-      parsed.persistentAuthHeaders || [],
-    ),
+    persistentAuthHeaders: enforceTerminalDraftParameter(persistentAuthHeaders),
     authorizations,
     enabledFeatures,
     isWorkflowsEnabled,
@@ -115,7 +125,7 @@ const loadSettingsFromStorage = (): {
 
 export interface SettingsSlice {
   // Auth headers that should be included in every request
-  persistentAuthHeaders: KeyValueParameter[];
+  persistentAuthHeaders: KeyValueElement[];
   // Auth tokens that can be used in requests
   // These are stored in local storage
   authorizations: Authorization[];
@@ -133,13 +143,13 @@ export interface SettingsSlice {
   ) => void;
   updateAuthorization: (authorization: Authorization) => void;
   removeAuthorization: (id: string) => void;
-  setPersistentAuthHeaders: (headers: KeyValueParameter[]) => void;
+  setPersistentAuthHeaders: (headers: KeyValueElement[]) => void;
   setFeatureEnabled: (feature: FeatureFlag, enabled: boolean) => void;
 }
 
 export const settingsSlice: StateCreator<
   StudioState,
-  [["zustand/immer", never], ["zustand/devtools", never]],
+  [["zustand/devtools", never]],
   [],
   SettingsSlice
 > = (set) => {
@@ -161,7 +171,8 @@ export const settingsSlice: StateCreator<
     ) => {
       const { id = crypto.randomUUID() } = authorization;
       const newAuthorization = { ...authorization, id };
-      set((state) => {
+      return set((initialState: StudioState): StudioState => {
+        const state = { ...initialState };
         state.authorizations.push(newAuthorization);
         localStorage.setItem(
           SETTINGS_STORAGE_KEY,
@@ -170,15 +181,17 @@ export const settingsSlice: StateCreator<
             authorizations: state.authorizations,
           }),
         );
+        return state;
       });
     },
     updateAuthorization: (authorization: Authorization) => {
-      set((state) => {
+      return set((initialState: StudioState): StudioState => {
+        const state = { ...initialState };
         const index = state.authorizations.findIndex(
           (auth) => auth.id === authorization.id,
         );
         if (index === -1) {
-          return;
+          return state;
         }
 
         state.authorizations[index] = authorization;
@@ -189,10 +202,13 @@ export const settingsSlice: StateCreator<
             authorizations: state.authorizations,
           }),
         );
+
+        return state;
       });
     },
     removeAuthorization: (id: string) => {
-      set((state) => {
+      return set((initialState: StudioState): StudioState => {
+        const state = { ...initialState };
         state.authorizations = state.authorizations.filter(
           (auth) => auth.id !== id,
         );
@@ -203,10 +219,12 @@ export const settingsSlice: StateCreator<
             authorizations: state.authorizations,
           }),
         );
+        return state;
       });
     },
     setPersistentAuthHeaders: (headers) =>
-      set((state) => {
+      set((initialState: StudioState): StudioState => {
+        const state = { ...initialState };
         // Always ensure there's at least one draft parameter
         state.persistentAuthHeaders = enforceTerminalDraftParameter(headers);
         localStorage.setItem(
@@ -216,10 +234,12 @@ export const settingsSlice: StateCreator<
             persistentAuthHeaders: state.persistentAuthHeaders,
           }),
         );
+        return state;
       }),
 
     setFeatureEnabled: (feature: FeatureFlag, enabled: boolean) =>
-      set((state) => {
+      set((initialState: StudioState): StudioState => {
+        const state = { ...initialState };
         if (enabled && !state.enabledFeatures.includes(feature)) {
           state.enabledFeatures.push(feature);
         } else if (!enabled) {
@@ -238,6 +258,8 @@ export const settingsSlice: StateCreator<
             enabledFeatures: state.enabledFeatures,
           }),
         );
+
+        return state;
       }),
   };
 };

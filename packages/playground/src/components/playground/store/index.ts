@@ -1,14 +1,13 @@
+export type { PlaygroundBodyType } from "./types";
 export type { ResponsePanelTab, RequestsPanelTab } from "./tabs";
 export type {
   PlaygroundBody,
   PlaygroundResponseBody,
   PlaygroundActiveResponse,
   NavigationRoutesView,
-  KeyValueParameter,
+  KeyValueElement,
 } from "./types";
 export type { StudioState } from "./slices";
-export { KeyValueParameterSchema } from "./types";
-export { PlaygroundBodySchema, type PlaygroundBodyType } from "./request-body";
 export {
   useActiveRoute,
   useStudioStore,
