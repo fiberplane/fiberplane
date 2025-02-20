@@ -370,19 +370,17 @@ export async function getResponseAttributes(
 
 export function cloneRequestForAttributes(
   request: Request,
-  options: {
-    isLocal: boolean;
-  },
+  resolvedConfig: FpResolvedConfig,
 ) {
-  const { isLocal } = options;
+  const shouldTraceEverything = getShouldTraceEverything(resolvedConfig);
 
-  if (!isLocal) {
+  if (!shouldTraceEverything) {
     return { requestForAttributes: request, newRequest: request };
   }
 
   // HACK - Duplicate request to be able to read the body and other metadata
   //        in the middleware without messing up the original request
-  const clonedRequest = isLocal ? request.clone() : request;
+  const clonedRequest = shouldTraceEverything ? request.clone() : request;
   const [body1, body2] = clonedRequest.body
     ? clonedRequest.body.tee()
     : [null, null];
@@ -403,7 +401,7 @@ export function cloneRequestForAttributes(
   });
 
   // Replace the original request's body with the second stream
-  const newRequest = isLocal
+  const newRequest = shouldTraceEverything
     ? new Request(clonedRequest, {
         body: body2,
         headers: new Headers(request.headers),

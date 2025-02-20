@@ -27,11 +27,40 @@ export function getMode(
     return userConfig.mode;
   }
 
-  // HACK - We assume we're running locally if the endpoint includes "localhost"
-  const isLocalFallback: boolean = otelEndpoint?.includes("localhost") ?? false;
+  const isLocalFallback = isLocalEndpoint(otelEndpoint);
   const isLocal = isInLocalMode(env, isLocalFallback);
 
   return isLocal ? "local" : "production";
+}
+
+/**
+ * Determines if the provided otel endpoint is a local endpoint
+ *
+ * @returns `true` if the endpoint is local, `false` otherwise
+ */
+function isLocalEndpoint(otelEndpoint: string | null): boolean {
+  if (!otelEndpoint) {
+    return false;
+  }
+
+  try {
+    const url = new URL(otelEndpoint);
+    const host = url.hostname.toLowerCase();
+    return (
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host === "::1" ||
+      host.endsWith(".localhost")
+    );
+  } catch {
+    // If URL parsing fails, fall back to simple string check
+    const lowercaseEndpoint = otelEndpoint.toLowerCase();
+    return (
+      lowercaseEndpoint.includes("localhost") ||
+      lowercaseEndpoint.includes("127.0.0.1") ||
+      lowercaseEndpoint.includes("::1")
+    );
+  }
 }
 
 /**

@@ -159,9 +159,7 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
           activeContext = setFpResolvedConfig(activeContext, resolvedConfig);
 
           const { requestForAttributes, newRequest } =
-            cloneRequestForAttributes(request, {
-              isLocal: FPX_IS_LOCAL,
-            });
+            cloneRequestForAttributes(request, resolvedConfig);
 
           // Parse the headers for the root request.
           // In "local" mode, this will also parse the body, which does add some latency.
