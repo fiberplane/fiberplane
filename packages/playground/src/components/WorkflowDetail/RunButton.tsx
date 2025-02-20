@@ -72,6 +72,14 @@ function constrainValueToSchema(
 
       return Number.parseInt(value);
     }
+    case "number": {
+      if (!value) {
+        return undefined;
+      }
+
+      return Number.parseFloat(value);
+    }
+
     case "object": {
       try {
         return JSON.parse(value);
