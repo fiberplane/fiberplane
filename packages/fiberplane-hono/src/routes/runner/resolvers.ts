@@ -1,3 +1,4 @@
+import { JSONPath } from "jsonpath-plus";
 import jsonpointer from "jsonpointer";
 // NOTE: most of this code is vibe-coded and haven't been rigurously tested
 // unit tests are green but hey ho
@@ -143,77 +144,48 @@ export function resolveReference(
     });
   }
 
-  // Parse the expression parts
-  const [basePath, jsonPointerPath] = value.split("#");
-  const parts = basePath.split(".");
-  const expressionType = parts[0].substring(1); // Remove $ prefix
+  // Split into JSONPath and JSON Pointer parts
+  const [jsonPath, jsonPointerPath] = value.split("#");
 
-  // Get the base value based on expression type
-  let baseValue: unknown;
-  switch (expressionType) {
-    case "inputs":
-      baseValue = (context as WorkflowContext).inputs;
-      parts.shift(); // Remove 'inputs'
-      break;
-    case "steps": {
-      const steps = (context as WorkflowContext).steps;
-      parts.shift(); // Remove 'steps'
+  // For response references, we need to use a different context
+  if (jsonPath.startsWith("$response") && "response" in context) {
+    const path = jsonPath.replace("$response", "$");
+    const result = JSONPath({
+      path,
+      json: context.response,
+      resultType: "value",
+    })[0];
 
-      if (parts.length < 2) {
-        return undefined;
-      }
-
-      const stepId = parts[0];
-      const propertyName = parts[1];
-
-      // Only allow 'inputs' or 'outputs' as properties of steps
-      if (propertyName !== "inputs" && propertyName !== "outputs") {
-        return undefined;
-      }
-
-      const step = steps[stepId];
-      if (!step) {
-        return undefined;
-      }
-
-      baseValue = step[propertyName];
-      parts.splice(0, 2); // Remove stepId and property name
-      break;
+    if (jsonPointerPath && result) {
+      return jsonpointer.get(
+        result,
+        jsonPointerPath.startsWith("/")
+          ? jsonPointerPath
+          : `/${jsonPointerPath}`,
+      );
     }
-    case "response": {
-      // Only allow $response if we're in a step context
-      if (!("response" in context)) {
-        return undefined;
-      }
-      baseValue = context.response;
-      parts.shift(); // Remove 'response'
-      break;
-    }
-    default:
-      return undefined;
+    return result;
   }
 
-  // Resolve the path
-  for (const part of parts) {
-    if (baseValue === undefined || baseValue === null) {
-      return undefined;
-    }
-    baseValue = (baseValue as Record<string, unknown>)[part];
+  // Transform the path into proper JSONPath format
+  // Example: $inputs.name -> $.inputs.name
+  // Example: $steps.listItems.outputs.items[1].id -> $.steps.listItems.outputs.items[1].id
+  const transformedPath = jsonPath.replace(/^\$/, "$.");
+
+  const result = JSONPath({
+    path: transformedPath,
+    json: context,
+    resultType: "value",
+  })[0];
+
+  if (jsonPointerPath && result) {
+    return jsonpointer.get(
+      result,
+      jsonPointerPath.startsWith("/") ? jsonPointerPath : `/${jsonPointerPath}`,
+    );
   }
 
-  // If there's a JSON pointer, resolve it using jsonpointer
-  if (jsonPointerPath) {
-    try {
-      const pointer = jsonPointerPath.startsWith("/")
-        ? jsonPointerPath
-        : `/${jsonPointerPath}`;
-      return jsonpointer.get(baseValue as object, pointer);
-    } catch {
-      return undefined;
-    }
-  }
-
-  return baseValue;
+  return result;
 }
 
 export function resolveStepOutputs(

@@ -44,6 +44,27 @@ const mockWorkflowContext = {
         },
       },
     },
+    listItems: {
+      outputs: {
+        items: [
+          { id: "item-1", name: "First Item" },
+          { id: "item-2", name: "Second Item" },
+          { id: "item-3", name: "Third Item" },
+        ],
+      },
+      response: {
+        statusCode: 200,
+        body: {
+          data: {
+            items: [
+              { id: "item-1", name: "First Item" },
+              { id: "item-2", name: "Second Item" },
+              { id: "item-3", name: "Third Item" },
+            ],
+          },
+        },
+      },
+    },
   },
 } as const;
 
@@ -176,6 +197,14 @@ describe("resolveReference", () => {
       mockWorkflowContext,
     );
     expect(result).toBeUndefined();
+  });
+
+  it("should resolve array indexing in step outputs", () => {
+    const result = resolveReference(
+      "$steps.listItems.outputs.items[1].id",
+      mockWorkflowContext,
+    );
+    expect(result).toBe("item-2");
   });
 });
 
