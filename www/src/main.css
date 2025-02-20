@@ -100,6 +100,23 @@
   }
 }
 
+/*
+  Hack to hide the sidebar, but show it only in mobile menus. Used in Starlight
+  pages that don't come with a sidebar, but where the `hasSideBar` prop is set
+  to true (e.g. the home & Changelog page).
+*/
+body:has(.hide-sidebar) {
+  @media (width > 50rem) {
+    #starlight__sidebar {
+      display: none;
+    }
+  }
+
+  .main-frame {
+    --sl-content-inline-start: 0;
+  }
+}
+
 .sl-markdown-content h1,
 h2,
 h3,
