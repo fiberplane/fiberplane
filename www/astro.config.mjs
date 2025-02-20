@@ -32,25 +32,24 @@ export default defineConfig({
       },
       sidebar: [
         {
-          label: "Quickstart",
-          items: ["docs/get-started"]
-        },
-        {
-          label: "Components",
-          autogenerate: { directory: "docs/components" }
-        },
-        {
-          label: "Features",
-          autogenerate: { directory: "docs/features" }
-        },
-        {
-          label: "nav",
+          label: "Docs",
           items: [
-            { link: "/docs/get-started", label: "Docs" },
-            { link: "/blog", label: "Blog" },
-            { link: "/changelog", label: "Changelog" }
+            {
+              label: "Quickstart",
+              items: ["docs/get-started"]
+            },
+            {
+              label: "Components",
+              autogenerate: { directory: "docs/components" }
+            },
+            {
+              label: "Features",
+              autogenerate: { directory: "docs/features" }
+            }
           ]
-        }
+        },
+        { label: "Blog", link: "/blog" },
+        { label: "Changelog", link: "/changelog" }
       ],
       favicon: "/favicon.svg",
       head: [
@@ -118,8 +117,7 @@ export default defineConfig({
         Head: "@/components/Head.astro",
         Header: "@/components/Header.astro",
         Hero: "@/components/Hero.astro",
-        Pagination: "@/components/Pagination.astro",
-        Sidebar: "@/components/Sidebar.astro"
+        Pagination: "@/components/Pagination.astro"
       },
       customCss: ["@/main.css"],
       expressiveCode: {

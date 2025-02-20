@@ -4,18 +4,28 @@ import Search from "@astrojs/starlight/components/Search.astro";
 import SiteTitle from "@astrojs/starlight/components/SiteTitle.astro";
 import SocialIcons from "@astrojs/starlight/components/SocialIcons.astro";
 import ThemeSelect from "@astrojs/starlight/components/ThemeSelect.astro";
-
 import type { Props } from "@astrojs/starlight/props";
-import type { SidebarEntry } from "node_modules/@astrojs/starlight/utils/navigation";
+import type { Link } from "node_modules/@astrojs/starlight/utils/navigation";
 
-type NavEntries =
-  | { entries: Array<SidebarEntry & { type: "link" }> }
-  | undefined;
+const navEntries = Astro.props.sidebar.map((entry) => {
+  if (entry.type === "link") {
+    return entry;
+  }
 
-const nav = Astro.props.sidebar.find(
-  ({ type, label }) => type === "group" && label === "nav"
-) as NavEntries;
-const navEntries = nav?.entries || [];
+  const getFirstLinkHref = (entries: Array<typeof entry | Link>) => {
+    const firstElement = entries[0];
+    if (firstElement.type === "link") {
+      return firstElement.href;
+    }
+
+    return getFirstLinkHref(firstElement.entries);
+  };
+
+  return {
+    label: entry.label,
+    href: getFirstLinkHref(entry.entries)
+  };
+});
 ---
 
 <div class="header sl-flex">
@@ -30,19 +40,18 @@ const navEntries = nav?.entries || [];
   <div class="sl-hidden md:sl-flex right-group">
     <nav class="sl-flex nav-links">
       {
-        navEntries.length > 0 &&
-          navEntries.map(({ href, label }) => (
-            <LinkButton
-              href={href}
-              variant="minimal"
-              class:list={[
-                "nav-link",
-                { "is-active": Astro.url.pathname.startsWith(href) }
-              ]}
-            >
-              {label}
-            </LinkButton>
-          ))
+        navEntries.map(({ href, label }) => (
+          <LinkButton
+            href={href}
+            variant="minimal"
+            class:list={[
+              "nav-link",
+              { "is-active": Astro.url.pathname.startsWith(href) }
+            ]}
+          >
+            {label}
+          </LinkButton>
+        ))
       }
     </nav>
 
