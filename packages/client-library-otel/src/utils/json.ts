@@ -1,4 +1,4 @@
-import { isUintArray } from "./is-uint";
+import { isUintArray } from "./uint";
 
 export function safelySerializeJSON(obj: unknown): string {
   const seen = new WeakSet();

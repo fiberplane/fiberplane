@@ -4,7 +4,7 @@ export {
   isLikelyNeonDbError,
   neonDbErrorToJson,
 } from "./errors";
-export { isUintArray } from "./is-uint";
+export { isUintArray } from "./uint";
 export { safelySerializeJSON } from "./json";
 export {
   getIncomingRequestAttributes,
