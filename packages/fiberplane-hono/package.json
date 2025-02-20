@@ -38,13 +38,14 @@
     "vitest": "^1.6.0"
   },
   "peerDependencies": {
-    "hono": "^4.0",
-    "@hono/zod-openapi": "^0.18.0"
+    "@hono/zod-openapi": "^0.18.0",
+    "hono": "^4.0"
   },
   "dependencies": {
     "@cfworker/json-schema": "^4.1.1",
     "@hono/standard-validator": "^0.1.2",
     "dotenv": "^16.4.7",
+    "jsonpath-plus": "^10.3.0",
     "jsonpointer": "^5.0.1",
     "zod": "^3.24.1"
   }
