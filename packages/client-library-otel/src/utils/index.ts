@@ -6,7 +6,7 @@ export {
   getRequestAttributes,
   getResponseAttributes,
   cloneRequestForAttributes,
-} from "./request";
+} from "./attributes";
 export * from "./wrapper";
 
 export function isPromiseLike<T>(value: unknown): value is PromiseLike<T> {
