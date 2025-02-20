@@ -2,7 +2,6 @@ import { rehypeHeadingIds } from "@astrojs/markdown-remark";
 import partytown from "@astrojs/partytown";
 import sitemap from "@astrojs/sitemap";
 import starlight from "@astrojs/starlight";
-import icon from "astro-icon";
 import { defineConfig } from "astro/config";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 
@@ -127,10 +126,6 @@ export default defineConfig({
         }
       }
     }),
-    // NOTE: if we ever go to server rendering or hybrid rendering,
-    // we'll need to specify manually which icon sets to include
-    // https://github.com/natemoo-re/astro-icon?tab=readme-ov-file#configinclude
-    icon(),
     sitemap(),
     partytown({
       config: {
