@@ -15,6 +15,7 @@ import {
   objectWithKey,
   safelySerializeJSON,
 } from "../utils";
+
 /**
  * A key used to mark objects as proxied by us, so that we don't proxy them again.
  *
