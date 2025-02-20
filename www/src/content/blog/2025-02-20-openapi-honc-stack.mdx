@@ -1,0 +1,68 @@
+---
+title: "New Fiberplane and HONC stack to support OpenAPI 3.0 specs for Typescript Developers"
+description: "Automatic OpenAPI 3.0 spec generation for \"vanilla\" Hono apps, enum support with number values, and a new HONC template app that includes automatic OpenAPI spec generation."
+slug: honc-stack-openapi
+date: 2025-02-20
+author: Fiberplane Team
+tags:
+  - HONC
+  - Hono
+  - OpenAPI
+---
+
+On the heels of the Hono-native API Playground release [last week](https://fiberplane.com/blog/hono-native-playground/), the team focused on making OpenAPI functionality even more accessible to Typescript and Hono developers. We’re excited to roll out two new Playground features and one fun addition to the HONC stack:
+
+- Automatic OpenAPI 3.0 spec generation
+- Enum support with number values
+- A new HONC template app that includes automatic OpenAPI spec generation
+
+Let’s dig into what each of these look like in action.
+
+## `createOpenAPISpec` for vanilla Hono apps in the Playground
+
+Our Hono API Playground automatically recognizes your routes because of OpenAPI…but you still had to manually create the spec: manually or using an AI copilot. Now, with a simple `createOpenAPISpec`, you can attach a valid OpenAPI 3.0 spec to your vanilla Hono routes without using any extra setup.
+
+The `createOpenAPISpec` function automatically discovers your existing Hono routes, path parameters, and HTTP methods and converts them into a valid starter OpenAPI document that you can serve from your application. It is naturally not as extensive as a fully detailed spec, but it will get you started. Simply pass your Hono app instance and optional configuration to generate a specification that's ready to use with embeddable Fiberplane API Playground or any documentation tools.
+
+```typescript
+import { createOpenAPISpec } from '@fiberplane/hono'
+
+// ...
+
+app.get('/openapi.json', (c) => {
+  const spec = createOpenAPISpec(app, {
+    info: { title: 'Users API', version: '1.0.0' }
+  })
+  return c.json(spec)
+})
+```
+
+### **Enum support: Validated values in API requests and responses**
+
+In OpenAPI, **enum** support allows you to define a set of predefined values for a particular parameter, property, or response. Enums help with data validation and allow consumers of the API to know exactly which values are allowed, improving consistency and reducing errors. Previously Fiberplane API Playground was like a JavaScript runtime: it would treat everything as a string.
+
+You’ll also see improved support for form-data (we're now extracting more fields/information) and an improved UX for uploading files.
+
+![Enums in Fiberplane](@/assets/blog/2025-02-20-honc-stack-openapi-enums.png)
+
+### **Generate an OpenAPI spec in the HONC stack template**
+
+If you’re not familiar with HONC, it’s our loosely opinionated stack that accelerates web development, featuring [Hono](https://hono.dev/) as a web framework, [Drizzle](https://orm.drizzle.team/) as an ORM, [Neon](https://neon.tech/) as a database, and [Cloudflare Workers](https://workers.cloudflare.com/). There are many sample apps plus a template to quickly spin up an app framework - and now the updated template for `create-honc-app` generates your OpenAPI spec for you. This is a great starting point for developers building with Hono who might normally breeze over creating a spec (*ahem not me!)* but now instead can make it part of their automated setup.
+
+When you create a new HONC app, the `create-honc-app` CLI will ask you if you’d like an OpenAPI spec. Select "Yes", and your template will include the legendary [Zod OpenAPI Hono](https://hono.dev/examples/zod-openapi) extension to autogenerate an OpenAPI spec from your code.
+
+When you boot up your api, visit `http://localhost:8787/fp` to use the Fiberplane API explorer.
+
+```shell
+npm create honc-app@latest
+```
+
+In the creation flow you’ll see the option to create the OpenAPI spec:
+
+![Creating OpenAPI spec in create-honc-app](@/assets/blog/2025-02-20-honc-stack-openapi.png)
+
+### **Tools to build production-ready Typescript APIs**
+
+In today’s development world, the tools you have in your tool belt can really be the difference in shipping high quality APIs. We love seeing developers be able to work on what the love without getting bogged down with operational overhead. Try it out and let us know what you think!
+
+To follow along with new releases, join the [Discord community here](https://discord.com/invite/cqdY6SpfVR)
