@@ -54,7 +54,7 @@ export function WorkflowInput(props: {
       value={value || ""}
       onChange={(value) => setInputValue(propertyKey, value || "")}
       placeholder={schema.examples?.[0]?.toString() || `Enter ${schema.type}`}
-      className="mt-1 bg-muted"
+      className="bg-muted"
     />
   );
 }

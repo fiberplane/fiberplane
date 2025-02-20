@@ -18,7 +18,7 @@ export function InputItem({
 
   return (
     <div key={propertyKey} className="grid items-center gap-1 lg:grid-cols-2">
-      <div className="pt-2">
+      <div className="">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">
             {schema.title || propertyKey}
