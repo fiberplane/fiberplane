@@ -12,6 +12,7 @@ export type FpResolvedConfig = {
   enabled: boolean;
   mode: FpxMode;
   redactedHeaders: Set<string>;
+  redactedQueryParams: Set<string>;
   otelEndpoint: string | null;
   otelToken: string | null;
   logLevel: string | null;
@@ -45,8 +46,21 @@ export const DEFAULT_REDACTED_HEADERS = [
   "x-real-ip",
 ] as const;
 
-export const DEFAULT_CONFIG = Object.freeze({
+export const DEFAULT_REDACTED_QUERY_PARAMS = [
+  "code",
+  "token",
+  "access_token",
+  "refresh_token",
+  "id_token",
+  "state",
+  "secret",
+  "password",
+  "api_key",
+];
+
+export const DEFAULT_CONFIG: FpxConfig = Object.freeze({
   redactedHeaders: [...DEFAULT_REDACTED_HEADERS],
+  redactedQueryParams: [...DEFAULT_REDACTED_QUERY_PARAMS],
   libraryDebugMode: false,
   monitor: {
     fetch: true,
@@ -76,12 +90,13 @@ export function resolveConfig(
   const logLevel = getLogLevel(config, env);
   const serviceName = getServiceName(env, "unknown");
 
-  // TODO - Transform sensitive headers
   const redactedHeaders = new Set(config.redactedHeaders);
+  const redactedQueryParams = new Set(config.redactedQueryParams);
 
   return {
     ...config,
     redactedHeaders,
+    redactedQueryParams,
     enabled,
     mode,
     otelEndpoint,
@@ -105,15 +120,19 @@ function mergeConfigs(
 
   return {
     libraryDebugMode,
-    redactedHeaders: mergeSensitiveHeaders(
+    redactedHeaders: mergeRedactedHeaders(
       fallbackConfig.redactedHeaders,
       userConfig?.redactedHeaders,
+    ),
+    redactedQueryParams: mergeRedactedQueryParams(
+      fallbackConfig.redactedQueryParams,
+      userConfig?.redactedQueryParams,
     ),
     monitor: Object.assign({}, fallbackConfig.monitor, userConfig?.monitor),
   };
 }
 
-function mergeSensitiveHeaders(
+function mergeRedactedHeaders(
   fallbackHeaders: Array<string>,
   userHeaders: Array<string> | undefined,
 ): Array<string> {
@@ -121,4 +140,11 @@ function mergeSensitiveHeaders(
     header.toLowerCase(),
   );
   return [...fallbackHeaders, ...lowerCaseUserHeaders];
+}
+
+function mergeRedactedQueryParams(
+  fallbackParams: Array<string>,
+  userParams: Array<string> | undefined,
+): Array<string> {
+  return [...fallbackParams, ...(userParams ?? [])];
 }

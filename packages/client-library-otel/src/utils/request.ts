@@ -26,6 +26,7 @@ import type {
 import { getPlatformSafeEnv } from "./env";
 import { safelySerializeJSON } from "./json";
 import { getRedactedHeaders } from "./redacted-headers";
+import { getRedactedQueryParams } from "./redacted-query-params";
 import { getShouldTraceEverything } from "./trace-everything";
 
 // There are so many different types of headers
@@ -162,11 +163,11 @@ export function getRequestAttributes(
     // TODO: remove login/password from URL (if we want to follow
     // the otel spec for this attribute)
     // TODO: think about how to handle a redirect
-    [EXTRA_SEMATTRS_URL_FULL]: url.toString(),
+    [EXTRA_SEMATTRS_URL_FULL]: getRedactedUrl(url),
     // Bunch of custom attributes even though some experimental
     // packages from otel already have similar attributes
     [FPX_REQUEST_PATHNAME]: url.pathname,
-    [FPX_REQUEST_SEARCH]: url.search,
+    [FPX_REQUEST_SEARCH]: getRedactedUrl(url).split("?")[1] || "",
     // TODO: Add path
     // [SEMATTRS_]
     [FPX_REQUEST_SCHEME]: urlScheme,
@@ -195,7 +196,7 @@ export function getRequestAttributes(
   return attributes;
 }
 
-function getSafeHeaderValue(
+export function getSafeHeaderValue(
   key: string,
   value: string,
   config?: FpResolvedConfig,
@@ -211,6 +212,25 @@ function getSafeHeaderValue(
   }
 
   return value;
+}
+
+export function getRedactedUrl(url: URL, config?: FpResolvedConfig): string {
+  const shouldTraceEverything = getShouldTraceEverything(config);
+
+  if (shouldTraceEverything) {
+    return url.toString();
+  }
+
+  const redactedUrl = new URL(url.toString());
+  const redactedQueryParams = getRedactedQueryParams(config);
+
+  for (const [key] of redactedUrl.searchParams.entries()) {
+    if (redactedQueryParams.has(key.toLowerCase())) {
+      redactedUrl.searchParams.set(key, "REDACTED");
+    }
+  }
+
+  return redactedUrl.toString();
 }
 
 function formatBody(body: BodyInit) {
