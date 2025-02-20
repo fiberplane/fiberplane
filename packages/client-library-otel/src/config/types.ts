@@ -29,7 +29,12 @@ export type FpxConfigOptions = Partial<
  * @internal
  */
 export type FpxConfig = {
-  /** Headers whose values should always be redacted - these are merged with {@link DEFAULT_REDACTED_HEADERS} */
+  /**
+   * Headers whose values should always be redacted
+   * These are merged with {@link DEFAULT_REDACTED_HEADERS}
+   *
+   * @NOTE - Headers are not redacted when FIBERPLANE_ENVIRONMENT is set to "local"
+   */
   redactedHeaders: Array<string>;
 
   monitor: {
