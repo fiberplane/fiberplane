@@ -53,11 +53,9 @@ export function headersToObject(headers: PossibleHeaders) {
 export async function getRootRequestAttributes(
   request: Request,
   honoEnv: unknown,
-  options: {
-    isLocal: boolean;
-  },
+  config: FpResolvedConfig,
 ) {
-  const { isLocal } = options;
+  const isLocal = config?.mode === "local";
   let attributes: Attributes = {};
 
   // HACK - We need to account for the fact that the Hono `env` is different across runtimes

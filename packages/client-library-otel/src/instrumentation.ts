@@ -169,9 +169,7 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
           const rootRequestAttributes = await getRootRequestAttributes(
             requestForAttributes,
             env,
-            {
-              isLocal: FPX_IS_LOCAL,
-            },
+            resolvedConfig,
           );
 
           const measuredFetch = measure(
