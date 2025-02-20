@@ -4,17 +4,10 @@ import { NOT_FOUND } from "./ParameterItem";
 
 export function OutputItem({
   output,
-  stepId,
 }: {
   output: { key: string; value: string };
   stepId?: string;
 }) {
-  // const fullStepId = stepId
-  //   ? `$steps.${stepId}.outputs.${output.key}`
-  //   : output.key;
-  // const { resolveRuntimeExpression } = useWorkflowStore();
-  // const resolvedValue = resolveRuntimeExpression(fullStepId);
-  // const value = resolvedValue === fullStepId ? NOT_FOUND : resolvedValue;
   const { outputValues } = useWorkflowStore(
     useShallow(({ outputValues }) => ({ outputValues })),
   );
@@ -38,9 +31,6 @@ export function OutputItem({
                 )}
               </code>
             </pre>
-            {/* <div className="font-sans text-sm text-muted-foreground">
-              (value selector: {output.value})
-            </div> */}
           </>
         )}
       </div>

@@ -58,8 +58,7 @@ export function WorkflowDetail() {
                     )}
                   </div>
                 </ListSection>
-                <ListSection title="Outputs"
-                  contentClassName="grid gap-2">
+                <ListSection title="Outputs" contentClassName="grid gap-2">
                   {Object.entries(workflow.outputs).map(([key, output]) => (
                     <OutputItem key={key} output={output} />
                   ))}
