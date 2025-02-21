@@ -32,8 +32,8 @@ export function TracesList(props: {
 
   return (
     <TraceListLayout>
-      <div className="h-full p-4 overflow-y-auto">
-        <h2 className="mb-4 text-lg font-medium">Traces (WIP)</h2>
+      <div className="h-full px-2 overflow-y-auto">
+        <h2 className="mb-2 text-lg font-medium">Traces (WIP)</h2>
         <div className="grid gap-2">
           {filteredTraces.map((trace: Trace) => {
             return <TraceElement key={trace.traceId} trace={trace} />;
