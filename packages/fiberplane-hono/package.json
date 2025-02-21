@@ -1,6 +1,6 @@
 {
   "name": "@fiberplane/hono",
-  "version": "0.4.3-beta.1",
+  "version": "0.4.3-brett.1",
   "type": "module",
   "exports": {
     ".": {
