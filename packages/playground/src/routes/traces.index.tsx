@@ -1,327 +1,39 @@
-import { TextOrJsonViewer } from "@/components/ResponseBody";
-import type { RequestInfo } from "@/components/ResponseSummary";
 import {
-  TimelineListElement,
-  extractWaterfallTimeStats,
-} from "@/components/Timeline";
-import { getId } from "@/components/Timeline/DetailsList/TimelineDetailsList/utils";
-import { useAsWaterfall } from "@/components/Timeline/hooks/useAsWaterfall";
-import { NavigationPanel } from "@/components/playground/NavigationPanel";
-import { NavigationFrame } from "@/components/playground/NavigationPanel";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { useIsLgScreen, useIsMdScreen, useOrphanLogs } from "@/hooks";
+  TracesList,
+  TracesListErrorBoundary,
+} from "@/components/traces/TracesList";
 import { tracesQueryOptions } from "@/lib/hooks/useTraces";
-import { cn } from "@/lib/utils";
-import type { Trace } from "@/types";
-import { parseEmbeddedConfig } from "@/utils";
-import {
-  getRequestMethod,
-  getRequestUrl,
-  getStatusCode,
-  isIncomingRequestSpan,
-} from "@/utils/otel-helpers";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { Link, createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/traces/")({
-  component: TracesOverview,
+  component: TracesIndexPage,
   loader: async ({ context: { queryClient, openapi } }) => {
     // TODO - Pull this from the store
     const tracingEnabled = true;
+    console.time("ensureQueryData - traces");
     const response = await queryClient.ensureQueryData(
       tracesQueryOptions(tracingEnabled),
     );
+    console.timeEnd("ensureQueryData - traces");
+    // await new Promise((resolve) => setTimeout(resolve, 10000));
     return { traces: response.data, openapi };
   },
   onError: (error) => {
     console.error("Error loading traces", error);
   },
-  errorComponent: ErrorBoundary,
+  pendingComponent: () => {
+    return (
+      <div className="flex flex-col items-center justify-center h-full p-4">
+        <h2 className="mb-2 text-lg font-medium">Loading traces...</h2>
+      </div>
+    );
+  },
+  errorComponent: TracesListErrorBoundary,
 });
 
-function TracesOverview() {
+function TracesIndexPage() {
   const loaderData = Route.useLoaderData();
   const { traces, openapi } = loaderData;
 
-  if (!traces || traces?.length === 0) {
-    return (
-      <TraceListLayout>
-        <div className="flex flex-col items-center justify-center h-full p-4">
-          <h2 className="mb-2 text-lg font-medium">No traces found</h2>
-          <p className="text-sm text-muted-foreground">
-            Make a request to get started
-          </p>
-        </div>
-      </TraceListLayout>
-    );
-  }
-
-  const filteredTraces = useMemo(() => {
-    return traces.filter((trace) => {
-      const rootSpan = trace.spans.find((span) => isIncomingRequestSpan(span));
-      const hasRootSpan = !!rootSpan;
-      if (!hasRootSpan) {
-        return false;
-      }
-
-      const requestUrl = getRequestUrl(rootSpan);
-      const requestMethod = getRequestMethod(rootSpan);
-
-      const didFetchSpecRemotely = !!openapi?.url;
-
-      const isOptions = requestMethod?.toLowerCase() === "options";
-
-      const requestPath = requestUrl ? getPathFromUrl(requestUrl) : "";
-      const openapiPath = openapi?.url ? getPathFromUrl(openapi.url) : "";
-
-      // So the UI gets polluted with browser preflight requests to the remote spec (e.g., `OPTIONS /openapi.json`).
-      // This is a temporary hack to skip those traces.
-      const isOptionsRequestToOpenApiSpec =
-        didFetchSpecRemotely && isOptions && requestPath === openapiPath;
-      if (isOptionsRequestToOpenApiSpec) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [traces, openapi]);
-
-  return (
-    <TraceListLayout>
-      <div className="h-full p-4 overflow-y-auto">
-        <h2 className="mb-4 text-lg font-medium">Traces (WIP)</h2>
-        <div className="grid gap-2">
-          {filteredTraces.map((trace: Trace) => {
-            return <TraceElement key={trace.traceId} trace={trace} />;
-          })}
-        </div>
-      </div>
-    </TraceListLayout>
-  );
-}
-
-function TraceElement({ trace }: { trace: Trace }) {
-  const rootSpan = trace.spans.find((span) => isIncomingRequestSpan(span));
-  if (!rootSpan) {
-    return null;
-  }
-
-  const responseStatusCode = getStatusCode(rootSpan) || 200;
-  const response: RequestInfo = {
-    requestMethod: getRequestMethod(rootSpan) || "GET",
-    requestUrl: getRequestUrl(rootSpan) || "",
-    responseStatusCode,
-  };
-
-  // Skip traces that don't have HTTP info
-  if (!response.requestMethod || !response.requestUrl) {
-    return null;
-  }
-  const { traceId, spans } = trace;
-  const orphanLogs = useOrphanLogs(traceId, spans ?? []);
-  const { waterfall } = useAsWaterfall(spans ?? [], orphanLogs);
-  const { minStart, duration } = extractWaterfallTimeStats(waterfall);
-  const isMdScreen = useIsMdScreen();
-
-  const incomingRequest = waterfall[0];
-  return (
-    <div className="block px-1">
-      <Card className="transition-colors hover:bg-muted/50 rounded-sm border-muted-foreground/30 bg-transparent">
-        <CardContent className="p-0 px-1">
-          <TimelineListElement
-            item={incomingRequest}
-            timelineVisible={isMdScreen}
-            key={getId(incomingRequest)}
-            minStart={minStart}
-            duration={duration}
-          />
-          <div
-            className={cn(
-              "flex items-center justify-between text-xs text-muted-foreground py-1 pl-2",
-              "border-none",
-            )}
-          >
-            <span>
-              {trace.spans.length} {trace.spans.length === 1 ? "span" : "spans"}
-            </span>
-            <span>
-              <Link
-                to="/traces/$traceId"
-                params={{ traceId: trace.traceId }}
-                className={cn(
-                  "inline-flex items-center gap-0.5",
-                  "transition-colors hover:underline hover:text-foreground",
-                )}
-              >
-                View Trace Details{" "}
-                <Icon icon="lucide:chevron-right" className="w-4 h-4" />
-              </Link>
-            </span>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-function getMainSectionWidth() {
-  return window.innerWidth - 85;
-}
-
-function TraceListLayout({ children }: { children: React.ReactNode }) {
-  const [sidePanel] = useState<"open" | "closed">("open");
-  const isLgScreen = useIsLgScreen();
-  const width = getMainSectionWidth();
-
-  // Panel constraints for responsive layout
-  const minSize = (320 / width) * 100;
-  return (
-    <ResizablePanelGroup direction="horizontal" className="w-full">
-      {isLgScreen && sidePanel === "open" && (
-        <>
-          <ResizablePanel
-            id="sidebar"
-            order={0}
-            minSize={minSize}
-            defaultSize={(320 / width) * 100}
-          >
-            <NavigationFrame>
-              <NavigationPanel />
-            </NavigationFrame>
-          </ResizablePanel>
-          <ResizableHandle
-            hitAreaMargins={{ coarse: 20, fine: 10 }}
-            className="w-0 mr-2"
-          />
-        </>
-      )}
-      <ResizablePanel id="main" order={1}>
-        <div className="grid grid-cols-1 h-full min-h-0 overflow-hidden overflow-y-auto relative">
-          {children}
-        </div>
-      </ResizablePanel>
-    </ResizablePanelGroup>
-  );
-}
-
-export function ErrorBoundary(props: {
-  error: Error;
-}) {
-  const { error } = props;
-  const [isOpen, setIsOpen] = useState(false);
-  const { mountedPath, openapi, parseError } = useDebugInfo();
-
-  // TODO - Make more friendly errors
-  const message = error.message;
-
-  return (
-    <div className="flex flex-col items-center justify-center h-full p-4">
-      <h2 className="mb-2 text-lg font-medium">Error loading traces</h2>
-      <p className="text-sm text-muted-foreground">{message}</p>
-      <div className="flex flex-col gap-4 mt-4">
-        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-          <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground">
-            <span className="text-muted-foreground">Debug Info</span>
-            <Icon
-              icon="lucide:chevron-down"
-              className={cn(
-                "w-4 h-4 transition-transform duration-200",
-                isOpen && "rotate-180",
-              )}
-            />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-2">
-            <div className="grid gap-2">
-              <Card className="bg-muted/50">
-                <CardContent className="p-3">
-                  <p className="mb-1 text-xs font-medium text-muted-foreground">
-                    MOUNTED_PATH
-                  </p>
-                  <code className="text-sm">{mountedPath}</code>
-                </CardContent>
-              </Card>
-              <Card className="bg-muted/50">
-                <CardContent className="p-3">
-                  <p className="mb-1 text-xs font-medium text-muted-foreground">
-                    OPENAPI
-                  </p>
-                  <TextOrJsonViewer text={JSON.stringify(openapi, null, 2)} />
-                </CardContent>
-              </Card>
-              <Card className="bg-muted/50">
-                <CardContent className="p-3">
-                  <p className="mb-1 text-xs font-medium text-muted-foreground">
-                    PARSE_ERROR
-                  </p>
-                  <code className="text-sm whitespace-pre-wrap">
-                    {JSON.stringify(parseError, null, 2)}
-                  </code>
-                </CardContent>
-              </Card>
-              <Card className="bg-muted/50">
-                <CardContent className="p-3">
-                  <p className="mb-1 text-xs font-medium text-muted-foreground">
-                    LOADER_ERROR
-                  </p>
-                  <code className="text-sm whitespace-pre-wrap">
-                    {JSON.stringify(error, null, 2)}
-                  </code>
-                </CardContent>
-              </Card>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-      </div>
-    </div>
-  );
-}
-
-type DebugInfo = {
-  mountedPath: string | undefined | null;
-  openapi: Record<string, unknown> | undefined | null;
-  parseError: Error | null | unknown;
-};
-
-function useDebugInfo(): DebugInfo {
-  return useMemo(() => {
-    try {
-      const rootElement = document.getElementById("root");
-      if (!rootElement) {
-        return {
-          mountedPath: null,
-          openapi: null,
-          parseError: { message: "Root element not found" },
-        };
-      }
-      return {
-        ...parseEmbeddedConfig(rootElement),
-        parseError: null,
-      };
-    } catch (parseError) {
-      return {
-        mountedPath: null,
-        openapi: null,
-        parseError,
-      };
-    }
-  }, []);
-}
-
-function getPathFromUrl(url: string) {
-  try {
-    return new URL(url).pathname;
-  } catch (error) {
-    return null;
-  }
+  return <TracesList traces={traces} openapi={openapi} />;
 }

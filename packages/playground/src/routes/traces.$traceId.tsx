@@ -2,6 +2,7 @@ import { KeyboardShortcutKey } from "@/components/KeyboardShortcut";
 import { useAsWaterfall } from "@/components/Timeline";
 import { TimelineListDetails } from "@/components/Timeline";
 import { extractWaterfallTimeStats } from "@/components/Timeline/utils";
+import { TracesListErrorBoundary as ErrorBoundary } from "@/components/traces/TracesList";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,7 +42,6 @@ import ReactMarkdown from "react-markdown";
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { z } from "zod";
-import { ErrorBoundary } from "./traces.index";
 
 function MarkdownRenderer({ content }: { content: string }) {
   return (
