@@ -27,6 +27,15 @@ export const Route = createFileRoute("/traces/")({
     );
   },
   errorComponent: TracesListErrorBoundary,
+
+  // HACK - Forces us to refresh the traces list when the route is entered
+  beforeLoad: async ({ context: { queryClient } }) => {
+    // Force the loader to re-run when the route is entered
+    await queryClient.invalidateQueries({ queryKey: [TRACES_KEY] });
+
+    // Remove the query data
+    queryClient.removeQueries({ queryKey: [TRACES_KEY] });
+  },
 });
 
 function TracesIndexPage() {
