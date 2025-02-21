@@ -53,9 +53,10 @@ export async function fpFetch<T>(
   // HACK - Force our client library to not trace requests to the internal API
   if (options.headers instanceof Headers) {
     options.headers.set("x-fpx-ignore", "true");
+  } else if (Array.isArray(options.headers)) {
+    options.headers.push(["x-fpx-ignore", "true"]);
   } else {
-    // FIXME
-    (options.headers as Record<string, string>)["x-fpx-ignore-trace"] = "true";
+    options.headers["x-fpx-ignore"] = "true";
   }
 
   const basePrefix = getFpApiBasePath();
