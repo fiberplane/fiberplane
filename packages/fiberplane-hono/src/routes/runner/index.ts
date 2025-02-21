@@ -206,7 +206,11 @@ async function executeStep<E extends Env>(
     userExecutionCtx,
   );
 
-  const responseBody = await response.json();
+  const contentType = response.headers.get('content-type');
+  const responseBody = contentType?.includes('application/json')
+    ? await response.json()
+    : await response.text() || null;
+
   return {
     statusCode: response.status,
     body: responseBody,
