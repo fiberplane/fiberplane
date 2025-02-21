@@ -14,6 +14,7 @@ import {
 } from "@/utils/otel-helpers";
 import { useMemo, useState } from "react";
 import { TraceElement } from "./TraceElement";
+
 export function TracesList(props: {
   traces: Trace[];
   openapi?: { url?: string };

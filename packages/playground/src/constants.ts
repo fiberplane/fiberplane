@@ -651,3 +651,10 @@ export const SpanKind = {
    */
   CONSUMER: "Consumer",
 };
+
+export const SENSITIVE_HEADERS = [
+  "authorization",
+  "cookie",
+  "set-cookie",
+  "neon-connection-string",
+];

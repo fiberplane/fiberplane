@@ -4,8 +4,8 @@ import {
   SubSection,
   SubSectionHeading,
 } from "@/components/Timeline/shared";
+import { SENSITIVE_HEADERS } from "@/constants";
 import {
-  SENSITIVE_HEADERS,
   getRequestBody,
   getRequestEnv,
   getRequestHeaders,
