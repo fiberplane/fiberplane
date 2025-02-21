@@ -1,13 +1,9 @@
 import { TextOrJsonViewer } from "@/components/ResponseBody";
-import {
-  type RequestInfo,
-  ResponseSummaryContainer,
-} from "@/components/ResponseSummary";
+import type { RequestInfo } from "@/components/ResponseSummary";
 import {
   TimelineListElement,
   extractWaterfallTimeStats,
 } from "@/components/Timeline";
-import { TimelineListDetails } from "@/components/Timeline/DetailsList/TimelineDetailsList/TimelineListDetails";
 import { getId } from "@/components/Timeline/DetailsList/TimelineDetailsList/utils";
 import { useAsWaterfall } from "@/components/Timeline/hooks/useAsWaterfall";
 import { NavigationPanel } from "@/components/playground/NavigationPanel";
@@ -27,7 +23,6 @@ import { useIsLgScreen, useIsMdScreen, useOrphanLogs } from "@/hooks";
 import { tracesQueryOptions } from "@/lib/hooks/useTraces";
 import { cn } from "@/lib/utils";
 import type { Trace } from "@/types";
-import { isMizuOrphanLog } from "@/types";
 import { parseEmbeddedConfig } from "@/utils";
 import {
   getRequestMethod,
@@ -41,13 +36,13 @@ import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/traces/")({
   component: TracesOverview,
-  loader: async ({ context: { queryClient } }) => {
+  loader: async ({ context: { queryClient, openapi } }) => {
     // TODO - Pull this from the store
     const tracingEnabled = true;
     const response = await queryClient.ensureQueryData(
       tracesQueryOptions(tracingEnabled),
     );
-    return { traces: response.data };
+    return { traces: response.data, openapi };
   },
   onError: (error) => {
     console.error("Error loading traces", error);
@@ -57,7 +52,7 @@ export const Route = createFileRoute("/traces/")({
 
 function TracesOverview() {
   const loaderData = Route.useLoaderData();
-  const { traces } = loaderData;
+  const { traces, openapi } = loaderData;
 
   if (!traces || traces?.length === 0) {
     return (
@@ -72,12 +67,42 @@ function TracesOverview() {
     );
   }
 
+  const filteredTraces = useMemo(() => {
+    return traces.filter((trace) => {
+      const rootSpan = trace.spans.find((span) => isIncomingRequestSpan(span));
+      const hasRootSpan = !!rootSpan;
+      if (!hasRootSpan) {
+        return false;
+      }
+
+      const requestUrl = getRequestUrl(rootSpan);
+      const requestMethod = getRequestMethod(rootSpan);
+
+      const didFetchSpecRemotely = !!openapi?.url;
+
+      const isOptions = requestMethod?.toLowerCase() === "options";
+
+      const requestPath = requestUrl ? getPathFromUrl(requestUrl) : "";
+      const openapiPath = openapi?.url ? getPathFromUrl(openapi.url) : "";
+
+      // So the UI gets polluted with browser preflight requests to the remote spec (e.g., `OPTIONS /openapi.json`).
+      // This is a temporary hack to skip those traces.
+      const isOptionsRequestToOpenApiSpec =
+        didFetchSpecRemotely && isOptions && requestPath === openapiPath;
+      if (isOptionsRequestToOpenApiSpec) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [traces, openapi]);
+
   return (
     <TraceListLayout>
       <div className="h-full p-4 overflow-y-auto">
         <h2 className="mb-4 text-lg font-medium">Traces (WIP)</h2>
         <div className="grid gap-2">
-          {traces.map((trace: Trace) => {
+          {filteredTraces.map((trace: Trace) => {
             return <TraceElement key={trace.traceId} trace={trace} />;
           })}
         </div>
@@ -291,4 +316,12 @@ function useDebugInfo(): DebugInfo {
       };
     }
   }, []);
+}
+
+function getPathFromUrl(url: string) {
+  try {
+    return new URL(url).pathname;
+  } catch (error) {
+    return null;
+  }
 }
