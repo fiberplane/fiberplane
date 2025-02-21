@@ -79,7 +79,7 @@ function RootComponent() {
         <Outlet />
       </div>
       {/*  Commented out because they're annoying but leaving them here in case you need them */}
-      <TanStackRouterDevtools position="bottom-right" />
+      {/* <TanStackRouterDevtools position="bottom-right" /> */}
       {/* <ReactQueryDevtools /> */}
     </div>
   );
