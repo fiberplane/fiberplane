@@ -30,7 +30,6 @@
   --sl-color-text-accent: var(--fg-brand);
 
   /* Fix for misaligned elements in nav/header */
-
   --sl-nav-pad-y: 0.55rem;
 
   /*
