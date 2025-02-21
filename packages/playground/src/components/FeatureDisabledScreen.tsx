@@ -24,7 +24,7 @@ export function FeatureDisabledScreen(props: {
           <p className="text-foreground/70 text-center max-w-md">{message}</p>
           <Button
             variant="outline"
-            className="mt-4"
+            className="mt-4 hover:bg-muted/50"
             onClick={() => navigate({ to: "/" })}
           >
             <Icon icon="lucide:home" className="mr-2 h-4 w-4" />

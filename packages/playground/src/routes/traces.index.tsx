@@ -123,18 +123,24 @@ function TraceElement({ trace }: { trace: Trace }) {
           />
           <div
             className={cn(
-              "flex items-center justify-between text-xs text-muted-foreground px-3 py-2",
+              "flex items-center justify-between text-xs text-muted-foreground py-1 pl-2",
               "border-none",
             )}
           >
-            <span>{trace.spans.length} spans</span>
+            <span>
+              {trace.spans.length} {trace.spans.length === 1 ? "span" : "spans"}
+            </span>
             <span>
               <Link
                 to="/traces/$traceId"
                 params={{ traceId: trace.traceId }}
-                className="block transition-colors hover:no-underline"
+                className={cn(
+                  "inline-flex items-center gap-0.5",
+                  "transition-colors hover:underline hover:text-foreground",
+                )}
               >
-                View Trace Details
+                View Trace Details{" "}
+                <Icon icon="lucide:chevron-right" className="w-4 h-4" />
               </Link>
             </span>
           </div>
