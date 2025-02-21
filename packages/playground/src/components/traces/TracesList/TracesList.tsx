@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import type { Trace } from "@/types";
 import { getPathFromUrl } from "@/utils";
 import {
@@ -5,12 +6,14 @@ import {
   getRequestUrl,
   isIncomingRequestSpan,
 } from "@/utils/otel-helpers";
+import { Icon } from "@iconify/react";
 import { useMemo } from "react";
 import { TraceElement } from "./TraceElement";
 import { TraceListLayout } from "./TracesListLayout";
 
 export function TracesList(props: {
   traces: Trace[];
+  reload: () => void;
   openapi?: { url?: string };
 }) {
   const { traces, openapi } = props;
@@ -33,7 +36,17 @@ export function TracesList(props: {
   return (
     <TraceListLayout>
       <div className="h-full px-2 overflow-y-auto">
-        <h2 className="mb-2 text-lg font-medium">Traces (WIP)</h2>
+        <h2 className="mb-2 text-lg font-medium flex items-center">
+          Traces
+          <Button
+            onClick={props.reload}
+            className="ml-auto w-6 h-6"
+            size="icon-xs"
+            variant="ghost"
+          >
+            <Icon className="w-4 h-4" icon="lucide:refresh-cw" />
+          </Button>
+        </h2>
         <div className="grid gap-2">
           {filteredTraces.map((trace: Trace) => {
             return <TraceElement key={trace.traceId} trace={trace} />;
