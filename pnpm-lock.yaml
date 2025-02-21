@@ -34,10 +34,10 @@ importers:
         version: 0.4.0-canary.0
       '@hono/oauth-providers':
         specifier: ^0.6.2
-        version: 0.6.2(hono@4.6.16)
+        version: 0.6.2(hono@4.7.1)
       '@hono/zod-validator':
         specifier: ^0.4.1
-        version: 0.4.2(hono@4.6.16)(zod@3.24.1)
+        version: 0.4.2(hono@4.7.1)(zod@3.24.1)
       '@langchain/core':
         specifier: ^0.3.19
         version: 0.3.19(openai@4.76.0(encoding@0.1.13)(zod@3.24.1))
@@ -55,7 +55,7 @@ importers:
         version: 0.39.3(@cloudflare/workers-types@4.20250109.0)(@libsql/client-wasm@0.14.0)(@libsql/client@0.14.0)(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.10)
       hono:
         specifier: ^4.6.12
-        version: 4.6.16
+        version: 4.7.1
       jose:
         specifier: ^5.9.6
         version: 5.9.6
@@ -98,7 +98,7 @@ importers:
         version: 0.4.0-canary.0
       '@hono/zod-validator':
         specifier: ^0.2.2
-        version: 0.2.2(hono@4.6.16)(zod@3.24.1)
+        version: 0.2.2(hono@4.7.1)(zod@3.24.1)
       '@langchain/anthropic':
         specifier: ^0.3.9
         version: 0.3.9(@langchain/core@0.2.36(openai@4.76.0(encoding@0.1.13)(zod@3.24.1)))(encoding@0.1.13)
@@ -125,7 +125,7 @@ importers:
         version: 0.5.1(drizzle-orm@0.39.3(@cloudflare/workers-types@4.20250109.0)(@libsql/client-wasm@0.14.0)(@libsql/client@0.14.0)(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.10))(zod@3.24.1)
       hono:
         specifier: ^4.6.13
-        version: 4.6.16
+        version: 4.7.1
       llamaindex:
         specifier: ^0.7.10
         version: 0.7.10(@aws-sdk/client-sso-oidc@3.699.0(@aws-sdk/client-sts@3.699.0))(@aws-sdk/credential-providers@3.699.0(@aws-sdk/client-sso-oidc@3.699.0(@aws-sdk/client-sts@3.699.0)))(@notionhq/client@2.2.15(encoding@0.1.13))(@xenova/transformers@2.17.2)(encoding@0.1.13)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.7.2)
@@ -192,10 +192,10 @@ importers:
         version: link:../../../packages/source-analysis
       '@hono/node-server':
         specifier: ^1.13.7
-        version: 1.13.7(hono@4.6.16)
+        version: 1.13.7(hono@4.7.1)
       '@hono/zod-validator':
         specifier: ^0.4.1
-        version: 0.4.2(hono@4.6.16)(zod@3.24.1)
+        version: 0.4.2(hono@4.7.1)(zod@3.24.1)
       '@iarna/toml':
         specifier: ^2.2.5
         version: 2.2.5
@@ -231,7 +231,7 @@ importers:
         version: 1.8.0
       hono:
         specifier: ^4.6.12
-        version: 4.6.16
+        version: 4.7.1
       minimatch:
         specifier: ^10.0.1
         version: 10.0.1
@@ -409,7 +409,7 @@ importers:
         version: 4.1.0
       hono:
         specifier: ^4.6.12
-        version: 4.6.16
+        version: 4.7.1
       immer:
         specifier: ^10.1.1
         version: 10.1.1
@@ -512,10 +512,10 @@ importers:
         version: link:../../packages/types
       '@hono/zod-validator':
         specifier: ^0.2.2
-        version: 0.2.2(hono@4.6.16)(zod@3.24.1)
+        version: 0.2.2(hono@4.7.1)(zod@3.24.1)
       hono:
         specifier: ^4.6.12
-        version: 4.6.16
+        version: 4.7.1
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -825,9 +825,27 @@ importers:
 
   packages/fiberplane-hono:
     dependencies:
+      '@cfworker/json-schema':
+        specifier: ^4.1.1
+        version: 4.1.1
+      '@hono/standard-validator':
+        specifier: ^0.1.2
+        version: 0.1.2(@standard-schema/spec@1.0.0)(hono@4.7.1)
+      '@hono/zod-openapi':
+        specifier: ^0.18.0
+        version: 0.18.3(hono@4.7.1)(zod@3.24.1)
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
+      hono:
+        specifier: ^4.0
+        version: 4.7.1
+      jsonpath-plus:
+        specifier: ^10.3.0
+        version: 10.3.0
+      jsonpointer:
+        specifier: ^5.0.1
+        version: 5.0.1
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -841,9 +859,6 @@ importers:
       '@types/react-dom':
         specifier: ^18.2.0
         version: 18.3.5(@types/react@18.3.18)
-      hono:
-        specifier: ^4.6.12
-        version: 4.6.16
       nodemon:
         specifier: ^3.1.7
         version: 3.1.7
@@ -1873,6 +1888,9 @@ packages:
     resolution: {integrity: sha512-A9U+4PREWcS+CCYzKGIPovtGB/PBgnH/8oQyCE6Nr9drDJk6cMPpLQIEajpGPmG9tYF7N3FkRvhXm/AS9+0iKg==}
     engines: {node: '>=18.0.0'}
     hasBin: true
+
+  '@cfworker/json-schema@4.1.1':
+    resolution: {integrity: sha512-gAmrUZSGtKc3AiBL71iNWxDsyUC5uMaKKGdvzYsBoTW/xi42JQHl7eKV2OYzCUqvc+D2RCcf7EXY2iCyFIk6og==}
 
   '@cloudflare/kv-asset-handler@0.3.4':
     resolution: {integrity: sha512-YLPHc8yASwjNkmcDMQMY35yiWjoKAKnhUbPRszBRS0YgH+IXtsMp61j+yTcnCE3oO2DgP0U3iejLC8FTtKDC8Q==}
@@ -3164,6 +3182,12 @@ packages:
     peerDependencies:
       hono: '>=3.*'
 
+  '@hono/standard-validator@0.1.2':
+    resolution: {integrity: sha512-mVyv2fpx/o0MNAEhjXhvuVbW3BWTGnf8F4w8ZifztE+TWXjUAKr7KAOZfcDhVrurgVhKw7RbTnEog2beZM6QtQ==}
+    peerDependencies:
+      '@standard-schema/spec': 1.0.0
+      hono: '>=3.9.0'
+
   '@hono/zod-openapi@0.18.3':
     resolution: {integrity: sha512-bNlRDODnp7P9Fs13ZPajEOt13G0XwXKfKRHMEFCphQsFiD1Y+twzHaglpNAhNcflzR1DQwHY92ZS06b4LTPbIQ==}
     engines: {node: '>=16.0.0'}
@@ -3360,6 +3384,18 @@ packages:
 
   '@jsdevtools/ono@7.1.3':
     resolution: {integrity: sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==}
+
+  '@jsep-plugin/assignment@1.3.0':
+    resolution: {integrity: sha512-VVgV+CXrhbMI3aSusQyclHkenWSAm95WaiKrMxRFam3JSUiIaQjoMIw2sEs/OX4XifnqeQUN4DYbJjlA8EfktQ==}
+    engines: {node: '>= 10.16.0'}
+    peerDependencies:
+      jsep: ^0.4.0||^1.0.0
+
+  '@jsep-plugin/regex@1.0.4':
+    resolution: {integrity: sha512-q7qL4Mgjs1vByCaTnDFcBnV9HS7GVPJX5vyVoCgZHNSC9rjwIlmbXG5sUuorR5ndfHAIlJ8pVStxvjXHbNvtUg==}
+    engines: {node: '>= 10.16.0'}
+    peerDependencies:
+      jsep: ^0.4.0||^1.0.0
 
   '@langchain/anthropic@0.3.9':
     resolution: {integrity: sha512-BZK6EIlYYoGKwmgiZiJZMeL68xv+ooWk/ynDv/QVN8MGGQYW2waBfLaKEFHtPQr/HDznc15FEYZe8C76/EtoYg==}
@@ -5277,6 +5313,9 @@ packages:
   '@smithy/util-waiter@3.2.0':
     resolution: {integrity: sha512-PpjSboaDUE6yl+1qlg3Si57++e84oXdWGbuFUSAciXsVfEZJJJupR2Nb0QuXHiunt2vGR+1PTizOMvnUPaG2Qg==}
     engines: {node: '>=16.0.0'}
+
+  '@standard-schema/spec@1.0.0':
+    resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
 
   '@svgr/babel-plugin-add-jsx-attribute@8.0.0':
     resolution: {integrity: sha512-b9MIk7yhdS1pMCZM8VeNfUlSKVRhsHZNMl5O9SfaX0l0t5wjdgu4IDzGB8bpnGBBOjGST3rRFVsaaEtI4W6f7g==}
@@ -7744,8 +7783,8 @@ packages:
     resolution: {integrity: sha512-eHtf4kSDNw6VVrdbd5IQi16r22m3s7mWPLd7xOMhg1a/Yyb1A0qpUFq8xYMX4FMuDe1nTKeMX5rTx7Nmw+a+Ag==}
     engines: {node: '>=16.9.0'}
 
-  hono@4.6.16:
-    resolution: {integrity: sha512-iE6xOPwDYlfnZFwk6BfIMMIH4WZm3pPhz6rc1uJM/OPew0pjG5K6p8WTLaMBY1/szF/T0TaEjprMpwn16BA0NQ==}
+  hono@4.7.1:
+    resolution: {integrity: sha512-V3eWoPkBxoNgFCkSc5Y5rpLF6YoQQx1pkYO4qrF6YfOw8RZbujUNlJLZCxh0z9gZct70+je2Ih7Zrdpv21hP9w==}
     engines: {node: '>=16.9.0'}
 
   html-entities@2.5.2:
@@ -8104,6 +8143,10 @@ packages:
     resolution: {integrity: sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==}
     hasBin: true
 
+  jsep@1.4.0:
+    resolution: {integrity: sha512-B7qPcEVE3NVkmSJbaYxvv4cHkVW7DQsZz13pUMrfS8z8Q/BuShN+gcTXrUlPiGqM2/t/EEaI030bpxMqY8gMlw==}
+    engines: {node: '>= 10.16.0'}
+
   jsesc@3.0.2:
     resolution: {integrity: sha512-xKqzzWXDttJuOcawBt4KnKHHIf5oQ/Cxax+0PWFG+DFDgHNAdi+TXECADI+RYiFUMmx8792xsMbbgXj4CwnP4g==}
     engines: {node: '>=6'}
@@ -8145,6 +8188,11 @@ packages:
 
   jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
+
+  jsonpath-plus@10.3.0:
+    resolution: {integrity: sha512-8TNmfeTCk2Le33A3vRRwtuworG/L5RrgMvdjhKZxvyShO+mBu2fP50OWUjRLNtvw344DdDarFh9buFAZs5ujeA==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
 
   jsonpointer@5.0.1:
     resolution: {integrity: sha512-p/nXbhSEcu3pZRdkW1OfJhpsVtW1gd4Wa1fnQc9YLiTfAjn0312eMKimbdIQzuZl9aa9xUGaRlP9T/CJE/ditQ==}
@@ -12665,6 +12713,8 @@ snapshots:
 
   '@builder.io/partytown@0.10.2': {}
 
+  '@cfworker/json-schema@4.1.1': {}
+
   '@cloudflare/kv-asset-handler@0.3.4':
     dependencies:
       mime: 3.0.0
@@ -13549,13 +13599,18 @@ snapshots:
     dependencies:
       hono: 4.6.12
 
-  '@hono/node-server@1.13.7(hono@4.6.16)':
+  '@hono/node-server@1.13.7(hono@4.7.1)':
     dependencies:
-      hono: 4.6.16
+      hono: 4.7.1
 
-  '@hono/oauth-providers@0.6.2(hono@4.6.16)':
+  '@hono/oauth-providers@0.6.2(hono@4.7.1)':
     dependencies:
-      hono: 4.6.16
+      hono: 4.7.1
+
+  '@hono/standard-validator@0.1.2(@standard-schema/spec@1.0.0)(hono@4.7.1)':
+    dependencies:
+      '@standard-schema/spec': 1.0.0
+      hono: 4.7.1
 
   '@hono/zod-openapi@0.18.3(hono@4.6.12)(zod@3.24.1)':
     dependencies:
@@ -13564,9 +13619,16 @@ snapshots:
       hono: 4.6.12
       zod: 3.24.1
 
-  '@hono/zod-validator@0.2.2(hono@4.6.16)(zod@3.24.1)':
+  '@hono/zod-openapi@0.18.3(hono@4.7.1)(zod@3.24.1)':
     dependencies:
-      hono: 4.6.16
+      '@asteasolutions/zod-to-openapi': 7.3.0(zod@3.24.1)
+      '@hono/zod-validator': 0.4.2(hono@4.7.1)(zod@3.24.1)
+      hono: 4.7.1
+      zod: 3.24.1
+
+  '@hono/zod-validator@0.2.2(hono@4.7.1)(zod@3.24.1)':
+    dependencies:
+      hono: 4.7.1
       zod: 3.24.1
 
   '@hono/zod-validator@0.4.2(hono@4.6.12)(zod@3.24.1)':
@@ -13574,9 +13636,9 @@ snapshots:
       hono: 4.6.12
       zod: 3.24.1
 
-  '@hono/zod-validator@0.4.2(hono@4.6.16)(zod@3.24.1)':
+  '@hono/zod-validator@0.4.2(hono@4.7.1)(zod@3.24.1)':
     dependencies:
-      hono: 4.6.16
+      hono: 4.7.1
       zod: 3.24.1
 
   '@hookform/resolvers@3.9.1(react-hook-form@7.53.2(react@18.3.1))':
@@ -13726,6 +13788,14 @@ snapshots:
       type-detect: 4.1.0
 
   '@jsdevtools/ono@7.1.3': {}
+
+  '@jsep-plugin/assignment@1.3.0(jsep@1.4.0)':
+    dependencies:
+      jsep: 1.4.0
+
+  '@jsep-plugin/regex@1.0.4(jsep@1.4.0)':
+    dependencies:
+      jsep: 1.4.0
 
   '@langchain/anthropic@0.3.9(@langchain/core@0.2.36(openai@4.76.0(encoding@0.1.13)(zod@3.24.1)))(encoding@0.1.13)':
     dependencies:
@@ -15298,7 +15368,7 @@ snapshots:
   '@rollup/plugin-replace@6.0.2(rollup@4.31.0)':
     dependencies:
       '@rollup/pluginutils': 5.1.3(rollup@4.31.0)
-      magic-string: 0.30.17
+      magic-string: 0.30.15
     optionalDependencies:
       rollup: 4.31.0
 
@@ -15859,6 +15929,8 @@ snapshots:
       '@smithy/abort-controller': 3.1.9
       '@smithy/types': 3.7.2
       tslib: 2.8.1
+
+  '@standard-schema/spec@1.0.0': {}
 
   '@svgr/babel-plugin-add-jsx-attribute@8.0.0(@babel/core@7.26.0)':
     dependencies:
@@ -18901,7 +18973,7 @@ snapshots:
 
   hono@4.6.12: {}
 
-  hono@4.6.16: {}
+  hono@4.7.1: {}
 
   html-entities@2.5.2: {}
 
@@ -19224,6 +19296,8 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
+  jsep@1.4.0: {}
+
   jsesc@3.0.2: {}
 
   json-bigint@1.0.0:
@@ -19259,6 +19333,12 @@ snapshots:
       universalify: 2.0.1
     optionalDependencies:
       graceful-fs: 4.2.11
+
+  jsonpath-plus@10.3.0:
+    dependencies:
+      '@jsep-plugin/assignment': 1.3.0(jsep@1.4.0)
+      '@jsep-plugin/regex': 1.0.4(jsep@1.4.0)
+      jsep: 1.4.0
 
   jsonpointer@5.0.1: {}
 
