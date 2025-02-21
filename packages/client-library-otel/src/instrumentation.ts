@@ -25,11 +25,6 @@ import {
 } from "./patch";
 import { PromiseStore } from "./promiseStore";
 import { propagateFpxTraceId } from "./propagation";
-import {
-  isRouteInspectorRequest,
-  respondWithRoutes,
-  sendRoutes,
-} from "./routes";
 import type { FetchFn, HonoLikeApp, HonoLikeEnv, HonoLikeFetch } from "./types";
 import {
   type FpHonoEnv,
@@ -95,18 +90,6 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
             return await originalFetch(request, rawEnv, executionContext);
           }
 
-          // If the request is from the Fiberplane Studio route inspector,
-          // send latest routes to the Studio API and respond with 200 OK
-          if (isRouteInspectorRequest(request)) {
-            const response = await respondWithRoutes(
-              webStandardFetch,
-              otelEndpoint,
-              app,
-              logger,
-            );
-            return response;
-          }
-
           const FPX_IS_LOCAL = resolvedConfig.mode === "local";
 
           // Patch all functions we want to monitor in the runtime
@@ -129,24 +112,6 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
           });
 
           const promiseStore = new PromiseStore();
-
-          // NOTE - We want to report the latest routes to Studio on every request,
-          //        so that we have an up-to-date list of routes in the UI.
-          //        This will place the request in the promise store, so that we can
-          //        send the routes in the background while still ensuring the request
-          //        completes as usual.
-          //
-          // NOTE - We only want to send routes to the local endpoint (Studio), because it's
-          //        not needed for the remote endpoint (Fiberplane API).
-          if (FPX_IS_LOCAL) {
-            sendRoutes(
-              webStandardFetch,
-              otelEndpoint,
-              app,
-              logger,
-              promiseStore,
-            );
-          }
 
           // Enable tracing for waitUntil (Cloudflare only - allows us to still trace promises that extend beyond the life of the request itself)
           const proxyExecutionCtx =
