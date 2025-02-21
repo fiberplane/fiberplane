@@ -90,8 +90,6 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
             return await originalFetch(request, rawEnv, executionContext);
           }
 
-          const FPX_IS_LOCAL = resolvedConfig.mode === "local";
-
           // Patch all functions we want to monitor in the runtime
           if (monitorCfBindings) {
             patchCloudflareBindings(env);
