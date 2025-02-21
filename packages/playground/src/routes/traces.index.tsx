@@ -27,6 +27,7 @@ import { useIsLgScreen, useIsMdScreen, useOrphanLogs } from "@/hooks";
 import { tracesQueryOptions } from "@/lib/hooks/useTraces";
 import { cn } from "@/lib/utils";
 import type { Trace } from "@/types";
+import { isMizuOrphanLog } from "@/types";
 import { parseEmbeddedConfig } from "@/utils";
 import {
   getRequestMethod,
@@ -108,38 +109,38 @@ function TraceElement({ trace }: { trace: Trace }) {
   const { minStart, duration } = extractWaterfallTimeStats(waterfall);
   const isMdScreen = useIsMdScreen();
 
-  if (waterfall) {
-    const item = waterfall[0];
-    return (
-      <TimelineListElement
-        item={item}
-        timelineVisible={isMdScreen}
-        key={getId(item)}
-        minStart={minStart}
-        duration={duration}
-      />
-    );
-  }
-
+  const incomingRequest = waterfall[0];
   return (
-    <Link
-      key={trace.traceId}
-      to="/traces/$traceId"
-      params={{ traceId: trace.traceId }}
-      className="block transition-colors hover:no-underline"
-    >
-      <Card className="transition-colors hover:bg-muted/50">
-        <CardContent className="p-3">
-          <div className="space-y-2">
-            <ResponseSummaryContainer response={response} dimmed />
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{trace.spans.length} spans</span>
-              <span>{new Date(rootSpan.start_time).toLocaleString()}</span>
-            </div>
+    <div className="block px-1">
+      <Card className="transition-colors hover:bg-muted/50 rounded-sm border-muted-foreground/30 bg-transparent">
+        <CardContent className="p-0 px-1">
+          <TimelineListElement
+            item={incomingRequest}
+            timelineVisible={isMdScreen}
+            key={getId(incomingRequest)}
+            minStart={minStart}
+            duration={duration}
+          />
+          <div
+            className={cn(
+              "flex items-center justify-between text-xs text-muted-foreground px-3 py-2",
+              "border-none",
+            )}
+          >
+            <span>{trace.spans.length} spans</span>
+            <span>
+              <Link
+                to="/traces/$traceId"
+                params={{ traceId: trace.traceId }}
+                className="block transition-colors hover:no-underline"
+              >
+                View Trace Details
+              </Link>
+            </span>
           </div>
         </CardContent>
       </Card>
-    </Link>
+    </div>
   );
 }
 
