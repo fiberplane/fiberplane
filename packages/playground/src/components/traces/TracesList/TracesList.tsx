@@ -46,7 +46,7 @@ export function TracesList(props: {
 
 /**
  * Temporary hack to filter out:
- * 
+ *
  * 1. Traces that don't have an incoming request span
  * 2. Traces that don't have HTTP info like the request method and URL
  * 3. Traces that are browser preflight OPTIONS requests to the remote openapi spec
