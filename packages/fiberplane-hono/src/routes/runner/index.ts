@@ -159,6 +159,7 @@ async function executeStep<E extends Env>(
   const c = getContext<E & FiberplaneAppType<E>>();
   const userApp = c.get("userApp");
   const userEnv = c.get("userEnv");
+  const userExecutionCtx = c.get("userExecutionCtx");
   const baseUrl = new URL(c.req.url).origin;
   const headers = new Headers();
 
@@ -198,7 +199,12 @@ async function executeStep<E extends Env>(
     body: params.body ? JSON.stringify(params.body) : undefined,
   });
 
-  const response = await userApp.request(request, {}, userEnv);
+  const response = await userApp.request(
+    request,
+    {},
+    userEnv,
+    userExecutionCtx,
+  );
 
   const responseBody = await response.json();
   return {

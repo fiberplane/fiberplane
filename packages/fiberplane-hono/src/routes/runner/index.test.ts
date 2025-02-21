@@ -3,9 +3,9 @@ import type { Env } from "hono";
 import { contextStorage } from "hono/context-storage";
 import { HTTPException } from "hono/http-exception";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Step, Workflow } from "../../schemas/workflows.js";
+import type { Workflow } from "../../schemas/workflows.js";
 import type { FiberplaneAppType } from "../../types.js";
-import createRunnerRoute from "./index.js";
+import { createFiberplane } from "../../middleware.js";
 
 const mockWorkflow: Workflow = {
   workflowId: "test-workflow",
@@ -28,9 +28,11 @@ const mockWorkflow: Workflow = {
       description: "Try to access execution context",
       operation: {
         path: "/api/context-check",
-        method: "get"
+        method: "get",
       },
-      successCriteria: [{ condition: "$response.statusCode === 200" }]
+      parameters: [],
+      outputs: [],
+      successCriteria: [{ condition: "$response.statusCode === 200" }],
     },
     {
       stepId: "createResource",
@@ -98,16 +100,21 @@ vi.mock("./utils.js", () => ({
 }));
 
 describe("Workflow Runner", () => {
-  let app: Hono;
+  let app: Hono<FiberplaneAppType<Env>>;
   const mockApiKey = "test-api-key";
+
+  const mockExecutionCtx = {
+    waitUntil: vi.fn(),
+    passThroughOnException: vi.fn(),
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    app = new Hono();
+    // Create the app with test routes
+    app = new Hono<FiberplaneAppType<Env>>();
 
     app.get("/api/context-check", async (c) => {
-      // This should fail since executionCtx is not available
       const ctx = c.executionCtx;
       return c.json({ ctx });
     });
@@ -139,32 +146,43 @@ describe("Workflow Runner", () => {
       );
     });
 
-    const runnerApp = new Hono<FiberplaneAppType<Env>>();
+    // Add the Fiberplane middleware
+    app.use(
+      "/*",
+      createFiberplane({
+        app,
+        apiKey: mockApiKey,
+        debug: true,
+      }),
+    );
+  });
 
-    runnerApp.use(contextStorage());
-
-    runnerApp.use<"*", FiberplaneAppType<Env>>("*", async (c, next) => {
-      c.set("userApp", app);
-      c.set("userEnv", {});
-      c.set("debug", true);
-      await next();
-    });
-
-    runnerApp.route("/w", createRunnerRoute(mockApiKey));
-    app.route("/", runnerApp);
+  it("mock app should have executionCtx", async () => {
+    const res = await app.request(
+      "/api/context-check",
+      {},
+      {},
+      mockExecutionCtx,
+    );
+    expect(res.status).toBe(200);
   });
 
   it("should execute a workflow successfully", async () => {
-    const res = await app.request("/w/test-workflow", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const res = await app.request(
+      "/w/test-workflow",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "Test Resource",
+          description: "Test Description",
+        }),
       },
-      body: JSON.stringify({
-        name: "Test Resource",
-        description: "Test Description",
-      }),
-    });
+      {},
+      mockExecutionCtx,
+    );
 
     const data = await res.json();
     expect(res.status).toBe(200);
@@ -179,34 +197,42 @@ describe("Workflow Runner", () => {
     });
   });
 
-  it("should fail when trying to access executionCtx", async () => {
-    const res = await app.request("/w/test-workflow", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+  it("should not fail when trying to access executionCtx", async () => {
+    const res = await app.request(
+      "/w/test-workflow",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "Test Resource",
+          description: "Test Description",
+        }),
       },
-      body: JSON.stringify({
-        name: "Test Resource",
-        description: "Test Description"
-      }),
-    });
+      {},
+      mockExecutionCtx,
+    );
 
-    expect(res.status).toBe(500);
-    const data = await res.json();
-    expect(data.error.details.stepId).toBe("checkContext");
+    expect(res.status).toBe(200);
   });
 
   it("should validate workflow inputs", async () => {
-    const res = await app.request("/w/test-workflow", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const res = await app.request(
+      "/w/test-workflow",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          description: "Test Description",
+          // Missing required 'name' field
+        }),
       },
-      body: JSON.stringify({
-        description: "Test Description",
-        // Missing required 'name' field
-      }),
-    });
+      {},
+      mockExecutionCtx,
+    );
 
     expect(res.status).toBe(400);
     const data = await res.json();
@@ -214,36 +240,38 @@ describe("Workflow Runner", () => {
   });
 
   it("should handle workflow step failures", async () => {
-    const failureApp = new Hono();
+    // Create a new app with failing endpoints
+    const failureApp = new Hono<FiberplaneAppType<Env>>();
 
     failureApp.post("/api/resources", async (c) => {
       return c.json({ error: "Not implemented" }, 501);
     });
 
-    const runnerApp = new Hono<FiberplaneAppType<Env>>();
-
-    runnerApp.use(contextStorage());
-
-    runnerApp.use<"*", FiberplaneAppType<Env>>("*", async (c, next) => {
-      c.set("userApp", failureApp);
-      c.set("userEnv", {});
-      c.set("debug", true);
-      await next();
-    });
-
-    runnerApp.route("/w", createRunnerRoute(mockApiKey));
-    failureApp.route("/", runnerApp);
-
-    const res = await failureApp.request("/w/test-workflow", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: "Test Resource",
-        description: "Test Description",
+    failureApp.use(contextStorage());
+    failureApp.use(
+      "/*",
+      createFiberplane({
+        app: failureApp,
+        apiKey: mockApiKey,
+        debug: true,
       }),
-    });
+    );
+
+    const res = await failureApp.request(
+      "/w/test-workflow",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "Test Resource",
+          description: "Test Description",
+        }),
+      },
+      {},
+      mockExecutionCtx,
+    );
 
     const data = await res.json();
     expect(res.status).toBe(501);
@@ -251,15 +279,20 @@ describe("Workflow Runner", () => {
   });
 
   it("should handle non-existent workflows", async () => {
-    const res = await app.request("/w/non-existent-workflow", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const res = await app.request(
+      "/w/non-existent-workflow",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "Test Resource",
+        }),
       },
-      body: JSON.stringify({
-        name: "Test Resource",
-      }),
-    });
+      {},
+      mockExecutionCtx,
+    );
 
     expect(res.status).toBe(404);
   });

@@ -1,4 +1,4 @@
-import type { Context, Env, Hono, MiddlewareHandler } from "hono";
+import type { Context, Env, MiddlewareHandler } from "hono";
 import packageJson from "../package.json" assert { type: "json" };
 import { logIfDebug } from "./debug.js";
 import { createRouter } from "./router.js";
@@ -13,6 +13,7 @@ export const createFiberplane =
     const debug = options.debug ?? false;
     const userApp = options.app;
     const userEnv = c.env;
+    const userExecutionCtx = c.executionCtx;
     logIfDebug(debug, "debug logs are enabled");
 
     const apiKey = options.apiKey ?? getApiKey(c, debug);
@@ -31,6 +32,7 @@ export const createFiberplane =
       fpxEndpoint,
       userApp,
       userEnv,
+      userExecutionCtx,
       ...options,
       // Add the api key with a fallback to the env var FIBERPLANE_API_KEY
       apiKey,

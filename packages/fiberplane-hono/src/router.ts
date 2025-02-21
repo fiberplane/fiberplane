@@ -52,6 +52,7 @@ export function createRouter<E extends Env>(
   app.use(async (c, next) => {
     c.set("userApp", options.userApp);
     c.set("userEnv", options.userEnv);
+    c.set("userExecutionCtx", options.userExecutionCtx);
     await next();
   });
 
