@@ -22,8 +22,8 @@ export function FeatureDisabledScreen(props: {
         <div className="flex flex-col items-center gap-1">
           <h2 className="text-lg font-semibold text-foreground">{title}</h2>
           <p className="text-foreground/70 text-center max-w-md">{message}</p>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="mt-4"
             onClick={() => navigate({ to: "/" })}
           >
