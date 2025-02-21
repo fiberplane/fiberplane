@@ -3,9 +3,9 @@ import type { Env } from "hono";
 import { contextStorage } from "hono/context-storage";
 import { HTTPException } from "hono/http-exception";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createFiberplane } from "../../middleware.js";
 import type { Workflow } from "../../schemas/workflows.js";
 import type { FiberplaneAppType } from "../../types.js";
-import { createFiberplane } from "../../middleware.js";
 
 const mockWorkflow: Workflow = {
   workflowId: "test-workflow",

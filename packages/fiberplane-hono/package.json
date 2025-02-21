@@ -1,11 +1,12 @@
 {
   "name": "@fiberplane/hono",
+  "type": "module",
   "version": "0.4.3-beta.2",
+  "author": "Fiberplane<info@fiberplane.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/fiberplane/fiberplane.git"
   },
-  "type": "module",
   "exports": {
     ".": {
       "types": "./src/index.ts",
