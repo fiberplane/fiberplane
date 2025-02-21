@@ -3,6 +3,13 @@ import {
   type RequestInfo,
   ResponseSummaryContainer,
 } from "@/components/ResponseSummary";
+import {
+  TimelineListElement,
+  extractWaterfallTimeStats,
+} from "@/components/Timeline";
+import { TimelineListDetails } from "@/components/Timeline/DetailsList/TimelineDetailsList/TimelineListDetails";
+import { getId } from "@/components/Timeline/DetailsList/TimelineDetailsList/utils";
+import { useAsWaterfall } from "@/components/Timeline/hooks/useAsWaterfall";
 import { NavigationPanel } from "@/components/playground/NavigationPanel";
 import { NavigationFrame } from "@/components/playground/NavigationPanel";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,7 +23,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { useIsLgScreen } from "@/hooks";
+import { useIsLgScreen, useIsMdScreen, useOrphanLogs } from "@/hooks";
 import { tracesQueryOptions } from "@/lib/hooks/useTraces";
 import { cn } from "@/lib/utils";
 import type { Trace } from "@/types";
@@ -67,56 +74,72 @@ function TracesOverview() {
   return (
     <TraceListLayout>
       <div className="h-full p-4 overflow-y-auto">
-        <h2 className="mb-4 text-lg font-medium">
-          Traces ({traces.length} total)
-        </h2>
+        <h2 className="mb-4 text-lg font-medium">Traces (WIP)</h2>
         <div className="grid gap-2">
           {traces.map((trace: Trace) => {
-            const rootSpan = trace.spans.find((span) =>
-              isIncomingRequestSpan(span),
-            );
-            if (!rootSpan) {
-              return null;
-            }
-
-            const responseStatusCode = getStatusCode(rootSpan) || 200;
-            const response: RequestInfo = {
-              requestMethod: getRequestMethod(rootSpan) || "GET",
-              requestUrl: getRequestUrl(rootSpan) || "",
-              responseStatusCode,
-            };
-
-            // Skip traces that don't have HTTP info
-            if (!response.requestMethod || !response.requestUrl) {
-              return null;
-            }
-
-            return (
-              <Link
-                key={trace.traceId}
-                to="/traces/$traceId"
-                params={{ traceId: trace.traceId }}
-                className="block transition-colors hover:no-underline"
-              >
-                <Card className="transition-colors hover:bg-muted/50">
-                  <CardContent className="p-3">
-                    <div className="space-y-2">
-                      <ResponseSummaryContainer response={response} dimmed />
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>{trace.spans.length} spans</span>
-                        <span>
-                          {new Date(rootSpan.start_time).toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
+            return <TraceElement key={trace.traceId} trace={trace} />;
           })}
         </div>
       </div>
     </TraceListLayout>
+  );
+}
+
+function TraceElement({ trace }: { trace: Trace }) {
+  const rootSpan = trace.spans.find((span) => isIncomingRequestSpan(span));
+  if (!rootSpan) {
+    return null;
+  }
+
+  const responseStatusCode = getStatusCode(rootSpan) || 200;
+  const response: RequestInfo = {
+    requestMethod: getRequestMethod(rootSpan) || "GET",
+    requestUrl: getRequestUrl(rootSpan) || "",
+    responseStatusCode,
+  };
+
+  // Skip traces that don't have HTTP info
+  if (!response.requestMethod || !response.requestUrl) {
+    return null;
+  }
+  const { traceId, spans } = trace;
+  const orphanLogs = useOrphanLogs(traceId, spans ?? []);
+  const { waterfall } = useAsWaterfall(spans ?? [], orphanLogs);
+  const { minStart, duration } = extractWaterfallTimeStats(waterfall);
+  const isMdScreen = useIsMdScreen();
+
+  if (waterfall) {
+    const item = waterfall[0];
+    return (
+      <TimelineListElement
+        item={item}
+        timelineVisible={isMdScreen}
+        key={getId(item)}
+        minStart={minStart}
+        duration={duration}
+      />
+    );
+  }
+
+  return (
+    <Link
+      key={trace.traceId}
+      to="/traces/$traceId"
+      params={{ traceId: trace.traceId }}
+      className="block transition-colors hover:no-underline"
+    >
+      <Card className="transition-colors hover:bg-muted/50">
+        <CardContent className="p-3">
+          <div className="space-y-2">
+            <ResponseSummaryContainer response={response} dimmed />
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>{trace.spans.length} spans</span>
+              <span>{new Date(rootSpan.start_time).toLocaleString()}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 
