@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/resizable";
 import { useIsLgScreen } from "@/hooks";
 import type { Trace } from "@/types";
+import { getPathFromUrl } from "@/utils";
 import {
   getRequestMethod,
   getRequestUrl,
@@ -126,12 +127,4 @@ function TraceListLayout({ children }: { children: React.ReactNode }) {
       </ResizablePanel>
     </ResizablePanelGroup>
   );
-}
-
-function getPathFromUrl(url: string) {
-  try {
-    return new URL(url).pathname;
-  } catch (error) {
-    return null;
-  }
 }
