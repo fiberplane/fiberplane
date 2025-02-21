@@ -39,10 +39,9 @@ export const Route = createFileRoute("/traces/")({
 });
 
 function TracesIndexPage() {
-  const { openapi, queryClient } = Route.useRouteContext();
-  const loaderData = Route.useLoaderData();
+  const { queryClient } = Route.useRouteContext();
+  const { traces } = Route.useLoaderData();
   const router = useRouter();
-  const { traces } = loaderData;
 
   const reload = useHandler(async () => {
     if (router) {
@@ -59,5 +58,5 @@ function TracesIndexPage() {
     }
   });
 
-  return <TracesList traces={traces} openapi={openapi} reload={reload} />;
+  return <TracesList traces={traces} reload={reload} />;
 }

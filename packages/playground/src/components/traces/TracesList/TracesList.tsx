@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import type { Trace } from "@/types";
-import { getPathFromUrl } from "@/utils";
 import {
+  getRequestHeaders,
   getRequestMethod,
   getRequestUrl,
   isIncomingRequestSpan,
@@ -14,11 +14,10 @@ import { TraceListLayout } from "./TracesListLayout";
 export function TracesList(props: {
   traces: Trace[];
   reload: () => void;
-  openapi?: { url?: string };
 }) {
-  const { traces, openapi } = props;
+  const { traces } = props;
 
-  const filteredTraces = useFilteredTraces(traces, openapi);
+  const filteredTraces = useFilteredTraces(traces);
 
   if (!filteredTraces || filteredTraces?.length === 0) {
     return (
@@ -62,9 +61,9 @@ export function TracesList(props: {
  *
  * 1. Traces that don't have an incoming request span
  * 2. Traces that don't have HTTP info like the request method and URL
- * 3. Traces that are browser preflight OPTIONS requests to the remote openapi spec
+ * 3. Traces that are browser preflight OPTIONS requests from the current origin
  */
-function useFilteredTraces(traces: Trace[], openapi?: { url?: string }) {
+function useFilteredTraces(traces: Trace[]) {
   return useMemo(() => {
     return traces?.filter((trace) => {
       const rootSpan = trace.spans.find((span) => isIncomingRequestSpan(span));
@@ -83,19 +82,16 @@ function useFilteredTraces(traces: Trace[], openapi?: { url?: string }) {
 
       // So the UI gets polluted with browser preflight requests to the remote spec (e.g., `OPTIONS /openapi.json`).
       // This is a temporary workaround to skip those traces and make the UX of this page better.
-      const didFetchSpecRemotely = !!openapi?.url;
-      const isOptions = requestMethod?.toLowerCase() === "options";
-      const requestPath = requestUrl ? getPathFromUrl(requestUrl) : "";
-      const openapiPath = openapi?.url ? getPathFromUrl(openapi.url) : "";
+      const headers = getRequestHeaders(rootSpan);
+      const isPreflightFromCurrentOrigin =
+        requestMethod.toLowerCase() === "options" &&
+        headers?.origin === window.location.origin;
 
-      const isOptionsRequestToOpenApiSpec =
-        didFetchSpecRemotely && isOptions && requestPath === openapiPath;
-
-      if (isOptionsRequestToOpenApiSpec) {
+      if (isPreflightFromCurrentOrigin) {
         return false;
       }
 
       return true;
     });
-  }, [traces, openapi]);
+  }, [traces]);
 }
