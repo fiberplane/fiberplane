@@ -43,7 +43,7 @@ function getColorValueBasedOnContent(content: string) {
       postsSortedByDateDesc.map((post) => (
         <li class="blog-post">
           <h4>
-            <a href={`/blog/${post.slug}`}>{post.data.title}</a>
+            <a href={`/blog/${post.id}`}>{post.data.title}</a>
           </h4>
 
           <div class="date">

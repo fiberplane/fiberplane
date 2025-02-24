@@ -5,7 +5,7 @@ import { ogImageOptions } from "@/ogImageOptions";
 
 const blogEntries = await getCollection("blog");
 const pages = Object.fromEntries(
-  blogEntries.map(({ slug, data }) => [`blog/${slug}`, data])
+  blogEntries.map(({ id, data }) => [`blog/${id}`, data])
 );
 
 export const { getStaticPaths, GET } = OGImageRoute({
