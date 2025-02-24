@@ -20,7 +20,8 @@ export const createFiberplane =
     const debug = options.debug ?? false;
     const userApp = options.app;
     const userEnv = c.env;
-    const userExecutionCtx = c.executionCtx;
+    const userExecutionCtx = getExecutionCtxSafely(c);
+
     logIfDebug(debug, "debug logs are enabled");
 
     const apiKey = options.apiKey ?? getApiKey(c, debug);
@@ -32,6 +33,9 @@ export const createFiberplane =
     logIfDebug(debug, "mountedPath:", mountedPath);
     logIfDebug(debug, "internalPath:", internalPath);
     logIfDebug(debug, "otelEndpoint:", otelEndpoint);
+    if (!userExecutionCtx) {
+      logIfDebug(debug, "userExecutionCtx is null");
+    }
 
     // Forward request to embedded router, continuing middleware chain if no route matches
     const router = createRouter({
@@ -131,4 +135,19 @@ function getApiKey(c: Context, debug?: boolean): string | undefined {
     }
   }
   return FIBERPLANE_API_KEY;
+}
+
+/**
+ * Gets the execution context from the context object.
+ * Returns null if the execution context is not present.
+ *
+ * We wrap this in a try-catch because Hono will throw an error if
+ * there is no `executionCtx` (e.g., in non-Cloudflare environments).
+ */
+function getExecutionCtxSafely(c: Context) {
+  try {
+    return c.executionCtx;
+  } catch (_e) {
+    return null;
+  }
 }

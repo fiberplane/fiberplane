@@ -88,7 +88,7 @@ export interface ResolvedEmbeddedOptions<E extends Env>
   otelToken?: string;
   userApp: AnyHono<E>;
   userEnv: Env;
-  userExecutionCtx: ExecutionContext;
+  userExecutionCtx: ExecutionContext | null;
   cdn: string;
 }
 
