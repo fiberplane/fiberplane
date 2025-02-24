@@ -4,8 +4,8 @@ import type { Props } from "@astrojs/starlight/props";
 
 import ogDefaultImage from "@/assets/og-default.png?url";
 
-const { slug } = Astro.props;
-const ogImagePath = slug ? `og/${slug}.png` : ogDefaultImage;
+const { id } = Astro.props;
+const ogImagePath = id ? `og/${id}.png` : ogDefaultImage;
 const canonicalImageSrc = new URL(ogImagePath, Astro.site);
 ---
 
