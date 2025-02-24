@@ -1,8 +1,6 @@
 ---
-import Default from "@astrojs/starlight/components/Head.astro";
-import type { Props } from "@astrojs/starlight/props";
-
 import ogDefaultImage from "@/assets/og-default.png?url";
+import Default from "@astrojs/starlight/components/Head.astro";
 
 const { id } = Astro.props;
 const ogImagePath = id ? `og/${id}.png` : ogDefaultImage;

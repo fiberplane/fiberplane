@@ -1,5 +1,5 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import { Badge } from "@astrojs/starlight/components";
 
@@ -12,7 +12,7 @@ const changelogEntries = await Promise.all(
     )
     .filter((entry) => !entry.data.draft)
     .map(async (e) => {
-      const { Content } = await e.render();
+      const { Content } = await render(e);
       return { ...e, Content };
     })
 );
