@@ -63,7 +63,7 @@ export interface EmbeddedOptions<E extends Env> {
   otelEndpoint?: string;
 
   /**
-   * (Optional) OpenTelemetry token to use for the embedded playground api.
+   * (Optional) Token to use for bearer auth against the OpenTelemetry collector (`otelEndpoint`)
    *
    * If not provided, the middleware will attempt to fall back to the `FIBERPLANE_OTEL_TOKEN` environment variable.
    */
