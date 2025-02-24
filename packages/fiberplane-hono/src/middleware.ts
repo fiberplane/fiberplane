@@ -1,8 +1,15 @@
 import type { Context, MiddlewareHandler } from "hono";
 import packageJson from "../package.json" assert { type: "json" };
+import {
+  ENV_FIBERPLANE_OTEL_TOKEN,
+  ENV_FPX_AUTH_TOKEN,
+  ENV_FPX_ENDPOINT,
+} from "./constants.js";
+import { ENV_FIBERPLANE_OTEL_ENDPOINT } from "./constants.js";
 import { logIfDebug } from "./debug.js";
 import { createRouter } from "./router.js";
 import type { EmbeddedOptions, ResolvedEmbeddedOptions } from "./types.js";
+import { getFromEnv } from "./utils/env.js";
 
 const VERSION = packageJson.version;
 const CDN_URL = `https://cdn.jsdelivr.net/npm/@fiberplane/hono@${VERSION}/dist/playground/`;
@@ -77,17 +84,35 @@ function getPaths(c: Context): { mountedPath: string; internalPath: string } {
     internalPath,
   };
 }
+
 /**
  * Gets the OpenTelemetry endpoint from environment variables.
  * Checks both FIBERPLANE_OTEL_ENDPOINT and the legacy FPX_ENDPOINT.
  * Used to determine where to send telemetry data.
+ *
+ * @NOTE - The telemetry endpoint is assumed to end in `/v1/traces`
  */
 function getOtelEndpoint(c: Context): string | undefined {
-  return c?.env?.FIBERPLANE_OTEL_ENDPOINT || c?.env?.FPX_ENDPOINT;
+  const otelEndpoint = getFromEnv(c?.env, [
+    ENV_FIBERPLANE_OTEL_ENDPOINT,
+    ENV_FPX_ENDPOINT,
+  ]);
+
+  return otelEndpoint ?? undefined;
 }
 
+/**
+ * Gets the Fiberplane OTel token from environment variables.
+ * Checks both FIBERPLANE_OTEL_TOKEN and the legacy FPX_AUTH_TOKEN.
+ * Used to authenticate requests to a Fiberplane Otel-worker HTTP API.
+ */
 function getOtelToken(c: Context): string | undefined {
-  return c?.env?.FIBERPLANE_OTEL_TOKEN || c?.env?.FPX_AUTH_TOKEN;
+  const otelToken = getFromEnv(c?.env, [
+    ENV_FIBERPLANE_OTEL_TOKEN,
+    ENV_FPX_AUTH_TOKEN,
+  ]);
+
+  return otelToken ?? undefined;
 }
 
 function getApiKey(c: Context, debug?: boolean): string | undefined {
