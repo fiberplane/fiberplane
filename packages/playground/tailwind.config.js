@@ -19,8 +19,13 @@ export default {
             transform: "translate3d(2px, 0, 0)",
           },
         },
+        fadeIn: {
+          from: { opacity: 0 },
+          to: { opacity: 1 },
+        },
       },
       animation: {
+        fadeIn: "fadeIn .5s ease-in-out",
         shake: "shake 0.7s ease-in-out",
       },
 
