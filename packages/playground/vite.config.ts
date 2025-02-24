@@ -43,6 +43,13 @@ export default defineConfig({
   server: {
     port: 6660,
     proxy: {
+      "/w": {
+        // This is setup to work with the fp-services API running locally. To use it make sure to set the FIBERPLANE_API_KEY in your .dev.vars
+        target: EMBEDDED_API_URL,
+        headers: {
+          Authorization: `Bearer ${process.env.FIBERPLANE_API_KEY}`,
+        },
+      },
       "/api": {
         // This is setup to work with the fp-services API running locally. To use it make sure to set the FIBERPLANE_API_KEY in your .dev.vars
         target: EMBEDDED_API_URL,
