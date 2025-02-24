@@ -5,7 +5,6 @@ import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 
-// https://astro.build/config
 export default defineConfig({
   site: "https://fiberplane.com",
   redirects: {
@@ -116,7 +115,6 @@ export default defineConfig({
         Head: "@/components/Head.astro",
         Header: "@/components/Header.astro",
         Hero: "@/components/Hero.astro",
-        Pagination: "@/components/Pagination.astro"
       },
       customCss: ["@/main.css"],
       expressiveCode: {
