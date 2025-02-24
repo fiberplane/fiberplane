@@ -33,6 +33,12 @@ export const createFiberplane =
     logIfDebug(debug, "mountedPath:", mountedPath);
     logIfDebug(debug, "internalPath:", internalPath);
     logIfDebug(debug, "otelEndpoint:", otelEndpoint);
+    if (otelEndpoint && !otelToken) {
+      logIfDebug(
+        debug,
+        "otelToken is not set, tracing requests will not use bearer auth",
+      );
+    }
     if (!userExecutionCtx) {
       logIfDebug(debug, "userExecutionCtx is null");
     }
