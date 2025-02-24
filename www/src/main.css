@@ -30,7 +30,6 @@
   --sl-color-text-accent: var(--fg-brand);
 
   /* Fix for misaligned elements in nav/header */
-
   --sl-nav-pad-y: 0.55rem;
 
   /*
@@ -97,6 +96,23 @@
     --sl-color-asides-text-accent: var(--fg-tip);
     --sl-color-asides-border: var(--fg-tip);
     background-color: var(--bg-tip);
+  }
+}
+
+/*
+  Hack to hide the sidebar, but show it only in mobile menus. Used in Starlight
+  pages that don't come with a sidebar, but where the `hasSideBar` prop is set
+  to true (e.g. the home & Changelog page).
+*/
+body:has(.hide-sidebar) {
+  @media (width > 50rem) {
+    #starlight__sidebar {
+      display: none;
+    }
+  }
+
+  .main-frame {
+    --sl-content-inline-start: 0;
   }
 }
 

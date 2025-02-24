@@ -27,6 +27,7 @@ function getColorValueBasedOnContent(content: string) {
 ---
 
 <StarlightPage
+  hasSidebar={true}
   frontmatter={{
     title: "Blog",
     description: "Fiberplane likes to write sometimes",
@@ -37,7 +38,7 @@ function getColorValueBasedOnContent(content: string) {
     }
   }}
 >
-  <ul class="blog-post-list">
+  <ul class="blog-post-list hide-sidebar">
     {
       postsSortedByDateDesc.map((post) => (
         <li class="blog-post">

@@ -1,4 +1,9 @@
-export interface EmbeddedOptions {
+import type { OpenAPIHono } from "@hono/zod-openapi";
+import type { Env, ExecutionContext, Hono } from "hono";
+
+type AnyHono<E extends Env> = Hono<E> | OpenAPIHono<E>;
+
+export interface EmbeddedOptions<E extends Env> {
   /**
    * OpenAPI spec to use for the embedded playground.
    * Pass either a `url` property to the JSON spec document,
@@ -65,17 +70,30 @@ export interface EmbeddedOptions {
   otelToken?: string;
 
   /**
+   * The Hono app to use for the embedded runner.
+   */
+  app: AnyHono<E>;
+
+  /**
    * Enable debug statements
    */
   debug?: boolean;
 }
 
-export interface ResolvedEmbeddedOptions extends EmbeddedOptions {
+export interface ResolvedEmbeddedOptions<E extends Env>
+  extends Omit<EmbeddedOptions<E>, "cdn"> {
+  // cdn is required in resolved options
   mountedPath: string;
+  otelEndpoint?: string;
+  otelToken?: string;
+  userApp: AnyHono<E>;
+  userEnv: Env;
+  userExecutionCtx: ExecutionContext;
+  cdn: string;
 }
 
-export interface SanitizedEmbeddedOptions
-  extends Omit<ResolvedEmbeddedOptions, "apiKey"> {}
+export interface SanitizedEmbeddedOptions<E extends Env>
+  extends Omit<ResolvedEmbeddedOptions<E>, "apiKey"> {}
 
 export interface OpenAPIOptions {
   /**
@@ -92,8 +110,11 @@ export interface OpenAPIOptions {
   content?: string;
 }
 
-export interface FiberplaneAppType {
+export interface FiberplaneAppType<E extends Env> {
   Variables: {
     debug: boolean;
+    userApp: AnyHono<E>;
+    userEnv: E;
+    userExecutionCtx: ExecutionContext;
   };
 }
