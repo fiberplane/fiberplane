@@ -9,7 +9,7 @@ so any time you use a `console.log`, `console.error`, etc., in your app, it will
 
 Likewise, any time your app makes a `fetch` request, it will create a trace for that request. This behavior is configurable.
 
-The library is a no-op when the `FIBERPLANE_OTEL_ENDPOINT` environment variable is not present, so it is safe to deploy to production.
+The library is a no-op when the `FIBERPLANE_OTEL_ENDPOINT` environment variable is not present.
 
 ## Quick Start
 
@@ -26,7 +26,7 @@ Install the Fiberplane Hono Opentelemetry Library
 npm i @fiberplane/hono-otel
 ```
 
-Add middleware to your project
+Wrap your Hono app with the `instrument` function:
 
 ```ts
 import { Hono } from "hono";
@@ -39,20 +39,16 @@ app.get("/", (c) => c.text("Hello, Hono!"));
 export default instrument(app);
 ```
 
-Launch the Fiberplane Studio UI from your project directory
+Set the `FIBERPLANE_OTEL_ENDPOINT` environment variable to the URL of an OpenTelemetry collector.
 
-```sh
-npx @fiberplane/studio
-```
-
-Visit `http://localhost:8788` to see your logs and traces come in as you test your app!
+> To test with an OpenTelemetry collector, you can use the [Fiberplane otel-worker](https://github.com/fiberplane/otel-worker) which can also be deployed locally.
 
 ## Usage
 
 This section takes you through:
 
-- Installing the Fiberplane Hono Opentelemetry Library
-- Configuring your project to use Fiberplane Studio
+- Installing the Fiberplane Hono OpenTelemetry Library
+- Configuring the library
 - Advanced usage with custom spans
 
 It assumes you already have a Hono app running locally.
@@ -84,7 +80,7 @@ export default instrument(app);
 
 ### Configuration
 
-If you're running in Cloudflare Workers, enable nodejs compatibility mode. (This is done automatically for you when you run `npx @fiberplane/studio`.)
+If you're running in Cloudflare Workers, enable nodejs compatibility mode.
 
 ```toml
 # Add this to the top level of your wrangler.toml
@@ -93,15 +89,13 @@ compatibility_flags = [ "nodejs_compat" ]
 
 #### The `FIBERPLANE_OTEL_ENDPOINT` Environment Variable
 
-When your app is running, the `FIBERPLANE_OTEL_ENDPOINT` environment variable controls where the FPX client library sends telemetry data.
+When your app is running, the `FIBERPLANE_OTEL_ENDPOINT` environment variable controls where the client library sends telemetry data.
 
-If it is not defined, the middleware will do nothing. This means you can safely deploy your Hono app to any cloud environment, and by default, it will not collect and send telemetry data.
+If `FIBERPLANE_OTEL_ENDPOINT` is not defined, the middleware will do nothing. 
 
-The Fiberplane cli (`npx @fiberplane/studio`) should help you initialize your project correctly, but if you want to connect your api to Fiberplane Studio manually, you can add or modify this variable with, e.g., `FIBERPLANE_OTEL_ENDPOINT=http://localhost:8788/v1/traces` in your environment variable file.
+If the endpoint is a local address, the client library will collect as much data as possible for each request. Otherwise, sensitive information will be removed from the telemetry data.
 
-```sh
-echo -e '\FIBERPLANE_OTEL_ENDPOINT=http://localhost:8788/v1/traces\n' >> .dev.vars
-```
+You can control this behavior by setting the `FIBERPLANE_ENVIRONMENT` env variable to `"local"` to force the library to send as much data as possible, or `"production"` to force the library to send only essential data.
 
 #### Additional Configuration
 
@@ -112,6 +106,8 @@ The options are:
 - `monitor.fetch`: Whether to create traces for all fetch requests. (Default: `true`)
 - `monitor.logging`: Whether to proxy `console.*` functions to send logging data to a local Fiberplane Studio server. (Default: `true`)
 - `monitor.cfBindings`: Whether to proxy Cloudflare bindings (D1, R2, KV, AI) to add instrumentation to them. (Default: `true`)
+- `redactedHeaders`: Headers whose values should always be redacted.
+- `redactedQueryParams`: Query params whose values should always be redacted.
 - `libraryDebugMode`: Whether to enable debug logging in the library. (Default: `false`)
 
 Here is an example:
