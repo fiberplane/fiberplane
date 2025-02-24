@@ -1,5 +1,5 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import { Badge } from "@astrojs/starlight/components";
 
@@ -11,10 +11,10 @@ const changelogEntries = await Promise.all(
         new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
     )
     .filter((entry) => !entry.data.draft)
-    .map(async (entry) => ({
-      ...entry,
-      content: await entry.render()
-    }))
+    .map(async (e) => {
+      const { Content } = await render(e);
+      return { ...e, Content };
+    })
 );
 ---
 
@@ -40,7 +40,7 @@ const changelogEntries = await Promise.all(
             </h2>
             <Badge variant="note" text={`v${entry.data.version}`} />
           </div>
-          <entry.content.Content />
+          <entry.Content />
         </section>
       );
     })
