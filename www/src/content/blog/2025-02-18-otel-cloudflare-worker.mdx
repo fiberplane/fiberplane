@@ -41,10 +41,9 @@ several crates: `otel-worker` and `otel-worker-core`. The `otel-worker-core`
 crate contains all the shared code that is used by both the `otel-worker`
 crate and our `otel-worker-cli` application. The `otel-worker` crate contains all
 the specifics for running our OTLP ingestion code on Cloudflare.
-This includes:  the workers-rs code, a Store implementation that targets
+This includes: the workers-rs code, a Store implementation that targets
 Cloudflare's D1 database, and a WebSocket implementation that leverages
-[Durable Objects](https://developers.cloudflare.com/durable-objects/)  for maintaining persistent connections.
-
+[Durable Objects](https://developers.cloudflare.com/durable-objects/) for maintaining persistent connections.
 
 <video
   autoplay
@@ -80,7 +79,6 @@ easily. The CLI also includes handy system management commands for tasks like da
 cleanup, and for the debugging enthusiasts, there's a hidden WebSocket monitoring tool
 that lets you watch real-time trace updates as they flow through the system.
 
-
 ### Getting started
 
 The `otel-worker` implements the [OTLP/HTTP spec](https://opentelemetry.io/)
@@ -90,7 +88,7 @@ notifications about new traces.
 
 #### Authentication
 
-The `otel-worker` uses simple bearer token authentication, which is *required*
+The `otel-worker` uses simple bearer token authentication, which is _required_
 for both the OTLP/HTTP endpoints and the traces endpoints.
 You'll configure this token using an environment variable during setup.
 
@@ -152,6 +150,7 @@ We can now retrieve the traces from the D1 database as follows:
 curl http://localhost:8787/v1/traces \
   -H "Authorization: Bearer your-secret-token-here"
 ```
+
 ![Terminal with otel-worker running](@/assets/blog/2025-02-18-otel-worker.png)
 
 Congratulations! You’ve got a streamlined OpenTelemetry collector up and
