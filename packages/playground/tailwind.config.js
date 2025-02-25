@@ -28,6 +28,12 @@ export default {
         fadeIn: "fadeIn .5s ease-in-out",
         shake: "shake 0.7s ease-in-out",
       },
+      transitionDelay: {
+        2000: "2s",
+      },
+      transitionDuration: {
+        2000: "2s",
+      },
 
       fontFamily: {
         sans: ["Geist", "sans-serif"],

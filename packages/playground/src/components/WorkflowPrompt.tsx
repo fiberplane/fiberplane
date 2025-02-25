@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useShake } from "@/hooks";
 import { cn } from "@/lib/utils";
-import { Spinner } from "./playground/Settings/Auths/Spinner";
+import { LoaderCircle } from "lucide-react";
 
 interface WorkflowPromptProps {
   userStory: string;
@@ -15,15 +15,16 @@ export function WorkflowPrompt({
   userStory,
   setUserStory,
   handleSubmit,
-  isPending: disabled,
+  isPending,
 }: WorkflowPromptProps) {
+
   const { shakeClassName, triggerShake } = useShake();
   return (
     <div className="flex flex-col gap-4">
       <div className="relative">
         <Textarea
           value={userStory}
-          disabled={disabled}
+          disabled={isPending}
           onChange={(e) => setUserStory(e.target.value)}
           placeholder="Enter a user story or description..."
           className={cn("w-full bg-input text-foreground", "p-4")}
@@ -35,21 +36,20 @@ export function WorkflowPrompt({
           onClick={() => {
             handleSubmit().catch(() => triggerShake());
           }}
-          disabled={disabled}
+          disabled={isPending}
           size="sm"
-          variant={disabled ? undefined : "primary"}
+          variant={isPending ? undefined : "primary"}
           className={cn(
-            "flex-auto grid items-center w-36 transition-all",
-            disabled ? "grid-cols-[auto_auto]" : "",
+            "flex-auto grid items-center w-32 transition-all",
+            isPending ? "grid-cols-[auto_auto]" : "",
             shakeClassName,
           )}
         >
-          {disabled ? (
+          {isPending ? (
             <>
-              <div>
-                <Spinner
-                  spinning={disabled}
-                  className="opacity-100 animate-fadeIn delay-300 both"
+              <div className="animate-fadeIn delay-2000 fill-mode-both">
+                <LoaderCircle
+                  className="animate-spin ease-in-out duration-2000"
                 />
               </div>
               Creating...

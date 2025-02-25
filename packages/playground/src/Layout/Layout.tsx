@@ -6,13 +6,16 @@ import { type ReactNode, forwardRef } from "react";
 import { cn } from "../utils";
 import { BottomBar } from "./BottomBar";
 import { SettingsScreen } from "./Settings";
+import { useMountedPath } from "@/hooks/use-mounted-path";
 
 const NavButtonComponent = forwardRef<
   HTMLAnchorElement,
   React.ComponentProps<"a">
 >(({ className, ...props }, ref) => {
   const matches = useMatches();
-  const isActive = matches.some((match) => match.routeId === props.href);
+  const path = useMountedPath();
+  const href = props.href?.startsWith(path) ? props.href.substring(path.length) : undefined;
+  const isActive = matches.some((match) => match.routeId === href);
 
   return (
     <Button
