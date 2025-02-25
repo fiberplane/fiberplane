@@ -19,7 +19,6 @@ export function Spinner(props: { spinning: boolean; className?: string }) {
     "transition-opacity",
     `[transition-duration:${fadeOutDuration}ms]`,
     sticky ? "opacity-100" : "opacity-0",
-    "hover:opacity-100",
     extraClassName,
   );
 
