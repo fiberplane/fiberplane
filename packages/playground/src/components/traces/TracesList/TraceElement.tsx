@@ -3,7 +3,10 @@ import {
   TimelineListElement,
   extractWaterfallTimeStats,
 } from "@/components/Timeline";
-import { getId } from "@/components/Timeline/DetailsList/TimelineDetailsList/utils";
+import {
+  getId,
+  getLevelForSpan,
+} from "@/components/Timeline/DetailsList/TimelineDetailsList/utils";
 import { useAsWaterfall } from "@/components/Timeline/hooks/useAsWaterfall";
 import { Card, CardContent } from "@/components/ui/card";
 import { useIsMdScreen, useOrphanLogs } from "@/hooks";
@@ -58,7 +61,8 @@ export function TraceElement({ trace }: { trace: Trace }) {
       <Card className="transition-colors hover:bg-muted/50 rounded-sm border-muted-foreground/30 bg-transparent">
         <CardContent className="p-0 px-1">
           <TraceElementHeader
-            item={incomingRequest}
+            level={getLevelForSpan(incomingRequest)}
+            attributes={incomingRequest.span.attributes}
             startTime={incomingRequest.span.start_time}
             endTime={incomingRequest.span.end_time}
             id={getId(incomingRequest)}
@@ -67,13 +71,14 @@ export function TraceElement({ trace }: { trace: Trace }) {
             duration={duration}
             onClickToggle={() => setShowWaterfall(!showWaterfall)}
           />
+
           {showWaterfall && (
             <div className="pl-8">
               {waterfall.map((item) => {
                 const isLog = isMizuOrphanLog(item);
                 return (isLog && withLogs && !item.isException) || !isLog ? (
                   <TimelineListElement
-                    // Expand the waterfall if there's only one span/log, show span details by default
+                    // Expand the waterfall if there's only one span/log, which shows span details by default
                     defaultExpanded={waterfall.length === 1}
                     item={item}
                     timelineVisible={isMdScreen}

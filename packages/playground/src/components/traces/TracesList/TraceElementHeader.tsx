@@ -1,16 +1,13 @@
 import { formatTimestamp } from "@/components/Log";
-import { Button } from "@/components/ui/button";
-import { SpanStatus } from "@/constants";
-import { isMizuOrphanLog } from "@/types";
-import { type Waterfall, cn } from "@/utils";
+import { cn } from "@/utils";
 import { useHandler } from "@fiberplane/hooks";
 import { Icon } from "@iconify/react";
-import { type HTMLAttributes, useState } from "react";
-import { getLevelForSpan } from "../../Timeline/DetailsList/TimelineDetailsList/utils";
-import { DurationIndicator, EventIndicator } from "../../Timeline/graph";
+import type { HTMLAttributes } from "react";
+import { DurationIndicator } from "../../Timeline/graph";
 
 type Props = {
-  item: Waterfall[0];
+  attributes: OtelAttributes;
+  level: "error" | "warn" | "info";
   id: string;
   startTime: Date;
   endTime: Date;
@@ -22,7 +19,8 @@ type Props = {
 };
 
 export function TraceElementHeader({
-  item,
+  attributes,
+  level,
   startTime,
   endTime,
   id,
@@ -33,26 +31,12 @@ export function TraceElementHeader({
   indent = 0,
 }: Props) {
   const shouldShowDuration = true;
-  // const [isExpanded, setIsExpanded] = useState(() => {
-  //   if (isMizuOrphanLog(item)) {
-  //     return item.level === "error";
-  //   }
-
-  //   return item.span.status?.code === SpanStatus.ERROR;
-  // });
-
-  // const onClickToggle = useHandler(() => setIsExpanded(!isExpanded));
 
   const onKeyDownToggle = useHandler((event) => {
     if (event.key === "Enter") {
       onClickToggle();
     }
   });
-
-  if (isMizuOrphanLog(item)) {
-    console.warn("TraceElementHeader should not be an orphan log!", item);
-    return null;
-  }
 
   return (
     <div
@@ -85,7 +69,7 @@ export function TraceElementHeader({
         <div
           className={cn(
             "grid",
-            "grid-cols-[1fr_2rem]",
+            "grid-cols-[1fr]",
             // "items-center",
             // min width needed for ellipsis to work
             "min-w-0",
@@ -107,24 +91,9 @@ export function TraceElementHeader({
                 "min-h-7",
               )}
             >
-              <IncomingRequestHeader
-                attributes={isMizuOrphanLog(item) ? {} : item?.span?.attributes}
-              />
+              <IncomingRequestHeader attributes={attributes} />
             </button>
           </div>
-          {/* <DivWithHover
-            className="h-7 flex items-center justify-center text-primary grow-0 pr-3"
-            onClick={onClickToggle}
-            onKeyDown={onKeyDownToggle}
-          >
-            <Button
-              size="icon-xs"
-              variant="ghost"
-              onClick={() => setIsExpanded(!isExpanded)}
-            >
-              <Icon icon={isExpanded ? "ph:caret-up" : "ph:caret-down"} />
-            </Button>
-          </DivWithHover> */}
         </div>
         {isMdScreen && (
           <DivWithHover
@@ -132,23 +101,15 @@ export function TraceElementHeader({
             onClick={onClickToggle}
             onKeyDown={onKeyDownToggle}
           >
-            {isMizuOrphanLog(item) ? (
-              <EventIndicator
-                timestamp={item.timestamp.getTime()}
-                traceDuration={duration}
-                traceStartTime={minStart}
-              />
-            ) : (
-              <DurationIndicator
-                isActive={indent === 0}
-                itemStartTime={startTime.getTime()}
-                itemDuration={endTime.getTime() - startTime.getTime()}
-                level={getLevelForSpan(item)}
-                traceDuration={duration}
-                traceStartTime={minStart}
-                showDuration={shouldShowDuration}
-              />
-            )}
+            <DurationIndicator
+              isActive={indent === 0}
+              itemStartTime={startTime.getTime()}
+              itemDuration={endTime.getTime() - startTime.getTime()}
+              level={level}
+              traceDuration={duration}
+              traceStartTime={minStart}
+              showDuration={shouldShowDuration}
+            />
           </DivWithHover>
         )}
 
@@ -193,7 +154,7 @@ import {
   getRequestUrl,
   getStatusCode,
 } from "@/utils";
-import type { OtelSpan } from "@fiberplane/fpx-types";
+import type { OtelAttributes, OtelSpan } from "@fiberplane/fpx-types";
 
 type IncomingRequestHeaderProps = Pick<OtelSpan, "attributes">;
 
