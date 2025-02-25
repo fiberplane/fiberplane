@@ -33,7 +33,7 @@ export function WorkflowDetail() {
             </div>
           </div>
           <div className="grid grid-cols-[2fr_1fr] items-start gap-2">
-            <ListSection title={testTitle} contentClassName="p-0">
+            <ListSection title={testTitle} contentClassName="p-0 pt-2">
               <WorkflowUrl workflowId={workflow.workflowId} />
 
               <div className="grid grid-cols-2 items-start gap-2">
@@ -65,7 +65,7 @@ export function WorkflowDetail() {
                 </ListSection>
               </div>
             </ListSection>
-            <ListSection title="Steps">
+            <ListSection title="Steps" contentClassName="px-1 pr-2">
               <div>
                 {workflow.steps.map((step, index) => (
                   <StepperItem
@@ -74,6 +74,7 @@ export function WorkflowDetail() {
                     stepId={step.stepId}
                     description={step.description}
                     operation={step.operation}
+                    parameters={step.parameters}
                   />
                 ))}
               </div>
