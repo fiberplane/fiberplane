@@ -1,7 +1,6 @@
 import { WorkflowPrompt } from "@/components/WorkflowPrompt";
 import { useOpenApiSpec } from "@/lib/hooks/useOpenApiSpec";
 import { useCreateWorkflow } from "@/lib/hooks/useWorkflows";
-import { useHandler } from "@fiberplane/hooks";
 import { createFileRoute, useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
 
@@ -22,12 +21,12 @@ export function NewWorkflow() {
     console.error("No OpenAPI spec found");
   }
 
-  const handleSubmit = useHandler(() => {
+  const handleSubmit = () => {
     return createWorkflow({
       prompt: userStory,
       openApiSchema: content ?? "",
     });
-  });
+  };
 
   return (
     <div className="flex flex-col justify-center h-full p-4 overflow-auto border rounded-md">

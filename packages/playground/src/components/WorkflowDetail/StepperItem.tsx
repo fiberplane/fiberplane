@@ -22,7 +22,7 @@ export function StepperItem(
     <div
       className={cn(
         "block rounded-md relative",
-        `before:content-[""] before:absolute before:border-l before:border-l-foreground/10 before:left-[19px] before:z-10`,
+        `before:content-[""] before:absolute before:border-l before:border-l-foreground/10 before:left-[15px] before:z-10`,
         "before:h-[calc(100%)] before:top-8 last:before:hidden",
       )}
     >
@@ -30,7 +30,7 @@ export function StepperItem(
         <Link
           type="button"
           className={cn(
-            "w-full grid grid-cols-[auto_1fr] gap-4 pt-4 pb-2 px-2",
+            "w-full grid grid-cols-[auto_1fr] gap-4 pt-4 pb-2 px-1",
             {
               "hover:bg-muted rounded-md": !expanded,
               "cursor-default": expanded,

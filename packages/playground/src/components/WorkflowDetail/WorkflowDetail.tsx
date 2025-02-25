@@ -16,7 +16,6 @@ export function WorkflowDetail() {
     </div>
   );
 
-  console.log("workflow", workflow);
   return (
     <div className="overflow-y-auto h-full">
       <ListSection title={workflow.summary}>
@@ -66,7 +65,7 @@ export function WorkflowDetail() {
                 </ListSection>
               </div>
             </ListSection>
-            <ListSection title="Steps" contentClassName="px-0 pr-2">
+            <ListSection title="Steps" contentClassName="px-1 pr-2">
               <div>
                 {workflow.steps.map((step, index) => (
                   <StepperItem
