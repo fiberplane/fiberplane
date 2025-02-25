@@ -17,7 +17,6 @@ export function WorkflowPrompt({
   handleSubmit,
   isPending,
 }: WorkflowPromptProps) {
-
   const { shakeClassName, triggerShake } = useShake();
   return (
     <div className="flex flex-col gap-4">
@@ -48,9 +47,7 @@ export function WorkflowPrompt({
           {isPending ? (
             <>
               <div className="animate-fadeIn delay-2000 fill-mode-both">
-                <LoaderCircle
-                  className="animate-spin ease-in-out duration-2000"
-                />
+                <LoaderCircle className="animate-spin ease-in-out duration-2000" />
               </div>
               Creating...
             </>
