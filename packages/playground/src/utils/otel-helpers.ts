@@ -15,7 +15,6 @@ import type {
   OtelSpan,
   OtelTrace,
 } from "@fiberplane/fpx-types";
-import type { SpanWithVendorInfo } from "./vendorify-traces";
 
 export const isErrorLogEvent = (event: OtelEvent) => {
   return event.name === "log" && getString(event.attributes.level) === "error";
@@ -234,8 +233,6 @@ export function isFetchSpan(span: Pick<OtelSpan, "kind" | "name">) {
   return span.kind === SpanKind.CLIENT && span.name.toLowerCase() === "fetch";
 }
 
-export function isIncomingRequestSpan(
-  span: Pick<OtelSpan, "name" | "kind">,
-): span is OtelSpan {
+export function isIncomingRequestSpan(span: Pick<OtelSpan, "name" | "kind">) {
   return span.name.toLowerCase() === "request" && span.kind === SpanKind.SERVER;
 }
