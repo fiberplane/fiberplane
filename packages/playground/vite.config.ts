@@ -22,6 +22,10 @@ const EMBEDDED_API_URL =
 const EMBEDDED_API_SPEC_PATH =
   process.env.EMBEDDED_API_SPEC_PATH ?? "/openapi.json";
 
+const EMBEDDED_API_MOUNT_PATH = process.env.EMBEDDED_API_MOUNT_PATH ?? "/fp";
+
+const shouldUseAuth = process.env.EMBEDDED_API_USE_AUTH === "true";
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -46,19 +50,23 @@ export default defineConfig({
   server: {
     port: 6660,
     proxy: {
-      "/w": {
+      "/w/*": {
         // This is setup to work with the fp-services API running locally. To use it make sure to set the FIBERPLANE_API_KEY in your .dev.vars
-        target: EMBEDDED_API_URL,
-        headers: {
-          Authorization: `Bearer ${process.env.FIBERPLANE_API_KEY}`,
-        },
+        target: `${EMBEDDED_API_URL}${EMBEDDED_API_MOUNT_PATH}`,
+        ...(shouldUseAuth && {
+          headers: {
+            Authorization: `Bearer ${process.env.FIBERPLANE_API_KEY}`,
+          },
+        }),
       },
       "/api": {
         // This is setup to work with the fp-services API running locally. To use it make sure to set the FIBERPLANE_API_KEY in your .dev.vars
-        target: EMBEDDED_API_URL,
-        headers: {
-          Authorization: `Bearer ${process.env.FIBERPLANE_API_KEY}`,
-        },
+        target: `${EMBEDDED_API_URL}${EMBEDDED_API_MOUNT_PATH}`,
+        ...(shouldUseAuth && {
+          headers: {
+            Authorization: `Bearer ${process.env.FIBERPLANE_API_KEY}`,
+          },
+        }),
       },
     },
     cors: true,
