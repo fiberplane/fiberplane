@@ -8,15 +8,19 @@ import { useAsWaterfall } from "@/components/Timeline/hooks/useAsWaterfall";
 import { Card, CardContent } from "@/components/ui/card";
 import { useIsMdScreen, useOrphanLogs } from "@/hooks";
 import { cn } from "@/lib/utils";
+import { isMizuOrphanLog } from "@/traces-interop";
 import type { Trace } from "@/types";
+import type { SpanWithVendorInfo, Waterfall } from "@/utils";
 import {
   getRequestMethod,
   getRequestUrl,
   getStatusCode,
   isIncomingRequestSpan,
 } from "@/utils/otel-helpers";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { Link } from "@tanstack/react-router";
+// import { Icon } from "@iconify/react";
+// import { Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { TraceElementHeader } from "./TraceElementHeader";
 
 export function TraceElement({ trace }: { trace: Trace }) {
   const isMdScreen = useIsMdScreen();
@@ -24,6 +28,8 @@ export function TraceElement({ trace }: { trace: Trace }) {
   const orphanLogs = useOrphanLogs(traceId, spans ?? []);
   const { waterfall } = useAsWaterfall(spans ?? [], orphanLogs);
   const { minStart, duration } = extractWaterfallTimeStats(waterfall);
+
+  const [showWaterfall, setShowWaterfall] = useState(false);
 
   // In practice, we should have already filtered these out, but just in case, we do it again here
   const rootSpan = trace.spans.find((span) => isIncomingRequestSpan(span));
@@ -43,43 +49,78 @@ export function TraceElement({ trace }: { trace: Trace }) {
     return null;
   }
 
-  const incomingRequest = waterfall[0];
+  // HACK - Need a better typesafe way to get the incoming request span
+  const incomingRequest = waterfall[0] as SpanWithVendorInfo;
+
+  const withLogs = true;
   return (
     <div className="block px-1">
       <Card className="transition-colors hover:bg-muted/50 rounded-sm border-muted-foreground/30 bg-transparent">
         <CardContent className="p-0 px-1">
-          <TimelineListElement
+          <TraceElementHeader
             item={incomingRequest}
+            startTime={incomingRequest.span.start_time}
+            endTime={incomingRequest.span.end_time}
+            id={getId(incomingRequest)}
             timelineVisible={isMdScreen}
-            key={getId(incomingRequest)}
             minStart={minStart}
             duration={duration}
+            onClickToggle={() => setShowWaterfall(!showWaterfall)}
           />
-          <div
-            className={cn(
-              "flex items-center justify-between text-xs text-muted-foreground py-1 pl-2",
-              "border-none",
-            )}
-          >
-            <span>
-              {trace.spans.length} {trace.spans.length === 1 ? "span" : "spans"}
-            </span>
-            <span>
-              <Link
-                to="/traces/$traceId"
-                params={{ traceId: trace.traceId }}
-                className={cn(
-                  "inline-flex items-center gap-0.5",
-                  "transition-colors hover:underline hover:text-foreground",
-                )}
-              >
-                View Trace Details{" "}
-                <Icon icon="lucide:chevron-right" className="w-4 h-4" />
-              </Link>
-            </span>
-          </div>
+          {showWaterfall && (
+            <div className="pl-8">
+              {waterfall.map((item) => {
+                const isLog = isMizuOrphanLog(item);
+                return (isLog && withLogs && !item.isException) || !isLog ? (
+                  <TimelineListElement
+                    // Expand the waterfall if there's only one span/log, show span details by default
+                    defaultExpanded={waterfall.length === 1}
+                    item={item}
+                    timelineVisible={isMdScreen}
+                    key={getId(item)}
+                    minStart={minStart}
+                    duration={duration}
+                  />
+                ) : null;
+              })}
+            </div>
+          )}
+          <TraceElementFooter trace={trace} waterfall={waterfall} />
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function TraceElementFooter({
+  trace,
+  waterfall,
+}: { trace: Trace; waterfall: Waterfall }) {
+  const logsCount = waterfall.filter((item) => isMizuOrphanLog(item)).length;
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-between text-xs text-muted-foreground py-1 pl-2",
+        "border-none",
+      )}
+    >
+      <span>
+        {trace.spans.length} {trace.spans.length === 1 ? "span" : "spans"} |{" "}
+        {logsCount} {logsCount === 1 ? "log" : "logs"}
+      </span>
+      {/* <span>
+        <Link
+          to="/traces/$traceId"
+          params={{ traceId: trace.traceId }}
+          className={cn(
+            "inline-flex items-center gap-0.5",
+            "transition-colors hover:underline hover:text-foreground",
+          )}
+        >
+          View Trace Details{" "}
+          <Icon icon="lucide:chevron-right" className="w-4 h-4" />
+        </Link>
+      </span> */}
     </div>
   );
 }

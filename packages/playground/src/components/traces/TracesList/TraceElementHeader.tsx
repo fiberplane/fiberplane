@@ -6,69 +6,63 @@ import { type Waterfall, cn } from "@/utils";
 import { useHandler } from "@fiberplane/hooks";
 import { Icon } from "@iconify/react";
 import { type HTMLAttributes, useState } from "react";
-import { DurationIndicator, EventIndicator } from "../../graph";
-import { getBgColorForLevel } from "../../utils";
-import { Content } from "./Content";
-import { TimelineDetailItemHeader } from "./Header";
-import { ItemIcon } from "./ItemIcon";
-import { getId, getLevelForSpan } from "./utils";
+import { getLevelForSpan } from "../../Timeline/DetailsList/TimelineDetailsList/utils";
+import { DurationIndicator, EventIndicator } from "../../Timeline/graph";
 
 type Props = {
   item: Waterfall[0];
+  id: string;
+  startTime: Date;
+  endTime: Date;
+  onClickToggle: () => void;
   timelineVisible: boolean;
   minStart: number;
   duration: number;
   indent?: number;
-  defaultExpanded?: boolean;
 };
 
-export function Element({
+export function TraceElementHeader({
   item,
-  defaultExpanded = false,
+  startTime,
+  endTime,
+  id,
+  onClickToggle,
   timelineVisible: isMdScreen,
   minStart,
   duration,
   indent = 0,
 }: Props) {
-  const isLog = isMizuOrphanLog(item);
-  // NOTE - Changed this from studio for the demo, since I thought it was a bug that child spans like D1 did not show their duration
-  const shouldShowDuration = !isLog; // && isIncomingRequestSpan(item.span);
-  const bgColor = getBgColorForLevel(
-    isLog
-      ? item.level
-      : item.span.status?.code === SpanStatus.ERROR
-        ? "error"
-        : "info",
-  );
-  const [isExpanded, setIsExpanded] = useState(() => {
-    if (defaultExpanded) {
-      return true;
-    }
+  const shouldShowDuration = true;
+  // const [isExpanded, setIsExpanded] = useState(() => {
+  //   if (isMizuOrphanLog(item)) {
+  //     return item.level === "error";
+  //   }
 
-    if (isMizuOrphanLog(item)) {
-      return item.level === "error";
-    }
+  //   return item.span.status?.code === SpanStatus.ERROR;
+  // });
 
-    return item.span.status?.code === SpanStatus.ERROR;
-  });
-  const onClickToggle = useHandler(() => setIsExpanded(!isExpanded));
+  // const onClickToggle = useHandler(() => setIsExpanded(!isExpanded));
+
   const onKeyDownToggle = useHandler((event) => {
     if (event.key === "Enter") {
-      setIsExpanded(!isExpanded);
+      onClickToggle();
     }
   });
 
-  const indentSpace = indent * 20;
+  if (isMizuOrphanLog(item)) {
+    console.warn("TraceElementHeader should not be an orphan log!", item);
+    return null;
+  }
+
   return (
     <div
-      key={getId(item)}
+      key={id}
       className={cn(
         "max-w-full",
         "min-w-0",
         "first:rounded-t-sm transition-all",
         "group",
         "border-b border-muted-foreground/30 last:border-none",
-        bgColor,
       )}
     >
       <div
@@ -86,7 +80,7 @@ export function Element({
           className="flex items-center justify-around h-7
        pr-3 pl-1"
         >
-          <ItemIcon item={item} />
+          <Icon icon="lucide:chevrons-up-down" className="w-4 h-4" />
         </DivWithHover>
         <div
           className={cn(
@@ -107,17 +101,18 @@ export function Element({
               type="button"
               onClick={onClickToggle}
               onKeyDown={onKeyDownToggle}
-              style={{ paddingLeft: `${indentSpace}px` }}
               className={cn(
                 "group-hover:bg-primary/10 pr-3 w-full text-left",
                 // HACK - Other grid cols have h-6
                 "min-h-7",
               )}
             >
-              <TimelineDetailItemHeader item={item} />
+              <IncomingRequestHeader
+                attributes={isMizuOrphanLog(item) ? {} : item?.span?.attributes}
+              />
             </button>
           </div>
-          <DivWithHover
+          {/* <DivWithHover
             className="h-7 flex items-center justify-center text-primary grow-0 pr-3"
             onClick={onClickToggle}
             onKeyDown={onKeyDownToggle}
@@ -129,7 +124,7 @@ export function Element({
             >
               <Icon icon={isExpanded ? "ph:caret-up" : "ph:caret-down"} />
             </Button>
-          </DivWithHover>
+          </DivWithHover> */}
         </div>
         {isMdScreen && (
           <DivWithHover
@@ -146,10 +141,8 @@ export function Element({
             ) : (
               <DurationIndicator
                 isActive={indent === 0}
-                itemStartTime={item.span.start_time.getTime()}
-                itemDuration={
-                  item.span.end_time.getTime() - item.span.start_time.getTime()
-                }
+                itemStartTime={startTime.getTime()}
+                itemDuration={endTime.getTime() - startTime.getTime()}
                 level={getLevelForSpan(item)}
                 traceDuration={duration}
                 traceStartTime={minStart}
@@ -169,23 +162,9 @@ export function Element({
             "text-nowrap",
           )}
         >
-          <div>
-            {formatTimestamp(
-              isMizuOrphanLog(item) ? item.timestamp : item.span.start_time,
-            )}
-          </div>
+          <div>{formatTimestamp(startTime)}</div>
         </DivWithHover>
       </div>
-      {isExpanded && (
-        <div className={cn("overflow-auto min-w-0", "max-w-full")}>
-          <div
-            style={{ paddingLeft: `${indentSpace + 32}px` }}
-            className={cn("")}
-          >
-            <Content item={item} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -204,3 +183,52 @@ const DivWithHover = ({
     </div>
   );
 };
+
+import { StatusCode } from "@/components/StatusCode";
+import { SectionHeading } from "@/components/Timeline/shared";
+import {
+  getHttpMethodTextColor,
+  getMatchedRoute,
+  getRequestMethod,
+  getRequestUrl,
+  getStatusCode,
+} from "@/utils";
+import type { OtelSpan } from "@fiberplane/fpx-types";
+
+type IncomingRequestHeaderProps = Pick<OtelSpan, "attributes">;
+
+export function IncomingRequestHeader(props: IncomingRequestHeaderProps) {
+  const { attributes } = props;
+
+  const method = getRequestMethod({ attributes });
+  const pathWithSearch = getRequestUrl({ attributes });
+  const matchedRoute = getMatchedRoute({ attributes });
+  const responseStatusCode = getStatusCode({ attributes });
+
+  return (
+    <div className="flex flex-col gap-2 justify-center">
+      <SectionHeading className="flex items-center gap-2">
+        <StatusCode
+          status={responseStatusCode}
+          isFailure={false}
+          className="text-xs py-0.5"
+        />
+
+        <div className="inline-flex gap-2 font-mono py-0.5 text-xs bg-primary/30 text-foreground/70 rounded px-1 min-w-0">
+          <span className={cn(getHttpMethodTextColor(method))}>{method}</span>
+          <span className="font-light text-nowrap text-ellipsis overflow-hidden">
+            {pathWithSearch}
+          </span>
+        </div>
+        {matchedRoute && (
+          <div className="flex gap-2 p-1 text-xs bg-accent rounded">
+            <span className="text-gray-200 text-xs">Route:</span>
+            <span className="text-gray-400 font-mono inline-block text-xs">
+              {matchedRoute}
+            </span>
+          </div>
+        )}
+      </SectionHeading>
+    </div>
+  );
+}
