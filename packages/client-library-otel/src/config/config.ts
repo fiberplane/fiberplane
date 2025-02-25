@@ -44,6 +44,9 @@ export const DEFAULT_REDACTED_HEADERS = [
   "www-authenticate",
   "proxy-authenticate",
   "x-real-ip",
+  "x-auth-token",
+  "x-csrf-token",
+  "x-session-id",
 ] as const;
 
 export const DEFAULT_REDACTED_QUERY_PARAMS = [
