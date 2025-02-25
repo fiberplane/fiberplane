@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:fp-services": "EMBEDDED_API_URL=http://localhost:7676 EMBEDDED_API_SPEC_PATH=/api/openapi.json vite",
+    "dev:music": "EMBEDDED_API_URL=http://localhost:8787 EMBEDDED_API_SPEC_PATH=/openapi.json vite",
     "build": "vite build",
     "lint": "biome lint . && pnpm run typecheck",
     "format": "biome check . --write",

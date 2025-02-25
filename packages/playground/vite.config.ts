@@ -17,7 +17,10 @@ config({ path: "./.dev.vars" });
 // E.g., if you're running a sample API on localhost:6242 instead of localhost:7676, you can set EMBEDDED_API_URL=http://localhost:6242/fp
 // to make the SPA proxy requests to your local API with the @fiberplane/hono package.
 const EMBEDDED_API_URL =
-  process.env.EMBEDDED_API_URL ?? "http://localhost:7676";
+  process.env.EMBEDDED_API_URL ?? "http://localhost:8787";
+
+const EMBEDDED_API_SPEC_PATH =
+  process.env.EMBEDDED_API_SPEC_PATH ?? "/openapi.json";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -98,7 +101,7 @@ function injectPlaygroundDevConfig(): Plugin {
         mountedPath: "/",
         openapi: {
           // Comment out the url to use the sample OpenAPI spec
-          url: `${EMBEDDED_API_URL}/openapi.json`,
+          url: `${EMBEDDED_API_URL}${EMBEDDED_API_SPEC_PATH}`,
           // content: JSON.stringify(sampleOpenApiSpec),
         },
       };
