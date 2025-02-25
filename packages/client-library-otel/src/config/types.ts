@@ -20,19 +20,19 @@ export type FpxMode = "local" | "production";
  *
  * @public
  */
-export type FpxConfigOptions = Partial<
-  FpxConfig & {
-    monitor: Partial<FpxConfig["monitor"]>;
+export type FpConfigOptions = Partial<
+  FpConfig & {
+    monitor: Partial<FpConfig["monitor"]>;
     mode?: FpxMode;
   }
 >;
 /**
  * The type for the configuration object we use to configure the instrumentation
- * Different from @FpxConfigOptions because all properties are required
+ * Different from @FpConfigOptions because all properties are required
  *
  * @internal
  */
-export type FpxConfig = {
+export type FpConfig = {
   /**
    * Headers whose values should always be redacted
    * These are merged with {@link DEFAULT_REDACTED_HEADERS}

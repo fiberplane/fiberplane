@@ -10,7 +10,7 @@ import type { ExecutionContext } from "hono";
 // TODO figure out if we can use something else
 import { AsyncLocalStorageContextManager } from "./async-hooks";
 import {
-  type FpxConfigOptions,
+  type FpConfigOptions,
   resolveConfig,
   setFpResolvedConfig,
 } from "./config";
@@ -38,7 +38,7 @@ import {
 // In the future, we could allow the user to set their own custom "fetchFn"
 const webStandardFetch = fetch;
 
-export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
+export function instrument(app: HonoLikeApp, userConfig?: FpConfigOptions) {
   return new Proxy(app, {
     // Intercept the `fetch` function on the Hono app instance
     get(target, prop, receiver) {

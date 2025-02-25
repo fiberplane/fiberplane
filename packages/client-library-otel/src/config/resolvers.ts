@@ -10,7 +10,7 @@ import {
 } from "../constants";
 import { type FpHonoEnv, getFromEnv } from "../utils";
 import { isInLocalMode } from "./local-mode";
-import type { FpxConfig, FpxConfigOptions } from "./types";
+import type { FpConfig, FpConfigOptions } from "./types";
 
 /**
  * Determines the "mode" of the application based on the provided configuration and environment variables.
@@ -20,7 +20,7 @@ import type { FpxConfig, FpxConfigOptions } from "./types";
  */
 export function getMode(
   otelEndpoint: string | null,
-  userConfig: FpxConfigOptions | undefined,
+  userConfig: FpConfigOptions | undefined,
   env: FpHonoEnv,
 ): "local" | "production" {
   if (userConfig?.mode === "local" || userConfig?.mode === "production") {
@@ -89,7 +89,7 @@ export function getOtelToken(env: FpHonoEnv) {
 /**
  * Get the library's log level from the environment variables.
  */
-export function getLogLevel(config: FpxConfig, env: FpHonoEnv) {
+export function getLogLevel(config: FpConfig, env: FpHonoEnv) {
   if ("libraryDebugMode" in config && config.libraryDebugMode) {
     return "debug";
   }
