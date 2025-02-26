@@ -24,7 +24,7 @@ const imageAttrs = {
 };
 ---
 
-<section data-hero>
+<section class="hero not-content">
   <div class="hero-content">
     <header>
       <h1>{title}</h1>
@@ -82,12 +82,12 @@ const imageAttrs = {
   html[data-has-hero] body {
     --sl-content-width: 102rem;
 
-    *:has(* > [data-hero]) {
+    *:where(div:has(div > .hero)) {
       overflow-x: clip;
     }
   }
 
-  section {
+  section.hero {
     container: hero-container / inline-size;
   }
 
@@ -106,10 +106,6 @@ const imageAttrs = {
     /* Overwrite the -block & -inline values as cascade differs in prod */
     padding-block: 0.5rem;
     padding-inline: 0.75rem;
-
-    &.secondary {
-      background-color: white;
-    }
   }
 
   .hero-content {
@@ -204,7 +200,7 @@ const imageAttrs = {
       background-position: top center;
     }
 
-    @container hero-container (width <= 1440px) {
+    @container hero-container (width <= 90rem) {
       header {
         margin-inline: 4rem;
 
@@ -218,13 +214,13 @@ const imageAttrs = {
       }
     }
 
-    @container hero-container (width <= 1152px) {
+    @container hero-container (width <= 72rem) {
       header {
         margin-inline: 2rem 0;
       }
     }
 
-    @container hero-container (width < 1024px) {
+    @container hero-container (width < 64rem) {
       &.hero-content {
         grid-template-columns: 1fr;
         align-content: start;
