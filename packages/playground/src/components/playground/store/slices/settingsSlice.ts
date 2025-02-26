@@ -173,7 +173,7 @@ export const settingsSlice: StateCreator<
       const newAuthorization = { ...authorization, id };
       return set((initialState: StudioState): StudioState => {
         const state = { ...initialState };
-        state.authorizations.push(newAuthorization);
+        state.authorizations = [...state.authorizations, newAuthorization];
         localStorage.setItem(
           SETTINGS_STORAGE_KEY,
           JSON.stringify({
@@ -193,8 +193,9 @@ export const settingsSlice: StateCreator<
         if (index === -1) {
           return state;
         }
-
-        state.authorizations[index] = authorization;
+        const newAuthorizations = [...state.authorizations];
+        newAuthorizations[index] = authorization;
+        state.authorizations = newAuthorizations;
         localStorage.setItem(
           SETTINGS_STORAGE_KEY,
           JSON.stringify({
