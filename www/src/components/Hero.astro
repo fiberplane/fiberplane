@@ -88,7 +88,7 @@ const imageAttrs = {
 
 <style>
   html[data-has-hero] body {
-    --sl-content-width: 102rem;
+    --sl-content-width: 100vi;
 
     *:where(div:has(div > .hero)) {
       overflow-x: clip;
@@ -97,6 +97,11 @@ const imageAttrs = {
 
   section.hero {
     container: hero-container / inline-size;
+
+    display: grid;
+    grid-template-columns: 6rem repeat(2, 1fr) 6rem;
+    max-width: 102rem;
+    margin-inline: auto;
   }
 
   .hero-button-group {
@@ -119,9 +124,11 @@ const imageAttrs = {
   .hero-content {
     position: relative;
     isolation: isolate;
+
     display: grid;
-    gap: 2rem;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
+
     height: 54rem;
     border-radius: 20px;
     background-image: linear-gradient(
@@ -129,18 +136,19 @@ const imageAttrs = {
       var(--sl-color-bg),
       var(--bg-secondary)
     );
-  }
 
-  /* Make sure the hero's content is on top of the dotted bg */
-  .hero-content > * {
-    z-index: 2;
+    /* Make sure the hero's content is on top of the dotted bg */
+    & > * {
+      z-index: 2;
+    }
   }
 
   .hero-header {
     display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 2 / 3;
     gap: 2rem;
     align-content: center;
-    margin-inline: 6rem;
   }
 
   /* TODO: Add Geist font from fontsource.com */
@@ -161,9 +169,7 @@ const imageAttrs = {
   }
 
   .hero-figure {
-    --figure-block-padding: 4rem;
     position: relative;
-    padding-block: var(--figure-block-padding);
   }
 
   .hero-figure .hero-image {
