@@ -6,11 +6,11 @@ import {
   getOtelToken,
   getServiceName,
 } from "./resolvers";
-import type { FpConfig, FpConfigOptions, FpxMode } from "./types";
+import type { FpConfig, FpConfigOptions, FpMode } from "./types";
 
 export type FpResolvedConfig = {
   enabled: boolean;
-  mode: FpxMode;
+  mode: FpMode;
   redactedHeaders: Set<string>;
   redactedQueryParams: Set<string>;
   otelEndpoint: string | null;

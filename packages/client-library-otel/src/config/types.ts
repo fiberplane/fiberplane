@@ -12,7 +12,7 @@ type _UnusedImport2 = typeof DEFAULT_REDACTED_QUERY_PARAMS;
  * - "local" mode will send the kitchen sink with every trace: env vars, request bodies, etc.
  * - "production" mode will attempt to redact sensitive data, and not send request bodies, env vars, etc.
  */
-export type FpxMode = "local" | "production";
+export type FpMode = "local" | "production";
 
 /**
  * The type for the configuration object passed to `instrument`,
@@ -23,7 +23,7 @@ export type FpxMode = "local" | "production";
 export type FpConfigOptions = Partial<
   FpConfig & {
     monitor: Partial<FpConfig["monitor"]>;
-    mode?: FpxMode;
+    mode?: FpMode;
   }
 >;
 /**
