@@ -8,6 +8,7 @@ import Bento from "@/components/Bento.astro";
 
 <StarlightPage
   hasSidebar={true}
+  class:list={["cheesefloof"]}
   frontmatter={{
     title: "Fiberplane",
     template: "splash",
@@ -16,14 +17,14 @@ import Bento from "@/components/Bento.astro";
         '<span>🚀 Check out our Hono-Native API <a href="/blog/hono-native-playground/">Playground</a></span>'
     },
     hero: {
-      title: "Test and debug your Hono API",
+      title: "The API playground for Hono.js",
       image: {
         dark: fpxHeroScreenshotDark,
         light: fpxHeroScreenshotLight,
         alt: "FPX Studio screenshot with auto detected routes"
       },
       tagline:
-        "Fiberplane helps you build, test and debug your API with the full context of your source code and runtime behavior.",
+        "Build, test and explore Hono TypeScript APIs with the power of open standards.",
       actions: [
         {
           text: "Get started",
