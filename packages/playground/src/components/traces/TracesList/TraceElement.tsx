@@ -20,8 +20,6 @@ import {
   getStatusCode,
   isIncomingRequestSpan,
 } from "@/utils/otel-helpers";
-// import { Icon } from "@iconify/react";
-// import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { TraceElementHeader } from "./TraceElementHeader";
 
@@ -113,19 +111,6 @@ function TraceElementFooter({
         {trace.spans.length} {trace.spans.length === 1 ? "span" : "spans"} |{" "}
         {logsCount} {logsCount === 1 ? "log" : "logs"}
       </span>
-      {/* <span>
-        <Link
-          to="/traces/$traceId"
-          params={{ traceId: trace.traceId }}
-          className={cn(
-            "inline-flex items-center gap-0.5",
-            "transition-colors hover:underline hover:text-foreground",
-          )}
-        >
-          View Trace Details{" "}
-          <Icon icon="lucide:chevron-right" className="w-4 h-4" />
-        </Link>
-      </span> */}
     </div>
   );
 }

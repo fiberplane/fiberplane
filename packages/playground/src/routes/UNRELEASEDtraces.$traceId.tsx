@@ -214,7 +214,9 @@ function TraceDetailFloatingSidePanel({
 
 function TraceDetailAssistant({
   trace,
-}: { trace: { traceId: string; spans: TraceDetailSpansResponse } }) {
+}: {
+  trace: { traceId: string; spans: TraceDetailSpansResponse };
+}) {
   const queryClient = useQueryClient();
   const queryKey = useMemo(
     () => ["trace-summary", trace.traceId],
@@ -375,7 +377,7 @@ function TraceDetailLayout({
   );
 }
 
-export const Route = createFileRoute("/traces/$traceId")({
+export const Route = createFileRoute("/UNRELEASEDtraces/$traceId")({
   validateSearch: z.object({
     spanId: z.string().optional(),
   }),
