@@ -47,6 +47,7 @@ export const DEFAULT_REDACTED_HEADERS = [
   "x-auth-token",
   "x-csrf-token",
   "x-session-id",
+  "neon-connection-string",
 ] as const;
 
 export const DEFAULT_REDACTED_QUERY_PARAMS = [
