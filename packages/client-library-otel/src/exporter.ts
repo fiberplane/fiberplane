@@ -9,7 +9,7 @@ import type { FpxLogger } from "./logger";
 import type { FetchFn } from "./types";
 import { isWrapped } from "./utils";
 
-export interface OTLPExporterConfig {
+interface OTLPExporterConfig {
   url: string;
   headers?: Record<string, string>;
 }
