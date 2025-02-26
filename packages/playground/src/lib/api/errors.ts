@@ -57,8 +57,19 @@ export function isFeatureDisabledError(error: unknown) {
   return isFpApiError(error) && error.statusCode === 402;
 }
 
-function isFpApiError(error: unknown): error is FpApiError {
+export function isFpApiError(error: unknown): error is FpApiError {
   return error instanceof FpApiError;
+}
+
+export function getFpApiErrorDetailsJson(error: unknown) {
+  if (isFpApiError(error) && error.details) {
+    try {
+      return JSON.parse(error.details);
+    } catch (e) {
+      return null;
+    }
+  }
+  return null;
 }
 
 export function isFetchOpenApiSpecError(error: unknown) {
