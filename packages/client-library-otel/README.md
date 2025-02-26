@@ -42,6 +42,8 @@ export default instrument(app);
 Set the `FIBERPLANE_OTEL_ENDPOINT` environment variable to the URL of an OpenTelemetry collector.
 
 > To test with an OpenTelemetry collector, you can use the [Fiberplane otel-worker](https://github.com/fiberplane/otel-worker) which can also be deployed locally.
+>
+> In this case, you would set the `FIBERPLANE_OTEL_ENDPOINT` to `http://localhost:24318/v1/traces` and the `FIBERPLANE_OTEL_TOKEN` to the token of the otel-worker.
 
 ## Usage
 
