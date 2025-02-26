@@ -57,7 +57,7 @@ export function instrument(app: HonoLikeApp, userConfig?: FpConfigOptions) {
           const resolvedConfig = resolveConfig(userConfig, env);
           const {
             otelEndpoint,
-            otelToken: authToken,
+            otelToken,
             serviceName,
             monitor: {
               fetch: monitorFetch,
@@ -104,7 +104,7 @@ export function instrument(app: HonoLikeApp, userConfig?: FpConfigOptions) {
           const provider = setupTracerProvider({
             serviceName,
             otelEndpoint,
-            authToken: authToken || undefined,
+            otelToken,
             fetchFn: webStandardFetch,
             logger,
           });
@@ -199,11 +199,11 @@ export function instrument(app: HonoLikeApp, userConfig?: FpConfigOptions) {
 function setupTracerProvider(options: {
   serviceName: string;
   otelEndpoint: string;
-  authToken?: string;
+  otelToken: string | null;
   fetchFn: FetchFn;
   logger: FpxLogger;
 }) {
-  const { otelEndpoint, authToken, serviceName, fetchFn, logger } = options;
+  const { otelEndpoint, otelToken, serviceName, fetchFn, logger } = options;
 
   // We need to use async hooks to be able to propagate context
   const asyncHooksContextManager = new AsyncLocalStorageContextManager();
@@ -216,8 +216,8 @@ function setupTracerProvider(options: {
     }),
   });
 
-  const headers: Record<string, string> = authToken
-    ? { Authorization: `Bearer ${authToken}` }
+  const headers: Record<string, string> = otelToken
+    ? { Authorization: `Bearer ${otelToken}` }
     : {};
 
   const exporter = new FPOTLPExporter(
