@@ -31,7 +31,7 @@ export function TracesListErrorBoundary(props: {
     const details = getFpApiErrorDetailsJson(error);
     if (details?.error === "Failed to fetch traces") {
       help =
-        "Check that your OpenTelemetry collector is running and accepting traces.";
+        "Check that your OpenTelemetry collector is running, and that your auth token is valid.";
     }
   }
 
