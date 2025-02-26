@@ -86,9 +86,8 @@ export const api = {
   // });
   // },
 
-  // TODO - Add limit query param once that ships
-  getTraces: async () => {
-    const data = await fpFetch("/api/traces");
+  getTraces: async ({ limit = 50 }: { limit?: number } = {}) => {
+    const data = await fpFetch(`/api/traces?limit=${limit}`);
     return {
       data: TraceListResponseSchema.parse(data),
     };
