@@ -1,10 +1,16 @@
 import { type Env, Hono } from "hono";
 import { contextStorage } from "hono/context-storage";
 import { logIfDebug } from "./debug.js";
+import { webStandardFetch } from "./fetch.js";
 import createApiRoutes from "./routes/api/index.js";
+import createTracesApiRoute from "./routes/api/traces.js";
 import createEmbeddedPlayground from "./routes/playground.js";
 import createRunnerRoute from "./routes/runner/index.js";
-import type { FiberplaneAppType, ResolvedEmbeddedOptions } from "./types.js";
+import type {
+  FetchFn,
+  FiberplaneAppType,
+  ResolvedEmbeddedOptions,
+} from "./types.js";
 
 // We use a factory pattern to create routes, which allows for clean dependency injection
 // of the apiKey. This keeps the implementation isolated and prevents us from having to
@@ -15,7 +21,10 @@ export function createRouter<E extends Env>(
   // Important: whatever gets passed to createEmbeddedPlayground
   // is passed to the playground, aka is on the HTML
   // We therefore remove the apiKey
-  const { apiKey, fpxEndpoint, debug, ...sanitizedOptions } = options;
+  const { apiKey, otelEndpoint, otelToken, debug, ...sanitizedOptions } =
+    options;
+
+  const fetchFn: FetchFn = options.fetch ?? webStandardFetch;
 
   const app = new Hono<E & FiberplaneAppType<E>>();
   const isDebugEnabled = debug ?? false;
@@ -49,6 +58,26 @@ export function createRouter<E extends Env>(
     logIfDebug(isDebugEnabled, "==== end of matched routes ====");
   });
 
+  // If the OpenTelemetry endpoint is present, we create the internal traces API router
+  if (otelEndpoint) {
+    logIfDebug(
+      isDebugEnabled,
+      "OpenTelemetry Endpoint Present. Creating internal traces API router.",
+    );
+    app.route(
+      "/api/traces",
+      createTracesApiRoute(fetchFn, otelEndpoint, otelToken),
+    );
+  } else {
+    logIfDebug(
+      isDebugEnabled,
+      "OpenTelemetry Endpoint *NOT* Present. Internal traces API router disabled.",
+    );
+    app.use("/api/traces/*", async (c) => {
+      return c.json({ error: "OpenTelemetry endpoint is not set" }, 401);
+    });
+  }
+
   app.use(async (c, next) => {
     c.set("userApp", options.userApp);
     c.set("userEnv", options.userEnv);
@@ -64,11 +93,11 @@ export function createRouter<E extends Env>(
       "Fiberplane API Key Present. Creating internal API router.",
     );
     app.route("/w", createRunnerRoute(apiKey));
-    app.route("/api", createApiRoutes(apiKey, fpxEndpoint));
+    app.route("/api", createApiRoutes(fetchFn, apiKey));
   } else {
     logIfDebug(
       isDebugEnabled,
-      "Fiberplane API Key *Not* Present. Internal API router disabled.",
+      "Fiberplane API Key *NOT* Present. Internal API router disabled.",
     );
     app.use("/api/*", async (c) => {
       return c.json({ error: "Fiberplane API key is not set" }, 402);

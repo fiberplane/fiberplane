@@ -38,11 +38,25 @@ export async function baseFetch<T>(
  */
 export async function fpFetch<T>(
   path: string,
-  options?: RequestInit,
+  initOptions?: RequestInit,
   parser?: (response: Response) => Promise<T>,
 ): Promise<T> {
   if (!path.startsWith("/")) {
     throw new Error("path must be relative to the origin");
+  }
+
+  const options = initOptions ?? {};
+  if (!options.headers) {
+    options.headers = {};
+  }
+
+  // HACK - Force our client library to not trace requests to the internal API
+  if (options.headers instanceof Headers) {
+    options.headers.set("x-fpx-ignore", "true");
+  } else if (Array.isArray(options.headers)) {
+    options.headers.push(["x-fpx-ignore", "true"]);
+  } else {
+    options.headers["x-fpx-ignore"] = "true";
   }
 
   const basePrefix = getFpApiBasePath();

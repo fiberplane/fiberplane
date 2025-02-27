@@ -105,6 +105,9 @@ async function probeRoutesWithExponentialBackoff(
   }
 }
 
+/**
+ * @NOTE - x-fpx-route-inspector is no longer sent as of 0.8.0 in the client library
+ */
 export async function routerProbe(target: string) {
   const headers = new Headers();
   headers.append("X-Fpx-Route-Inspector", "enabled");

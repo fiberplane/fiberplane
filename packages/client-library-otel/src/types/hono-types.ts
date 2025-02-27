@@ -5,6 +5,8 @@
  *
  * I've kept *commented out* Hono derived types below for reference,
  * so you know that they will not work.
+ *
+ * @TODO - Investigate requiring Hono as a peer dependency.
  */
 
 import type { Bindings } from "hono/types";

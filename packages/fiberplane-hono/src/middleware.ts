@@ -1,8 +1,15 @@
 import type { Context, Env, MiddlewareHandler } from "hono";
 import packageJson from "../package.json" assert { type: "json" };
+import {
+  ENV_FIBERPLANE_OTEL_TOKEN,
+  ENV_FPX_AUTH_TOKEN,
+  ENV_FPX_ENDPOINT,
+} from "./constants.js";
+import { ENV_FIBERPLANE_OTEL_ENDPOINT } from "./constants.js";
 import { logIfDebug } from "./debug.js";
 import { createRouter } from "./router.js";
 import type { EmbeddedOptions, ResolvedEmbeddedOptions } from "./types.js";
+import { getFromEnv } from "./utils/env.js";
 
 const VERSION = packageJson.version;
 const CDN_URL = `https://cdn.jsdelivr.net/npm/@fiberplane/hono@${VERSION}/dist/playground/`;
@@ -13,23 +20,35 @@ export const createFiberplane =
     const debug = options.debug ?? false;
     const userApp = options.app;
     const userEnv = c.env;
-    const userExecutionCtx = c.executionCtx;
+    const userExecutionCtx = getExecutionCtxSafely(c);
+
     logIfDebug(debug, "debug logs are enabled");
 
     const apiKey = options.apiKey ?? getApiKey(c, debug);
 
     const { mountedPath, internalPath } = getPaths(c);
-    const fpxEndpoint = getFpxEndpoint(c);
+    const otelEndpoint = getOtelEndpoint(c);
+    const otelToken = getOtelToken(c);
 
     logIfDebug(debug, "mountedPath:", mountedPath);
     logIfDebug(debug, "internalPath:", internalPath);
-    logIfDebug(debug, "fpxEndpoint:", fpxEndpoint);
+    logIfDebug(debug, "otelEndpoint:", otelEndpoint);
+    if (otelEndpoint && !otelToken) {
+      logIfDebug(
+        debug,
+        "otelToken is not set, tracing requests will not use bearer auth",
+      );
+    }
+    if (!userExecutionCtx) {
+      logIfDebug(debug, "userExecutionCtx is null");
+    }
 
     // Forward request to embedded router, continuing middleware chain if no route matches
     const router = createRouter({
       cdn: options.cdn ?? CDN_URL,
       mountedPath,
-      fpxEndpoint,
+      otelEndpoint,
+      otelToken,
       userApp,
       userEnv,
       userExecutionCtx,
@@ -82,8 +101,34 @@ function getPaths(c: Context): { mountedPath: string; internalPath: string } {
   };
 }
 
-function getFpxEndpoint(c: Context): string | undefined {
-  return c?.env?.FPX_ENDPOINT;
+/**
+ * Gets the OpenTelemetry endpoint from environment variables.
+ * Checks both FIBERPLANE_OTEL_ENDPOINT and the legacy FPX_ENDPOINT.
+ * Used to determine where to send telemetry data.
+ *
+ * @NOTE - The telemetry endpoint is assumed to end in `/v1/traces`
+ */
+function getOtelEndpoint(c: Context): string | undefined {
+  const otelEndpoint = getFromEnv(c?.env, [
+    ENV_FIBERPLANE_OTEL_ENDPOINT,
+    ENV_FPX_ENDPOINT,
+  ]);
+
+  return otelEndpoint ?? undefined;
+}
+
+/**
+ * Gets the Fiberplane OTel token from environment variables.
+ * Checks both FIBERPLANE_OTEL_TOKEN and the legacy FPX_AUTH_TOKEN.
+ * Used to authenticate requests to a Fiberplane Otel-worker HTTP API.
+ */
+function getOtelToken(c: Context): string | undefined {
+  const otelToken = getFromEnv(c?.env, [
+    ENV_FIBERPLANE_OTEL_TOKEN,
+    ENV_FPX_AUTH_TOKEN,
+  ]);
+
+  return otelToken ?? undefined;
 }
 
 function getApiKey(c: Context, debug?: boolean): string | undefined {
@@ -96,4 +141,19 @@ function getApiKey(c: Context, debug?: boolean): string | undefined {
     }
   }
   return FIBERPLANE_API_KEY;
+}
+
+/**
+ * Gets the execution context from the context object.
+ * Returns null if the execution context is not present.
+ *
+ * We wrap this in a try-catch because Hono will throw an error if
+ * there is no `executionCtx` (e.g., in non-Cloudflare environments).
+ */
+function getExecutionCtxSafely(c: Context) {
+  try {
+    return c.executionCtx;
+  } catch (_e) {
+    return null;
+  }
 }

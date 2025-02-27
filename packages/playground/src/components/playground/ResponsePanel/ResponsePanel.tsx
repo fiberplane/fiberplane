@@ -11,7 +11,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { FpTabs } from "@/components/ui/tabs";
 import { FpTabsContent, FpTabsList, FpTabsTrigger } from "@/components/ui/tabs";
-import { SENSITIVE_HEADERS, cn } from "@/utils";
+import { SENSITIVE_HEADERS } from "@/constants";
+import { cn } from "@/lib/utils";
 import { Icon } from "@iconify/react";
 import { memo } from "react";
 import { useServiceBaseUrl } from "../store";

@@ -1,5 +1,5 @@
-import type { Hono } from "hono";
 import type { OpenAPIV3 } from "openapi-types";
+import type { HonoLikeApp } from "./types.js";
 
 /**
  * The OpenAPI specification type that only includes OpenAPI 3.0 documents
@@ -53,7 +53,7 @@ type HttpMethod =
  * ```
  */
 export function createOpenAPISpec(
-  app: Hono,
+  app: HonoLikeApp,
   options: CreateOpenAPISpecOptions,
 ): OpenAPISpec {
   const routes = app.routes;

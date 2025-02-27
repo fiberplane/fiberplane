@@ -26,8 +26,7 @@ export function patchFetch() {
         },
         onSuccess: async (span, responsePromise) => {
           const response = await responsePromise;
-          const attributeResponse = response.clone();
-          const attributes = await getResponseAttributes(attributeResponse);
+          const attributes = await getResponseAttributes(response);
           span.setAttributes(attributes);
         },
       },

@@ -199,7 +199,6 @@ export const settingsSlice: StateCreator<
         if (index === -1) {
           return state;
         }
-
         state.authorizations[index] = authorization;
         localStorage.setItem(
           SETTINGS_STORAGE_KEY,

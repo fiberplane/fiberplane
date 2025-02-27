@@ -1,9 +1,13 @@
 import { type Env, Hono } from "hono";
 import { PLAYGROUND_SERVICES_URL } from "../../constants.js";
 import { logIfDebug } from "../../debug.js";
-import type { FiberplaneAppType } from "../../types.js";
+import { webStandardFetch } from "../../fetch.js";
+import type { FetchFn, FiberplaneAppType } from "../../types.js";
 
-export default function createReportsApiRoute<E extends Env>(apiKey: string) {
+export default function createReportsApiRoute<E extends Env>(
+  apiKey: string,
+  fetchFn: FetchFn,
+) {
   const app = new Hono<E & FiberplaneAppType<E>>();
 
   // Proxy all requests to fp-services but attach a token
@@ -32,7 +36,7 @@ export default function createReportsApiRoute<E extends Env>(apiKey: string) {
       headers.set("content-type", contentType);
     }
 
-    const result = fetch(url, {
+    const result = fetchFn(url, {
       method: c.req.method,
       headers,
       body: c.req.raw.body,

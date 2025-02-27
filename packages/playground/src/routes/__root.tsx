@@ -35,6 +35,15 @@ export const Route = createRootRouteWithContext<{
       },
     };
   },
+
+  pendingComponent: () => {
+    return (
+      <div className="flex flex-col items-center justify-center h-full p-4">
+        <h2 className="mb-2 text-lg font-medium">Loading API Spec</h2>
+      </div>
+    );
+  },
+
   staleTime: 10 * 60 * 1000,
 
   onError: (error) => {
