@@ -49,7 +49,7 @@ export default function createTracesApiRoute<E extends Env>(
     try {
       const otelBaseUrl = getOtelBaseUrl(otelEndpoint);
       const requestUrl = `${otelBaseUrl}/v1/traces`;
-      const response = await fetch(requestUrl, {
+      const response = await fetchFn(requestUrl, {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
