@@ -77,9 +77,9 @@ export interface EmbeddedOptions<E extends Env> {
   app: AnyHono<E>;
 
   /**
-   * A custom fetch function to use for internal requests.
+   * A custom fetch function to use for internal fiberplane api requests.
    *
-   * If not provided, a custom fetch function will be used that skips instrumentation by the @fiberplane/hono-otel package.
+   * If not provided, a web standard fetch function will be used.
    */
   fetch?: FetchFn;
 
