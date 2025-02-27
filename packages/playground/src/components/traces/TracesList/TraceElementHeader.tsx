@@ -1,5 +1,15 @@
 import { formatTimestamp } from "@/components/Log";
+import { StatusCode } from "@/components/StatusCode";
+import { SectionHeading } from "@/components/Timeline/shared";
 import { cn } from "@/utils";
+import {
+  getHttpMethodTextColor,
+  getMatchedRoute,
+  getRequestMethod,
+  getRequestUrl,
+  getStatusCode,
+} from "@/utils";
+import type { OtelAttributes, OtelSpan } from "@fiberplane/fpx-types";
 import { useHandler } from "@fiberplane/hooks";
 import { Icon } from "@iconify/react";
 import type { HTMLAttributes } from "react";
@@ -70,7 +80,6 @@ export function TraceElementHeader({
           className={cn(
             "grid",
             "grid-cols-[1fr]",
-            // "items-center",
             // min width needed for ellipsis to work
             "min-w-0",
           )}
@@ -144,17 +153,6 @@ const DivWithHover = ({
     </div>
   );
 };
-
-import { StatusCode } from "@/components/StatusCode";
-import { SectionHeading } from "@/components/Timeline/shared";
-import {
-  getHttpMethodTextColor,
-  getMatchedRoute,
-  getRequestMethod,
-  getRequestUrl,
-  getStatusCode,
-} from "@/utils";
-import type { OtelAttributes, OtelSpan } from "@fiberplane/fpx-types";
 
 type IncomingRequestHeaderProps = Pick<OtelSpan, "attributes">;
 

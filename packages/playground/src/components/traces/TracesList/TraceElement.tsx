@@ -53,6 +53,11 @@ export function TraceElement({ trace }: { trace: Trace }) {
   // HACK - Need a better typesafe way to get the incoming request span
   const incomingRequest = waterfall[0] as SpanWithVendorInfo;
 
+  if (!incomingRequest) {
+    console.warn("Waterfall is empty");
+    return null;
+  }
+
   const withLogs = true;
   return (
     <div className="block px-1">
