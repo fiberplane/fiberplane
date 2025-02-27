@@ -1,6 +1,8 @@
 import type { OpenAPIHono } from "@hono/zod-openapi";
 import type { Env, ExecutionContext, Hono } from "hono";
 
+export type FetchFn = typeof fetch;
+
 type AnyHono<E extends Env> = Hono<E> | OpenAPIHono<E>;
 
 export interface EmbeddedOptions<E extends Env> {
@@ -73,6 +75,13 @@ export interface EmbeddedOptions<E extends Env> {
    * The Hono app to use for the embedded runner.
    */
   app: AnyHono<E>;
+
+  /**
+   * A custom fetch function to use for internal requests.
+   *
+   * If not provided, a custom fetch function will be used that skips instrumentation by the @fiberplane/hono-otel package.
+   */
+  fetch?: FetchFn;
 
   /**
    * Enable debug statements

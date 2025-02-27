@@ -1,12 +1,15 @@
 import type { z } from "zod";
+import type { FetchFn } from "../types.js";
 
 export class BaseService {
   protected apiKey: string;
   protected baseUrl: string;
+  protected fetch: FetchFn;
 
-  constructor(apiKey: string, baseUrl: string) {
+  constructor(apiKey: string, baseUrl: string, fetch: FetchFn) {
     this.apiKey = apiKey;
     this.baseUrl = baseUrl;
+    this.fetch = fetch;
   }
 
   protected async request<ResponseSchema>(
@@ -21,7 +24,7 @@ export class BaseService {
       ...options.headers,
     };
 
-    const response = await fetch(url, { ...options, headers });
+    const response = await this.fetch(url, { ...options, headers });
     if (!response.ok) {
       throw new Error(`API request failed: ${response.statusText}`);
     }

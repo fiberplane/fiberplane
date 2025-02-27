@@ -1,11 +1,16 @@
 import { type Env, Hono } from "hono";
 import { contextStorage } from "hono/context-storage";
 import { logIfDebug } from "./debug.js";
+import { webStandardFetch } from "./fetch.js";
 import createApiRoutes from "./routes/api/index.js";
 import createTracesApiRoute from "./routes/api/traces.js";
 import createEmbeddedPlayground from "./routes/playground.js";
 import createRunnerRoute from "./routes/runner/index.js";
-import type { FiberplaneAppType, ResolvedEmbeddedOptions } from "./types.js";
+import type {
+  FetchFn,
+  FiberplaneAppType,
+  ResolvedEmbeddedOptions,
+} from "./types.js";
 
 // We use a factory pattern to create routes, which allows for clean dependency injection
 // of the apiKey. This keeps the implementation isolated and prevents us from having to
@@ -18,6 +23,8 @@ export function createRouter<E extends Env>(
   // We therefore remove the apiKey
   const { apiKey, otelEndpoint, otelToken, debug, ...sanitizedOptions } =
     options;
+
+  const fetchFn: FetchFn = options.fetch ?? webStandardFetch;
 
   const app = new Hono<E & FiberplaneAppType<E>>();
   const isDebugEnabled = debug ?? false;
@@ -57,7 +64,10 @@ export function createRouter<E extends Env>(
       isDebugEnabled,
       "OpenTelemetry Endpoint Present. Creating internal traces API router.",
     );
-    app.route("/api/traces", createTracesApiRoute(otelEndpoint, otelToken));
+    app.route(
+      "/api/traces",
+      createTracesApiRoute(fetchFn, otelEndpoint, otelToken),
+    );
   } else {
     logIfDebug(
       isDebugEnabled,
@@ -83,7 +93,7 @@ export function createRouter<E extends Env>(
       "Fiberplane API Key Present. Creating internal API router.",
     );
     app.route("/w", createRunnerRoute(apiKey));
-    app.route("/api", createApiRoutes(apiKey));
+    app.route("/api", createApiRoutes(fetchFn, apiKey));
   } else {
     logIfDebug(
       isDebugEnabled,
