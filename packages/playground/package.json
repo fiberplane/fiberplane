@@ -7,6 +7,7 @@
     "dev": "vite",
     "dev:fp-services": "EMBEDDED_API_URL=http://localhost:7676 EMBEDDED_API_SPEC_PATH=/api/openapi.json EMBEDDED_API_MOUNT_PATH=/ EMBEDDED_API_USE_AUTH=true vite",
     "dev:music": "EMBEDDED_API_URL=http://localhost:8787 EMBEDDED_API_SPEC_PATH=/openapi.json EMBEDDED_API_MOUNT_PATH=/fp vite",
+    "dev:fashion": "EMBEDDED_API_URL=http://localhost:8787 EMBEDDED_API_SPEC_PATH=/openapi.json EMBEDDED_API_MOUNT_PATH=/fp vite",
     "build": "vite build",
     "lint": "biome lint . && pnpm run typecheck",
     "format": "biome check . --write",
