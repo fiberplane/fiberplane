@@ -19,10 +19,12 @@ type Props = {
   minStart: number;
   duration: number;
   indent?: number;
+  defaultExpanded?: boolean;
 };
 
 export function Element({
   item,
+  defaultExpanded = false,
   timelineVisible: isMdScreen,
   minStart,
   duration,
@@ -39,6 +41,10 @@ export function Element({
         : "info",
   );
   const [isExpanded, setIsExpanded] = useState(() => {
+    if (defaultExpanded) {
+      return true;
+    }
+
     if (isMizuOrphanLog(item)) {
       return item.level === "error";
     }

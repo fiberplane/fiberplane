@@ -1,4 +1,5 @@
 import type { Span } from "@opentelemetry/api";
+import { getShouldTraceEverything } from "../config";
 import {
   CF_BINDING_ERROR,
   CF_BINDING_METHOD,
@@ -175,9 +176,11 @@ function proxyServiceBinding(o: object, bindingName: string) {
               serviceMethod,
             ),
             onStart: (span, args) => {
-              span.setAttributes({
-                args: safelySerializeJSON(args),
-              });
+              if (getShouldTraceEverything()) {
+                span.setAttributes({
+                  args: safelySerializeJSON(args),
+                });
+              }
             },
             // NOTE - Must be async, since the `result` is a custom thenable from Cloudflare
             onSuccess: async (span, result) => {
@@ -268,9 +271,11 @@ function measureD1Queries(
         name: "D1 Query",
         attributes: getCfBindingAttributes("D1Database", bindingName, d1Method),
         onStart: (span, args) => {
-          span.setAttributes({
-            args: safelySerializeJSON(args),
-          });
+          if (getShouldTraceEverything()) {
+            span.setAttributes({
+              args: safelySerializeJSON(args),
+            });
+          }
         },
         onSuccess: (span, result) => {
           addResultAttribute(span, result);
@@ -317,11 +322,13 @@ function getCfBindingAttributes(
  * @param result - The result to add to the span
  */
 function addResultAttribute(span: Span, result: unknown) {
-  // HACK - Probably a smarter way to avoid serlializing massive amounts of binary data, but this works for now
-  const isBinary = isUintArray(result);
-  span.setAttributes({
-    [CF_BINDING_RESULT]: isBinary ? "binary" : safelySerializeJSON(result),
-  });
+  if (getShouldTraceEverything()) {
+    // HACK - Probably a smarter way to avoid serlializing massive amounts of binary data, but this works for now
+    const isBinary = isUintArray(result);
+    span.setAttributes({
+      [CF_BINDING_RESULT]: isBinary ? "binary" : safelySerializeJSON(result),
+    });
+  }
 }
 
 /**

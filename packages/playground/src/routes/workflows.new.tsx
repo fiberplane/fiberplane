@@ -10,7 +10,7 @@ export const Route = createFileRoute("/workflows/new")({
 
 export function NewWorkflow() {
   const [userStory, setUserStory] = useState("");
-  const { mutate: createWorkflow, isPending, error } = useCreateWorkflow();
+  const { mutateAsync: createWorkflow, isPending, error } = useCreateWorkflow();
   const openapi = useRouteContext({
     from: "__root__",
     select: (ctx) => ctx.openapi,
@@ -22,7 +22,7 @@ export function NewWorkflow() {
   }
 
   const handleSubmit = () => {
-    createWorkflow({
+    return createWorkflow({
       prompt: userStory,
       openApiSchema: content ?? "",
     });
@@ -30,19 +30,12 @@ export function NewWorkflow() {
 
   return (
     <div className="flex flex-col justify-center h-full p-4 overflow-auto border rounded-md">
-      <div className="grid gap-4 text-center max-w-[800px] mx-auto">
+      <div className="grid gap-4 text-center max-w-[800px] mx-auto border rounded-md p-4">
         <h3 className="text-lg font-medium">Create Your API Workflow</h3>
-        <p className="text-sm text-foreground">
+        <p className="text-sm text-muted-foreground">
           Describe your HTTP request chain in natural language and we'll
           generate it.
         </p>
-
-        <WorkflowPrompt
-          userStory={userStory}
-          setUserStory={setUserStory}
-          handleSubmit={handleSubmit}
-          isPending={isPending}
-        />
 
         {error && (
           <div className="p-4 mt-4 border rounded-lg border-destructive/50 bg-destructive/10 text-destructive">
@@ -51,6 +44,13 @@ export function NewWorkflow() {
               : "Failed to create workflow"}
           </div>
         )}
+
+        <WorkflowPrompt
+          userStory={userStory}
+          setUserStory={setUserStory}
+          handleSubmit={handleSubmit}
+          isPending={isPending}
+        />
       </div>
     </div>
   );

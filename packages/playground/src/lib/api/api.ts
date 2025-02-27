@@ -86,8 +86,8 @@ export const api = {
   // });
   // },
 
-  getTraces: async () => {
-    const data = await fpFetch("/api/traces");
+  getTraces: async ({ limit = 50 }: { limit?: number } = {}) => {
+    const data = await fpFetch(`/api/traces?limit=${limit}`);
     return {
       data: TraceListResponseSchema.parse(data),
     };
@@ -109,7 +109,12 @@ export const api = {
   // NOTE - This uses browser fetch, since it does some specific error handling of the response
   getOpenApiSpec: async (path: string): Promise<string> => {
     try {
-      const response = await fetch(path);
+      const response = await fetch(path, {
+        // HACK - Force the @fiberplane/hono-otel client library to not trace request to the spec
+        headers: {
+          "x-fpx-ignore": "true",
+        },
+      });
       if (!response.ok) {
         const bodyText = await safeParseBodyText(response);
         throw new FetchOpenApiSpecError(

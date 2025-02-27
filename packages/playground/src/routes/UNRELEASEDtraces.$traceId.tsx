@@ -2,6 +2,7 @@ import { KeyboardShortcutKey } from "@/components/KeyboardShortcut";
 import { useAsWaterfall } from "@/components/Timeline";
 import { TimelineListDetails } from "@/components/Timeline";
 import { extractWaterfallTimeStats } from "@/components/Timeline/utils";
+import { TracesListErrorBoundary as ErrorBoundary } from "@/components/traces/TracesList";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,12 +37,10 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
 import ReactMarkdown from "react-markdown";
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { z } from "zod";
-import { ErrorBoundary } from "./traces.index";
 
 function MarkdownRenderer({ content }: { content: string }) {
   return (
@@ -215,7 +214,9 @@ function TraceDetailFloatingSidePanel({
 
 function TraceDetailAssistant({
   trace,
-}: { trace: { traceId: string; spans: TraceDetailSpansResponse } }) {
+}: {
+  trace: { traceId: string; spans: TraceDetailSpansResponse };
+}) {
   const queryClient = useQueryClient();
   const queryKey = useMemo(
     () => ["trace-summary", trace.traceId],
@@ -233,7 +234,8 @@ function TraceDetailAssistant({
   // Check cache and request summary when component mounts
   useEffect(() => {
     const cachedData = queryClient.getQueryData(queryKey);
-    if (!cachedData) {
+    // biome-ignore lint/correctness/noConstantCondition: Need to hide this feature for now
+    if (false && !cachedData) {
       getSummary({ traceId: trace.traceId, spans: trace.spans });
     }
   }, [getSummary, trace.traceId, trace.spans, queryClient, queryKey]);
@@ -312,7 +314,8 @@ function TraceDetailLayout({
   children: React.ReactNode;
   trace: { traceId: string; spans: TraceDetailSpansResponse };
 }) {
-  const [sidePanel, setSidePanel] = useState<"open" | "closed">("open");
+  // NOTE - The assistant panel is closed by default, because it's currently HIDDEN in the UI.
+  const [sidePanel, setSidePanel] = useState<"open" | "closed">("closed");
   const isLgScreen = useIsLgScreen();
   const width = getMainSectionWidth();
 
@@ -322,8 +325,6 @@ function TraceDetailLayout({
   const toggleSidePanel = useHandler(() => {
     setSidePanel((prev) => (prev === "open" ? "closed" : "open"));
   });
-
-  useHotkeys("mod+b", toggleSidePanel);
 
   return (
     <>
@@ -376,7 +377,7 @@ function TraceDetailLayout({
   );
 }
 
-export const Route = createFileRoute("/traces/$traceId")({
+export const Route = createFileRoute("/UNRELEASEDtraces/$traceId")({
   validateSearch: z.object({
     spanId: z.string().optional(),
   }),

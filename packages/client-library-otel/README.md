@@ -9,7 +9,7 @@ so any time you use a `console.log`, `console.error`, etc., in your app, it will
 
 Likewise, any time your app makes a `fetch` request, it will create a trace for that request. This behavior is configurable.
 
-The library is a no-op when the `FPX_ENDPOINT` environment variable is not present, so it is safe to deploy to production.
+The library is a no-op when the `FIBERPLANE_OTEL_ENDPOINT` environment variable is not present.
 
 ## Quick Start
 
@@ -26,7 +26,7 @@ Install the Fiberplane Hono Opentelemetry Library
 npm i @fiberplane/hono-otel
 ```
 
-Add middleware to your project
+Wrap your Hono app with the `instrument` function:
 
 ```ts
 import { Hono } from "hono";
@@ -39,20 +39,18 @@ app.get("/", (c) => c.text("Hello, Hono!"));
 export default instrument(app);
 ```
 
-Launch the Fiberplane Studio UI from your project directory
+Set the `FIBERPLANE_OTEL_ENDPOINT` environment variable to the URL of an OpenTelemetry collector.
 
-```sh
-npx @fiberplane/studio
-```
-
-Visit `http://localhost:8788` to see your logs and traces come in as you test your app!
+> To test with an OpenTelemetry collector, you can use the [Fiberplane otel-worker](https://github.com/fiberplane/otel-worker) which can also be deployed locally.
+>
+> In this case, you would set the `FIBERPLANE_OTEL_ENDPOINT` to `http://localhost:24318/v1/traces` and the `FIBERPLANE_OTEL_TOKEN` to the token of the otel-worker.
 
 ## Usage
 
 This section takes you through:
 
-- Installing the Fiberplane Hono Opentelemetry Library
-- Configuring your project to use Fiberplane Studio
+- Installing the Fiberplane Hono OpenTelemetry Library
+- Configuring the library
 - Advanced usage with custom spans
 
 It assumes you already have a Hono app running locally.
@@ -84,23 +82,30 @@ export default instrument(app);
 
 ### Configuration
 
-If you're running in Cloudflare Workers, enable nodejs compatibility mode. (This is done automatically for you when you run `npx @fiberplane/studio`.)
+If you're running in Cloudflare Workers, enable nodejs compatibility mode.
 
 ```toml
 # Add this to the top level of your wrangler.toml
 compatibility_flags = [ "nodejs_compat" ]
 ```
 
-#### The `FPX_ENDPOINT` Environment Variable
+#### The `FIBERPLANE_OTEL_ENDPOINT` Environment Variable
 
-When your app is running, the `FPX_ENDPOINT` environment variable controls where the FPX client library sends telemetry data.
+When your app is running, the `FIBERPLANE_OTEL_ENDPOINT` environment variable controls where the client library sends telemetry data.
 
-If it is not defined, the middleware will do nothing. This means you can safely deploy your Hono app to any cloud environment, and by default, it will not collect and send telemetry data.
+If `FIBERPLANE_OTEL_ENDPOINT` is not defined, the middleware will do nothing. 
 
-The Fiberplane cli (`npx @fiberplane/studio`) should help you initialize your project correctly, but if you want to connect your api to Fiberplane Studio manually, you can add or modify this variable with, e.g., `FPX_ENDPOINT=http://localhost:8788/v1/traces` in your environment variable file.
+If the endpoint is a local address, the client library will collect as much data as possible for each request. Otherwise, sensitive information will be removed from the telemetry data.
+
+You can control this behavior by setting the `FIBERPLANE_ENVIRONMENT` env variable to `"local"` to force the library to send as much data as possible, or `"production"` to force the library to send only essential data.
+
+As mentioned earlier, there is an open source [otel-worker](https://github.com/fiberplane/otel-worker) that you can run either locally on on Cloudflare to collect telemetry data from your app.
+
+When using the otel-worker locally, your `.dev.vars` file would look like this:
 
 ```sh
-echo -e '\nFPX_ENDPOINT=http://localhost:8788/v1/traces\n' >> .dev.vars
+FIBERPLANE_OTEL_ENDPOINT=http://localhost:24318/v1/traces
+FIBERPLANE_OTEL_TOKEN="your-secret-token-here"
 ```
 
 #### Additional Configuration
@@ -112,6 +117,8 @@ The options are:
 - `monitor.fetch`: Whether to create traces for all fetch requests. (Default: `true`)
 - `monitor.logging`: Whether to proxy `console.*` functions to send logging data to a local Fiberplane Studio server. (Default: `true`)
 - `monitor.cfBindings`: Whether to proxy Cloudflare bindings (D1, R2, KV, AI) to add instrumentation to them. (Default: `true`)
+- `redactedHeaders`: Headers whose values should always be redacted.
+- `redactedQueryParams`: Query params whose values should always be redacted.
 - `libraryDebugMode`: Whether to enable debug logging in the library. (Default: `false`)
 
 Here is an example:
@@ -138,9 +145,31 @@ export default instrument(app, {
 });
 ```
 
-#### The `FPX_LOG_LEVEL` Environment Variable
+#### Redacting Headers and Query Params
 
-The `FPX_LOG_LEVEL` environment variable controls the verbosity of the library's logging.
+You can redact headers and query params by setting the `redactedHeaders` and `redactedQueryParams` options.
+
+```typescript
+import { Hono } from "hono";
+import { instrument } from "@fiberplane/hono-otel";
+
+const app = new Hono();
+
+app.get("/", (c) => c.text("Hello, Hono!"));
+
+export default instrument(app, {
+  redactedHeaders: ["x-mycompany-api-key"],
+  redactedQueryParams: ["my_api_key"],
+});
+```
+
+These values will **not** be recorded inside spans, and their values will show up as `"REDACTED"`.
+
+We merge any `redactedHeaders` and `redactedQueryParams` values with a list of sensible defaults, which are exported by the library as `DEFAULT_REDACTED_HEADERS` and `DEFAULT_REDACTED_QUERY_PARAMS`.
+
+#### The `FIBERPLANE_OTEL_LOG_LEVEL` Environment Variable
+
+The `FIBERPLANE_OTEL_LOG_LEVEL` environment variable controls the verbosity of the library's logging.
 
 The possible values are: `debug`, `info`, `warn`, and `error`.
 

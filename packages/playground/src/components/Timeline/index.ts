@@ -5,5 +5,6 @@ export {
   BodyViewerV2,
   CollapsibleKeyValueTableV2,
   TimelineListDetails,
+  TimelineListElement,
   useFormattedNeonQuery,
 } from "./DetailsList";
