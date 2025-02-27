@@ -90,6 +90,10 @@ const imageAttrs = {
   html[data-has-hero] body {
     --sl-content-width: 100vi;
 
+    --hero-max-width: 102rem;
+    --hero-padding: 6rem;
+    --content-spacing: 4rem;
+
     *:where(div:has(div > .hero)) {
       overflow-x: clip;
     }
@@ -97,10 +101,7 @@ const imageAttrs = {
 
   section.hero {
     container: hero-container / inline-size;
-
-    display: grid;
-    grid-template-columns: 6rem repeat(2, 1fr) 6rem;
-    max-width: 102rem;
+    max-width: var(--hero-max-width);
     margin-inline: auto;
   }
 
@@ -122,12 +123,13 @@ const imageAttrs = {
   }
 
   .hero-content {
+    display: grid;
+    gap: var(--content-spacing);
+    grid-template-columns: repeat(2, 1fr);
+    align-items: center;
+
     position: relative;
     isolation: isolate;
-
-    display: grid;
-    grid-template-columns: subgrid;
-    grid-column: 1 / -1;
 
     height: 54rem;
     border-radius: 20px;
@@ -137,6 +139,8 @@ const imageAttrs = {
       var(--bg-secondary)
     );
 
+    padding-inline: var(--hero-padding);
+
     /* Make sure the hero's content is on top of the dotted bg */
     & > * {
       z-index: 2;
@@ -145,10 +149,8 @@ const imageAttrs = {
 
   .hero-header {
     display: grid;
-    grid-template-columns: subgrid;
-    grid-column: 2 / 3;
-    gap: 2rem;
     align-content: center;
+    gap: 2rem;
   }
 
   /* TODO: Add Geist font from fontsource.com */
@@ -170,16 +172,16 @@ const imageAttrs = {
 
   .hero-figure {
     position: relative;
+    align-self: center;
+    height: min(100%, calc(54rem - var(--hero-padding)));
   }
 
-  .hero-figure .hero-image {
+  .hero-figure img.hero-image {
     position: absolute;
-    left: 0;
-    height: calc(100% - var(--figure-block-padding) * 2);
+    height: 100%;
     width: auto;
     border-radius: 12px;
     border: 1px solid var(--sl-color-hairline-shade);
-    object-fit: contain;
     box-shadow: 0px 6px 24px 0px var(--bg-emphasis);
 
     /* Rudimentary entry animations for now, add some sprinkles */

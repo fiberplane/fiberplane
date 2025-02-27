@@ -16,7 +16,7 @@ import Bento from "@/components/Bento.astro";
         '<span>🚀 Check out our Hono-Native API <a href="/blog/hono-native-playground/">Playground</a></span>'
     },
     hero: {
-      title: "The API playground for Hono.js",
+      title: "The API playground for Hono",
       image: {
         dark: fpxHeroScreenshotDark,
         light: fpxHeroScreenshotLight,
@@ -35,7 +35,7 @@ import Bento from "@/components/Bento.astro";
     }
   }}
 >
-  <main class="container hide-sidebar">
+  <section class="getting-started hide-sidebar">
     <div class="content-grid">
       <div class="cards-content">
         <header>
@@ -144,14 +144,20 @@ import Bento from "@/components/Bento.astro";
       </div>
       <Content />
     </div>
-  </main>
+  </section>
 
   <Bento />
 </StarlightPage>
 
 <style>
-  .container {
+  section.getting-started {
     container: getting-started-container / inline-size;
+    max-width: calc(102rem - var(--hero-padding) * 2);
+    margin-inline: auto;
+  }
+
+  .content-grid {
+    gap: var(--content-spacing);
   }
 
   .cards-content {
@@ -195,13 +201,12 @@ import Bento from "@/components/Bento.astro";
     .content-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 2rem;
-      margin-block-start: 2rem;
+      /* gap: 2rem; */
     }
 
     .cards-content {
       display: grid;
-      gap: 2rem;
+      /* gap: 2rem; */
       align-content: start;
       margin-block-start: 1rem;
     }
@@ -213,8 +218,7 @@ import Bento from "@/components/Bento.astro";
 
   @container getting-started-container (width >= 1280px) {
     .content-grid {
-      padding-inline: 4rem;
-      gap: 4rem;
+      /* gap: 4rem; */
     }
   }
 </style>
