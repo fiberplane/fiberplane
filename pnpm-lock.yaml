@@ -805,8 +805,8 @@ importers:
         specifier: ^4.6.12
         version: 4.6.12
       nodemon:
-        specifier: ^3.1.7
-        version: 3.1.7
+        specifier: ^3.1.9
+        version: 3.1.9
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -857,8 +857,8 @@ importers:
         specifier: ^18.2.0
         version: 18.3.5(@types/react@18.3.18)
       nodemon:
-        specifier: ^3.1.7
-        version: 3.1.7
+        specifier: ^3.1.9
+        version: 3.1.9
       openapi-types:
         specifier: ^12.1.3
         version: 12.1.3
@@ -8751,8 +8751,8 @@ packages:
     resolution: {integrity: sha512-g/koYzOr9Fb1Jc+tHUHlFd5gODjGn48tHexUK8q6iqOVriEgSnd3/1T7myBYc+0KBVze/7F7n65ec9rW6OD7xw==}
     engines: {node: '>=10'}
 
-  nodemon@3.1.7:
-    resolution: {integrity: sha512-hLj7fuMow6f0lbB0cD14Lz2xNjwsyruH251Pk4t/yIitCFJbmY1myuLlHm/q06aST4jg6EgAh74PIBBrRqpVAQ==}
+  nodemon@3.1.9:
+    resolution: {integrity: sha512-hdr1oIb2p6ZSxu3PB2JWWYS7ZQ0qvaZsc3hK8DR8f02kRzc8rjYmxAIvdz+aYC+8F2IjNaB7HMcSDg8nQpJxyg==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -11718,7 +11718,7 @@ snapshots:
   '@astrojs/telemetry@3.2.0':
     dependencies:
       ci-info: 4.1.0
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
       dlv: 1.1.3
       dset: 3.1.4
       is-docker: 3.0.0
@@ -12328,7 +12328,7 @@ snapshots:
       '@babel/traverse': 7.26.5
       '@babel/types': 7.26.5
       convert-source-map: 2.0.0
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -12411,7 +12411,7 @@ snapshots:
       '@babel/parser': 7.26.5
       '@babel/template': 7.25.9
       '@babel/types': 7.26.5
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -13897,7 +13897,7 @@ snapshots:
       nopt: 5.0.0
       npmlog: 5.0.1
       rimraf: 3.0.2
-      semver: 7.6.3
+      semver: 7.7.1
       tar: 6.2.1
     transitivePeerDependencies:
       - encoding
@@ -14000,7 +14000,7 @@ snapshots:
 
   '@npmcli/fs@3.1.1':
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.1
 
   '@oclif/core@4.0.36':
     dependencies:
@@ -16114,7 +16114,7 @@ snapshots:
 
   '@typescript/vfs@1.6.0(typescript@5.6.2)':
     dependencies:
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
       typescript: 5.6.2
     transitivePeerDependencies:
       - supports-color
@@ -16418,7 +16418,7 @@ snapshots:
 
   agent-base@6.0.2:
     dependencies:
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
     optional: true
@@ -16609,7 +16609,7 @@ snapshots:
       common-ancestor-path: 1.0.1
       cookie: 0.7.2
       cssesc: 3.0.0
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
       deterministic-object-hash: 2.0.2
       devalue: 5.1.1
       diff: 5.2.0
@@ -16977,7 +16977,7 @@ snapshots:
 
   capnp-ts@0.7.0:
     dependencies:
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -17381,7 +17381,15 @@ snapshots:
 
   dayjs@1.11.13: {}
 
-  debug@4.3.7(supports-color@5.5.0):
+  debug@4.3.7:
+    dependencies:
+      ms: 2.1.3
+
+  debug@4.4.0:
+    dependencies:
+      ms: 2.1.3
+
+  debug@4.4.0(supports-color@5.5.0):
     dependencies:
       ms: 2.1.3
     optionalDependencies:
@@ -17656,7 +17664,7 @@ snapshots:
 
   esbuild-register@3.6.0(esbuild@0.19.12):
     dependencies:
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
       esbuild: 0.19.12
     transitivePeerDependencies:
       - supports-color
@@ -18649,7 +18657,7 @@ snapshots:
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -18658,7 +18666,7 @@ snapshots:
   https-proxy-agent@5.0.1:
     dependencies:
       agent-base: 6.0.2
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
     optional: true
@@ -18666,7 +18674,7 @@ snapshots:
   https-proxy-agent@7.0.6:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -18985,7 +18993,7 @@ snapshots:
       lodash.isstring: 4.0.1
       lodash.once: 4.1.1
       ms: 2.1.3
-      semver: 7.6.3
+      semver: 7.7.1
 
   jszip@3.10.1:
     dependencies:
@@ -19814,7 +19822,7 @@ snapshots:
   micromark@4.0.1:
     dependencies:
       '@types/debug': 4.1.12
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
       decode-named-character-reference: 1.0.2
       devlop: 1.1.0
       micromark-core-commonmark: 2.0.2
@@ -20037,7 +20045,7 @@ snapshots:
 
   node-abi@3.71.0:
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.1
 
   node-addon-api@6.1.0: {}
 
@@ -20093,14 +20101,14 @@ snapshots:
       util: 0.12.5
       vm-browserify: 1.1.2
 
-  nodemon@3.1.7:
+  nodemon@3.1.9:
     dependencies:
       chokidar: 3.6.0
-      debug: 4.3.7(supports-color@5.5.0)
+      debug: 4.4.0(supports-color@5.5.0)
       ignore-by-default: 1.0.1
       minimatch: 3.1.2
       pstree.remy: 1.1.8
-      semver: 7.6.3
+      semver: 7.7.1
       simple-update-notifier: 2.0.0
       supports-color: 5.5.0
       touch: 3.1.1
@@ -21537,7 +21545,7 @@ snapshots:
 
   simple-update-notifier@2.0.0:
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.1
 
   sisteransi@1.0.5: {}
 
@@ -21884,7 +21892,7 @@ snapshots:
   threads@1.7.0:
     dependencies:
       callsites: 3.1.0
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
       is-observable: 2.1.0
       observable-fns: 0.6.1
     optionalDependencies:
@@ -22025,7 +22033,7 @@ snapshots:
       cac: 6.7.14
       chokidar: 4.0.1
       consola: 3.2.3
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
       esbuild: 0.24.2
       joycon: 3.1.1
       picocolors: 1.1.1
@@ -22089,7 +22097,7 @@ snapshots:
 
   typescript-auto-import-cache@0.3.5:
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.1
 
   typescript@5.6.2: {}
 
@@ -22321,7 +22329,7 @@ snapshots:
   vite-node@1.6.0(@types/node@22.10.7)(lightningcss@1.28.1):
     dependencies:
       cac: 6.7.14
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
       pathe: 1.1.2
       picocolors: 1.1.1
       vite: 5.4.14(@types/node@22.10.7)(lightningcss@1.28.1)
@@ -22339,7 +22347,7 @@ snapshots:
   vite-node@2.1.6(@types/node@22.10.0)(jiti@1.21.6)(lightningcss@1.28.1)(tsx@4.19.2)(yaml@2.6.1):
     dependencies:
       cac: 6.7.14
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
       es-module-lexer: 1.5.4
       pathe: 1.1.2
       vite: 6.0.9(@types/node@22.10.0)(jiti@1.21.6)(lightningcss@1.28.1)(tsx@4.19.2)(yaml@2.6.1)
@@ -22360,7 +22368,7 @@ snapshots:
   vite-node@2.1.6(@types/node@22.10.7)(jiti@1.21.6)(lightningcss@1.28.1)(tsx@4.19.2)(yaml@2.6.1):
     dependencies:
       cac: 6.7.14
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
       es-module-lexer: 1.5.4
       pathe: 1.1.2
       vite: 6.0.9(@types/node@22.10.7)(jiti@1.21.6)(lightningcss@1.28.1)(tsx@4.19.2)(yaml@2.6.1)
@@ -22410,7 +22418,7 @@ snapshots:
 
   vite-tsconfig-paths@5.1.3(typescript@5.7.2)(vite@6.0.9(@types/node@22.10.7)(jiti@1.21.6)(lightningcss@1.28.1)(tsx@4.19.2)(yaml@2.6.1)):
     dependencies:
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
       globrex: 0.1.2
       tsconfck: 3.1.4(typescript@5.7.2)
     optionalDependencies:
@@ -22517,7 +22525,7 @@ snapshots:
       '@vitest/utils': 1.6.0
       acorn-walk: 8.3.4
       chai: 4.5.0
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.4.0
       execa: 8.0.1
       local-pkg: 0.5.1
       magic-string: 0.30.15
@@ -22552,7 +22560,7 @@ snapshots:
       '@vitest/spy': 2.1.6
       '@vitest/utils': 2.1.6
       chai: 5.1.2
-      debug: 4.3.7(supports-color@5.5.0)
+      debug: 4.3.7
       expect-type: 1.1.0
       magic-string: 0.30.14
       pathe: 1.1.2
@@ -22590,7 +22598,7 @@ snapshots:
       '@vitest/spy': 2.1.6
       '@vitest/utils': 2.1.6
       chai: 5.1.2
-      debug: 4.3.7(supports-color@5.5.0)
+      debug: 4.3.7
       expect-type: 1.1.0
       magic-string: 0.30.14
       pathe: 1.1.2
@@ -22661,7 +22669,7 @@ snapshots:
   volar-service-typescript@0.0.62(@volar/language-service@2.4.10):
     dependencies:
       path-browserify: 1.0.1
-      semver: 7.6.3
+      semver: 7.7.1
       typescript-auto-import-cache: 0.3.5
       vscode-languageserver-textdocument: 1.0.12
       vscode-nls: 5.2.0
