@@ -13,7 +13,7 @@ export function OutputItem({
   );
   const value = outputValues[output.key] ?? NOT_FOUND;
   return (
-    <div className="text-sm grid grid-cols-[200px_auto] max-w-full overflow-hidden">
+    <div className="text-sm grid grid-cols-[200px_auto] max-w-full overflow-hidden min-h-[30px] items-center">
       <div>{output.key}</div>
 
       <div className="overflow-x-auto">

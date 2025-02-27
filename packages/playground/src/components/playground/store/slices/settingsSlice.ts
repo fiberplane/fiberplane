@@ -172,8 +172,11 @@ export const settingsSlice: StateCreator<
       const { id = crypto.randomUUID() } = authorization;
       const newAuthorization = { ...authorization, id };
       return set((initialState: StudioState): StudioState => {
-        const state = { ...initialState };
-        state.authorizations = [...state.authorizations, newAuthorization];
+        const state = {
+          ...initialState,
+          authorizations: [...initialState.authorizations],
+        };
+        state.authorizations.push(newAuthorization);
         localStorage.setItem(
           SETTINGS_STORAGE_KEY,
           JSON.stringify({
@@ -186,16 +189,17 @@ export const settingsSlice: StateCreator<
     },
     updateAuthorization: (authorization: Authorization) => {
       return set((initialState: StudioState): StudioState => {
-        const state = { ...initialState };
+        const state = {
+          ...initialState,
+          authorizations: [...initialState.authorizations],
+        };
         const index = state.authorizations.findIndex(
           (auth) => auth.id === authorization.id,
         );
         if (index === -1) {
           return state;
         }
-        const newAuthorizations = [...state.authorizations];
-        newAuthorizations[index] = authorization;
-        state.authorizations = newAuthorizations;
+        state.authorizations[index] = authorization;
         localStorage.setItem(
           SETTINGS_STORAGE_KEY,
           JSON.stringify({
@@ -209,7 +213,10 @@ export const settingsSlice: StateCreator<
     },
     removeAuthorization: (id: string) => {
       return set((initialState: StudioState): StudioState => {
-        const state = { ...initialState };
+        const state = {
+          ...initialState,
+          authorizations: [...initialState.authorizations],
+        };
         state.authorizations = state.authorizations.filter(
           (auth) => auth.id !== id,
         );
@@ -240,7 +247,10 @@ export const settingsSlice: StateCreator<
 
     setFeatureEnabled: (feature: FeatureFlag, enabled: boolean) =>
       set((initialState: StudioState): StudioState => {
-        const state = { ...initialState };
+        const state = {
+          ...initialState,
+          enabledFeatures: [...initialState.enabledFeatures],
+        };
         if (enabled && !state.enabledFeatures.includes(feature)) {
           state.enabledFeatures.push(feature);
         } else if (!enabled) {
