@@ -26,7 +26,9 @@ export async function getIncomingRequestAttributes(
   const shouldTraceEverything = getShouldTraceEverything(resolvedConfig);
   const logger = getLogger(resolvedConfig?.logLevel ?? "debug");
   if (!resolvedConfig) {
-    logger.debug("No config found in otel context, using default values");
+    logger.debug(
+      "[getIncomingRequestAttributes] No config found in otel context, using default values",
+    );
   }
 
   let attributes: Attributes = {};
