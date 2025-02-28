@@ -2,7 +2,8 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "target": "ESNext",
-    "module": "NodeNext",
+    "module": "ES6",
+    "moduleResolution": "Bundler",
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
