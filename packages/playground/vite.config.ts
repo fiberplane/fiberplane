@@ -40,7 +40,7 @@ export default defineConfig({
     port: 6660,
     proxy: {
       // Proxy requests to the workflow aliases
-      "/w/*": {
+      "/w/": {
         target: internalApiProxyTarget,
         headers: proxyHeaders,
       },
