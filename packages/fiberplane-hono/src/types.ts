@@ -74,7 +74,7 @@ export interface EmbeddedOptions<E extends Env> {
   /**
    * The Hono app to use for the embedded runner.
    */
-  app: AnyHono<E>;
+  app?: AnyHono<E>;
 
   /**
    * A custom fetch function to use for internal fiberplane api requests.
@@ -95,7 +95,7 @@ export interface ResolvedEmbeddedOptions<E extends Env>
   mountedPath: string;
   otelEndpoint?: string;
   otelToken?: string;
-  userApp: AnyHono<E>;
+  userApp?: AnyHono<E>;
   userEnv: Env;
   userExecutionCtx: ExecutionContext | null;
   cdn: string;
@@ -122,7 +122,7 @@ export interface OpenAPIOptions {
 export interface FiberplaneAppType<E extends Env> {
   Variables: {
     debug: boolean;
-    userApp: AnyHono<E>;
+    userApp?: AnyHono<E>;
     userEnv: E;
     userExecutionCtx: ExecutionContext;
   };

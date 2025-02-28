@@ -15,6 +15,12 @@ export async function getWorkflowById<E extends Env>(
   const app = c.get("userApp");
   const env = c.get("userEnv");
 
+  if (!app) {
+    throw new HTTPException(500, {
+      message: "app is not configured for running workflows",
+    });
+  }
+
   const path = `/api/workflows/${workflowId}`;
   const request = new Request(`${PLAYGROUND_SERVICES_URL}${path}`, {
     method: "GET",
