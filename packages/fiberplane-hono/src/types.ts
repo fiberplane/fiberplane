@@ -49,6 +49,16 @@ export interface EmbeddedOptions<E extends Env> {
   cdn?: string;
 
   /**
+   * (Optional) URL of the Fiberplane services endpoint.
+   *
+   * The middleware will attempt to fall back to the `FIBERPLANE_SERVICES_URL`
+   * environment variable if not set directly as an option.
+   *
+   * If not provided, the default endpoint will be used.
+   */
+  fiberplaneServicesUrl?: string;
+
+  /**
    * (Optional) URL of the Fiberplane OpenTelemetry collector endpoint.
    *
    * If not provided, the middleware will attempt to fall back to the `FIBERPLANE_OTEL_ENDPOINT` environment variable.
@@ -90,7 +100,7 @@ export interface EmbeddedOptions<E extends Env> {
 }
 
 export interface ResolvedEmbeddedOptions<E extends Env>
-  extends Omit<EmbeddedOptions<E>, "cdn"> {
+  extends Omit<EmbeddedOptions<E>, "cdn" | "fiberplaneServicesUrl"> {
   // cdn is required in resolved options
   mountedPath: string;
   otelEndpoint?: string;
@@ -99,10 +109,14 @@ export interface ResolvedEmbeddedOptions<E extends Env>
   userEnv: Env;
   userExecutionCtx: ExecutionContext | null;
   cdn: string;
+  fiberplaneServicesUrl: string;
 }
 
 export interface SanitizedEmbeddedOptions<E extends Env>
-  extends Omit<ResolvedEmbeddedOptions<E>, "apiKey"> {}
+  extends Omit<
+    ResolvedEmbeddedOptions<E>,
+    "apiKey" | "fiberplaneServicesUrl"
+  > {}
 
 export interface OpenAPIOptions {
   /**

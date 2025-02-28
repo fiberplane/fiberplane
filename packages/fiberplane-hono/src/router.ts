@@ -1,16 +1,16 @@
 import { type Env, Hono } from "hono";
 import { contextStorage } from "hono/context-storage";
-import { logIfDebug } from "./debug.js";
-import { webStandardFetch } from "./fetch.js";
-import createApiRoutes from "./routes/api/index.js";
-import createTracesApiRoute from "./routes/api/traces.js";
-import createEmbeddedPlayground from "./routes/playground.js";
-import createRunnerRoute from "./routes/runner/index.js";
+import { logIfDebug } from "./debug";
+import { webStandardFetch } from "./fetch";
+import createApiRoutes from "./routes/api";
+import createTracesApiRoute from "./routes/api/traces";
+import createEmbeddedPlayground from "./routes/playground";
+import createRunnerRoute from "./routes/runner";
 import type {
   FetchFn,
   FiberplaneAppType,
   ResolvedEmbeddedOptions,
-} from "./types.js";
+} from "./types";
 
 // We use a factory pattern to create routes, which allows for clean dependency injection
 // of the apiKey. This keeps the implementation isolated and prevents us from having to
@@ -21,8 +21,14 @@ export function createRouter<E extends Env>(
   // Important: whatever gets passed to createEmbeddedPlayground
   // is passed to the playground, aka is on the HTML
   // We therefore remove the apiKey
-  const { apiKey, otelEndpoint, otelToken, debug, ...sanitizedOptions } =
-    options;
+  const {
+    apiKey,
+    otelEndpoint,
+    otelToken,
+    debug,
+    fiberplaneServicesUrl,
+    ...sanitizedOptions
+  } = options;
 
   const fetchFn: FetchFn = options.fetch ?? webStandardFetch;
 
@@ -92,8 +98,8 @@ export function createRouter<E extends Env>(
       isDebugEnabled,
       "Fiberplane API Key Present. Creating internal API router.",
     );
-    app.route("/w", createRunnerRoute(apiKey));
-    app.route("/api", createApiRoutes(fetchFn, apiKey));
+    app.route("/w", createRunnerRoute(apiKey, fiberplaneServicesUrl));
+    app.route("/api", createApiRoutes(fetchFn, apiKey, fiberplaneServicesUrl));
   } else {
     logIfDebug(
       isDebugEnabled,

@@ -6,24 +6,16 @@ import { config } from "dotenv";
 import { type Plugin, defineConfig } from "vite";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import svgr from "vite-plugin-svgr";
-import sampleOpenApiSpec from "./sample-openapi-spec.json" with {
-  type: "json",
-};
 
-config({ path: "./.dev.vars" });
-
-// The SPA, when running locally, needs to proxy requests to the embedded API sometimes
-// It's nice to be able to configure this.
-// E.g., if you're running a sample API on localhost:6242 instead of localhost:7676, you can set EMBEDDED_API_URL=http://localhost:6242/fp
-// to make the SPA proxy requests to your local API with the @fiberplane/hono package.
-const EMBEDDED_API_URL =
-  process.env.EMBEDDED_API_URL ?? "http://localhost:7676";
+// Grab configuration from the env vars file
+const ENV_FILE = process.env.ENV_FILE ?? "./.dev.vars";
+const { embeddedApiUrl, internalApiProxyTarget, openApiSpecUrl, proxyHeaders } =
+  getDevConfig(ENV_FILE);
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     nodePolyfills(),
-    // ... other plugins
     injectPlaygroundDevConfig(),
     react(),
     TanStackRouterVite(),
@@ -43,19 +35,19 @@ export default defineConfig({
   server: {
     port: 6660,
     proxy: {
-      "/w": {
-        // This is setup to work with the fp-services API running locally. To use it make sure to set the FIBERPLANE_API_KEY in your .dev.vars
-        target: EMBEDDED_API_URL,
-        headers: {
-          Authorization: `Bearer ${process.env.FIBERPLANE_API_KEY}`,
-        },
+      // Proxy requests to the workflow aliases
+      "/w/": {
+        target: internalApiProxyTarget,
+        headers: proxyHeaders,
       },
+      // Proxy requests to the embedded API
       "/api": {
-        // This is setup to work with the fp-services API running locally. To use it make sure to set the FIBERPLANE_API_KEY in your .dev.vars
-        target: EMBEDDED_API_URL,
-        headers: {
-          Authorization: `Bearer ${process.env.FIBERPLANE_API_KEY}`,
-        },
+        target: internalApiProxyTarget,
+        headers: proxyHeaders,
+      },
+      // Proxy requests to the OpenAPI spec, so the embedded api doesn't need to have cors enabled
+      [openApiSpecUrl]: {
+        target: embeddedApiUrl,
       },
     },
     cors: true,
@@ -97,9 +89,7 @@ function injectPlaygroundDevConfig(): Plugin {
       const options = {
         mountedPath: "/",
         openapi: {
-          // Comment out the url to use the sample OpenAPI spec
-          url: "http://localhost:7676/api/openapi.json",
-          // content: JSON.stringify(sampleOpenApiSpec),
+          url: openApiSpecUrl,
         },
       };
 
@@ -108,5 +98,75 @@ function injectPlaygroundDevConfig(): Plugin {
         `<div id="root" data-options='${JSON.stringify(options)}'></div>`,
       );
     },
+  };
+}
+
+/**
+ * Gets the dev config for the Playground, based on the env var file specified by `ENV_FILE`.
+ * This is used to configure the Playground when running locally.
+ */
+function getDevConfig(envVarsFile: string) {
+  config({ path: envVarsFile });
+
+  /**
+   * The SPA, when running locally, needs to proxy requests to the embedded API sometimes
+   * It's nice to be able to configure this.
+   *
+   * E.g., if you're running a sample API on localhost:6242 instead of localhost:8787,
+   * you can set EMBEDDED_API_URL=http://localhost:6242
+   * to make the SPA proxy requests to your local API with the @fiberplane/hono package.
+   */
+  const EMBEDDED_API_URL =
+    process.env.EMBEDDED_API_URL ?? "http://localhost:8787";
+
+  /**
+   * The path at which `@fiberplane/hono` is mounted on the local API.
+   */
+  const EMBEDDED_API_MOUNT_PATH = process.env.EMBEDDED_API_MOUNT_PATH ?? "/fp";
+
+  const openApiSpecUrl = process.env.EMBEDDED_API_SPEC_URL ?? "/openapi.json";
+
+  const internalApiProxyTarget = `${EMBEDDED_API_URL}${EMBEDDED_API_MOUNT_PATH}`;
+
+  const fiberplaneApiKey = process.env.FIBERPLANE_API_KEY;
+
+  return {
+    /**
+     * The URL of the embedded API
+     * E.g., `http://localhost:8787`
+     */
+    embeddedApiUrl: EMBEDDED_API_URL,
+
+    /**
+     * The URL of the OpenAPI spec file on the local API.
+     * This is used to fetch the OpenAPI spec for the Playground.
+     *
+     * Can either be a relative path (e.g., `/openapi.json`) or a full URL,
+     * but if it's a full URL, the api should have cors enabled.
+     */
+    openApiSpecUrl,
+
+    /**
+     * The target to proxy requests to the embedded API.
+     * This is the URL of the local API + the path at which `@fiberplane/hono` is mounted.
+     *
+     * If your local api is on `http://localhost:8787` and integrates Fiberplane like this:
+     *   ```ts
+     *   app.use("/fp/*", createFiberplane({ ... }));
+     *   ```
+     * Then you should set `EMBEDDED_API_URL=http://localhost:8787` and `EMBEDDED_API_MOUNT_PATH=/fp`
+     */
+    internalApiProxyTarget,
+
+    /**
+     * `proxyHeaders` is only used if `FIBERPLANE_API_KEY` is set in the env vars file.
+     *
+     * This is setup to work with the fp-services API running locally.
+     */
+    proxyHeaders: fiberplaneApiKey
+      ? {
+          Authorization: `Bearer ${fiberplaneApiKey}`,
+        }
+      : undefined,
   };
 }

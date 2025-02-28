@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getFromEnv, getPlatformSafeEnv } from "./env.js";
+import { getFromEnv, getPlatformSafeEnv } from "./env";
 
 describe("env utils", () => {
   describe("getFromEnv", () => {

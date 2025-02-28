@@ -3,9 +3,9 @@ import type { Env } from "hono";
 import { contextStorage } from "hono/context-storage";
 import { HTTPException } from "hono/http-exception";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createFiberplane } from "../../middleware.js";
-import type { Workflow } from "../../schemas/workflows.js";
-import type { FiberplaneAppType } from "../../types.js";
+import { createFiberplane } from "../../middleware";
+import type { Workflow } from "../../schemas/workflows";
+import type { FiberplaneAppType } from "../../types";
 
 const mockWorkflow: Workflow = {
   workflowId: "test-workflow",
@@ -88,7 +88,7 @@ const mockWorkflow: Workflow = {
   ],
 };
 
-vi.mock("./utils.js", () => ({
+vi.mock("./utils", () => ({
   getWorkflowById: vi.fn().mockImplementation(async (workflowId: string) => {
     if (workflowId === "test-workflow") {
       return { data: mockWorkflow };

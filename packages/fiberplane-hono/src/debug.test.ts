@@ -1,6 +1,6 @@
 import type { Context } from "hono";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { logIfDebug } from "./debug.js";
+import { logIfDebug } from "./debug";
 
 describe("logIfDebug", () => {
   beforeEach(() => {

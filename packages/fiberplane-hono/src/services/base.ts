@@ -1,5 +1,5 @@
 import type { z } from "zod";
-import type { FetchFn } from "../types.js";
+import type { FetchFn } from "../types";
 
 export class BaseService {
   protected apiKey: string;

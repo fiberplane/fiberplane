@@ -1,6 +1,6 @@
 import { type Env, Hono } from "hono";
-import { logIfDebug } from "../../debug.js";
-import type { FetchFn, FiberplaneAppType } from "../../types.js";
+import { logIfDebug } from "../../debug";
+import type { FetchFn, FiberplaneAppType } from "../../types";
 
 // Using Record<string, unknown> as a simpler type for JSON data
 type ApiResponse = Record<string, unknown> | Array<Record<string, unknown>>;

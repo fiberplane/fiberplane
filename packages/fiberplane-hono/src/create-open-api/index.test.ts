@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import type { OpenAPIV3 } from "openapi-types";
 import { describe, expect, it } from "vitest";
-import { createOpenAPISpec } from "./index.js";
+import { createOpenAPISpec } from ".";
 
 describe("createOpenAPISpec", () => {
   it("should generate basic OpenAPI spec for simple routes", () => {

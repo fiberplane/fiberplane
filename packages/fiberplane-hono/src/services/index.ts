@@ -1,6 +1,6 @@
 import type { z } from "zod";
-import type { FetchFn } from "../types.js";
-import { TokenService } from "./tokens.js";
+import type { FetchFn } from "../types";
+import { TokenService } from "./tokens";
 
 interface FpServiceOptions {
   apiKey: string;
@@ -13,7 +13,7 @@ export class FpService {
 
   constructor({
     apiKey,
-    baseUrl = "http://localhost:1234/api",
+    baseUrl = "http://localhost:7676/api",
     fetch,
   }: FpServiceOptions) {
     this.tokens = new TokenService(apiKey, baseUrl, fetch);
