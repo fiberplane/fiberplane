@@ -6,9 +6,6 @@ import { config } from "dotenv";
 import { type Plugin, defineConfig } from "vite";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import svgr from "vite-plugin-svgr";
-import sampleOpenApiSpec from "./sample-openapi-spec.json" with {
-  type: "json",
-};
 
 config({ path: "./.dev.vars" });
 
