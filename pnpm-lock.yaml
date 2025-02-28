@@ -530,25 +530,6 @@ importers:
         specifier: ^3.91.0
         version: 3.103.1(@cloudflare/workers-types@4.20250109.0)
 
-  examples/ai-request-generation:
-    dependencies:
-      '@fiberplane/hono-otel':
-        specifier: workspace:*
-        version: link:../../packages/client-library-otel
-      '@langchain/core':
-        specifier: ^0.2.36
-        version: 0.2.36(openai@4.76.0(encoding@0.1.13)(zod@3.24.1))
-      hono:
-        specifier: ^4.6.12
-        version: 4.6.12
-    devDependencies:
-      '@cloudflare/workers-types':
-        specifier: ^4.20241112.0
-        version: 4.20241112.0
-      wrangler:
-        specifier: ^3.91.0
-        version: 3.91.0(@cloudflare/workers-types@4.20241112.0)
-
   examples/goose-quotes:
     dependencies:
       '@fiberplane/hono-otel':
