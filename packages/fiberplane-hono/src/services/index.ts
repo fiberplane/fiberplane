@@ -1,6 +1,6 @@
 import type { z } from "zod";
-import type { FetchFn } from "../types.js";
-import { TokenService } from "./tokens.js";
+import type { FetchFn } from "../types";
+import { TokenService } from "./tokens";
 
 interface FpServiceOptions {
   apiKey: string;

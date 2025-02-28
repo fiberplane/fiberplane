@@ -4,12 +4,12 @@ import {
   ENV_FIBERPLANE_OTEL_TOKEN,
   ENV_FPX_AUTH_TOKEN,
   ENV_FPX_ENDPOINT,
-} from "./constants.js";
-import { ENV_FIBERPLANE_OTEL_ENDPOINT } from "./constants.js";
-import { logIfDebug } from "./debug.js";
-import { createRouter } from "./router.js";
-import type { EmbeddedOptions, ResolvedEmbeddedOptions } from "./types.js";
-import { getFromEnv } from "./utils/env.js";
+} from "./constants";
+import { ENV_FIBERPLANE_OTEL_ENDPOINT } from "./constants";
+import { logIfDebug } from "./debug";
+import { createRouter } from "./router";
+import type { EmbeddedOptions, ResolvedEmbeddedOptions } from "./types";
+import { getFromEnv } from "./utils/env";
 
 const VERSION = packageJson.version;
 const CDN_URL = `https://cdn.jsdelivr.net/npm/@fiberplane/hono@${VERSION}/dist/playground/`;

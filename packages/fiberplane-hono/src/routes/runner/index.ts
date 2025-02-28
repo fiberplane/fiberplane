@@ -6,17 +6,17 @@ import { type Env, Hono } from "hono";
 import { getContext } from "hono/context-storage";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
-import { logIfDebug } from "../../debug.js";
-import type { Step, Workflow } from "../../schemas/workflows.js";
-import type { FiberplaneAppType } from "../../types.js";
+import { logIfDebug } from "../../debug";
+import type { Step, Workflow } from "../../schemas/workflows";
+import type { FiberplaneAppType } from "../../types";
 import {
   type HttpRequestParams,
   type WorkflowContext,
   resolveStepOutputs,
   resolveStepParams,
-} from "./resolvers.js";
-import { resolveOutputs } from "./resolvers.js";
-import { getWorkflowById } from "./utils.js";
+} from "./resolvers";
+import { resolveOutputs } from "./resolvers";
+import { getWorkflowById } from "./utils";
 
 interface WorkflowErrorResponse {
   error: {

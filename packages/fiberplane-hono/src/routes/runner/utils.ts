@@ -2,9 +2,9 @@ import type { Context, Env } from "hono";
 import { getContext } from "hono/context-storage";
 import { HTTPException } from "hono/http-exception";
 import { type ZodError, z } from "zod";
-import { PLAYGROUND_SERVICES_URL } from "../../constants.js";
-import type { Workflow } from "../../schemas/workflows.js";
-import type { FiberplaneAppType } from "../../types.js";
+import { PLAYGROUND_SERVICES_URL } from "../../constants";
+import type { Workflow } from "../../schemas/workflows";
+import type { FiberplaneAppType } from "../../types";
 
 export async function getWorkflowById<E extends Env>(
   workflowId: string,

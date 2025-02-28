@@ -1,8 +1,8 @@
 import { type Env, Hono } from "hono";
-import { PLAYGROUND_SERVICES_URL } from "../../constants.js";
-import { logIfDebug } from "../../debug.js";
-import { webStandardFetch } from "../../fetch.js";
-import type { FetchFn, FiberplaneAppType } from "../../types.js";
+import { PLAYGROUND_SERVICES_URL } from "../../constants";
+import { logIfDebug } from "../../debug";
+import { webStandardFetch } from "../../fetch";
+import type { FetchFn, FiberplaneAppType } from "../../types";
 
 export default function createReportsApiRoute<E extends Env>(
   apiKey: string,

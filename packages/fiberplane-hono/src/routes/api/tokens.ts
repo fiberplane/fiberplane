@@ -1,8 +1,8 @@
 import { type Env, Hono } from "hono";
 import { z } from "zod";
-import { logIfDebug } from "../../debug.js";
-import { FpService } from "../../services/index.js";
-import type { FetchFn, FiberplaneAppType } from "../../types.js";
+import { logIfDebug } from "../../debug";
+import { FpService } from "../../services";
+import type { FetchFn, FiberplaneAppType } from "../../types";
 
 // Temporary implementation
 export default function createTokensApiRoute<E extends Env>(
