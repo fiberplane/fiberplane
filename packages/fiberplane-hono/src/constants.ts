@@ -1,4 +1,9 @@
-export const PLAYGROUND_SERVICES_URL = "https://services.fp.dev";
+export const DEFAULT_PLAYGROUND_SERVICES_URL = "https://services.fp.dev";
+
+/**
+ * Fiberplane services URL.
+ */
+export const ENV_FIBERPLANE_SERVICES_URL = "FIBERPLANE_SERVICES_URL";
 
 /**
  * Fiberplane otel-worker auth token.

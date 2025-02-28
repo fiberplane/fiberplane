@@ -8,10 +8,15 @@ import type { FetchFn, FiberplaneAppType } from "../../types";
 export default function createTokensApiRoute<E extends Env>(
   apiKey: string,
   fetchFn: FetchFn,
+  fiberplaneServicesUrl: string,
 ) {
   const app = new Hono<E & FiberplaneAppType<E>>();
 
-  const service = new FpService({ apiKey, fetch: fetchFn });
+  const service = new FpService({
+    apiKey,
+    fetch: fetchFn,
+    baseUrl: `${fiberplaneServicesUrl}/api`,
+  });
 
   app.get("/", async (c) => {
     logIfDebug(c, "[tokens]", "- GET / -");

@@ -21,8 +21,14 @@ export function createRouter<E extends Env>(
   // Important: whatever gets passed to createEmbeddedPlayground
   // is passed to the playground, aka is on the HTML
   // We therefore remove the apiKey
-  const { apiKey, otelEndpoint, otelToken, debug, ...sanitizedOptions } =
-    options;
+  const {
+    apiKey,
+    otelEndpoint,
+    otelToken,
+    debug,
+    fiberplaneServicesUrl,
+    ...sanitizedOptions
+  } = options;
 
   const fetchFn: FetchFn = options.fetch ?? webStandardFetch;
 
@@ -92,8 +98,8 @@ export function createRouter<E extends Env>(
       isDebugEnabled,
       "Fiberplane API Key Present. Creating internal API router.",
     );
-    app.route("/w", createRunnerRoute(apiKey));
-    app.route("/api", createApiRoutes(fetchFn, apiKey));
+    app.route("/w", createRunnerRoute(apiKey, fiberplaneServicesUrl));
+    app.route("/api", createApiRoutes(fetchFn, apiKey, fiberplaneServicesUrl));
   } else {
     logIfDebug(
       isDebugEnabled,

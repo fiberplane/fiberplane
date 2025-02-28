@@ -1,11 +1,11 @@
 import { type Env, Hono } from "hono";
-import { PLAYGROUND_SERVICES_URL } from "../../constants";
 import { logIfDebug } from "../../debug";
 import type { FetchFn, FiberplaneAppType } from "../../types";
 
 export default function createWorkflowsApiRoute<E extends Env>(
   apiKey: string,
   fetchFn: FetchFn,
+  fiberplaneServicesUrl: string,
 ) {
   const app = new Hono<E & FiberplaneAppType<E>>();
 
@@ -18,7 +18,7 @@ export default function createWorkflowsApiRoute<E extends Env>(
       "Proxying request to fiberplane api",
     );
 
-    const url = `${PLAYGROUND_SERVICES_URL}${c.req.path}`;
+    const url = `${fiberplaneServicesUrl}${c.req.path}`;
 
     const contentType = c.req.header("content-type");
     const headers = new Headers();

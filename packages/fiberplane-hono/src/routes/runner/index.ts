@@ -65,13 +65,20 @@ class WorkflowError extends HTTPException {
   }
 }
 
-export default function createRunnerRoute<E extends Env>(apiKey: string) {
+export default function createRunnerRoute<E extends Env>(
+  apiKey: string,
+  fiberplaneServicesUrl: string,
+) {
   const runner = new Hono<E & FiberplaneAppType<E>>().post(
     "/:workflowId",
     sValidator("param", z.object({ workflowId: z.string() })),
     async (c) => {
       const { workflowId } = c.req.valid("param");
-      const { data: workflow } = await getWorkflowById(workflowId, apiKey);
+      const { data: workflow } = await getWorkflowById(
+        workflowId,
+        apiKey,
+        fiberplaneServicesUrl,
+      );
 
       const validator = new Validator(workflow.inputs);
 

@@ -14,13 +14,26 @@ import createWorkflowsApiRoute from "./workflows";
 export default function createApiRoutes<E extends Env>(
   fetchFn: FetchFn,
   apiKey: string,
+  fiberplaneServicesUrl: string,
 ) {
   const app = new Hono<E & FiberplaneAppType<E>>();
 
-  app.route("/workflows", createWorkflowsApiRoute(apiKey, fetchFn));
-  app.route("/tokens", createTokensApiRoute(apiKey, fetchFn));
-  app.route("/reports", createReportsApiRoute(apiKey, fetchFn));
-  app.route("/assistant", createAssistantApiRoute(apiKey, fetchFn));
+  app.route(
+    "/workflows",
+    createWorkflowsApiRoute(apiKey, fetchFn, fiberplaneServicesUrl),
+  );
+  app.route(
+    "/tokens",
+    createTokensApiRoute(apiKey, fetchFn, fiberplaneServicesUrl),
+  );
+  app.route(
+    "/reports",
+    createReportsApiRoute(apiKey, fetchFn, fiberplaneServicesUrl),
+  );
+  app.route(
+    "/assistant",
+    createAssistantApiRoute(apiKey, fetchFn, fiberplaneServicesUrl),
+  );
 
   return app;
 }

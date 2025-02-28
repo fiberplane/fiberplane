@@ -13,7 +13,7 @@ export class FpService {
 
   constructor({
     apiKey,
-    baseUrl = "http://localhost:1234/api",
+    baseUrl = "http://localhost:7676/api",
     fetch,
   }: FpServiceOptions) {
     this.tokens = new TokenService(apiKey, baseUrl, fetch);
