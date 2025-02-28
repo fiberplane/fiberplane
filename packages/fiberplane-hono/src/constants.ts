@@ -1,5 +1,4 @@
-export const PLAYGROUND_SERVICES_URL =
-  "https://playground-services.mies.workers.dev";
+export const PLAYGROUND_SERVICES_URL = "https://services.fp.dev";
 
 /**
  * Fiberplane otel-worker auth token.
