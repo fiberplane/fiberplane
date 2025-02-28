@@ -9,12 +9,8 @@ import svgr from "vite-plugin-svgr";
 
 // Grab configuration from the env vars file
 const ENV_FILE = process.env.ENV_FILE ?? "./.dev.vars";
-const {
-  embeddedApiUrl,
-  internalApiProxyTarget,
-  openApiSpecUrl,
-  proxyHeaders,
-} = getDevConfig(ENV_FILE);
+const { embeddedApiUrl, internalApiProxyTarget, openApiSpecUrl, proxyHeaders } =
+  getDevConfig(ENV_FILE);
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -128,8 +124,7 @@ function getDevConfig(envVarsFile: string) {
    */
   const EMBEDDED_API_MOUNT_PATH = process.env.EMBEDDED_API_MOUNT_PATH ?? "/fp";
 
-  const openApiSpecUrl =
-    process.env.EMBEDDED_API_SPEC_URL ?? "/openapi.json";
+  const openApiSpecUrl = process.env.EMBEDDED_API_SPEC_URL ?? "/openapi.json";
 
   const internalApiProxyTarget = `${EMBEDDED_API_URL}${EMBEDDED_API_MOUNT_PATH}`;
 
@@ -145,7 +140,7 @@ function getDevConfig(envVarsFile: string) {
     /**
      * The URL of the OpenAPI spec file on the local API.
      * This is used to fetch the OpenAPI spec for the Playground.
-     * 
+     *
      * Can either be a relative path (e.g., `/openapi.json`) or a full URL,
      * but if it's a full URL, the api should have cors enabled.
      */
@@ -154,7 +149,7 @@ function getDevConfig(envVarsFile: string) {
     /**
      * The target to proxy requests to the embedded API.
      * This is the URL of the local API + the path at which `@fiberplane/hono` is mounted.
-     * 
+     *
      * If your local api is on `http://localhost:8787` and integrates Fiberplane like this:
      *   ```ts
      *   app.use("/fp/*", createFiberplane({ ... }));
@@ -168,8 +163,10 @@ function getDevConfig(envVarsFile: string) {
      *
      * This is setup to work with the fp-services API running locally.
      */
-    proxyHeaders: fiberplaneApiKey ? {
-      Authorization: `Bearer ${fiberplaneApiKey}`,
-    } : undefined,
+    proxyHeaders: fiberplaneApiKey
+      ? {
+          Authorization: `Bearer ${fiberplaneApiKey}`,
+        }
+      : undefined,
   };
 }
