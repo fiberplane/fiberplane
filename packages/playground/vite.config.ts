@@ -10,6 +10,7 @@ import svgr from "vite-plugin-svgr";
 // Grab configuration from the env vars file
 const ENV_FILE = process.env.ENV_FILE ?? "./.dev.vars";
 const {
+  embeddedApiUrl,
   internalApiProxyTarget,
   openApiSpecUrl,
   proxyHeaders,
@@ -38,14 +39,19 @@ export default defineConfig({
   server: {
     port: 6660,
     proxy: {
+      // Proxy requests to the workflow aliases
       "/w/*": {
         target: internalApiProxyTarget,
         headers: proxyHeaders,
       },
+      // Proxy requests to the embedded API
       "/api": {
-        // This is setup to work with the fp-services API running locally. To use it make sure to set the FIBERPLANE_API_KEY in your .dev.vars
-        target: openApiSpecUrl,
+        target: internalApiProxyTarget,
         headers: proxyHeaders,
+      },
+      // Proxy requests to the OpenAPI spec, so the embedded api doesn't need to have cors enabled
+      [openApiSpecUrl]: {
+        target: embeddedApiUrl,
       },
     },
     cors: true,
@@ -118,26 +124,30 @@ function getDevConfig(envVarsFile: string) {
     process.env.EMBEDDED_API_URL ?? "http://localhost:8787";
 
   /**
-   * The path to the OpenAPI spec file on your local API.
-   */
-  const EMBEDDED_API_SPEC_PATH =
-    process.env.EMBEDDED_API_SPEC_PATH ?? "/openapi.json";
-
-  /**
    * The path at which `@fiberplane/hono` is mounted on the local API.
    */
   const EMBEDDED_API_MOUNT_PATH = process.env.EMBEDDED_API_MOUNT_PATH ?? "/fp";
 
-  const internalApiProxyTarget = `${EMBEDDED_API_URL}${EMBEDDED_API_MOUNT_PATH}`;
+  const openApiSpecUrl =
+    process.env.EMBEDDED_API_SPEC_URL ?? "/openapi.json";
 
-  const openApiSpecUrl = `${EMBEDDED_API_URL}${EMBEDDED_API_SPEC_PATH}`
+  const internalApiProxyTarget = `${EMBEDDED_API_URL}${EMBEDDED_API_MOUNT_PATH}`;
 
   const fiberplaneApiKey = process.env.FIBERPLANE_API_KEY;
 
   return {
     /**
+     * The URL of the embedded API
+     * E.g., `http://localhost:8787`
+     */
+    embeddedApiUrl: EMBEDDED_API_URL,
+
+    /**
      * The URL of the OpenAPI spec file on the local API.
      * This is used to fetch the OpenAPI spec for the Playground.
+     * 
+     * Can either be a relative path (e.g., `/openapi.json`) or a full URL,
+     * but if it's a full URL, the api should have cors enabled.
      */
     openApiSpecUrl,
 
