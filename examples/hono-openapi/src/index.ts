@@ -1,10 +1,14 @@
 import { instrument } from "@fiberplane/hono-otel";
-import { OpenAPIHono } from "@hono/zod-openapi";
-import { createRoute, z } from "@hono/zod-openapi";
+import { describeRoute, openAPISpecs } from "hono-openapi";
+import { resolver, validator as zValidator } from "hono-openapi/zod";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { basicAuth } from "hono/basic-auth";
 import * as schema from "./db/schema";
+import { Hono } from "hono";
+import z from "zod";
+import "zod-openapi/extend";
+
 // TODO - Figure out how to use drizzle with "@hono/zod-openapi"
 //
 // import { UserSchema } from "./db/schema";
@@ -13,7 +17,7 @@ type Bindings = {
   DB: D1Database;
 };
 
-const app = new OpenAPIHono<{ Bindings: Bindings }>();
+const app = new Hono<{ Bindings: Bindings }>();
 
 // Schema that defines presence of an ID in the path
 const UserIdPathParamSchema = z.object({
@@ -23,10 +27,6 @@ const UserIdPathParamSchema = z.object({
     // But an ID is always a number
     .regex(/^\d+$/)
     .openapi({
-      param: {
-        name: "id",
-        in: "path",
-      },
       description: "The ID of the user",
       example: "123",
     }),
@@ -43,7 +43,9 @@ const NewUserSchema = z
       example: 42,
     }),
   })
-  .openapi("NewUser");
+  .openapi({
+    ref: "NewUser",
+  });
 
 // Schema that defines the response of a request to get a user
 // TODO - Figure out how to extend the NewUserSchema object
@@ -59,204 +61,185 @@ const UserSchema = z
       example: 42,
     }),
   })
-  .openapi("User");
+  .openapi({
+    ref: "User",
+  });
 
-// Define the request/response schema for a route to get a user by ID
-const getUserRoute = createRoute({
-  method: "get",
-  path: "/users/{id}",
-  request: {
-    params: UserIdPathParamSchema,
-  },
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: UserSchema,
+// Define the route to get a user by ID
+app.get(
+  "/users/:id",
+  describeRoute({
+    responses: {
+      200: {
+        description: "Retrieve the user",
+        content: {
+          "application/json": {
+            schema: resolver(UserSchema),
+          },
         },
       },
-      description: "Retrieve the user",
-    },
-    400: {
-      content: {
-        "application/json": {
-          schema: z.object({
-            error: z.string(),
-          }),
+      400: {
+        description: "Invalid ID",
+        content: {
+          "application/json": {
+            schema: resolver(
+              z.object({
+                error: z.string(),
+              }),
+            ),
+          },
         },
       },
-      description: "Invalid ID",
-    },
-    404: {
-      content: {
-        "application/json": {
-          schema: z.object({ error: z.string() }),
+      404: {
+        description: "User not found",
+        content: {
+          "application/json": {
+            schema: resolver(z.object({ error: z.string() })),
+          },
         },
       },
-      description: "User not found",
     },
-  },
-});
+  }),
+  zValidator("param", UserIdPathParamSchema),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const db = drizzle(c.env.DB);
 
-// Define the request/response schema for a route to list users
-const listUsersRoute = createRoute({
-  method: "get",
-  path: "/users",
-  description: "List all users",
-  request: {
-    query: z.object({
-      name: z.string().optional(),
-    }),
-  },
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: z.array(UserSchema),
-        },
-      },
-      description: "List all users",
-    },
-  },
-});
+    const idNumber = +id;
+    if (Number.isNaN(idNumber) || idNumber < 1) {
+      return c.json({ error: "Invalid ID" }, 400);
+    }
 
-// Define the request/response schema for a route to create a new user
-const createUserRoute = createRoute({
-  method: "post",
-  path: "/users",
-  title: "CreateUser",
-  description: "Create a new user",
-  request: {
-    body: {
-      content: {
-        "application/json": {
-          schema: NewUserSchema,
-        },
-      },
-    },
-  },
-  responses: {
-    201: {
-      content: {
-        "application/json": {
-          schema: UserSchema,
-        },
-      },
-      description: "Newly created user",
-    },
-  },
-});
+    const [result] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, idNumber));
 
-// Define the request/response schema for a route to delete a user by ID
+    if (!result) {
+      return c.json({ error: "User not found" }, 404);
+    }
+
+    return c.json(result, 200);
+  },
+);
+
+// Define the route to list users
+app.get(
+  "/users",
+  describeRoute({
+    description: "List all users",
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            schema: resolver(z.array(UserSchema)),
+          },
+        },
+        description: "List all users",
+      },
+    },
+  }),
+  zValidator("query", z.object({ name: z.string().optional() })),
+  async (c) => {
+    const { name } = c.req.valid("query");
+    const db = drizzle(c.env.DB);
+
+    // Only apply where clause if name is provided and not empty
+    const query = db.select().from(schema.users);
+    if (name && name.trim() !== "") {
+      query.where(eq(schema.users.name, name));
+    }
+
+    const result = await query;
+    return c.json(result, 200);
+  },
+);
+
+// Define the route to create a new user
+app.post(
+  "/users",
+  describeRoute({
+    description: "Create a new user",
+    responses: {
+      201: {
+        description: "Newly created user",
+        content: {
+          "application/json": {
+            schema: resolver(UserSchema),
+          },
+        },
+      },
+    },
+  }),
+  zValidator("json", NewUserSchema),
+  async (c) => {
+    const { name, age } = c.req.valid("json");
+    const db = drizzle(c.env.DB);
+    const [result] = await db
+      .insert(schema.users)
+      .values({
+        name,
+        age,
+      })
+      .returning();
+    return c.json(result, 201);
+  },
+);
+
+// Define the route to delete a user by ID
 // Add in basic auth middleware to the route to show how to add security to an endpoint
-const deleteUserRoute = createRoute({
-  method: "delete",
-  path: "/users/{id}",
-  security: [
-    {
-      basicAuth: [],
-    },
-  ],
-  middleware: [
-    basicAuth({
-      username: "goose",
-      password: "honkhonk",
-    }),
-  ] as const, // Use `as const` to ensure TypeScript infers the middleware's Context correctly
-  request: {
-    params: UserIdPathParamSchema,
-  },
-  responses: {
-    204: {
-      description: "User deleted",
-    },
-    401: {
-      content: {
-        "application/json": {
-          schema: z.object({
-            error: z.string(),
-          }),
+app.delete(
+  "/users/:id",
+  describeRoute({
+    security: [
+      {
+        basicAuth: [],
+      },
+    ],
+    responses: {
+      204: {
+        description: "User deleted",
+      },
+      401: {
+        description: "Unauthorized - Invalid credentials",
+        content: {
+          "application/json": {
+            schema: resolver(
+              z.object({
+                error: z.string(),
+              }),
+            ),
+          },
         },
       },
-      description: "Unauthorized - Invalid credentials",
     },
+  }),
+  basicAuth({
+    username: "goose",
+    password: "honkhonk",
+  }),
+  zValidator("param", UserIdPathParamSchema),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const db = drizzle(c.env.DB);
+    await db.delete(schema.users).where(eq(schema.users.id, +id));
+    return c.body(null, 204);
   },
-});
-
-// Register the basic auth security scheme
-app.openAPIRegistry.registerComponent("securitySchemes", "basicAuth", {
-  type: "http",
-  scheme: "basic",
-});
-
-// Define the handler for a route to get a user by ID
-app.openapi(getUserRoute, async (c) => {
-  const { id } = c.req.valid("param");
-  const db = drizzle(c.env.DB);
-
-  const idNumber = +id;
-  if (Number.isNaN(idNumber) || idNumber < 1) {
-    return c.json({ error: "Invalid ID" }, 400);
-  }
-
-  const [result] = await db
-    .select()
-    .from(schema.users)
-    .where(eq(schema.users.id, idNumber));
-
-  if (!result) {
-    return c.json({ error: "User not found" }, 404);
-  }
-
-  return c.json(result, 200);
-});
-
-// Define the handler for a route to list users
-app.openapi(listUsersRoute, async (c) => {
-  const { name } = c.req.valid("query");
-  const db = drizzle(c.env.DB);
-
-  // Only apply where clause if name is provided and not empty
-  const query = db.select().from(schema.users);
-  if (name && name.trim() !== "") {
-    query.where(eq(schema.users.name, name));
-  }
-
-  const result = await query;
-  return c.json(result, 200);
-});
-
-// Define the handler for a route to create a new user
-app.openapi(createUserRoute, async (c) => {
-  const { name, age } = c.req.valid("json");
-  const db = drizzle(c.env.DB);
-  const [result] = await db
-    .insert(schema.users)
-    .values({
-      name,
-      age,
-    })
-    .returning();
-  return c.json(result, 201);
-});
-
-// Define the handler for a route to delete a user by ID
-app.openapi(deleteUserRoute, async (c) => {
-  const { id } = c.req.valid("param");
-  const db = drizzle(c.env.DB);
-  await db.delete(schema.users).where(eq(schema.users.id, +id));
-  return c.body(null, 204);
-});
+);
 
 // Mount the api documentation
 // The OpenAPI documentation will be available at /doc
-app.doc("/doc", {
-  openapi: "3.0.0",
-  info: {
-    version: "1.0.0",
-    title: "Simple Hono OpenAPI API",
-  },
-});
+app.get(
+  "/doc",
+  openAPISpecs(app, {
+    documentation: {
+      info: {
+        version: "1.0.0",
+        title: "Simple Hono OpenAPI API",
+      },
+    },
+  }),
+);
 
 // Define a simple route to test the API (this is not part of the OpenAPI spec)
 app.get("/", (c) => {
