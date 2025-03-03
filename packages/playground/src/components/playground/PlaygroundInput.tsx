@@ -39,10 +39,12 @@ export function PlaygroundInput({
   );
 
   const path = useUrlPreview() ?? "";
+  const isTrace = activeRoute?.method === "TRACE";
+
   return (
     <form
       ref={formRef}
-      onSubmit={onSubmit}
+      onSubmit={!isTrace ? onSubmit : (e) => e.preventDefault()}
       // NOTE - For some reason, in prod (not locally), we get a `margin-block-end: 1rem` on the form element from the user-agent-stylesheet
       //        That's why we add `m-0` to the form element.
       className="flex items-center justify-between bg-input border rounded-lg m-0 py-1"
@@ -110,11 +112,11 @@ export function PlaygroundInput({
       </div>
       <div className="flex items-center space-x-2 px-2 py-0">
         <Tooltip>
-          <TooltipTrigger asChild>
+          <TooltipTrigger asChild={!isTrace}>
             <Button
               size="sm"
               type="submit"
-              disabled={isPlaygroundRequesting}
+              disabled={isPlaygroundRequesting || isTrace}
               variant="primary"
               className={cn("p-2 md:px-2.5 py-1 h-auto")}
             >
@@ -132,8 +134,14 @@ export function PlaygroundInput({
             sideOffset={16}
           >
             <div className="flex gap-0.5">
-              <KeyboardShortcutKey>{isMac ? "⌘" : "Ctrl"}</KeyboardShortcutKey>{" "}
-              <KeyboardShortcutKey>Enter</KeyboardShortcutKey>
+              {!isTrace ? (
+                <>
+                  <KeyboardShortcutKey>{isMac ? "⌘" : "Ctrl"}</KeyboardShortcutKey>{" "}
+                  <KeyboardShortcutKey>Enter</KeyboardShortcutKey>
+                </>
+              ) : (
+                <p>Browsers do not support fetch requests with the TRACE method</p>
+              )}
             </div>
           </TooltipContent>
         </Tooltip>
