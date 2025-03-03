@@ -136,12 +136,17 @@ export function PlaygroundInput({
             <div className="flex gap-0.5">
               {!isTrace ? (
                 <>
-                  <KeyboardShortcutKey>{isMac ? "⌘" : "Ctrl"}</KeyboardShortcutKey>{" "}
+                  <KeyboardShortcutKey>
+                    {isMac ? "⌘" : "Ctrl"}
+                  </KeyboardShortcutKey>{" "}
                   <KeyboardShortcutKey>Enter</KeyboardShortcutKey>
                 </>
               ) : (
-                <p>Browsers do not support fetch requests with the TRACE method</p>
+                <p>
+                  Browsers do not support fetch requests with the TRACE method
+                </p>
               )}
+
             </div>
           </TooltipContent>
         </Tooltip>
