@@ -4,6 +4,7 @@ import createAssistantApiRoute from "./assistant.js";
 import createReportsApiRoute from "./reports.js";
 import createTokensApiRoute from "./tokens.js";
 import createWorkflowsApiRoute from "./workflows.js";
+import createAuthApiRoute from "./auth.js";
 
 /**
  * Creates the internal API router (except for the tracing routes)
@@ -14,6 +15,7 @@ import createWorkflowsApiRoute from "./workflows.js";
 export default function createApiRoutes<E extends Env>(apiKey: string) {
   const app = new Hono<E & FiberplaneAppType<E>>();
 
+  app.route("/auth", createAuthApiRoute(apiKey));
   app.route("/workflows", createWorkflowsApiRoute(apiKey));
   app.route("/tokens", createTokensApiRoute(apiKey));
   app.route("/reports", createReportsApiRoute(apiKey));

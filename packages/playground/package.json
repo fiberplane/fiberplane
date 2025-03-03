@@ -24,6 +24,7 @@
     "@fiberplane/hooks": "^0.3.0",
     "@hookform/resolvers": "^3.9.1",
     "@iconify/react": "^5.0.2",
+    "@openauthjs/openauth": "^0.3.9",
     "@opentelemetry/semantic-conventions": "^1.28.0",
     "@radix-ui/react-checkbox": "^1.1.2",
     "@radix-ui/react-collapsible": "^1.1.1",

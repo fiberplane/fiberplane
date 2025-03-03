@@ -7,6 +7,7 @@ import { routeTree } from "./routeTree.gen";
 import "./index.css";
 import { ThemeProvider } from "./components/theme-provider";
 import { parseEmbeddedConfig } from "./utils";
+import { AuthProvider } from "./components/AuthProvider";
 
 export const rootElement = document.getElementById("root");
 if (rootElement === null) {
@@ -35,12 +36,14 @@ declare module "@tanstack/react-router" {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <TooltipProvider>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-        </QueryClientProvider>
-      </TooltipProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <TooltipProvider>
+          <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+          </QueryClientProvider>
+        </TooltipProvider>
+      </ThemeProvider>
+    </AuthProvider>
   </StrictMode>,
 );

@@ -6,7 +6,9 @@
     "preinstall": "npx only-allow pnpm",
     "postinstall": "pnpm run build:types && pnpm run build:source-analysis",
     "build:fp-hono": "pnpm build:playground && pnpm clean:fp-hono && pnpm --filter @fiberplane/hono build && cp -r packages/playground/dist packages/fiberplane-hono/dist/playground",
+    "watch:fp-hono": "nodemon --watch src --ext ts,js,json --exec \"pnpm run build:fp-hono\"",
     "build:playground": "pnpm --filter @fiberplane/playground build",
+    "watch:playground": "nodemon --watch src --ext ts,js,json --exec \"pnpm --filter @fiberplane/playground build\"",
     "build:source-analysis": "pnpm --filter @fiberplane/source-analysis build",
     "build:studio": "pnpm clean:studio && pnpm build:studio-api && pnpm build:studio-frontend",
     "build:studio-api": "pnpm --filter @fiberplane/studio build",
@@ -34,6 +36,7 @@
   "homepage": "https://github.com/fiberplane/fiberplane#readme",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "nodemon": "^3.1.7",
     "pkg-pr-new": "^0.0.35",
     "rimraf": "^6.0.1",
     "typescript": "^5.7.2",
