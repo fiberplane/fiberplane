@@ -146,7 +146,6 @@ export function PlaygroundInput({
                   Browsers do not support fetch requests with the TRACE method
                 </p>
               )}
-
             </div>
           </TooltipContent>
         </Tooltip>
