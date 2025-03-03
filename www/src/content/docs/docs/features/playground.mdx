@@ -1,14 +1,96 @@
 ---
-title: Playground
-description: How to generate request data using Fiberplane Playground
-sidebar:
-  order: 3
+title: Playground Features
+description: Explore and test your API with Fiberplane Playground
+order: 3
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ex risus, consequat eget cursus eu, aliquet vel enim. Fusce et euismod nisl. Nam ultrices id risus a auctor. Praesent non mattis enim, eget venenatis diam. Phasellus tristique odio a mauris venenatis interdum. Pellentesque eu enim eget mauris lacinia sodales. Ut porttitor efficitur urna in varius. In elementum odio commodo, consequat tortor a, auctor libero. Nam quis leo justo. Vivamus sollicitudin odio ante, et aliquam magna posuere ut. Donec convallis sit amet risus eget dapibus. Aliquam erat volutpat. Vivamus pulvinar faucibus lobortis.
+import { Aside, Steps, Tabs, TabItem } from "@astrojs/starlight/components";
 
-Nulla eleifend ullamcorper dolor at vehicula. Maecenas sed mollis mauris, eu scelerisque justo. Fusce luctus euismod metus eget posuere. Suspendisse quis erat nisi. Mauris non lectus fermentum, hendrerit mi eget, elementum nisl. Aenean non ipsum eu turpis rhoncus eleifend eu vel dolor. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam mi nibh, maximus vitae nunc imperdiet, pretium elementum elit.
+Fiberplane Playground provides an interactive interface for exploring and testing your Hono API. This guide covers the main features of the Playground UI and how to use them effectively.
 
-Maecenas varius quis magna in lobortis. Mauris ac lacus elementum, tincidunt felis sit amet, lacinia lorem. Vestibulum vel ante ullamcorper, rhoncus mauris id, varius nulla. Praesent id efficitur sapien. Proin ut odio lacus. Curabitur commodo metus vitae augue auctor sodales. Maecenas nec dolor eget tortor gravida scelerisque. Curabitur ullamcorper neque erat, sed finibus mi hendrerit ac. Vestibulum quis nisl eget lectus laoreet mattis sit amet et nibh.
+## API Documentation Browser
 
-Quisque nec mauris sed massa dictum vehicula. In mattis purus a mattis tempus. Donec tristique mi magna, ut luctus velit facilisis nec. Vivamus scelerisque risus nec efficitur euismod. Donec vestibulum orci non sodales imperdiet. Ut pharetra velit est, a tempus sem finibus ac. In hac habitasse platea dictumst. Pellentesque porta feugiat ornare. Pellentesque rhoncus mi sit amet sollicitudin scelerisque. Phasellus maximus metus et quam placerat consequat. Donec sed varius nibh, sed dapibus mi. In interdum gravida diam, sit amet semper urna imperdiet elementum. Donec odio lectus, aliquam sit amet vehicula id, volutpat nec est.
+The Playground generates interactive documentation from your OpenAPI specification. You can:
+
+- Browse all available endpoints grouped by paths
+- View detailed request and response schemas
+- See example values based on your schema definitions
+- Explore authentication requirements for each endpoint
+
+<figure class="light:sl-hidden">
+  ![Playfround Documentation
+  Browser](@/assets/docs/playground-documentation-browser-dark.png)
+</figure>
+
+<figure class="dark:sl-hidden">
+  ![Playground Documentation
+  Browser](@/assets/docs/playground-documentation-browser.png)
+</figure>
+
+## Making API Requests
+
+The Playground provides a user-friendly interface for constructing API requests:
+
+1. **Select an Endpoint**: Choose the endpoint you want to test from the sidebar
+2. **Configure Request Parameters**:
+   - Path parameters
+   - Query parameters
+   - Request body (automatically populated with example data from your schema)
+
+### Example Data
+
+The Playground automatically generates example data based on your OpenAPI schemas. For instance, using the user creation example:
+
+```json
+{
+  "name": "Matthew",
+  "email": "matthew@cloudflare.com"
+}
+```
+
+You can:
+
+- Use the provided example data as is
+- Modify the data to test different scenarios
+- View the expected response format
+
+### Response Viewer
+
+After making a request, you can:
+
+- View the response status code
+- Inspect response headers
+- See the formatted response body
+- View response timing information
+
+<figure class="light:sl-hidden">
+  ![Playground: Send Requests](@/assets/docs/playground-send-request-dark.png)
+</figure>
+
+<figure class="dark:sl-hidden">
+  ![Playground: Send Requests](@/assets/docs/playground-send-request.png)
+</figure>
+
+## Authentication
+
+The Playground supports authentication:
+
+### Setting Authentication Headers
+
+1. Click the "Auth" button in the top navigation
+2. Choose your authentication method:
+   - Bearer Token
+   - None
+
+<Aside type="tip">
+  Authentication settings persist across requests, so you only need to set them
+  once per session.
+</Aside>
+
+### Custom Headers
+
+You can also add any custom headers required by your API:
+
+1. Click "Header" in the top navigation
+2. Enter the header name and value
+3. Headers will be included in all subsequent requests
