@@ -24,7 +24,7 @@ To inspect request traces, navigate to the "Requests" tab in the Studio UI.
 This will show you a list of all the requests that have been made to your API.
 Select the request you want to see the trace for.
 
-![Request detail view](@/assets/inspect-traces--request-details.png)
+![Request detail view](@/assets/docs-archive/inspect-traces--request-details.png)
 
 You can jump up or down the request overview using the <Button type="icon" style="secondary"><Icon name="up-caret" /></Button> and <Button type="icon" style="secondary"><Icon name="down-caret" /></Button> buttons at the top right of the page or simply pressing keys <kbd>j</kbd> and <kbd>k</kbd>.
 
@@ -36,7 +36,7 @@ Alternatively, after you [make a request](/docs/features/making-requests) throug
 
 At the top of the page, you will see a summary of the trace. It will show either the body of the response, or a list of errors that occurred during the request.
 
-![Request summary or errors](@/assets/inspect-traces--request-details-summary.png)
+![Request summary or errors](@/assets/docs-archive/inspect-traces--request-details-summary.png)
 
 ## Timeline
 
@@ -45,17 +45,17 @@ The entire lifecycle of the request is shown at the top, and any actions, cascad
 or other events that occur during the request are shown nested underneath.
 You can click on any of these events to see more details about the event on the right side.
 
-![Request summary or errors](@/assets/inspect-traces--request-details-timeline.png)
+![Request summary or errors](@/assets/docs-archive/inspect-traces--request-details-timeline.png)
 
 ## Details
 
 The details panel shows all of the most important information of the request-response lifecycle from when the request is received (including its headers, query parameters, and body) to when the response is sent back to the client.
 Outgoing network requests made by the API are also shown here, as well as any errors or logs produced during the request.
 
-![Request summary or errors](@/assets/inspect-traces--request-details-details.png)
+![Request summary or errors](@/assets/docs-archive/inspect-traces--request-details-details.png)
 
 Details view will render the output in best effort mode. By default, the output is rendered as plain text.
 If the output is a JSON object, it will be rendered in a foldable tree JSON view.
 For some vendors, like Neon, we are able to extract and display the final SQL query that gets run on the database.
 
-![Request summary or errors](@/assets/trace-requests--sql.png)
+![Request summary or errors](@/assets/docs-archive/trace-requests--sql.png)

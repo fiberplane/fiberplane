@@ -26,13 +26,13 @@ To get started, navigate to the settings page. Under the "Proxy Requests" sectio
 Once enabled, you’ll see a green indicator in the top-right corner of the screen that says "Public URL Active."
 This confirms that your local environment is now accessible via a public URL.
 
-![Public URL active](@/assets/webhooks--settings.png)
+![Public URL active](@/assets/docs-archive/webhooks--settings.png)
 
 ### Step 2: Configure the Webhook URL
 
 With a Public URL enabled, you can now use it as the webhook URL for any third-party service that supports webhooks. Copy the generated URL from the settings, and make sure to append the appropriate endpoint path for your application. For instance, if your application listens for incoming events on `/api/webhook`, your full webhook URL might look something like `https://generated-url-from-studio/api/webhook`.
 
-![Public URL active hover card](@/assets/webhooks--public-url-hover-card.png)
+![Public URL active hover card](@/assets/docs-archive/webhooks--public-url-hover-card.png)
 
 ## Handling Webhooks event in Studio
 
@@ -45,7 +45,7 @@ When the event is fired, Studio will capture the incoming request under the "Req
 Here, you can view detailed information about the request, including headers, payload, and the path it was sent to.
 A label indicating that the request was "proxied" will be displayed, confirming that the request was successfully routed through Studio's public URL feature.
 
-![Proxied request example](@/assets/webhooks--proxied-badge.png)
+![Proxied request example](@/assets/docs-archive/webhooks--proxied-badge.png)
 
 ### Step 4: Replaying Webhook Events
 

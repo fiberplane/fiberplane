@@ -6,11 +6,10 @@ sidebar:
 ---
 
 import { Image } from "astro:assets";
-import fpxGenAiGenerateBody from "@/assets/gen-ai-requests--generate.gif";
-import fpxGenAiSettings from "@/assets/gen-ai-requests--settings.png";
-import fpxGenAiSettingsProvider from "@/assets/gen-ai-requests--settings-provider.png";
-import fpxGenAiSettingsBaseUrl from "@/assets/gen-ai-requests--settings-baseurl.png";
-import fpxGenAiHostile from "@/assets/gen-ai-requests--hostile.png";
+import fpxGenAiGenerateBody from "@/assets/docs-archive/gen-ai-requests--generate.gif";
+import fpxGenAiSettings from "@/assets/docs-archive/gen-ai-requests--settings.png";
+import fpxGenAiSettingsProvider from "@/assets/docs-archive/gen-ai-requests--settings-provider.png";
+import fpxGenAiHostile from "@/assets/docs-archive/gen-ai-requests--hostile.png";
 
 import Button from "@/components/Button.astro";
 import { Tabs, TabItem } from "@astrojs/starlight/components";
@@ -89,6 +88,8 @@ As of writing, Studio supports OpenAI, Anthropic, Mistral, and Ollama as LLM pro
 You can select the provider and model once you've enabled AI Request Autofill.
 
 Once you've selected the provider and model, fill in your API key and click "Save". You're ready to go!
+
+<Image src={fpxGenAiSettingsProvider} alt="Settings Provider" />
 
 The API key is stored locally in your project, and ignored by git by default. (Specifically, it's stored in a local database, which you can find in `.fpxconfig/fpx.db`.)
 
