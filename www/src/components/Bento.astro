@@ -1,14 +1,7 @@
 ---
 import { Image } from "astro:assets";
-import autoDetectedRoutesDark from "@/assets/bento-auto-detected-routes-dark.jpg";
-import autoDetectedRoutesLight from "@/assets/bento-auto-detected-routes-light.jpg";
 import tracesDark from "@/assets/bento-traces-dark.jpg";
 import tracesLight from "@/assets/bento-traces-light.jpg";
-
-const autoDetectedRoutesImage = {
-  light: autoDetectedRoutesLight,
-  dark: autoDetectedRoutesDark
-} as const;
 
 const tracesImage = {
   light: tracesLight,
@@ -35,31 +28,16 @@ const tracesImage = {
         </p>
       </div>
 
-      <div class="bento-grid-item-image">
-        {
-          Object.entries(autoDetectedRoutesImage).map(([variant, src]) => (
-            <Image
-              src={src}
-              loading="lazy"
-              decoding="auto"
-              width="340"
-              quality="max"
-              class:list={[
-                { "light:sl-hidden": variant === "dark" },
-                { "dark:sl-hidden": variant === "light" }
-              ]}
-              alt="Screenshot of auto detected routes in FPX Studio"
-            />
-          ))
-        }
+      <div class="bento-grid-item-icon-container">
+        <pre class="bento-grid-item-icon" set:html="{...}" />
       </div>
     </article>
 
     <article class="bento-grid-item">
       <h3>Intelligent Error Resolution</h3>
       <p>
-        Identify root causes instantly with AI-powered trace analysis built on
-        OpenTelemetry, dramatically reducing debugging time.
+        Identify root causes with tracing built on OpenTelemetry, dramatically
+        reducing debugging time.
       </p>
 
       <div class="bento-grid-item-image">
@@ -137,7 +115,7 @@ const tracesImage = {
   .bento-grid-item--horizontal {
     display: grid;
     gap: 1.5rem;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   }
 
   .bento-grid-item-image {
@@ -167,6 +145,22 @@ const tracesImage = {
     justify-content: center;
     font-size: 6rem;
     filter: hue-rotate(320deg) contrast(120%);
+  }
+
+  .bento-grid-item-icon-container {
+    display: grid;
+    place-content: center;
+  }
+
+  .bento-grid-item-icon {
+    aspect-ratio: 1;
+    border-radius: 100vw;
+    line-height: 1;
+    align-content: center;
+    font-size: 2.5rem;
+    background-color: var(--sl-color-bg);
+    padding: 0.5em;
+    box-shadow: 0 0 32px 0 hsl(from var(--sl-color-accent) h s l / 0.4);
   }
 
   @container bento-container (width > 40rem) {
