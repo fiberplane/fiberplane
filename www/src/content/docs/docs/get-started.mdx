@@ -225,6 +225,7 @@ app.post(
       }
     }
   }),
+  // Middleware to validate incoming request bodies
   zValidator("json", CreateUserSchema),
   async (c) => {
     const { name, email } = c.req.valid("json");
