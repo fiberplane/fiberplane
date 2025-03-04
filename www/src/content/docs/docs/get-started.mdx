@@ -98,7 +98,8 @@ const createUser = createRoute({
   request: {
     // Validate request body using Zod schemas
     body: {
-      required: true, // NOTE: this is important to set to true, otherwise the route will accept empty body
+     // NOTE: this is important to set to true, otherwise the route will accept empty bodies and invalid content types
+      required: true,
       content: {
         "application/json": {
           schema: CreateUserSchema
