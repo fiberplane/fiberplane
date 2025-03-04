@@ -1,5 +1,5 @@
 import type { OpenAPIV3 } from "openapi-types";
-import type { HonoLikeApp } from "./types.js";
+import type { HonoLikeApp } from "./types";
 
 /**
  * The OpenAPI specification type that only includes OpenAPI 3.0 documents
