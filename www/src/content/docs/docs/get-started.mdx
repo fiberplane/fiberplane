@@ -305,7 +305,7 @@ app.use(
 ```
 
 <Aside type="note">
-  It is important to mount Fiberplane's middleware last in the codebase.
+  It is important to mount Fiberplane's middleware _after_ all of your route definitions.
 </Aside>
 
 After starting the application, Fiberplane's native UI will be available at the `/fp` endpoint of the Hono application.
