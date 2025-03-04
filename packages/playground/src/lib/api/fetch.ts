@@ -1,4 +1,5 @@
 import { parseEmbeddedConfig } from "@/utils";
+import { getStudioStoreState } from "@/components/playground/store/hooks/useStudioStore";
 import { parseErrorResponse } from "./errors";
 
 /**
@@ -53,10 +54,28 @@ export async function fpFetch<T>(
   // HACK - Force our client library to not trace requests to the internal API
   if (options.headers instanceof Headers) {
     options.headers.set("x-fpx-ignore", "true");
+    
+    // Add partition key header if available
+    const { partitionKey } = getStudioStoreState();
+    if (partitionKey) {
+      options.headers.set("X-Fiberplane-Partition-Key", partitionKey);
+    }
   } else if (Array.isArray(options.headers)) {
     options.headers.push(["x-fpx-ignore", "true"]);
+    
+    // Add partition key header if available
+    const { partitionKey } = getStudioStoreState();
+    if (partitionKey) {
+      options.headers.push(["X-Fiberplane-Partition-Key", partitionKey]);
+    }
   } else {
     options.headers["x-fpx-ignore"] = "true";
+    
+    // Add partition key header if available
+    const { partitionKey } = getStudioStoreState();
+    if (partitionKey) {
+      options.headers["X-Fiberplane-Partition-Key"] = partitionKey;
+    }
   }
 
   const basePrefix = getFpApiBasePath();
