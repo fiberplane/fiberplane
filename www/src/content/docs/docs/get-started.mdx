@@ -36,7 +36,7 @@ The Fiberplane Playground requires an OpenAPI spec to work. There are two packag
 <summary>Zod OpenAPI Hono</summary>
 
 [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi) provides input validation, type safety, and OpenAPI documentation.
-It extends the Hono class and routes have to be defined and passed as parameters in the handlers.
+It extends the Hono class, and requires that you pass a specification of your routes before defining the logic of your handlers. This makes it possible to type-check your api inputs and outputs against your api spec.
 
 Install the package alongside Hono and Zod:
 
