@@ -4,9 +4,7 @@ import { getCollection } from "astro:content";
 import { ogImageOptions } from "@/ogImageOptions";
 
 const docsEntries = await getCollection("docs");
-const pages = Object.fromEntries(
-  docsEntries.map(({ id, data }) => [id, data])
-);
+const pages = Object.fromEntries(docsEntries.map(({ id, data }) => [id, data]));
 
 export const { getStaticPaths, GET } = OGImageRoute({
   param: "docs",

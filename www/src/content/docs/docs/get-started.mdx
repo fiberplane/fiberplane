@@ -1,86 +1,321 @@
 ---
 title: Get Started
-description: How to get started with Fiberplane Studio
+description: How to get started with Fiberplane Playground
 ---
 
 import PackageManagers from "@/components/PackageManagers.astro";
 import Platforms from "@/components/Platforms.astro";
 import { Aside, Steps, LinkCard } from "@astrojs/starlight/components";
-import getStartedHonoRawCode from "./get-started-cf.ts.example?raw";
-import getStartedNodeRawCode from "./get-started-node.ts.example?raw";
 
-Fiberplane Studio is a local debugging companion designed to help you to build, test, and develop [Hono](https://hono.dev) APIs.
+Fiberplane is an embeddable, interactive playground for exploring and testing [Hono](https://hono.dev) APIs. It leverages [OpenAPI](https://www.openapis.org/what-is-openapi) to render rich API documentation and enable developers to send test requests through its UI.
 
-<Steps>
-1. ### Set up a Hono project
+### 1. Set up a Hono project
 
-    You can set up a basic Hono project via your terminal:
+You can set up a basic Hono project via your terminal:
 
-    <PackageManagers type="create" pkg="hono@latest" args="my-app" />
+<PackageManagers type="create" pkg="hono@latest" args="my-app" />
 
-    If you want a project that includes an ORM, a database, and is ready to deploy, we recommend using [HONC 🪿](https://honc.dev/):
+If you want a project that includes a database, integration with Hono Zod OpenAPI, and is ready to deploy as a Cloudflare Worker, we recommend using [HONC 🪿](https://honc.dev/):
 
-    <PackageManagers type="create" pkg="honc-app@latest" />
+<PackageManagers type="create" pkg="honc-app@latest" />
 
-2.  ### Add the Fiberplane Studio client
+### 2. Add an OpenAPI spec to Hono
 
-    Install the Studio client library in your Hono project. The client library will report traces to the local Fiberplane Studio and give you rich application context while you're developing.
+The Fiberplane Playground requires an OpenAPI spec to work. There are two packages that help you define an OpenAPI spec for your Hono application:
+[Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi) helps you design an OpenAPI spec from the start, ensuring type safety between your code and the spec definitions.
+[Hono OpenAPI](https://hono.dev/examples/hono-openapi) generates a spec from your existing validation schemas, allowing for incremental adoption of OpenAPI for your api.
 
-    <PackageManagers pkg="@fiberplane/hono-otel" />
+<Aside type="note">
+  For fine-grained and detailed OpenAPI specs, we recommend using these packages
+  for accuracy and maintainability, though you can also generate a spec from
+  existing code with Fiberplane's `createOpenAPISpec` helper function.
+</Aside>
 
-    Add the client library to `index.ts`
+<details>
 
-    <Platforms
-      platforms={["cf-worker", "node"]}
-      title="index.ts"
-      code={[getStartedHonoRawCode, getStartedNodeRawCode]}
-    />
+<summary>Zod OpenAPI Hono</summary>
 
-    <Aside type="caution">
-      Fiberplane Studio and the client library only support Hono on Cloudflare
-      Workers and Node.js. You can upvote support for Bun and Deno on [their
-      respective issues here](https://github.com/fiberplane/fpx/issues/192) to
-      help us prioritize development.
-    </Aside>
+[Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi) provides input validation, type safety, and OpenAPI documentation.
+It extends the Hono class, and requires that you pass a specification of your routes before defining the logic of your handlers. This makes it possible to type-check your api inputs and outputs against your api spec.
 
-3.  ### Launch Fiberplane Studio
+Install the package alongside Hono and Zod:
 
-        In a new terminal window start Fiberplane Studio from your project directory:
+<PackageManagers type="add" pkg="hono zod @hono/zod-openapi" />
 
-        <PackageManagers type="exec" pkg="@fiberplane/studio" />
+Create an app using Hono Zod
 
-        Finally, start (or restart) your application, and you're ready to go!
+```ts
+import { OpenAPIHono } from "@hono/zod-openapi";
+const app = new OpenAPIHono<{
+  Bindings: Bindings;
+  Variables: Variables;
+}>();
+```
 
-</Steps>
+Define your input data schemas in Zod:
+
+```ts
+const UserResponseSchema = z
+  .object({
+    id: z.number().int().openapi({
+      description: "The unique identifier for the user",
+      example: 1
+    }),
+
+    name: z.string().min(1).max(255).openapi({
+      description: "The user's full name",
+      example: "Matthew"
+    }),
+
+    email: z.string().email().openapi({
+      description: "The user's email address",
+      example: "matthew@cloudflare.com"
+    })
+  })
+  .openapi("User", {
+    description: "Schema for user response including ID"
+  });
+
+const CreateUserSchema = UserResponseSchema.omit({ id: true }).openapi(
+  "CreateUser",
+  {
+    description: "Schema for creating a new user"
+  }
+);
+```
+
+<Aside type="note">
+  `.extend` does not propagate the openapi metadata to the new schema. Instead
+  use `.merge` .
+</Aside>
+
+Define your routes in Zod and include the input and output data schemas if needed:
+
+```ts
+const createUser = createRoute({
+  method: "post",
+  path: "/api/user",
+  request: {
+    // Validate request body using Zod schemas
+    body: {
+     // NOTE: this is important to set to true, otherwise the route will accept empty bodies and invalid content types
+      required: true,
+      content: {
+        "application/json": {
+          schema: CreateUserSchema
+        }
+      }
+    }
+  },
+  responses: {
+    201: {
+      content: {
+        "application/json": {
+          schema: UserResponseSchema
+        }
+      },
+      description: "User created successfully"
+    }
+  }
+});
+```
+
+Set up the application with the defined routes and define the application logic in the handlers:
+
+```ts
+app.openapi(createUser, async (c) => {
+  const { name, email } = c.req.valid("json");
+  // define the logic of the route handler
+
+  return c.json(newUser, 201);
+});
+```
+
+Make the OpenAPI spec available:
+
+```ts
+app.doc("/openapi.json", {
+  openapi: "3.0.0",
+  info: {
+    title: "D1 Honc! 🪿☁️",
+    version: "1.0.0",
+    description: "D1 Honc! 🪿☁️"
+  }
+});
+```
+
+</details>
+
+<details>
+
+<summary>Hono OpenAPI</summary>
+[Hono OpenAPI](https://hono.dev/examples/hono-openapi) allows for adding
+descriptions to the routes. Additionally, it supports multiple validation
+schemas. If your application already defines validation schemas, those can be
+reused easily to define an OpenAPI spec.{" "}
+
+{" "}
+<PackageManagers
+  type="add"
+  pkg="hono-openapi @hono/zod-validator zod zod-openapi"
+/>
+
+Define an input data schema with Zod and use the extended package to support openapi.
+
+```ts
+import { z } from "zod";
+import "zod-openapi/extend";
+const UserResponseSchema = z
+  .object({
+    id: z.number().int().openapi({
+      description: "The unique identifier for the user",
+      example: 1
+    }),
+
+    name: z.string().min(1).max(255).openapi({
+      description: "The user's full name",
+      example: "Matthew"
+    }),
+
+    email: z.string().email().openapi({
+      description: "The user's email address",
+      example: "matthew@cloudflare.com"
+    })
+  })
+  .openapi({
+    ref: "User",
+    description: "Schema for user response including ID"
+  });
+
+const CreateUserSchema = UserResponseSchema.omit({ id: true }).openapi({
+  ref: "CreateUser",
+  description: "Schema for creating a new user"
+});
+```
+
+<Aside type="note">
+  `.extend` does not propagate the openapi metadata to the new schema. Instead
+  use `.merge` .
+</Aside>
+Next add a description to the route:
+
+```ts
+import { describeRoute } from "hono-openapi";
+import { resolver, validator as zValidator } from "hono-openapi/zod";
+
+app.post(
+  "/api/user",
+  describeRoute({
+    description: "Create a new user",
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: resolver(CreateUserSchema)
+        }
+      }
+    },
+    responses: {
+      201: {
+        description: "The created user",
+        content: {
+          "application/json": {
+            schema: resolver(UserResponseSchema)
+          }
+        }
+      }
+    }
+  }),
+  // Middleware to validate incoming request bodies
+  zValidator("json", CreateUserSchema),
+  async (c) => {
+    const { name, email } = c.req.valid("json");
+
+    // define what the route handler does
+
+    return c.json(newUser);
+  }
+);
+```
+
+Make the OpenAPI spec available:
+
+```ts
+import { openAPISpecs } from "hono-openapi";
+app.get(
+  "/openapi",
+  openAPISpecs(app, {
+    documentation: {
+      info: {
+        title: "Hono",
+        version: "1.0.0",
+        description: "API for users"
+      }
+    },
+    servers: [
+      {
+        url: "http://localhost:8787",
+        description: "Local server"
+      }
+    ]
+  })
+);
+```
+
+</details>
+
+<details>
+<summary>Fiberplane's `createOpenAPISpec` helper function</summary>
+
+The other option is to integrate OpenAPI documentation into an existing Hono codebase. Refactoring the application to use Hono Zod OpenAPI or Rhinobase provides fine-grained documentation, offering long-term benefits, but requires more effort. For a quicker solution, Fiberplane provides a helper function to generate an OpenAPI spec from the existing code.
+
+{" "}
+<PackageManagers type="add" pkg="@fiberplane/hono" />
+
+This step involves importing the `createOpenAPISpec` function from Fiberplane and creating an endpoint at `/openapi.json` to generate and return an OpenAPI spec.
+
+```ts
+import { createOpenAPISpec } from "@fiberplane/hono";
+
+app.get("/openapi.json", (c) => {
+  const spec = createOpenAPISpec(app, {
+    info: { title: "My API", version: "1.0.0" }
+  });
+  return c.json(spec);
+});
+```
+
+</details>
+
+### 3. Add Fiberplane Middleware
+
+Now that the OpenAPI spec is available, mount the Fiberplane middleware and point it to the OpenAPI spec.
+
+<PackageManagers type="add" pkg="@fiberplane/hono" />
+
+```ts
+import { createFiberplane } from "@fiberplane/hono";
+
+app.use(
+  "/fp/*",
+  createFiberplane({
+    openapi: {
+      url: "/openapi.json"
+    }
+  })
+);
+```
+
+<Aside type="note">
+  It is important to mount Fiberplane's middleware _after_ all of your route definitions.
+</Aside>
+
+After starting the application, Fiberplane's native UI will be available at the `/fp` endpoint of the Hono application.
+For example, if the Hono app is running on `http://localhost:8787`, the Fiberplane Playground will be accessible at `http://localhost:8787/fp/`.
 
 ## Next steps
 
 <LinkCard
-  title="Learn about the client library"
-  description="Read more about the client library and how to configure it"
-  href="/docs/components/client-library"
-/>
-
-<LinkCard
-  title="Make HTTP requests from Studio"
-  description="Use the Studio as your API client in your local development"
-  href="/docs/features/making-requests"
-/>
-
-<LinkCard
-  title="Inspect request traces"
-  description="Visualize the entire request-response lifecycle of your API"
-  href="/docs/features/inspect-traces"
-/>
-
-<LinkCard
-  title="Generate requests with AI"
-  description="Use language models to generate request data to test your API"
-  href="/docs/features/generating-with-ai"
-/>
-
-<LinkCard
-  title="Test webhooks"
-  description="Inspect incoming webhooks and forward them to your API using the Studio"
-  href="/docs/features/webhooks"
+  title="Learn more about Fiberplane Playground"
+  description="Explore the features of the native built-in UI."
+  href="/docs/features/playground"
 />
