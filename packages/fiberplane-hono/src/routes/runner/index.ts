@@ -74,10 +74,17 @@ export default function createRunnerRoute<E extends Env>(
     sValidator("param", z.object({ workflowId: z.string() })),
     async (c) => {
       const { workflowId } = c.req.valid("param");
+      const partitionKey = c.req.header("X-Fiberplane-Partition-Key");
+
+      if (!partitionKey) {
+        return c.json({ error: "Missing `X-Fiberplane-Partition-Key` header" }, 400);
+      }
+
       const { data: workflow } = await getWorkflowById(
         workflowId,
         apiKey,
         fiberplaneServicesUrl,
+        partitionKey,
       );
 
       const validator = new Validator(workflow.inputs);
