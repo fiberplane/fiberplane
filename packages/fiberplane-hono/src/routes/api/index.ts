@@ -1,6 +1,7 @@
 import { type Env, Hono } from "hono";
 import type { FetchFn, FiberplaneAppType } from "../../types";
 import createAssistantApiRoute from "./assistant";
+import createAuthApiRoute from "./auth";
 import createReportsApiRoute from "./reports";
 import createTokensApiRoute from "./tokens";
 import createWorkflowsApiRoute from "./workflows";
@@ -33,6 +34,10 @@ export default function createApiRoutes<E extends Env>(
   app.route(
     "/assistant",
     createAssistantApiRoute(apiKey, fetchFn, fiberplaneServicesUrl),
+  );
+  app.route(
+    "/auth",
+    createAuthApiRoute(apiKey, fetchFn, fiberplaneServicesUrl),
   );
 
   return app;

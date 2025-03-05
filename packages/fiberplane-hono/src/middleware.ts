@@ -1,12 +1,12 @@
 import type { Context, Env, MiddlewareHandler } from "hono";
 import {
   DEFAULT_PLAYGROUND_SERVICES_URL,
+  ENV_FIBERPLANE_OTEL_ENDPOINT,
   ENV_FIBERPLANE_OTEL_TOKEN,
   ENV_FIBERPLANE_SERVICES_URL,
   ENV_FPX_AUTH_TOKEN,
   ENV_FPX_ENDPOINT,
 } from "./constants";
-import { ENV_FIBERPLANE_OTEL_ENDPOINT } from "./constants";
 import { logIfDebug } from "./debug";
 import { createRouter } from "./router";
 import type { EmbeddedOptions, ResolvedEmbeddedOptions } from "./types";
