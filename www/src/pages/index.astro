@@ -1,6 +1,7 @@
 ---
 import fpxHeroScreenshotLight from "@/assets/fpx-hero-screenshot.jpg";
 import fpxHeroScreenshotDark from "@/assets/fpx-hero-screenshot-dark.jpg";
+import fpLogo from "@/assets/fp-logo.svg?url";
 import { Content } from "@/content/landing/index.mdx";
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import Bento from "@/components/Bento.astro";
@@ -36,9 +37,20 @@ import Bento from "@/components/Bento.astro";
   }}
 >
   <section class="getting-started hide-sidebar">
-    <div class="content-grid">
-      <Content />
+    <div>
+      <img
+        src={fpLogo}
+        alt="Fiberplane logo"
+        width="100"
+        height="100"
+        style={{
+          marginInline: "auto",
+          marginBlockEnd: "2rem"
+        }}
+      />
+    </div>
 
+    <div class="content-grid">
       <div class="cards-content">
         <header>
           <h2>
@@ -57,6 +69,8 @@ import Bento from "@/components/Bento.astro";
           </p>
         </header>
       </div>
+
+      <Content />
     </div>
   </section>
 
@@ -68,27 +82,90 @@ import Bento from "@/components/Bento.astro";
     container: getting-started-container / inline-size;
     max-width: calc(102rem - var(--hero-padding) * 2);
     margin-inline: auto;
+    margin-block: 6rem;
   }
 
   .content-grid {
+    --sl-text-h2: clamp(1.5rem, 6cqw, 2.5rem);
     gap: var(--content-spacing);
   }
 
   .cards-content {
-    position: sticky;
-    inset: 6rem 0 0 0;
-    align-self: center;
-    height: fit-content;
+    margin-bottom: 4rem;
+    background-color: var(--bg-secondary);
+    padding-inline: var(--sl-content-pad-x);
+    padding-block-end: 2rem;
+    margin-inline: calc(var(--sl-content-pad-x) * -1);
+    background-image: linear-gradient(
+      180deg,
+      var(--sl-color-bg),
+      var(--bg-secondary)
+    );
 
-    header {
-      margin-block-end: 1rem;
+    em {
+      font-weight: bold;
     }
   }
 
   @container getting-started-container (width >= 64rem) {
     .content-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+      & > div {
+        order: 1;
+        min-width: 0;
+      }
+    }
+
+    .cards-content {
+      display: grid;
+      background-color: var(--bg-secondary);
+      padding: var(--sl-content-pad-x);
+      background-image: linear-gradient(
+        180deg,
+        var(--sl-color-bg),
+        var(--bg-secondary)
+      );
+      margin-bottom: 1.25rem;
+      padding-inline: calc(var(--sl-content-pad-x) * 2);
+      border-radius: 20px;
+      position: relative;
+      min-width: 0;
+
+      & > * {
+        z-index: 2;
+      }
+
+      header {
+        margin-block-end: 1rem;
+        position: sticky;
+        inset: 6rem 0 2rem 0;
+        align-self: center;
+        height: fit-content;
+        max-width: 100%;
+      }
+    }
+
+    /* Taken from the hero, make reusable */
+    .cards-content::before {
+      --hero-background-image-size: 2rem;
+      --hero-background-image-position: calc(
+        var(--hero-background-image-size) / 2
+      );
+
+      z-index: 1;
+      content: "";
+      position: absolute;
+      border-radius: 20px;
+      inset: 0;
+      background-image: radial-gradient(
+        hsl(from var(--bg-background) h s l / 0.5) 3px,
+        transparent 0
+      );
+      background-size: var(--hero-background-image-size)
+        var(--hero-background-image-size);
+      background-position: bottom center;
     }
   }
 </style>

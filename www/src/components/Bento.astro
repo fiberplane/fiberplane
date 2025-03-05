@@ -152,7 +152,6 @@ const tracesImage = {
     display: grid;
     justify-content: center;
     font-size: 6rem;
-    filter: hue-rotate(320deg) contrast(120%);
   }
 
   .bento-grid-item-icon-container {
@@ -168,7 +167,8 @@ const tracesImage = {
     font-size: 2.5rem;
     background-color: var(--sl-color-bg);
     padding: 0.5em;
-    box-shadow: 0 0 32px 0 hsl(from var(--sl-color-accent) h s l / 0.4);
+    box-shadow: 0 0 32px 0 hsl(from var(--sl-color-hairline-shade) h s l / 0.8);
+    border: 1px solid hsl(from var(--sl-color-accent) h s l / 0.5);
   }
 
   @container bento-container (width > 40rem) {
