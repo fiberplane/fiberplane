@@ -96,6 +96,7 @@ function Index() {
   useEffect(() => {
     if (code) {
       const challenge: Challenge = JSON.parse(
+        // biome-ignore lint/style/noNonNullAssertion: <explanation>
         localStorage.getItem("challenge")!,
       );
 

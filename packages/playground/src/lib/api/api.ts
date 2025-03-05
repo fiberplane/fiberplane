@@ -180,4 +180,26 @@ export const api = {
       body: JSON.stringify(data),
     });
   },
+
+  /**
+   * Mock API call to get user profile
+   */
+  getUserProfile: async (): Promise<ApiResponse<UserProfile>> => {
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    return {
+      data: {
+        id: "852a1147-465e-4048-bc2f-47add2b2fd4f",
+        email: "brbeut@gmail.com",
+        // githubUserId: 3201327,
+        // createdAt: "2025-03-05T13:54:50.000Z",
+        // updatedAt: "2025-03-05T13:54:50.000Z"
+      },
+    };
+    // return fpFetch("/api/auth/profile");
+  },
+};
+
+export type UserProfile = {
+  id: string;
+  email: string;
 };

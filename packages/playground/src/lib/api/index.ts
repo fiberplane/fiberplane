@@ -5,3 +5,4 @@ export {
   isFeatureDisabledError,
   isFpApiError,
 } from "./errors";
+export type { UserProfile } from "./api";
