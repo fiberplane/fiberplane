@@ -1,3 +1,4 @@
+import { createFiberplane } from "@fiberplane/hono";
 import { instrument } from "@fiberplane/hono-otel";
 import { describeRoute, openAPISpecs } from "hono-openapi";
 import { resolver, validator as zValidator } from "hono-openapi/zod";
@@ -243,7 +244,15 @@ app.get(
 
 // Define a simple route to test the API (this is not part of the OpenAPI spec)
 app.get("/", (c) => {
-  return c.text("Hello Hono OpenAPI!");
+  return c.html("Hello Hono OpenAPI! Visit <a href=\"/fp\">/fp</a> to see the Fiberplane api explorer.");
 });
+
+// Mount the Fiberplane middleware
+app.use(
+  "/fp/*",
+  createFiberplane({
+    openapi: { url: "/doc" },
+  }),
+);
 
 export default instrument(app);
