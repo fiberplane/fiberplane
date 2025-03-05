@@ -286,10 +286,7 @@ export const settingsSlice: StateCreator<
         const state = { ...initialState };
         state.partitionKey = key;
 
-        localStorage.setItem(
-          SETTINGS_STORAGE_KEY,
-          JSON.stringify(state),
-        );
+        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(state));
 
         return state;
       }),
