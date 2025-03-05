@@ -1,0 +1,213 @@
+---
+import { Image } from "astro:assets";
+import tracesDark from "@/assets/bento-traces-dark.jpg";
+import tracesLight from "@/assets/bento-traces-light.jpg";
+
+const tracesImage = {
+  light: tracesLight,
+  dark: tracesDark
+} as const;
+---
+
+<section class="container not-content">
+  <div class="bento-grid">
+    <article class="bento-grid-item bento-grid-item--horizontal">
+      <header>
+        <h3>OpenTelemetry Worker</h3>
+        <p>
+          Use <a
+            href="http://github.com/fiberplane/otel-worker"
+            target="_blank"
+            rel="noopener noreferrer">our open source OTEL collector</a
+          > or bring your own.
+        </p>
+      </header>
+
+      <div class="icon-container">🔭</div>
+    </article>
+
+    <article class="bento-grid-item">
+      <h3>Intelligent Error Resolution</h3>
+      <p>
+        Identify root causes with tracing built on OpenTelemetry, dramatically
+        reducing debugging time.
+      </p>
+
+      <div class="bento-grid-item-image">
+        {
+          Object.entries(tracesImage).map(([variant, src]) => (
+            <Image
+              src={src}
+              loading="lazy"
+              decoding="auto"
+              width="640"
+              quality="max"
+              class:list={[
+                { "light:sl-hidden": variant === "dark" },
+                { "dark:sl-hidden": variant === "light" }
+              ]}
+              alt="Screenshot of auto traces in FPX Studio"
+            />
+          ))
+        }
+      </div>
+    </article>
+
+    <article class="bento-grid-item bento-grid-item--horizontal">
+      <div>
+        <h3>OpenAPI Integration</h3>
+        <p>
+          Leverage existing specs or instantly generate OpenAPI specs from your
+          Hono routes with a single import.
+        </p>
+      </div>
+
+      <div class="bento-grid-item-icon-container">
+        <pre class="bento-grid-item-icon" set:html="{...}" />
+      </div>
+    </article>
+
+    <article class="bento-grid-item">
+      <h3>Workflow Automation</h3>
+      <p>
+        Create custom endpoints to orchestrate complex request sequences,
+        enabling comprehensive API scenarios and use cases.
+      </p>
+    </article>
+  </div>
+</section>
+
+<style>
+  .container {
+    --bento-item-radius: 1rem;
+    --bento-item-padding: 1.5rem;
+
+    container: bento-container / inline-size;
+    background-color: var(--bg-secondary);
+    margin-inline: calc(var(--sl-content-pad-x) * -1);
+    margin-block: 4rem;
+    padding-block: 6rem;
+  }
+
+  .bento-grid {
+    display: grid;
+    gap: var(--sl-content-pad-x);
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: var(--sl-content-pad-x);
+  }
+
+  .bento-grid-item {
+    overflow: hidden;
+    border-radius: var(--bento-item-radius);
+    border: 1px solid var(--sl-color-hairline-shade);
+    padding: var(--bento-item-padding);
+    background-color: var(--sl-color-bg);
+    background-image: radial-gradient(
+      circle at bottom center,
+      var(--bg-secondary),
+      rgb(from var(--sl-color-bg) r g b / 0.05)
+    );
+  }
+
+  .bento-grid-item h3 {
+    font-size: 20px;
+    line-height: var(--sl-line-height-headings);
+    margin-bottom: 0.65em;
+  }
+
+  .bento-grid-item:has(p + *) p {
+    margin-bottom: 1em;
+  }
+
+  .bento-grid-item--horizontal {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  .bento-grid-item-image {
+    overflow: hidden;
+    position: relative;
+    min-height: 100%;
+    width: calc(100% + var(--bento-item-padding));
+    margin-bottom: calc(var(--bento-item-padding) * -1);
+
+    border: 1px solid var(--sl-color-hairline-shade);
+    border-right: none;
+    border-bottom: none;
+    border-top-left-radius: var(--border-radius);
+
+    box-shadow: 0px 6px 24px 0px var(--bg-emphasis);
+
+    img {
+      position: absolute;
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  .icon-container {
+    display: grid;
+    justify-content: center;
+    font-size: 6rem;
+  }
+
+  .bento-grid-item-icon-container {
+    display: grid;
+    place-content: center;
+  }
+
+  .bento-grid-item-icon {
+    aspect-ratio: 1;
+    border-radius: 100vw;
+    line-height: 1;
+    align-content: center;
+    font-size: 2.5rem;
+    background-color: var(--sl-color-bg);
+    padding: 0.5em;
+    box-shadow: 0 0 32px 0 hsl(from var(--sl-color-hairline-shade) h s l / 0.8);
+    border: 1px solid hsl(from var(--sl-color-accent) h s l / 0.5);
+  }
+
+  @container bento-container (width > 40rem) {
+    .bento-grid {
+      --bento-item-padding: 1.75rem;
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .bento-grid-item {
+      grid-column: span 1;
+
+      h3 {
+        font-size: 24px;
+      }
+
+      &:nth-child(4n + 1),
+      &:nth-child(4n) {
+        grid-column: span 2;
+      }
+    }
+  }
+
+  @container bento-container (width > 56rem) {
+    .bento-grid {
+      --bento-item-padding: 2.5rem;
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    .bento-grid-item {
+      grid-column: span 3;
+
+      h3 {
+        font-size: 32px;
+      }
+
+      &:nth-child(4n + 1),
+      &:nth-child(4n) {
+        grid-column: span 2;
+      }
+    }
+  }
+</style>

@@ -24,13 +24,13 @@ const imageAttrs = {
 };
 ---
 
-<section data-hero>
+<section class="hero not-content">
   <div class="hero-content">
-    <header>
-      <h1>{title}</h1>
-      <p>{tagline}</p>
+    <header class="hero-header">
+      <h1 class="hero-title">{title}</h1>
+      <p class="hero-tagline">{tagline}</p>
 
-      <div class="button-group">
+      <div class="hero-button-group">
         {
           actions.map(
             ({
@@ -44,7 +44,7 @@ const imageAttrs = {
                 {href}
                 {variant}
                 icon={icon?.name}
-                class:list={["link-button", className]}
+                class:list={["hero-link-button", className]}
                 {...attrs}
               >
                 {text}
@@ -56,15 +56,23 @@ const imageAttrs = {
       </div>
     </header>
 
-    <figure>
+    <figure class="hero-figure">
       {
         heroImageLight && (
-          <Image src={heroImageLight} class="dark:sl-hidden" {...imageAttrs} />
+          <Image
+            src={heroImageLight}
+            class="dark:sl-hidden hero-image"
+            {...imageAttrs}
+          />
         )
       }
       {
         heroImageDark && (
-          <Image src={heroImageDark} class="light:sl-hidden" {...imageAttrs} />
+          <Image
+            src={heroImageDark}
+            class="light:sl-hidden hero-image"
+            {...imageAttrs}
+          />
         )
       }
     </figure>
@@ -80,24 +88,30 @@ const imageAttrs = {
 
 <style>
   html[data-has-hero] body {
-    --sl-content-width: 102rem;
+    --sl-content-width: 100vi;
 
-    *:has(* > [data-hero]) {
+    --hero-max-width: 102rem;
+    --hero-padding: 6rem;
+    --content-spacing: 4rem;
+
+    *:where(div:has(div > .hero)) {
       overflow-x: clip;
     }
   }
 
-  section {
+  section.hero {
     container: hero-container / inline-size;
+    max-width: var(--hero-max-width);
+    margin-inline: auto;
   }
 
-  .button-group {
+  .hero-button-group {
     display: flex;
     gap: 1rem;
   }
 
   /* Padding was overridden in prod, hence the specifity */
-  .sl-link-button.link-button.not-content.primary {
+  .sl-link-button.hero-link-button.not-content.primary {
     --sl-color-text-accent: var(--bg-brand-muted);
     --sl-color-text-accent: var(--bg-brand);
     --sl-color-black: var(--fg-on-primary);
@@ -106,18 +120,17 @@ const imageAttrs = {
     /* Overwrite the -block & -inline values as cascade differs in prod */
     padding-block: 0.5rem;
     padding-inline: 0.75rem;
-
-    &.secondary {
-      background-color: white;
-    }
   }
 
   .hero-content {
+    display: grid;
+    gap: var(--content-spacing);
+    grid-template-columns: repeat(2, 1fr);
+    align-items: center;
+
     position: relative;
     isolation: isolate;
-    display: grid;
-    gap: 2rem;
-    grid-template-columns: repeat(2, 1fr);
+
     height: 54rem;
     border-radius: 20px;
     background-image: linear-gradient(
@@ -126,134 +139,133 @@ const imageAttrs = {
       var(--bg-secondary)
     );
 
+    padding-inline: var(--hero-padding);
+
+    /* Make sure the hero's content is on top of the dotted bg */
     & > * {
       z-index: 2;
     }
+  }
 
-    header {
-      display: grid;
-      gap: 2rem;
-      align-content: center;
-      margin-inline: 6rem;
+  .hero-header {
+    display: grid;
+    align-content: center;
+    gap: 2rem;
+  }
 
-      /* TODO: Add Geist font from fontsource.com */
-      h1 {
-        font-size: 70px;
-        line-height: 1;
-        text-wrap: balance;
-      }
+  /* TODO: Add Geist font from fontsource.com */
+  .hero-title {
+    font-size: 70px;
+    line-height: 1;
+    text-wrap: balance;
+  }
 
-      p {
-        /* TODO: Add Inter-Tight font & update font size & line height */
-        /* fontsource.com */
-        font-size: 28px;
-        line-height: 1.3;
-        font-weight: 400;
-        text-wrap: pretty;
-        color: var(--fg-muted);
-      }
+  .hero-tagline {
+    /* TODO: Add Inter-Tight font & update font size & line height */
+    /* fontsource.com */
+    font-size: 28px;
+    line-height: 1.3;
+    font-weight: 400;
+    text-wrap: pretty;
+    color: var(--fg-muted);
+  }
+
+  .hero-figure {
+    position: relative;
+    align-self: center;
+    height: min(100%, calc(54rem - var(--hero-padding)));
+  }
+
+  .hero-figure img.hero-image {
+    position: absolute;
+    height: 100%;
+    width: auto;
+    border-radius: 12px;
+    border: 1px solid var(--sl-color-hairline-shade);
+    box-shadow: 0px 6px 24px 0px var(--bg-emphasis);
+
+    /* Rudimentary entry animations for now, add some sprinkles */
+    opacity: 0;
+    translate: 0 24px;
+    transition:
+      opacity 0.5s,
+      translate 0.5s;
+  }
+
+  .hero-figure .hero-image.is-loaded {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  .hero-content::before {
+    --hero-background-image-size: 2rem;
+    --hero-background-image-position: calc(
+      var(--hero-background-image-size) / 2
+    );
+
+    z-index: 1;
+    content: "";
+    position: absolute;
+    border-radius: 20px;
+    inset: 0;
+    background-image: radial-gradient(
+      hsl(from var(--bg-background) h s l / 0.5) 3px,
+      transparent 0
+    );
+    background-size: var(--hero-background-image-size)
+      var(--hero-background-image-size);
+    background-position: top center;
+  }
+
+  @container hero-container (width <= 90rem) {
+    .hero-header {
+      margin-inline: 4rem;
     }
 
-    figure {
-      --figure-block-padding: 4rem;
-
-      position: relative;
-      padding-block: var(--figure-block-padding);
-
-      img {
-        position: absolute;
-        left: 0;
-        height: calc(100% - var(--figure-block-padding) * 2);
-        width: auto;
-        border-radius: 12px;
-        border: 1px solid var(--sl-color-hairline-shade);
-        object-fit: contain;
-        box-shadow: 0px 6px 24px 0px var(--bg-emphasis);
-
-        /* Rudimentary entry animations for now, add some sprinkles */
-        opacity: 0;
-        translate: 0 24px;
-        transition:
-          opacity 0.5s,
-          translate 0.5s;
-
-        &.is-loaded {
-          opacity: 1;
-          translate: 0 0;
-        }
-      }
+    .hero-title {
+      font-size: clamp(34px, 5cqi, 70px);
     }
 
-    &::before {
-      --hero-background-image-size: 2rem;
-      --hero-background-image-position: calc(
-        var(--hero-background-image-size) / 2
-      );
+    .hero-tagline {
+      font-size: clamp(18px, 2.5cqi, 32px);
+    }
+  }
 
-      z-index: 1;
-      content: "";
-      position: absolute;
-      border-radius: 20px;
-      inset: 0;
-      background-image: radial-gradient(
-        hsl(from var(--bg-background) h s l / 0.5) 3px,
-        transparent 0
-      );
-      background-size: var(--hero-background-image-size)
-        var(--hero-background-image-size);
-      background-position: top center;
+  @container hero-container (width <= 72rem) {
+    .hero-header {
+      margin-inline: 2rem 0;
+    }
+  }
+
+  @container hero-container (width < 64rem) {
+    .hero-content {
+      grid-template-columns: 1fr;
+      align-content: start;
+      padding-block-start: 3rem;
+      height: auto;
+      margin-inline: calc(var(--sl-content-pad-x) * -1);
+      padding-inline: var(--sl-nav-pad-x);
+      border-radius: 0;
     }
 
-    @container hero-container (width <= 1440px) {
-      header {
-        margin-inline: 4rem;
-
-        h1 {
-          font-size: clamp(34px, 5cqi, 70px);
-        }
-
-        p {
-          font-size: clamp(18px, 2.5cqi, 32px);
-        }
-      }
+    .hero-button-group {
+      justify-content: center;
     }
 
-    @container hero-container (width <= 1152px) {
-      header {
-        margin-inline: 2rem 0;
-      }
+    .hero-header {
+      margin-inline: 0;
     }
 
-    @container hero-container (width < 1024px) {
-      &.hero-content {
-        grid-template-columns: 1fr;
-        align-content: start;
-        padding-block-start: 3rem;
-        height: auto;
-        margin-inline: calc(var(--sl-content-pad-x) * -1);
-        padding-inline: var(--sl-nav-pad-x);
-        border-radius: 0;
-      }
+    .hero-figure {
+      --figure-block-padding: 2rem;
+      height: 90cqi;
+    }
 
-      .button-group {
-        justify-content: center;
-      }
-
-      header {
-        margin-inline: 0;
-      }
-
-      figure {
-        --figure-block-padding: 2rem;
-        height: 90cqi;
-
-        img {
-          height: calc(100% - var(--figure-block-padding) * 2);
-          height: 88%;
-          border-radius: 8px;
-          translate: var(--sl-nav-pad-x) 0;
-        }
-      }
+    .hero-figure .hero-image {
+      height: calc(100% - var(--figure-block-padding) * 2);
+      height: 88%;
+      border-radius: 8px;
+      translate: var(--sl-nav-pad-x) 0;
     }
   }
 </style>
