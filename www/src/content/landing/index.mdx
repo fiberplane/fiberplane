@@ -15,23 +15,23 @@ import PackageManagers from "@/components/PackageManagers.astro";
    spec.
 
    ```ts title="index.ts"
-      import { Hono } from "hono"; 
-      import { createOpenAPISpec, createFiberplane } from "@fiberplane/hono";
+   import { Hono } from "hono"; 
+   import { createOpenAPISpec, createFiberplane } from "@fiberplane/hono";
 
-      const app = new Hono();
+   const app = new Hono();
 
-      app.use("/fp/*", createFiberplane({
-         openapi: {
-            url: "/openapi.json"
-         }
+   app.use("/fp/*", createFiberplane({
+      openapi: {
+         url: "/openapi.json"
+      }
+   });
+
+   app.get("/openapi.json", (c) => {
+      const spec = createOpenAPISpec(app, {
+         info: { title: "My API", version: "1.0.0" }
       });
-
-      app.get("/openapi.json", (c) => {
-         const spec = createOpenAPISpec(app, {
-            info: { title: "My API", version: "1.0.0" }
-         });
-         return c.json(spec);
-      });
+      return c.json(spec);
+   });
    ```
 
 </Steps>
