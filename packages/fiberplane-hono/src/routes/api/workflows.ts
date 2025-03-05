@@ -11,17 +11,18 @@ export default function createWorkflowsApiRoute<E extends Env>(
 
   // Proxy all requests to fp-services but attach a token
   app.all("*", async (c) => {
-    logIfDebug(
-      c,
-      "[workflows]",
-      `- ${c.req.method} ${c.req.path} -`,
-      "Proxying request to fiberplane api",
-    );
-
     const url = `${fiberplaneServicesUrl}${c.req.path}`;
 
     const contentType = c.req.header("content-type");
     const partitionKey = c.req.header("X-Fiberplane-Partition-Key");
+
+    logIfDebug(
+      c,
+      "[workflows]",
+      `- ${c.req.method} ${c.req.path} -`,
+      "Proxying request to: ",
+      url,
+    );
 
     const headers = new Headers();
     // Only include the bare minimum authentication and content-type headers
