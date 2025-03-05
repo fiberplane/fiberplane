@@ -57,16 +57,29 @@ import Bento from "@/components/Bento.astro";
             The Fiberplane API Playground:<br />From Development to Delivery
           </h2>
 
-          <p>
-            <em>For the API builder</em> who appreciates designing a high quality
-            API with quick debugging and automated features, making it easy for users
-            to onboard and experiment.
-          </p>
+          <ul class="card-explanation not-content">
+            <li>
+              <div>
+                <pre>🧙</pre>
+              </div>
+              <p>
+                <em>For the API builder</em> who appreciates designing a high quality
+                API with quick debugging and automated features, making it easy for
+                users to onboard and experiment.
+              </p>
+            </li>
 
-          <p>
-            <em>For the API user</em> who are ready to prototype quickly with interactive
-            documentation and endpoint testing, in a streamlined experience for development.
-          </p>
+            <li>
+              <div>
+                <pre>🙋</pre>
+              </div>
+              <p>
+                <em>For the API user</em> who are ready to prototype quickly with
+                interactive documentation and endpoint testing, in a streamlined
+                experience for development.
+              </p>
+            </li>
+          </ul>
         </header>
       </div>
 
@@ -107,6 +120,44 @@ import Bento from "@/components/Bento.astro";
 
     h2 {
       text-align: center;
+      margin-block-end: 1em;
+    }
+  }
+
+  ul.card-explanation {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+
+    li {
+      display: grid;
+      grid-template-columns: 5rem 1fr;
+      gap: var(--sl-content-pad-x);
+      padding: 0;
+      padding: var(--sl-content-pad-x);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--sl-color-hairline-shade);
+      border-radius: 20px;
+
+      & > div {
+        border-radius: 50%;
+        background-color: var(--sl-color-bg);
+        box-shadow: 0 0 32px 0
+          hsl(from var(--sl-color-hairline-shade) h s l / 0.8);
+        border: 1px solid hsl(from var(--sl-color-accent) h s l / 0.5);
+        display: grid;
+        place-content: center;
+        font-size: 3rem;
+        line-height: 1;
+
+        aspect-ratio: 1;
+        align-self: center;
+
+        pre {
+          filter: grayscale(1);
+        }
+      }
     }
   }
 
@@ -147,6 +198,10 @@ import Bento from "@/components/Bento.astro";
         align-self: center;
         height: fit-content;
         max-width: 100%;
+
+        h2 {
+          text-align: left;
+        }
       }
     }
 
