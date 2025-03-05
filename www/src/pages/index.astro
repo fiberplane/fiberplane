@@ -86,15 +86,14 @@ import Bento from "@/components/Bento.astro";
   }
 
   .content-grid {
-    --sl-text-h2: clamp(1.5rem, 6cqw, 2.5rem);
+    --sl-text-h2: clamp(1.5rem, 8cqw, 2.5rem);
     gap: var(--content-spacing);
   }
 
   .cards-content {
-    margin-bottom: 4rem;
     background-color: var(--bg-secondary);
     padding-inline: var(--sl-content-pad-x);
-    padding-block-end: 2rem;
+    padding-block-end: 4rem;
     margin-inline: calc(var(--sl-content-pad-x) * -1);
     background-image: linear-gradient(
       180deg,
@@ -104,6 +103,10 @@ import Bento from "@/components/Bento.astro";
 
     em {
       font-weight: bold;
+    }
+
+    h2 {
+      text-align: center;
     }
   }
 
@@ -127,7 +130,7 @@ import Bento from "@/components/Bento.astro";
         var(--sl-color-bg),
         var(--bg-secondary)
       );
-      margin-bottom: 1.25rem;
+      margin: 0 auto 1.25rem;
       padding-inline: calc(var(--sl-content-pad-x) * 2);
       border-radius: 20px;
       position: relative;
