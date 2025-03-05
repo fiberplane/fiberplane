@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { Step, Workflow } from "../../schemas/workflows.js";
+import type { Step, Workflow } from "../../schemas/workflows";
 import {
   resolveOutputs,
   resolveReference,
   resolveStepOutputs,
   resolveStepParams,
-} from "./resolvers.js";
+} from "./resolvers";
 
 // Test fixtures
 const mockWorkflowContext = {

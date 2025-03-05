@@ -10,7 +10,7 @@ import type { ExecutionContext } from "hono";
 // TODO figure out if we can use something else
 import { AsyncLocalStorageContextManager } from "./async-hooks";
 import {
-  type FpxConfigOptions,
+  type FpConfigOptions,
   resolveConfig,
   setFpResolvedConfig,
 } from "./config";
@@ -38,7 +38,7 @@ import {
 // In the future, we could allow the user to set their own custom "fetchFn"
 const webStandardFetch = fetch;
 
-export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
+export function instrument(app: HonoLikeApp, userConfig?: FpConfigOptions) {
   return new Proxy(app, {
     // Intercept the `fetch` function on the Hono app instance
     get(target, prop, receiver) {
@@ -57,7 +57,7 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
           const resolvedConfig = resolveConfig(userConfig, env);
           const {
             otelEndpoint,
-            otelToken: authToken,
+            otelToken,
             serviceName,
             monitor: {
               fetch: monitorFetch,
@@ -104,7 +104,7 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
           const provider = setupTracerProvider({
             serviceName,
             otelEndpoint,
-            authToken: authToken || undefined,
+            otelToken,
             fetchFn: webStandardFetch,
             logger,
           });
@@ -199,11 +199,11 @@ export function instrument(app: HonoLikeApp, userConfig?: FpxConfigOptions) {
 function setupTracerProvider(options: {
   serviceName: string;
   otelEndpoint: string;
-  authToken?: string;
+  otelToken: string | null;
   fetchFn: FetchFn;
   logger: FpxLogger;
 }) {
-  const { otelEndpoint, authToken, serviceName, fetchFn, logger } = options;
+  const { otelEndpoint, otelToken, serviceName, fetchFn, logger } = options;
 
   // We need to use async hooks to be able to propagate context
   const asyncHooksContextManager = new AsyncLocalStorageContextManager();
@@ -216,8 +216,8 @@ function setupTracerProvider(options: {
     }),
   });
 
-  const headers: Record<string, string> = authToken
-    ? { Authorization: `Bearer ${authToken}` }
+  const headers: Record<string, string> = otelToken
+    ? { Authorization: `Bearer ${otelToken}` }
     : {};
 
   const exporter = new FPOTLPExporter(

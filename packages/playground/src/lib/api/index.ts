@@ -1,2 +1,7 @@
 export { api } from "./api";
-export { isFetchOpenApiSpecError, isFeatureDisabledError } from "./errors";
+export {
+  getFpApiErrorDetailsJson,
+  isFetchOpenApiSpecError,
+  isFeatureDisabledError,
+  isFpApiError,
+} from "./errors";

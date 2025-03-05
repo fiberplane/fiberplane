@@ -9,7 +9,7 @@ const docs = defineCollection({
 });
 
 const blog = defineCollection({
-  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: "./src/content/blog" }),
+  loader: glob({ pattern: "**/[^_]*.{md,mdx}", base: "./src/content/blog" }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -27,7 +27,10 @@ const blog = defineCollection({
 });
 
 const changelog = defineCollection({
-  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: "./src/content/changelog" }),
+  loader: glob({
+    pattern: "**/[^_]*.{md,mdx}",
+    base: "./src/content/changelog"
+  }),
   schema: z.object({
     date: z.coerce.date(),
     version: z.string(),

@@ -1,15 +1,17 @@
 import type { Context, Env, MiddlewareHandler } from "hono";
 import packageJson from "../package.json" assert { type: "json" };
 import {
+  DEFAULT_PLAYGROUND_SERVICES_URL,
   ENV_FIBERPLANE_OTEL_TOKEN,
+  ENV_FIBERPLANE_SERVICES_URL,
   ENV_FPX_AUTH_TOKEN,
   ENV_FPX_ENDPOINT,
-} from "./constants.js";
-import { ENV_FIBERPLANE_OTEL_ENDPOINT } from "./constants.js";
-import { logIfDebug } from "./debug.js";
-import { createRouter } from "./router.js";
-import type { EmbeddedOptions, ResolvedEmbeddedOptions } from "./types.js";
-import { getFromEnv } from "./utils/env.js";
+  ENV_FIBERPLANE_OTEL_ENDPOINT,
+} from "./constants";
+import { logIfDebug } from "./debug";
+import { createRouter } from "./router";
+import type { EmbeddedOptions, ResolvedEmbeddedOptions } from "./types";
+import { getFromEnv } from "./utils/env";
 
 const VERSION = packageJson.version;
 const CDN_URL = `https://cdn.jsdelivr.net/npm/@fiberplane/hono@${VERSION}/dist/playground/`;
@@ -25,13 +27,15 @@ export const createFiberplane =
     logIfDebug(debug, "debug logs are enabled");
 
     const apiKey = options.apiKey ?? getApiKey(c, debug);
-
     const { mountedPath, internalPath } = getPaths(c);
+    const fiberplaneServicesUrl =
+      options.fiberplaneServicesUrl ?? getFiberplaneServicesUrl(c);
     const otelEndpoint = getOtelEndpoint(c);
     const otelToken = getOtelToken(c);
 
     logIfDebug(debug, "mountedPath:", mountedPath);
     logIfDebug(debug, "internalPath:", internalPath);
+    logIfDebug(debug, "fiberplaneServicesUrl:", fiberplaneServicesUrl);
     logIfDebug(debug, "otelEndpoint:", otelEndpoint);
     if (otelEndpoint && !otelToken) {
       logIfDebug(
@@ -53,6 +57,8 @@ export const createFiberplane =
       userEnv,
       userExecutionCtx,
       ...options,
+      // Add the services url here because we already specified a fallback to the DEFAULT_PLAYGROUND_SERVICES_URL
+      fiberplaneServicesUrl,
       // Add the api key with a fallback to the env var FIBERPLANE_API_KEY
       apiKey,
     } satisfies ResolvedEmbeddedOptions<E>);
@@ -129,6 +135,14 @@ function getOtelToken(c: Context): string | undefined {
   ]);
 
   return otelToken ?? undefined;
+}
+
+function getFiberplaneServicesUrl(c: Context): string {
+  const fiberplaneServicesUrl = getFromEnv(c?.env, [
+    ENV_FIBERPLANE_SERVICES_URL,
+  ]);
+
+  return fiberplaneServicesUrl ?? DEFAULT_PLAYGROUND_SERVICES_URL;
 }
 
 function getApiKey(c: Context, debug?: boolean): string | undefined {

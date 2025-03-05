@@ -5,4 +5,4 @@ export type {
   GlobalResponse,
   HonoResponse,
 } from "./hono-types";
-export { FetchFn } from "./runtime";
+export type { FetchFn } from "./runtime";

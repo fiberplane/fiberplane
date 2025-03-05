@@ -1,5 +1,6 @@
 import { useStudioStore } from "@/components/playground/store";
 import { Button } from "@/components/ui/button";
+import { useMountedPath } from "@/hooks/use-mounted-path";
 import { createLink, useMatches } from "@tanstack/react-router";
 import { UserCircle } from "lucide-react";
 import { type ReactNode, forwardRef } from "react";
@@ -12,7 +13,11 @@ const NavButtonComponent = forwardRef<
   React.ComponentProps<"a">
 >(({ className, ...props }, ref) => {
   const matches = useMatches();
-  const isActive = matches.some((match) => match.routeId === props.href);
+  const path = useMountedPath();
+  const href = props.href?.startsWith(path)
+    ? props.href.substring(path.length)
+    : undefined;
+  const isActive = matches.some((match) => match.routeId === href);
 
   return (
     <Button

@@ -36,15 +36,15 @@ export function TracesList(props: {
     <TraceListLayout>
       <div className="h-full px-2 overflow-y-auto">
         <h2 className="mb-2 text-lg font-medium flex items-center">
-          Traces
           <Button
             onClick={props.reload}
-            className="ml-auto w-6 h-6"
+            className="mx-2 w-6 h-6"
             size="icon-xs"
             variant="ghost"
           >
             <Icon className="w-4 h-4" icon="lucide:refresh-cw" />
           </Button>
+          Traces
         </h2>
         <div className="grid gap-2">
           {filteredTraces.map((trace: Trace) => {
