@@ -32,7 +32,8 @@
     "lint": "biome lint .",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
-    "watch": "nodemon --watch src --ext ts,js,json --exec \"pnpm run build\""
+    "watch": "nodemon --watch src --ext ts,js,json --exec \"pnpm run build\"",
+    "prepublishOnly": "node scripts/check-version-consistency.js"
   },
   "devDependencies": {
     "@types/node": "*",
