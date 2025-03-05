@@ -1,13 +1,13 @@
 import { createFiberplane } from "@fiberplane/hono";
 import { instrument } from "@fiberplane/hono-otel";
-import { describeRoute, openAPISpecs } from "hono-openapi";
-import { resolver, validator as zValidator } from "hono-openapi/zod";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
-import { basicAuth } from "hono/basic-auth";
-import * as schema from "./db/schema";
 import { Hono } from "hono";
+import { describeRoute, openAPISpecs } from "hono-openapi";
+import { resolver, validator as zValidator } from "hono-openapi/zod";
+import { basicAuth } from "hono/basic-auth";
 import z from "zod";
+import * as schema from "./db/schema";
 import "zod-openapi/extend";
 
 // TODO - Figure out how to use drizzle with "@hono/zod-openapi"
@@ -244,7 +244,9 @@ app.get(
 
 // Define a simple route to test the API (this is not part of the OpenAPI spec)
 app.get("/", (c) => {
-  return c.html("Hello Hono OpenAPI! Visit <a href=\"/fp\">/fp</a> to see the Fiberplane api explorer.");
+  return c.html(
+    'Hello Hono OpenAPI! Visit <a href="/fp">/fp</a> to see the Fiberplane api explorer.',
+  );
 });
 
 // Mount the Fiberplane middleware
