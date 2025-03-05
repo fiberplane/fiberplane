@@ -26,85 +26,85 @@ const CDN_URL = `https://cdn.jsdelivr.net/npm/@fiberplane/hono@${ASSETS_VERSION}
 
 export const createFiberplane =
   <E extends Env>(options: EmbeddedOptions<E>): MiddlewareHandler =>
-    async (c, next) => {
-      const debug = options.debug ?? false;
-      const userApp = options.app;
-      const userEnv = c.env;
-      const userExecutionCtx = getExecutionCtxSafely(c);
+  async (c, next) => {
+    const debug = options.debug ?? false;
+    const userApp = options.app;
+    const userEnv = c.env;
+    const userExecutionCtx = getExecutionCtxSafely(c);
 
-      logIfDebug(debug, "debug logs are enabled");
+    logIfDebug(debug, "debug logs are enabled");
 
-      const apiKey = options.apiKey ?? getApiKey(c, debug);
-      const { mountedPath, internalPath } = getPaths(c);
-      const fiberplaneServicesUrl =
-        options.fiberplaneServicesUrl ?? getFiberplaneServicesUrl(c);
-      const otelEndpoint = getOtelEndpoint(c);
-      const otelToken = getOtelToken(c);
+    const apiKey = options.apiKey ?? getApiKey(c, debug);
+    const { mountedPath, internalPath } = getPaths(c);
+    const fiberplaneServicesUrl =
+      options.fiberplaneServicesUrl ?? getFiberplaneServicesUrl(c);
+    const otelEndpoint = getOtelEndpoint(c);
+    const otelToken = getOtelToken(c);
 
-      logIfDebug(debug, "mountedPath:", mountedPath);
-      logIfDebug(debug, "internalPath:", internalPath);
-      logIfDebug(debug, "fiberplaneServicesUrl:", fiberplaneServicesUrl);
-      logIfDebug(debug, "otelEndpoint:", otelEndpoint);
-      if (otelEndpoint && !otelToken) {
-        logIfDebug(
-          debug,
-          "otelToken is not set, tracing requests will not use bearer auth",
-        );
-      }
-      if (!userExecutionCtx) {
-        logIfDebug(debug, "userExecutionCtx is null");
-      }
-
-      // Forward request to embedded router, continuing middleware chain if no route matches
-      const router = createRouter({
-        cdn: options.cdn ?? CDN_URL,
-        mountedPath,
-        otelEndpoint,
-        otelToken,
-        userApp,
-        userEnv,
-        userExecutionCtx,
-        ...options,
-        // Add the services url here because we already specified a fallback to the DEFAULT_PLAYGROUND_SERVICES_URL
-        fiberplaneServicesUrl,
-        // Add the api key with a fallback to the env var FIBERPLANE_API_KEY
-        apiKey,
-      } satisfies ResolvedEmbeddedOptions<E>);
-
-      // Create a new request with the corrected (internal) path
-      const newUrl = new URL(c.req.url);
-      newUrl.pathname = internalPath;
-      const newRequest = new Request(newUrl, c.req.raw);
-
+    logIfDebug(debug, "mountedPath:", mountedPath);
+    logIfDebug(debug, "internalPath:", internalPath);
+    logIfDebug(debug, "fiberplaneServicesUrl:", fiberplaneServicesUrl);
+    logIfDebug(debug, "otelEndpoint:", otelEndpoint);
+    if (otelEndpoint && !otelToken) {
       logIfDebug(
         debug,
-        "Making internal api request:",
-        newRequest.method,
-        newUrl.toString(),
+        "otelToken is not set, tracing requests will not use bearer auth",
       );
+    }
+    if (!userExecutionCtx) {
+      logIfDebug(debug, "userExecutionCtx is null");
+    }
 
-      const response = await router.fetch(newRequest);
+    // Forward request to embedded router, continuing middleware chain if no route matches
+    const router = createRouter({
+      cdn: options.cdn ?? CDN_URL,
+      mountedPath,
+      otelEndpoint,
+      otelToken,
+      userApp,
+      userEnv,
+      userExecutionCtx,
+      ...options,
+      // Add the services url here because we already specified a fallback to the DEFAULT_PLAYGROUND_SERVICES_URL
+      fiberplaneServicesUrl,
+      // Add the api key with a fallback to the env var FIBERPLANE_API_KEY
+      apiKey,
+    } satisfies ResolvedEmbeddedOptions<E>);
 
-      logIfDebug(
-        debug,
-        "Finished internal api request:",
-        newRequest.method,
-        newUrl.toString(),
-        "- returned",
-        response.status,
-      );
+    // Create a new request with the corrected (internal) path
+    const newUrl = new URL(c.req.url);
+    newUrl.pathname = internalPath;
+    const newRequest = new Request(newUrl, c.req.raw);
 
-      // Skip the middleware and continue if the embedded router doesn't match
-      // But make sure we're not ignoring a (json) bases 404.
-      if (
-        response.status === 404 &&
-        response.headers.get("content-type") !== "application/json"
-      ) {
-        return next();
-      }
+    logIfDebug(
+      debug,
+      "Making internal api request:",
+      newRequest.method,
+      newUrl.toString(),
+    );
 
-      return response;
-    };
+    const response = await router.fetch(newRequest);
+
+    logIfDebug(
+      debug,
+      "Finished internal api request:",
+      newRequest.method,
+      newUrl.toString(),
+      "- returned",
+      response.status,
+    );
+
+    // Skip the middleware and continue if the embedded router doesn't match
+    // But make sure we're not ignoring a (json) bases 404.
+    if (
+      response.status === 404 &&
+      response.headers.get("content-type") !== "application/json"
+    ) {
+      return next();
+    }
+
+    return response;
+  };
 
 // This middleware is designed to be mounted within another Hono app at any path.
 // Since the parent app determines the mount path, we need to extract and remove
@@ -153,7 +153,7 @@ function getFiberplaneServicesUrl(c: Context): string {
   const fiberplaneServicesUrl = getFromEnv(c?.env, [
     ENV_FIBERPLANE_SERVICES_URL,
   ]);
-  console.log('fiberplaneServicesUrl', c.env);
+
   return fiberplaneServicesUrl ?? DEFAULT_PLAYGROUND_SERVICES_URL;
 }
 

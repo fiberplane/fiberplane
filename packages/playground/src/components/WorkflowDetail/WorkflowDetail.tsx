@@ -2,6 +2,7 @@ import { FpApiError } from "@/lib/api/errors";
 import { Route } from "@/routes/workflows.$workflowId";
 import { useHandler } from "@fiberplane/hooks";
 import { CloudAlert } from "lucide-react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { InputItem } from "./InputItem";
 import { ListSection } from "./ListSection";
 import { OutputItem } from "./OutputItem";
@@ -21,6 +22,16 @@ export function WorkflowDetail() {
   const submit = useHandler(() => {
     return executeWorkflow();
   });
+
+  useHotkeys(
+    "mod+enter",
+    () => {
+      submit();
+    },
+    {
+      enableOnFormTags: ["input"],
+    },
+  );
 
   const errorDetails =
     failureReason && failureReason instanceof FpApiError
@@ -49,7 +60,7 @@ export function WorkflowDetail() {
       >
         <ListSection
           title={testTitle}
-          contentClassName="p-0 pt-2 h-full grid grid-rows-[auto_auto_1fr] border-t-0"
+          contentClassName="p-0 pt-2 h-full grid grid-rows-[auto_auto_1fr] order-t-0"
           className="rounded-none rounded-b-md border-0 border-t border-r"
         >
           <div>
@@ -80,13 +91,12 @@ export function WorkflowDetail() {
                 {Object.entries(workflow.inputs.properties).map(
                   ([key, schema]) => (
                     <InputItem
-                      workflow={workflow}
                       key={key}
                       error={
                         errorDetails?.type === "VALIDATION_ERROR"
-                          ? errorDetails.details.find(
-                            (detail) => detail.key === key,
-                          )
+                          ? errorDetails.payload.find(
+                              (detail) => detail.key === key,
+                            )
                           : undefined
                       }
                       propertyKey={key}
@@ -107,14 +117,14 @@ export function WorkflowDetail() {
             </ListSection>
           </div>
         </ListSection>
-        <ListSection title="Steps" contentClassName="px-1 pr-2">
+        <ListSection title="Steps" contentClassName="px-3 pr-2">
           <div>
             {workflow.steps.map((step, index) => (
               <StepperItem
                 key={step.stepId}
                 error={
                   errorDetails?.type === "EXECUTION_ERROR" &&
-                    errorDetails.details.stepId === step.stepId
+                  errorDetails.payload.stepId === step.stepId
                     ? errorDetails
                     : undefined
                 }

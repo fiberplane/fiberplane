@@ -148,20 +148,29 @@ export type ValidationDetail = {
   code: string;
 };
 
-export type ValidationError = {
+export type ValidationErrorInformation = {
   type: "VALIDATION_ERROR";
   message: string;
-  details: Array<ValidationDetail>;
+  payload: Array<ValidationDetail>;
 };
 
-export type ExecutionError = {
+export type ExecutionErrorInformation = {
   type: "EXECUTION_ERROR";
   message: string;
-  details: {
+  payload: {
     stepId: string;
-    inputs: Record<string, unknown>;
-    body?: string;
-    response?: string;
-    responseStatus?: number;
+    // Internal information
+    parameters?: Record<string, unknown>;
+    request?: {
+      url: string;
+      method: string;
+      headers: Record<string, string>;
+      body?: string;
+    };
+    response?: {
+      status: number;
+      body?: string;
+      contentType?: string;
+    };
   };
 };

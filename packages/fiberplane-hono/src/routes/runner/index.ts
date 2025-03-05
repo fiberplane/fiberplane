@@ -3,15 +3,18 @@
 import { sValidator } from "@hono/standard-validator";
 import { type Env, Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { Draft2019, type ErrorData, type JsonError } from "json-schema-library";
+import { Draft2019 } from "json-schema-library";
 import { z } from "zod";
-import type { Step, Workflow } from "../../schemas/workflows";
 import { getContext } from "../../utils";
+import {
+  InputSchema,
+  type Step,
+  type Workflow,
+} from "../../schemas/workflows";
 import type {
-  ExecutionError,
+  ExecutionErrorInformation,
   FiberplaneAppType,
-  ValidationDetail,
-  ValidationError,
+  ValidationErrorInformation,
 } from "../../types";
 import {
   type HttpRequestParams,
@@ -23,7 +26,10 @@ import {
 } from "./resolvers";
 import { getWorkflowById } from "./utils";
 
-export type ErrorDetails = Omit<ExecutionError["details"], "body"> & {
+export type ErrorDetails = Omit<
+  ExecutionErrorInformation["payload"],
+  "body"
+> & {
   body?: unknown;
 };
 
@@ -40,13 +46,13 @@ class WorkflowError extends HTTPException {
     });
   }
 
-  toResponse(): ExecutionError {
+  toResponse(): ExecutionErrorInformation {
     const { body, ...details } = this.details;
 
     return {
       type: "EXECUTION_ERROR",
       message: this.message,
-      details,
+      payload: details,
     };
   }
 }
@@ -62,6 +68,44 @@ function serialize(content: unknown) {
 
   return JSON.stringify(content);
 }
+
+const BaseJsonErrorSchema = z.object({
+  type: z.literal("error"),
+  name: z.string(),
+  message: z.string(),
+});
+
+const RequiredPropertyErrorDataSchema = z.object({
+  key: z.string(),
+  pointer: z.string(),
+  schema: InputSchema,
+  value: z.any(),
+});
+
+const TypeErrorDataSchema = z.object({
+  value: z.any(),
+  pointer: z.string(),
+  expected: z.string(),
+  received: z.string(),
+  schema: InputSchema,
+});
+
+const RequiredPropertyErrorSchema = BaseJsonErrorSchema.extend({
+  code: z.literal("required-property-error"),
+  data: RequiredPropertyErrorDataSchema,
+});
+
+const TypeErrorSchema = BaseJsonErrorSchema.extend({
+  code: z.literal("type-error"),
+  data: TypeErrorDataSchema,
+});
+
+const SupportedValidationErrorSchema = z.discriminatedUnion("code", [
+  RequiredPropertyErrorSchema,
+  TypeErrorSchema,
+]);
+
+type SupportedValidationError = z.infer<typeof SupportedValidationErrorSchema>;
 
 export default function createRunnerRoute<E extends Env>(
   apiKey: string,
@@ -101,22 +145,35 @@ export default function createRunnerRoute<E extends Env>(
 
       const errors = draft.validate(body);
       if (errors.length) {
-        type Key = { key: string };
-        const details: Array<ValidationDetail> = errors
-          .filter(
-            (item): item is JsonError<ErrorData<Key>> =>
-              "key" in item.data && typeof item.data.key === "string",
-          )
-          .map((jsonError) => ({
-            key: jsonError.data.key,
-            message: jsonError.message,
-            code: jsonError.code,
-          }));
+        const details = errors
+          .map((item) => {
+            const parsedResult = SupportedValidationErrorSchema.safeParse(item);
+            if (parsedResult.success) {
+              return parsedResult.data;
+            }
+            return null;
+          })
+          .filter((item) => item !== null)
+          .map((item) => {
+            if (item.code === "required-property-error") {
+              return {
+                key: item.data.key,
+                message: item.message,
+                code: item.code,
+              };
+            }
 
-        const response: ValidationError = {
+            return {
+              code: item.code,
+              key: item.data.pointer,
+              message: item.message,
+            };
+          });
+
+        const response: ValidationErrorInformation = {
           type: "VALIDATION_ERROR",
           message: "validation failed",
-          details,
+          payload: details,
         };
         return c.json(response, 400);
       }
@@ -161,14 +218,30 @@ async function executeWorkflow(
   for (const step of workflow.steps) {
     try {
       const stepParameters = await resolveStepParams(step, workflowContext);
-      const response = await executeStep(step, stepParameters);
+      const c = getContext();
+      const baseUrl = new URL(c.req.url).origin;
+      const request = createRequest(step, stepParameters, baseUrl);
+      const response = await executeRequest(request);
       if (response.statusCode >= 400) {
+        const request = createRequest(step, stepParameters, baseUrl);
         const errorDetails: ErrorDetails = {
           stepId: step.stepId,
-          inputs: stepParameters.parameters,
-          body: stepParameters.body ?? undefined,
-          responseStatus: response.statusCode,
-          response: serialize(response.body),
+          parameters: stepParameters.parameters,
+          request: {
+            url: request.url,
+            method: request.method,
+            headers: Object.fromEntries(request.headers.entries()),
+            body: stepParameters.body
+              ? serialize(stepParameters.body)
+              : undefined,
+          },
+          response: {
+            status: response.statusCode,
+            body: serialize(response.body),
+          },
+          // body: stepParameters.body ?? undefined,
+          // responseStatus: response.statusCode,
+          // response: serialize(response.body),
         };
 
         throw new WorkflowError(
@@ -188,7 +261,6 @@ async function executeWorkflow(
 
       throw new WorkflowError(500, "Unknown step execution error", {
         stepId: step.stepId,
-        inputs,
       });
     }
   }
@@ -196,15 +268,35 @@ async function executeWorkflow(
   return resolveOutputs(workflow, workflowContext);
 }
 
-async function executeStep<E extends Env>(
-  step: Step,
-  params: HttpRequestParams,
+async function executeRequest<E extends Env>(
+  // step: Step,
+  // params: HttpRequestParams,
+  request: Request,
 ): Promise<{ statusCode: number; body: unknown }> {
   const c = getContext<E & FiberplaneAppType<E>>();
   const userApp = c.get("userApp");
   const userEnv = c.get("userEnv");
   const userExecutionCtx = c.get("userExecutionCtx");
-  const baseUrl = new URL(c.req.url).origin;
+  const response = await userApp.request(
+    request,
+    {},
+    userEnv,
+    userExecutionCtx,
+  );
+
+  const contentType = response.headers.get("content-type");
+  const responseBody = contentType?.includes("application/json")
+    ? await response.json()
+    : (await response.text()) || null;
+
+  return {
+    statusCode: response.status,
+    body: responseBody,
+  };
+}
+
+function createRequest(step: Step, params: HttpRequestParams, origin: string) {
+  const baseUrl = new URL(origin);
   const headers = new Headers();
 
   const { method, path: uri } = resolvePathAndMethod(step);
@@ -238,26 +330,9 @@ async function executeStep<E extends Env>(
     headers.append("Content-Type", "application/json");
   }
 
-  const request = new Request(url, {
+  return new Request(url, {
     method: method.toUpperCase(),
     headers,
     body: params.body ? JSON.stringify(params.body) : undefined,
   });
-
-  const response = await userApp.request(
-    request,
-    {},
-    userEnv,
-    userExecutionCtx,
-  );
-
-  const contentType = response.headers.get("content-type");
-  const responseBody = contentType?.includes("application/json")
-    ? await response.json()
-    : (await response.text()) || null;
-
-  return {
-    statusCode: response.status,
-    body: responseBody,
-  };
 }

@@ -14,15 +14,13 @@ export function WorkflowUrl({ workflowId }: CopyableUrlProps) {
   const workflowUrl = useWorkflowUrl(workflowId);
 
   return (
-    <div className="p-2">
-      <div className="p-1.5 pt-0.5 text-sm font-medium">
+    <div className="px-2 grid gap-2 pt-2 pb-4">
+      <div className="text-sm font-medium px-2">
         Run this workflow by making a POST request to
       </div>
-      <div className="flex items-center gap-2 overflow-x-auto text-sm p-1.5">
+      <div className="flex items-center gap-2 overflow-x-auto text-sm py-1.5 px-4 bg-input rounded-lg">
         <Method method="POST" />
-        <code className="text-accent truncate flex-1 p-2 rounded-md bg-background">
-          {workflowUrl}
-        </code>
+        <code className="truncate flex-1 p-2 rounded-md">{workflowUrl}</code>
         <Button
           variant="ghost"
           size="icon-xs"

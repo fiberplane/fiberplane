@@ -16,7 +16,7 @@ export function useExecuteWorkflow(id: string, inputs: Workflow["inputs"]) {
   return useMutation({
     mutationFn: () => {
       resetOutputValues();
-      const parameters = parsedValues(inputValues, inputs);
+      const parameters = convertInputValuesToParameters(inputValues, inputs);
       return api.executeWorkflow({
         id,
         parameters,
@@ -34,19 +34,35 @@ export function useExecuteWorkflow(id: string, inputs: Workflow["inputs"]) {
   });
 }
 
-function parsedValues(
+function convertInputValuesToParameters(
   inputValues: Record<string, string>,
   inputs: Workflow["inputs"],
 ): Record<string, unknown> {
-  const entries = Object.entries(inputValues).map(([key, value]) => {
-    const schema = inputs.properties[key];
-    if (schema) {
-      return [key, constrainValueToSchema(value, schema)];
-    }
+  console.log("inputValues", inputValues);
+  const result: Record<string, unknown> = {};
 
-    return [key, value];
-  });
-  return Object.fromEntries(entries);
+  if (!inputs.properties) {
+    throw new Error("Workflow inputs are missing properties");
+  }
+
+  for (const [key, schema] of Object.entries(inputs.properties)) {
+    // const schema = inputs.properties[key];
+    const value = inputValues[key];
+    if (schema) {
+      result[key] = constrainValueToSchema(value, schema);
+    }
+  }
+
+  return result;
+  // const entries = Object.entries(inputValues).map(([key, value]) => {
+  //   const schema = inputs.properties[key];
+  //   if (schema) {
+  //     return [key, constrainValueToSchema(value, schema)];
+  //   }
+
+  //   return [key, value];
+  // });
+  // return Object.fromEntries(entries);
 }
 
 function constrainValueToSchema(
@@ -92,6 +108,13 @@ function constrainValueToSchema(
       } catch {
         return undefined;
       }
+    }
+    case "string": {
+      if (!value) {
+        return "";
+      }
+
+      return value;
     }
   }
 

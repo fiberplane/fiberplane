@@ -3,12 +3,25 @@ import { z } from "zod";
 export const ExecutionErrorSchema = z.object({
   type: z.literal("EXECUTION_ERROR"),
   message: z.string(),
-  details: z.object({
+  payload: z.object({
     stepId: z.string(),
-    inputs: z.record(z.unknown()),
+    parameters: z.record(z.unknown()).optional(),
+    request: z
+      .object({
+        url: z.string(),
+        method: z.string(),
+        headers: z.record(z.string()),
+      })
+      .optional(),
+    response: z
+      .object({
+        status: z.number(),
+        body: z.string().optional(),
+      })
+      .optional(),
     // body: z.string().optional(),
-    response: z.string().optional(),
-    responseStatus: z.number().optional(),
+    // response: z.string().optional(),
+    // responseStatus: z.number().optional(),
   }),
 });
 
@@ -23,7 +36,7 @@ export type ValidationDetail = z.infer<typeof ValidationDetailSchema>;
 export const ValidationErrorSchema = z.object({
   type: z.literal("VALIDATION_ERROR"),
   message: z.string(),
-  details: z.array(ValidationDetailSchema),
+  payload: z.array(ValidationDetailSchema),
 });
 
 export type ValidationError = z.infer<typeof ValidationErrorSchema>;

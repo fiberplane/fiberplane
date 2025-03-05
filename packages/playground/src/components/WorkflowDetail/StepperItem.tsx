@@ -37,7 +37,7 @@ export function StepperItem(
         <Link
           type="button"
           className={cn(
-            "w-full grid grid-cols-[auto_1fr] gap-4 pt-4 pb-2 px-1",
+            "w-full grid grid-cols-[auto_1fr] gap-4 pt-2 pb-2 px-1",
             {
               "hover:bg-muted rounded-md": !expanded,
               "cursor-default": expanded,
@@ -91,20 +91,22 @@ export function StepperItem(
                   {Object.entries(error.details.inputs).map(([name, value]) => <NameValueItem key={name} name={name} value={value} />)}
                 </div>
               </div> */}
-                {error.details.responseStatus && (
+                {error.payload.response?.status && (
                   <ListSection
+                    className="border-warning bg-warning/10"
                     title={
-                      <div>
-                        Response:{" "}
+                      <div className="grid gap-2 grid-cols-[auto_auto] justify-start">
+                        <span>HTTP Response</span>
                         <StatusCode
-                          status={error.details.responseStatus.toString()}
+                          status={error.payload.response.status.toString()}
                           isFailure={false}
                         />
                       </div>
                     }
+                    titleClassName="border-warning py-2 min-h-0"
                   >
-                    <pre className="max-w-full overflow-auto font-mono bg-background">
-                      <code>{error.details.response}</code>
+                    <pre className="max-w-full overflow-auto font-mono">
+                      <code>{error.payload.response.body}</code>
                     </pre>
                   </ListSection>
                 )}

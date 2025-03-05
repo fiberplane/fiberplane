@@ -849,6 +849,9 @@ importers:
       '@cfworker/json-schema':
         specifier: ^4.1.1
         version: 4.1.1
+      '@cloudflare/cabidela':
+        specifier: ^0.1.1
+        version: 0.1.1
       '@hono/standard-validator':
         specifier: ^0.1.2
         version: 0.1.2(@standard-schema/spec@1.0.0)(hono@4.7.1)
@@ -1909,6 +1912,9 @@ packages:
 
   '@cfworker/json-schema@4.1.1':
     resolution: {integrity: sha512-gAmrUZSGtKc3AiBL71iNWxDsyUC5uMaKKGdvzYsBoTW/xi42JQHl7eKV2OYzCUqvc+D2RCcf7EXY2iCyFIk6og==}
+
+  '@cloudflare/cabidela@0.1.1':
+    resolution: {integrity: sha512-s3coOSTqA/m4P453/jOaAwYTI+cUF5YwA09bheqeatPrt9hv1jVMpT8Cs7MP3vRGAE1meRppa3xRcrLOZXTDgg==}
 
   '@cloudflare/kv-asset-handler@0.3.4':
     resolution: {integrity: sha512-YLPHc8yASwjNkmcDMQMY35yiWjoKAKnhUbPRszBRS0YgH+IXtsMp61j+yTcnCE3oO2DgP0U3iejLC8FTtKDC8Q==}
@@ -12633,6 +12639,8 @@ snapshots:
     optional: true
 
   '@cfworker/json-schema@4.1.1': {}
+
+  '@cloudflare/cabidela@0.1.1': {}
 
   '@cloudflare/kv-asset-handler@0.3.4':
     dependencies:
