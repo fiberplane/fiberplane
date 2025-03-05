@@ -2,14 +2,12 @@
 
 This is an implementation of the Hono-OpenAPI integration from the Hono docs.
 
-You can use it with Fiberplane Studio to get a feel for Studio's OpenAPI support.
-
-For each documented route, a `Docs` tab should be available in the Studio UI.
+You can use it with Fiberplane Playground by visiting `/fp` after starting the api.
 
 ## Commands
 
 ```sh
-# HACK - This script initializes a D1 database *locally* so that we can mess with it
+# Note - The `touch` script initializes a D1 database *locally* so that we can use it
 pnpm db:touch
 pnpm db:generate
 pnpm db:migrate
@@ -20,9 +18,4 @@ pnpm i
 pnpm dev
 ```
 
-To test with Studio, have this app running, and then when you launch the api:
-
-```sh
-cd api
-FPX_WATCH_DIR=../examples/hono-openapi pnpm dev
-```
+To test with Fiberplane, have this app running, and then when you launch the api, open `http://localhost:8787/fp` in your browser.
