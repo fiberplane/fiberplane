@@ -4,6 +4,7 @@ import createAssistantApiRoute from "./assistant";
 import createReportsApiRoute from "./reports";
 import createTokensApiRoute from "./tokens";
 import createWorkflowsApiRoute from "./workflows";
+import createAuthApiRoute from "./auth";
 
 /**
  * Creates the internal API router (except for the tracing routes)
@@ -33,6 +34,10 @@ export default function createApiRoutes<E extends Env>(
   app.route(
     "/assistant",
     createAssistantApiRoute(apiKey, fetchFn, fiberplaneServicesUrl),
+  );
+  app.route(
+    "/auth",
+    createAuthApiRoute(apiKey, fetchFn, fiberplaneServicesUrl),
   );
 
   return app;
