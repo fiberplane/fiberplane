@@ -19,6 +19,7 @@
     "@astrojs/starlight": "^0.32.1",
     "@iconify-json/lucide": "^1.2.16",
     "astro": "^5.3.0",
+    "astro-lazy-youtube-embed": "^0.5.4",
     "astro-og-canvas": "^0.5.6",
     "canvaskit-wasm": "^0.39.1",
     "rehype-autolink-headings": "^7.1.0",
