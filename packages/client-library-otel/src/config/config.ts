@@ -6,11 +6,11 @@ import {
   getOtelToken,
   getServiceName,
 } from "./resolvers";
-import type { FpxConfig, FpxConfigOptions, FpxMode } from "./types";
+import type { FpConfig, FpConfigOptions, FpMode } from "./types";
 
 export type FpResolvedConfig = {
   enabled: boolean;
-  mode: FpxMode;
+  mode: FpMode;
   redactedHeaders: Set<string>;
   redactedQueryParams: Set<string>;
   otelEndpoint: string | null;
@@ -44,6 +44,10 @@ export const DEFAULT_REDACTED_HEADERS = [
   "www-authenticate",
   "proxy-authenticate",
   "x-real-ip",
+  "x-auth-token",
+  "x-csrf-token",
+  "x-session-id",
+  "neon-connection-string",
 ] as const;
 
 export const DEFAULT_REDACTED_QUERY_PARAMS = [
@@ -58,7 +62,7 @@ export const DEFAULT_REDACTED_QUERY_PARAMS = [
   "api_key",
 ];
 
-export const DEFAULT_CONFIG: FpxConfig = Object.freeze({
+export const DEFAULT_CONFIG: FpConfig = Object.freeze({
   redactedHeaders: [...DEFAULT_REDACTED_HEADERS],
   redactedQueryParams: [...DEFAULT_REDACTED_QUERY_PARAMS],
   libraryDebugMode: false,
@@ -70,7 +74,7 @@ export const DEFAULT_CONFIG: FpxConfig = Object.freeze({
 });
 
 export function resolveConfig(
-  userConfig: FpxConfigOptions | undefined,
+  userConfig: FpConfigOptions | undefined,
   env: FpHonoEnv,
 ): FpResolvedConfig {
   const config = mergeConfigs(DEFAULT_CONFIG, userConfig);
@@ -107,12 +111,12 @@ export function resolveConfig(
 }
 
 /**
- * Last-in-wins deep merge for FpxConfig
+ * Last-in-wins deep merge for {@link FpConfig}
  */
 function mergeConfigs(
-  fallbackConfig: FpxConfig,
-  userConfig?: FpxConfigOptions,
-): FpxConfig {
+  fallbackConfig: FpConfig,
+  userConfig?: FpConfigOptions,
+): FpConfig {
   const libraryDebugMode =
     typeof userConfig?.libraryDebugMode === "boolean"
       ? userConfig.libraryDebugMode

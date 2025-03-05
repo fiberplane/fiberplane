@@ -1,14 +1,22 @@
 import { type Env, Hono } from "hono";
 import { z } from "zod";
-import { logIfDebug } from "../../debug.js";
-import { FpService } from "../../services/index.js";
-import type { FiberplaneAppType } from "../../types.js";
+import { logIfDebug } from "../../debug";
+import { FpService } from "../../services";
+import type { FetchFn, FiberplaneAppType } from "../../types";
 
 // Temporary implementation
-export default function createTokensApiRoute<E extends Env>(apiKey: string) {
+export default function createTokensApiRoute<E extends Env>(
+  apiKey: string,
+  fetchFn: FetchFn,
+  fiberplaneServicesUrl: string,
+) {
   const app = new Hono<E & FiberplaneAppType<E>>();
 
-  const service = new FpService({ apiKey });
+  const service = new FpService({
+    apiKey,
+    fetch: fetchFn,
+    baseUrl: `${fiberplaneServicesUrl}/api`,
+  });
 
   app.get("/", async (c) => {
     logIfDebug(c, "[tokens]", "- GET / -");

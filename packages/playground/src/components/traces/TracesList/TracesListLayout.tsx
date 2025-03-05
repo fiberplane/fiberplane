@@ -15,7 +15,8 @@ function getMainSectionWidth() {
 }
 
 export function TraceListLayout({ children }: { children: React.ReactNode }) {
-  const [sidePanel] = useState<"open" | "closed">("open");
+  // HACK - Permanently close the side panel until we figure out what to put in it
+  const [sidePanel] = useState<"open" | "closed">("closed");
   const isLgScreen = useIsLgScreen();
   const width = getMainSectionWidth();
 
@@ -54,7 +55,7 @@ export function TraceListLayout({ children }: { children: React.ReactNode }) {
           </>
         )}
         <ResizablePanel id="main" order={1}>
-          <div className="grid grid-cols-1 h-full min-h-0 overflow-hidden overflow-y-auto relative">
+          <div className="grid grid-cols-1 h-full min-h-0 max-w-[1000px] mx-auto overflow-hidden overflow-y-auto relative">
             {children}
           </div>
         </ResizablePanel>

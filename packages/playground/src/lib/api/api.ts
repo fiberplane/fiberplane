@@ -66,8 +66,6 @@ export const api = {
     parameters: Record<string, unknown>;
   }): Promise<ApiResponse<Record<string, unknown>>> => {
     const { id, parameters } = payload;
-    // executeWorkflow:
-    // async (id: string, parameters: Record<string, unknown>): Promise<ApiResponse<Record<string, unknown>> => {
     return fpFetch<ApiResponse<Record<string, unknown>>>(`/w/${id}`, {
       method: "POST",
       headers: {
@@ -77,18 +75,8 @@ export const api = {
     });
   },
 
-  // return fpFetch<ApiResponse<Record<string, unknown>>(`/api/workflows/${id}/execute`, {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //   },
-  //   body: JSON.stringify(parameters),
-  // });
-  // },
-
-  // TODO - Add limit query param once that ships
-  getTraces: async () => {
-    const data = await fpFetch("/api/traces");
+  getTraces: async ({ limit = 50 }: { limit?: number } = {}) => {
+    const data = await fpFetch(`/api/traces?limit=${limit}`);
     return {
       data: TraceListResponseSchema.parse(data),
     };

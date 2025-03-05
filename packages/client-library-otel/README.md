@@ -42,6 +42,8 @@ export default instrument(app);
 Set the `FIBERPLANE_OTEL_ENDPOINT` environment variable to the URL of an OpenTelemetry collector.
 
 > To test with an OpenTelemetry collector, you can use the [Fiberplane otel-worker](https://github.com/fiberplane/otel-worker) which can also be deployed locally.
+>
+> In this case, you would set the `FIBERPLANE_OTEL_ENDPOINT` to `http://localhost:24318/v1/traces` and the `FIBERPLANE_OTEL_TOKEN` to the token of the otel-worker.
 
 ## Usage
 
@@ -97,6 +99,15 @@ If the endpoint is a local address, the client library will collect as much data
 
 You can control this behavior by setting the `FIBERPLANE_ENVIRONMENT` env variable to `"local"` to force the library to send as much data as possible, or `"production"` to force the library to send only essential data.
 
+As mentioned earlier, there is an open source [otel-worker](https://github.com/fiberplane/otel-worker) that you can run either locally on on Cloudflare to collect telemetry data from your app.
+
+When using the otel-worker locally, your `.dev.vars` file would look like this:
+
+```sh
+FIBERPLANE_OTEL_ENDPOINT=http://localhost:24318/v1/traces
+FIBERPLANE_OTEL_TOKEN="your-secret-token-here"
+```
+
 #### Additional Configuration
 
 When you instrument your app, you can also pass in a configuration object to override the default behavior of the `instrument` function.
@@ -133,6 +144,28 @@ export default instrument(app, {
   },
 });
 ```
+
+#### Redacting Headers and Query Params
+
+You can redact headers and query params by setting the `redactedHeaders` and `redactedQueryParams` options.
+
+```typescript
+import { Hono } from "hono";
+import { instrument } from "@fiberplane/hono-otel";
+
+const app = new Hono();
+
+app.get("/", (c) => c.text("Hello, Hono!"));
+
+export default instrument(app, {
+  redactedHeaders: ["x-mycompany-api-key"],
+  redactedQueryParams: ["my_api_key"],
+});
+```
+
+These values will **not** be recorded inside spans, and their values will show up as `"REDACTED"`.
+
+We merge any `redactedHeaders` and `redactedQueryParams` values with a list of sensible defaults, which are exported by the library as `DEFAULT_REDACTED_HEADERS` and `DEFAULT_REDACTED_QUERY_PARAMS`.
 
 #### The `FIBERPLANE_OTEL_LOG_LEVEL` Environment Variable
 

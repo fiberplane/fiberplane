@@ -52,46 +52,45 @@ The first piece of Hono typing we really need to understand is the `Context` obj
 
 ```tsx
 export type Context<
-	// We'll get to these type parameters in a moment
-	E extends Env = any, 
-	P extends string = any, 
-	I extends Input = {}
+  // We'll get to these type parameters in a moment
+  E extends Env = any,
+  P extends string = any,
+  I extends Input = {}
 > = {
-	// Env vars and Cloudflare bindings
-	env: E["Bindings"];
-	// Augmented Request with optionally-validated data
-	get req(): HonoRequest<P, I["out"]>; 
-	get res(): Response;
-	// ...
-}
+  // Env vars and Cloudflare bindings
+  env: E["Bindings"];
+  // Augmented Request with optionally-validated data
+  get req(): HonoRequest<P, I["out"]>;
+  get res(): Response;
+  // ...
+};
 ```
 
 Crucially, `Context` allows us to [share data between middleware and handlers type-safely.](https://hono.dev/docs/guides/middleware) This can be useful in a number of ways, but we'll start with the `c.req.valid` method, which allows us to access any request data validated by `validator` (or middleware like `zod-validator` that use it internally).
 
 ```tsx
-import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
-import { z } from 'zod';
+import { Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
+import { z } from "zod";
 
 // I like to centralize these in a directory like /dtos
 // or /schemas, but it really depends on your use-case
 const ZSearchQuery = z.object({
-	search: z.string(),
+  search: z.string()
 });
 
-const app = new Hono()
-	.get(
-		'/posts',
-		// Must be handler-specific for type-safety
-		zValidator('query', ZSearchQuery),
-                // After going through middleware, Context
-                // is passed into the handler
-		async (c) => {
-			const { search } = c.req.valid('query');
-			// We know `search` is a string in this scope, so we
-			// can handle the request type-safely from here on
-		}
-	)
+const app = new Hono().get(
+  "/posts",
+  // Must be handler-specific for type-safety
+  zValidator("query", ZSearchQuery),
+  // After going through middleware, Context
+  // is passed into the handler
+  async (c) => {
+    const { search } = c.req.valid("query");
+    // We know `search` is a string in this scope, so we
+    // can handle the request type-safely from here on
+  }
+);
 ```
 
 When we pass `zValidator` a target (`'query'`) and a schema, the schema's output becomes type-safely available in the handler (or subsequent middleware). Hono supports six validation targets, representing the most common formats for request data.
@@ -106,18 +105,18 @@ When we pass `zValidator` a target (`'query'`) and a schema, the schema's output
 For simplicity, here we only validate the query string, but you can validate as many targets as you'd like by [chaining multiple validators](https://hono.dev/docs/guides/validation#multiple-validators).
 
 :::note
-For validated types to be inferred correctly, validation middleware *must* be added in the handler, like in the example above. Chaining your validator with `app.use` will result in the following TS error: 
-*"Argument of type `string` is not assignable to parameter of type `never`."*
+For validated types to be inferred correctly, validation middleware _must_ be added in the handler, like in the example above. Chaining your validator with `app.use` will result in the following TS error:
+_"Argument of type `string` is not assignable to parameter of type `never`."_
 :::
 
 ### Customizing the error hook
 
-The `zod-validator` package makes it really easy to enforce type-safety within handlers, but what happens when requests fail validation? By default, `zValidator` immediately ends the request, returning a `400` with a body containing the full `ZodError` object. 
+The `zod-validator` package makes it really easy to enforce type-safety within handlers, but what happens when requests fail validation? By default, `zValidator` immediately ends the request, returning a `400` with a body containing the full `ZodError` object.
 
 While convenient in development, it's not great for production. This is especially true if you have internals that need obscuring (like auth flows), if you want to standardize error responses, or if your app has complex error-handling requirements (like logging or alerts).
 
 :::note
-Some OAuth flows use validation logic that takes the *unparsed* body as input (typically in combination with a signature in the headers). In these cases, I've found it's simplest to verify the request before moving on to validation.
+Some OAuth flows use validation logic that takes the _unparsed_ body as input (typically in combination with a signature in the headers). In these cases, I've found it's simplest to verify the request before moving on to validation.
 :::
 
 To override this default behavior, `zValidator` accepts a third `hook` argument: a callback that exposes the validation result and our good friend `Context`. If validation fails, you can send a custom response, or throw to an error handler for additional processing.
@@ -127,31 +126,36 @@ While it's great to have this flexibility, responding to errors consistently mak
 This gets tedious quickly though, and can be difficult to maintain. To save ourselves the trouble of injecting our error hook each time we call `zValidator`, we can instead bake it into a custom middleware.
 
 ```tsx
-import type { ValidationTargets } from 'hono';
-import { zValidator } from '@hono/zod-validator';
-import { z } from 'zod';
+import type { ValidationTargets } from "hono";
+import { zValidator } from "@hono/zod-validator";
+import { z } from "zod";
 
 // Your custom error formatter
-import { formatZodError } from '@/lib/zod-error';
+import { formatZodError } from "@/lib/zod-error";
 
 export const customZodValidator = <
-	// json, form, query, param, header, cookie
+  // json, form, query, param, header, cookie
   Target extends keyof ValidationTargets,
   Schema extends z.ZodSchema
->(target: Target, schema: Schema) => {
-
+>(
+  target: Target,
+  schema: Schema
+) => {
   return zValidator(target, schema, (result, c) => {
-	  // Early-return (or throw) on error
+    // Early-return (or throw) on error
     if (!result.success) {
-	    // Error requirements will vary by use-case
-      return c.json({
-        timestamp: Date.now(),
-	      message: `invalid ${target}`,
-	      issues: formatZodError(result.error.issues),
-	    }, 400);
-	  }
-	
-		// Otherwise return the validated data
+      // Error requirements will vary by use-case
+      return c.json(
+        {
+          timestamp: Date.now(),
+          message: `invalid ${target}`,
+          issues: formatZodError(result.error.issues)
+        },
+        400
+      );
+    }
+
+    // Otherwise return the validated data
     return result.data;
   });
 };
@@ -173,24 +177,29 @@ If you don't see your favorite validator (or parser) on the list, or want to get
 
 ```tsx del={1, 9} ins={2, 10-12}
 // import { zValidator } from '@hono/zod-validator';
-import { validator } from 'hono/validator';
+import { validator } from "hono/validator";
 
 export const customZodValidator = <
   Target extends keyof ValidationTargets,
   Schema extends z.ZodSchema
->(target: Target, schema: Schema) => {
-
-	// return zValidator(target, schema, (result, c) => {
+>(
+  target: Target,
+  schema: Schema
+) => {
+  // return zValidator(target, schema, (result, c) => {
   return validator(target, async (value): Promise<z.output<Schema>> => {
-	  // We have to run validation ourselves
+    // We have to run validation ourselves
     const result = await schema.safeParseAsync(value);
-    
+
     if (!result.success) {
-      return c.json({
-        timestamp: Date.now(),
-	      message: `invalid ${target}`,
-	      issues: formatZodError(result.error.issues),
-	    }, 400);
+      return c.json(
+        {
+          timestamp: Date.now(),
+          message: `invalid ${target}`,
+          issues: formatZodError(result.error.issues)
+        },
+        400
+      );
     }
 
     return result.data;
@@ -206,32 +215,32 @@ When we use `validator`, the callback's (non-`Response`) return type gets added 
 
 ```tsx
 type MiddlewareHandler<
-	E extends Env = any, 
-	P extends string = string, 
-	I extends Input = {}
+  E extends Env = any,
+  P extends string = string,
+  I extends Input = {}
 > = (c: Context<E, P, I>, next: Next) => Promise<Response | void>;
 
 type Context<
-	E extends Env = any,
-	P extends string = any, // path
-	I extends Input = {}
+  E extends Env = any,
+  P extends string = any, // path
+  I extends Input = {}
 > = {
-	/** */
-}
+  /** */
+};
 
 type Env = {
-    Bindings?: Bindings; // object
-    Variables?: Variables; // object
+  Bindings?: Bindings; // object
+  Variables?: Variables; // object
 };
 
 type Input = {
-    in?: {};
-    out?: {};
-    outputFormat?: ResponseFormat; // 'json' | 'text' | 'redirect' | string
+  in?: {};
+  out?: {};
+  outputFormat?: ResponseFormat; // 'json' | 'text' | 'redirect' | string
 };
 ```
 
-`Env` and `Input` are the type parameters you'll manually work with the most. `Env` exposes any environment variables (`Bindings`), along with any values you've `set` in `Context` in your middleware (`Variables`), while `Input` represents any request data validated using `hono/validator`. 
+`Env` and `Input` are the type parameters you'll manually work with the most. `Env` exposes any environment variables (`Bindings`), along with any values you've `set` in `Context` in your middleware (`Variables`), while `Input` represents any request data validated using `hono/validator`.
 
 This would be the `Input` type for our simple search query, for example:
 
@@ -258,7 +267,7 @@ This would be the `Input` type for our simple search query, for example:
 }
 ```
 
-Downstream *handlers* use the `out` type to determine which targets have been validated, and to appropriately type values returned from `c.req.valid`. This is essentially Hono's secret sauce: it uses generics to merge types into a format useable across the request lifecycle.
+Downstream _handlers_ use the `out` type to determine which targets have been validated, and to appropriately type values returned from `c.req.valid`. This is essentially Hono's secret sauce: it uses generics to merge types into a format useable across the request lifecycle.
 
 ### Using a different validator
 
@@ -268,25 +277,29 @@ All we really need then, is a target and an output type. We can easily update ou
 // Any validation function you provide must
 // take unknown data and return data of a known type,
 // or produce some kind of error
-type ValidationFunction<T, E extends Error = Error> = (data: unknown) => (
-	{ success: true; data: T; }
-	| { success: false; error: E }
-);
+type ValidationFunction<T, E extends Error = Error> = (
+  data: unknown
+) => { success: true; data: T } | { success: false; error: E };
 
 export const customAgnosticValidator = <
-	Target extends keyof ValidationTargets,
-	T extends Record<string, any>
->(target: Target, validate: ValidationFunction<T>) => {
-
+  Target extends keyof ValidationTargets,
+  T extends Record<string, any>
+>(
+  target: Target,
+  validate: ValidationFunction<T>
+) => {
   return validator(target, (value, c) => {
     const result = validate(value);
-    
+
     if (!result.success) {
-      return c.json({
-        timestamp: Date.now(),
-        message: `invalid ${target}`,
-        issues: formatError(result.error.issues),
-      }, 400);
+      return c.json(
+        {
+          timestamp: Date.now(),
+          message: `invalid ${target}`,
+          issues: formatError(result.error.issues)
+        },
+        400
+      );
     }
 
     return result.data;
@@ -303,50 +316,55 @@ To get an even closer look, let's take things a step too far, and implement our 
 To keep typing simple, we'll take advantage of Hono's `createMiddleware` helper. This factory method ensures that your middleware typing can be read by subsequent handlers.
 
 :::note
-Under the hood, createMiddleware is essentially a type utility. It doesn't do any logic, but it does hook your middleware into Hono's type system, which plays a key role in communicating types between middleware, handlers, and the Hono client. *It does not allow you to automatically [share types between middleware](https://hono.dev/docs/guides/middleware#context-access-inside-middleware-arguments)*.
+Under the hood, createMiddleware is essentially a type utility. It doesn't do any logic, but it does hook your middleware into Hono's type system, which plays a key role in communicating types between middleware, handlers, and the Hono client. _It does not allow you to automatically [share types between middleware](https://hono.dev/docs/guides/middleware#context-access-inside-middleware-arguments)_.
 :::
 
 Instead of using the `Input` type though, we'll use the `Env` type. There's no way to set the data that's available on `c.req.valid` without using `validator` (or forking Hono), but `Context` comes with a getter and setter that we can use to type-safely share our own custom data.
 
 ```tsx
-import { createMiddleware } from 'hono/factory';
+import { createMiddleware } from "hono/factory";
 
 const overEngineeredAgnosticValidator = <
   Target extends keyof ValidationTargets,
   T extends Record<string, unknown>
->(target: Target, validate: ValidationFunction<T>) => {
-
+>(
+  target: Target,
+  validate: ValidationFunction<T>
+) => {
   return createMiddleware<{
-     Variables: {
-      validated: Record<Target, T>
-    }
+    Variables: {
+      validated: Record<Target, T>;
+    };
   }>(async (c, next) => {
-	  // Get and format target data from Request
-	  // https://github.com/honojs/hono/blob/b2affb84f18746b487a2e02f0b1cd18e2bd8e5f5/src/validator/validator.ts#L72
+    // Get and format target data from Request
+    // https://github.com/honojs/hono/blob/b2affb84f18746b487a2e02f0b1cd18e2bd8e5f5/src/validator/validator.ts#L72
     const value = await getTargetData(c, target);
 
     const result = validate(value);
 
     if (!result.success) {
-      return c.json({
-        timestamp: Date.now(),
-        message: 'Invalid Payload',
-        issues: formatError(result.error),
-      }, 400);
+      return c.json(
+        {
+          timestamp: Date.now(),
+          message: "Invalid Payload",
+          issues: formatError(result.error)
+        },
+        400
+      );
     }
 
     const validated = {
-	    // Get previously-validated data
-	    // `c.get('validated')` would also work
+      // Get previously-validated data
+      // `c.get('validated')` would also work
       ...c.var.validated,
-      [target]: result.data,
+      [target]: result.data
     };
 
-		// Update the validated data in context
-    c.set('validated', validated);
+    // Update the validated data in context
+    c.set("validated", validated);
 
-		// Don't forget to await. It's not necessary
-		// until it is, and then it's a pain to retrofit
+    // Don't forget to await. It's not necessary
+    // until it is, and then it's a pain to retrofit
     await next();
   });
 };
@@ -355,17 +373,16 @@ const overEngineeredAgnosticValidator = <
 Since we're not using `validator`, we won't be able to access our data in the handler using `c.req.valid`. Instead, we'll use the `createMiddleware` type generic to specify that we'll be setting a `validated` property in `Context` variables, whose value is our parse result. We could then access our results in the handler like this:
 
 ```tsx
-const app = new Hono()
-	.get(
-		'/posts',
-		customValidator('query', ZSearchQuery.parse),
-		// Context allows us to grab validated request data
-		async (c: Context) => {
-			// `c.get('validated').query` would also work
-			const { search } = c.var.validated.query;
-			// We know `search` is a string in this scope
-		}
-	);
+const app = new Hono().get(
+  "/posts",
+  customValidator("query", ZSearchQuery.parse),
+  // Context allows us to grab validated request data
+  async (c: Context) => {
+    // `c.get('validated').query` would also work
+    const { search } = c.var.validated.query;
+    // We know `search` is a string in this scope
+  }
+);
 ```
 
 ## Querying validated endpoints with Hono RPC
@@ -373,31 +390,31 @@ const app = new Hono()
 If your app has a front-end, Hono's RPC client is a popular choice for keeping your types synced across your stack. It brings intellisense and type-safety to your request construction, representing resources as objects nested by path and method.
 
 ```tsx
-import { hc } from 'hono/client';
+import { hc } from "hono/client";
 
 // type AppType = typeof app;
-import type { AppType } from '@/server';
+import type { AppType } from "@/server";
 
 // Client uses type map to infer available endpoints
-const client = hc<AppType>('BASE_URL');
+const client = hc<AppType>("BASE_URL");
 
 export const getPosts = async (search: string) => {
-	// We can dot-index into the endpoint and method we want
-	// and any `json` or `text` return types are inferred 
-	return await client.posts.$get({
-		// The client will let us know what data is required
-		query: { search },
-	});
-}
+  // We can dot-index into the endpoint and method we want
+  // and any `json` or `text` return types are inferred
+  return await client.posts.$get({
+    // The client will let us know what data is required
+    query: { search }
+  });
+};
 ```
 
-There are a few gotchas to usage though, notably that the RPC client *only works with `json` and `text` responses.* If your endpoint doesn't return either, you can still use the client, but without the benefit of any additional type-safety. Moreover, if an endpoint returns *both* `json` and an incompatible method (e.g, `c.req.body`), *none* of the responses will be inferred.
+There are a few gotchas to usage though, notably that the RPC client _only works with `json` and `text` responses._ If your endpoint doesn't return either, you can still use the client, but without the benefit of any additional type-safety. Moreover, if an endpoint returns _both_ `json` and an incompatible method (e.g, `c.req.body`), _none_ of the responses will be inferred.
 
 :::note
 Note that unlike a tool like `trpc`, Hono's RPC client isn't linked to code instances, so shortcuts like `cmd+click` in your code editor won't take you to the handler.
 :::
 
-I haven't worked with it extensively, so we'll need to save a more in-depth discussion for another time, but it's worth getting a sense of how the types inferred from our backend code get used by the client (and how they don't). 
+I haven't worked with it extensively, so we'll need to save a more in-depth discussion for another time, but it's worth getting a sense of how the types inferred from our backend code get used by the client (and how they don't).
 
 ### Inferred request and response types
 
@@ -449,9 +466,9 @@ This approach radically simplifies workflows—like auth and rate limiting—tha
 
 I'm currently having a lot of fun building auth into a Hono app using the [new Lucia Auth guide](https://lucia-auth.com/), which is an awesome resource if you want to roll your own auth, or just learn more.. I'm still ironing out some kinks, but I look forward to publishing an article on Hono auth in the coming months!
 
-Until then, if you need help with Hono or are seeking inspiration for your next project, check out the [Hono Discord](https://discord.com/invite/KMh2eNSdxV). I've found it to be an incredibly welcoming and supportive community, following the example set by the project authors, maintainers, and contributors. 
+Until then, if you need help with Hono or are seeking inspiration for your next project, check out the [Hono Discord](https://discord.com/invite/KMh2eNSdxV). I've found it to be an incredibly welcoming and supportive community, following the example set by the project authors, maintainers, and contributors.
 
-***
+---
 
 <LinkCard
   title="Get the code on GitHub"

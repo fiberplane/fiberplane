@@ -1,5 +1,5 @@
-import { createOpenAPISpec } from "./create-open-api/index.js";
-import { createFiberplane } from "./middleware.js";
+import { createOpenAPISpec } from "./create-open-api";
+import { createFiberplane } from "./middleware";
 // Export the main function
 export { createFiberplane, createOpenAPISpec };
 
@@ -8,4 +8,4 @@ export { createFiberplane, createOpenAPISpec };
  */
 export const createMiddleware = createFiberplane;
 
-export { FpService } from "./services/index.js";
+export { FpService } from "./services";

@@ -2,21 +2,27 @@ import type { Context, Env } from "hono";
 import { getContext } from "hono/context-storage";
 import { HTTPException } from "hono/http-exception";
 import { type ZodError, z } from "zod";
-import { PLAYGROUND_SERVICES_URL } from "../../constants.js";
-import type { Workflow } from "../../schemas/workflows.js";
-import type { FiberplaneAppType } from "../../types.js";
+import type { Workflow } from "../../schemas/workflows";
+import type { FiberplaneAppType } from "../../types";
 
 export async function getWorkflowById<E extends Env>(
   workflowId: string,
   apiKey: string,
+  fiberplaneServicesUrl: string,
 ): Promise<{ data: Workflow }> {
   const c = getContext<FiberplaneAppType<E>>();
 
   const app = c.get("userApp");
   const env = c.get("userEnv");
 
+  if (!app) {
+    throw new HTTPException(500, {
+      message: "app is not configured for running workflows",
+    });
+  }
+
   const path = `/api/workflows/${workflowId}`;
-  const request = new Request(`${PLAYGROUND_SERVICES_URL}${path}`, {
+  const request = new Request(`${fiberplaneServicesUrl}${path}`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -24,7 +30,7 @@ export async function getWorkflowById<E extends Env>(
   });
 
   // Check if we're running in the PLAYGROUND_SERVICES_URL itself
-  if (new URL(c.req.url).origin === PLAYGROUND_SERVICES_URL) {
+  if (new URL(c.req.url).origin === fiberplaneServicesUrl) {
     const response = await app.request(request, {}, env);
     if (!response.ok) {
       throw new HTTPException(response.status as 404, {

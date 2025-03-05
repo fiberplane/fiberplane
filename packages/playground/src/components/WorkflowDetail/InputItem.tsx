@@ -22,11 +22,13 @@ export function InputItem({
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">
             {schema.title || propertyKey}
+            {workflow.inputs.required?.includes(propertyKey) && (
+              <span className="text-xs text-destructive" title="(required)">
+                *
+              </span>
+            )}
           </span>
           <span className="text-xs text-muted-foreground">({schema.type})</span>
-          {workflow.inputs.required?.includes(propertyKey) && (
-            <span className="text-xs text-destructive">*required</span>
-          )}
         </div>
         {schema.description && (
           <p className="text-sm text-muted-foreground">{schema.description}</p>

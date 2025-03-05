@@ -2,14 +2,14 @@ import { Layout } from "@/Layout";
 import { PlaygroundPage } from "@/components/playground";
 import { useStudioStore } from "@/components/playground/store";
 import { Button } from "@/components/ui/button";
+import { AuthContext } from "@/contexts/auth";
 import { useSettingsOpen } from "@/hooks";
 import { useHandler } from "@fiberplane/hooks";
-import { createSubjects } from "@openauthjs/openauth/subject";
 import { type Challenge, createClient } from "@openauthjs/openauth/client";
+import { createSubjects } from "@openauthjs/openauth/subject";
 import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useCallback, useContext, useEffect } from "react";
 import { z } from "zod";
-import { AuthContext } from "@/contexts/auth";
 
 const redirectUrl = "http://localhost:7676/fp";
 

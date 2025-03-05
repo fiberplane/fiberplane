@@ -5,9 +5,9 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { routeTree } from "./routeTree.gen";
 import "./index.css";
+import { AuthProvider } from "./components/AuthProvider";
 import { ThemeProvider } from "./components/theme-provider";
 import { parseEmbeddedConfig } from "./utils";
-import { AuthProvider } from "./components/AuthProvider";
 
 export const rootElement = document.getElementById("root");
 if (rootElement === null) {

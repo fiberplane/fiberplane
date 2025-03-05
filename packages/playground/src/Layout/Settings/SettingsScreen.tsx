@@ -18,7 +18,7 @@ export function SettingsScreen() {
     <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
       <DialogPortal>
         <DialogContent className="fixed top-0 left-0 right-0 w-full overflow-hidden overflow-y-auto z-50 bg-background h-screen">
-          <div className="grid grid-rows-[auto_1fr] mx-auto h-screen w-full md:max-w-[1100px] lg:max-w-[1060px]">
+          <div className="grid grid-rows-[auto_1fr] mx-auto h-screen w-full sm:max-w-[680px]">
             <div className="sticky top-0 bg-background shadow-sm">
               <div className="flex justify-between items-center px-8 pt-6 pb-4">
                 <DialogTitle>Settings</DialogTitle>

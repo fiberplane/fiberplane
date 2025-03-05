@@ -4,12 +4,12 @@ import {
   OTLPExporterError,
 } from "@opentelemetry/otlp-exporter-base";
 import { createExportTraceServiceRequest } from "@opentelemetry/otlp-transformer";
-import type { SpanExporter } from "@opentelemetry/sdk-trace-base";
+import type { ReadableSpan, SpanExporter } from "@opentelemetry/sdk-trace-base";
 import type { FpxLogger } from "./logger";
 import type { FetchFn } from "./types";
 import { isWrapped } from "./utils";
 
-export interface OTLPExporterConfig {
+interface OTLPExporterConfig {
   url: string;
   headers?: Record<string, string>;
 }
@@ -51,8 +51,10 @@ export class FPOTLPExporter implements SpanExporter {
     }
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: items really can be anything
-  export(items: any[], resultCallback: (result: ExportResult) => void): void {
+  export(
+    items: Array<ReadableSpan>,
+    resultCallback: (result: ExportResult) => void,
+  ): void {
     this._export(items)
       .then(() => {
         resultCallback({ code: ExportResultCode.SUCCESS });
@@ -62,8 +64,7 @@ export class FPOTLPExporter implements SpanExporter {
       });
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: items really can be anything
-  private _export(items: any[]): Promise<unknown> {
+  private _export(items: Array<ReadableSpan>): Promise<unknown> {
     return new Promise<void>((resolve, reject) => {
       try {
         this.send(items, resolve, reject);
@@ -74,8 +75,7 @@ export class FPOTLPExporter implements SpanExporter {
   }
 
   send(
-    // biome-ignore lint/suspicious/noExplicitAny: items really can be anything
-    items: any[],
+    items: Array<ReadableSpan>,
     onSuccess: () => void,
     onError: (error: OTLPExporterError) => void,
   ): void {

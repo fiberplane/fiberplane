@@ -1,5 +1,5 @@
 export { resolveConfig } from "./config";
-export type { FpxConfigOptions } from "./types";
+export type { FpConfigOptions } from "./types";
 export {
   getFpResolvedConfig,
   setFpResolvedConfig,

@@ -1,11 +1,12 @@
 import { type Env, Hono } from "hono";
-import { logIfDebug } from "../../debug.js";
-import type { FiberplaneAppType } from "../../types.js";
+import { logIfDebug } from "../../debug";
+import type { FetchFn, FiberplaneAppType } from "../../types";
 
 // Using Record<string, unknown> as a simpler type for JSON data
 type ApiResponse = Record<string, unknown> | Array<Record<string, unknown>>;
 
 export default function createTracesApiRoute<E extends Env>(
+  fetchFn: FetchFn,
   otelEndpoint?: string,
   otelToken?: string,
 ) {
@@ -48,7 +49,7 @@ export default function createTracesApiRoute<E extends Env>(
     try {
       const otelBaseUrl = getOtelBaseUrl(otelEndpoint);
       const requestUrl = `${otelBaseUrl}/v1/traces`;
-      const response = await fetch(requestUrl, {
+      const response = await fetchFn(requestUrl, {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",

@@ -33,7 +33,13 @@ export function getRequestAttributes(
   const shouldTraceEverything = getShouldTraceEverything(resolvedConfig);
   const logger = getLogger(resolvedConfig?.logLevel ?? "debug");
   if (!resolvedConfig) {
-    logger.debug("No config found in otel context, using default values");
+    logger.debug(
+      "[getRequestAttributes] No config found in otel context, using default values",
+    );
+    logger.debug("input", input);
+    if (input instanceof Request) {
+      logger.debug("input.url", input.url);
+    }
   }
 
   const requestMethod =
