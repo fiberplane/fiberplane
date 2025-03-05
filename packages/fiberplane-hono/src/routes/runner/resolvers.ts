@@ -1,7 +1,7 @@
 import { JSONPath } from "jsonpath-plus";
 import jsonpointer from "jsonpointer";
-import type { Step, StepParameter } from "../../schemas/workflows.js";
-import type { Workflow } from "../../schemas/workflows.js";
+import type { Step, StepParameter } from "../../schemas/workflows";
+import type { Workflow } from "../../schemas/workflows";
 
 export interface WorkflowContext {
   inputs: Record<string, unknown>;

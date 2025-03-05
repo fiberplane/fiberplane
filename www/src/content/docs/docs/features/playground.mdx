@@ -1,0 +1,95 @@
+---
+title: Playground Features
+description: Explore and test your API with Fiberplane Playground
+order: 3
+---
+
+import { Aside, Steps, Tabs, TabItem } from "@astrojs/starlight/components";
+
+Fiberplane Playground provides an interactive interface for exploring and testing your Hono API. This guide covers the main features of the Playground UI and how to use them effectively.
+
+## API Documentation Browser
+
+The Playground generates interactive documentation from your OpenAPI specification. You can:
+
+- Browse all available endpoints, grouped by their tags
+- View detailed request and response schemas
+- Test example payloads based on your schema definitions
+- Explore authentication requirements for each endpoint
+
+<figure class="light:sl-hidden">
+  ![Playground Documentation
+  Browser](@/assets/docs/playground-documentation-browser-dark.png)
+</figure>
+
+<figure class="dark:sl-hidden">
+  ![Playground Documentation
+  Browser](@/assets/docs/playground-documentation-browser.png)
+</figure>
+
+## Making API Requests
+
+The Playground provides a user-friendly interface for constructing API requests:
+
+1. **Select an Endpoint**: Choose the endpoint you want to test from the sidebar
+2. **Configure Request Parameters**:
+   - Path parameters
+   - Query parameters
+   - Request body (automatically populated with example data from your schema)
+
+### Example Data
+
+The Playground automatically generates example data based on your OpenAPI schemas. For instance, using the user creation example:
+
+```json
+{
+  "name": "Matthew",
+  "email": "matthew@cloudflare.com"
+}
+```
+
+You can:
+
+- Use the provided example data as is
+- Modify the data to test different scenarios
+- Change the content-type of the request
+
+### Response Viewer
+
+After making a request, you can:
+
+- View the response status code
+- Inspect response headers
+- See the formatted response body
+
+<figure class="light:sl-hidden">
+  ![Playground: Send Requests](@/assets/docs/playground-send-request-dark.png)
+</figure>
+
+<figure class="dark:sl-hidden">
+  ![Playground: Send Requests](@/assets/docs/playground-send-request.png)
+</figure>
+
+## Authentication
+
+The Playground supports reusable Bearer authentication:
+
+### Setting Authentication Headers
+
+1. Click the "Auth" button in the top navigation
+2. Choose your authentication method:
+   - Bearer Token
+   - None
+
+<Aside type="tip">
+  Authentication settings persist across requests, so you only need to set them
+  once per session.
+</Aside>
+
+### Custom Headers
+
+You can also add any custom headers required by your API:
+
+1. Click "Header" in the top navigation
+2. Enter the header name and value
+3. Headers will be included in all subsequent requests

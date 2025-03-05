@@ -5,6 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:dogfood": "ENV_FILE=.env.dogfood vite",
+    "dev:fp-services": "pnpm dev:dogfood",
+    "dev:example": "ENV_FILE=.env.example vite",
+    "dev:music": "pnpm dev:example",
+    "dev:fashion": "pnpm dev:example",
     "build": "vite build",
     "lint": "biome lint . && pnpm run typecheck",
     "format": "biome check . --write",

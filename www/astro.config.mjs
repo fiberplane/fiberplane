@@ -37,10 +37,6 @@ export default defineConfig({
               items: ["docs/get-started"]
             },
             {
-              label: "Components",
-              autogenerate: { directory: "docs/components" }
-            },
-            {
               label: "Features",
               autogenerate: { directory: "docs/features" }
             }
@@ -114,7 +110,7 @@ export default defineConfig({
         Banner: "@/components/Banner.astro",
         Head: "@/components/Head.astro",
         Header: "@/components/Header.astro",
-        Hero: "@/components/Hero.astro",
+        Hero: "@/components/Hero.astro"
       },
       customCss: ["@/main.css"],
       expressiveCode: {
