@@ -1226,6 +1226,9 @@ importers:
       astro:
         specifier: ^5.3.0
         version: 5.3.0(@types/node@22.10.7)(jiti@1.21.6)(lightningcss@1.28.1)(rollup@4.27.4)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
+      astro-lazy-youtube-embed:
+        specifier: ^0.5.4
+        version: 0.5.4(astro@5.3.0(@types/node@22.10.7)(jiti@1.21.6)(lightningcss@1.28.1)(rollup@4.27.4)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1))
       astro-og-canvas:
         specifier: ^0.5.6
         version: 0.5.6(astro@5.3.0(@types/node@22.10.7)(jiti@1.21.6)(lightningcss@1.28.1)(rollup@4.27.4)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1))
@@ -6067,6 +6070,11 @@ packages:
     peerDependencies:
       astro: ^4.0.0-beta || ^5.0.0-beta || ^3.3.0
 
+  astro-lazy-youtube-embed@0.5.4:
+    resolution: {integrity: sha512-6Nd52ndiC7qM9jBC2/iAVsgbGMLBEHo0NfyECTyvsoKlei5Crl8S279Y8QhbKei+L6/FPSIijRV+ztY9/Pd3Wg==}
+    peerDependencies:
+      astro: ^2.0.0 || ^3.0.0-beta || ^4.0.0-beta || ^5.0.0-beta
+
   astro-og-canvas@0.5.6:
     resolution: {integrity: sha512-w75UErZdRxYyoVnTz4IXn6T869PBrwYQEjPecWVaev9faYCHC3Uk7R47KCO3u+MSDkc8tCENz4ghVDrLImx9SA==}
     engines: {node: '>=18.14.1'}
@@ -6220,6 +6228,7 @@ packages:
   bson@6.10.1:
     resolution: {integrity: sha512-P92xmHDQjSKPLHqFxefqMxASNq/aWJMEZugpCjf+AF/pgcUpMMQCg7t7+ewko0/u8AapvF3luf/FoehddEK+sA==}
     engines: {node: '>=16.20.1'}
+    deprecated: a critical bug affecting only useBigInt64=true deserialization usage is fixed in bson@6.10.3
 
   buffer-equal-constant-time@1.0.1:
     resolution: {integrity: sha512-zRpUiDwd/xk6ADqPMATG8vc9VPrkck7T07OIx0gnjmJAnHnTVXNQG3vfvWNuiZIkwu9KrKdA1iJKfsfTVxE6NA==}
@@ -8152,6 +8161,7 @@ packages:
 
   libsql@0.4.7:
     resolution: {integrity: sha512-T9eIRCs6b0J1SHKYIvD8+KCJMcWZ900iZyxdnSCdqxN12Z1ijzT+jY5nrk72Jw4B0HGzms2NgpryArlJqvc3Lw==}
+    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lie@3.3.0:
@@ -16685,6 +16695,10 @@ snapshots:
     dependencies:
       astro: 5.3.0(@types/node@22.10.7)(jiti@1.21.6)(lightningcss@1.28.1)(rollup@4.27.4)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
       rehype-expressive-code: 0.40.2
+
+  astro-lazy-youtube-embed@0.5.4(astro@5.3.0(@types/node@22.10.7)(jiti@1.21.6)(lightningcss@1.28.1)(rollup@4.27.4)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)):
+    dependencies:
+      astro: 5.3.0(@types/node@22.10.7)(jiti@1.21.6)(lightningcss@1.28.1)(rollup@4.27.4)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
 
   astro-og-canvas@0.5.6(astro@5.3.0(@types/node@22.10.7)(jiti@1.21.6)(lightningcss@1.28.1)(rollup@4.27.4)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)):
     dependencies:
