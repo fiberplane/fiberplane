@@ -1,0 +1,31 @@
+{
+  "name": "fog-machine",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+  },
+  "dependencies": {
+    "@fiberplane/hono": "^0.4.4",
+    "@hono/zod-validator": "^0.4.2",
+    "@rollup/browser": "^4.34.8",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@rollup/plugin-virtual": "^3.0.2",
+    "@rollup/wasm-node": "^4.34.8",
+    "@scalar/hono-api-reference": "^0.5.170",
+    "drizzle-kit": "^0.30.4",
+    "drizzle-orm": "^0.39.1",
+    "esbuild-wasm": "^0.24.2",
+    "hono": "^4.6.20",
+    "hono-openapi": "^0.4.4",
+    "nanoid": "^5.0.9",
+    "rolldown": "^1.0.0-beta.3",
+    "rollup": "^4.34.8",
+    "zod": "^3.24.1",
+    "zod-openapi": "^4.2.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250129.0",
+    "wrangler": "^3.107.0"
+  }
+}

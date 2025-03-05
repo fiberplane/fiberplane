@@ -1,0 +1,22 @@
+name = "fog-machine"
+main = "src/app.ts"
+compatibility_date = "2025-01-29"
+compatibility_flags = ["nodejs_compat"]
+
+
+
+[observability]
+enabled = true
+
+[[workflows]]
+name = "deploy"
+class_name = "DeployWorkflow"
+binding = "DEPLOY_WORKFLOW"
+
+[[kv_namespaces]]
+binding = "projects"
+id = "d9df0dcfa07641afa63244e4276a3789"
+
+[[kv_namespaces]]
+binding = "templates"
+id = "1a8ab04f2ede4196ac33aaf7fe08b816"
