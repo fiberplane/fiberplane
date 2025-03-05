@@ -21,7 +21,7 @@ const polyfillGetContext = <E extends Env = Env>(): Context<E> => {
   if (!context) {
     throw new Error("Context is not available");
   }
-  
+
   return context as Context<E>;
 };
 
@@ -31,14 +31,12 @@ let getContext = polyfillGetContext;
 
 // Try to import from the official Hono package
 // We use dynamic import to avoid errors if the module doesn't exist
-import("hono/context-storage").then((honoContextStorage) => {
-  // If we get here, the module exists, so we can use it
-  contextStorage = honoContextStorage.contextStorage;
-  getContext = honoContextStorage.getContext;
-  console.log("Using official Hono context-storage");
-}).catch(() => {
-  // Module doesn't exist, we'll use the polyfill
-  console.log("Hono context-storage not found, using polyfill");
-});
+import("hono/context-storage")
+  .then((honoContextStorage) => {
+    // If we get here, the module exists, so we can use it
+    contextStorage = honoContextStorage.contextStorage;
+    getContext = honoContextStorage.getContext;
+  })
+  .catch(() => {});
 
-export { contextStorage, getContext }; 
+export { contextStorage, getContext };
