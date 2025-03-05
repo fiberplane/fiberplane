@@ -98,7 +98,7 @@ const createUser = createRoute({
   request: {
     // Validate request body using Zod schemas
     body: {
-     // NOTE: this is important to set to true, otherwise the route will accept empty bodies and invalid content types
+      // NOTE: this is important to set to true, otherwise the route will accept empty bodies and invalid content types
       required: true,
       content: {
         "application/json": {
@@ -155,6 +155,7 @@ schemas. If your application already defines validation schemas, those can be
 reused easily to define an OpenAPI spec.{" "}
 
 {" "}
+
 <PackageManagers
   type="add"
   pkg="hono-openapi @hono/zod-validator zod zod-openapi"
@@ -269,6 +270,7 @@ app.get(
 The other option is to integrate OpenAPI documentation into an existing Hono codebase. Refactoring the application to use Hono Zod OpenAPI or Rhinobase provides fine-grained documentation, offering long-term benefits, but requires more effort. For a quicker solution, Fiberplane provides a helper function to generate an OpenAPI spec from the existing code.
 
 {" "}
+
 <PackageManagers type="add" pkg="@fiberplane/hono" />
 
 This step involves importing the `createOpenAPISpec` function from Fiberplane and creating an endpoint at `/openapi.json` to generate and return an OpenAPI spec.
@@ -306,7 +308,8 @@ app.use(
 ```
 
 <Aside type="note">
-  It is important to mount Fiberplane's middleware _after_ all of your route definitions.
+  It is important to mount Fiberplane's middleware _after_ all of your route
+  definitions.
 </Aside>
 
 After starting the application, Fiberplane's native UI will be available at the `/fp` endpoint of the Hono application.
