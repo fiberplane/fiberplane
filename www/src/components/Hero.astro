@@ -155,7 +155,7 @@ const imageAttrs = {
 
   /* TODO: Add Geist font from fontsource.com */
   .hero-title {
-    font-size: 70px;
+    font-size: clamp(1.5rem, 8cqw, 4rem);
     line-height: 1;
     text-wrap: balance;
   }
@@ -168,6 +168,8 @@ const imageAttrs = {
     font-weight: 400;
     text-wrap: pretty;
     color: var(--fg-muted);
+    max-width: 40ch;
+    margin-inline: auto;
   }
 
   .hero-figure {
@@ -222,10 +224,6 @@ const imageAttrs = {
       margin-inline: 4rem;
     }
 
-    .hero-title {
-      font-size: clamp(34px, 5cqi, 70px);
-    }
-
     .hero-tagline {
       font-size: clamp(18px, 2.5cqi, 32px);
     }
@@ -253,6 +251,7 @@ const imageAttrs = {
     }
 
     .hero-header {
+      text-align: center;
       margin-inline: 0;
     }
 
