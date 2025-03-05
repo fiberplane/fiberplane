@@ -610,6 +610,9 @@ importers:
 
   examples/hono-openapi:
     dependencies:
+      '@fiberplane/hono':
+        specifier: workspace:*
+        version: link:../../packages/fiberplane-hono
       '@fiberplane/hono-otel':
         specifier: workspace:*
         version: link:../../packages/client-library-otel

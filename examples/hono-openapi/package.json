@@ -11,6 +11,7 @@
     "db:studio:prod": "ENVIRONMENT=production drizzle-kit studio"
   },
   "dependencies": {
+    "@fiberplane/hono": "workspace:*",
     "@fiberplane/hono-otel": "workspace:*",
     "@hono/zod-validator": "^0.4.3",
     "dotenv": "^16.4.5",
