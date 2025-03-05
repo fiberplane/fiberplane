@@ -1,10 +1,10 @@
 import { type Env, Hono } from "hono";
 import type { FetchFn, FiberplaneAppType } from "../../types";
 import createAssistantApiRoute from "./assistant";
+import createAuthApiRoute from "./auth";
 import createReportsApiRoute from "./reports";
 import createTokensApiRoute from "./tokens";
 import createWorkflowsApiRoute from "./workflows";
-import createAuthApiRoute from "./auth";
 
 /**
  * Creates the internal API router (except for the tracing routes)

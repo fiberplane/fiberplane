@@ -11,7 +11,11 @@ export default function createAuthApiRoute<E extends Env>(
   const app = new Hono<E & FiberplaneAppType<E>>();
 
   app.get("/authorize", async (c) => {
-    const { embeddedUrl } = await getApp(fetchFn, fiberplaneServicesUrl, apiKey);
+    const { embeddedUrl } = await getApp(
+      apiKey,
+      fetchFn,
+      fiberplaneServicesUrl,
+    );
 
     return c.redirect(
       `${fiberplaneServicesUrl}/api/auth/authorize?embeddedUrl=${encodeURIComponent(embeddedUrl)}`,
@@ -19,7 +23,11 @@ export default function createAuthApiRoute<E extends Env>(
   });
 
   app.get("/callback", async (c) => {
-    const { embeddedUrl } = await getApp(fetchFn, fiberplaneServicesUrl, apiKey);
+    const { embeddedUrl } = await getApp(
+      apiKey,
+      fetchFn,
+      fiberplaneServicesUrl,
+    );
 
     const sessionKey = c.req.query("session");
     if (!sessionKey) {
@@ -33,12 +41,15 @@ export default function createAuthApiRoute<E extends Env>(
   app.get("/profile", async (c) => {
     const sessionKey = getCookie(c, "fpSession");
 
-    const response = await fetchFn(`${fiberplaneServicesUrl}/api/auth/profile`, {
-      headers: {
-        "Content-Type": "application/json",
-        Cookie: `session=${sessionKey}`,
+    const response = await fetchFn(
+      `${fiberplaneServicesUrl}/api/auth/profile`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `session=${sessionKey}`,
+        },
       },
-    });
+    );
     const json = await response.json();
     return json;
   });
@@ -46,7 +57,11 @@ export default function createAuthApiRoute<E extends Env>(
   return app;
 }
 
-async function getApp(fetchFn: FetchFn, fiberplaneServicesUrl: string, apiKey: string) {
+async function getApp(
+  apiKey: string,
+  fetchFn: FetchFn,
+  fiberplaneServicesUrl: string,
+) {
   const response = await fetchFn(`${fiberplaneServicesUrl}/api/auth/app`, {
     headers: {
       Authorization: `Bearer ${apiKey}`,
