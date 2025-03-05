@@ -77,7 +77,10 @@ export default function createRunnerRoute<E extends Env>(
       const partitionKey = c.req.header("X-Fiberplane-Partition-Key");
 
       if (!partitionKey) {
-        return c.json({ error: "Missing `X-Fiberplane-Partition-Key` header" }, 400);
+        return c.json(
+          { error: "Missing `X-Fiberplane-Partition-Key` header" },
+          400,
+        );
       }
 
       const { data: workflow } = await getWorkflowById(

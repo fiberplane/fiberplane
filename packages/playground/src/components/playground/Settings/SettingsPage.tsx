@@ -133,8 +133,8 @@ export function SettingsPage() {
                     OpenTelemetry Traces
                   </label>
                   <p className="text-sm text-muted-foreground">
-                    Enable visualization and analysis of OpenTelemetry traces for
-                    your API requests. Contact Fiberplane to set this up.
+                    Enable visualization and analysis of OpenTelemetry traces
+                    for your API requests. Contact Fiberplane to set this up.
                   </p>
                 </div>
               </div>

@@ -37,7 +37,6 @@ export default function createWorkflowsApiRoute<E extends Env>(
       headers.set("content-type", contentType);
     }
 
-
     if (partitionKey) {
       headers.set("X-Fiberplane-Partition-Key", partitionKey);
       logIfDebug(

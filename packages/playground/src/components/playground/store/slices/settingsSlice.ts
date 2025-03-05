@@ -280,12 +280,12 @@ export const settingsSlice: StateCreator<
 
         return state;
       }),
-    
+
     setPartitionKey: (key: string) =>
       set((initialState: StudioState): StudioState => {
         const state = { ...initialState };
         state.partitionKey = key;
-        
+
         localStorage.setItem(
           SETTINGS_STORAGE_KEY,
           JSON.stringify({
@@ -293,7 +293,7 @@ export const settingsSlice: StateCreator<
             partitionKey: state.partitionKey,
           }),
         );
-        
+
         return state;
       }),
   };
