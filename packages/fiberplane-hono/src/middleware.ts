@@ -1,5 +1,4 @@
 import type { Context, Env, MiddlewareHandler } from "hono";
-import packageJson from "../package.json" assert { type: "json" };
 import {
   DEFAULT_PLAYGROUND_SERVICES_URL,
   ENV_FIBERPLANE_OTEL_ENDPOINT,
@@ -12,9 +11,18 @@ import { logIfDebug } from "./debug";
 import { createRouter } from "./router";
 import type { EmbeddedOptions, ResolvedEmbeddedOptions } from "./types";
 import { getFromEnv } from "./utils/env";
+// NOTE - We faced issues between Wrangler and Node environments when importing package.json directly in our code.
+//        Recent versions of Node wanted us to use `with` syntax,
+//        but Wrangler didn't support it yet.
+//
+// import packageJson from "../package.json" assert { type: "json" };
 
-const VERSION = packageJson.version;
-const CDN_URL = `https://cdn.jsdelivr.net/npm/@fiberplane/hono@${VERSION}/dist/playground/`;
+/**
+ * The version of assets to use for the playground ui.
+ * This should correspond to the package.json version of the `@fiberplane/hono` package.
+ */
+export const ASSETS_VERSION = "0.5.0-beta.1";
+const CDN_URL = `https://cdn.jsdelivr.net/npm/@fiberplane/hono@${ASSETS_VERSION}/dist/playground/`;
 
 export const createFiberplane =
   <E extends Env>(options: EmbeddedOptions<E>): MiddlewareHandler =>
