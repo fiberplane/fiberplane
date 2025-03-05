@@ -223,3 +223,16 @@ kbd:not(site-search kbd) {
     background-color 0.2s,
     box-shadow 0.2s;
 }
+
+a,
+a:visited {
+  color: var(--sl-color-accent);
+
+  &:hover {
+    color: var(--sl-color-accent-high);
+  }
+
+  &:active {
+    color: var(--sl-color-accent);
+  }
+}
