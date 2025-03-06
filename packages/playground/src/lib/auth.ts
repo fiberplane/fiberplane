@@ -1,5 +1,3 @@
-export const redirectUrl = "http://localhost:7676/fp";
-
 export type UserProfile = {
   id: string;
   email: string;
