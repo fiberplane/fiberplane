@@ -130,7 +130,7 @@ function Index() {
   const [user, setUser] = useContext(AuthContext);
   useEffect(() => {
     (async () => {
-      const response = await fetch("/api/auth/profile");
+      const response = await fetch("/fp/api/auth/profile");
       const json = await response.json();
       console.log(json);
       setUser(json);
