@@ -1,7 +1,6 @@
 import { createClient } from "@openauthjs/openauth/client";
-// import { createSubjects } from "@openauthjs/openauth/subject";
 
-// const redirectUrl = "http://localhost:7676/fp";
+export const redirectUrl = "http://localhost:7676/fp";
 const issuer = "https://auth.fp.dev";
 const openAuthClientId = "fp-playground";
 

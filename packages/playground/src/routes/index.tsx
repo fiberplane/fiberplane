@@ -2,16 +2,13 @@ import { Layout } from "@/Layout";
 import { PlaygroundPage } from "@/components/playground";
 import { useStudioStore } from "@/components/playground/store";
 import { Button } from "@/components/ui/button";
-import { AuthContext, useAuth } from "@/contexts/auth";
+import { useAuth } from "@/contexts/auth";
 import { useSettingsOpen } from "@/hooks";
+import { usePkce } from "@/lib/hooks/usePkce";
 import { useHandler } from "@fiberplane/hooks";
-import { type Challenge, createClient } from "@openauthjs/openauth/client";
-import { createSubjects } from "@openauthjs/openauth/subject";
-import { createFileRoute, useSearch } from "@tanstack/react-router";
-import { useCallback, useContext, useEffect } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useCallback, useEffect } from "react";
 import { z } from "zod";
-
-const redirectUrl = "http://localhost:7676/fp";
 
 const SettingsRouteSchema = z.object({
   settings: z.boolean().optional(),
@@ -26,11 +23,6 @@ const ApiRouteSchema = SettingsRouteSchema.extend({
 export const Route = createFileRoute("/")({
   component: Index,
   validateSearch: (search) => ApiRouteSchema.parse(search),
-});
-
-const client = createClient({
-  clientID: "fp-playground",
-  issuer: "https://auth.fp.dev",
 });
 
 /**
@@ -83,58 +75,20 @@ function Index() {
     document.location = "/fp/api/auth/authorize";
   });
 
-  const login = async () => {
-    const { challenge, url } = await client.authorize(redirectUrl, "code", {
-      pkce: true,
-    });
-    localStorage.setItem("challenge", JSON.stringify(challenge));
-    document.location = url;
-  };
-
-  const { code } = useSearch({ strict: false });
-
-  useEffect(() => {
-    if (code) {
-      const challenge: Challenge = JSON.parse(
-        // biome-ignore lint/style/noNonNullAssertion: <explanation>
-        localStorage.getItem("challenge")!,
-      );
-
-      (async () => {
-        const exchanged = await client.exchange(
-          code,
-          redirectUrl,
-          challenge.verifier,
-        );
-
-        if (exchanged.err) {
-          throw new Error("Invalid code");
-        }
-
-        const subjects = createSubjects({
-          user: z.object({
-            email: z.string().email(),
-            githubUserId: z.number(),
-          }),
-        });
-
-        localStorage.setItem("fpAccessToken", exchanged.tokens.access);
-        localStorage.setItem("fpRefreshToken", exchanged.tokens.access);
-
-        const verified = await client.verify(subjects, exchanged.tokens.access);
-
-        console.log(verified);
-      })();
-    }
-  }, [code]);
-
+  const pkceAuth = usePkce();
   const user = useAuth();
 
   return (
     <Layout>
-      <pre>{JSON.stringify(user)}</pre>
-      <Button onClick={login}>Login PKCE</Button>
-      <Button onClick={login2}>Login session</Button>
+      {user && (<pre>{JSON.stringify(user)}</pre>)}
+      {
+        !user && (
+          <>
+            <Button onClick={pkceAuth.login}>Login PKCE</Button>
+            <Button onClick={login2}>Login session</Button>
+          </>
+        )
+      }
       <PlaygroundPage />
     </Layout>
   );
