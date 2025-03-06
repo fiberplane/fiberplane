@@ -6,6 +6,6 @@ export type UserProfile = {
   role: "owner" | "admin" | "user";
 };
 
-export const isOwner = (user?: UserProfile) => user?.role === "owner";
-export const isAdmin = (user?: UserProfile) => user?.role === "admin";
-export const isUser = (user?: UserProfile) => user?.role === "user";
+export const isOwner = (user: UserProfile | null) => user?.role === "owner";
+export const isAdmin = (user: UserProfile | null) => user?.role === "admin";
+export const isUser = (user: UserProfile | null) => user?.role === "user";

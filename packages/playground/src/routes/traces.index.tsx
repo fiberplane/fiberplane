@@ -2,9 +2,11 @@ import {
   TracesList,
   TracesListErrorBoundary,
 } from "@/components/traces/TracesList";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth";
 import { isFpApiError } from "@/lib/api/errors";
 import { type UserProfile, isAdmin, isOwner } from "@/lib/auth";
+import { useLoginHandler } from "@/lib/hooks/useLogin";
 import { TRACES_KEY, tracesQueryOptions } from "@/lib/hooks/useTraces";
 import { useHandler } from "@fiberplane/hooks";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
@@ -74,7 +76,7 @@ function TracesIndexPage() {
     }
   });
 
-  if (!user) {
+  if (user) {
     return <Unauthenticated />;
   }
 
@@ -86,14 +88,19 @@ function TracesIndexPage() {
 }
 
 export function Unauthenticated() {
+  const login = useLoginHandler();
+
   return (
-    <div className="flex flex-col items-center justify-center h-full p-8">
-      <h2 className="text-2xl font-semibold text-foreground mb-2">
+    <div className="flex flex-col items-center justify-center h-full w-[400px] mx-auto p-8 gap-2">
+      <h2 className="text-2xl font-semibold text-foreground">
         Authentication Required
       </h2>
       <p className="text-muted-foreground text-center">
         You must be logged in to view traces
       </p>
+      <div className="mt-2">
+        <Button onClick={login}>Log in</Button>
+      </div>
     </div>
   );
 }
@@ -111,6 +118,6 @@ export function Unauthorized() {
   );
 }
 
-function canViewTraces(user: UserProfile) {
-  return isAdmin(user) || isOwner(user);
+function canViewTraces(user: UserProfile | null) {
+  return user && (isAdmin(user) || isOwner(user));
 }

@@ -4,7 +4,7 @@ import { useStudioStore } from "@/components/playground/store";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth";
 import { useSettingsOpen } from "@/hooks";
-import { getFpApiBasePath } from "@/lib/api/fetch";
+import { useLoginHandler } from "@/lib/hooks/useLogin";
 import { useHandler } from "@fiberplane/hooks";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect } from "react";
@@ -71,11 +71,7 @@ function Index() {
     }
   }, [method, uri, updateActiveRoute, setDefault]);
 
-  const login = useHandler(async () => {
-    const base = getFpApiBasePath();
-    document.location = `${base}/api/auth/authorize`;
-  });
-
+  const login = useLoginHandler();
   const user = useAuth();
 
   return (
