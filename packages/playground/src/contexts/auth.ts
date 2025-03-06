@@ -1,6 +1,11 @@
-import { createContext } from "react";
+import { createContext, useContext } from "react";
+import type { UserProfile } from "../lib/auth";
 
-export const AuthContext = createContext<[{} | undefined, (user: {}) => void]>([
-  undefined,
-  () => {},
-]);
+export const AuthContext = createContext<UserProfile | null>(null);
+
+// Custom hook to use the auth context
+export function useAuth() {
+  const context = useContext(AuthContext);
+  console.log("context", context);
+  return context;
+}

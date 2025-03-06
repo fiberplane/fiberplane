@@ -2,6 +2,7 @@ import {
   TracesList,
   TracesListErrorBoundary,
 } from "@/components/traces/TracesList";
+import { useAuth } from "@/contexts/auth";
 import { TRACES_KEY, tracesQueryOptions } from "@/lib/hooks/useTraces";
 import { useHandler } from "@fiberplane/hooks";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
@@ -40,6 +41,8 @@ export const Route = createFileRoute("/traces/")({
 
 function TracesIndexPage() {
   const { queryClient } = Route.useRouteContext();
+  const user = useAuth();
+  console.log("user", user);
   const { traces } = Route.useLoaderData();
   const router = useRouter();
 
@@ -57,6 +60,10 @@ function TracesIndexPage() {
       console.error("[reloading traces] No router found");
     }
   });
+
+  if (!user) {
+    return <div>You must be logged in to view traces</div>;
+  }
 
   return <TracesList traces={traces} reload={reload} />;
 }

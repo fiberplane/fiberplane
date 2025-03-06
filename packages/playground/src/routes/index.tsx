@@ -2,7 +2,7 @@ import { Layout } from "@/Layout";
 import { PlaygroundPage } from "@/components/playground";
 import { useStudioStore } from "@/components/playground/store";
 import { Button } from "@/components/ui/button";
-import { AuthContext } from "@/contexts/auth";
+import { AuthContext, useAuth } from "@/contexts/auth";
 import { useSettingsOpen } from "@/hooks";
 import { useHandler } from "@fiberplane/hooks";
 import { type Challenge, createClient } from "@openauthjs/openauth/client";
@@ -128,15 +128,7 @@ function Index() {
     }
   }, [code]);
 
-  const [user, setUser] = useContext(AuthContext);
-  useEffect(() => {
-    (async () => {
-      const response = await fetch("/fp/api/auth/profile");
-      const json = await response.json();
-      console.log(json);
-      setUser(json);
-    })();
-  }, [setUser]);
+  const user = useAuth();
 
   return (
     <Layout>
