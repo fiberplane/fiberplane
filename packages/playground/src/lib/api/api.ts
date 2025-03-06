@@ -4,6 +4,7 @@ import {
   TraceListResponseSchema,
   TraceSummarySchema,
 } from "@fiberplane/fpx-types";
+import type { UserProfile } from "../auth";
 import { FetchOpenApiSpecError, isFailedToFetchError } from "./errors";
 import { baseFetch, fpFetch } from "./fetch";
 import { safeParseBodyText } from "./utils";
@@ -179,5 +180,26 @@ export const api = {
       },
       body: JSON.stringify(data),
     });
+  },
+
+  /**
+   * Mock API call to get user profile
+   */
+  getUserProfile: async (): Promise<ApiResponse<UserProfile>> => {
+    // Simulate latency
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+    return {
+      data: {
+        id: "852a1147-465e-4048-bc2f-47add2b2fd4f",
+        email: "brbeut@gmail.com",
+        role: "owner",
+        // githubUserId: 3201327,
+        // createdAt: "2025-03-05T13:54:50.000Z",
+        // updatedAt: "2025-03-05T13:54:50.000Z"
+      },
+    };
+    // THIS IS READY TO TEST!!!
+    //
+    // return fpFetch("/api/auth/profile");
   },
 };

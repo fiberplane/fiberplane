@@ -5,7 +5,6 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { routeTree } from "./routeTree.gen";
 import "./index.css";
-import { AuthProvider } from "./components/AuthProvider";
 import { ThemeProvider } from "./components/theme-provider";
 import { parseEmbeddedConfig } from "./utils";
 
@@ -36,14 +35,12 @@ declare module "@tanstack/react-router" {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <AuthProvider>
-      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-        <TooltipProvider>
-          <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} />
-          </QueryClientProvider>
-        </TooltipProvider>
-      </ThemeProvider>
-    </AuthProvider>
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+      <TooltipProvider>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </TooltipProvider>
+    </ThemeProvider>
   </StrictMode>,
 );

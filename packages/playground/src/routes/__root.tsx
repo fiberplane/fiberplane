@@ -1,13 +1,15 @@
+import { AuthProvider } from "@/components/AuthProvider";
 import { ErrorScreen } from "@/components/ErrorScreen";
 import { WorkflowCommand } from "@/components/WorkflowCommand";
 import { isFetchOpenApiSpecError } from "@/lib/api";
 import { openApiSpecQueryOptions } from "@/lib/hooks/useOpenApiSpec";
+import { userProfileQueryOptions } from "@/lib/hooks/useUser";
 import { Icon } from "@iconify/react";
 import type { QueryClient } from "@tanstack/react-query";
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import React from "react";
 
-export const Route = createRootRouteWithContext<{
+type RootRouteContext = {
   queryClient: QueryClient;
   openapi:
     | {
@@ -15,23 +17,42 @@ export const Route = createRootRouteWithContext<{
         content?: string;
       }
     | undefined;
-}>()({
+};
+
+export const Route = createRootRouteWithContext<RootRouteContext>()({
   component: RootComponent,
   loader: async ({ context }) => {
-    if (!context.openapi?.url && !context.openapi?.content) {
-      return { context };
-    }
-
+    // Only fetch the openapi spec if it has a `url` or `content` property
+    const hasQueryableOpenApiSpec =
+      context.openapi?.url || context.openapi?.content;
     const queryOptions = openApiSpecQueryOptions(context.openapi);
-    const content = await context.queryClient.ensureQueryData(queryOptions);
+    const openApiPromise = !hasQueryableOpenApiSpec
+      ? Promise.resolve(null)
+      : context.queryClient.ensureQueryData(queryOptions);
+
+    const userPromise = context.queryClient.ensureQueryData(
+      userProfileQueryOptions(),
+    );
+
+    const [openApiContent, userResponse] = await Promise.all([
+      openApiPromise,
+      userPromise,
+    ]);
 
     return {
+      // This is confusing the hell out of me.
+      // It seems like this is not set as route context for downstream routes?
+      // Then why are we descring it as "context" in the route loader?
+      // NOTE - We access this via the loader data in the root component.
       context: {
         ...context,
-        openapi: {
-          ...context.openapi,
-          content,
-        },
+        ...(openApiContent && {
+          openapi: {
+            ...context.openapi,
+            content: openApiContent,
+          },
+        }),
+        user: userResponse.data ?? null,
       },
     };
   },
@@ -47,9 +68,10 @@ export const Route = createRootRouteWithContext<{
   staleTime: 10 * 60 * 1000,
 
   onError: (error) => {
-    console.error("Error loading openapi spec", error);
+    console.error("Error loading initial data (openapi spec and user)", error);
   },
   errorComponent: ({ error, info }) => {
+    // TODO - Handle error fetching user
     if (isFetchOpenApiSpecError(error)) {
       return (
         <ErrorScreen
@@ -72,16 +94,19 @@ export const Route = createRootRouteWithContext<{
 });
 
 function RootComponent() {
+  const loaderData = Route.useLoaderData();
   return (
-    <div className="min-h-screen bg-background">
-      <div className="flex-1">
-        <WorkflowCommand />
-        <Outlet />
+    <AuthProvider user={loaderData.context.user}>
+      <div className="min-h-screen bg-background">
+        <div className="flex-1">
+          <WorkflowCommand />
+          <Outlet />
+        </div>
+        {/*  Commented out because they're annoying but leaving them here in case you need them */}
+        {/* <TanStackRouterDevtools position="bottom-right" /> */}
+        {/* <ReactQueryDevtools /> */}
       </div>
-      {/*  Commented out because they're annoying but leaving them here in case you need them */}
-      {/* <TanStackRouterDevtools position="bottom-right" /> */}
-      {/* <ReactQueryDevtools /> */}
-    </div>
+    </AuthProvider>
   );
 }
 
