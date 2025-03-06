@@ -3,12 +3,12 @@
 import { Validator } from "@cfworker/json-schema";
 import { sValidator } from "@hono/standard-validator";
 import { type Env, Hono } from "hono";
-import { getContext } from "hono/context-storage";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 import { logIfDebug } from "../../debug";
 import type { Step, Workflow } from "../../schemas/workflows";
 import type { FiberplaneAppType } from "../../types";
+import { getContext } from "../../utils";
 import {
   type HttpRequestParams,
   type WorkflowContext,
@@ -74,10 +74,20 @@ export default function createRunnerRoute<E extends Env>(
     sValidator("param", z.object({ workflowId: z.string() })),
     async (c) => {
       const { workflowId } = c.req.valid("param");
+      const partitionKey = c.req.header("X-Fiberplane-Partition-Key");
+
+      if (!partitionKey) {
+        return c.json(
+          { error: "Missing `X-Fiberplane-Partition-Key` header" },
+          400,
+        );
+      }
+
       const { data: workflow } = await getWorkflowById(
         workflowId,
         apiKey,
         fiberplaneServicesUrl,
+        partitionKey,
       );
 
       const validator = new Validator(workflow.inputs);

@@ -65,6 +65,7 @@ const loadSettingsFromStorage = (): {
   isTracingEnabled: boolean;
   shouldShowTopNav: boolean;
   isErrorReportingEnabled: boolean;
+  partitionKey: string;
 } => {
   const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
   if (!stored) {
@@ -76,6 +77,7 @@ const loadSettingsFromStorage = (): {
       isTracingEnabled: false,
       isErrorReportingEnabled: false,
       shouldShowTopNav: false,
+      partitionKey: "",
     };
   }
 
@@ -89,6 +91,7 @@ const loadSettingsFromStorage = (): {
       isTracingEnabled: false,
       isErrorReportingEnabled: false,
       shouldShowTopNav: false,
+      partitionKey: "",
     };
   }
 
@@ -120,6 +123,7 @@ const loadSettingsFromStorage = (): {
     isTracingEnabled,
     shouldShowTopNav,
     isErrorReportingEnabled,
+    partitionKey: parsed.partitionKey || "",
   };
 };
 
@@ -137,6 +141,9 @@ export interface SettingsSlice {
   shouldShowTopNav: boolean;
   enabledFeatures: FeatureFlag[];
 
+  // Workflow settings
+  partitionKey: string;
+
   // Actions
   addAuthorization: (
     authorization: Authorization & Pick<Partial<Authorization>, "id">,
@@ -145,6 +152,7 @@ export interface SettingsSlice {
   removeAuthorization: (id: string) => void;
   setPersistentAuthHeaders: (headers: KeyValueElement[]) => void;
   setFeatureEnabled: (feature: FeatureFlag, enabled: boolean) => void;
+  setPartitionKey: (key: string) => void;
 }
 
 export const settingsSlice: StateCreator<
@@ -269,6 +277,16 @@ export const settingsSlice: StateCreator<
             enabledFeatures: state.enabledFeatures,
           }),
         );
+
+        return state;
+      }),
+
+    setPartitionKey: (key: string) =>
+      set((initialState: StudioState): StudioState => {
+        const state = { ...initialState };
+        state.partitionKey = key;
+
+        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(state));
 
         return state;
       }),

@@ -1,14 +1,15 @@
 import type { Context, Env } from "hono";
-import { getContext } from "hono/context-storage";
 import { HTTPException } from "hono/http-exception";
 import { type ZodError, z } from "zod";
 import type { Workflow } from "../../schemas/workflows";
 import type { FiberplaneAppType } from "../../types";
+import { getContext } from "../../utils";
 
 export async function getWorkflowById<E extends Env>(
   workflowId: string,
   apiKey: string,
   fiberplaneServicesUrl: string,
+  partitionKey: string,
 ): Promise<{ data: Workflow }> {
   const c = getContext<FiberplaneAppType<E>>();
 
@@ -26,6 +27,7 @@ export async function getWorkflowById<E extends Env>(
     method: "GET",
     headers: {
       Authorization: `Bearer ${apiKey}`,
+      "X-Fiberplane-Partition-Key": partitionKey,
     },
   });
 

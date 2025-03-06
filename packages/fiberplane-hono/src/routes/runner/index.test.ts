@@ -1,11 +1,11 @@
 import { Hono } from "hono";
 import type { Env } from "hono";
-import { contextStorage } from "hono/context-storage";
 import { HTTPException } from "hono/http-exception";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createFiberplane } from "../../middleware";
 import type { Workflow } from "../../schemas/workflows";
 import type { FiberplaneAppType } from "../../types";
+import { contextStorage } from "../../utils";
 
 const mockWorkflow: Workflow = {
   workflowId: "test-workflow",
@@ -174,6 +174,7 @@ describe("Workflow Runner", () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Fiberplane-Partition-Key": "test-partition",
         },
         body: JSON.stringify({
           name: "Test Resource",
@@ -204,6 +205,7 @@ describe("Workflow Runner", () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Fiberplane-Partition-Key": "test-partition",
         },
         body: JSON.stringify({
           name: "Test Resource",
@@ -224,6 +226,7 @@ describe("Workflow Runner", () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Fiberplane-Partition-Key": "test-partition",
         },
         body: JSON.stringify({
           description: "Test Description",
@@ -263,6 +266,7 @@ describe("Workflow Runner", () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Fiberplane-Partition-Key": "test-partition",
         },
         body: JSON.stringify({
           name: "Test Resource",
@@ -285,6 +289,7 @@ describe("Workflow Runner", () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Fiberplane-Partition-Key": "test-partition",
         },
         body: JSON.stringify({
           name: "Test Resource",
@@ -295,5 +300,28 @@ describe("Workflow Runner", () => {
     );
 
     expect(res.status).toBe(404);
+  });
+
+  it("should require X-Fiberplane-Partition-Key header", async () => {
+    const res = await app.request(
+      "/w/test-workflow",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Missing X-Fiberplane-Partition-Key header
+        },
+        body: JSON.stringify({
+          name: "Test Resource",
+          description: "Test Description",
+        }),
+      },
+      {},
+      mockExecutionCtx,
+    );
+
+    expect(res.status).toBe(400);
+    const data = await res.json();
+    expect(data.error).toBe("Missing `X-Fiberplane-Partition-Key` header");
   });
 });
