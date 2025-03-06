@@ -15,14 +15,14 @@ export function ListSection({
   return (
     <div
       className={cn(
-        "rounded-md border grid items-center bg-background",
+        "rounded-md border grid items-start bg-background grid-rows-[auto_1fr]",
         className,
       )}
     >
-      <div className="px-3 py-2.5 text-sm font-medium border-b h-12 grid items-center">
+      <div className="px-3 py-2.5 text-sm font-medium border-b min-h-12 grid items-center">
         {title}
       </div>
-      <div className={cn("w-full py-2 px-3", contentClassName)}>{children}</div>
+      <div className={cn("py-2 px-3", contentClassName)}>{children}</div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 export { api } from "./api";
 export {
-  getFpApiErrorDetailsJson,
+  // getFpApiErrorDetailsJson,
   isFetchOpenApiSpecError,
   isFeatureDisabledError,
   isFpApiError,

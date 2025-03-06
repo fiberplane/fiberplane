@@ -1,9 +1,12 @@
+import type { ExecutionError } from "@/lib/api/errors";
 import { Route } from "@/routes/workflows.$workflowId";
 import type { WorkflowStep } from "@/types";
 import { cn } from "@/utils";
 import { Link } from "@tanstack/react-router";
 import { Link2Icon } from "lucide-react";
 import { Method } from "../Method";
+import { StatusCode } from "../StatusCode";
+import { ListSection } from "./ListSection";
 
 export function StepperItem(
   props: Pick<
@@ -11,12 +14,13 @@ export function StepperItem(
     "stepId" | "operation" | "description" | "parameters"
   > & {
     index: number;
+    error?: ExecutionError;
   },
 ) {
-  const { index, description, operation, stepId } = props;
+  const { index, description, operation, stepId, error } = props;
 
   const { stepId: paramStepId } = Route.useSearch();
-  const expanded = stepId === paramStepId;
+  const expanded = paramStepId ? stepId === paramStepId : error;
 
   return (
     <div
@@ -24,6 +28,9 @@ export function StepperItem(
         "block rounded-md relative",
         `before:content-[""] before:absolute before:border-l before:border-l-foreground/10 before:left-[15px] before:z-10`,
         "before:h-[calc(100%)] before:top-8 last:before:hidden",
+        {
+          "border-danger": !!error,
+        },
       )}
     >
       <div>
@@ -57,13 +64,12 @@ export function StepperItem(
           <div>{description}</div>
         </Link>
         {expanded && (
-          <div className="ml-10 pr-2 pb-2 text-sm pl-2 pt-0">
-            <div className="grid">
-              <div className="text-xs">Endpoint:</div>
+          <div className="ml-10 pr-2 pb-2 text-sm pl-2 pt-0 grid gap-2">
+            <div className="grid gap-2">
               <Link
                 className={cn(
                   "grid grid-cols-[auto_auto_1fr] gap-2 items-center",
-                  "hover:underline  w-full",
+                  "hover:underline w-full",
                 )}
                 to="/"
                 search={(params) => ({
@@ -77,6 +83,33 @@ export function StepperItem(
                 <Link2Icon className="w-3.5" />
               </Link>
             </div>
+            {error && (
+              <div>
+                {/* <div className="grid gap-2">
+                <div>Inputs</div>
+                <div className="grid gap-2">
+                  {Object.entries(error.details.inputs).map(([name, value]) => <NameValueItem key={name} name={name} value={value} />)}
+                </div>
+              </div> */}
+                {error.details.responseStatus && (
+                  <ListSection
+                    title={
+                      <div>
+                        Response:{" "}
+                        <StatusCode
+                          status={error.details.responseStatus.toString()}
+                          isFailure={false}
+                        />
+                      </div>
+                    }
+                  >
+                    <pre className="max-w-full overflow-auto font-mono bg-background">
+                      <code>{error.details.response}</code>
+                    </pre>
+                  </ListSection>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

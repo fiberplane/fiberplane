@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Step, Workflow } from "../../schemas/workflows";
 import {
   resolveOutputs,
+  resolvePathAndMethod,
   resolveReference,
   resolveStepOutputs,
   resolveStepParams,
@@ -210,7 +211,7 @@ describe("resolveReference", () => {
 
 describe("resolveStepParams", () => {
   it("should resolve path and method", async () => {
-    const result = await resolveStepParams(mockStep, mockWorkflowContext);
+    const result = await resolvePathAndMethod(mockStep);
     expect(result.path).toBe("/api/apps");
     expect(result.method).toBe("post");
   });

@@ -141,3 +141,27 @@ export interface FiberplaneAppType<E extends Env> {
     userExecutionCtx: ExecutionContext;
   };
 }
+
+export type ValidationDetail = {
+  key: string;
+  message: string;
+  code: string;
+};
+
+export type ValidationError = {
+  type: "VALIDATION_ERROR";
+  message: string;
+  details: Array<ValidationDetail>;
+};
+
+export type ExecutionError = {
+  type: "EXECUTION_ERROR";
+  message: string;
+  details: {
+    stepId: string;
+    inputs: Record<string, unknown>;
+    body?: string;
+    response?: string;
+    responseStatus?: number;
+  };
+};
