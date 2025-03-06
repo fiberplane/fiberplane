@@ -51,7 +51,7 @@ export default function createAuthApiRoute<E extends Env>(
       },
     );
     const json = await response.json();
-    return json;
+    return c.json(json);
   });
 
   return app;
