@@ -4,7 +4,7 @@ import { useStudioStore } from "@/components/playground/store";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth";
 import { useSettingsOpen } from "@/hooks";
-import { usePkce } from "@/lib/hooks/usePkce";
+import { getFpApiBasePath } from "@/lib/api/fetch";
 import { useHandler } from "@fiberplane/hooks";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect } from "react";
@@ -71,22 +71,17 @@ function Index() {
     }
   }, [method, uri, updateActiveRoute, setDefault]);
 
-  const login2 = useHandler(async () => {
-    document.location = "/fp/api/auth/authorize";
+  const login = useHandler(async () => {
+    const base = getFpApiBasePath();
+    document.location = `${base}/api/auth/authorize`;
   });
 
-  const pkceAuth = usePkce();
   const user = useAuth();
 
   return (
     <Layout>
       {user && <pre>{JSON.stringify(user)}</pre>}
-      {!user && (
-        <>
-          <Button onClick={pkceAuth.login}>Login PKCE</Button>
-          <Button onClick={login2}>Login session</Button>
-        </>
-      )}
+      {!user && <Button onClick={login}>Login</Button>}
       <PlaygroundPage />
     </Layout>
   );

@@ -1,8 +1,4 @@
-import { createClient } from "@openauthjs/openauth/client";
-
 export const redirectUrl = "http://localhost:7676/fp";
-const issuer = "https://auth.fp.dev";
-const openAuthClientId = "fp-playground";
 
 export type UserProfile = {
   id: string;
@@ -13,11 +9,3 @@ export type UserProfile = {
 export const isOwner = (user?: UserProfile) => user?.role === "owner";
 export const isAdmin = (user?: UserProfile) => user?.role === "admin";
 export const isUser = (user?: UserProfile) => user?.role === "user";
-
-/**
- * NOTE - Not in use, use this to refactor src/routes/index.tsx
- */
-export const openAuthClient = createClient({
-  clientID: openAuthClientId,
-  issuer,
-});
