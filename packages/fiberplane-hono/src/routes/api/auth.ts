@@ -45,6 +45,7 @@ export default function createAuthApiRoute<E extends Env>(
       `${fiberplaneServicesUrl}/api/auth/profile`,
       {
         headers: {
+          Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
           Cookie: `session=${sessionKey}`,
         },
