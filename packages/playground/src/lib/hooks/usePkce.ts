@@ -2,19 +2,22 @@
  * NOT IN USE - Still buggy
  */
 
-import { useEffect } from "react";
-import { useSearch } from "@tanstack/react-router";
-import { openAuthClient, redirectUrl } from "../auth";
 import type { Challenge } from "@openauthjs/openauth/client";
 import { createSubjects } from "@openauthjs/openauth/subject";
+import { useSearch } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { z } from "zod";
+import { openAuthClient, redirectUrl } from "../auth";
 
 export function usePkce() {
-
   const login = async () => {
-    const { challenge, url } = await openAuthClient.authorize(redirectUrl, "code", {
-      pkce: true,
-    });
+    const { challenge, url } = await openAuthClient.authorize(
+      redirectUrl,
+      "code",
+      {
+        pkce: true,
+      },
+    );
     localStorage.setItem("challenge", JSON.stringify(challenge));
     document.location = url;
   };
@@ -49,7 +52,10 @@ export function usePkce() {
         localStorage.setItem("fpAccessToken", exchanged.tokens.access);
         localStorage.setItem("fpRefreshToken", exchanged.tokens.access);
 
-        const verified = await openAuthClient.verify(subjects, exchanged.tokens.access);
+        const verified = await openAuthClient.verify(
+          subjects,
+          exchanged.tokens.access,
+        );
 
         console.log(verified);
       })();
@@ -58,5 +64,5 @@ export function usePkce() {
 
   return {
     login,
-  }
+  };
 }

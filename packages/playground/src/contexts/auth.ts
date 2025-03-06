@@ -6,6 +6,5 @@ export const AuthContext = createContext<UserProfile | null>(null);
 // Custom hook to use the auth context
 export function useAuth() {
   const context = useContext(AuthContext);
-  console.log("context", context);
   return context;
 }

@@ -21,7 +21,7 @@ const queryClient = new QueryClient();
 const router = createRouter({
   routeTree,
   basepath: mountedPath,
-  context: { queryClient, openapi, user: null },
+  context: { queryClient, openapi },
   defaultPreload: "intent",
   defaultPreloadStaleTime: 10 * 1000,
 });

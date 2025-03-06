@@ -80,15 +80,13 @@ function Index() {
 
   return (
     <Layout>
-      {user && (<pre>{JSON.stringify(user)}</pre>)}
-      {
-        !user && (
-          <>
-            <Button onClick={pkceAuth.login}>Login PKCE</Button>
-            <Button onClick={login2}>Login session</Button>
-          </>
-        )
-      }
+      {user && <pre>{JSON.stringify(user)}</pre>}
+      {!user && (
+        <>
+          <Button onClick={pkceAuth.login}>Login PKCE</Button>
+          <Button onClick={login2}>Login session</Button>
+        </>
+      )}
       <PlaygroundPage />
     </Layout>
   );

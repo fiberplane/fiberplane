@@ -18,20 +18,16 @@ type RootRouteContext = {
         content?: string;
       }
     | undefined;
-  user: UserProfile | null;
-}
+};
 
 export const Route = createRootRouteWithContext<RootRouteContext>()({
   component: RootComponent,
   loader: async ({ context }) => {
-    // if (!context.openapi?.url && !context.openapi?.content) {
-    //   return { context };
-    // }
-
-    const hasFetchableOpenApiSpec =
+    // Only fetch the openapi spec if it has a `url` or `content` property
+    const hasQueryableOpenApiSpec =
       context.openapi?.url || context.openapi?.content;
     const queryOptions = openApiSpecQueryOptions(context.openapi);
-    const openApiPromise = !hasFetchableOpenApiSpec
+    const openApiPromise = !hasQueryableOpenApiSpec
       ? Promise.resolve(null)
       : context.queryClient.ensureQueryData(queryOptions);
 
@@ -44,13 +40,11 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
       userPromise,
     ]);
 
-    console.log("userResponse", userResponse);
-    console.log("userResponse.data", userResponse.data);
-
     return {
       // This is confusing the hell out of me.
       // It seems like this is not set as route context for downstream routes?
       // Then why are we descring it as "context" in the route loader?
+      // NOTE - We access this via the loader data in the root component.
       context: {
         ...context,
         ...(openApiContent && {
@@ -78,6 +72,7 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
     console.error("Error loading openapi spec", error);
   },
   errorComponent: ({ error, info }) => {
+    // TODO - Handle error fetching user
     if (isFetchOpenApiSpecError(error)) {
       return (
         <ErrorScreen
@@ -110,8 +105,8 @@ function RootComponent() {
         </div>
         {/*  Commented out because they're annoying but leaving them here in case you need them */}
         {/* <TanStackRouterDevtools position="bottom-right" /> */}
-          {/* <ReactQueryDevtools /> */}
-        </div>
+        {/* <ReactQueryDevtools /> */}
+      </div>
     </AuthProvider>
   );
 }
