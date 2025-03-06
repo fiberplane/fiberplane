@@ -2,7 +2,6 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { ErrorScreen } from "@/components/ErrorScreen";
 import { WorkflowCommand } from "@/components/WorkflowCommand";
 import { isFetchOpenApiSpecError } from "@/lib/api";
-import type { UserProfile } from "@/lib/auth";
 import { openApiSpecQueryOptions } from "@/lib/hooks/useOpenApiSpec";
 import { userProfileQueryOptions } from "@/lib/hooks/useUser";
 import { Icon } from "@iconify/react";
@@ -69,7 +68,7 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
   staleTime: 10 * 60 * 1000,
 
   onError: (error) => {
-    console.error("Error loading openapi spec", error);
+    console.error("Error loading initial data (openapi spec and user)", error);
   },
   errorComponent: ({ error, info }) => {
     // TODO - Handle error fetching user
