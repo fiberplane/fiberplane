@@ -11,6 +11,7 @@ export const ExecutionErrorSchema = z.object({
         url: z.string(),
         method: z.string(),
         headers: z.record(z.string()),
+        body: z.string().optional(),
       })
       .optional(),
     response: z

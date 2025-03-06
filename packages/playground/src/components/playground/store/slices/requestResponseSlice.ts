@@ -16,7 +16,7 @@ import { createKeyValueElement } from "../../KeyValueForm/data";
 import type { ApiRoute } from "../../types";
 import { updateContentTypeHeaderInState } from "../content-type";
 import { setBodyTypeInState } from "../set-body-type";
-import type { KeyValueElement, PlaygroundBody } from "../types";
+import type { PlaygroundBody } from "../types";
 import {
   addBaseUrl,
   extractPathParameterKeys,
@@ -189,45 +189,6 @@ export const requestResponseSlice: StateCreator<
 
       const params = apiCallState[id];
       params.pathParams = pathParams;
-      return state;
-    }),
-
-  updateCurrentPathParamValues: (pathParams) =>
-    set((initialState: StudioState): StudioState => {
-      const state = { ...initialState };
-      if (!state.activeRoute) {
-        console.warn("Unable to update current path parameter values");
-        return initialState;
-      }
-
-      const id = getRouteId(state.activeRoute || state);
-      state.apiCallState = {
-        ...state.apiCallState,
-      };
-      const { apiCallState } = state;
-      if (id in apiCallState === false) {
-        apiCallState[id] = createInitialApiCallData(state.activeRoute);
-      } else {
-        apiCallState[id] = { ...apiCallState[id] };
-      }
-
-      const params = apiCallState[id];
-
-      params.pathParams = params.pathParams.map(
-        (pathParam: KeyValueElement) => {
-          const replacement = pathParams?.find((p) => p?.key === pathParam.key);
-          if (!replacement) {
-            return pathParam;
-          }
-
-          return {
-            ...pathParam,
-            value: replacement.value,
-            enabled: !!replacement.value,
-          };
-        },
-      );
-
       return state;
     }),
 

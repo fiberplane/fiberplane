@@ -3,11 +3,11 @@ import { Route } from "@/routes/workflows.$workflowId";
 import { useHandler } from "@fiberplane/hooks";
 import { CloudAlert } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { InputItem } from "./InputItem";
 import { ListSection } from "./ListSection";
 import { OutputItem } from "./OutputItem";
 import { RunButton } from "./RunButton";
 import { StepperItem } from "./StepperItem";
+import { WorkflowInput } from "./WorkflowInput";
 import { WorkflowUrl } from "./WorkflowUrl";
 import { useExecuteWorkflow } from "./useExecuteWorkflow";
 
@@ -90,7 +90,7 @@ export function WorkflowDetail() {
               <div className="grid gap-2">
                 {Object.entries(workflow.inputs.properties).map(
                   ([key, schema]) => (
-                    <InputItem
+                    <WorkflowInput
                       key={key}
                       error={
                         errorDetails?.type === "VALIDATION_ERROR"

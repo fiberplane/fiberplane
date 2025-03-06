@@ -38,7 +38,6 @@ function convertInputValuesToParameters(
   inputValues: Record<string, string>,
   inputs: Workflow["inputs"],
 ): Record<string, unknown> {
-  console.log("inputValues", inputValues);
   const result: Record<string, unknown> = {};
 
   if (!inputs.properties) {
@@ -46,7 +45,6 @@ function convertInputValuesToParameters(
   }
 
   for (const [key, schema] of Object.entries(inputs.properties)) {
-    // const schema = inputs.properties[key];
     const value = inputValues[key];
     if (schema) {
       result[key] = constrainValueToSchema(value, schema);
@@ -54,15 +52,6 @@ function convertInputValuesToParameters(
   }
 
   return result;
-  // const entries = Object.entries(inputValues).map(([key, value]) => {
-  //   const schema = inputs.properties[key];
-  //   if (schema) {
-  //     return [key, constrainValueToSchema(value, schema)];
-  //   }
-
-  //   return [key, value];
-  // });
-  // return Object.fromEntries(entries);
 }
 
 function constrainValueToSchema(

@@ -1,7 +1,7 @@
 import { useWorkflowStore } from "@/lib/workflowStore";
 import { useShallow } from "zustand/react/shallow";
 import { NameValueItem } from "./NameValueItem";
-import { NOT_FOUND } from "./ParameterItem";
+import { NOT_FOUND } from "./utils";
 
 export function OutputItem({
   output,

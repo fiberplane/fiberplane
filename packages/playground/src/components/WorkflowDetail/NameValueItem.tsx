@@ -1,4 +1,4 @@
-import { NOT_FOUND } from "./ParameterItem";
+import { NOT_FOUND } from "./utils";
 
 export function NameValueItem(props: { name: string; value: unknown }) {
   const { name, value } = props;
