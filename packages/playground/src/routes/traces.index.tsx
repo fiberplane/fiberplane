@@ -3,6 +3,8 @@ import {
   TracesListErrorBoundary,
 } from "@/components/traces/TracesList";
 import { useAuth } from "@/contexts/auth";
+import { isFpApiError } from "@/lib/api/errors";
+import { type UserProfile, isAdmin, isOwner } from "@/lib/auth";
 import { TRACES_KEY, tracesQueryOptions } from "@/lib/hooks/useTraces";
 import { useHandler } from "@fiberplane/hooks";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
@@ -27,7 +29,18 @@ export const Route = createFileRoute("/traces/")({
       </div>
     );
   },
-  errorComponent: TracesListErrorBoundary,
+  errorComponent: ({ error }) => {
+    const user = useAuth();
+    if (isFpApiError(error)) {
+      if (!user && error.statusCode === 401) {
+        return <Unauthenticated />;
+      }
+      if (user && error.statusCode === 403) {
+        return <Unauthorized />;
+      }
+    }
+    return <TracesListErrorBoundary error={error} />;
+  },
 
   // HACK - Forces us to refresh the traces list when the route is entered
   beforeLoad: async ({ context: { queryClient } }) => {
@@ -42,7 +55,7 @@ export const Route = createFileRoute("/traces/")({
 function TracesIndexPage() {
   const { queryClient } = Route.useRouteContext();
   const user = useAuth();
-  console.log("user", user);
+
   const { traces } = Route.useLoaderData();
   const router = useRouter();
 
@@ -62,8 +75,42 @@ function TracesIndexPage() {
   });
 
   if (!user) {
-    return <div>You must be logged in to view traces</div>;
+    return <Unauthenticated />;
+  }
+
+  if (!canViewTraces(user)) {
+    return <Unauthorized />;
   }
 
   return <TracesList traces={traces} reload={reload} />;
+}
+
+export function Unauthenticated() {
+  return (
+    <div className="flex flex-col items-center justify-center h-full p-8">
+      <h2 className="text-2xl font-semibold text-foreground mb-2">
+        Authentication Required
+      </h2>
+      <p className="text-muted-foreground text-center">
+        You must be logged in to view traces
+      </p>
+    </div>
+  );
+}
+
+export function Unauthorized() {
+  return (
+    <div className="flex flex-col items-center justify-center h-full p-8">
+      <h2 className="text-2xl font-semibold text-foreground mb-2">
+        Unauthorized
+      </h2>
+      <p className="text-muted-foreground text-center">
+        You are not authorized to view traces for this application.
+      </p>
+    </div>
+  );
+}
+
+function canViewTraces(user: UserProfile) {
+  return isAdmin(user) || isOwner(user);
 }
