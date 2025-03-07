@@ -57,7 +57,7 @@ export function WorkflowDetail() {
             <div className="text-muted-foreground">{workflow.description}</div>
           </div>
         }
-        contentClassName="p-0 grid grid-cols-[2fr_1fr] h-full"
+        contentClassName="p-0 grid lg:grid-cols-[2fr_1fr] h-full"
         className="h-full"
       >
         <ListSection

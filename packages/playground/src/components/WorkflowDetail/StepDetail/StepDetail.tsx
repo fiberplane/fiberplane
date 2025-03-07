@@ -133,7 +133,7 @@ export function StepDetail(
                       />
                     </div>
                     {request.body && (
-                      <div>
+                      <div className="grid gap-2">
                         Body
                         <StepDetailBodyViewer
                           body={request.body}
@@ -162,8 +162,13 @@ export function StepDetail(
                         keyValue={Object.entries(response.headers)}
                       />
                     </div>
-
-                    <StepDetailBodyViewer body={response.body || ""} />
+                    <div className="grid gap-2">
+                      Body
+                      <StepDetailBodyViewer
+                        body={response.body || ""}
+                        className="text-muted-foreground"
+                      />
+                    </div>
                   </ListSection>
                 )}
               </div>

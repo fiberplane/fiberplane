@@ -288,7 +288,7 @@ async function executeRequest<E extends Env>(
 
   return {
     statusCode: response.status,
-    headers: response.headers,
+    headers: Object.fromEntries(response.headers.entries()),
     body: responseBody,
   };
 }
