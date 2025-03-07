@@ -3,6 +3,7 @@ import { ErrorScreen } from "@/components/ErrorScreen";
 import { FeatureDisabledScreen } from "@/components/FeatureDisabledScreen";
 import { WorkflowSidebar } from "@/components/WorkflowSidebar";
 import { CommandBar } from "@/components/playground/CommandBar/CommandBar";
+import { useStudioStore } from "@/components/playground/store";
 import { ThemeProvider } from "@/components/theme-provider";
 import {
   ResizableHandle,
@@ -31,12 +32,22 @@ export const Route = createFileRoute("/workflows")({
     };
   },
   errorComponent: ({ error }) => {
+    const { partitionKey } = useStudioStore("partitionKey");
     if (isFeatureDisabledError(error)) {
       return (
         <FeatureDisabledScreen
           error={error}
           title="Workflows are Disabled"
           message="To use workflows, configure Fiberplane with an API key."
+        />
+      );
+    }
+    if (!partitionKey) {
+      return (
+        <FeatureDisabledScreen
+          error={error}
+          title="Missing workflows configuration"
+          message="To use workflows, you need to add a partition key in the settings."
         />
       );
     }
