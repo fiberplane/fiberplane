@@ -132,6 +132,30 @@ export const StepSchema = z.object({
     ),
 });
 
+// This is a very naive schema for the input schema
+export const BaseInputSchema = z.object({
+  type: z.enum(["string", "number", "integer", "boolean", "object", "array"]),
+  id: z.string().optional(),
+  required: z
+    .array(z.string())
+    .optional()
+    .describe("Required properties of the input"),
+});
+
+export type InputSchemaType = z.infer<typeof BaseInputSchema> & {
+  properties?: Record<string, InputSchemaType>;
+};
+
+export const InputSchema: z.ZodType<InputSchemaType> = BaseInputSchema.extend({
+  properties: z
+    .record(
+      z.string(),
+      z.lazy(() => InputSchema),
+    )
+    .optional()
+    .describe("Properties of the input"),
+}).describe("JSON Schema definition");
+
 // Core workflow types
 export const WorkflowSchema = z.object({
   workflowId: z
@@ -158,24 +182,7 @@ export const WorkflowSchema = z.object({
     .array(StepSchema)
     .min(1)
     .describe("The sequence of API operations to perform"),
-  inputs: z
-    .object({
-      type: z.enum([
-        "string",
-        "number",
-        "integer",
-        "boolean",
-        "object",
-        "array",
-      ]),
-      properties: z
-        .record(z.string(), z.any())
-        .describe("Properties of the input"),
-      required: z
-        .array(z.string())
-        .describe("Required properties of the input"),
-    })
-    .describe("JSON Schema definition of overall workflow inputs"),
+  inputs: InputSchema,
   outputs: z
     .array(OutputSchema)
     .default([])

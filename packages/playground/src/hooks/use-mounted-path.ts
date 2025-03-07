@@ -1,11 +1,5 @@
-import { parseEmbeddedConfig } from "@/utils/config-parser";
+import { getFpApiBasePath } from "@/lib/api/fetch";
 
 export function useMountedPath() {
-  const rootElement = document.getElementById("root");
-  if (!rootElement?.dataset.options) {
-    return "";
-  }
-
-  const { mountedPath } = parseEmbeddedConfig(rootElement);
-  return mountedPath;
+  return getFpApiBasePath();
 }

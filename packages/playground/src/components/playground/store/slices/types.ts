@@ -19,9 +19,7 @@ export interface RequestResponseSlice {
    */
   apiCallState: Record<string, ApiCallData>;
   setCurrentPathParams: (pathParams: KeyValueElement[]) => void;
-  updateCurrentPathParamValues: (
-    pathParams: { key: string; value: string }[],
-  ) => void;
+  // updateCurrentPathParamValues: (pathParams: KeyValueElement[]) => void;
   clearCurrentPathParams: () => void;
   setCurrentQueryParams: (queryParams: KeyValueElement[]) => void;
   setCurrentRequestHeaders: (headers: KeyValueElement[]) => void;

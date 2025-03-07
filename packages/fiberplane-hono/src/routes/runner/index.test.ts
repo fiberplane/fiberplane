@@ -239,7 +239,7 @@ describe("Workflow Runner", () => {
 
     expect(res.status).toBe(400);
     const data = await res.json();
-    expect(data.error).toContain("required");
+    expect(data.payload[0].message).toContain("required");
   });
 
   it("should handle workflow step failures", async () => {
@@ -279,7 +279,7 @@ describe("Workflow Runner", () => {
 
     const data = await res.json();
     expect(res.status).toBe(501);
-    expect(data.error.details.stepId).toBe("createResource");
+    expect(data.payload.stepId).toBe("createResource");
   });
 
   it("should handle non-existent workflows", async () => {
