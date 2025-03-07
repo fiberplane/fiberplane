@@ -36,44 +36,48 @@ import Bento from "@/components/Bento.astro";
     }
   }}
 >
-  <section class="getting-started hide-sidebar">
-    <div>
+  <section class="getting-started hide-sidebar not-content">
+    <div class="logo-container">
       <img
         src={fpLogo}
         alt="Fiberplane logo"
         width="100"
         height="100"
-        style={{
-          marginInline: "auto",
-          marginBlockEnd: "2rem"
-        }}
+        class="fp-logo"
       />
     </div>
 
     <div class="content-grid">
       <div class="cards-content">
-        <header>
-          <h2>
+        <header class="cards-header">
+          <img
+            src={fpLogo}
+            alt="Fiberplane logo"
+            width="80"
+            height="80"
+            class="fp-logo-header"
+          />
+          <h2 class="cards-title">
             The Fiberplane API Playground:<br />From Development to Delivery
           </h2>
 
           <ul class="card-explanation not-content">
-            <li>
-              <div>
+            <li class="explanation-card">
+              <div class="card-icon">
                 <pre>🧙</pre>
               </div>
-              <p>
+              <p class="card-text">
                 <em>For the API builder</em> who appreciates designing a high quality
                 API with quick debugging and automated features, making it easy for
                 users to onboard and experiment.
               </p>
             </li>
 
-            <li>
-              <div>
+            <li class="explanation-card">
+              <div class="card-icon">
                 <pre>🙋</pre>
               </div>
-              <p>
+              <p class="card-text">
                 <em>For the API user</em> who are ready to prototype quickly with
                 interactive documentation and endpoint testing, in a streamlined
                 experience for development.
@@ -90,12 +94,73 @@ import Bento from "@/components/Bento.astro";
   <Bento />
 </StarlightPage>
 
+<script>
+  const cardsHeader = document.querySelector(".cards-header");
+  const fpLogo = document.querySelector(".fp-logo");
+  const fpLogoHeader = document.querySelector(".fp-logo-header");
+
+  if (cardsHeader && fpLogo && fpLogoHeader) {
+    // Observer for the cards header to show the main logo
+    const headerObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            fpLogo.classList.add("fp-logo-visible");
+          }
+        }
+      },
+      {
+        threshold: 0.5
+      }
+    );
+
+    // Observer for the main logo to control the header logo visibility
+    const logoObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) {
+            fpLogoHeader.classList.add("fp-logo-visible");
+          } else {
+            fpLogoHeader.classList.remove("fp-logo-visible");
+          }
+        }
+      },
+      {
+        threshold: 0
+      }
+    );
+
+    headerObserver.observe(cardsHeader);
+    logoObserver.observe(fpLogo);
+  }
+</script>
+
 <style>
-  section.getting-started {
+  .getting-started {
     container: getting-started-container / inline-size;
     max-width: calc(102rem - var(--hero-padding) * 2);
     margin-inline: auto;
     margin-block: 6rem;
+  }
+
+  .logo-container {
+    margin-block-end: 2rem;
+  }
+
+  .fp-logo,
+  .fp-logo-header {
+    margin-inline: auto;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+  }
+
+  .fp-logo-header {
+    display: block;
+    margin-bottom: 1.5rem;
+  }
+
+  .fp-logo-visible {
+    opacity: 1;
   }
 
   .content-grid {
@@ -113,63 +178,60 @@ import Bento from "@/components/Bento.astro";
       var(--sl-color-bg),
       var(--bg-secondary)
     );
-
-    em {
-      font-weight: bold;
-    }
-
-    h2 {
-      text-align: center;
-      margin-block-end: 1em;
-    }
   }
 
-  ul.card-explanation {
+  .cards-content em {
+    font-weight: bold;
+  }
+
+  .cards-title {
+    text-align: center;
+    margin-block-end: 1em;
+  }
+
+  .card-explanation {
     list-style: none;
     padding: 0;
     display: grid;
     gap: 1rem;
+  }
 
-    li {
-      display: grid;
-      grid-template-columns: 5rem 1fr;
-      gap: var(--sl-content-pad-x);
-      padding: 0;
-      padding: var(--sl-content-pad-x);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--sl-color-hairline-shade);
-      border-radius: 20px;
+  .explanation-card {
+    display: grid;
+    grid-template-columns: 5rem 1fr;
+    gap: var(--sl-content-pad-x);
+    padding: var(--sl-content-pad-x);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--sl-color-hairline-shade);
+    border-radius: 20px;
+  }
 
-      & > div {
-        border-radius: 50%;
-        background-color: var(--sl-color-bg);
-        box-shadow: 0 0 32px 0
-          hsl(from var(--sl-color-hairline-shade) h s l / 0.8);
-        border: 1px solid hsl(from var(--sl-color-accent) h s l / 0.5);
-        display: grid;
-        place-content: center;
-        font-size: 3rem;
-        line-height: 1;
+  .card-icon {
+    border-radius: 50%;
+    background-color: var(--sl-color-bg);
+    box-shadow: 0 0 32px 0 hsl(from var(--sl-color-hairline-shade) h s l / 0.8);
+    border: 1px solid hsl(from var(--sl-color-accent) h s l / 0.5);
+    display: grid;
+    place-content: center;
+    font-size: 3rem;
+    line-height: 1;
+    aspect-ratio: 1;
+    align-self: center;
+  }
 
-        aspect-ratio: 1;
-        align-self: center;
-
-        pre {
-          filter: grayscale(1);
-        }
-      }
-    }
+  .card-icon pre {
+    filter: grayscale(1);
   }
 
   @container getting-started-container (width >= 64rem) {
     .content-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
 
-      & > div {
-        order: 1;
-        min-width: 0;
-      }
+    .content-grid > div {
+      order: 1;
+      min-width: 0;
     }
 
     .cards-content {
@@ -178,7 +240,7 @@ import Bento from "@/components/Bento.astro";
       padding: var(--sl-content-pad-x);
       background-image: linear-gradient(
         180deg,
-        var(--sl-color-bg),
+        var (--sl-color-bg),
         var(--bg-secondary)
       );
       margin: 0 auto 1.25rem;
@@ -186,23 +248,26 @@ import Bento from "@/components/Bento.astro";
       border-radius: 20px;
       position: relative;
       min-width: 0;
+    }
 
-      & > * {
-        z-index: 2;
-      }
+    .cards-content > * {
+      z-index: 2;
+    }
 
-      header {
-        margin-block-end: 1rem;
-        position: sticky;
-        inset: 6rem 0 2rem 0;
-        align-self: center;
-        height: fit-content;
-        max-width: 100%;
+    .cards-header {
+      margin-block-end: 1rem;
+      position: sticky;
+      inset: 6rem 0 2rem 0;
+      align-self: center;
+      height: fit-content;
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
 
-        h2 {
-          text-align: left;
-        }
-      }
+    .cards-header .cards-title {
+      text-align: left;
     }
 
     /* Taken from the hero, make reusable */
