@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-// TODO: change this once we have a better type
 
 export const Route = createFileRoute("/workflows")({
   component: WorkflowLayout,
@@ -65,7 +64,6 @@ function WorkflowLayout() {
   });
   // Panel constraints for responsive layout
   const minSize = (320 / width) * 100;
-  // const maxSize = Math.min(50, (500 / width) * 100);
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
