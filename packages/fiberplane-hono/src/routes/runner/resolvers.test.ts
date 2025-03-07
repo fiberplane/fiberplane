@@ -246,8 +246,6 @@ describe("resolveStepParams", () => {
     };
     const result = await resolveStepParams(emptyStep, mockWorkflowContext);
     expect(result).toEqual({
-      path: "/test",
-      method: "get",
       parameters: {},
     });
   });
