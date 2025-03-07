@@ -18,7 +18,7 @@ import { Route as WorkflowsIndexImport } from './routes/workflows.index'
 import { Route as TracesIndexImport } from './routes/traces.index'
 import { Route as WorkflowsNewImport } from './routes/workflows.new'
 import { Route as WorkflowsWorkflowIdImport } from './routes/workflows.$workflowId'
-import { Route as UNRELEASEDtracesTraceIdImport } from './routes/UNRELEASEDtraces.$traceId'
+import { Route as TracesTraceIdImport } from './routes/traces.$traceId'
 
 // Create/Update Routes
 
@@ -64,10 +64,10 @@ const WorkflowsWorkflowIdRoute = WorkflowsWorkflowIdImport.update({
   getParentRoute: () => WorkflowsRoute,
 } as any)
 
-const UNRELEASEDtracesTraceIdRoute = UNRELEASEDtracesTraceIdImport.update({
-  id: '/UNRELEASEDtraces/$traceId',
-  path: '/UNRELEASEDtraces/$traceId',
-  getParentRoute: () => rootRoute,
+const TracesTraceIdRoute = TracesTraceIdImport.update({
+  id: '/$traceId',
+  path: '/$traceId',
+  getParentRoute: () => TracesRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -95,12 +95,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowsImport
       parentRoute: typeof rootRoute
     }
-    '/UNRELEASEDtraces/$traceId': {
-      id: '/UNRELEASEDtraces/$traceId'
-      path: '/UNRELEASEDtraces/$traceId'
-      fullPath: '/UNRELEASEDtraces/$traceId'
-      preLoaderRoute: typeof UNRELEASEDtracesTraceIdImport
-      parentRoute: typeof rootRoute
+    '/traces/$traceId': {
+      id: '/traces/$traceId'
+      path: '/$traceId'
+      fullPath: '/traces/$traceId'
+      preLoaderRoute: typeof TracesTraceIdImport
+      parentRoute: typeof TracesImport
     }
     '/workflows/$workflowId': {
       id: '/workflows/$workflowId'
@@ -136,10 +136,12 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface TracesRouteChildren {
+  TracesTraceIdRoute: typeof TracesTraceIdRoute
   TracesIndexRoute: typeof TracesIndexRoute
 }
 
 const TracesRouteChildren: TracesRouteChildren = {
+  TracesTraceIdRoute: TracesTraceIdRoute,
   TracesIndexRoute: TracesIndexRoute,
 }
 
@@ -166,7 +168,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/traces': typeof TracesRouteWithChildren
   '/workflows': typeof WorkflowsRouteWithChildren
-  '/UNRELEASEDtraces/$traceId': typeof UNRELEASEDtracesTraceIdRoute
+  '/traces/$traceId': typeof TracesTraceIdRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
   '/workflows/new': typeof WorkflowsNewRoute
   '/traces/': typeof TracesIndexRoute
@@ -175,7 +177,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/UNRELEASEDtraces/$traceId': typeof UNRELEASEDtracesTraceIdRoute
+  '/traces/$traceId': typeof TracesTraceIdRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
   '/workflows/new': typeof WorkflowsNewRoute
   '/traces': typeof TracesIndexRoute
@@ -187,7 +189,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/traces': typeof TracesRouteWithChildren
   '/workflows': typeof WorkflowsRouteWithChildren
-  '/UNRELEASEDtraces/$traceId': typeof UNRELEASEDtracesTraceIdRoute
+  '/traces/$traceId': typeof TracesTraceIdRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
   '/workflows/new': typeof WorkflowsNewRoute
   '/traces/': typeof TracesIndexRoute
@@ -200,7 +202,7 @@ export interface FileRouteTypes {
     | '/'
     | '/traces'
     | '/workflows'
-    | '/UNRELEASEDtraces/$traceId'
+    | '/traces/$traceId'
     | '/workflows/$workflowId'
     | '/workflows/new'
     | '/traces/'
@@ -208,7 +210,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/UNRELEASEDtraces/$traceId'
+    | '/traces/$traceId'
     | '/workflows/$workflowId'
     | '/workflows/new'
     | '/traces'
@@ -218,7 +220,7 @@ export interface FileRouteTypes {
     | '/'
     | '/traces'
     | '/workflows'
-    | '/UNRELEASEDtraces/$traceId'
+    | '/traces/$traceId'
     | '/workflows/$workflowId'
     | '/workflows/new'
     | '/traces/'
@@ -230,14 +232,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   TracesRoute: typeof TracesRouteWithChildren
   WorkflowsRoute: typeof WorkflowsRouteWithChildren
-  UNRELEASEDtracesTraceIdRoute: typeof UNRELEASEDtracesTraceIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   TracesRoute: TracesRouteWithChildren,
   WorkflowsRoute: WorkflowsRouteWithChildren,
-  UNRELEASEDtracesTraceIdRoute: UNRELEASEDtracesTraceIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -252,8 +252,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/traces",
-        "/workflows",
-        "/UNRELEASEDtraces/$traceId"
+        "/workflows"
       ]
     },
     "/": {
@@ -262,6 +261,7 @@ export const routeTree = rootRoute
     "/traces": {
       "filePath": "traces.tsx",
       "children": [
+        "/traces/$traceId",
         "/traces/"
       ]
     },
@@ -273,8 +273,9 @@ export const routeTree = rootRoute
         "/workflows/"
       ]
     },
-    "/UNRELEASEDtraces/$traceId": {
-      "filePath": "UNRELEASEDtraces.$traceId.tsx"
+    "/traces/$traceId": {
+      "filePath": "traces.$traceId.tsx",
+      "parent": "/traces"
     },
     "/workflows/$workflowId": {
       "filePath": "workflows.$workflowId.tsx",

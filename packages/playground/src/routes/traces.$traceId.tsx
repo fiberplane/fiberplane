@@ -234,8 +234,7 @@ function TraceDetailAssistant({
   // Check cache and request summary when component mounts
   useEffect(() => {
     const cachedData = queryClient.getQueryData(queryKey);
-    // biome-ignore lint/correctness/noConstantCondition: Need to hide this feature for now
-    if (false && !cachedData) {
+    if (!cachedData) {
       getSummary({ traceId: trace.traceId, spans: trace.spans });
     }
   }, [getSummary, trace.traceId, trace.spans, queryClient, queryKey]);
@@ -246,7 +245,7 @@ function TraceDetailAssistant({
     summaryData;
 
   return (
-    <div className="flex flex-col gap-4 overflow-hidden">
+    <div className="flex flex-col gap-4 overflow-hidden overflow-y-auto">
       <div className="flex flex-col gap-2">
         <h3 className="text-lg font-medium flex items-center gap-2 text-foreground/70">
           <Icon icon="lucide:sparkles" className="h-4 w-4 flex-shrink-0" />
@@ -273,7 +272,7 @@ function TraceDetailAssistant({
 
         {isError && (
           <Alert variant="destructive">
-            <div className="flex items-center">
+            <div className="flex flex-col justify-center gap-1">
               <Icon icon="lucide:alert-circle" className="h-4 w-4" />
               <AlertTitle>Analysis Failed</AlertTitle>
               <AlertDescription>
@@ -314,8 +313,8 @@ function TraceDetailLayout({
   children: React.ReactNode;
   trace: { traceId: string; spans: TraceDetailSpansResponse };
 }) {
-  // NOTE - The assistant panel is closed by default, because it's currently HIDDEN in the UI.
-  const [sidePanel, setSidePanel] = useState<"open" | "closed">("closed");
+  // NOTE - The assistant panel should be closed by default, it is only open for the demo
+  const [sidePanel, setSidePanel] = useState<"open" | "closed">("open");
   const isLgScreen = useIsLgScreen();
   const width = getMainSectionWidth();
 
@@ -377,7 +376,7 @@ function TraceDetailLayout({
   );
 }
 
-export const Route = createFileRoute("/UNRELEASEDtraces/$traceId")({
+export const Route = createFileRoute("/traces/$traceId")({
   validateSearch: z.object({
     spanId: z.string().optional(),
   }),
