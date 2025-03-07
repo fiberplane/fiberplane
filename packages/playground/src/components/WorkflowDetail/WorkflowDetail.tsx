@@ -6,7 +6,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { ListSection } from "./ListSection";
 import { OutputItem } from "./OutputItem";
 import { RunButton } from "./RunButton";
-import { StepperItem } from "./StepperItem";
+import { StepDetail } from "./StepDetail";
 import { WorkflowInput } from "./WorkflowInput";
 import { WorkflowUrl } from "./WorkflowUrl";
 import { useExecuteWorkflow } from "./useExecuteWorkflow";
@@ -33,11 +33,13 @@ export function WorkflowDetail() {
     },
   );
 
-  const errorDetails =
-    failureReason && failureReason instanceof FpApiError
-      ? failureReason.details
-      : undefined;
-  const errorMessage = failureReason?.message;
+  const error = {
+    details:
+      failureReason && failureReason instanceof FpApiError
+        ? failureReason.details
+        : undefined,
+    message: failureReason?.message,
+  };
 
   const testTitle = (
     <div className="grid justify-between items-center grid-cols-[1fr_auto]">
@@ -64,14 +66,14 @@ export function WorkflowDetail() {
           className="rounded-none rounded-b-md border-0 border-t border-r"
         >
           <div>
-            {errorMessage && !errorDetails && (
+            {error.message && !error.details && (
               <div className="grid items-center justify-center">
                 <div className="border border-danger text-foreground m-2 rounded-md p-4 grid gap-1 max-w-[50ch]">
                   <div className="flex gap-2 font-bold">
                     <CloudAlert className="text-danger" />
                     <span>Workflow execution failed</span>
                   </div>
-                  <div className="text-sm">{errorMessage}</div>
+                  <div className="text-sm">{error.message}</div>
                 </div>
               </div>
             )}
@@ -93,8 +95,8 @@ export function WorkflowDetail() {
                     <WorkflowInput
                       key={key}
                       error={
-                        errorDetails?.type === "VALIDATION_ERROR"
-                          ? errorDetails.payload.find(
+                        error.details?.type === "VALIDATION_ERROR"
+                          ? error.details.payload.find(
                               (detail) => detail.key === key,
                             )
                           : undefined
@@ -120,12 +122,12 @@ export function WorkflowDetail() {
         <ListSection title="Steps" contentClassName="px-3 pr-2">
           <div>
             {workflow.steps.map((step, index) => (
-              <StepperItem
+              <StepDetail
                 key={step.stepId}
                 error={
-                  errorDetails?.type === "EXECUTION_ERROR" &&
-                  errorDetails.payload.stepId === step.stepId
-                    ? errorDetails
+                  error.details?.type === "EXECUTION_ERROR" &&
+                  error.details.payload.stepId === step.stepId
+                    ? error.details
                     : undefined
                 }
                 index={index}

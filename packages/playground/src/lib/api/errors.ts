@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+// Define the schema for the error payload returned by the API
+// when the execution of a step fails (during execution)
 export const ExecutionErrorSchema = z.object({
   type: z.literal("EXECUTION_ERROR"),
   message: z.string(),
@@ -18,11 +20,9 @@ export const ExecutionErrorSchema = z.object({
       .object({
         status: z.number(),
         body: z.string().optional(),
+        headers: z.record(z.string()),
       })
       .optional(),
-    // body: z.string().optional(),
-    // response: z.string().optional(),
-    // responseStatus: z.number().optional(),
   }),
 });
 
@@ -34,6 +34,8 @@ export const ValidationDetailSchema = z.object({
 
 export type ValidationDetail = z.infer<typeof ValidationDetailSchema>;
 
+// Define the schema for the error payload returned by the API
+// when the validation of the workflow parameters fails
 export const ValidationErrorSchema = z.object({
   type: z.literal("VALIDATION_ERROR"),
   message: z.string(),
@@ -41,7 +43,6 @@ export const ValidationErrorSchema = z.object({
 });
 
 export type ValidationError = z.infer<typeof ValidationErrorSchema>;
-
 export type ExecutionError = z.infer<typeof ExecutionErrorSchema>;
 
 export const FpApiErrorDetailsSchema = z.discriminatedUnion("type", [
@@ -51,6 +52,8 @@ export const FpApiErrorDetailsSchema = z.discriminatedUnion("type", [
 
 export type FpApiErrorDetails = z.infer<typeof FpApiErrorDetailsSchema>;
 
+// FpApiError is a custom error class that can contain the FpApiErrorDetails
+// returned by the API
 export class FpApiError extends Error {
   statusCode?: number;
   details?: FpApiErrorDetails;
@@ -104,7 +107,7 @@ export async function parseErrorResponse(
       message = await response.text();
     }
   } catch (_error) {
-    console.log("error in the handle error", _error);
+    console.warn("Error in parsing the error response", _error);
     // If parsing fails, retain the default message
   }
 

@@ -159,18 +159,27 @@ export type ExecutionErrorInformation = {
   message: string;
   payload: {
     stepId: string;
-    // Internal information
+    // Somewhat internal information, these are the parameters as they are
+    // passed into the step function and are used to reconstruct the request
+    // in the playground.
     parameters?: Record<string, unknown>;
+
+    // Contains key request information
+    // Note: this might leek sensitive information
+    // but only in cases where the workflow is used to
+    // call non-public APIs
     request?: {
       url: string;
       method: string;
       headers: Record<string, string>;
       body?: string;
     };
+
+    // Contains key response information
     response?: {
       status: number;
       body?: string;
-      contentType?: string;
+      headers: Record<string, string>;
     };
   };
 };

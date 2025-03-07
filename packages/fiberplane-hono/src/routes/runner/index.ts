@@ -216,6 +216,7 @@ async function executeWorkflow(
       const stepParameters = await resolveStepParams(step, workflowContext);
       const c = getContext();
       const baseUrl = new URL(c.req.url).origin;
+
       const request = createRequest(step, stepParameters, baseUrl);
       const response = await executeRequest(request);
       if (response.statusCode >= 400) {
@@ -233,11 +234,9 @@ async function executeWorkflow(
           },
           response: {
             status: response.statusCode,
+            headers: response.headers,
             body: serialize(response.body),
           },
-          // body: stepParameters.body ?? undefined,
-          // responseStatus: response.statusCode,
-          // response: serialize(response.body),
         };
 
         throw new WorkflowError(
@@ -265,10 +264,12 @@ async function executeWorkflow(
 }
 
 async function executeRequest<E extends Env>(
-  // step: Step,
-  // params: HttpRequestParams,
   request: Request,
-): Promise<{ statusCode: number; body: unknown }> {
+): Promise<{
+  statusCode: number;
+  body: unknown;
+  headers: Record<string, string>;
+}> {
   const c = getContext<E & FiberplaneAppType<E>>();
   const userApp = c.get("userApp");
   const userEnv = c.get("userEnv");
@@ -287,6 +288,7 @@ async function executeRequest<E extends Env>(
 
   return {
     statusCode: response.status,
+    headers: response.headers,
     body: responseBody,
   };
 }
