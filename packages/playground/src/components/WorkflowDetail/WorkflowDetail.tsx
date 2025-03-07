@@ -41,7 +41,6 @@ export function WorkflowDetail() {
     message: failureReason?.message,
   };
 
-
   return (
     <div className="overflow-y-auto h-full">
       <ListSection
@@ -55,10 +54,15 @@ export function WorkflowDetail() {
         className="h-full"
       >
         <ListSection
-          title={<div className="grid justify-between items-center grid-cols-[1fr_auto]">
-            <span>Test workflow</span>
-            <RunButton isPending={isPending} error={failureReason} submit={submit} />
-          </div>
+          title={
+            <div className="grid justify-between items-center grid-cols-[1fr_auto]">
+              <span>Test workflow</span>
+              <RunButton
+                isPending={isPending}
+                error={failureReason}
+                submit={submit}
+              />
+            </div>
           }
           contentClassName="p-0 pt-2 h-full grid grid-rows-[auto_auto_1fr] order-t-0"
           className="rounded-none rounded-b-md border-0 border-t border-r"
@@ -95,8 +99,8 @@ export function WorkflowDetail() {
                       error={
                         error.details?.type === "VALIDATION_ERROR"
                           ? error.details.payload.find(
-                            (detail) => detail.key === key,
-                          )
+                              (detail) => detail.key === key,
+                            )
                           : undefined
                       }
                       propertyKey={key}
@@ -124,7 +128,7 @@ export function WorkflowDetail() {
                 key={step.stepId}
                 error={
                   error.details?.type === "EXECUTION_ERROR" &&
-                    error.details.payload.stepId === step.stepId
+                  error.details.payload.stepId === step.stepId
                     ? error.details
                     : undefined
                 }

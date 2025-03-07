@@ -5,9 +5,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import {
-  isFpApiError,
-} from "@/lib/api";
+import { isFpApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { parseEmbeddedConfig } from "@/utils";
 import { Icon } from "@iconify/react/dist/iconify.js";
