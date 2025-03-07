@@ -6,7 +6,6 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
-  //  getFpApiErrorDetailsJson,
   isFpApiError,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -31,11 +30,8 @@ export function TracesListErrorBoundary(props: {
   //        * 401 for "invalid auth"
   let help: null | string = null;
   if (isFpApiError(error)) {
-    // const details = getFpApiErrorDetailsJson(error);
-    // if (details?.error === "Failed to fetch traces") {
     help =
       "Check that your OpenTelemetry collector is running, and that your auth token is valid.";
-    // }
   }
 
   return (

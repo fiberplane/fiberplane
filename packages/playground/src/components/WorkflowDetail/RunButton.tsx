@@ -1,6 +1,6 @@
 import { useShake } from "@/hooks";
 import { cn } from "@/utils";
-import { CloudAlert, Play } from "lucide-react";
+import { Play } from "lucide-react";
 import { useEffect } from "react";
 import { Button } from "../ui/button";
 
@@ -16,11 +16,9 @@ export function RunButton({
       triggerShake();
     }
   }, [error, triggerShake]);
-  // console.log('isError', isError, failureReason);
 
   return (
     <div className="flex gap-2">
-      {error && <CloudAlert className="text-danger" />}
       <Button
         variant="primary"
         size="sm"
@@ -37,11 +35,3 @@ export function RunButton({
     </div>
   );
 }
-
-// const { inputValues } = useWorkflowStore(
-//   useShallow(({ inputValues }) => ({ inputValues })),
-// );
-// const parameters = parsedValues(inputValues, inputs);
-// executeWorkflow({
-//   parameters,
-// }).catch(() => triggerShake());
