@@ -50,13 +50,6 @@ import Bento from "@/components/Bento.astro";
     <div class="content-grid">
       <div class="cards-content">
         <header class="cards-header">
-          <img
-            src={fpLogo}
-            alt="Fiberplane logo"
-            width="80"
-            height="80"
-            class="fp-logo-header"
-          />
           <h2 class="cards-title">
             The Fiberplane API Playground:<br />From Development to Delivery
           </h2>
@@ -97,15 +90,15 @@ import Bento from "@/components/Bento.astro";
 <script>
   const cardsHeader = document.querySelector(".cards-header");
   const fpLogo = document.querySelector(".fp-logo");
-  const fpLogoHeader = document.querySelector(".fp-logo-header");
 
-  if (cardsHeader && fpLogo && fpLogoHeader) {
+  if (cardsHeader && fpLogo) {
     // Observer for the cards header to show the main logo
     const headerObserver = new IntersectionObserver(
-      (entries) => {
+      (entries, observer) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
             fpLogo.classList.add("fp-logo-visible");
+            observer.unobserve(entry.target);
           }
         }
       },
@@ -114,24 +107,7 @@ import Bento from "@/components/Bento.astro";
       }
     );
 
-    // Observer for the main logo to control the header logo visibility
-    const logoObserver = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) {
-            fpLogoHeader.classList.add("fp-logo-visible");
-          } else {
-            fpLogoHeader.classList.remove("fp-logo-visible");
-          }
-        }
-      },
-      {
-        threshold: 0
-      }
-    );
-
     headerObserver.observe(cardsHeader);
-    logoObserver.observe(fpLogo);
   }
 </script>
 
@@ -147,16 +123,11 @@ import Bento from "@/components/Bento.astro";
     margin-block-end: 2rem;
   }
 
-  .fp-logo,
-  .fp-logo-header {
+  .fp-logo {
+    display: block;
     margin-inline: auto;
     opacity: 0;
     transition: opacity 0.8s ease-in-out;
-  }
-
-  .fp-logo-header {
-    display: block;
-    margin-bottom: 1.5rem;
   }
 
   .fp-logo-visible {
@@ -164,8 +135,17 @@ import Bento from "@/components/Bento.astro";
   }
 
   .content-grid {
-    --sl-text-h2: clamp(1.5rem, 8cqw, 2.5rem);
     gap: var(--content-spacing);
+
+    .sl-steps {
+      p {
+        margin-block: 0.5rem;
+      }
+
+      li:not(:first-child) {
+        margin-top: 1rem;
+      }
+    }
   }
 
   .cards-content {
@@ -187,6 +167,8 @@ import Bento from "@/components/Bento.astro";
   .cards-title {
     text-align: center;
     margin-block-end: 1em;
+    font-size: clamp(1.5rem, 8cqw, 2.5rem);
+    line-height: 1.2;
   }
 
   .card-explanation {
@@ -237,14 +219,13 @@ import Bento from "@/components/Bento.astro";
     .cards-content {
       display: grid;
       background-color: var(--bg-secondary);
-      padding: var(--sl-content-pad-x);
+      padding: calc(var(--sl-content-pad-x) * 2);
       background-image: linear-gradient(
         180deg,
         var (--sl-color-bg),
         var(--bg-secondary)
       );
-      margin: 0 auto 1.25rem;
-      padding-inline: calc(var(--sl-content-pad-x) * 2);
+      margin: initial;
       border-radius: 20px;
       position: relative;
       min-width: 0;
@@ -255,7 +236,6 @@ import Bento from "@/components/Bento.astro";
     }
 
     .cards-header {
-      margin-block-end: 1rem;
       position: sticky;
       inset: 6rem 0 2rem 0;
       align-self: center;
@@ -264,6 +244,10 @@ import Bento from "@/components/Bento.astro";
       display: flex;
       flex-direction: column;
       align-items: flex-start;
+    }
+
+    .card-explanation {
+      gap: 1.5rem;
     }
 
     .cards-header .cards-title {
