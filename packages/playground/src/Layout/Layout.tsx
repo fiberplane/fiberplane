@@ -35,8 +35,6 @@ NavButtonComponent.displayName = "NavButtonComponent";
 
 const NavButton = createLink(NavButtonComponent);
 
-
-
 export function Layout({ children }: { children?: ReactNode }) {
   const { isWorkflowsEnabled, isTracingEnabled, shouldShowTopNav } =
     useStudioStore(
