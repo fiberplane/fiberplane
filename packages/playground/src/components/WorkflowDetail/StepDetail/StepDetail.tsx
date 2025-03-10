@@ -110,12 +110,6 @@ export function StepDetail(
             </div>
             {error && (
               <div className={cn("grid gap-4")}>
-                {/* <div className="grid gap-2">
-                <div>Inputs</div>
-                <div className="grid gap-2">
-                  {Object.entries(error.details.inputs).map(([name, value]) => <NameValueItem key={name} name={name} value={value} />)}
-                </div>
-              </div> */}
                 {request && (
                   <ListSection
                     title={<span>Request</span>}
