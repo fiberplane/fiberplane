@@ -10,6 +10,7 @@ import {
 import { useAuth } from "@/contexts/auth";
 import { useMountedPath } from "@/hooks/use-mounted-path";
 import { getFpApiBasePath } from "@/lib/api/fetch";
+import type { UserProfile } from "@/lib/auth";
 import { useLoginHandler } from "@/lib/hooks/useLogin";
 import { createLink, useMatches } from "@tanstack/react-router";
 import { LogOut, UserCircle } from "lucide-react";
@@ -45,32 +46,63 @@ NavButtonComponent.displayName = "NavButtonComponent";
 
 const NavButton = createLink(NavButtonComponent);
 
+function UserAvatar({
+  user,
+  className,
+}: {
+  user: UserProfile | null;
+  className?: string;
+}) {
+  if (!user) {
+    return <UserCircle className="w-4 h-4" />;
+  }
+
+  return (
+    <img
+      src={`https://avatars.githubusercontent.com/u/${user.githubUserId}`}
+      alt={user.email}
+      className={cn("w-4 h-4 rounded-full", className)}
+    />
+  );
+}
+
 function UserMenu() {
   const user = useAuth();
-
-  if (!user) {
-    return null;
-  }
+  const login = useLoginHandler();
 
   return (
     <FpDropdownMenu>
       <FpDropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="w-6 h-6 p-0">
-          <UserCircle className="w-4 h-4" />
+          <UserAvatar user={user} />
         </Button>
       </FpDropdownMenuTrigger>
       <FpDropdownMenuContent align="end" className="w-48">
-        <div className="px-2 py-1.5 text-sm font-medium">{user.email}</div>
-        <FpDropdownMenuSeparator />
-        <FpDropdownMenuItem
-          onClick={() => {
-            document.location = `${getFpApiBasePath()}/api/auth/logout`;
-          }}
-          className="text-red-600 dark:text-red-400"
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
-        </FpDropdownMenuItem>
+        {user && (
+          <>
+            <div className="px-2 py-1.5 text-sm font-medium flex items-center gap-2">
+              <UserAvatar user={user} className="w-6 h-6" />
+              {user.email}
+            </div>
+            <FpDropdownMenuSeparator />
+          </>
+        )}
+        {user ? (
+          <FpDropdownMenuItem
+            onClick={() => {
+              // TODO: Implement logout
+              document.location = `${getFpApiBasePath()}/api/auth/logout`;
+            }}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Log out</span>
+          </FpDropdownMenuItem>
+        ) : (
+          <FpDropdownMenuItem onClick={login}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Log in</span>
+          </FpDropdownMenuItem>
+        )}
       </FpDropdownMenuContent>
     </FpDropdownMenu>
   );

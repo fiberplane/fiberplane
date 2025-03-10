@@ -1,10 +1,7 @@
 import { Layout } from "@/Layout";
 import { PlaygroundPage } from "@/components/playground";
 import { useStudioStore } from "@/components/playground/store";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/auth";
 import { useSettingsOpen } from "@/hooks";
-import { useLoginHandler } from "@/lib/hooks/useLogin";
 import { useHandler } from "@fiberplane/hooks";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect } from "react";
@@ -71,13 +68,8 @@ function Index() {
     }
   }, [method, uri, updateActiveRoute, setDefault]);
 
-  const login = useLoginHandler();
-  const user = useAuth();
-
   return (
     <Layout>
-      {user && <pre>{JSON.stringify(user)}</pre>}
-      {!user && <Button onClick={login}>Login</Button>}
       <PlaygroundPage />
     </Layout>
   );
