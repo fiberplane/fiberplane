@@ -202,4 +202,15 @@ export const api = {
     //
     // return fpFetch("/api/auth/profile");
   },
+
+  logout: async (): Promise<void> => {
+    return fpFetch(
+      "/api/auth/logout",
+      {
+        method: "POST",
+        credentials: "include", // This ensures cookies are sent with the request
+      },
+      async () => {}, // Empty transform since we don't care about the response
+    );
+  },
 };

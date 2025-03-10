@@ -7,15 +7,24 @@ import {
   FpDropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/auth";
-import { getFpApiBasePath } from "@/lib/api/fetch";
 import type { UserProfile } from "@/lib/auth";
 import { useLoginHandler } from "@/lib/hooks/useLogin";
+import { useLogout } from "@/lib/hooks/useUser";
 import { LogOut, UserCircle } from "lucide-react";
 import { cn } from "../utils";
 
 export function UserMenu() {
   const user = useAuth();
   const login = useLoginHandler();
+  const { logout } = useLogout();
+
+  const handleLogout = async () => {
+    logout();
+    // TODO - Toast!
+
+    // HACK: We should invalidate the React Query cache instead of refreshing the page
+    window.location.reload();
+  };
 
   return (
     <FpDropdownMenu>
@@ -35,12 +44,7 @@ export function UserMenu() {
           </>
         )}
         {user ? (
-          <FpDropdownMenuItem
-            onClick={() => {
-              // TODO: Implement logout
-              document.location = `${getFpApiBasePath()}/api/auth/logout`;
-            }}
-          >
+          <FpDropdownMenuItem onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
           </FpDropdownMenuItem>
