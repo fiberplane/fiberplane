@@ -46,7 +46,7 @@ export default function createAuthApiRoute<E extends Env>(
       deleteCookie(c, "fpSession");
 
       // Invalidate session with auth server
-      await fetchFn(`${fiberplaneServicesUrl}/api/auth/invalidate-session`, {
+      await fetchFn(`${fiberplaneServicesUrl}/api/auth/logout`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${apiKey}`,
