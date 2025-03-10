@@ -1,5 +1,5 @@
 import { type Env, Hono } from "hono";
-import { getCookie, setCookie } from "hono/cookie";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import type { FetchFn, FiberplaneAppType } from "../../types";
 
@@ -36,6 +36,27 @@ export default function createAuthApiRoute<E extends Env>(
 
     setCookie(c, "fpSession", sessionKey);
     return c.redirect(embeddedUrl);
+  });
+
+  app.post("/logout", async (c) => {
+    const sessionKey = getCookie(c, "fpSession");
+
+    if (sessionKey) {
+      // Remove session cookie from embedded app domain
+      deleteCookie(c, "fpSession");
+
+      // Invalidate session with auth server
+      await fetchFn(`${fiberplaneServicesUrl}/api/auth/invalidate-session`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          Cookie: `session=${sessionKey}`,
+        },
+      });
+    }
+
+    return c.json({ success: true });
   });
 
   app.get("/profile", async (c) => {
