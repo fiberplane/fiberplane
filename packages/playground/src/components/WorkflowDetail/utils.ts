@@ -3,3 +3,5 @@ export function extractStepName(selector: string) {
   const match = selector.match(/\$steps\.(\w+)\.outputs\.\w+/);
   return match ? match[1] : null; // Return the step name or null if not found
 }
+
+export const NOT_FOUND = Symbol("NOT_FOUND");

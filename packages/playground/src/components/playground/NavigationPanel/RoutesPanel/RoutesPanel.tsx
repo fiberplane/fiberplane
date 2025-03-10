@@ -82,6 +82,7 @@ function VirtualizedRoutesList({
               key={getRouteId(route)}
               style={{
                 position: "absolute",
+                minWidth: "100%",
                 top: 0,
                 left: 0,
                 transform: `translateY(${virtualRow.start}px)`,

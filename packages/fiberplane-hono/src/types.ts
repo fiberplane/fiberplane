@@ -141,3 +141,45 @@ export interface FiberplaneAppType<E extends Env> {
     userExecutionCtx: ExecutionContext;
   };
 }
+
+export type ValidationDetail = {
+  key: string;
+  message: string;
+  code: string;
+};
+
+export type ValidationErrorInformation = {
+  type: "VALIDATION_ERROR";
+  message: string;
+  payload: Array<ValidationDetail>;
+};
+
+export type ExecutionErrorInformation = {
+  type: "EXECUTION_ERROR";
+  message: string;
+  payload: {
+    stepId: string;
+    // Somewhat internal information, these are the parameters as they are
+    // passed into the step function and are used to reconstruct the request
+    // in the playground.
+    parameters?: Record<string, unknown>;
+
+    // Contains key request information
+    // Note: this might leek sensitive information
+    // but only in cases where the workflow is used to
+    // call non-public APIs
+    request?: {
+      url: string;
+      method: string;
+      headers: Record<string, string>;
+      body?: string;
+    };
+
+    // Contains key response information
+    response?: {
+      status: number;
+      body?: string;
+      headers: Record<string, string>;
+    };
+  };
+};

@@ -1,100 +1,37 @@
-import { useWorkflowStore } from "@/lib/workflowStore";
-import type { JSONPropertyValueSchema, Workflow } from "@/types";
+import { useShake } from "@/hooks";
+import { cn } from "@/utils";
 import { Play } from "lucide-react";
-import { useShallow } from "zustand/react/shallow";
+import { useEffect } from "react";
 import { Button } from "../ui/button";
-import { useExecuteWorkflow } from "./useExecuteWorkflow";
 
 export function RunButton({
-  id,
-  workflow,
-}: { id: string; workflow: Workflow }) {
-  const { mutate: executeWorkflow, isPending } = useExecuteWorkflow();
+  error,
+  submit,
+  isPending,
+}: { isPending: boolean; error?: null | Error; submit: () => void }) {
+  const { shakeClassName, triggerShake } = useShake();
 
-  const { inputValues } = useWorkflowStore(
-    useShallow(({ inputValues }) => ({ inputValues })),
-  );
+  useEffect(() => {
+    if (error) {
+      triggerShake();
+    }
+  }, [error, triggerShake]);
+
   return (
-    <Button
-      variant="primary"
-      size="sm"
-      className="h-6"
-      disabled={isPending}
-      onClick={(event) => {
-        event.preventDefault();
-        const parameters = parsedValues(inputValues, workflow);
-        executeWorkflow({
-          id,
-          parameters,
-        });
-      }}
-    >
-      <Play />
-      Run
-    </Button>
+    <div className="flex gap-2">
+      <Button
+        variant="primary"
+        size="sm"
+        className={cn("h-6", shakeClassName)}
+        disabled={isPending}
+        onClick={(event) => {
+          event.preventDefault();
+          submit();
+        }}
+      >
+        <Play />
+        Run
+      </Button>
+    </div>
   );
-}
-
-function parsedValues(
-  inputValues: Record<string, string>,
-  workflow: Workflow,
-): Record<string, unknown> {
-  const entries = Object.entries(inputValues).map(([key, value]) => {
-    const schema = workflow.inputs.properties[key];
-    if (schema) {
-      return [key, constrainValueToSchema(value, schema)];
-    }
-
-    return [key, value];
-  });
-  return Object.fromEntries(entries);
-}
-
-function constrainValueToSchema(
-  value: string,
-  schema: JSONPropertyValueSchema,
-) {
-  switch (schema.type) {
-    case "boolean": {
-      if (value.toLowerCase() === "true") {
-        return true;
-      }
-
-      if (value.toLowerCase() === "false" || schema.required) {
-        return false;
-      }
-      return undefined;
-    }
-    case "integer": {
-      if (!value) {
-        return undefined;
-      }
-
-      return Number.parseInt(value);
-    }
-    case "number": {
-      if (!value) {
-        return undefined;
-      }
-
-      return Number.parseFloat(value);
-    }
-
-    case "object": {
-      try {
-        return JSON.parse(value);
-      } catch {
-        return undefined;
-      }
-    }
-    case "array": {
-      try {
-        return JSON.parse(value);
-      } catch {
-        return undefined;
-      }
-    }
-  }
-
-  return value;
 }
