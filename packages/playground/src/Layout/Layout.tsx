@@ -1,8 +1,18 @@
 import { useStudioStore } from "@/components/playground/store";
 import { Button } from "@/components/ui/button";
+import {
+  FpDropdownMenu,
+  FpDropdownMenuContent,
+  FpDropdownMenuItem,
+  FpDropdownMenuSeparator,
+  FpDropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/contexts/auth";
 import { useMountedPath } from "@/hooks/use-mounted-path";
+import { getFpApiBasePath } from "@/lib/api/fetch";
+import { useLoginHandler } from "@/lib/hooks/useLogin";
 import { createLink, useMatches } from "@tanstack/react-router";
-import { UserCircle } from "lucide-react";
+import { LogOut, UserCircle } from "lucide-react";
 import { type ReactNode, forwardRef } from "react";
 import { cn } from "../utils";
 import { BottomBar } from "./BottomBar";
@@ -35,6 +45,37 @@ NavButtonComponent.displayName = "NavButtonComponent";
 
 const NavButton = createLink(NavButtonComponent);
 
+function UserMenu() {
+  const user = useAuth();
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <FpDropdownMenu>
+      <FpDropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" className="w-6 h-6 p-0">
+          <UserCircle className="w-4 h-4" />
+        </Button>
+      </FpDropdownMenuTrigger>
+      <FpDropdownMenuContent align="end" className="w-48">
+        <div className="px-2 py-1.5 text-sm font-medium">{user.email}</div>
+        <FpDropdownMenuSeparator />
+        <FpDropdownMenuItem
+          onClick={() => {
+            document.location = `${getFpApiBasePath()}/api/auth/logout`;
+          }}
+          className="text-red-600 dark:text-red-400"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Log out</span>
+        </FpDropdownMenuItem>
+      </FpDropdownMenuContent>
+    </FpDropdownMenu>
+  );
+}
+
 export function Layout({ children }: { children?: ReactNode }) {
   const { isWorkflowsEnabled, isTracingEnabled, shouldShowTopNav } =
     useStudioStore(
@@ -42,6 +83,8 @@ export function Layout({ children }: { children?: ReactNode }) {
       "isTracingEnabled",
       "shouldShowTopNav",
     );
+
+  const user = useAuth();
 
   return (
     <div className="flex flex-col justify-between w-full min-h-screen overflow-hidden bg-muted/30 max-w-128">
@@ -54,11 +97,8 @@ export function Layout({ children }: { children?: ReactNode }) {
             )}
             {isTracingEnabled && <NavButton to="/traces">Traces</NavButton>}
           </div>
-          {/* NOTE - This is hidden because we currently have no concept of a User in the Playground */}
-          <div className="hidden">
-            <Button variant="ghost" size="sm" className="w-6 h-6 p-0">
-              <UserCircle className="w-4 h-4" />
-            </Button>
+          <div className={cn({ hidden: !user })}>
+            <UserMenu />
           </div>
         </div>
       )}

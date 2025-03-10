@@ -2,6 +2,7 @@ export type UserProfile = {
   id: string;
   email: string;
   role: "owner" | "admin" | "user";
+  // https://avatars.githubusercontent.com/u/{user_id}
 };
 
 export const isOwner = (user: UserProfile | null) => user?.role === "owner";
