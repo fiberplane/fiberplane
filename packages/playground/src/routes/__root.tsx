@@ -36,7 +36,10 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
 
     const [openApiContent, userResponse] = await Promise.all([
       openApiPromise,
-      userPromise,
+      userPromise.catch((err) => {
+        console.warn(err);
+        return null;
+      }),
     ]);
 
     return {
@@ -52,7 +55,7 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
             content: openApiContent,
           },
         }),
-        user: userResponse.data ?? null,
+        user: userResponse ?? null,
       },
     };
   },

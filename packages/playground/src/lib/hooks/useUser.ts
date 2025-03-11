@@ -1,5 +1,4 @@
-import type { ApiResponse } from "@/types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { api } from "../api";
 import type { UserProfile } from "../auth";
@@ -8,13 +7,13 @@ export const USER_PROFILE_KEY = "user-profile";
 
 export const userProfileQueryOptions = () => ({
   queryKey: [USER_PROFILE_KEY],
-  queryFn: () => api.getUserProfile(),
-  select: (response: ApiResponse<UserProfile | null>) => response?.data ?? null,
+  queryFn: () =>
+    api.getUserProfile().catch((err) => {
+      console.log(err);
+      return null;
+    }),
+  select: (response: UserProfile) => response ?? null,
 });
-
-export function useUserProfile() {
-  return useQuery(userProfileQueryOptions());
-}
 
 export const USER_LOGOUT_KEY = "user-logout";
 

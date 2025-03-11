@@ -3,6 +3,8 @@ import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import type { FetchFn, FiberplaneAppType } from "../../types";
 
+const COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds
+
 export default function createAuthApiRoute<E extends Env>(
   apiKey: string,
   fetchFn: FetchFn,
@@ -34,7 +36,18 @@ export default function createAuthApiRoute<E extends Env>(
       throw new HTTPException(403, { message: "Session key missing" });
     }
 
-    setCookie(c, "fpSession", sessionKey);
+    const url = new URL(c.req.url);
+    const isDev = url.host === "localhost";
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: !isDev,
+      maxAge: COOKIE_MAX_AGE,
+      sameSite: "Lax" as const,
+      domain: url.hostname,
+    };
+
+    setCookie(c, "fpSession", sessionKey, cookieOptions);
     return c.redirect(embeddedUrl);
   });
 
@@ -72,8 +85,13 @@ export default function createAuthApiRoute<E extends Env>(
         },
       },
     );
-    const json = await response.json();
-    return c.json(json);
+
+    if (response.ok) {
+      const json = await response.json();
+      return c.json(json);
+    }
+
+    return c.json({ message: "Unauthorized" }, 401);
   });
 
   return app;
