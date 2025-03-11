@@ -94,6 +94,14 @@ export interface EmbeddedOptions<E extends Env> {
   fetch?: FetchFn;
 
   /**
+   * Authenticate and authorize access to tracing data (default: true)
+   *
+   * If set to `false`, the middleware will **not** attempt to authenticate or authorize access to tracing data.
+   * You should only set this to `false` when you want easy access to tracing data locally
+   */
+  authTraces?: boolean;
+
+  /**
    * Enable debug statements
    */
   debug?: boolean;
@@ -110,6 +118,7 @@ export interface ResolvedEmbeddedOptions<E extends Env>
   userExecutionCtx: ExecutionContext | null;
   cdn: string;
   fiberplaneServicesUrl: string;
+  hasFiberplaneServicesIntegration: boolean;
 }
 
 export interface SanitizedEmbeddedOptions<E extends Env>

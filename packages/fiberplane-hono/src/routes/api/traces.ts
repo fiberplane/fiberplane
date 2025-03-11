@@ -1,16 +1,53 @@
 import { type Env, Hono } from "hono";
 import { logIfDebug } from "../../debug";
 import type { FetchFn, FiberplaneAppType } from "../../types";
+import { getCookie } from "hono/cookie";
 
 // Using Record<string, unknown> as a simpler type for JSON data
 type ApiResponse = Record<string, unknown> | Array<Record<string, unknown>>;
 
 export default function createTracesApiRoute<E extends Env>(
+  authTraces: boolean,
   fetchFn: FetchFn,
   otelEndpoint?: string,
   otelToken?: string,
+  fiberplaneServicesUrl?: string,
+  fiberplaneApiKey?: string,
 ) {
   const app = new Hono<E & FiberplaneAppType<E>>();
+
+  // Middleware to optionally authenticate and authorize a user for traces api routes
+  app.use("*", async (c, next) => {
+    if (!authTraces) {
+      return next();
+    }
+
+    const sessionKey = getCookie(c, "fpSession");
+
+    const authResponse = await fetchFn(
+      `${fiberplaneServicesUrl}/api/auth/profile`,
+      {
+        headers: {
+          Authorization: `Bearer ${fiberplaneApiKey}`,
+          "Content-Type": "application/json",
+          Cookie: `session=${sessionKey}`,
+        },
+      },
+    );
+
+    if (!authResponse.ok) {
+      return c.json({ message: "Unauthorized" }, 401);
+    }
+
+    const user = await authResponse.json();
+    const role = user?.role ?? user?.data?.role;
+
+    if (role !== "admin" && role !== "owner") {
+      return c.json({ message: "Unauthorized" }, 403);
+    }
+
+    await next();
+  });
 
   app.get("/", async (c) => {
     logIfDebug(

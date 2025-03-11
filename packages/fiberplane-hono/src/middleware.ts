@@ -38,9 +38,10 @@ export const createFiberplane =
     const { mountedPath, internalPath } = getPaths(c);
     const fiberplaneServicesUrl =
       options.fiberplaneServicesUrl ?? getFiberplaneServicesUrl(c);
+    const hasFiberplaneServicesIntegration = !!apiKey;
     const otelEndpoint = getOtelEndpoint(c);
     const otelToken = getOtelToken(c);
-
+    const authTraces = options.authTraces ?? true;
     logIfDebug(debug, "mountedPath:", mountedPath);
     logIfDebug(debug, "internalPath:", internalPath);
     logIfDebug(debug, "fiberplaneServicesUrl:", fiberplaneServicesUrl);
@@ -61,6 +62,7 @@ export const createFiberplane =
       mountedPath,
       otelEndpoint,
       otelToken,
+      authTraces,
       userApp,
       userEnv,
       userExecutionCtx,
@@ -69,6 +71,9 @@ export const createFiberplane =
       fiberplaneServicesUrl,
       // Add the api key with a fallback to the env var FIBERPLANE_API_KEY
       apiKey,
+      // We need some way to communciating to the frontend that fiberplane services is enabled
+      // (This means that the user has a Fiberplane API key)
+      hasFiberplaneServicesIntegration,
     } satisfies ResolvedEmbeddedOptions<E>);
 
     // Create a new request with the corrected (internal) path

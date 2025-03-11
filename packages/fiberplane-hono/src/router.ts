@@ -27,6 +27,7 @@ export function createRouter<E extends Env>(
     otelToken,
     debug,
     fiberplaneServicesUrl,
+    authTraces = true,
     ...sanitizedOptions
   } = options;
 
@@ -72,7 +73,14 @@ export function createRouter<E extends Env>(
     );
     app.route(
       "/api/traces",
-      createTracesApiRoute(fetchFn, otelEndpoint, otelToken),
+      createTracesApiRoute(
+        authTraces,
+        fetchFn,
+        otelEndpoint,
+        otelToken,
+        fiberplaneServicesUrl,
+        apiKey,
+      ),
     );
   } else {
     logIfDebug(
