@@ -1,3 +1,4 @@
+import { FeatureDisabledScreen } from "@/components/FeatureDisabledScreen";
 import {
   TracesList,
   TracesListErrorBoundary,
@@ -37,6 +38,16 @@ export const Route = createFileRoute("/traces/")({
     if (isFpApiError(error)) {
       if (!user && error.statusCode === 401) {
         return <Unauthenticated />;
+      }
+      if (error.statusCode === 402) {
+        return (
+          <FeatureDisabledScreen
+            error={error}
+            title="Tracing Not Configured"
+            message="This api is not connected to a Fiberplane trace collector."
+            className="min-h-0 h-full"
+          />
+        );
       }
       if (user && error.statusCode === 403) {
         return <Unauthorized />;
