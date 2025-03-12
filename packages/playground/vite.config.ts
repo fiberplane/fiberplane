@@ -96,6 +96,7 @@ function injectPlaygroundDevConfig(): Plugin {
         },
         authTraces: false,
         hasFiberplaneServicesIntegration: true,
+        hasOtelCollector: true,
       };
 
       return html.replace(

@@ -12,3 +12,4 @@ export { useOrphanLogs } from "./useOrphanLogs";
 export { useSettingsOpen } from "./useSettingsOpen";
 export { useHasFiberplaneServices } from "./useHasFiberplaneServices";
 export { useShouldAuthTraces } from "./useShouldAuthTraces";
+export { useHasOtelCollector } from "./useHasOtelCollector";

@@ -10,9 +10,15 @@ export default function createPlayground<E extends Env>(
     cdn,
     mountedPath,
     openapi,
+    otelEndpoint,
     authTraces,
     hasFiberplaneServicesIntegration,
   } = sanitizedOptions;
+
+  // Need to communciate to the frontend whether or not tracing is enabled
+  // This is used to determine if we should show the copy-trace-id button
+  const hasOtelCollector = !!otelEndpoint;
+
   const cssBundleUrl = new URL("index.css", cdn).href;
   const jsBundleUrl = new URL("index.js", cdn).href;
 
@@ -32,6 +38,7 @@ export default function createPlayground<E extends Env>(
               mountedPath,
               openapi,
               authTraces,
+              hasOtelCollector,
               hasFiberplaneServicesIntegration,
             })}
           />
