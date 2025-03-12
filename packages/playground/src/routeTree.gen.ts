@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as WorkflowsImport } from './routes/workflows'
 import { Route as TracesImport } from './routes/traces'
+import { Route as ChatImport } from './routes/chat'
 import { Route as IndexImport } from './routes/index'
 import { Route as WorkflowsIndexImport } from './routes/workflows.index'
 import { Route as TracesIndexImport } from './routes/traces.index'
@@ -31,6 +32,12 @@ const WorkflowsRoute = WorkflowsImport.update({
 const TracesRoute = TracesImport.update({
   id: '/traces',
   path: '/traces',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ChatRoute = ChatImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -79,6 +86,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatImport
       parentRoute: typeof rootRoute
     }
     '/traces': {
@@ -164,6 +178,7 @@ const WorkflowsRouteWithChildren = WorkflowsRoute._addFileChildren(
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/traces': typeof TracesRouteWithChildren
   '/workflows': typeof WorkflowsRouteWithChildren
   '/UNRELEASEDtraces/$traceId': typeof UNRELEASEDtracesTraceIdRoute
@@ -175,6 +190,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/UNRELEASEDtraces/$traceId': typeof UNRELEASEDtracesTraceIdRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
   '/workflows/new': typeof WorkflowsNewRoute
@@ -185,6 +201,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/traces': typeof TracesRouteWithChildren
   '/workflows': typeof WorkflowsRouteWithChildren
   '/UNRELEASEDtraces/$traceId': typeof UNRELEASEDtracesTraceIdRoute
@@ -198,6 +215,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/chat'
     | '/traces'
     | '/workflows'
     | '/UNRELEASEDtraces/$traceId'
@@ -208,6 +226,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/chat'
     | '/UNRELEASEDtraces/$traceId'
     | '/workflows/$workflowId'
     | '/workflows/new'
@@ -216,6 +235,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/chat'
     | '/traces'
     | '/workflows'
     | '/UNRELEASEDtraces/$traceId'
@@ -228,6 +248,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ChatRoute: typeof ChatRoute
   TracesRoute: typeof TracesRouteWithChildren
   WorkflowsRoute: typeof WorkflowsRouteWithChildren
   UNRELEASEDtracesTraceIdRoute: typeof UNRELEASEDtracesTraceIdRoute
@@ -235,6 +256,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ChatRoute: ChatRoute,
   TracesRoute: TracesRouteWithChildren,
   WorkflowsRoute: WorkflowsRouteWithChildren,
   UNRELEASEDtracesTraceIdRoute: UNRELEASEDtracesTraceIdRoute,
@@ -251,6 +273,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/chat",
         "/traces",
         "/workflows",
         "/UNRELEASEDtraces/$traceId"
@@ -258,6 +281,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/chat": {
+      "filePath": "chat.tsx"
     },
     "/traces": {
       "filePath": "traces.tsx",

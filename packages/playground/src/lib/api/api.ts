@@ -7,6 +7,7 @@ import {
 import { FetchOpenApiSpecError, isFailedToFetchError } from "./errors";
 import { baseFetch, fpFetch } from "./fetch";
 import { safeParseBodyText } from "./utils";
+import type { Message } from "@ai-sdk/react";
 
 export const api = {
   getWorkflows: async (): Promise<ApiResponse<Workflow[]>> => {
@@ -179,5 +180,18 @@ export const api = {
       },
       body: JSON.stringify(data),
     });
+  },
+
+  chat: {
+    async sendMessage(messages: Message[]) {
+      // Forward the request to the backend which will handle streaming
+      return fpFetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ messages }),
+      });
+    },
   },
 };

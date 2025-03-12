@@ -48,6 +48,7 @@ export function Layout({ children }: { children?: ReactNode }) {
       {shouldShowTopNav && (
         <div className="grid grid-cols-[1fr_auto] mt-1 px-4 items-center h-6 place-items-center">
           <div className="flex items-center gap-2">
+            <NavButton to="/chat">Chat</NavButton>
             <NavButton to="/">Playground</NavButton>
             {isWorkflowsEnabled && (
               <NavButton to="/workflows">Workflows</NavButton>

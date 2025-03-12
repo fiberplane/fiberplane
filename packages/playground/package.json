@@ -21,6 +21,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@ai-sdk/react": "^1.1.21",
     "@apidevtools/swagger-parser": "^10.1.1",
     "@codemirror/autocomplete": "^6.18.3",
     "@codemirror/lang-json": "^6.0.1",
@@ -59,6 +60,7 @@
     "@uiw/codemirror-theme-duotone": "^4.23.6",
     "@uiw/react-codemirror": "^4.23.6",
     "@uiw/react-json-view": "2.0.0-alpha.30",
+    "ai": "^4.1.54",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",

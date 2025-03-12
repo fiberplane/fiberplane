@@ -53,6 +53,7 @@
   },
   "dependencies": {
     "@hono/standard-validator": "^0.1.2",
+    "ai": "^4.1.54",
     "dotenv": "^16.4.7",
     "json-schema-library": "10.0.0-rc7",
     "jsonpath-plus": "^10.3.0",
