@@ -94,7 +94,7 @@ function injectPlaygroundDevConfig(): Plugin {
         openapi: {
           url: openApiSpecUrl,
         },
-        authTraces: true,
+        authTraces: false,
         hasFiberplaneServicesIntegration: true,
       };
 
