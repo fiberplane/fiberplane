@@ -31,7 +31,7 @@ export function NewWorkflow() {
   return (
     <div className="flex flex-col justify-center h-full p-4 overflow-auto border rounded-md">
       <div className="grid gap-4 text-center max-w-[800px] mx-auto border rounded-md p-4">
-        <h3 className="text-lg font-medium">Create Your API Workflow</h3>
+        <h3 className="text-lg font-medium">Generate Your API Workflow</h3>
         <p className="text-sm text-muted-foreground">
           Describe your HTTP request chain in natural language and we'll
           generate it.

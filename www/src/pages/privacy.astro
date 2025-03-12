@@ -1,0 +1,29 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+---
+
+<StarlightPage
+  frontmatter={{
+    title: "Privacy Policy",
+    description: "Fiberplane Privacy Policy",
+    template: "splash"
+  }}
+>
+  <!-- @ts-expect-error Termly won't render without ¯\_(ツ)_/¯ -->
+  <div name="termly-embed" data-id="a410debf-2132-4f59-9a6e-9de1f47295ff"></div>
+
+  <script>
+    (function (d, s, id) {
+      var js,
+        tjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s);
+
+      if (js instanceof HTMLScriptElement && tjs.parentNode) {
+        js.id = id;
+        js.src = "https://app.termly.io/embed-policy.min.js";
+        tjs.parentNode.insertBefore(js, tjs);
+      }
+    })(document, "script", "termly-jssdk");
+  </script>
+</StarlightPage>

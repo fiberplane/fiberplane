@@ -21,7 +21,7 @@ import { getFromEnv } from "./utils/env";
  * The version of assets to use for the playground ui.
  * This should correspond to the package.json version of the `@fiberplane/hono` package.
  */
-export const ASSETS_VERSION = "0.5.1";
+export const ASSETS_VERSION = "0.5.2";
 const CDN_URL = `https://cdn.jsdelivr.net/npm/@fiberplane/hono@${ASSETS_VERSION}/dist/playground/`;
 
 export const createFiberplane =
@@ -100,7 +100,11 @@ export const createFiberplane =
     );
 
     // Skip the middleware and continue if the embedded router doesn't match
-    if (response.status === 404) {
+    // But make sure we're not ignoring a (json) bases 404.
+    if (
+      response.status === 404 &&
+      response.headers.get("content-type") !== "application/json"
+    ) {
       return next();
     }
 

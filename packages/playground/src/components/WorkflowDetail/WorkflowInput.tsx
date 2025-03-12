@@ -1,60 +1,62 @@
+import type { ValidationDetail } from "@/lib/api/errors";
+import { useWorkflowStore } from "@/lib/workflowStore";
 import type { JSONPropertyValueSchema } from "@/types";
-import { cn } from "@/utils";
 import type { ReactNode } from "react";
-import {
-  CodeMirrorInput,
-  codeMirrorClassNames,
-} from "../CodeMirrorEditor/CodeMirrorInput";
-import { Input } from "../ui/input";
+import { WorkflowInputField } from "./WorkflowInputField";
 
-export function WorkflowInput(props: {
+export function WorkflowInput({
+  propertyKey,
+  schema,
+  error,
+}: {
   propertyKey: string;
-  value: string;
   schema: JSONPropertyValueSchema;
-  setInputValue: (key: string, value: string) => void;
+  error?: ValidationDetail;
 }): ReactNode {
-  const { propertyKey, value, schema, setInputValue } = props;
-  switch (schema.type) {
-    case "boolean":
-      return (
-        <input
-          type="checkbox"
-          checked={value === "true"}
-          onChange={(event) =>
-            setInputValue(propertyKey, event.target.checked ? "true" : "false")
-          }
-          name={schema.title}
-        />
-      );
-    case "integer":
-      return (
-        <Input
-          type="number"
-          className={cn(codeMirrorClassNames, "bg-muted", "px-2")}
-          placeholder="Enter an integer"
-          value={value}
-          onChange={(e) => setInputValue(propertyKey, e.target.value)}
-          name={schema.title}
-        />
-      );
-    case "number":
-      return (
-        <Input
-          type="number"
-          className={cn(codeMirrorClassNames, "bg-muted")}
-          value={value}
-          onChange={(e) => setInputValue(propertyKey, e.target.value)}
-          name={schema.title}
-        />
-      );
-  }
-
+  const { setInputValue, inputValues } = useWorkflowStore();
+  const value = inputValues[propertyKey] || "";
   return (
-    <CodeMirrorInput
-      value={value || ""}
-      onChange={(value) => setInputValue(propertyKey, value || "")}
-      placeholder={schema.examples?.[0]?.toString() || `Enter ${schema.type}`}
-      className="bg-muted"
-    />
+    <div>
+      <div key={propertyKey} className="grid items-start gap-2 lg:grid-cols-2">
+        <div>
+          <div className="flex flex-wrap items-center gap-1 py-1">
+            <span className="text-sm font-medium">
+              {schema.title || propertyKey}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              ({schema.type})
+            </span>
+          </div>
+          {schema.description && (
+            <p className="text-sm text-muted-foreground">
+              {schema.description}
+            </p>
+          )}
+          {schema.examples && schema.examples.length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              Example: {JSON.stringify(schema.examples[0])}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <WorkflowInputField
+            propertyKey={propertyKey}
+            value={value}
+            schema={schema}
+            setInputValue={setInputValue}
+          />
+          {error && (
+            <div className="text-danger grid gap-1 text-xs px-2 pt-0.5">
+              {error.code === "required-property-error"
+                ? value === ""
+                  ? "This field is required"
+                  : undefined
+                : error.message}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

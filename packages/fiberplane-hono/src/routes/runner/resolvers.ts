@@ -15,15 +15,11 @@ export interface WorkflowContext {
 }
 
 export interface HttpRequestParams {
-  path: string;
-  method: string;
   parameters: Record<string, string>;
   body?: unknown;
 }
 
-function resolvePathAndMethod(
-  step: Step,
-): Pick<HttpRequestParams, "path" | "method"> {
+export function resolvePathAndMethod(step: Step): Step["operation"] {
   return {
     path: step.operation.path,
     method: step.operation.method,
@@ -80,13 +76,9 @@ export async function resolveStepParams(
   step: Step,
   context: WorkflowContext,
 ): Promise<HttpRequestParams> {
-  const { path, method } = resolvePathAndMethod(step);
   const parameters = resolveParameters(step.parameters, context);
   const body = resolveBody(step.requestBody, context);
-
   return {
-    path,
-    method,
     parameters,
     ...(body ? { body } : {}),
   };

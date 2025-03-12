@@ -1,6 +1,7 @@
 import { useWorkflowStore } from "@/lib/workflowStore";
 import { useShallow } from "zustand/react/shallow";
-import { NOT_FOUND } from "./ParameterItem";
+import { NameValueItem } from "./NameValueItem";
+import { NOT_FOUND } from "./utils";
 
 export function OutputItem({
   output,
@@ -12,28 +13,5 @@ export function OutputItem({
     useShallow(({ outputValues }) => ({ outputValues })),
   );
   const value = outputValues[output.key] ?? NOT_FOUND;
-  return (
-    <div className="text-sm grid grid-cols-[200px_auto] max-w-full overflow-hidden min-h-[30px] items-center">
-      <div>{output.key}</div>
-
-      <div className="overflow-x-auto">
-        {value === NOT_FOUND ? (
-          <>
-            <em className="text-muted-foreground">No value set</em>
-          </>
-        ) : (
-          <>
-            <pre className="max-w-full overflow-auto font-mono bg-background">
-              <code>
-                {JSON.stringify(value, null, "\t").replaceAll(
-                  '],\n\t"',
-                  '],\n\n\t"',
-                )}
-              </code>
-            </pre>
-          </>
-        )}
-      </div>
-    </div>
-  );
+  return <NameValueItem name={output.key} value={value} />;
 }
