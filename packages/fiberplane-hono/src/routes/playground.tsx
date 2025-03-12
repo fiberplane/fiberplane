@@ -6,7 +6,7 @@ export default function createPlayground<E extends Env>(
 ) {
   const app = new Hono<E & FiberplaneAppType<E>>();
 
-  const { cdn, mountedPath, openapi } = sanitizedOptions;
+  const { cdn, mountedPath, openapi, authTraces, hasFiberplaneServicesIntegration } = sanitizedOptions;
   const cssBundleUrl = new URL("index.css", cdn).href;
   const jsBundleUrl = new URL("index.js", cdn).href;
 
@@ -25,6 +25,8 @@ export default function createPlayground<E extends Env>(
             data-options={JSON.stringify({
               mountedPath,
               openapi,
+              authTraces,
+              hasFiberplaneServicesIntegration
             })}
           />
           <script type="module" src={jsBundleUrl} />
