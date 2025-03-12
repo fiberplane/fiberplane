@@ -26,3 +26,8 @@ export const ENV_FIBERPLANE_OTEL_ENDPOINT = "FIBERPLANE_OTEL_ENDPOINT";
  * @deprecated Use {@link ENV_FIBERPLANE_OTEL_ENDPOINT} instead.
  */
 export const ENV_FPX_ENDPOINT = "FPX_ENDPOINT";
+
+/**
+ * Environment variable for the AI provider API key
+ */
+export const ENV_FIBERPLANE_AI_API_KEY = "FIBERPLANE_AI_API_KEY";

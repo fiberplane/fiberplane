@@ -52,6 +52,8 @@
     "hono": "^4.0"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^1.2.3",
+    "@cfworker/json-schema": "^4.1.1",
     "@hono/standard-validator": "^0.1.2",
     "ai": "^4.1.54",
     "dotenv": "^16.4.7",

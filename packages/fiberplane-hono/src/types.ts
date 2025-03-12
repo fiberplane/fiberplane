@@ -94,6 +94,23 @@ export interface EmbeddedOptions<E extends Env> {
   fetch?: FetchFn;
 
   /**
+   * (Optional) Configuration for the chat feature
+   * 
+   * @example
+   * ```ts
+   * const app = new Hono();
+   * app.use('/*', createFiberplane({
+   *   chat: {
+   *     enabled: true,
+   *     // Optional: provide a custom API key, otherwise uses FIBERPLANE_AI_API_KEY env var
+   *     // apiKey: 'your-ai-provider-api-key'
+   *   }
+   * }));
+   * ```
+   */
+  chat?: ChatConfig;
+
+  /**
    * Enable debug statements
    */
   debug?: boolean;
@@ -110,13 +127,16 @@ export interface ResolvedEmbeddedOptions<E extends Env>
   userExecutionCtx: ExecutionContext | null;
   cdn: string;
   fiberplaneServicesUrl: string;
+  chat?: ChatConfig;
 }
 
 export interface SanitizedEmbeddedOptions<E extends Env>
   extends Omit<
     ResolvedEmbeddedOptions<E>,
-    "apiKey" | "fiberplaneServicesUrl"
-  > {}
+    "apiKey" | "fiberplaneServicesUrl" | "chat"
+  > {
+  chatEnabled?: boolean;
+}
 
 export interface OpenAPIOptions {
   /**
@@ -133,12 +153,28 @@ export interface OpenAPIOptions {
   content?: string;
 }
 
+/**
+ * Configuration for the chat feature
+ */
+export interface ChatConfig {
+  /**
+   * Whether the chat feature is enabled
+   */
+  enabled: boolean;
+  /**
+   * API key for the AI provider (e.g., OpenAI)
+   * If not provided, the middleware will attempt to fall back to the `FIBERPLANE_AI_API_KEY` environment variable.
+   */
+  apiKey?: string;
+}
+
 export interface FiberplaneAppType<E extends Env> {
   Variables: {
     debug: boolean;
     userApp?: AnyHono<E>;
     userEnv: E;
     userExecutionCtx: ExecutionContext;
+    chatEnabled?: boolean;
   };
 }
 

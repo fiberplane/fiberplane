@@ -1,6 +1,7 @@
 import type { Context, Env, MiddlewareHandler } from "hono";
 import {
   DEFAULT_PLAYGROUND_SERVICES_URL,
+  ENV_FIBERPLANE_AI_API_KEY,
   ENV_FIBERPLANE_OTEL_TOKEN,
   ENV_FIBERPLANE_SERVICES_URL,
   ENV_FPX_AUTH_TOKEN,
@@ -24,6 +25,50 @@ import { getFromEnv } from "./utils/env";
 export const ASSETS_VERSION = "0.5.2";
 const CDN_URL = `https://cdn.jsdelivr.net/npm/@fiberplane/hono@${ASSETS_VERSION}/dist/playground/`;
 
+/**
+ * Gets the AI API key from options or environment variables.
+ * First checks the options, then falls back to the environment variable.
+ */
+function getAiApiKey<E extends Env>(c: Context, options: EmbeddedOptions<E>, debug: boolean): string | undefined {
+  // First check if chat is enabled and has an API key in options
+  if (options.chat?.enabled && options.chat?.apiKey) {
+    logIfDebug(debug, "AI API key present in options");
+    return options.chat.apiKey;
+  }
+
+  // Then check environment variable
+  const aiApiKey = getFromEnv(c?.env, [ENV_FIBERPLANE_AI_API_KEY]);
+  if (debug) {
+    if (aiApiKey) {
+      logIfDebug(debug, "FIBERPLANE_AI_API_KEY present in env");
+    } else {
+      logIfDebug(debug, "FIBERPLANE_AI_API_KEY not present in env");
+    }
+  }
+  return aiApiKey ?? undefined;
+}
+
+/**
+ * Gets the OpenAPI spec from options.
+ * Returns undefined if no OpenAPI spec is provided.
+ */
+function getOpenApiSpec<E extends Env>(options: EmbeddedOptions<E>, debug: boolean): string | undefined {
+  if (options.openapi) {
+    if (options.openapi.content) {
+      logIfDebug(debug, "OpenAPI spec content present in options");
+      return options.openapi.content;
+    }
+    
+    if (options.openapi.url) {
+      logIfDebug(debug, "OpenAPI spec URL present in options");
+      return options.openapi.url;
+    }
+  }
+  
+  logIfDebug(debug, "OpenAPI spec not present in options");
+  return undefined;
+}
+
 export const createFiberplane =
   <E extends Env>(options: EmbeddedOptions<E>): MiddlewareHandler =>
   async (c, next) => {
@@ -40,11 +85,22 @@ export const createFiberplane =
       options.fiberplaneServicesUrl ?? getFiberplaneServicesUrl(c);
     const otelEndpoint = getOtelEndpoint(c);
     const otelToken = getOtelToken(c);
+    
+    const chatEnabled = options.chat?.enabled ?? false;
+    const aiApiKey = chatEnabled ? getAiApiKey(c, options, debug) : undefined;
+    const openApiSpec = getOpenApiSpec(options, debug);
 
     logIfDebug(debug, "mountedPath:", mountedPath);
     logIfDebug(debug, "internalPath:", internalPath);
     logIfDebug(debug, "fiberplaneServicesUrl:", fiberplaneServicesUrl);
     logIfDebug(debug, "otelEndpoint:", otelEndpoint);
+    logIfDebug(debug, "chatEnabled:", chatEnabled);
+    if (chatEnabled) {
+      logIfDebug(debug, "AI API key is", aiApiKey ? "set" : "not set");
+    }
+    if (openApiSpec) {
+      logIfDebug(debug, "OpenAPI spec is set");
+    }
     if (otelEndpoint && !otelToken) {
       logIfDebug(
         debug,
@@ -69,6 +125,13 @@ export const createFiberplane =
       fiberplaneServicesUrl,
       // Add the api key with a fallback to the env var FIBERPLANE_API_KEY
       apiKey,
+      // Add chat configuration if enabled
+      chat: chatEnabled ? {
+        enabled: true,
+        apiKey: aiApiKey,
+      } : undefined,
+      // Add OpenAPI spec if available
+      openapi: options.openapi,
     } satisfies ResolvedEmbeddedOptions<E>);
 
     // Create a new request with the corrected (internal) path

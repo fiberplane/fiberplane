@@ -2,6 +2,7 @@ import { type Env, Hono } from "hono";
 import { logIfDebug } from "./debug";
 import { webStandardFetch } from "./fetch";
 import createApiRoutes from "./routes/api";
+import createChatApiRoute from "./routes/api/chat";
 import createTracesApiRoute from "./routes/api/traces";
 import createEmbeddedPlayground from "./routes/playground";
 import createRunnerRoute from "./routes/runner";
@@ -27,8 +28,16 @@ export function createRouter<E extends Env>(
     otelToken,
     debug,
     fiberplaneServicesUrl,
+    chat,
+    openapi,
     ...sanitizedOptions
   } = options;
+
+  // Add chatEnabled to sanitizedOptions for the playground
+  const sanitizedOptionsWithChat = {
+    ...sanitizedOptions,
+    chatEnabled: chat?.enabled ?? false,
+  };
 
   const fetchFn: FetchFn = options.fetch ?? webStandardFetch;
 
@@ -37,6 +46,7 @@ export function createRouter<E extends Env>(
 
   app.use(async (c, next) => {
     c.set("debug", isDebugEnabled);
+    c.set("chatEnabled", chat?.enabled ?? false);
     await next();
   });
 
@@ -99,7 +109,15 @@ export function createRouter<E extends Env>(
       "Fiberplane API Key Present. Creating internal API router.",
     );
     app.route("/w", createRunnerRoute(apiKey, fiberplaneServicesUrl));
-    app.route("/api", createApiRoutes(fetchFn, apiKey, fiberplaneServicesUrl));
+    
+    const apiRoutes = createApiRoutes(
+      fetchFn, 
+      apiKey, 
+      fiberplaneServicesUrl, 
+      chat?.enabled ? chat.apiKey : undefined,
+      openapi
+    );
+    app.route("/api", apiRoutes);
   } else {
     logIfDebug(
       isDebugEnabled,
@@ -113,7 +131,7 @@ export function createRouter<E extends Env>(
     });
   }
 
-  const embeddedPlayground = createEmbeddedPlayground<E>(sanitizedOptions);
+  const embeddedPlayground = createEmbeddedPlayground<E>(sanitizedOptionsWithChat);
   app.route("/", embeddedPlayground);
 
   return app;
