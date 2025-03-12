@@ -80,6 +80,9 @@ export default defineConfig({
 /**
  * Injects the playground config into the HTML for dev purposes.
  * This is needed because the embedded API is not available during dev.
+ *
+ * Note that if you want to test a vanilla api without the Fiberplane services integration,
+ * then set `hasFiberplaneServicesIntegration` to `false`.
  */
 function injectPlaygroundDevConfig(): Plugin {
   return {
@@ -91,6 +94,8 @@ function injectPlaygroundDevConfig(): Plugin {
         openapi: {
           url: openApiSpecUrl,
         },
+        authTraces: true,
+        hasFiberplaneServicesIntegration: true,
       };
 
       return html.replace(

@@ -1,7 +1,12 @@
 import { useStudioStore } from "@/components/playground/store";
 import { Button } from "@/components/ui/button";
 import { useMountedPath } from "@/hooks/use-mounted-path";
-import { createLink, useMatchRoute, useMatches } from "@tanstack/react-router";
+import {
+  createLink,
+  useMatchRoute,
+  useMatches,
+  useRouteContext,
+} from "@tanstack/react-router";
 import { type ReactNode, forwardRef } from "react";
 import { cn } from "../utils";
 import { BottomBar } from "./BottomBar";
@@ -37,6 +42,10 @@ NavButtonComponent.displayName = "NavButtonComponent";
 const NavButton = createLink(NavButtonComponent);
 
 export function Layout({ children }: { children?: ReactNode }) {
+  const matches = useMatches();
+  const rootContext = matches[0]?.context;
+  const { hasFiberplaneServicesIntegration } = rootContext;
+
   const { isWorkflowsEnabled, isTracingEnabled } = useStudioStore(
     "isWorkflowsEnabled",
     "isTracingEnabled",
@@ -58,7 +67,19 @@ export function Layout({ children }: { children?: ReactNode }) {
           )}
           {isTracingEnabled && <NavButton to="/traces">Traces</NavButton>}
         </div>
-        <UserMenu />
+        {/**
+         * Hide the user menu if the Fiberplane services integration is not enabled
+         * (Integration is enabled when an api key is supplied)
+         * This is because we cannot do auth without an api key
+         *
+         * IMPROVEMENT - Show a modal with link to documentation on how to sign up
+         */}
+
+        {hasFiberplaneServicesIntegration ? (
+          <UserMenu />
+        ) : (
+          <div className="w-6 hidden" />
+        )}
       </div>
 
       <main
