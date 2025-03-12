@@ -12,10 +12,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FpTabs } from "@/components/ui/tabs";
 import { FpTabsContent, FpTabsList, FpTabsTrigger } from "@/components/ui/tabs";
 import { SENSITIVE_HEADERS } from "@/constants";
-import { useHasOtelCollector } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { Icon } from "@iconify/react";
-import { memo, useState } from "react";
+import { memo } from "react";
 import { useServiceBaseUrl } from "../store";
 import { useStudioStore } from "../store";
 import { useApiCallData } from "../store/hooks/useApiCallData";
@@ -23,9 +22,9 @@ import {
   type PlaygroundActiveResponse,
   isPlaygroundActiveResponse,
 } from "../store/types";
+import { CopyTraceIdButton } from "./CopyTraceId";
 import { FeedbackForm } from "./FeedbackForm";
 import { ResponseSummary } from "./ResponseSummary";
-
 type Props = {
   isLoading: boolean;
 };
@@ -294,60 +293,5 @@ function ReportIssueBanner({
         />
       </DialogContent>
     </Dialog>
-  );
-}
-
-function CopyTraceIdButton({
-  activeResponse,
-}: {
-  activeResponse: PlaygroundActiveResponse | undefined;
-}) {
-  const hasOtelCollector = useHasOtelCollector();
-  const [copied, setCopied] = useState(false);
-
-  if (!activeResponse) {
-    return null;
-  }
-
-  if (!hasOtelCollector) {
-    return null;
-  }
-
-  // TODO: Replace with actual trace ID extraction
-  const traceId = activeResponse.traceId ?? "";
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(traceId);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div className="flex items-center min-h-9 bg-secondary/40 border-secondary/20 border rounded-lg mb-4 group transition-all hover:bg-secondary/50">
-      <div className="flex items-center gap-3 px-3 pt-2 pb-2.5 w-full">
-        <div className="rounded-full bg-secondary/20 p-1.5 group-hover:bg-secondary/30 transition-colors">
-          <Icon
-            icon="lucide:fingerprint"
-            className="w-3.5 h-3.5 text-secondary-foreground"
-          />
-        </div>
-        <span className="text-xs truncate max-w-[160px] font-medium text-secondary-foreground font-mono">
-          Trace ID: {traceId}
-        </span>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleCopy}
-          className="ml-auto hover:bg-secondary"
-        >
-          {copied ? (
-            <Icon icon="lucide:check" className="w-4 h-4 mr-2" />
-          ) : (
-            <Icon icon="lucide:copy" className="w-4 h-4 mr-2" />
-          )}
-          {copied ? "Copied!" : "Copy"}
-        </Button>
-      </div>
-    </div>
   );
 }
