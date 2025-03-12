@@ -1,12 +1,8 @@
 import { useStudioStore } from "@/components/playground/store";
 import { Button } from "@/components/ui/button";
+import { useHasFiberplaneServices } from "@/hooks";
 import { useMountedPath } from "@/hooks/use-mounted-path";
-import {
-  createLink,
-  useMatchRoute,
-  useMatches,
-  useRouteContext,
-} from "@tanstack/react-router";
+import { createLink, useMatchRoute, useMatches } from "@tanstack/react-router";
 import { type ReactNode, forwardRef } from "react";
 import { cn } from "../utils";
 import { BottomBar } from "./BottomBar";
@@ -42,9 +38,7 @@ NavButtonComponent.displayName = "NavButtonComponent";
 const NavButton = createLink(NavButtonComponent);
 
 export function Layout({ children }: { children?: ReactNode }) {
-  const matches = useMatches();
-  const rootContext = matches[0]?.context;
-  const { hasFiberplaneServicesIntegration } = rootContext;
+  const hasFiberplaneServices = useHasFiberplaneServices();
 
   const { isWorkflowsEnabled, isTracingEnabled } = useStudioStore(
     "isWorkflowsEnabled",
@@ -75,11 +69,7 @@ export function Layout({ children }: { children?: ReactNode }) {
          * IMPROVEMENT - Show a modal with link to documentation on how to sign up
          */}
 
-        {hasFiberplaneServicesIntegration ? (
-          <UserMenu />
-        ) : (
-          <div className="w-6 hidden" />
-        )}
+        {hasFiberplaneServices ? <UserMenu /> : <div className="w-6 hidden" />}
       </div>
 
       <main

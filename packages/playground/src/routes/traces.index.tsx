@@ -4,6 +4,7 @@ import {
 } from "@/components/traces/TracesList";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth";
+import { useShouldAuthTraces } from "@/hooks";
 import { isFpApiError } from "@/lib/api/errors";
 import { type UserProfile, isAdmin, isOwner } from "@/lib/auth";
 import { useLoginHandler } from "@/lib/hooks/useLogin";
@@ -55,6 +56,7 @@ export const Route = createFileRoute("/traces/")({
 });
 
 function TracesIndexPage() {
+  const shouldAuthTraces = useShouldAuthTraces();
   const { queryClient } = Route.useRouteContext();
   const user = useAuth();
 
@@ -76,11 +78,11 @@ function TracesIndexPage() {
     }
   });
 
-  if (!user) {
+  if (!user && shouldAuthTraces) {
     return <Unauthenticated />;
   }
 
-  if (!canViewTraces(user)) {
+  if (!canViewTraces(user) && shouldAuthTraces) {
     return <Unauthorized />;
   }
 

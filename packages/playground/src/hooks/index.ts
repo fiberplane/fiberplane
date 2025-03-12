@@ -10,3 +10,5 @@ export { useStickyLoading } from "./useStickyLoading";
 export { useTimeAgo } from "./useTimeAgo";
 export { useOrphanLogs } from "./useOrphanLogs";
 export { useSettingsOpen } from "./useSettingsOpen";
+export { useHasFiberplaneServices } from "./useHasFiberplaneServices";
+export { useShouldAuthTraces } from "./useShouldAuthTraces";
