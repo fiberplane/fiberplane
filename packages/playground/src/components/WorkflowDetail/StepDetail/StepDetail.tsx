@@ -105,7 +105,7 @@ export function StepDetail(
                 className="w-auto px-2"
                 onClick={openInPlayground}
               >
-                <Play /> playground
+                Open in Playground
               </Button>
             </div>
             {error && (
