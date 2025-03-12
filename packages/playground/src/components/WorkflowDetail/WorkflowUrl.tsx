@@ -19,7 +19,7 @@ export function WorkflowUrl({ workflowId }: CopyableUrlProps) {
         Run this workflow by making a POST request to
       </div>
       <div className="flex items-center gap-2 overflow-x-auto text-sm py-1.5 px-4 bg-input rounded-lg">
-        <Method method="POST" />
+      <div className="flex items-center gap-2 overflow-x-auto text-sm px-4 bg-input rounded-lg">
         <code className="truncate flex-1 p-2 rounded-md">{workflowUrl}</code>
         <Button
           variant="ghost"
