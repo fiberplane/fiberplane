@@ -21,7 +21,7 @@ import { getFromEnv } from "./utils/env";
  * The version of assets to use for the playground ui.
  * This should correspond to the package.json version of the `@fiberplane/hono` package.
  */
-export const ASSETS_VERSION = "0.5.3";
+export const ASSETS_VERSION = "0.5.3-canary.1";
 const CDN_URL = `https://cdn.jsdelivr.net/npm/@fiberplane/hono@${ASSETS_VERSION}/dist/playground/`;
 
 export const createFiberplane =
