@@ -1,5 +1,4 @@
 import { type Env, Hono } from "hono";
-import { contextStorage } from "hono/context-storage";
 import { logIfDebug } from "./debug";
 import { webStandardFetch } from "./fetch";
 import createApiRoutes from "./routes/api";
@@ -11,6 +10,7 @@ import type {
   FiberplaneAppType,
   ResolvedEmbeddedOptions,
 } from "./types";
+import { contextStorage } from "./utils";
 
 // We use a factory pattern to create routes, which allows for clean dependency injection
 // of the apiKey. This keeps the implementation isolated and prevents us from having to

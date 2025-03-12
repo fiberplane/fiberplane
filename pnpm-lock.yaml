@@ -1229,6 +1229,9 @@ importers:
       astro:
         specifier: ^5.3.0
         version: 5.3.0(@types/node@22.10.7)(aws4fetch@1.0.20)(jiti@1.21.6)(lightningcss@1.28.1)(rollup@4.27.4)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
+      astro-lazy-youtube-embed:
+        specifier: ^0.5.4
+        version: 0.5.4(astro@5.3.0(@types/node@22.10.7)(aws4fetch@1.0.20)(jiti@1.21.6)(lightningcss@1.28.1)(rollup@4.27.4)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1))
       astro-og-canvas:
         specifier: ^0.5.6
         version: 0.5.6(astro@5.3.0(@types/node@22.10.7)(aws4fetch@1.0.20)(jiti@1.21.6)(lightningcss@1.28.1)(rollup@4.27.4)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1))
@@ -6069,6 +6072,11 @@ packages:
     resolution: {integrity: sha512-yJMQId0yXSAbW9I6yqvJ3FcjKzJ8zRL7elbJbllkv1ZJPlsI0NI83Pxn1YL1IapEM347EvOOkSW2GL+2+NO61w==}
     peerDependencies:
       astro: ^4.0.0-beta || ^5.0.0-beta || ^3.3.0
+
+  astro-lazy-youtube-embed@0.5.4:
+    resolution: {integrity: sha512-6Nd52ndiC7qM9jBC2/iAVsgbGMLBEHo0NfyECTyvsoKlei5Crl8S279Y8QhbKei+L6/FPSIijRV+ztY9/Pd3Wg==}
+    peerDependencies:
+      astro: ^2.0.0 || ^3.0.0-beta || ^4.0.0-beta || ^5.0.0-beta
 
   astro-og-canvas@0.5.6:
     resolution: {integrity: sha512-w75UErZdRxYyoVnTz4IXn6T869PBrwYQEjPecWVaev9faYCHC3Uk7R47KCO3u+MSDkc8tCENz4ghVDrLImx9SA==}
@@ -16692,6 +16700,10 @@ snapshots:
     dependencies:
       astro: 5.3.0(@types/node@22.10.7)(aws4fetch@1.0.20)(jiti@1.21.6)(lightningcss@1.28.1)(rollup@4.27.4)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
       rehype-expressive-code: 0.40.2
+
+  astro-lazy-youtube-embed@0.5.4(astro@5.3.0(@types/node@22.10.7)(aws4fetch@1.0.20)(jiti@1.21.6)(lightningcss@1.28.1)(rollup@4.27.4)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)):
+    dependencies:
+      astro: 5.3.0(@types/node@22.10.7)(aws4fetch@1.0.20)(jiti@1.21.6)(lightningcss@1.28.1)(rollup@4.27.4)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
 
   astro-og-canvas@0.5.6(astro@5.3.0(@types/node@22.10.7)(aws4fetch@1.0.20)(jiti@1.21.6)(lightningcss@1.28.1)(rollup@4.27.4)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)):
     dependencies:

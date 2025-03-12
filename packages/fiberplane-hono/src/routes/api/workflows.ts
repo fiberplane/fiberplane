@@ -11,16 +11,19 @@ export default function createWorkflowsApiRoute<E extends Env>(
 
   // Proxy all requests to fp-services but attach a token
   app.all("*", async (c) => {
+    const url = `${fiberplaneServicesUrl}${c.req.path}`;
+
+    const contentType = c.req.header("content-type");
+    const partitionKey = c.req.header("X-Fiberplane-Partition-Key");
+
     logIfDebug(
       c,
       "[workflows]",
       `- ${c.req.method} ${c.req.path} -`,
-      "Proxying request to fiberplane api",
+      "Proxying request to: ",
+      url,
     );
 
-    const url = `${fiberplaneServicesUrl}${c.req.path}`;
-
-    const contentType = c.req.header("content-type");
     const headers = new Headers();
     // Only include the bare minimum authentication and content-type headers
     headers.set("Authorization", `Bearer ${apiKey}`);
@@ -33,6 +36,17 @@ export default function createWorkflowsApiRoute<E extends Env>(
         contentType,
       );
       headers.set("content-type", contentType);
+    }
+
+    if (partitionKey) {
+      headers.set("X-Fiberplane-Partition-Key", partitionKey);
+      logIfDebug(
+        c,
+        "[workflows]",
+        `- ${c.req.method} ${c.req.path} -`,
+        "partition key attached to proxied request:",
+        partitionKey,
+      );
     }
 
     const result = fetchFn(url, {
