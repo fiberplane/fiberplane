@@ -4,18 +4,21 @@
  * The config should be serialized into the DOM as a data attribute.
  */
 export function parseEmbeddedConfig(rootElement: HTMLElement) {
-  const { mountedPath, openapi } = JSON.parse(
-    rootElement.dataset.options as string,
-  ) as {
-    mountedPath: string;
-    openapi?: {
-      url?: string;
-      content?: string;
+  const { mountedPath, openapi, authTraces, hasFiberplaneServicesIntegration } =
+    JSON.parse(rootElement.dataset.options as string) as {
+      mountedPath: string;
+      openapi?: {
+        url?: string;
+        content?: string;
+      };
+      authTraces: boolean;
+      hasFiberplaneServicesIntegration: boolean;
     };
-  };
 
   return {
     mountedPath,
     openapi,
+    authTraces,
+    hasFiberplaneServicesIntegration,
   };
 }

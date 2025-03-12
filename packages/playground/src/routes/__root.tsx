@@ -17,6 +17,8 @@ type RootRouteContext = {
         content?: string;
       }
     | undefined;
+  authTraces: boolean;
+  hasFiberplaneServicesIntegration: boolean;
 };
 
 export const Route = createRootRouteWithContext<RootRouteContext>()({

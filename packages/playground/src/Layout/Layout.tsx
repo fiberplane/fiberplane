@@ -1,12 +1,11 @@
 import { useStudioStore } from "@/components/playground/store";
 import { Button } from "@/components/ui/button";
-import { useSettingsOpen } from "@/hooks";
 import { useMountedPath } from "@/hooks/use-mounted-path";
 import { createLink, useMatchRoute, useMatches } from "@tanstack/react-router";
 import { type ReactNode, forwardRef } from "react";
 import { cn } from "../utils";
 import { BottomBar } from "./BottomBar";
-import { SettingsMenu, SettingsScreen } from "./Settings";
+import { SettingsScreen } from "./Settings";
 import { FloatingSidePanel, SidePanelTrigger } from "./SidePanel";
 import { UserMenu } from "./UserMenu";
 

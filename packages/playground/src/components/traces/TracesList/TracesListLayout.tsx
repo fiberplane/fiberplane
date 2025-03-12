@@ -1,6 +1,5 @@
 import { NavigationPanel } from "@/components/playground/NavigationPanel";
 import { NavigationFrame } from "@/components/playground/NavigationPanel";
-import { useStudioStore } from "@/components/playground/store";
 import {
   ResizableHandle,
   ResizablePanel,
