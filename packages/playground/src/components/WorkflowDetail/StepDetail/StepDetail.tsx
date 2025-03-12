@@ -3,7 +3,6 @@ import { Route } from "@/routes/workflows.$workflowId";
 import type { WorkflowStep } from "@/types";
 import { cn } from "@/utils";
 import { Link } from "@tanstack/react-router";
-import { Play } from "lucide-react";
 import { KeyValueTable } from "../../KeyValueTableV2";
 import { Method } from "../../Method";
 import { StatusCode } from "../../StatusCode";

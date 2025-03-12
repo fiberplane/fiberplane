@@ -18,8 +18,8 @@ export function WorkflowUrl({ workflowId }: CopyableUrlProps) {
       <div className="text-sm font-medium px-2">
         Run this workflow by making a POST request to
       </div>
-      <div className="flex items-center gap-2 overflow-x-auto text-sm py-1.5 px-4 bg-input rounded-lg">
       <div className="flex items-center gap-2 overflow-x-auto text-sm px-4 bg-input rounded-lg">
+        <Method method="POST" />
         <code className="truncate flex-1 p-2 rounded-md">{workflowUrl}</code>
         <Button
           variant="ghost"
@@ -37,6 +37,7 @@ export function WorkflowUrl({ workflowId }: CopyableUrlProps) {
     </div>
   );
 }
+
 export function useWorkflowUrl(workflowId: string) {
   const mountedPath = useMountedPath();
   const workflowUrl = `${window.location.origin}${mountedPath}/w/${workflowId}`;
