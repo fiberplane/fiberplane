@@ -20,8 +20,6 @@ export function TraceListLayout({ children }: { children: React.ReactNode }) {
   const isLgScreen = useIsLgScreen();
   const width = getMainSectionWidth();
 
-  const { shouldShowTopNav } = useStudioStore("shouldShowTopNav");
-
   // Panel constraints for responsive layout
   const minSize = (320 / width) * 100;
 
@@ -32,7 +30,7 @@ export function TraceListLayout({ children }: { children: React.ReactNode }) {
         "flex",
         "flex-col",
         "gap-2",
-        shouldShowTopNav ? "h-[calc(100vh-70px)]" : "h-[calc(100vh-40px)]",
+        "h-[calc(100vh-70px)]",
       )}
     >
       <ResizablePanelGroup direction="horizontal" className="w-full">

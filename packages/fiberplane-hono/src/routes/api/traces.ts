@@ -1,7 +1,7 @@
 import { type Env, Hono } from "hono";
+import { getCookie } from "hono/cookie";
 import { logIfDebug } from "../../debug";
 import type { FetchFn, FiberplaneAppType } from "../../types";
-import { getCookie } from "hono/cookie";
 
 // Using Record<string, unknown> as a simpler type for JSON data
 type ApiResponse = Record<string, unknown> | Array<Record<string, unknown>>;
