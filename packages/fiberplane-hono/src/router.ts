@@ -88,7 +88,7 @@ export function createRouter<E extends Env>(
       "OpenTelemetry Endpoint *NOT* Present. Internal traces API router disabled.",
     );
     app.use("/api/traces/*", async (c) => {
-      return c.json({ error: "OpenTelemetry endpoint is not set" }, 401);
+      return c.json({ error: "OpenTelemetry endpoint is not set" }, 402);
     });
   }
 
