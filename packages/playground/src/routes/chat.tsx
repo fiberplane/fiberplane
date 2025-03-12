@@ -8,14 +8,70 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
-import { useRef, useEffect } from "react";
-import { Send, ExternalLink, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { useRef, useEffect, useState } from "react";
+import {
+  Send,
+  ExternalLink,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  AlertCircle,
+  RefreshCw,
+} from "lucide-react";
 import { cn } from "@/utils";
 import { Method } from "@/components/Method";
 
 interface ChatHistoryProps {
   messages: Message[];
   isLoading: boolean;
+  error: Error | undefined;
+  onRetry?: () => void;
+}
+
+function ErrorCard({
+  error,
+  onRetry,
+}: {
+  error: Error;
+  onRetry?: () => void;
+}): JSX.Element {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <Card className="py-2 px-4 flex flex-col gap-2 transition-opacity duration-200 shadow-sm rounded-lg border-danger/50">
+      <div className="grid grid-cols-[1fr,auto] items-center justify-between gap-4">
+        <div className="flex items-center gap-2 text-danger">
+          <AlertCircle className="h-4 w-4" />
+          <span className="font-medium text-sm">An error occurred</span>
+        </div>
+        <div className="grid grid-cols-[1fr,auto] items-center gap-2">
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            onClick={() => setIsExpanded(!isExpanded)}
+            aria-expanded={isExpanded}
+            className="text-foreground/60 hover:text-foreground"
+          >
+            {isExpanded ? "Hide details" : "Show details"}
+          </Button>
+          {onRetry && (
+            <Button size="icon" variant="ghost" onClick={onRetry}>
+              <RefreshCw className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {isExpanded && (
+        <div className="border-t pt-2">
+          <p className="font-mono text-xs text-danger whitespace-pre-wrap">
+            {error?.message}
+          </p>
+        </div>
+      )}
+    </Card>
+  );
 }
 
 function RequestCard({
@@ -23,11 +79,13 @@ function RequestCard({
   path,
   status = "pending",
   state,
+  result,
 }: {
   method: string;
   path: string;
   status?: "pending" | "success" | "error";
   state?: "partial-call" | "call" | "result";
+  result?: { status?: number; body?: string; error?: string };
 }): JSX.Element {
   const statusConfig = {
     pending: {
@@ -45,43 +103,98 @@ function RequestCard({
   };
 
   const StatusIcon = statusConfig[status].icon;
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <Card
       className={
-        "py-2 px-4 flex items-center justify-between gap-4 transition-opacity duration-200 shadow-sm rounded-lg"
+        "py-2 px-4 flex flex-col gap-2 transition-opacity duration-200 shadow-sm rounded-lg"
       }
     >
-      <div className="flex items-center gap-2">
-        <Method className="text-sm" method={method} />
-        <span className="font-mono text-sm">{path}</span>
-        <Link
-          to="/"
-          search={{ method, uri: path }}
-          className={
-            "text-muted-foreground hover:text-foreground transition-opacity duration-200"
-          }
-        >
-          <ExternalLink className="h-4 w-4" />
-        </Link>
-      </div>
-      <div className="flex items-center gap-2">
-        <div
-          className={cn(
-            "rounded-md px-2 py-1 flex items-center gap-1.5",
-            statusConfig[status].className
-          )}
-        >
-          <StatusIcon className="h-4 w-4" />
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <Method className="text-sm" method={method} />
+          <span className="font-mono text-sm">{path}</span>
+          <Link
+            to="/"
+            search={{ method, uri: path }}
+            className={
+              "text-muted-foreground hover:text-foreground transition-opacity duration-200"
+            }
+          >
+            <ExternalLink className="h-4 w-4" />
+          </Link>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className={cn(
+              "rounded-md px-2 py-1 flex items-center gap-1.5 cursor-pointer",
+              statusConfig[status].className
+            )}
+            onClick={() => setIsExpanded(!isExpanded)}
+            aria-expanded={isExpanded}
+          >
+            <StatusIcon className="h-4 w-4" />
+            <span className="text-xs font-medium">
+              {status === "success" && result?.status
+                ? `${result.status}`
+                : status}
+            </span>
+          </button>
         </div>
       </div>
+
+      {isExpanded && state === "result" && result && (
+        <div className="mt-2 border-t pt-2">
+          {result.error ? (
+            <div className="text-danger text-sm">
+              <p className="font-medium">Error:</p>
+              <p className="font-mono text-xs">{result.error}</p>
+            </div>
+          ) : (
+            <>
+              {result.status && (
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-medium">Status:</span>
+                  <span className="text-xs font-mono">{result.status}</span>
+                </div>
+              )}
+              {result.body && (
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-medium">Response:</span>
+                  <pre className="bg-muted p-2 rounded-md text-xs font-mono overflow-auto max-h-40">
+                    {(() => {
+                      try {
+                        return JSON.stringify(JSON.parse(result.body), null, 2);
+                      } catch {
+                        return result.body;
+                      }
+                    })()}
+                  </pre>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </Card>
   );
 }
 
 const markdownComponents: Components = {
+  ul: ({ children, ...props }) => (
+    <ul className="list-disc ml-6 my-2" {...props}>
+      {children}
+    </ul>
+  ),
+  ol: ({ children, ...props }) => (
+    <ol className="list-decimal ml-6 my-2" {...props}>
+      {children}
+    </ol>
+  ),
   li: ({ children, ...props }) => (
-    <li className="list-disc list-inside" {...props}>
+    <li className="mb-1" {...props}>
       {children}
     </li>
   ),
@@ -104,76 +217,116 @@ const markdownComponents: Components = {
   },
 };
 
-function ChatHistory({ messages, isLoading }: ChatHistoryProps): JSX.Element {
+function ChatHistory({
+  messages,
+  isLoading,
+  error,
+  onRetry,
+}: ChatHistoryProps): JSX.Element {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const latestMessageRef = useRef<HTMLDivElement>(null);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: we want to scroll to latest message when messages change
+  // Scroll to latest message when messages change or when streaming
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we want to scroll when messages change or when streaming
   useEffect(() => {
     if (latestMessageRef.current) {
       latestMessageRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   const shouldShowResponseDiv =
-    messages.length > 0 && messages[messages.length - 1].role === "user";
+    messages.length > 0 &&
+    messages[messages.length - 1].role === "user" &&
+    error === undefined;
+
+  const isLastMessage = (index: number): boolean => {
+    if (error || shouldShowResponseDiv) {
+      return false;
+    }
+    return index === messages.length - 1;
+  };
 
   return (
     <ScrollArea className="w-full" ref={scrollAreaRef}>
       <div className="mx-auto max-w-3xl">
         <div className="grid gap-4 p-4">
-          {messages.map((message: Message, index) => {
-            return (
-              <div
-                key={message.id}
-                ref={index === messages.length - 1 ? latestMessageRef : null}
-              >
-                {message.role === "user" ? (
-                  <Card className="px-4 py-3 rounded-lg shadow-sm">
-                    <div className="text-sm whitespace-pre-wrap font-medium">
-                      {message.content}
-                    </div>
-                  </Card>
-                ) : (
-                  <div className="space-y-2">
-                    {message.parts?.map((part, idx) => {
-                      if (part.type === "text") {
-                        return (
-                          <div key={idx} className="p-2">
-                            <div className="prose prose-sm dark:prose-invert max-w-none text-sm grid gap-1">
-                              <ReactMarkdown components={markdownComponents}>
-                                {part.text}
-                              </ReactMarkdown>
-                            </div>
+          {messages.map((message: Message, index) => (
+            <div
+              key={message.id}
+              ref={index === messages.length - 1 ? latestMessageRef : null}
+              className={
+                // NOTE: we want the last element on the page to take up most of the screen height
+                // this moves the previous conversation out of view and makes the experience cleaner
+                isLastMessage(index) ? "min-h-[calc(100vh-20rem)]" : ""
+              }
+            >
+              {message.role === "user" ? (
+                <Card className="px-4 py-3 rounded-lg shadow-sm">
+                  <div className="text-sm whitespace-pre-wrap font-medium">
+                    {message.content}
+                  </div>
+                </Card>
+              ) : (
+                <div className="space-y-2">
+                  {message.parts?.map((part, idx) => {
+                    if (part.type === "text") {
+                      return (
+                        <div key={idx} className="p-2">
+                          <div className="prose prose-sm dark:prose-invert max-w-none text-sm grid gap-1">
+                            <ReactMarkdown components={markdownComponents}>
+                              {part.text}
+                            </ReactMarkdown>
                           </div>
+                        </div>
+                      );
+                    }
+
+                    if (part.type === "tool-invocation") {
+                      if (part.toolInvocation.toolName === "request") {
+                        return (
+                          <RequestCard
+                            key={idx}
+                            method={part.toolInvocation.args.method}
+                            path={part.toolInvocation.args.path}
+                            status={part.toolInvocation.args.status}
+                            state={part.toolInvocation.state}
+                            result={
+                              part.toolInvocation.state === "result"
+                                ? part.toolInvocation.result
+                                : undefined
+                            }
+                          />
                         );
                       }
+                    }
 
-                      if (part.type === "tool-invocation") {
-                        if (part.toolInvocation.toolName === "request") {
-                          return (
-                            <RequestCard
-                              key={idx}
-                              method={part.toolInvocation.args.method}
-                              path={part.toolInvocation.args.path}
-                              status={part.toolInvocation.args.status}
-                              state={part.toolInvocation.state}
-                            />
-                          );
-                        }
-                      }
+                    return null;
+                  })}
+                </div>
+              )}
+            </div>
+          ))}
 
-                      return null;
-                    })}
+          {error && (
+            <div ref={latestMessageRef} className="min-h-[calc(100vh-20rem)]">
+              <ErrorCard error={error} onRetry={onRetry} />
+            </div>
+          )}
+
+          {shouldShowResponseDiv && (
+            <div
+              className="min-h-[calc(100vh-20rem)] p-2"
+              ref={latestMessageRef}
+            >
+              <div className="prose prose-sm dark:prose-invert max-w-none text-sm grid gap-1">
+                {isLoading && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <div className="animate-pulse">
+                      <Clock className="h-4 w-4" />
+                    </div>
+                    <span>...</span>
                   </div>
                 )}
-              </div>
-            );
-          })}
-          {shouldShowResponseDiv && (
-            <div className="min-h-[calc(100vh-20rem)] p-2">
-              <div className="prose prose-sm dark:prose-invert max-w-none text-sm grid gap-1">
-                {isLoading ? "..." : ""}
               </div>
             </div>
           )}
@@ -236,78 +389,34 @@ export const Route = createFileRoute("/chat")({
 });
 
 function RouteComponent() {
-  const initialMessages: Message[] = [
-    {
-      id: "user-1",
-      role: "user",
-      content: "Show me the users API endpoints"
-    },
-    {
-      id: "assistant-1",
-      role: "assistant",
-      content: "Here are the available user endpoints:",
-      parts: [
-        {
-          type: "text",
-          text: "The API provides the following endpoints for user management:\n\n- `GET /api/users` - List all users\n- `POST /api/users` - Create a new user\n- `GET /api/users/:id` - Get user details\n- `PUT /api/users/:id` - Update a user\n- `DELETE /api/users/:id` - Delete a user"
-        }
-      ]
-    },
-    {
-      id: "user-2",
-      role: "user",
-      content: "Get the list of users"
-    },
-    {
-      id: "assistant-2",
-      role: "assistant",
-      content: "I'll fetch the list of users for you.",
-      parts: [
-        {
-          type: "text",
-          text: "Executing GET request to fetch all users..."
-        },
-        {
-          type: "tool-invocation",
-          toolInvocation: {
-            toolCallId: "tool-1",
-            toolName: "request",
-            args: {
-              method: "GET",
-              path: "/api/users",
-              status: "success"
-            },
-            state: "result",
-            result: {
-              status: 200,
-              body: "[]"
-            }
-          }
-        },
-        {
-          type: "text",
-          text: "The response shows an empty array, which means there are no users in the system yet. Would you like to create a new user?"
-        }
-      ]
-    }
-  ];
-
   const {
     messages,
     input,
     handleInputChange,
     handleSubmit,
     isLoading,
+    error,
+    reload,
   } = useChat({
     api: "/api/chat",
     maxSteps: 5,
-    initialMessages
+    onToolCall: ({ toolCall }) => {
+      console.log("Tool call received:", toolCall);
+    },
+    onError: (error) => {
+      console.error("Chat error:", error);
+    },
   });
 
   return (
     <Layout>
       <div className="grid h-full grid-rows-[1fr,auto]">
-        <ChatHistory messages={messages} isLoading={isLoading} />
+        <ChatHistory
+          messages={messages}
+          isLoading={isLoading}
+          error={error}
+          onRetry={reload}
+        />
         <ChatInput
           input={input}
           isLoading={isLoading}
