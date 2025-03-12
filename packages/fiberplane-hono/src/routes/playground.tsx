@@ -6,7 +6,7 @@ export default function createPlayground<E extends Env>(
 ) {
   const app = new Hono<E & FiberplaneAppType<E>>();
 
-  const { cdn, ...options } = sanitizedOptions;
+  const { cdn, mountedPath, openapi } = sanitizedOptions;
   const cssBundleUrl = new URL("index.css", cdn).href;
   const jsBundleUrl = new URL("index.js", cdn).href;
 
@@ -20,7 +20,13 @@ export default function createPlayground<E extends Env>(
           <link rel="stylesheet" href={cssBundleUrl} />
         </head>
         <body>
-          <div id="root" data-options={JSON.stringify(options)} />
+          <div
+            id="root"
+            data-options={JSON.stringify({
+              mountedPath,
+              openapi,
+            })}
+          />
           <script type="module" src={jsBundleUrl} />
         </body>
       </html>,
