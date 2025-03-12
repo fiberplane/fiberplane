@@ -49,10 +49,10 @@ export function WorkflowPrompt({
               <div className="animate-fadeIn delay-2000 fill-mode-both">
                 <LoaderCircle className="animate-spin ease-in-out duration-2000" />
               </div>
-              Creating...
+              Generating...
             </>
           ) : (
-            " Create Workflow"
+            "Generate Workflow"
           )}
         </Button>
       </div>

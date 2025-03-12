@@ -95,7 +95,11 @@ export const createFiberplane =
     );
 
     // Skip the middleware and continue if the embedded router doesn't match
-    if (response.status === 404) {
+    // But make sure we're not ignoring a (json) bases 404.
+    if (
+      response.status === 404 &&
+      response.headers.get("content-type") !== "application/json"
+    ) {
       return next();
     }
 
