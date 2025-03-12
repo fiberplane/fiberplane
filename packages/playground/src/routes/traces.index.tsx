@@ -76,7 +76,7 @@ function TracesIndexPage() {
     }
   });
 
-  if (user) {
+  if (!user) {
     return <Unauthenticated />;
   }
 

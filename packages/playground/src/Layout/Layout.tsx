@@ -1,11 +1,13 @@
 import { useStudioStore } from "@/components/playground/store";
 import { Button } from "@/components/ui/button";
+import { useSettingsOpen } from "@/hooks";
 import { useMountedPath } from "@/hooks/use-mounted-path";
-import { createLink, useMatches } from "@tanstack/react-router";
+import { createLink, useMatchRoute, useMatches } from "@tanstack/react-router";
 import { type ReactNode, forwardRef } from "react";
 import { cn } from "../utils";
 import { BottomBar } from "./BottomBar";
-import { SettingsScreen } from "./Settings";
+import { SettingsMenu, SettingsScreen } from "./Settings";
+import { FloatingSidePanel, SidePanelTrigger } from "./SidePanel";
 import { UserMenu } from "./UserMenu";
 
 const NavButtonComponent = forwardRef<
@@ -40,10 +42,16 @@ export function Layout({ children }: { children?: ReactNode }) {
     "isWorkflowsEnabled",
     "isTracingEnabled",
   );
+  const matchRoute = useMatchRoute();
+  const isTracesRoute = matchRoute({ to: "/traces", fuzzy: true });
 
   return (
     <div className="flex flex-col justify-between w-full min-h-screen overflow-hidden bg-muted/30 max-w-128">
-      <div className="grid grid-cols-[1fr_auto] mt-1 px-4 items-center h-6 place-items-center">
+      <div className="grid grid-cols-[auto_1fr_auto] mt-1 px-2 items-center h-6 place-items-center">
+        <div className="flex items-center justify-start gap-2">
+          {!isTracesRoute ? <SidePanelTrigger /> : <div className="sr-only" />}
+          {!isTracesRoute && <FloatingSidePanel />}
+        </div>
         <div className="flex items-center gap-2">
           <NavButton to="/">Playground</NavButton>
           {isWorkflowsEnabled && (

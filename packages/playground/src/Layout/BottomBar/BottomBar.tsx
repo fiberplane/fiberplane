@@ -9,25 +9,24 @@ import { DISCORD_INVITE_URL } from "@/constants";
 import { useSettingsOpen } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { Icon } from "@iconify/react";
-import { useMatchRoute } from "@tanstack/react-router";
 import { SettingsMenu } from "../Settings";
-import { FloatingSidePanel } from "../SidePanel";
-import { SidePanelTrigger } from "../SidePanel";
 
 export function BottomBar() {
-  const matchRoute = useMatchRoute();
-  const isTracesRoute = matchRoute({ to: "/traces", fuzzy: true });
-
   const { setSettingsOpen } = useSettingsOpen();
   return (
     <nav className="gap-4 bg-muted/50 py-2">
       <div className="flex justify-between px-2 items-center">
         <div className="flex items-center gap-2 sm:static sm:h-auto border-0 bg-transparent text-sm">
-          <div className="flex items-center gap-2">
-            {!isTracesRoute && <SidePanelTrigger />}
+          <div
+            className={cn(
+              "flex items-center gap-2",
+              // HACK - Match the width of the two social icons on the right
+              // This balances the two icon sections in the bottom bar
+              "w-[70px]",
+            )}
+          >
             <SettingsMenu setSettingsOpen={setSettingsOpen} />
           </div>
-          {!isTracesRoute && <FloatingSidePanel />}
         </div>
 
         <div className="flex items-center justify-center gap-1.5 h-6">
