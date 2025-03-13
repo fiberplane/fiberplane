@@ -44,9 +44,7 @@ function makePlaygroundRequest({
   method,
   body,
   headers,
-  pathParams,
   queryParams,
-  route,
 }: {
   addServiceUrlIfBarePath: (path: string) => string;
   path: string;
@@ -73,23 +71,7 @@ function makePlaygroundRequest({
     stringValuesOnly: true,
   });
 
-  if (route) {
-    modHeaders["x-fpx-route"] = route;
-  }
-  // HACK - Serialize path params into a header
-  //        This could cause encoding issues if there are funky chars in the path params
-  modHeaders["x-fpx-path-params"] = JSON.stringify(
-    reduceKeyValueElements(pathParams ?? []),
-  );
-
-  // HACK - This is the most secure code I've ever written
-  //        We're serializing the proxy-to url into a header
-  //        and this is the url that ultimately receives the request
   const proxyToUrl = addServiceUrlIfBarePath(path);
-  modHeaders["x-fpx-proxy-to"] = proxyToUrl;
-
-  // HACK - Serialize headers into the headers waaaaat
-  modHeaders["x-fpx-headers-json"] = JSON.stringify(modHeaders);
 
   // HACK - Generate a trace id for the request so we can link to it in the UI
   const otelTraceId = generateOtelTraceIdWebStandard();

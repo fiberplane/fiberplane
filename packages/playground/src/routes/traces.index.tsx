@@ -1,7 +1,14 @@
+import { FeatureDisabledScreen } from "@/components/FeatureDisabledScreen";
 import {
   TracesList,
   TracesListErrorBoundary,
 } from "@/components/traces/TracesList";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/auth";
+import { useShouldAuthTraces } from "@/hooks";
+import { isFpApiError } from "@/lib/api/errors";
+import { type UserProfile, isAdmin, isOwner } from "@/lib/auth";
+import { useLoginHandler } from "@/lib/hooks/useLogin";
 import { TRACES_KEY, tracesQueryOptions } from "@/lib/hooks/useTraces";
 import { useHandler } from "@fiberplane/hooks";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
@@ -26,7 +33,28 @@ export const Route = createFileRoute("/traces/")({
       </div>
     );
   },
-  errorComponent: TracesListErrorBoundary,
+  errorComponent: ({ error }) => {
+    const user = useAuth();
+    if (isFpApiError(error)) {
+      if (!user && error.statusCode === 401) {
+        return <Unauthenticated />;
+      }
+      if (error.statusCode === 402) {
+        return (
+          <FeatureDisabledScreen
+            error={error}
+            title="Tracing Not Configured"
+            message="This api is not connected to a Fiberplane trace collector."
+            className="min-h-0 h-full"
+          />
+        );
+      }
+      if (user && error.statusCode === 403) {
+        return <Unauthorized />;
+      }
+    }
+    return <TracesListErrorBoundary error={error} />;
+  },
 
   // HACK - Forces us to refresh the traces list when the route is entered
   beforeLoad: async ({ context: { queryClient } }) => {
@@ -39,7 +67,10 @@ export const Route = createFileRoute("/traces/")({
 });
 
 function TracesIndexPage() {
+  const shouldAuthTraces = useShouldAuthTraces();
   const { queryClient } = Route.useRouteContext();
+  const user = useAuth();
+
   const { traces } = Route.useLoaderData();
   const router = useRouter();
 
@@ -58,5 +89,48 @@ function TracesIndexPage() {
     }
   });
 
+  if (!user && shouldAuthTraces) {
+    return <Unauthenticated />;
+  }
+
+  if (!canViewTraces(user) && shouldAuthTraces) {
+    return <Unauthorized />;
+  }
+
   return <TracesList traces={traces} reload={reload} />;
+}
+
+export function Unauthenticated() {
+  const login = useLoginHandler();
+
+  return (
+    <div className="flex flex-col items-center justify-center h-full w-[400px] mx-auto p-8 gap-2">
+      <h2 className="text-2xl font-semibold text-foreground">
+        Authentication Required
+      </h2>
+      <p className="text-muted-foreground text-center">
+        You must be logged in to view traces
+      </p>
+      <div className="mt-2">
+        <Button onClick={login}>Log in</Button>
+      </div>
+    </div>
+  );
+}
+
+export function Unauthorized() {
+  return (
+    <div className="flex flex-col items-center justify-center h-full p-8">
+      <h2 className="text-2xl font-semibold text-foreground mb-2">
+        Unauthorized
+      </h2>
+      <p className="text-muted-foreground text-center">
+        You are not authorized to view traces for this application.
+      </p>
+    </div>
+  );
+}
+
+function canViewTraces(user: UserProfile | null) {
+  return user && (isAdmin(user) || isOwner(user));
 }

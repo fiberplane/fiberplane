@@ -1,12 +1,12 @@
 import type { Context, Env, MiddlewareHandler } from "hono";
 import {
   DEFAULT_PLAYGROUND_SERVICES_URL,
+  ENV_FIBERPLANE_OTEL_ENDPOINT,
   ENV_FIBERPLANE_OTEL_TOKEN,
   ENV_FIBERPLANE_SERVICES_URL,
   ENV_FPX_AUTH_TOKEN,
   ENV_FPX_ENDPOINT,
 } from "./constants";
-import { ENV_FIBERPLANE_OTEL_ENDPOINT } from "./constants";
 import { logIfDebug } from "./debug";
 import { createRouter } from "./router";
 import type { EmbeddedOptions, ResolvedEmbeddedOptions } from "./types";
@@ -21,7 +21,7 @@ import { getFromEnv } from "./utils/env";
  * The version of assets to use for the playground ui.
  * This should correspond to the package.json version of the `@fiberplane/hono` package.
  */
-export const ASSETS_VERSION = "0.5.2";
+export const ASSETS_VERSION = "0.5.3-canary.1";
 const CDN_URL = `https://cdn.jsdelivr.net/npm/@fiberplane/hono@${ASSETS_VERSION}/dist/playground/`;
 
 export const createFiberplane =
@@ -38,9 +38,10 @@ export const createFiberplane =
     const { mountedPath, internalPath } = getPaths(c);
     const fiberplaneServicesUrl =
       options.fiberplaneServicesUrl ?? getFiberplaneServicesUrl(c);
+    const hasFiberplaneServicesIntegration = !!apiKey;
     const otelEndpoint = getOtelEndpoint(c);
     const otelToken = getOtelToken(c);
-
+    const authTraces = options.authTraces ?? true;
     logIfDebug(debug, "mountedPath:", mountedPath);
     logIfDebug(debug, "internalPath:", internalPath);
     logIfDebug(debug, "fiberplaneServicesUrl:", fiberplaneServicesUrl);
@@ -61,6 +62,7 @@ export const createFiberplane =
       mountedPath,
       otelEndpoint,
       otelToken,
+      authTraces,
       userApp,
       userEnv,
       userExecutionCtx,
@@ -69,6 +71,9 @@ export const createFiberplane =
       fiberplaneServicesUrl,
       // Add the api key with a fallback to the env var FIBERPLANE_API_KEY
       apiKey,
+      // We need some way to communciating to the frontend that fiberplane services is enabled
+      // (This means that the user has a Fiberplane API key)
+      hasFiberplaneServicesIntegration,
     } satisfies ResolvedEmbeddedOptions<E>);
 
     // Create a new request with the corrected (internal) path

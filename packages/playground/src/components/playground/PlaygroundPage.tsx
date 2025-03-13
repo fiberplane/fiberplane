@@ -23,17 +23,13 @@ export const PlaygroundPage = () => {
   // NOTE - This sets the `routes` and `serviceBaseUrl` in the reducer
   const { isLoading: _isLoading, isError: _isError } = useRoutes();
 
-  const { sidePanel, shouldShowTopNav } = useStudioStore(
-    "sidePanel",
-    "shouldShowTopNav",
-  );
+  const { sidePanel } = useStudioStore("sidePanel");
   const hasRoutes = useStudioStoreRaw(
     useShallow((state) => state.appRoutes.length > 0 && state.activeRoute),
   );
 
   const width = getMainSectionWidth();
   const isLgScreen = useIsLgScreen();
-  const hasTopNav = shouldShowTopNav;
 
   const { minSize, maxSize } = usePanelConstraints({
     groupId: "main-layout",
@@ -44,13 +40,7 @@ export const PlaygroundPage = () => {
 
   return (
     <div
-      className={cn(
-        hasTopNav ? "h-[calc(100vh-70px)]" : "h-[calc(100vh-40px)]",
-        "flex",
-        "flex-col",
-        "gap-2",
-        "p-2",
-      )}
+      className={cn("h-[calc(100vh-70px)]", "flex", "flex-col", "gap-2", "p-2")}
     >
       <ResizablePanelGroup
         direction="horizontal"

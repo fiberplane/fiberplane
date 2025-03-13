@@ -22,9 +22,9 @@ import {
   type PlaygroundActiveResponse,
   isPlaygroundActiveResponse,
 } from "../store/types";
+import { CopyTraceIdButton } from "./CopyTraceId";
 import { FeedbackForm } from "./FeedbackForm";
 import { ResponseSummary } from "./ResponseSummary";
-
 type Props = {
   isLoading: boolean;
 };
@@ -129,7 +129,8 @@ export const ResponsePanel = memo(function ResponsePanel({ isLoading }: Props) {
                   />
                 </div>
               )}
-              <ErrorBanner activeResponse={responseToRender} />
+              <ReportIssueBanner activeResponse={responseToRender} />
+              <CopyTraceIdButton activeResponse={responseToRender} />
               <ResponseBody
                 response={responseToRender}
                 // HACK - To support absolutely positioned bottom toolbar
@@ -224,7 +225,7 @@ function LoadingResponseBody() {
   );
 }
 
-function ErrorBanner({
+function ReportIssueBanner({
   activeResponse,
 }: {
   activeResponse: PlaygroundActiveResponse | undefined;
