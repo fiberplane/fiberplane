@@ -6,6 +6,7 @@ import {
 import { createExportTraceServiceRequest } from "@opentelemetry/otlp-transformer";
 import type { ReadableSpan, SpanExporter } from "@opentelemetry/sdk-trace-base";
 import type { FpxLogger } from "./logger";
+import type { PromiseStore } from "./promiseStore";
 import type { FetchFn } from "./types";
 import { isWrapped } from "./utils";
 
@@ -36,11 +37,18 @@ export class FPOTLPExporter implements SpanExporter {
   private url: string;
   private fetchFn: FetchFn;
   private logger: FpxLogger;
+  private promiseStore: PromiseStore;
 
-  constructor(config: OTLPExporterConfig, fetchFn: FetchFn, logger: FpxLogger) {
+  constructor(
+    config: OTLPExporterConfig,
+    fetchFn: FetchFn,
+    promiseStore: PromiseStore,
+    logger: FpxLogger,
+  ) {
     this.url = config.url;
     this.headers = Object.assign({}, defaultHeaders, config.headers);
     this.fetchFn = fetchFn;
+    this.promiseStore = promiseStore;
     this.logger = logger;
 
     if (isWrapped(this.fetchFn)) {
@@ -110,7 +118,7 @@ export class FPOTLPExporter implements SpanExporter {
     // NOTE - You can log the payload to the console for debugging purposes
     this.logger.debug(`Sending payload to OTLP (${this.url})`, params);
 
-    this.fetchFn(this.url, params)
+    const fetchPromise = this.fetchFn(this.url, params)
       .then(async (response) => {
         if (response.ok) {
           onSuccess();
@@ -131,6 +139,8 @@ export class FPOTLPExporter implements SpanExporter {
           ),
         );
       });
+
+    this.promiseStore.add(fetchPromise);
   }
 
   async shutdown(): Promise<void> {}
