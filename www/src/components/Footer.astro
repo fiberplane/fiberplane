@@ -1,9 +1,37 @@
 ---
-import Default from "@astrojs/starlight/components/Footer.astro";
 import fpLogo from "@/assets/fp-logo.svg?url";
 import { Icon } from "@astrojs/starlight/components";
+import Default from "@astrojs/starlight/components/Footer.astro";
+import type { ComponentProps } from "astro/types";
 
 const isHomepage = Astro.locals.starlightRoute.id === "";
+
+const socials: Array<{
+  iconName: ComponentProps<typeof Icon>["name"];
+  url: string;
+  title: string;
+}> = [
+  {
+    iconName: "twitter",
+    url: "https://x.com/fiberplane",
+    title: "Twitter"
+  },
+  {
+    iconName: "linkedin",
+    url: "https://www.linkedin.com/company/fiberplane",
+    title: "LinkedIn"
+  },
+  {
+    iconName: "github",
+    url: "https://github.com/fiberplane",
+    title: "GitHub"
+  },
+  {
+    iconName: "discord",
+    url: "https://discord.com/invite/cqdY6SpfVR",
+    title: "Discord"
+  }
+];
 ---
 
 {
@@ -11,49 +39,21 @@ const isHomepage = Astro.locals.starlightRoute.id === "";
     <footer>
       <div class="wrapper">
         <div class="footer-column footer-column--company">
-          <img src={fpLogo} width="80" alt="" />
+          <img src={fpLogo} width="64" alt="Fiberplane icon logo" />
 
           <ul>
-            <li>
-              <a
-                href="https://x.com/fiberplane"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Twitter"
-              >
-                <Icon name="twitter" size="1.75rem" />
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://www.linkedin.com/company/fiberplane/"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="LinkedIn"
-              >
-                <Icon name="linkedin" size="1.75rem" />
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://github.com/fiberplane"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="GitHub"
-              >
-                <Icon name="github" size="1.75rem" />
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://discord.com/invite/cqdY6SpfVR"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Discord"
-              >
-                <Icon name="discord" size="1.75rem" />
-              </a>
-            </li>
+            {socials.map(({ iconName, title, url }) => (
+              <li>
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={title}
+                >
+                  <Icon name={iconName} size="1.75rem" />
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
 
