@@ -1,0 +1,93 @@
+---
+title: Workflows
+description: Learn how to use workflows in your project.
+sidebar:
+  badge:
+    text: alpha
+    variant: note
+---
+
+import { Aside, Steps, Tabs, TabItem } from "@astrojs/starlight/components";
+
+Workflows allow you to chain a series of API requests to automate complex processes through a single endpoint. This guide covers the key features of workflows and how to use them effectively.
+
+## What Are Workflows?
+
+Workflows are sequences of API operations that can be triggered with a single request. They enable you to:
+
+- Chain multiple API requests in a specific order
+- Pass data between steps automatically
+- Execute complex business logic without multiple client-server roundtrips
+- Create reusable processes for common operations
+
+<Aside type="caution">
+  Workflows are currently in alpha. They should only be used with trusted API users.
+</Aside>
+
+
+## Authentication Requirements
+
+To use workflows, you need two key elements:
+
+1. **Fiberplane API Key**: The API owner must configure this in their backend. Request access via Discord.
+
+2. **Partition Key**: Created by the API owner for individual users or organizations. This controls access to specific workflows.
+
+## Creating Workflows Using Natural Language
+
+The quickest way to create a workflow is with natural language instructions:
+
+1. Open the Workflows tab in the Playground
+2. Click "Create Workflow"
+3. Describe what you want the workflow to do
+4. Fiberplane will generate a workflow based on your API's OpenAPI schema
+
+
+## Using Workflows
+
+Once created, each workflow gets a unique ID and becomes accessible at:
+
+```
+<base_url>/<fiberplane_mount_path>/w/<workflow_id>
+```
+
+For example, if Fiberplane is mounted at `/fp` and your workflow ID is `createAndUpdateUser`, the endpoint would be:
+
+```
+https://example.com/fp/w/createAndUpdateUser
+```
+
+### Making Workflow Requests
+
+To execute a workflow:
+
+1. Send a POST request to the workflow endpoint
+2. Include a JSON payload with all required inputs:
+
+```json
+{
+  "inputs": {
+    "userName": "John Doe",
+    "email": "john@example.com",
+    "role": "admin"
+  }
+}
+```
+
+The workflow runner will:
+- Handle all intermediate API calls
+- Manage data flow between steps
+- Return the final result
+
+<Aside type="tip">
+  The `inputs` object must include all parameters needed at any step in the workflow, including any required headers.
+</Aside>
+
+## Workflow Management
+
+The Workflows tab provides a management interface where you can:
+
+- View all existing workflows
+- Test workflows with sample data
+- Edit workflow configurations
+- Delete workflows that are no longer needed
