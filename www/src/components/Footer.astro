@@ -1,0 +1,150 @@
+---
+import Default from "@astrojs/starlight/components/Footer.astro";
+import fpLogo from "@/assets/fp-logo.svg?url";
+import { Icon } from "@astrojs/starlight/components";
+
+const isHomepage = Astro.locals.starlightRoute.id === "";
+---
+
+{
+  isHomepage ? (
+    <footer>
+      <div class="wrapper">
+        <div class="footer-column footer-column--company">
+          <img src={fpLogo} width="80" alt="" />
+
+          <ul>
+            <li>
+              <a
+                href="https://x.com/fiberplane"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Twitter"
+              >
+                <Icon name="twitter" size="1.75rem" />
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://www.linkedin.com/company/fiberplane/"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="LinkedIn"
+              >
+                <Icon name="linkedin" size="1.75rem" />
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://github.com/fiberplane"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="GitHub"
+              >
+                <Icon name="github" size="1.75rem" />
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://discord.com/invite/cqdY6SpfVR"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Discord"
+              >
+                <Icon name="discord" size="1.75rem" />
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Resources</h4>
+          <ul>
+            <li>
+              <a href="/docs/get-started">Documentation</a>
+            </li>
+            <li>
+              <a href="/blog">Blog</a>
+            </li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4>Get Started</h4>
+          <ul>
+            <li>
+              <a href="https://honc.dev">HONC</a>
+            </li>
+            <li>
+              <a href="https://github.com/fiberplane/fiberplane">GitHub</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+  ) : (
+    <Default>
+      <slot />
+    </Default>
+  )
+}
+
+<style>
+  .wrapper {
+    max-width: 69rem;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    justify-items: center;
+  }
+
+  .footer-column--company {
+    grid-column: 1 / 3;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 2rem;
+    justify-items: center;
+
+    ul {
+      display: flex;
+      gap: 1.25rem;
+
+      li {
+        margin: 0;
+
+        a {
+          color: var(--fg-muted);
+        }
+      }
+    }
+  }
+
+  .footer-column h4 {
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: var(--fg-muted);
+  }
+
+  .footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-column a {
+    text-decoration: none;
+  }
+
+  @media (min-width: 768px) {
+    .wrapper {
+      grid-template-columns: 1fr repeat(2, auto);
+      gap: 6rem;
+      justify-items: start;
+    }
+
+    .footer-column--company {
+      grid-column: auto;
+      justify-items: start;
+    }
+  }
+</style>
