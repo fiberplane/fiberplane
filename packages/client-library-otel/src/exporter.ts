@@ -143,6 +143,7 @@ export class FPOTLPExporter implements SpanExporter {
         );
       });
 
+    this.waitUntil(fetchPromise);
     this.promiseStore.add(fetchPromise);
   }
 
