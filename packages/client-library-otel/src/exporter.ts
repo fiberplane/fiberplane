@@ -119,7 +119,7 @@ export class FPOTLPExporter implements SpanExporter {
     };
 
     // NOTE - You can log the payload to the console for debugging purposes
-    this.logger.debug(`Sending payload to OTLP (${this.url})`, params);
+    // this.logger.debug(`Sending payload to OTLP (${this.url})`, params);
 
     const fetchPromise = this.fetchFn(this.url, params)
       .then(async (response) => {
@@ -143,6 +143,8 @@ export class FPOTLPExporter implements SpanExporter {
         );
       });
 
+    // We need to directly add the promise to the waitUntil queue,
+    // since in Cloudflare Workers, the Worker might terminate before we send the span
     this.waitUntil(fetchPromise);
     this.promiseStore.add(fetchPromise);
   }
