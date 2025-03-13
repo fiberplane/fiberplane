@@ -110,6 +110,9 @@ export function instrument(app: HonoLikeApp, userConfig?: FpConfigOptions) {
             fetchFn: webStandardFetch,
             promiseStore,
             logger,
+            waitUntil: executionContext?.waitUntil
+              ? (p: Promise<unknown>) => executionContext.waitUntil(p)
+              : undefined,
           });
 
           // Enable tracing for waitUntil (Cloudflare only - allows us to still trace promises that extend beyond the life of the request itself)
@@ -209,6 +212,7 @@ function setupTracerProvider(options: {
   fetchFn: FetchFn;
   promiseStore: PromiseStore;
   logger: FpxLogger;
+  waitUntil?: (promise: Promise<unknown>) => void;
 }) {
   const {
     otelEndpoint,
@@ -217,6 +221,7 @@ function setupTracerProvider(options: {
     fetchFn,
     promiseStore,
     logger,
+    waitUntil,
   } = options;
 
   // We need to use async hooks to be able to propagate context
@@ -244,6 +249,7 @@ function setupTracerProvider(options: {
     fetchFn.bind(globalThis),
     promiseStore,
     logger,
+    waitUntil,
   );
 
   provider.addSpanProcessor(

@@ -38,18 +38,21 @@ export class FPOTLPExporter implements SpanExporter {
   private fetchFn: FetchFn;
   private logger: FpxLogger;
   private promiseStore: PromiseStore;
+  private waitUntil: (promise: Promise<unknown>) => void;
 
   constructor(
     config: OTLPExporterConfig,
     fetchFn: FetchFn,
     promiseStore: PromiseStore,
     logger: FpxLogger,
+    waitUntil?: (promise: Promise<unknown>) => void,
   ) {
     this.url = config.url;
     this.headers = Object.assign({}, defaultHeaders, config.headers);
     this.fetchFn = fetchFn;
     this.promiseStore = promiseStore;
     this.logger = logger;
+    this.waitUntil = waitUntil ?? (() => {});
 
     if (isWrapped(this.fetchFn)) {
       this.logger.error(
