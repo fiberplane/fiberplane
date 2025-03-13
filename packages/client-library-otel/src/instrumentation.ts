@@ -177,13 +177,18 @@ export function instrument(app: HonoLikeApp, userConfig?: FpConfigOptions) {
           } finally {
             // Make sure all promises are resolved before sending data to the server
             if (proxyExecutionCtx) {
+              logger.debug(
+                "Waiting for promises to resolve before flushing traces",
+              );
               proxyExecutionCtx.waitUntil(
                 promiseStore.allSettled().finally(() => {
+                  logger.debug("Force flushing traces");
                   return provider.forceFlush();
                 }),
               );
             } else {
               // Otherwise just await flushing the provider
+              logger.debug("No execution context: Force flushing traces");
               await provider.forceFlush();
             }
           }

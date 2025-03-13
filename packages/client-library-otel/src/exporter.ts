@@ -57,9 +57,11 @@ export class FPOTLPExporter implements SpanExporter {
   ): void {
     this._export(items)
       .then(() => {
+        this.logger.debug("Successfully exported spans");
         resultCallback({ code: ExportResultCode.SUCCESS });
       })
       .catch((error: ExportServiceError) => {
+        this.logger.error("Error exporting spans", { error });
         resultCallback({ code: ExportResultCode.FAILED, error });
       });
   }
@@ -106,7 +108,7 @@ export class FPOTLPExporter implements SpanExporter {
     };
 
     // NOTE - You can log the payload to the console for debugging purposes
-    // this.logger.debug(`Payload to send to OTLP (${body.length})\n`, body);
+    this.logger.debug(`Sending payload to OTLP (${this.url})`, params);
 
     this.fetchFn(this.url, params)
       .then(async (response) => {
