@@ -24,7 +24,6 @@ Workflows are sequences of API operations that can be triggered with a single re
   Workflows are currently in alpha. They should only be used with trusted API users.
 </Aside>
 
-
 ## Authentication Requirements
 
 To use workflows, you need two key elements:
@@ -33,15 +32,30 @@ To use workflows, you need two key elements:
 
 2. **Partition Key**: Created by the API owner for individual users or organizations. This controls access to specific workflows.
 
+## Workflow Management
+
+<figure class="light:sl-hidden">
+  ![Workflows](@/assets/docs/workflows-dashboard-dark.png)
+</figure>
+
+<figure class="dark:sl-hidden">
+  ![Workflows](@/assets/docs/workflows-dashboard-light.png)
+</figure>
+
+The Workflows tab provides a management interface where you can:
+
+- View all existing workflows and what steps they do
+- Test workflows with sample data
+- Delete workflows that are no longer needed
+
 ## Creating Workflows Using Natural Language
 
 The quickest way to create a workflow is with natural language instructions:
 
 1. Open the Workflows tab in the Playground
-2. Click "Create Workflow"
+2. Click the `+` button to create a new workflow
 3. Describe what you want the workflow to do
-4. Fiberplane will generate a workflow based on your API's OpenAPI schema
-
+4. Fiberplane will generate a workflow based on your prompt and API's OpenAPI schema
 
 ## Using Workflows
 
@@ -82,12 +96,3 @@ The workflow runner will:
 <Aside type="tip">
   The `inputs` object must include all parameters needed at any step in the workflow, including any required headers.
 </Aside>
-
-## Workflow Management
-
-The Workflows tab provides a management interface where you can:
-
-- View all existing workflows
-- Test workflows with sample data
-- Edit workflow configurations
-- Delete workflows that are no longer needed
