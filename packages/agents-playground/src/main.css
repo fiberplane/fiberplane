@@ -1,0 +1,186 @@
+@import "tailwindcss";
+
+/* @plugin "tailwindcss-animate"; */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+	--font-display: "Satoshi", "sans-serif";
+	--breakpoint-3xl: 120rem;
+	--color-flame-50: hsl(9 100% 96%);
+	--color-flame-100: hsl(11 100% 92%);
+	--color-flame-200: hsl(11 100% 84%);
+	--color-flame-300: hsl(10 100% 77%);
+	--color-flame-400: hsl(11 100% 69%);
+	--color-flame-500: hsl(11 100% 60%);
+	--color-flame-600: hsl(10 78% 51%);
+	--color-flame-700: hsl(10 80% 37%);
+	--color-flame-800: hsl(10 81% 28%);
+	--color-flame-900: hsl(11 83% 19%);
+	--color-flame-950: hsl(10 84% 10%);
+
+	--color-neutral-white: hsl(0 0% 100%);
+	--color-neutral-50: hsl(0 11% 96%);
+	--color-neutral-100: hsl(30 4% 91%);
+	--color-neutral-200: hsl(45 6% 87%);
+	--color-neutral-300: hsl(40 6% 79%);
+	--color-neutral-400: hsl(48 3% 68%);
+	--color-neutral-500: hsl(45 2% 47%);
+	--color-neutral-600: hsl(40 2% 34%);
+	--color-neutral-700: hsl(40 3% 22%);
+	--color-neutral-800: hsl(40 4% 15%);
+	--color-neutral-900: hsl(40 6% 10%);
+	--color-neutral-950: hsl(40 11% 5%);
+
+	/* Shell */
+	--color-shell-50: hsl(45 20% 96%);
+	--color-shell-100: hsl(44 20% 92%);
+	--color-shell-200: hsl(45 23% 86%);
+	--color-shell-300: hsl(45 25% 78%);
+	--color-shell-400: hsl(45 15% 67%);
+	--color-shell-500: hsl(45 15% 67%);
+	--color-shell-600: hsl(45 13% 50%);
+	--color-shell-700: hsl(45 14% 38%);
+	--color-shell-800: hsl(46 16% 31%);
+	--color-shell-900: hsl(44 17% 21%);
+	--color-shell-950: hsl(46 16% 14%);
+
+	/* Info */
+	--color-info-50: hsl(200 33% 95%);
+	--color-info-100: hsl(202 39% 90%);
+	--color-info-200: hsl(202 43% 84%);
+	--color-info-300: hsl(202 45% 76%);
+	--color-info-400: hsl(201 50% 68%);
+	--color-info-500: hsl(201 51% 57%);
+	--color-info-600: hsl(201 60% 46%);
+	--color-info-700: hsl(202 63% 38%);
+	--color-info-800: hsl(202 76% 29%);
+	--color-info-900: hsl(201 77% 23%);
+	--color-info-950: hsl(202 81% 13%);
+	/* --info-15%: 201 51% 57% 0.15; */
+	/* --info-50%: 201 51% 57% 0.5; */
+
+	/* Success */
+	--color-success-50: hsl(78 38% 95%);
+	--color-success-100: hsl(81 40% 90%);
+	--color-success-200: hsl(81 40% 83%);
+	--color-success-300: hsl(82 42% 72%);
+	--color-success-400: hsl(82 40% 61%);
+	--color-success-500: hsl(82 50% 42%);
+	--color-success-600: hsl(82 62% 35%);
+	--color-success-700: hsl(83 60% 22%);
+	--color-success-800: hsl(83 80% 20%);
+	--color-success-900: hsl(82 90% 16%);
+	--color-success-950: hsl(82 90% 12%);
+	/* --success-15%: 82 40% 61% 0.15; */
+	/* --success-50%: 82 40% 61% 0.5; */
+
+	/* Danger */
+	--color-danger-50: hsl(0 100% 97%);
+	--color-danger-100: hsl(358 85% 92%);
+	--color-danger-200: hsl(359 83% 86%);
+	--color-danger-300: hsl(359 74% 78%);
+	--color-danger-400: hsl(358 60% 71%);
+	--color-danger-500: hsl(358 65% 65%);
+	--color-danger-600: hsl(358 72% 56%);
+	--color-danger-700: hsl(357 74% 44%);
+	--color-danger-800: hsl(358 87% 31%);
+	--color-danger-900: hsl(358 84% 22%);
+	--color-danger-950: hsl(358 91% 14%);
+	/* --danger-15%: 358 70% 61% 0.15; */
+	/* --danger-50%: 358 70% 61% 0.5; */
+
+	/* Warning */
+	--color-warning-50: hsl(33 53% 97%);
+	--color-warning-100: hsl(38 67% 91%);
+	--color-warning-200: hsl(38 82% 83%);
+	--color-warning-300: hsl(37 80% 75%);
+	--color-warning-400: hsl(38 76% 68%);
+	--color-warning-500: hsl(38 72% 58%);
+	--color-warning-600: hsl(38 75% 45%);
+	--color-warning-700: hsl(38 92% 35%);
+	--color-warning-800: hsl(38 93% 26%);
+	--color-warning-900: hsl(38 100% 21%);
+	--color-warning-950: hsl(38 88% 16%);
+
+	--color-default: var(--color-neutral-950);
+	--color-brand: var(--color-flame-600);
+	/* --warning-15%: 38 72% 58% 0.15; */
+	/* --warning-50%: 38 72% 58% 0.5; */
+
+	/* Mint */
+	--color-mint-500: hsl(160 48% 62%);
+	--color-mint-600: hsl(160 60% 55%);
+
+	/* Purple */
+	--color-purple-500: hsl(273 77% 74%);
+	--color-purple-600: hsl(273 67% 68%);
+
+	/* Pink */
+	--color-pink-500: hsl(335 77% 74%);
+	--color-pink-600: hsl(335 67% 67%);
+
+	/* --color-avocado-100: oklch(0.99 0 0);
+	--color-avocado-200: oklch(0.98 0.04 113.22);
+	--color-avocado-300: oklch(0.94 0.11 115.03);
+	--color-avocado-400: oklch(0.92 0.19 114.08);
+	--color-avocado-500: oklch(0.84 0.18 117.33);
+	--color-avocado-600: oklch(0.53 0.12 118.34);
+	--ease-fluid: cubic-bezier(0.3, 0, 0, 1);
+	--ease-snappy: cubic-bezier(0.2, 0, 0, 1);
+	--font-family-title: "Instrument Sans";
+	--font-family-body: "Geist";
+	--font-family-body-mono: "Geist Mono"; */
+
+	/* ... */
+}
+
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
+
+/* Geist Sans */
+@font-face {
+	font-family: "Geist";
+	font-style: normal;
+	font-display: swap;
+	font-weight: 400;
+	src: url(https://cdn.jsdelivr.net/fontsource/fonts/geist-sans@latest/latin-400-normal.woff2)
+		format("woff2"),
+		url(https://cdn.jsdelivr.net/fontsource/fonts/geist-sans@latest/latin-400-normal.woff)
+		format("woff");
+}
+
+@font-face {
+	font-family: "Geist";
+	font-style: normal;
+	font-display: swap;
+	font-weight: 500;
+	src: url(https://cdn.jsdelivr.net/fontsource/fonts/geist-sans@latest/latin-500-normal.woff2)
+		format("woff2"),
+		url(https://cdn.jsdelivr.net/fontsource/fonts/geist-sans@latest/latin-500-normal.woff)
+		format("woff");
+}
+
+/* Geist Mono */
+@font-face {
+	font-family: "Geist Mono";
+	font-style: normal;
+	font-display: swap;
+	font-weight: 400;
+	src: url(https://cdn.jsdelivr.net/fontsource/fonts/geist-mono@latest/latin-400-normal.woff2)
+		format("woff2"),
+		url(https://cdn.jsdelivr.net/fontsource/fonts/geist-mono@latest/latin-400-normal.woff)
+		format("woff");
+}
+
+@font-face {
+	font-family: "Geist Mono";
+	font-style: normal;
+	font-display: swap;
+	font-weight: 500;
+	src: url(https://cdn.jsdelivr.net/fontsource/fonts/geist-mono@latest/latin-500-normal.woff2)
+		format("woff2"),
+		url(https://cdn.jsdelivr.net/fontsource/fonts/geist-mono@latest/latin-500-normal.woff)
+		format("woff");
+}
