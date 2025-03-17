@@ -3,19 +3,19 @@ import { defineConfig } from "vite";
 import customEndpointsPlugin from "./src";
 
 export default defineConfig({
-	plugins: [customEndpointsPlugin()],
-	resolve: {
-		alias: {
-			"@": path.resolve(__dirname, "./src"),
-		},
-	},
-	//  server: {
-	//    proxy: {
-	//      "agents/": {
-	//        target: "ws://localhost:8787",
-	//        ws: true,
-	//        rewriteWsOrigin: true
-	//      }
-	//    }
-	//  }
+  plugins: [customEndpointsPlugin()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  //  server: {
+  //    proxy: {
+  //      "agents/": {
+  //        target: "ws://localhost:8787",
+  //        ws: true,
+  //        rewriteWsOrigin: true
+  //      }
+  //    }
+  //  }
 });

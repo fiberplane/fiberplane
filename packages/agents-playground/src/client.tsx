@@ -9,15 +9,15 @@ const queryClient = new QueryClient();
 
 const rootElement = document.getElementById("root");
 if (rootElement) {
-	ReactDOM.createRoot(rootElement).render(
-		<React.StrictMode>
-			<QueryClientProvider client={queryClient}>
-				<div className="bg-background text-foreground text-sm min-h-dvh min-w-dvw grid p-2">
-					<App />
-				</div>
-			</QueryClientProvider>
-		</React.StrictMode>,
-	);
+  ReactDOM.createRoot(rootElement).render(
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <div className="bg-background text-foreground text-sm min-h-dvh min-w-dvw grid p-2">
+          <App />
+        </div>
+      </QueryClientProvider>
+    </React.StrictMode>,
+  );
 } else {
-	console.error("Root element not found");
+  console.error("Root element not found");
 }
