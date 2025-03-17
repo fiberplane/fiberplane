@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "vite dev",
+    "dev": "vite dev",
     "deploy": "vite build && wrangler deploy",
     "test": "vitest",
     "format": "prettier --write .",

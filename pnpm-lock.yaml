@@ -890,10 +890,10 @@ importers:
         version: 1.9.4
       '@radix-ui/react-slot':
         specifier: ^1.1.2
-        version: 1.1.2(@types/react@19.0.10)(react@18.3.1)
+        version: 1.1.2(@types/react@19.0.10)(react@19.0.0)
       '@tanstack/react-query':
         specifier: ^5.67.3
-        version: 5.68.0(react@18.3.1)
+        version: 5.68.0(react@19.0.0)
       '@vitejs/plugin-react-swc':
         specifier: ^3.8.0
         version: 3.8.0(@swc/helpers@0.5.13)(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.2)(yaml@2.6.1))
@@ -911,13 +911,13 @@ importers:
         version: 16.4.7
       lucide-react:
         specifier: ^0.479.0
-        version: 0.479.0(react@18.3.1)
+        version: 0.479.0(react@19.0.0)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.0.0
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.0.0(react@19.0.0)
       react-use-websocket:
         specifier: ^4.13.0
         version: 4.13.0
@@ -16263,12 +16263,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.18
 
-  '@radix-ui/react-compose-refs@1.1.1(@types/react@19.0.10)(react@18.3.1)':
-    dependencies:
-      react: 18.3.1
-    optionalDependencies:
-      '@types/react': 19.0.10
-
   '@radix-ui/react-compose-refs@1.1.1(@types/react@19.0.10)(react@19.0.0)':
     dependencies:
       react: 19.0.0
@@ -16774,13 +16768,6 @@ snapshots:
       react: 18.3.1
     optionalDependencies:
       '@types/react': 18.3.18
-
-  '@radix-ui/react-slot@1.1.2(@types/react@19.0.10)(react@18.3.1)':
-    dependencies:
-      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.0.10)(react@18.3.1)
-      react: 18.3.1
-    optionalDependencies:
-      '@types/react': 19.0.10
 
   '@radix-ui/react-slot@1.1.2(@types/react@19.0.10)(react@19.0.0)':
     dependencies:
@@ -17894,10 +17881,10 @@ snapshots:
       '@tanstack/query-core': 5.61.5
       react: 18.3.1
 
-  '@tanstack/react-query@5.68.0(react@18.3.1)':
+  '@tanstack/react-query@5.68.0(react@19.0.0)':
     dependencies:
       '@tanstack/query-core': 5.68.0
-      react: 18.3.1
+      react: 19.0.0
 
   '@tanstack/react-router@1.95.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -21803,9 +21790,9 @@ snapshots:
     dependencies:
       react: 18.3.1
 
-  lucide-react@0.479.0(react@18.3.1):
+  lucide-react@0.479.0(react@19.0.0):
     dependencies:
-      react: 18.3.1
+      react: 19.0.0
 
   lucide-react@0.482.0(react@19.0.0):
     dependencies:
