@@ -232,7 +232,7 @@ export default function customEndpointsPlugin(options: Options = {}) {
 
 			// Handle new WebSocket connections
 			wss.on("connection", (ws, req) => {
-				console.log("WebSocket client connected");
+				// console.log("WebSocket client connected");
 
 				// Add client to the set with metadata
 				const info: SocketInfo = {
@@ -291,7 +291,7 @@ export default function customEndpointsPlugin(options: Options = {}) {
 						console.warn("info not found for WebSocket close");
 						return;
 					}
-					console.log("removing client", info.id);
+					// console.log("removing client", info.id);
 					clients.delete(info);
 					wsHandlers.close(info, clients);
 				});
