@@ -36,7 +36,7 @@ const socials: Array<{
 
 {
   isHomepage ? (
-    <footer>
+    <footer class="footer-large">
       <div class="wrapper">
         <div class="footer-column footer-column--company">
           <img src={fpLogo} width="64" alt="Fiberplane icon logo" />
@@ -80,15 +80,39 @@ const socials: Array<{
           </ul>
         </div>
       </div>
+
+      <p class="footnote">
+        Copyright &copy; 2025 Fiberplane &bull;{" "}
+        <a href="/privacy-policy">privacy policy</a>
+      </p>
     </footer>
   ) : (
-    <Default>
-      <slot />
-    </Default>
+    <>
+      <Default />
+      <p class="footnote">
+        Copyright &copy; 2025 Fiberplane &bull;{" "}
+        <a href="/privacy-policy">privacy policy</a>
+      </p>
+    </>
   )
 }
 
 <style>
+  .footer-large {
+    border-top: 1px solid var(--sl-color-hairline-shade);
+    margin-block-start: -4rem;
+    padding-block-start: 4rem;
+    margin-inline: calc(var(--sl-content-pad-x) * -1);
+    padding-inline: var(--sl-content-pad-x);
+  }
+
+  .footnote {
+    margin-top: 4em;
+    font-size: 0.875rem;
+    color: var(--fg-muted);
+    text-align: center;
+  }
+
   .wrapper {
     max-width: 69rem;
     margin: 0 auto;
