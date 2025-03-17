@@ -80,9 +80,9 @@ export default function Chat() {
         part.type === "tool-invocation" &&
         part.toolInvocation.state === "call" &&
         toolsRequiringConfirmation.includes(
-          part.toolInvocation.toolName as keyof typeof tools
-        )
-    )
+          part.toolInvocation.toolName as keyof typeof tools,
+        ),
+    ),
   );
 
   const formatTime = (date: Date) => {
@@ -227,7 +227,7 @@ export default function Chat() {
                                   } relative`}
                                 >
                                   {part.text.startsWith(
-                                    "scheduled message"
+                                    "scheduled message",
                                   ) && (
                                     <span className="absolute -top-3 -left-2 text-base">
                                       🕒
@@ -236,7 +236,7 @@ export default function Chat() {
                                   <p className="text-sm whitespace-pre-wrap">
                                     {part.text.replace(
                                       /^scheduled message: /,
-                                      ""
+                                      "",
                                     )}
                                   </p>
                                 </Card>
@@ -246,7 +246,7 @@ export default function Chat() {
                                   }`}
                                 >
                                   {formatTime(
-                                    new Date(m.createdAt as unknown as string)
+                                    new Date(m.createdAt as unknown as string),
                                   )}
                                 </p>
                               </div>
@@ -259,7 +259,7 @@ export default function Chat() {
 
                             if (
                               toolsRequiringConfirmation.includes(
-                                toolInvocation.toolName as keyof typeof tools
+                                toolInvocation.toolName as keyof typeof tools,
                               ) &&
                               toolInvocation.state === "call"
                             ) {
@@ -286,7 +286,7 @@ export default function Chat() {
                                       {JSON.stringify(
                                         toolInvocation.args,
                                         null,
-                                        2
+                                        2,
                                       )}
                                     </pre>
                                   </div>

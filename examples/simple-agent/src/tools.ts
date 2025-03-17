@@ -54,7 +54,7 @@ const scheduleTask = tool({
             ? when // delayed
             : when, // cron
         "executeTask",
-        payload
+        payload,
       );
     } catch (error) {
       console.error("error scheduling task", error);

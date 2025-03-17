@@ -100,7 +100,7 @@ export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
     if (!env.OPENAI_API_KEY) {
       console.error(
-        "OPENAI_API_KEY is not set, don't forget to set it locally in .dev.vars, and use `wrangler secret bulk .dev.vars` to upload it to production"
+        "OPENAI_API_KEY is not set, don't forget to set it locally in .dev.vars, and use `wrangler secret bulk .dev.vars` to upload it to production",
       );
       return new Response("OPENAI_API_KEY is not set", { status: 500 });
     }
