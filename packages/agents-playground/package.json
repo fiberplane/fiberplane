@@ -5,8 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev:wrangler": "wrangler dev src/server.ts",
     "dev": "vite dev",
+    "build": "vite build",
     "format": "biome format --write",
     "lint": "biome lint",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,7 +17,6 @@
   "dependencies": {
     "@biomejs/biome": "^1.9.4",
     "@radix-ui/react-slot": "^1.1.2",
-    "@rollup/plugin-replace": "^6.0.2",
     "@tanstack/react-query": "^5.67.3",
     "@vitejs/plugin-react-swc": "^3.8.0",
     "agents-sdk": "^0.0.27",
@@ -30,6 +29,7 @@
     "react-use-websocket": "^4.13.0",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
+    "vite-plugin-node-polyfills": "^0.23.0",
     "vite-plugin-svgr": "^4.3.0",
     "zod": "^3.24.2"
   },
