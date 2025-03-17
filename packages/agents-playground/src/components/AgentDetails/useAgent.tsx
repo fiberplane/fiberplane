@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { useAgent as useSDKAgent } from "agents-sdk/react";
 
 type OnStateUpdate<T> = NonNullable<UseAgentOptions<T>["onStateUpdate"]>;
+type OnClose<T> = NonNullable<UseAgentOptions<T>["onClose"]>;
 
 export function useAgent<T = unknown>(options: UseAgentOptions) {
 	const onStateUpdate = useCallback<OnStateUpdate<T>>(
@@ -11,21 +12,40 @@ export function useAgent<T = unknown>(options: UseAgentOptions) {
 				console.log("state", state, "source", source);
 			};
 
-			return options.onStateUpdate
+			const fn = options.onStateUpdate
 				? captureFunction<OnStateUpdate<T>>({
 						fn: options.onStateUpdate,
 						arguments: captureArguments,
-					})(state, source)
-				: undefined;
+					})
+				: captureArguments;
+
+			return fn(state, source);
 		},
 		[options.onStateUpdate],
 	);
 
-	// const onClose = options.onClose ? captureFunction(options.onClose) : undefined;
+	const onClose = useCallback<OnClose<T>>(
+		(event) => {
+			const captureArguments: OnClose<T> = (event) => {
+				console.log("close", event);
+			};
+
+			const fn = options.onClose
+				? captureFunction<OnClose<T>>({
+						fn: options.onClose,
+						arguments: captureArguments,
+					})
+				: captureArguments;
+
+			return fn(event);
+		},
+		[options.onClose],
+	);
 
 	const newOptions = {
 		...options,
 		onStateUpdate,
+		onClose,
 	};
 
 	return useSDKAgent(newOptions);

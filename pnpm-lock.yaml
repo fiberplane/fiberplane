@@ -885,21 +885,9 @@ importers:
 
   packages/agents-playground:
     dependencies:
-      '@ai-sdk/openai':
-        specifier: ^1.2.3
-        version: 1.2.5(zod@3.24.2)
-      '@ai-sdk/provider':
-        specifier: ^1.0.10
-        version: 1.0.11
       '@biomejs/biome':
         specifier: ^1.9.4
         version: 1.9.4
-      '@cloudflare/vite-plugin':
-        specifier: ^0.1.11
-        version: 0.1.11(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.2)(yaml@2.6.1))(workerd@1.20250310.0)(wrangler@4.0.0(@cloudflare/workers-types@4.20250313.0))
-      '@cloudflare/workers-types':
-        specifier: ^4.20250311.0
-        version: 4.20250313.0
       '@radix-ui/react-slot':
         specifier: ^1.1.2
         version: 1.1.2(@types/react@19.0.10)(react@18.3.1)
@@ -909,18 +897,12 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.67.3
         version: 5.68.0(react@18.3.1)
-      '@types/ws':
-        specifier: ^8.18.0
-        version: 8.18.0
       '@vitejs/plugin-react-swc':
         specifier: ^3.8.0
         version: 3.8.0(@swc/helpers@0.5.13)(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.2)(yaml@2.6.1))
       agents-sdk:
         specifier: ^0.0.27
         version: 0.0.27(@cloudflare/workers-types@4.20250313.0)
-      ai:
-        specifier: ^4.1.58
-        version: 4.1.61(react@18.3.1)(zod@3.24.2)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -930,24 +912,9 @@ importers:
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
-      drizzle-kit:
-        specifier: ^0.30.5
-        version: 0.30.5
-      drizzle-orm:
-        specifier: ^0.40.0
-        version: 0.40.0(@cloudflare/workers-types@4.20250313.0)(@libsql/client-wasm@0.14.0)(@libsql/client@0.14.0)(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.10)(gel@2.0.1)(sqlite3@5.1.7)
-      hono:
-        specifier: ^4.7.4
-        version: 4.7.4
-      hono-agents:
-        specifier: ^0.0.17
-        version: 0.0.17(agents-sdk@0.0.27(@cloudflare/workers-types@4.20250313.0))(hono@4.7.4)
       lucide-react:
         specifier: ^0.479.0
         version: 0.479.0(react@18.3.1)
-      mime-types:
-        specifier: ^2.1.35
-        version: 2.1.35
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -957,30 +924,15 @@ importers:
       react-use-websocket:
         specifier: ^4.13.0
         version: 4.13.0
-      sqlite3:
-        specifier: ^5.1.7
-        version: 5.1.7
       tailwind-merge:
         specifier: ^2.5.5
         version: 2.5.5
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.15)
-      toml:
-        specifier: ^3.0.0
-        version: 3.0.0
-      vite-plugin-node-polyfills:
-        specifier: ^0.23.0
-        version: 0.23.0(rollup@4.31.0)(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.2)(yaml@2.6.1))
       vite-plugin-svgr:
         specifier: ^4.3.0
         version: 4.3.0(rollup@4.31.0)(typescript@5.8.2)(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.2)(yaml@2.6.1))
-      wrangler:
-        specifier: ^4.0.0
-        version: 4.0.0(@cloudflare/workers-types@4.20250313.0)
-      ws:
-        specifier: ^8.18.1
-        version: 8.18.1
       zod:
         specifier: ^3.24.2
         version: 3.24.2
@@ -1463,12 +1415,6 @@ importers:
       '@cloudflare/workers-types':
         specifier: ^4.20250311.0
         version: 4.20250313.0
-      '@types/react':
-        specifier: ^19.0.10
-        version: 19.0.10
-      '@types/react-dom':
-        specifier: ^19.0.4
-        version: 19.0.4(@types/react@19.0.10)
       '@types/ws':
         specifier: ^8.18.0
         version: 8.18.0
@@ -8807,12 +8753,6 @@ packages:
   hmac-drbg@1.0.1:
     resolution: {integrity: sha512-Tti3gMqLdZfhOQY1Mzf/AanLiqh1WTiJgEj26ZuYQ9fbkLomzGchCws4FyrSd4VkpBfiNhaE1On+lOz894jvXg==}
 
-  hono-agents@0.0.17:
-    resolution: {integrity: sha512-l5+9XwqVS82QfOH0LwcjpieqjCR06ccVqUNTu4Po3R9aeOfmoabPJepvEjgd6Rn9bFRTn4DbdQSNeZ6B4UFplg==}
-    peerDependencies:
-      agents-sdk: ^0.0.27
-      hono: ^4.6.17
-
   hono-openapi@0.4.6:
     resolution: {integrity: sha512-wSDySp2cS5Zcf1OeLG7nCP3eMsCpcDomN137T9B6/Z5Qq3D0nWgMf0I3Gl41SE1rE37OBQ0Smqx3LOP9Hk//7A==}
     peerDependencies:
@@ -8866,10 +8806,6 @@ packages:
 
   hono@4.7.1:
     resolution: {integrity: sha512-V3eWoPkBxoNgFCkSc5Y5rpLF6YoQQx1pkYO4qrF6YfOw8RZbujUNlJLZCxh0z9gZct70+je2Ih7Zrdpv21hP9w==}
-    engines: {node: '>=16.9.0'}
-
-  hono@4.7.4:
-    resolution: {integrity: sha512-Pst8FuGqz3L7tFF+u9Pu70eI0xa5S3LPUmrNd5Jm8nTHze9FxLTK9Kaj5g/k4UcwuJSXTP65SyHOPLrffpcAJg==}
     engines: {node: '>=16.9.0'}
 
   html-entities@2.5.2:
@@ -9351,6 +9287,7 @@ packages:
 
   libsql@0.4.7:
     resolution: {integrity: sha512-T9eIRCs6b0J1SHKYIvD8+KCJMcWZ900iZyxdnSCdqxN12Z1ijzT+jY5nrk72Jw4B0HGzms2NgpryArlJqvc3Lw==}
+    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lie@3.3.0:
@@ -13065,16 +13002,6 @@ snapshots:
     optionalDependencies:
       react: 19.0.0
       zod: 3.24.1
-
-  '@ai-sdk/react@1.1.23(react@18.3.1)(zod@3.24.2)':
-    dependencies:
-      '@ai-sdk/provider-utils': 2.1.13(zod@3.24.2)
-      '@ai-sdk/ui-utils': 1.1.19(zod@3.24.2)
-      swr: 2.2.5(react@18.3.1)
-      throttleit: 2.1.0
-    optionalDependencies:
-      react: 18.3.1
-      zod: 3.24.2
 
   '@ai-sdk/react@1.1.23(react@19.0.0)(zod@3.24.2)':
     dependencies:
@@ -18734,19 +18661,6 @@ snapshots:
       react: 19.0.0
       zod: 3.24.1
 
-  ai@4.1.61(react@18.3.1)(zod@3.24.2):
-    dependencies:
-      '@ai-sdk/provider': 1.0.11
-      '@ai-sdk/provider-utils': 2.1.13(zod@3.24.2)
-      '@ai-sdk/react': 1.1.23(react@18.3.1)(zod@3.24.2)
-      '@ai-sdk/ui-utils': 1.1.19(zod@3.24.2)
-      '@opentelemetry/api': 1.9.0
-      eventsource-parser: 3.0.0
-      jsondiffpatch: 0.6.0
-    optionalDependencies:
-      react: 18.3.1
-      zod: 3.24.2
-
   ai@4.1.61(react@19.0.0)(zod@3.24.2):
     dependencies:
       '@ai-sdk/provider': 1.0.11
@@ -21130,11 +21044,6 @@ snapshots:
       minimalistic-assert: 1.0.1
       minimalistic-crypto-utils: 1.0.1
 
-  hono-agents@0.0.17(agents-sdk@0.0.27(@cloudflare/workers-types@4.20250313.0))(hono@4.7.4):
-    dependencies:
-      agents-sdk: 0.0.27(@cloudflare/workers-types@4.20250313.0)
-      hono: 4.7.4
-
   hono-openapi@0.4.6(@hono/zod-validator@0.4.3(hono@4.7.1)(zod@3.24.1))(hono@4.7.1)(openapi-types@12.1.3)(zod-openapi@4.2.3(zod@3.24.1))(zod@3.24.1):
     dependencies:
       json-schema-walker: 2.0.0
@@ -21148,8 +21057,6 @@ snapshots:
   hono@4.6.12: {}
 
   hono@4.7.1: {}
-
-  hono@4.7.4: {}
 
   html-entities@2.5.2: {}
 
@@ -24589,12 +24496,6 @@ snapshots:
 
   svg-parser@2.0.4: {}
 
-  swr@2.2.5(react@18.3.1):
-    dependencies:
-      client-only: 0.0.1
-      react: 18.3.1
-      use-sync-external-store: 1.4.0(react@18.3.1)
-
   swr@2.2.5(react@19.0.0):
     dependencies:
       client-only: 0.0.1
@@ -25317,14 +25218,6 @@ snapshots:
       '@rollup/plugin-inject': 5.0.5(rollup@4.31.0)
       node-stdlib-browser: 1.3.0
       vite: 6.0.9(@types/node@22.10.7)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.2)(yaml@2.6.1)
-    transitivePeerDependencies:
-      - rollup
-
-  vite-plugin-node-polyfills@0.23.0(rollup@4.31.0)(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.2)(yaml@2.6.1)):
-    dependencies:
-      '@rollup/plugin-inject': 5.0.5(rollup@4.31.0)
-      node-stdlib-browser: 1.3.0
-      vite: 6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.2)(yaml@2.6.1)
     transitivePeerDependencies:
       - rollup
 
