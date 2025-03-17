@@ -55,7 +55,7 @@ export function AgentDetails({
 	const { data: db, refetch } = useAgentDB(agentDetails.name);
 	const ref = useRef<WebSocket | null>(null);
 	useEffect(() => {
-		ref.current = new WebSocket("/fp-agents/ws");
+		ref.current = new WebSocket("ws://localhost:4001/fp-agents/ws");
 		const socket = ref.current;
 		ref.current.onopen = (event) => {
 			console.log("opened", event, ref.current?.readyState === WebSocket.OPEN);
