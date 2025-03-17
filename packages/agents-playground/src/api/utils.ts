@@ -2,6 +2,7 @@ import type { DurableObjectsResult, DurableObjectsSuccess } from "@/types";
 import fs from "node:fs";
 import path from "node:path";
 import toml from "toml";
+import { parse } from "jsonc-parser";
 
 /**
  * TypeScript interface for wrangler.toml configuration
@@ -29,16 +30,23 @@ export interface WranglerConfig {
 	[key: string]: unknown; // For other configuration options
 }
 
-export function readConfigFile(configPath: string): WranglerConfig {
+export function readConfigFile(): WranglerConfig {
+	let configPath = "./wrangler.toml";
 	// Check if file exists
-	if (!fs.existsSync(configPath)) {
-		console.error(`Config file not found: ${configPath}`);
-		return { success: false, error: "Config file not found" };
+	if (fs.existsSync(configPath)) {
+		// Read and parse the TOML file
+		const configContent = fs.readFileSync(configPath, "utf-8");
+		return toml.parse(configContent) as WranglerConfig;
 	}
 
-	// Read and parse the TOML file
-	const configContent = fs.readFileSync(configPath, "utf-8");
-	return toml.parse(configContent) as WranglerConfig;
+	configPath = "./wrangler.jsonc";
+	if (fs.existsSync(configPath)) {
+		const configContent = fs.readFileSync(configPath, "utf-8");
+		console.log("found config file: ", configContent);
+		return parse(configContent) as WranglerConfig;
+	}
+
+	return { success: false, error: "Config file not found" };
 }
 
 /**
@@ -46,11 +54,9 @@ export function readConfigFile(configPath: string): WranglerConfig {
  * @param {string} configPath - Path to the wrangler.toml file
  * @returns {DurableObjectsResult} Object containing Durable Objects information
  */
-export function getDurableObjectsFromConfig(
-	configPath = "./wrangler.toml",
-): DurableObjectsResult {
+export function getDurableObjectsFromConfig(): DurableObjectsResult {
 	try {
-		const config = readConfigFile(configPath);
+		const config = readConfigFile();
 		const result: DurableObjectsSuccess = {
 			success: true,
 			durableObjects: {

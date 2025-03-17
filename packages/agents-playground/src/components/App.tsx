@@ -15,10 +15,12 @@ function useListAgents() {
 }
 
 export function App() {
-	const { data, isLoading } = useListAgents();
+	const { data, isLoading, error } = useListAgents();
 	const [selectedAgent, setSelectedAgent] = useState<string | typeof unset>(
 		unset,
 	);
+
+	console.log("starting agent stuff", error);
 
 	useEffect(() => {
 		if (data?.success) {

@@ -4,11 +4,15 @@
 import type { FSWatcher, ViteDevServer } from "vite";
 import { WebSocketServer, type WebSocket } from "ws";
 // import { URL } from "node:url";
-import { getDurableObjectsFromConfig, readConfigFile } from "../api/utils";
 import MiniRouter from "./MiniRouter";
-import { getSqlitePathForAgent, serializeSQLiteToJSON } from "./utils";
+import {
+	getDurableObjectsFromConfig,
+	readConfigFile,
+	getSqlitePathForAgent,
+	serializeSQLiteToJSON,
+} from "./utils";
 import type { IncomingMessage } from "node:http";
-import { MessageSchema } from "../types";
+import { WebSocketMessageSchema, type WebSocketMessage } from "./types";
 
 type Options = {
 	// endpoints?: EndpointConfig[];
@@ -176,9 +180,9 @@ export default function customEndpointsPlugin(options: Options = {}) {
 			}
 
 			// WebSocket event handlers
-			const wsHandlers: WebSocketHandlers<Message> = {
+			const wsHandlers: WebSocketHandlers<WebSocketMessage> = {
 				connection: () => {},
-				message: async (info: SocketInfo, message: Message) => {
+				message: async (info: SocketInfo, message: WebSocketMessage) => {
 					switch (message.type) {
 						case "subscribe": {
 							const watchPath = watchPaths[message.payload.agent] ?? {
@@ -261,7 +265,7 @@ export default function customEndpointsPlugin(options: Options = {}) {
 							parsedMessage = stringMessage;
 						}
 
-						const result = MessageSchema.safeParse(parsedMessage);
+						const result = WebSocketMessageSchema.safeParse(parsedMessage);
 						if (!result.success) {
 							console.error("Invalid message received", result.error);
 							return;

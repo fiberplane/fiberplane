@@ -2,16 +2,17 @@ import type { UseAgentOptions } from "agents-sdk/react";
 import { useCallback } from "react";
 import { useAgent as useSDKAgent } from "agents-sdk/react";
 
+type OnStateUpdate<T> = NonNullable<UseAgentOptions<T>["onStateUpdate"]>;
+
 export function useAgent<T = unknown>(options: UseAgentOptions) {
-	type OnStateUpdate = NonNullable<UseAgentOptions<T>["onStateUpdate"]>;
-	const onStateUpdate = useCallback<OnStateUpdate>(
+	const onStateUpdate = useCallback<OnStateUpdate<T>>(
 		(state, source) => {
-			const captureArguments: OnStateUpdate = (state, source) => {
+			const captureArguments: OnStateUpdate<T> = (state, source) => {
 				console.log("state", state, "source", source);
 			};
 
 			return options.onStateUpdate
-				? captureFunction<OnStateUpdate>({
+				? captureFunction<OnStateUpdate<T>>({
 						fn: options.onStateUpdate,
 						arguments: captureArguments,
 					})(state, source)

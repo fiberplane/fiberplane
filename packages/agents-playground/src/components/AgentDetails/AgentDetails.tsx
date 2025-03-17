@@ -94,8 +94,11 @@ export function AgentDetails({
 		};
 	}, [websocket.sendMessage, agentDetails.name]);
 
-	// console.log('db', db)
-	if (typeof db === "object" && "error" in db && db.error === "No database found") {
+	if (
+		typeof db === "object" &&
+		"error" in db &&
+		db.error === "No database found"
+	) {
 		return <div>No database found</div>;
 	}
 
@@ -114,26 +117,28 @@ export function AgentDetails({
 			<div className="grid gap-2 border border-gray-200 p-2 rounded-md">
 				<h2 className="text-accent-foreground text-lg px-4">Databases:</h2>
 				<div className="grid gap-2 lg:grid-cols-2">
-					{db && db !== null &&
+					{db &&
+						db !== null &&
 						Object.entries(db).map(([tableName, data]) => (
 							<DataTableView key={tableName} table={data} title={tableName} />
 						))}
 				</div>
 			</div>
 			{/* <div className="grid gap-2 grid-cols-2">
-        <Button
-          className="cursor-pointer"
-          onClick={() => {
-            agent.send(JSON.stringify("I want a list user endpoint"));
-          }}
-        >
-          Send
-        </Button>
-        <Button onClick={() => {
-          agent.setState({ messageReceived: "client-side-yes" });
-        }}>set state</Button>
-        <Button onClick={close}>Close</Button>
-      </div> */}
+	      <Button
+	        className="cursor-pointer"
+	        onClick={() => {
+	          agent.send(JSON.stringify("I want a list user endpoint"));
+	        }}
+	      >
+	        Send
+	      </Button>
+	      <Button onClick={() => {
+	        agent.setState({ messageReceived: "client-side-yes" });
+	      }}>set state</Button>
+	      <Button onClick={close}>Close</Button>
+	    </div> */}
 		</div>
 	);
+	// return null;
 }
