@@ -12,21 +12,29 @@ export type ColumnType =
 // Map SQLite column types to TypeScript types
 type TypeMapping<T extends ColumnType[]> = T extends ["string"]
   ? string
-  : T extends ["number"]
-    ? number
-    : T extends ["boolean"]
-      ? boolean
-      : T extends ["null"]
-        ? null
-        : T extends ["object"]
-          ? Record<string, unknown>
-          : T extends ["array"]
-            ? unknown[]
-            : T extends Array<infer U>
-              ? U extends ColumnType
-                ? unknown
-                : never
-              : unknown;
+  : T extends ["null", "string"]
+    ? string | null
+    : T extends ["number"]
+      ? number
+      : T extends ["null", "number"]
+        ? number | null
+        : T extends ["boolean"]
+          ? boolean
+          : T extends ["null", "boolean"]
+            ? boolean
+            : T extends ["null"]
+              ? null
+              : T extends ["object"]
+                ? Record<string, unknown>
+                : T extends ["null", "object"]
+                  ? Record<string, unknown> | null
+                  : T extends ["array"]
+                    ? unknown[]
+                    : T extends Array<infer U>
+                      ? U extends ColumnType
+                        ? unknown
+                        : never
+                      : unknown;
 
 // Generic table type that ensures data matches column structure
 export type Table<
@@ -37,6 +45,25 @@ export type Table<
     [K in keyof C]: TypeMapping<C[K]>;
   }>;
 };
+
+type T = Table<{
+  id: ["string", "null"];
+}>;
+
+type Data = T["data"];
+
+// const table: T = {
+// 	columns: {
+// 		id: ["string"],
+// 	},
+// 	data: [
+// 		{
+// 			id: "1",
+// 		},
+// 	],
+// };
+
+// table.data
 
 // Database result type
 export type DatabaseResult = Record<string, Table>;

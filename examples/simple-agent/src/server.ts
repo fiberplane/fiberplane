@@ -24,10 +24,9 @@ export type Env = {
   Chat: AgentNamespace<Chat>;
 };
 
-
 export type State = {
   lastUpdated: number;
-}
+};
 
 // we use ALS to expose the agent context to the tools
 export const agentContext = new AsyncLocalStorage<Chat>();
@@ -42,7 +41,7 @@ export class Chat extends AIChatAgent<Env, State> {
 
   initialState: State = {
     lastUpdated: Date.now(),
-  }
+  };
 
   // biome-ignore lint/complexity/noBannedTypes: <explanation>
   async onChatMessage(onFinish: StreamTextOnFinishCallback<{}>) {

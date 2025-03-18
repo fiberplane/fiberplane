@@ -787,9 +787,9 @@ importers:
       '@radix-ui/react-switch':
         specifier: ^1.1.3
         version: 1.1.3(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      agents-sdk:
-        specifier: ^0.0.35
-        version: 0.0.35(@cloudflare/workers-types@4.20250313.0)
+      agents:
+        specifier: ^0.0.39
+        version: 0.0.39(@cloudflare/workers-types@4.20250313.0)
       ai:
         specifier: ^4.1.61
         version: 4.1.61(react@19.0.0)(zod@3.24.2)
@@ -6769,8 +6769,8 @@ packages:
   agents-sdk@0.0.27:
     resolution: {integrity: sha512-9utR0g4nBld2ksuDCqxFmCZtAvmFbccrQ4nEF3LQgsJDVjUZoSte43IrdEOul49PwF5XU/Mu/Yq2s/3uCuxOTQ==}
 
-  agents-sdk@0.0.35:
-    resolution: {integrity: sha512-svsscXQc6OGVBJ4CPNHtkmtfGjyYkJWJbGE82n6uqcOdaXMEGf1/SBlWO0ka8V2zXa/0pWQjLY7DBZKa5z8xPA==}
+  agents@0.0.39:
+    resolution: {integrity: sha512-Z8eZuatKaE68KlgpHVJVa/IVUxz1yJoT8uniNvgFwQ+QNy3nzvra1aFxLqRPk7kjYTbtwj1QkHM0ZszLnXHLcQ==}
 
   aggregate-error@3.1.0:
     resolution: {integrity: sha512-4I7Td01quW/RpocfNayFdFVk1qSuoh0E7JrbRJ16nH01HhKFQ88INq9Sd+nd72zqRySlr9BmDA8xlEJ6vJMrYA==}
@@ -9296,7 +9296,6 @@ packages:
 
   libsql@0.4.7:
     resolution: {integrity: sha512-T9eIRCs6b0J1SHKYIvD8+KCJMcWZ900iZyxdnSCdqxN12Z1ijzT+jY5nrk72Jw4B0HGzms2NgpryArlJqvc3Lw==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lie@3.3.0:
@@ -18745,7 +18744,7 @@ snapshots:
     transitivePeerDependencies:
       - '@cloudflare/workers-types'
 
-  agents-sdk@0.0.35(@cloudflare/workers-types@4.20250313.0):
+  agents@0.0.39(@cloudflare/workers-types@4.20250313.0):
     dependencies:
       cron-schedule: 5.0.4
       nanoid: 5.1.4

@@ -1,68 +1,69 @@
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 
-import { useQuery } from "@tanstack/react-query";
-import { AgentDetails } from "./AgentDetails";
 import type { DurableObjectsResult } from "@/types";
+import { useQuery } from "@tanstack/react-query";
+import { Cpu } from "lucide-react";
+import { AgentDetails } from "./AgentDetails";
 import { ListSection } from "./ListSection";
-import { Cpu } from "lucide-react"
 
 const unset = Symbol("unset");
 
 function useListAgents() {
-	return useQuery<DurableObjectsResult>({
-		queryKey: ["list_agents"],
-		queryFn: () => fetch("/fp-agents/api/agents").then((res) => res.json()),
-	});
+  return useQuery<DurableObjectsResult>({
+    queryKey: ["list_agents"],
+    queryFn: () => fetch("/fp-agents/api/agents").then((res) => res.json()),
+  });
 }
 
 export function App() {
-	const { data, isLoading, error } = useListAgents();
-	const [selectedAgent, setSelectedAgent] = useState<string | typeof unset>(
-		unset,
-	);
+  const { data, isLoading, error } = useListAgents();
+  const [selectedAgent, setSelectedAgent] = useState<string | typeof unset>(
+    unset,
+  );
 
-	useEffect(() => {
-		if (data?.success) {
-			setSelectedAgent(data.durableObjects.bindings[0].name);
-		}
-	}, [data]);
+  useEffect(() => {
+    if (data?.success) {
+      setSelectedAgent(data.durableObjects.bindings[0].name);
+    }
+  }, [data]);
 
-	if (isLoading) {
-		return <div>Loading...</div>;
-	}
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
-	if (!data?.success) {
-		return <div>Empty</div>;
-	}
+  if (!data?.success) {
+    return <div>Empty</div>;
+  }
 
-	const binding = data.durableObjects.bindings.find(
-		(a) => a.name === selectedAgent,
-	);
-	return (
-		<div className="h-full w-full grid gap-4 grid-cols-[200px_auto]">
-			<ListSection title="Detected Agents">
-				<div className="w-full grid gap-2 h-full">
-					{data.durableObjects.bindings.map((agent) => (
-						<Button
-							onClick={() => setSelectedAgent(agent.name)}
-							key={agent.name}
-							variant="ghost"
-							className={`justify-start px-2 ${agent.name === selectedAgent ? "bg-muted" : ""}`}
-						// className="border border-neutral-400 cursor-pointer justify-start items-start"
-						>
-							<Cpu className="w-3 h-3" />{agent.name}
-						</Button>
-					))}
-				</div>
-			</ListSection>
-			<div>
-				{selectedAgent !== unset && binding ? (
-					<AgentDetails agent={binding} />
-				) : (
-					<div>Select an agent</div>
-				)}
-			</div>
-		</div>
-	);
+  const binding = data.durableObjects.bindings.find(
+    (a) => a.name === selectedAgent,
+  );
+  return (
+    <div className="h-full w-full grid gap-4 grid-cols-[200px_auto]">
+      <ListSection title="Detected Agents">
+        <div className="w-full grid gap-2 h-full">
+          {data.durableObjects.bindings.map((agent) => (
+            <Button
+              onClick={() => setSelectedAgent(agent.name)}
+              key={agent.name}
+              variant="ghost"
+              className={`justify-start px-2 ${agent.name === selectedAgent ? "bg-muted" : ""}`}
+              // className="border border-neutral-400 cursor-pointer justify-start items-start"
+            >
+              <Cpu className="w-3 h-3" />
+              {agent.name}
+            </Button>
+          ))}
+        </div>
+      </ListSection>
+      <div>
+        {selectedAgent !== unset && binding ? (
+          <AgentDetails agent={binding} />
+        ) : (
+          <div>Select an agent</div>
+        )}
+      </div>
+    </div>
+  );
 }

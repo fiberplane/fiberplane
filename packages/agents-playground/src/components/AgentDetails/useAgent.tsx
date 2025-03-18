@@ -1,6 +1,6 @@
 import type { UseAgentOptions } from "agents-sdk/react";
-import { useCallback } from "react";
 import { useAgent as useSDKAgent } from "agents-sdk/react";
+import { useCallback } from "react";
 
 type OnStateUpdate<T> = NonNullable<UseAgentOptions<T>["onStateUpdate"]>;
 type OnClose<T> = NonNullable<UseAgentOptions<T>["onClose"]>;
