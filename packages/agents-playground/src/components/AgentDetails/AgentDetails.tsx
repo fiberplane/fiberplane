@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useAgent } from "./useAgent";
-import { ConnectionStatus } from "./ConnectionStatus";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { DataTableView } from "./DataTableView";
-import type { DatabaseResult, DurableObjectsSuccess } from "@/types";
-// import { useWebSocket } from "./useWebSocket"
+import type { DatabaseResult, DurableObjectsSuccess, Table } from "@/types";
 import { MessageSchema } from "@/types";
+import { StateTableColumnsSchema, StateTableName, StateTableView, type StateTableColumns } from "./StateTableView";
+import { ListSection } from "../ListSection";
+import { Database } from "lucide-react";
+import ScheduledTasksView from "./ScheduledTableView";
 
 function useAgentDB(id: string) {
 	return useQuery({
@@ -54,10 +55,8 @@ export function AgentDetails({
 
 	const { data: db, refetch } = useAgentDB(agentDetails.name);
 	const ref = useRef<WebSocket | null>(null);
+
 	useEffect(() => {
-		// if (ref.current) {
-		// 	return;
-		// }
 		ref.current = new WebSocket("ws://localhost:4001/fp-agents/ws");
 		const socket = ref.current;
 		ref.current.onopen = (event) => {
@@ -104,8 +103,7 @@ export function AgentDetails({
 			socket.onmessage = null;
 
 		}
-
-	})
+	});
 
 	// const websocket = useWebSocket({
 	// 	url: "ws://localhost:4001/fp-agents/ws",
@@ -159,25 +157,30 @@ export function AgentDetails({
 	}
 
 	return (
-		<div className="grid gap-2">
-			<div className="grid grid-cols-[1fr_auto] items-center border  border-gray-200 px-2 rounded-md">
-				<h2 className="text-accent-foreground text-lg py-2 px-4">
-					Details:{" "}
-					<span className="font-bold text-neutral-500">
-						{agentDetails.name}
-					</span>
-				</h2>
-				<ConnectionStatus readyState={readyState} />
-			</div>
+		<ListSection title={
+			<div className="flex gap-2">Details:
+				<span className="font-bold text-neutral-500">
+					{agentDetails.name}
+				</span></div>}
+			className="h-full">
 
-			<div className="grid gap-2 border border-gray-200 p-2 rounded-md">
-				<h2 className="text-accent-foreground text-lg px-4">Databases:</h2>
-				<div className="grid gap-2 lg:grid-cols-2">
+			{/* <div className="grid gap-2 border border-gray-200 p-2 rounded-md"> */}
+			<div className="grid gap-2 p-2 rounded-md">
+				<h2 className="text-accent-foreground text-lg px-4 flex gap-2 items-center"><Database className="w-3.5 h-3.5" />Databases:</h2>
+				<div className="grid gap-2 xlg:grid-cols-2">
 					{db &&
 						db !== null &&
-						Object.entries(db).map(([tableName, data]) => (
-							<DataTableView key={tableName} table={data} title={tableName} />
-						))}
+						Object.entries(db).map(([tableName, data]) => {
+							console.log(tableName, tableName === StateTableName, data, StateTableColumnsSchema.safeParse(data.columns))
+							if (tableName === StateTableName && StateTableColumnsSchema.safeParse(data.columns).success) {
+								return (<StateTableView key={tableName} table={data as Table<StateTableColumns>} />);
+							}
+
+							return (
+								<DataTableView key={tableName} table={data} title={tableName} />
+							);
+						})}
+					<ScheduledTasksView />
 				</div>
 			</div>
 			{/* <div className="grid gap-2 grid-cols-2">
@@ -194,7 +197,7 @@ export function AgentDetails({
 	      }}>set state</Button>
 	      <Button onClick={close}>Close</Button>
 	    </div> */}
-		</div>
+		</ListSection >
 	);
 	// return null;
 }
