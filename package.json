@@ -4,7 +4,6 @@
   "description": "Local development debugging interface for Hono apps, powered by OpenTelemetry",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "postinstall": "pnpm run build:types && pnpm run build:source-analysis",
     "build:fp-hono": "pnpm build:playground && pnpm clean:fp-hono && pnpm --filter @fiberplane/hono build && cp -r packages/playground/dist packages/fiberplane-hono/dist/playground",
     "build:playground": "pnpm --filter @fiberplane/playground build",
     "build:source-analysis": "pnpm --filter @fiberplane/source-analysis build",
