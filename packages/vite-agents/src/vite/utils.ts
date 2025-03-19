@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import toml from "toml";
 import { parse } from "jsonc-parser";
-import type { DurableObjectsResult, DurableObjectsSuccess } from "./types";
+import type { DurableObjectsResult, DurableObjectsSuccess, WebSocketMessage, WebSocketMessageSchema } from "./types";
 
 // Define types for the result structure
 export type ColumnType =
@@ -44,7 +44,7 @@ export type Table<
   }>;
 };
 
-// Database result type
+// Response for /api/agents/:id/instance/:instance/db/ (list tables)
 export type DatabaseResult = Record<string, Table>;
 
 // Helper function to determine the type of a value
