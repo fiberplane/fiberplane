@@ -1393,9 +1393,6 @@ importers:
       agents:
         specifier: ^0.0.39
         version: 0.0.39(@cloudflare/workers-types@4.20250317.0)
-      agents-sdk:
-        specifier: ^0.0.27
-        version: 0.0.27(@cloudflare/workers-types@4.20250317.0)
       ai:
         specifier: ^4.1.61
         version: 4.1.61(react@19.0.0)(zod@3.24.2)

@@ -5,6 +5,6 @@ export default defineConfig({
   format: "esm",
   dts: true,
   sourcemap: true,
-  external: ["vite"],
+  external: ["vite", "cloudflare:workers", "react", "zod", "agents"],
   outDir: "dist",
 });
