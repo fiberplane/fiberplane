@@ -55,10 +55,18 @@ export const UpdateSchema = z.object({
   }),
 });
 
+export const AgentUpdatedSchema = z.object({
+  type: z.literal("agentUpdated"),
+  payload: z.object({
+    agent: z.string(),
+  }),
+});
+
 export const WebSocketMessageSchema = z.discriminatedUnion("type", [
   SubscribeSchema,
   UnsubscribeSchema,
   UpdateSchema,
+  AgentUpdatedSchema,
 ]);
 
 export type WebSocketMessage = z.infer<typeof WebSocketMessageSchema>;
