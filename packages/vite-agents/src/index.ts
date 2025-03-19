@@ -7,12 +7,11 @@ export {
 } from "./vite/utils";
 import { Agent } from "agents-sdk";
 
-import { tool, type Tool } from "ai";
+import { type Tool, tool } from "ai";
 import { z } from "zod";
 
 // Re-export types
 export * from "./vite/types";
-
 
 // Tool definition with serializable properties
 export interface SerializableTool {
@@ -28,7 +27,10 @@ export type ToolWithName = {
   tool: Tool;
 };
 
-export class FiberAgent<Env, State = Record<string, unknown>> extends Agent<Env, State> {
+export class FiberAgent<Env, State = Record<string, unknown>> extends Agent<
+  Env,
+  State
+> {
   /**
    * Initialize the Agent database tables if they don't exist yet
    */
@@ -68,7 +70,8 @@ export class FiberAgent<Env, State = Record<string, unknown>> extends Agent<Env,
    */
   async setModel(modelName: string): Promise<void> {
     try {
-      await this.sql`INSERT INTO cf_agents_model (model_name) VALUES (${modelName})`;
+      await this
+        .sql`INSERT INTO cf_agents_model (model_name) VALUES (${modelName})`;
     } catch (error) {
       console.error("Error setting model:", error);
       throw error;
@@ -84,7 +87,7 @@ export class FiberAgent<Env, State = Record<string, unknown>> extends Agent<Env,
         SELECT model_name FROM cf_agents_model
         ORDER BY created_at DESC LIMIT 1
       `;
-      
+
       return models.length > 0 ? models[0].model_name : null;
     } catch (error) {
       console.error("Error getting model:", error);
@@ -97,7 +100,8 @@ export class FiberAgent<Env, State = Record<string, unknown>> extends Agent<Env,
    */
   async setSystemInstructions(content: string): Promise<void> {
     try {
-      await this.sql`INSERT INTO cf_agents_system_instructions (content) VALUES (${content})`;
+      await this
+        .sql`INSERT INTO cf_agents_system_instructions (content) VALUES (${content})`;
     } catch (error) {
       console.error("Error setting system instructions:", error);
       throw error;
@@ -113,7 +117,7 @@ export class FiberAgent<Env, State = Record<string, unknown>> extends Agent<Env,
         SELECT content FROM cf_agents_system_instructions
         ORDER BY created_at DESC LIMIT 1
       `;
-      
+
       return instructions.length > 0 ? instructions[0].content : null;
     } catch (error) {
       console.error("Error getting system instructions:", error);
@@ -130,18 +134,18 @@ export class FiberAgent<Env, State = Record<string, unknown>> extends Agent<Env,
     try {
       const toolId = toolData.name || crypto.randomUUID();
       const parameters = JSON.stringify(toolData.tool.parameters);
-      
+
       await this.sql`
         INSERT INTO cf_agents_tools (tool_id, name, description, parameters)
         VALUES (
           ${toolId}, 
-          ${toolData.name || ''}, 
-          ${toolData.tool.description || ''}, 
+          ${toolData.name || ""}, 
+          ${toolData.tool.description || ""}, 
           ${parameters}
         )
         ON CONFLICT (tool_id) DO UPDATE
-        SET name = ${toolData.name || ''}, 
-            description = ${toolData.tool.description || ''}, 
+        SET name = ${toolData.name || ""}, 
+            description = ${toolData.tool.description || ""}, 
             parameters = ${parameters}
       `;
     } catch (error) {
@@ -160,7 +164,7 @@ export class FiberAgent<Env, State = Record<string, unknown>> extends Agent<Env,
         SELECT tool_id as id, name, description, parameters
         FROM cf_agents_tools
       `;
-      
+
       return tools;
     } catch (error) {
       console.error("Error getting tools:", error);
@@ -179,7 +183,7 @@ export class FiberAgent<Env, State = Record<string, unknown>> extends Agent<Env,
       throw error;
     }
   }
-  
+
   /**
    * Initialize the Agent - call this in your Agent constructor or onConnect
    */
