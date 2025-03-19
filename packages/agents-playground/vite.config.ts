@@ -36,10 +36,10 @@ export default defineConfig({
 			"/fp-agents": {
 				target: embeddedApiUrl,
 			},
-			"/fp-agents/ws": {
-				target: "http://localhost:4001",
-				ws: true,
-			},
+			// "/fp-agents/ws": {
+			// 	target: "http://localhost:4001",
+			// 	ws: true,
+			// },
 			"/agents/": {
 				target: embeddedApiUrl,
 				ws: true,

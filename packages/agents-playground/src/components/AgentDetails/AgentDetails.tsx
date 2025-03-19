@@ -58,7 +58,7 @@ export function AgentDetails({
 		// if (ref.current) {
 		// 	return;
 		// }
-		ref.current = new WebSocket("ws://localhost:4001/fp-agents/ws");
+		ref.current = new WebSocket("ws://localhost:5173/fp-agents/ws");
 		const socket = ref.current;
 		ref.current.onopen = (event) => {
 			console.log("opened", event, ref.current?.readyState === WebSocket.OPEN);
