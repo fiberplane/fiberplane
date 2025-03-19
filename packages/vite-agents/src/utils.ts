@@ -129,14 +129,36 @@ export async function serializeSQLiteToJSON(
                 if (column.notnull === 0) {
                   columnTypes[column.name].add("null");
                 }
-              }
 
-              // Process rows to determine column types
-              for (const row of rows) {
-                for (const columnName of Object.keys(row)) {
-                  columnTypes[columnName].add(getValueType(row[columnName]));
+                // Determine the column type based on the column's declared type
+                switch (column.type.toUpperCase()) {
+                  case "TEXT":
+                    columnTypes[column.name].add("string");
+                    break;
+                  case "INTEGER":
+                    columnTypes[column.name].add("number");
+                    break;
+                  case "REAL":
+                    columnTypes[column.name].add("number");
+                    break;
+                  case "BOOLEAN":
+                    columnTypes[column.name].add("boolean");
+                    break;
+                  case "BLOB":
+                    columnTypes[column.name].add("object");
+                    break;
+                  default:
+                    columnTypes[column.name].add("string");
+                    break;
                 }
               }
+
+              // // Process rows to determine column types
+              // for (const row of rows) {
+              //   for (const columnName of Object.keys(row)) {
+              //     columnTypes[columnName].add(getValueType(row[columnName]));
+              //   }
+              // }
               // rows.forEach((row: any) => {
               // 	Object.keys(row).forEach(columnName => {
               // 		columnTypes[columnName].add(getValueType(row[columnName]));

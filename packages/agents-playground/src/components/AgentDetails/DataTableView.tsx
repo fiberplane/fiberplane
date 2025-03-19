@@ -1,4 +1,4 @@
-import type { ColumnType, Table } from "@/types";
+import type { DBColumnType, DBTable } from "@/types";
 import { ListSection } from "../ListSection";
 import {
   Table as FpTable,
@@ -10,9 +10,9 @@ import {
 } from "../ui/table";
 
 type TableRendererProps<
-  C extends Record<string, ColumnType[]> = Record<string, ColumnType[]>,
+  C extends Record<string, DBColumnType[]> = Record<string, DBColumnType[]>,
 > = {
-  table: Table<C>;
+  table: DBTable<C>;
   title?: string;
   className?: string;
   maxHeight?: string;
@@ -22,7 +22,7 @@ type TableRendererProps<
  * A component that renders data from a Table type with Tailwind styling
  */
 export function DataTableView<
-  C extends Record<string, ColumnType[]> = Record<string, ColumnType[]>,
+  C extends Record<string, DBColumnType[]> = Record<string, DBColumnType[]>,
 >({ table, title, className = "" }: TableRendererProps<C>) {
   const columnNames = Object.keys(table.columns);
 

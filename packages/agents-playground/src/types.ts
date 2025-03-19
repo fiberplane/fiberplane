@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // Define types for the result structure
-export type ColumnType =
+export type DBColumnType =
   | "string"
   | "number"
   | "boolean"
@@ -10,7 +10,7 @@ export type ColumnType =
   | "array";
 
 // Map SQLite column types to TypeScript types
-type TypeMapping<T extends ColumnType[]> = T extends ["string"]
+type TypeMapping<T extends DBColumnType[]> = T extends ["string"]
   ? string
   : T extends ["null", "string"]
     ? string | null
@@ -31,14 +31,14 @@ type TypeMapping<T extends ColumnType[]> = T extends ["string"]
                   : T extends ["array"]
                     ? unknown[]
                     : T extends Array<infer U>
-                      ? U extends ColumnType
+                      ? U extends DBColumnType
                         ? unknown
                         : never
                       : unknown;
 
 // Generic table type that ensures data matches column structure
-export type Table<
-  C extends Record<string, ColumnType[]> = Record<string, ColumnType[]>,
+export type DBTable<
+  C extends Record<string, DBColumnType[]> = Record<string, DBColumnType[]>,
 > = {
   columns: C;
   data: Array<{
@@ -46,7 +46,7 @@ export type Table<
   }>;
 };
 
-type T = Table<{
+type T = DBTable<{
   id: ["string", "null"];
 }>;
 
@@ -66,7 +66,7 @@ type Data = T["data"];
 // table.data
 
 // Database result type
-export type DatabaseResult = Record<string, Table>;
+export type DatabaseResult = Record<string, DBTable>;
 
 /**
  * Return type for the getDurableObjectsFromConfig function

@@ -1,7 +1,9 @@
-import type { Table } from "@/types";
+import type { DBTable } from "@/types";
 import { CircleDot } from "lucide-react";
 import { z } from "zod";
 import { ListSection } from "../ListSection";
+import { CodeMirrorJsonEditor } from "../CodeMirror";
+import { noop } from "@/lib/utils";
 
 // Define the possible column types
 const columnTypeEnum = z.enum([
@@ -17,15 +19,16 @@ const columnTypeEnum = z.enum([
 export const StateTableColumnsSchema = z
   .object({
     id: z.tuple([z.literal("string")]),
-    state: z.tuple([z.literal("string")]),
+    state: z.tuple([z.literal("null"), z.literal("string")]),
   })
   .strict();
 
 export type StateTableColumns = z.infer<typeof StateTableColumnsSchema>;
+export type StateDBTable = DBTable<StateTableColumns>;
 
 export const StateTableName = "cf_agents_state";
 
-export function StateTableView(props: { table: Table<StateTableColumns> }) {
+export function StateTableView(props: { table: StateDBTable }) {
   const {
     table: { data },
   } = props;
@@ -46,7 +49,7 @@ export function StateTableView(props: { table: Table<StateTableColumns> }) {
   }
 
   // Parse state as json blob and display it nicely indented
-  const state = JSON.parse(stateColumn.state);
+  const state = stateColumn.state && JSON.parse(stateColumn.state);
   const stateString = JSON.stringify(state, null, 2);
 
   return (
@@ -59,11 +62,26 @@ export function StateTableView(props: { table: Table<StateTableColumns> }) {
       }
       className="h-full"
     >
-      <div>
+      <CodeMirrorJsonEditor
+        value={stateString}
+        onChange={noop}
+        minHeight="auto"
+        readOnly
+      />
+      {/* <div>
         <pre className="text-foreground whitespace-pre-wrap font-mono">
           {stateString}
         </pre>
-      </div>
+      </div> */}
     </ListSection>
+  );
+}
+export function isStateTable(
+  name: string,
+  table: StateDBTable,
+): table is StateDBTable {
+  return (
+    name === StateTableName &&
+    StateTableColumnsSchema.safeParse(table.columns).success
   );
 }
