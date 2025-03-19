@@ -7,11 +7,6 @@ import {
   serializeSQLiteToJSON,
 } from "./utils";
 import { logger } from "hono/logger";
-import { initializeWatcher, setFileChangeCallback } from "./watcher";
-import {
-  initializeMessenger,
-  notifyClientsAboutAgentChange,
-} from "./messenger";
 
 type Options = {
   basePath?: string;
@@ -87,33 +82,13 @@ export function agentsPlugin(options: Options = {}) {
         return;
       }
 
-      // Get agent names
+      // Log agent names
       const agentNames = result.durableObjects.bindings.map(
         (binding) => binding.name,
       );
       console.log(
         `[Agents Plugin] Found ${agentNames.length} agents: ${agentNames.join(", ")}`,
       );
-
-      // Setup WebSocket server and messenger first
-      console.log(
-        `[Agents Plugin] Setting up messenger with basePath: ${basePath}`,
-      );
-      const wsServer = initializeMessenger(basePath, server);
-
-      if (!wsServer) {
-        console.error("[Agents Plugin] Failed to initialize messenger");
-        return;
-      }
-
-      // Connect watcher to messenger by setting callback
-      setFileChangeCallback((agent) => {
-        console.log(`[Agents Plugin] File change detected for agent: ${agent}`);
-        notifyClientsAboutAgentChange(agent);
-      });
-
-      // Initialize watcher with agent names - this will handle path initialization and start watching
-      initializeWatcher(server, agentNames);
     },
   };
 }
