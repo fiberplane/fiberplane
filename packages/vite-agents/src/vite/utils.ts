@@ -1,10 +1,15 @@
-import sqlite3 from "sqlite3";
-import { promisify } from "node:util";
 import fs from "node:fs";
 import path from "node:path";
-import toml from "toml";
+import { promisify } from "node:util";
 import { parse } from "jsonc-parser";
-import type { DurableObjectsResult, DurableObjectsSuccess } from "./types";
+import sqlite3 from "sqlite3";
+import toml from "toml";
+import type {
+  DurableObjectsResult,
+  DurableObjectsSuccess,
+  WebSocketMessage,
+  WebSocketMessageSchema,
+} from "./types";
 
 // Define types for the result structure
 export type ColumnType =
@@ -44,7 +49,7 @@ export type Table<
   }>;
 };
 
-// Database result type
+// Response for /api/agents/:id/instance/:instance/db/ (list tables)
 export type DatabaseResult = Record<string, Table>;
 
 // Helper function to determine the type of a value
@@ -200,17 +205,82 @@ export async function serializeSQLiteToJSON(
 export async function getSqlitePathForAgent(
   agent: string,
 ): Promise<string | undefined> {
-  const { name } = readConfigFile();
+  try {
+    // Read config to get the project name
+    const config = readConfigFile();
+    const projectName = config.name || "";
 
-  const files = await findSQLiteFiles(
-    `./.wrangler/state/v3/do/${name}-${agent}`,
-  );
+    if (!projectName) {
+      console.error(
+        "[SQLite] Could not determine project name from wrangler config",
+      );
+      return undefined;
+    }
 
-  if (files.length === 0) {
-    return;
+    // The directory path combines project name and agent name
+    const dirPath = `./.wrangler/state/v3/do/${projectName}-${agent}`;
+    console.log(`[SQLite] Looking for agent files in directory: ${dirPath}`);
+
+    try {
+      const files = await fs.promises.readdir(dirPath);
+      console.log(
+        `[SQLite] Found ${files.length} files in ${dirPath}: ${files.join(", ")}`,
+      );
+
+      // Find the first .sqlite file in the directory
+      const sqliteFile = files.find((file) => file.endsWith(".sqlite"));
+
+      if (!sqliteFile) {
+        console.log(
+          `[SQLite] No SQLite file found for agent ${agent} in ${dirPath}`,
+        );
+        return undefined;
+      }
+
+      const filePath = path.join(dirPath, sqliteFile);
+      console.log(`[SQLite] Found SQLite file for agent ${agent}: ${filePath}`);
+      return filePath;
+    } catch (err) {
+      console.error(`[SQLite] Error reading directory ${dirPath}:`, err);
+
+      // Try looking in the agent directory without project name prefix
+      const altDirPath = `./.wrangler/state/v3/do/${agent}`;
+      console.log(`[SQLite] Trying alternative path: ${altDirPath}`);
+
+      try {
+        const altFiles = await fs.promises.readdir(altDirPath);
+        console.log(
+          `[SQLite] Found ${altFiles.length} files in alternative path: ${altFiles.join(", ")}`,
+        );
+
+        const sqliteFile = altFiles.find((file) => file.endsWith(".sqlite"));
+        if (!sqliteFile) {
+          console.log(
+            `[SQLite] No SQLite file found in alternative path for agent ${agent}`,
+          );
+          return undefined;
+        }
+
+        const filePath = path.join(altDirPath, sqliteFile);
+        console.log(
+          `[SQLite] Found SQLite file for agent ${agent} in alternative path: ${filePath}`,
+        );
+        return filePath;
+      } catch (altErr) {
+        console.error(
+          `[SQLite] Alternative path also failed for agent ${agent}:`,
+          altErr,
+        );
+        return undefined;
+      }
+    }
+  } catch (error) {
+    console.error(
+      `[SQLite] Error finding SQLite file for agent ${agent}:`,
+      error,
+    );
+    return undefined;
   }
-
-  return files[0];
 }
 
 /**
