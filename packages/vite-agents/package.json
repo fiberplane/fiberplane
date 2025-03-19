@@ -7,6 +7,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./vite": {
+      "types": "./dist/vite/index.d.ts",
+      "import": "./dist/vite/index.js"
     }
   },
   "publishConfig": {
@@ -15,47 +19,48 @@
       ".": {
         "types": "./dist/index.d.ts",
         "import": "./dist/index.js"
+      },
+      "./vite": {
+        "types": "./dist/vite/index.d.ts",
+        "import": "./dist/vite/index.js"
       }
     }
   },
   "scripts": {
-    "build:alias": "tsc-alias -p tsconfig.json -f",
-    "build:types": "tsc --project tsconfig.json",
-    "build": "pnpm run clean && npm run build:types && pnpm run build:alias",
-    "clean": "rm -rf dist",
-    "dev:wrangler": "wrangler dev src/server.ts",
-    "dev": "vite dev",
+    "dev": "tsup --watch",
+    "build": "tsup",
     "format": "biome format --write",
+    "typecheck": "tsc --noEmit",
     "lint": "biome lint",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "typecheck": "tsc --noEmit"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@hono/node-ws": "^1.1.0",
+    "ai": "^4.1.61",
+    "chokidar": "^3.6.0",
     "clsx": "^2.1.1",
+    "hono": "^4.7.4",
     "jsonc-parser": "^3.3.1",
     "mime-types": "^2.1.35",
     "sqlite3": "^5.1.7",
     "toml": "^3.0.0",
-    "wrangler": "^4.0.0",
+    "wrangler": "^4.1.0",
     "ws": "^8.18.1",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@cloudflare/workers-types": "^4.20250311.0",
+    "@cloudflare/workers-types": "^4.20250317.0",
     "@types/ws": "^8.18.0",
-    "@vitejs/plugin-react": "^4.3.4",
-    "agents-sdk": "^0.0.27",
-    "autoprefixer": "^10.4.21",
-    "drizzle-kit": "^0.30.5",
-    "drizzle-orm": "^0.40.0",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^4.0.12",
-    "tsc-alias": "^1.8.10",
+    "tsup": "^8.3.5",
     "typescript": "^5.8.2",
-    "vite": "^6.2.1"
+    "vite": "^6.2.2"
+  },
+  "peerDependencies": {
+    "agents": "^0.0.39"
   }
 }
