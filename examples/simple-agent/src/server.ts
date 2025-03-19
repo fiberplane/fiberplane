@@ -4,8 +4,8 @@ import {
   routeAgentRequest,
   type Agent,
   type Schedule,
-} from "agents-sdk";
-import { AIChatAgent } from "agents-sdk/ai-chat-agent";
+} from "agents";
+import { AIChatAgent } from "agents/ai-chat-agent";
 import {
   createDataStreamResponse,
   generateId,

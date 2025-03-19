@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useAgent } from "agents-sdk/react";
-import { useAgentChat } from "agents-sdk/ai-react";
+import { useAgent } from "agents/react";
+import { useAgentChat } from "agents/ai-react";
 import type { Message } from "@ai-sdk/react";
 import { APPROVAL } from "./shared";
 import type { tools } from "./tools";
