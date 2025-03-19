@@ -6,6 +6,9 @@ import { z } from "zod";
 export type DurableObjectsSuccess = {
   success: true;
   durableObjects: {
+    instances: {
+      name: string;
+    }[];
     bindings: {
       name: string;
       className: string;
