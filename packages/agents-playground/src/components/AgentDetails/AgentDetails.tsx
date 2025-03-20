@@ -172,9 +172,9 @@ export function AgentDetails({
                 <ListIcon className="w-3.5" />
                 Details
               </FpTabsTrigger>
-              <FpTabsTrigger value="History" className="flex gap-2">
+              <FpTabsTrigger value="Events" className="flex gap-2">
                 <History className="w-3.5" />
-                History
+                Events
               </FpTabsTrigger>
             </FpTabsList>
             <FpTabsContent
@@ -193,7 +193,7 @@ export function AgentDetails({
                 className="border border-muted rounded-lg"
               />
             </FpTabsContent>
-            <FpTabsContent value="History">
+            <FpTabsContent value="Events">
               <EventsView namespace={agentDetails.id} instance={instance} />
             </FpTabsContent>
           </FpTabs>

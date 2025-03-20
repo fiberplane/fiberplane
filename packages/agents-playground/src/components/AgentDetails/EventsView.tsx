@@ -280,7 +280,6 @@ export function EventsView(props: { namespace: string; instance: string }) {
       "ws_open",
       "ws_message",
       "ws_close",
-      "stream_open",
       "stream_close",
       "stream_error",
     ],
