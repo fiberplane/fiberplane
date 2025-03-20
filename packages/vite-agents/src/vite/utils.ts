@@ -7,8 +7,6 @@ import toml from "toml";
 import type {
   DurableObjectsResult,
   DurableObjectsSuccess,
-  WebSocketMessage,
-  WebSocketMessageSchema,
 } from "./types";
 
 // Define types for the result structure
@@ -343,6 +341,7 @@ export function getDurableObjectsFromConfig(): DurableObjectsResult {
       durableObjects: {
         bindings: [],
         migrations: [],
+        instances: [],
       },
     };
 

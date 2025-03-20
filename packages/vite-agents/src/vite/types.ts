@@ -36,40 +36,19 @@ export type AgentDetails = {
 
 export type ListAgentsResponse = Array<AgentDetails>;
 
-// WebSocket Types
-export const SubscribeSchema = z.object({
-  type: z.literal("subscribe"),
-  payload: z.object({
-    agent: z.string(),
-  }),
-});
-
-export const UnsubscribeSchema = z.object({
-  type: z.literal("unsubscribe"),
-  payload: z.object({
-    agent: z.string(),
-  }),
-});
-
-export const UpdateSchema = z.object({
-  type: z.literal("update"),
-  payload: z.object({
-    agent: z.string(),
-  }),
-});
-
-export const AgentUpdatedSchema = z.object({
-  type: z.literal("agentUpdated"),
-  payload: z.object({
-    agent: z.string(),
-  }),
-});
-
-export const WebSocketMessageSchema = z.discriminatedUnion("type", [
-  SubscribeSchema,
-  UnsubscribeSchema,
-  UpdateSchema,
-  AgentUpdatedSchema,
+// Event types
+export const AgentEventTypeSchema = z.enum([
+  "stream_open",
+  "http_request",
+  "ws_open",
+  "ws_close",
+  "ws_message",
+  "state_change",
 ]);
 
-export type WebSocketMessage = z.infer<typeof WebSocketMessageSchema>;
+export const AgentEventSchema = z.object({
+  event: AgentEventTypeSchema,
+  payload: z.any().optional(),
+});
+
+export type AgentEvent = z.infer<typeof AgentEventSchema>;
