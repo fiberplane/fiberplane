@@ -38,7 +38,7 @@ export default defineConfig({
       },
       "/agents/": {
         target: embeddedApiUrl,
-        ws: true,
+        // ws: true,
       },
     },
     cors: true,

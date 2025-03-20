@@ -2,12 +2,12 @@ import { getRequestListener } from "@hono/node-server";
 import { Hono } from "hono";
 import { logger } from "hono/logger";
 import type { ViteDevServer } from "vite";
+import type { DurableObjectsSuccess, ListAgentsResponse } from "./types";
 import {
   getDurableObjectsFromConfig,
   getSqlitePathForAgent,
   serializeSQLiteToJSON,
 } from "./utils";
-import type { DurableObjectsSuccess, ListAgentsResponse } from "./types";
 
 type Options = {
   basePath?: string;

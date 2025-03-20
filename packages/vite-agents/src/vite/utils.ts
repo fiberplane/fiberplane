@@ -4,7 +4,10 @@ import { promisify } from "node:util";
 import { parse } from "jsonc-parser";
 import sqlite3 from "sqlite3";
 import toml from "toml";
-import type { DurableObjectsResult, DurableObjectsSuccess } from "./types";
+import type {
+  DurableObjectsResult,
+  DurableObjectsSuccess,
+} from "./types";
 
 // Define types for the result structure
 export type ColumnType =
@@ -323,6 +326,7 @@ export function getDurableObjectsFromConfig(): DurableObjectsResult {
       durableObjects: {
         bindings: [],
         migrations: [],
+        instances: [],
       },
     };
 
