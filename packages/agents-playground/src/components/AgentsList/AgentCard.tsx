@@ -46,7 +46,7 @@ export function AgentCard({
         <span className="text-xs text-muted-foreground font-bold">
           Instances:
         </span>
-        <div>
+        <div className="flex gap-2">
           {agent.instances.length > 0 &&
             agent.instances.map((instance) => (
               <Button
