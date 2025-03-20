@@ -259,6 +259,15 @@ export function Fiber() {
         super.onConnect(connection, ctx);
       }
 
+      onClose(connection: Connection, code: number, reason: string, wasClean: boolean): void {
+        this.recordEvent({
+          event: "ws_close",
+          payload: { connection, code, reason, wasClean },
+        });
+
+        super.onClose(connection, code, reason, wasClean);
+      }
+
       onRequest(request: Request): Response | Promise<Response> {
         this.recordEvent({
           event: "http_request",
