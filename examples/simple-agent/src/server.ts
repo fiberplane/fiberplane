@@ -19,6 +19,17 @@ export type Env = {
   Chat: AgentNamespace<Chat>;
 };
 
+interface MemoryState {
+  memories: Record<
+    string,
+    {
+      value: string;
+      timestamp: string;
+      context?: string;
+    }
+  >;
+}
+
 // we use ALS to expose the agent context to the tools
 export const agentContext = new AsyncLocalStorage<Chat>();
 
@@ -28,6 +39,10 @@ export { Chat };
  */
 @Fiber()
 class Chat extends AIChatAgent<Env> {
+  initializeState() {
+    return { memories: {} };
+  }
+
   /**
    * Handles incoming chat messages and manages the response stream
    * @param onFinish - Callback function executed when streaming completes
