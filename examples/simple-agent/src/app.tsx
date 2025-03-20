@@ -10,6 +10,7 @@ import { Input } from "./components/ui/input";
 import { Avatar, AvatarFallback } from "./components/ui/avatar";
 import { Switch } from "./components/ui/switch";
 import { Send, Bot, Trash2, Sun, Moon, Bug } from "lucide-react";
+import { useQueryState } from 'nuqs';
 
 // List of tools that require human confirmation
 const toolsRequiringConfirmation: (keyof typeof tools)[] = [
@@ -24,6 +25,7 @@ export default function Chat() {
   });
   const [showDebug, setShowDebug] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [agentName] = useQueryState('agent');
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -53,9 +55,9 @@ export default function Chat() {
     setTheme(newTheme);
   };
 
-  const agent = useAgent({
-    agent: "chat",
-  });
+  const agent = useAgent(
+    agentName ? { agent: "chat", name: agentName } : { agent: "chat" }
+  );
 
   const {
     messages: agentMessages,
