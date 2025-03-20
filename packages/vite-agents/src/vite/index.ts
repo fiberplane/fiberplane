@@ -51,42 +51,42 @@ export function agentsPlugin(options: Options = {}) {
     return c.json(agentsResponse, 200);
   });
 
-  router.get("/api/agents/:namespace/instances", async (c) => {
-    const namespace = c.req.param("namespace").toLowerCase();
-    console.log(
-      `[Agents Plugin] GET /api/agents/${namespace}/instances requested`,
-    );
+  // router.get("/api/agents/:namespace/instances", async (c) => {
+  //   const namespace = c.req.param("namespace").toLowerCase();
+  //   console.log(
+  //     `[Agents Plugin] GET /api/agents/${namespace}/instances requested`,
+  //   );
 
-    // Return the stored instances for the namespace
-    const data = namespaceMap.get(namespace);
-    const instances = data ? Array.from(data.instances) : [];
+  //   // Return the stored instances for the namespace
+  //   const data = namespaceMap.get(namespace);
+  //   const instances = data ? Array.from(data.instances) : [];
 
-    return c.json(
-      {
-        namespace,
-        instances,
-      },
-      200,
-    );
-  });
+  //   return c.json(
+  //     {
+  //       namespace,
+  //       instances,
+  //     },
+  //     200,
+  //   );
+  // });
 
-  router.get("/api/agents/:id/db", async (c) => {
-    const id = c.req.param("id").toLowerCase();
-    console.log(`[Agents Plugin] GET /api/agents/${id}/db requested`);
+  // router.get("/api/agents/:id/db", async (c) => {
+  //   const id = c.req.param("id").toLowerCase();
+  //   console.log(`[Agents Plugin] GET /api/agents/${id}/db requested`);
 
-    const filePath = await getSqlitePathForAgent(id);
-    console.log(
-      `[Agents Plugin] SQLite path for agent ${id}:`,
-      filePath || "not found",
-    );
+  //   const filePath = await getSqlitePathForAgent(id);
+  //   console.log(
+  //     `[Agents Plugin] SQLite path for agent ${id}:`,
+  //     filePath || "not found",
+  //   );
 
-    if (filePath === undefined) {
-      return c.json({ error: "No database found" }, 404);
-    }
+  //   if (filePath === undefined) {
+  //     return c.json({ error: "No database found" }, 404);
+  //   }
 
-    const result = await serializeSQLiteToJSON(filePath);
-    return c.json(result, 200);
-  });
+  //   const result = await serializeSQLiteToJSON(filePath);
+  //   return c.json(result, 200);
+  // });
 
   // Load durable objects config
   function loadDurableObjectsConfig() {
