@@ -19,9 +19,16 @@ export type Env = {
   Chat: AgentNamespace<Chat>;
 };
 
-export type State = {
-  lastUpdated: number;
-};
+interface MemoryState {
+  memories: Record<
+    string,
+    {
+      value: string;
+      timestamp: string;
+      context?: string;
+    }
+  >;
+}
 
 // we use ALS to expose the agent context to the tools
 export const agentContext = new AsyncLocalStorage<Chat>();
@@ -31,21 +38,18 @@ export { Chat };
  * Chat Agent implementation that handles real-time AI chat interactions
  */
 @Fiber()
-class Chat extends AIChatAgent<Env> {
+class Chat extends AIChatAgent<Env, MemoryState> {
+  initializeState() {
+    return { memories: {} };
+  }
+
   /**
    * Handles incoming chat messages and manages the response stream
    * @param onFinish - Callback function executed when streaming completes
    */
 
-  initialState: State = {
-    lastUpdated: Date.now(),
-  };
-
   // biome-ignore lint/complexity/noBannedTypes: <explanation>
   async onChatMessage(onFinish: StreamTextOnFinishCallback<{}>) {
-    this.setState({
-      lastUpdated: Date.now(),
-    });
 
     // Create a streaming response that handles both text and tool outputs
     return agentContext.run(this, async () => {
