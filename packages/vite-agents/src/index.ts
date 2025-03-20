@@ -1,4 +1,3 @@
-
 import type { Agent, Connection, ConnectionContext } from "agents";
 import { AIChatAgent } from "agents/ai-chat-agent";
 import { Hono } from "hono";
@@ -240,6 +239,18 @@ export function Fiber() {
         });
 
         super.onStateUpdate(state, source);
+      }
+
+      onMessage(connection: Connection, message: WSMessage) {
+        this.recordEvent({
+          event: "ws_message",
+          payload: {
+            connection,
+            message,
+          },
+        });
+
+        super.onMessage(connection, message);
       }
 
       onConnect(connection: Connection, ctx: ConnectionContext) {

@@ -41,6 +41,8 @@ export type ListAgentsResponse = Array<AgentDetails>;
 // Event types
 export const AgentEventTypeSchema = z.enum([
   "stream_open",
+  "stream_error",
+  "stream_close",
   "http_request",
   "ws_open",
   "ws_close",
