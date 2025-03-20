@@ -38,6 +38,8 @@ export function agentsPlugin(options: Options = {}) {
     for (const [name, data] of namespaceMap) {
       agentsResponse.push({
         id: name,
+        className: data.className,
+        scriptName: data.scriptName,
         instances: Array.from(data.instances),
       });
     }

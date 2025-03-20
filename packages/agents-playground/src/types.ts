@@ -46,52 +46,18 @@ export type DBTable<
   }>;
 };
 
-type T = DBTable<{
-  id: ["string", "null"];
-}>;
-
-type Data = T["data"];
-
-// const table: T = {
-// 	columns: {
-// 		id: ["string"],
-// 	},
-// 	data: [
-// 		{
-// 			id: "1",
-// 		},
-// 	],
-// };
-
-// table.data
-
 // Database result type
 export type DatabaseResult = Record<string, DBTable>;
 
-/**
- * Return type for the getDurableObjectsFromConfig function
- */
-export type DurableObjectsSuccess = {
-  success: true;
-  durableObjects: {
-    bindings: {
-      name: string;
-      className: string;
-      scriptName: string | null;
-    }[];
-    migrations: {
-      tag?: string;
-      newClasses: string[];
-    }[];
-  };
+// API Types
+export type AgentDetails = {
+  id: string;
+  scriptName: string | null;
+  className: string;
+  instances: Array<string>;
 };
 
-export type DurableObjectsError = {
-  success: false;
-  error: string;
-};
-
-export type DurableObjectsResult = DurableObjectsSuccess | DurableObjectsError;
+export type ListAgentsResponse = Array<AgentDetails>;
 
 export const SubscribeSchema = z.object({
   type: z.literal("subscribe"),

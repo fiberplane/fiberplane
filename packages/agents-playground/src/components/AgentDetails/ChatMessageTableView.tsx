@@ -287,6 +287,7 @@ export const ChatMessagesRenderer = ({ data }: Props) => {
           <span className="text-muted-foreground">({data.length} total)</span>
         </div>
       }
+    // contentClassName="max-h-[70vh] overflow-y-auto"
     >
       <div className="space-y-2">
         {data.map((message) => (
