@@ -1,4 +1,4 @@
-import type { Agent, Connection, ConnectionContext } from "agents";
+import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
 import { AIChatAgent } from "agents/ai-chat-agent";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
@@ -118,12 +118,6 @@ function createAgentAdminRouter(agent: FiberDecoratedAgent) {
             for (const columnName of columnNames) {
               const value = row[columnName as keyof typeof row];
               typedRow[columnName] = value;
-
-              // // Track column types
-              // const valueType = getValueType(value);
-              // if (!columns[columnName].includes(valueType)) {
-              //   columns[columnName].push(valueType);
-              // }
             }
 
             data.push(typedRow);
@@ -151,7 +145,7 @@ function createAgentAdminRouter(agent: FiberDecoratedAgent) {
     }
   });
 
-  router.get("/agents/:namespace/:instance/events", async (c) => {
+  router.get("/agents/:namespace/:instance/admin/events", async (c) => {
     if (!agent.activeStreams) {
       agent.activeStreams = new Set();
     }

@@ -35,6 +35,10 @@ export function useSSE<T = unknown>(
   }, []);
 
   useEffect(() => {
+    // close();
+    if (eventSourceRef.current) {
+      return;
+    }
     // Create a new EventSource connection
     const eventSource = new EventSource(url, {
       withCredentials: options.withCredentials,
@@ -46,18 +50,19 @@ export function useSSE<T = unknown>(
       setStatus("open");
       options.onOpen?.();
     };
-
+    eventSource.addEventListener('message', console.log)
     // Handle incoming messages
-    eventSource.onmessage = (event: MessageEvent) => {
-      try {
-        const parsedData = JSON.parse(event.data);
-        setData(parsedData);
-      } catch (e) {
-        // Handle non-JSON data
-        setData(event.data);
-      }
-      options.onMessage?.(event);
-    };
+    // eventSource.onmessage = (event: MessageEvent) => {
+    //   console.log('on message', event.data);
+    //   try {
+    //     const parsedData = JSON.parse(event.data);
+    //     setData(parsedData);
+    //   } catch (e) {
+    //     // Handle non-JSON data
+    //     setData(event.data);
+    //   }
+    //   options.onMessage?.(event);
+    // };
 
     // Handle errors
     eventSource.onerror = (error: Event) => {
@@ -83,5 +88,5 @@ export function useSSE<T = unknown>(
     options.onOpen,
   ]);
 
-  return { status, data, close };
+  return { status, data, close, eventSourceRef };
 }
