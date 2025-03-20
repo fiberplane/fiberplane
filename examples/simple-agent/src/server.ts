@@ -1,22 +1,17 @@
-import {
-  type AgentNamespace,
-  type Connection,
-  routeAgentRequest,
-  type Agent,
-  type Schedule,
-} from "agents";
+import { AsyncLocalStorage } from "node:async_hooks";
+import { createOpenAI } from "@ai-sdk/openai";
+import { Fiber } from "@fiberplane/agents";
+import { type AgentNamespace, type Schedule, routeAgentRequest } from "agents";
 import { AIChatAgent } from "agents/ai-chat-agent";
 import {
+  type Message,
+  type StreamTextOnFinishCallback,
   createDataStreamResponse,
   generateId,
-  type Message,
   streamText,
-  type StreamTextOnFinishCallback,
 } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
+import { executions, tools } from "./tools";
 import { processToolCalls } from "./utils";
-import { tools, executions } from "./tools";
-import { AsyncLocalStorage } from "node:async_hooks";
 
 // Environment variables type definition
 export type Env = {
@@ -30,10 +25,13 @@ export type State = {
 
 // we use ALS to expose the agent context to the tools
 export const agentContext = new AsyncLocalStorage<Chat>();
+
+export { Chat };
 /**
  * Chat Agent implementation that handles real-time AI chat interactions
  */
-export class Chat extends AIChatAgent<Env, State> {
+@Fiber()
+class Chat extends AIChatAgent<Env> {
   /**
    * Handles incoming chat messages and manages the response stream
    * @param onFinish - Callback function executed when streaming completes
@@ -122,4 +120,4 @@ export default {
       new Response("Not found", { status: 404 })
     );
   },
-} satisfies ExportedHandler<Env>;
+};

@@ -1,6 +1,6 @@
 import type { DatabaseResult, ListAgentsResponse } from "@/types";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ListSection } from "../ListSection";
 import { DataTableView } from "./DataTableView";
 import {
@@ -22,6 +22,7 @@ import {
 import { FpTabs, FpTabsContent, FpTabsList, FpTabsTrigger } from "../ui/tabs";
 import { cn, noop } from "@/lib/utils";
 import { Database, History, ListIcon } from "lucide-react";
+import { TabsContent } from "@radix-ui/react-tabs";
 
 const POLL_INTERVAL = 2000;
 
@@ -29,7 +30,8 @@ function useAgentDB(namespace: string, instance: string) {
 	return useQuery({
 		queryKey: ["agent_db", namespace, instance],
 		queryFn: () =>
-			fetch(`/agents/${namespace}/${instance}/admin/db`).then((res) =>
+			// fetch(`/agents/${namespace}/${instance}/admin/db`).then((res) =>
+			fetch(`/fp-agents/api/agents/${namespace}/db`).then((res) =>
 				res.json(),
 			) as Promise<DatabaseResult>,
 	});
@@ -41,22 +43,80 @@ export function AgentDetails({
 	const { data: db, refetch } = useAgentDB(agentDetails.id, instance);
 	const ref = useRef<WebSocket | null>(null);
 
-	const stateTable =
-		db &&
-		(Object.entries(db).find(([name, table]) =>
-			isStateTable(name, table as StateDBTable),
-		)?.[1] as undefined | StateDBTable);
-	const messagesTable =
-		db &&
-		(Object.entries(db).find(([name, table]) =>
-			isMessagesTable(name, table as MessagesTable),
-		)?.[1] as undefined | MessagesTable);
 
 	useEffect(() => {
-		setInterval(refetch, POLL_INTERVAL);
+		const id = setInterval(refetch, POLL_INTERVAL);
+		return () => clearInterval(id);
 	}, [refetch]);
 
-	const [activeTab, setActiveTab] = useState("messages");
+	const [activeTab, setActiveTab] = useState("");
+	// const 
+	useEffect(() => {
+		if (!db || activeTab !== "") {
+			return;
+		}
+		const keys = Object.keys(db);
+		if (keys.length === 0) {
+			return;
+		}
+
+		setActiveTab(keys[0]);
+	}, [activeTab, db])
+
+	const tabContent: Array<{
+		title: ReactNode;
+		key: string;
+		content: ReactNode;
+	}> = useMemo(() => {
+		if (!db) {
+			return [];
+		}
+
+		return Object.entries(db).map(([tableName, data]) => {
+			if (
+				tableName.startsWith("_cf")
+			) {
+				return null;
+			}
+
+			if (isMessagesTable(tableName, data as MessagesTable)) {
+				return {
+					title: "Messages",
+					key: tableName,
+					content: <ChatMessagesRenderer data={data.data as MessagesTable["data"]} />,
+				};
+			}
+
+			if (
+				tableName === "cf_agents_schedules" &&
+				ScheduleColumnsSchema.safeParse(data.columns).success
+			) {
+				return {
+					title: "Schedule",
+					key: tableName,
+					content: <ScheduleTableView table={data as ScheduleDBTable} />,
+				};
+			}
+
+			if (isStateTable(tableName, data as StateDBTable)) {
+				return {
+					title: "State",
+					key: tableName,
+					content: <StateTableView table={data as StateDBTable} />,
+				}
+			}
+
+			return {
+				title: tableName,
+				key: tableName,
+				content: <DataTableView table={data} title={tableName} />,
+			};
+		}).filter(Boolean) as Array<{
+			title: ReactNode;
+			key: string;
+			content: ReactNode;
+		}>;
+	}, [db]);
 
 	return (
 		<ListSection
@@ -81,7 +141,14 @@ export function AgentDetails({
 					)}
 				>
 					<FpTabsList className="bg-transparent">
-						<FpTabsTrigger value="messages" className="flex gap-2">
+						{tabContent.map(({ title, key }) => (
+							<FpTabsTrigger key={key} value={key} className="flex gap-2">
+								<Database className="w-3.5" />
+								{title}
+							</FpTabsTrigger>
+						))}
+
+						{/* <FpTabsTrigger value="messages" className="flex gap-2">
 							<Database className="w-3.5" />
 							Messages
 						</FpTabsTrigger>
@@ -92,7 +159,7 @@ export function AgentDetails({
 						<FpTabsTrigger value="state" className="flex gap-2">
 							<Database className="w-3.5" />
 							State
-						</FpTabsTrigger>
+						</FpTabsTrigger> */}
 						{/* <FpTabsTrigger value="Details" className="flex gap-2">
 						<ListIcon className="w-3.5" />Details
 					</FpTabsTrigger>
@@ -100,7 +167,12 @@ export function AgentDetails({
 						<History className="w-3.5" />History
 					</FpTabsTrigger> */}
 					</FpTabsList>
-					<FpTabsContent
+					{tabContent.map(({ key, content }) => (
+						<TabsContent key={key} value={key}>
+							{content}
+						</TabsContent>
+					))}
+					{/* <FpTabsContent
 						value="messages"
 						className={cn(
 							// Need a lil bottom padding to avoid clipping the inputs of the last row in the form
@@ -139,7 +211,7 @@ export function AgentDetails({
 						<ListSection title="Details" contentClassName="gap-2 grid">
 							{stateTable && <StateTableView table={stateTable} />}
 						</ListSection>
-					</FpTabsContent>
+					</FpTabsContent> */}
 				</FpTabs>
 				<div>
 					<FpTabs
