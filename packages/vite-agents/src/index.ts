@@ -21,7 +21,7 @@ type AgentConstructor<E = unknown, S = unknown> = new (
 function createAgentAdminRouter(agent: FiberDecoratedAgent) {
   const router = new Hono();
 
-  router.get("/agents/:namespace/:instance/db", async (c) => {
+  router.get("/agents/:namespace/:instance/admin/db", async (c) => {
     try {
       const dbResult: DatabaseResult = {};
 
@@ -45,7 +45,14 @@ function createAgentAdminRouter(agent: FiberDecoratedAgent) {
           const pragmaQuery = `PRAGMA table_info("${tableName}")`;
           const columnInfo = agent.sql(
             Object.assign([pragmaQuery], { raw: [pragmaQuery] }),
-          );
+          ) as Array<{
+            cid: number; // Column index/position (0-based)
+            name: string; // Column name
+            type: string; // Declared data type (TEXT, INTEGER, etc.)
+            notnull: number; // 1 if NOT NULL constraint exists, 0 if NULL allowed
+            dflt_value: unknown; // Default value or null if no default
+            pk: number; // 1 if column is part of PRIMARY KEY, 0 otherwise
+          }>;
 
           // Collect column names and initialize column types
           const columns: Record<string, ColumnType[]> = {};
@@ -55,7 +62,34 @@ function createAgentAdminRouter(agent: FiberDecoratedAgent) {
             if (column.name) {
               const colName = String(column.name);
               columnNames.push(colName);
-              columns[colName] = [];
+              const columnTypes: Array<ColumnType> = []
+              columns[colName] = columnTypes;
+              if (column.notnull === 0) {
+                columns[colName].push("null");
+              }
+
+              // Determine the column type based on the column's declared type
+              switch (column.type.toUpperCase()) {
+                case "TEXT":
+                  columnTypes.push("string");
+                  break;
+                case "INTEGER":
+                  columnTypes.push("number");
+                  break;
+                case "REAL":
+                  columnTypes.push("number");
+                  break;
+                case "BOOLEAN":
+                  columnTypes.push("boolean");
+                  break;
+                case "BLOB":
+                  columnTypes.push("object");
+                  break;
+                default:
+                  columnTypes.push("string");
+                  break;
+              }
+
             }
           }
 
@@ -84,12 +118,6 @@ function createAgentAdminRouter(agent: FiberDecoratedAgent) {
             for (const columnName of columnNames) {
               const value = row[columnName as keyof typeof row];
               typedRow[columnName] = value;
-
-              // Track column types
-              const valueType = getValueType(value);
-              if (!columns[columnName].includes(valueType)) {
-                columns[columnName].push(valueType);
-              }
             }
 
             data.push(typedRow);
@@ -117,7 +145,7 @@ function createAgentAdminRouter(agent: FiberDecoratedAgent) {
     }
   });
 
-  router.get("/agents/:namespace/:instance/events", async (c) => {
+  router.get("/agents/:namespace/:instance/admin/events", async (c) => {
     if (!agent.activeStreams) {
       agent.activeStreams = new Set();
     }
@@ -229,6 +257,15 @@ export function Fiber() {
         });
 
         super.onConnect(connection, ctx);
+      }
+
+      onClose(connection: Connection, code: number, reason: string, wasClean: boolean): void {
+        this.recordEvent({
+          event: "ws_close",
+          payload: { connection, code, reason, wasClean },
+        });
+
+        super.onClose(connection, code, reason, wasClean);
       }
 
       onRequest(request: Request): Response | Promise<Response> {

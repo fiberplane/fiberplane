@@ -1,9 +1,18 @@
-import type { ColumnType, Table } from "@/plugin/utils";
+import type { DBColumnType, DBTable } from "@/types";
+import { ListSection } from "../ListSection";
+import {
+  Table as FpTable,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
 
 type TableRendererProps<
-  C extends Record<string, ColumnType[]> = Record<string, ColumnType[]>,
+  C extends Record<string, DBColumnType[]> = Record<string, DBColumnType[]>,
 > = {
-  table: Table<C>;
+  table: DBTable<C>;
   title?: string;
   className?: string;
   maxHeight?: string;
@@ -13,7 +22,7 @@ type TableRendererProps<
  * A component that renders data from a Table type with Tailwind styling
  */
 export function DataTableView<
-  C extends Record<string, ColumnType[]> = Record<string, ColumnType[]>,
+  C extends Record<string, DBColumnType[]> = Record<string, DBColumnType[]>,
 >({ table, title, className = "" }: TableRendererProps<C>) {
   const columnNames = Object.keys(table.columns);
 
@@ -38,23 +47,33 @@ export function DataTableView<
   };
 
   return (
-    <div
-      className={`rounded-md border border-gray-200 shadow grid grid-rows-[auto_1fr] ${className}`}
+    // <div
+    // className={`rounded-md border border-gray-200 shadow grid grid-rows-[auto_1fr] ${className}`}
+    // >
+    <ListSection
+      title={
+        title && (
+          <div
+          // className="bg-gray-50 px-4 py-2 border-b border-gray-200"
+          >
+            <h3 className="text-lg font-medium text-foreground px-2">
+              {title}
+            </h3>
+          </div>
+        )
+      }
+      className={className}
     >
-      {title && (
-        <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-700">{title}</h3>
-        </div>
-      )}
-
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="sticky top-0 bg-white">
+      <FpTable className="border-0">
+        <TableHeader
+        //  className="sticky top-0 bg-white"
+        >
           <tr>
             {columnNames.map((column) => (
-              <th
+              <TableHead
                 key={column}
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                // className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
                 <div className="flex items-center font-medium">
                   <span>{column}</span>
@@ -62,40 +81,43 @@ export function DataTableView<
                     [{table.columns[column].join("|")}]
                   </span>
                 </div>
-              </th>
+              </TableHead>
             ))}
           </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        </TableHeader>
+        <TableBody
+        //  className="bg-white divide-y divide-gray-200"
+        >
           {table.data.length === 0 ? (
-            <tr>
-              <td
+            <TableRow>
+              <TableCell
                 colSpan={columnNames.length}
-                className="px-6 py-4 text-center text-sm text-gray-500 italic"
+                // className="px-6 py-4 text-center text-sm text-gray-500 italic"
               >
                 No data available
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ) : (
             table.data.map((row, rowIndex) => (
-              <tr
+              <TableRow
                 key={rowIndex}
-                className={rowIndex % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                // className={rowIndex % 2 === 0 ? "bg-gray-50" : "bg-white"}
               >
                 {columnNames.map((column) => (
-                  <td
+                  <TableCell
                     key={`${rowIndex}-${column}`}
-                    className="px-6 py-2 whitespace-nowrap text-sm text-gray-800"
+                    // className="px-6 py-2 whitespace-nowrap text-sm text-gray-800"
                   >
                     {renderCellContent(row[column])}
-                  </td>
+                  </TableCell>
                 ))}
-              </tr>
+              </TableRow>
             ))
           )}
-        </tbody>
-      </table>
-    </div>
+        </TableBody>
+      </FpTable>
+    </ListSection>
+    // </div>
   );
 }
 

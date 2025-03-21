@@ -1,9 +1,9 @@
 import {
-  env,
   createExecutionContext,
+  env,
   waitOnExecutionContext,
 } from "cloudflare:test";
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 // Could import any other source file/function here
 import worker, { type Env } from "../src/server";
 

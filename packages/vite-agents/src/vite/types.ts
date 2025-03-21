@@ -31,6 +31,8 @@ export type DurableObjectsResult = DurableObjectsSuccess | DurableObjectsError;
 // API Types
 export type AgentDetails = {
   id: string;
+  scriptName: string | null;
+  className: string;
   instances: Array<string>;
 };
 

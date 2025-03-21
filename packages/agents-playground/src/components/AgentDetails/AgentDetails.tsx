@@ -1,200 +1,204 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useAgent } from "./useAgent";
-import { ConnectionStatus } from "./ConnectionStatus";
+import type { DatabaseResult, ListAgentsResponse } from "@/types";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { ListSection } from "../ListSection";
 import { DataTableView } from "./DataTableView";
-import type { DatabaseResult, DurableObjectsSuccess } from "@/types";
-// import { useWebSocket } from "./useWebSocket"
-import { MessageSchema } from "@/types";
+import {
+  isStateTable,
+  type StateDBTable,
+  StateTableView,
+} from "./StateTableView";
+import { KeyValueTable } from "../KeyValueTable";
+import {
+  ChatMessagesRenderer,
+  isMessagesTable,
+  type MessagesTable,
+} from "./ChatMessageTableView";
+import {
+  ScheduleColumnsSchema,
+  ScheduleTableView,
+  type ScheduleDBTable,
+} from "./SchedulaTableView";
+import { FpTabs, FpTabsContent, FpTabsList, FpTabsTrigger } from "../ui/tabs";
+import { cn, noop } from "@/lib/utils";
+import { Database, History, ListIcon, Sidebar } from "lucide-react";
+import { TabsContent } from "@radix-ui/react-tabs";
+import { EventsView } from "./EventsView";
 
-function useAgentDB(id: string) {
-	return useQuery({
-		queryKey: ["agent_db", id],
-		queryFn: () =>
-			fetch(`/fp-agents/api/agents/${id}/db`).then((res) =>
-				res.json(),
-			) as Promise<DatabaseResult>,
-	});
+const POLL_INTERVAL = 2000;
+
+function useAgentDB(namespace: string, instance: string) {
+  return useQuery({
+    queryKey: ["agent_db", namespace, instance],
+    queryFn: () =>
+      fetch(`/agents/${namespace}/${instance}/admin/db`).then((res) =>
+        // fetch(`/fp-agents/api/agents/${namespace}/db`).then((res) =>
+        res.json(),
+      ) as Promise<DatabaseResult>,
+  });
 }
+
 export function AgentDetails({
-	agent: agentDetails,
-}: { agent: DurableObjectsSuccess["durableObjects"]["bindings"][0] }) {
-	const [_connected, setConnected] = useState(false);
-	// const agent = useAgent({
-	// 	onMessage: (message: WebSocketEventMap["message"]) => {
-	// 		if (message.data === JSON.stringify("ACK")) {
-	// 			console.log("Agent::ACK received");
-	// 		}
-	// 	},
-	// 	agent: agentDetails.name.toLowerCase(),
+  agent: agentDetails,
+  instance,
+}: { agent: ListAgentsResponse[0]; instance: string }) {
+  const { data: db, refetch } = useAgentDB(agentDetails.id, instance);
+  const ref = useRef<WebSocket | null>(null);
 
-	// 	onOpen: (event) => {
-	// 		console.log("Agent::Connection established");
-	// 		setConnected(true);
-	// 	},
-	// 	onClose: (event) => console.log("Agent::Connection closed", event),
-	// 	onStateUpdate: (state) => console.log("Agent::State updated", state),
-	// 	onError: (error) => console.error(error),
-	// });
+  useEffect(() => {
+    const id = setInterval(refetch, POLL_INTERVAL);
+    return () => clearInterval(id);
+  }, [refetch]);
 
-	// const { readyState } = agent;
-	const { readyState } = { readyState: 0 };
-	// const close = useCallback(() => agent.close(), [agent.close]);
-	// const closeConnection =
-	// 	readyState === WebSocket.OPEN ? () => agent.close() : undefined;
-	// useEffect(() => {
-	// 	if (!closeConnection) {
-	// 		return;
-	// 	}
+  const [activeTab, setActiveTab] = useState("");
+  const [sideBarTab, setSideBarTab] = useState("details");
+  useEffect(() => {
+    if (!db || activeTab !== "") {
+      return;
+    }
+    const keys = Object.keys(db);
+    if (keys.length === 0) {
+      return;
+    }
 
-	// 	return () => {
-	// 		closeConnection();
-	// 	};
-	// }, [closeConnection]);
+    setActiveTab(keys[0]);
+  }, [activeTab, db]);
 
-	const { data: db, refetch } = useAgentDB(agentDetails.name);
-	const ref = useRef<WebSocket | null>(null);
-	useEffect(() => {
-		// if (ref.current) {
-		// 	return;
-		// }
-		ref.current = new WebSocket("ws://localhost:5173/fp-agents/ws");
-		const socket = ref.current;
-		ref.current.onopen = (event) => {
-			console.log("opened", event, ref.current?.readyState === WebSocket.OPEN);
-			if (ref.current === event.target) {
-				ref.current?.send(
-					JSON.stringify({
-						type: "subscribe",
-						payload: { agent: agentDetails.name },
-					}),
-				);
-			}
-		}
-		ref.current.onmessage = (event) => {
-			console.log("onMessage", event);
-			const data = JSON.parse(event.data);
-			const result = MessageSchema.safeParse(data);
-			if (!result.success) {
-				console.error("Invalid message", result.error);
-				return;
-			}
+  const tabContent: Array<{
+    title: ReactNode;
+    key: string;
+    content: ReactNode;
+  }> = useMemo(() => {
+    if (!db) {
+      return [];
+    }
 
-			if (result.data.type === "update") {
-				refetch();
-			}
-		}
+    return Object.entries(db)
+      .map(([tableName, data]) => {
+        if (tableName.startsWith("_cf")) {
+          return null;
+        }
 
-		ref.current.onclose = (event) => {
-			console.log("onClose", event);
-		};
+        if (isMessagesTable(tableName, data as MessagesTable)) {
+          return {
+            title: "Messages",
+            key: tableName,
+            content: (
+              <ChatMessagesRenderer data={data.data as MessagesTable["data"]} />
+            ),
+          };
+        }
 
-		return () => {
-			if (socket.readyState === WebSocket.OPEN) {
-				socket.send(
-					JSON.stringify({
-						type: "unsubscribe",
-						payload: { agent: agentDetails.name },
-					}),
-				);
-				socket.close();
-			}
+        if (
+          tableName === "cf_agents_schedules" &&
+          ScheduleColumnsSchema.safeParse(data.columns).success
+        ) {
+          return {
+            title: "Schedule",
+            key: tableName,
+            content: <ScheduleTableView table={data as ScheduleDBTable} />,
+          };
+        }
 
-			socket.onopen = null;
-			socket.onmessage = null;
+        if (isStateTable(tableName, data as StateDBTable)) {
+          return {
+            title: "State",
+            key: tableName,
+            content: <StateTableView table={data as StateDBTable} />,
+          };
+        }
 
-		}
+        return {
+          title: tableName,
+          key: tableName,
+          content: <DataTableView table={data} title={tableName} />,
+        };
+      })
+      .filter(Boolean) as Array<{
+      title: ReactNode;
+      key: string;
+      content: ReactNode;
+    }>;
+  }, [db]);
 
-	})
-
-	// const websocket = useWebSocket({
-	// 	url: "ws://localhost:4001/fp-agents/ws",
-	// 	debug: true,
-	// 	onMessage: (event) => {
-
-	// 		console.log("onMessage", event);
-	// 		const data = JSON.parse(event.data);
-	// 		const result = MessageSchema.safeParse(data);
-	// 		if (!result.success) {
-	// 			console.error("Invalid message", result.error);
-	// 			return;
-	// 		}
-
-	// 		if (result.data.type === "update") {
-	// 			refetch();
-	// 		}
-	// 	},
-	// 	onClose: (event) => {
-	// 		console.log("onClose", event);
-	// 	},
-	// 	retryOnError: true,
-	// 	reconnectAttempts: 10,
-	// });
-
-	// useEffect(() => {
-	// 	websocket.sendMessage(
-	// 		JSON.stringify({
-	// 			type: "subscribe",
-	// 			payload: { agent: agentDetails.name },
-	// 		}),
-	// 	);
-
-	// 	return () => {
-	// 		websocket.sendMessage(
-	// 			JSON.stringify({
-	// 				type: "unsubscribe",
-	// 				payload: { agent: agentDetails.name },
-	// 			}),
-	// 		);
-	// 		// }
-	// 	};
-	// }, [websocket.sendMessage, agentDetails.name]);
-
-	if (
-		typeof db === "object" &&
-		"error" in db &&
-		db.error === "No database found"
-	) {
-		return <div>No database found</div>;
-	}
-
-	return (
-		<div className="grid gap-2">
-			<div className="grid grid-cols-[1fr_auto] items-center border  border-gray-200 px-2 rounded-md">
-				<h2 className="text-accent-foreground text-lg py-2 px-4">
-					Details:{" "}
-					<span className="font-bold text-neutral-500">
-						{agentDetails.name}
-					</span>
-				</h2>
-				<ConnectionStatus readyState={readyState} />
-			</div>
-
-			<div className="grid gap-2 border border-gray-200 p-2 rounded-md">
-				<h2 className="text-accent-foreground text-lg px-4">Databases:</h2>
-				<div className="grid gap-2 lg:grid-cols-2">
-					{db &&
-						db !== null &&
-						Object.entries(db).map(([tableName, data]) => (
-							<DataTableView key={tableName} table={data} title={tableName} />
-						))}
-				</div>
-			</div>
-			{/* <div className="grid gap-2 grid-cols-2">
-	      <Button
-	        className="cursor-pointer"
-	        onClick={() => {
-	          agent.send(JSON.stringify("I want a list user endpoint"));
-	        }}
-	      >
-	        Send
-	      </Button>
-	      <Button onClick={() => {
-	        agent.setState({ messageReceived: "client-side-yes" });
-	      }}>set state</Button>
-	      <Button onClick={close}>Close</Button>
-	    </div> */}
-		</div>
-	);
-	// return null;
+  return (
+    <ListSection
+      title={
+        <div className="flex gap-2">
+          Agent:
+          <span className="font-bold text-neutral-500">
+            {agentDetails.id} - {instance}
+          </span>
+        </div>
+      }
+      className="h-full"
+    >
+      <div className="grid gap-2 grid-cols-[auto_400px]">
+        <FpTabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className={cn(
+            "grid grid-rows-[auto_1fr]",
+            // NOTE - This max-height is necessary to allow overflow to be scrollable
+            "max-h-full",
+          )}
+        >
+          <FpTabsList className="bg-transparent">
+            {tabContent.map(({ title, key }) => (
+              <FpTabsTrigger key={key} value={key} className="flex gap-2">
+                <Database className="w-3.5" />
+                {title}
+              </FpTabsTrigger>
+            ))}
+          </FpTabsList>
+          {tabContent.map(({ key, content }) => (
+            <TabsContent key={key} value={key}>
+              {content}
+            </TabsContent>
+          ))}
+        </FpTabs>
+        <div>
+          <FpTabs
+            value={sideBarTab}
+            onValueChange={setSideBarTab}
+            className={cn(
+              "grid grid-rows-[auto_1fr]",
+              // NOTE - This max-height is necessary to allow overflow to be scrollable
+              "max-h-full",
+            )}
+          >
+            <FpTabsList className="bg-transparent">
+              <FpTabsTrigger value="details" className="flex gap-2">
+                <ListIcon className="w-3.5" />
+                Details
+              </FpTabsTrigger>
+              <FpTabsTrigger value="Events" className="flex gap-2">
+                <History className="w-3.5" />
+                Events
+              </FpTabsTrigger>
+            </FpTabsList>
+            <FpTabsContent
+              value="details"
+              className={cn(
+                // Need a lil bottom padding to avoid clipping the inputs of the last row in the form
+                "pb-16",
+              )}
+            >
+              <KeyValueTable
+                keyValue={{
+                  Name: agentDetails.id,
+                  ClassName: agentDetails.className,
+                  ScriptName: agentDetails.scriptName ?? "",
+                }}
+                className="border border-muted rounded-lg"
+              />
+            </FpTabsContent>
+            <FpTabsContent value="Events">
+              <EventsView namespace={agentDetails.id} instance={instance} />
+            </FpTabsContent>
+          </FpTabs>
+        </div>
+      </div>
+    </ListSection>
+  );
 }

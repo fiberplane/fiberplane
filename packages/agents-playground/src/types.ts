@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // Define types for the result structure
-export type ColumnType =
+export type DBColumnType =
   | "string"
   | "number"
   | "boolean"
@@ -10,27 +10,35 @@ export type ColumnType =
   | "array";
 
 // Map SQLite column types to TypeScript types
-type TypeMapping<T extends ColumnType[]> = T extends ["string"]
+type TypeMapping<T extends DBColumnType[]> = T extends ["string"]
   ? string
-  : T extends ["number"]
-    ? number
-    : T extends ["boolean"]
-      ? boolean
-      : T extends ["null"]
-        ? null
-        : T extends ["object"]
-          ? Record<string, unknown>
-          : T extends ["array"]
-            ? unknown[]
-            : T extends Array<infer U>
-              ? U extends ColumnType
-                ? unknown
-                : never
-              : unknown;
+  : T extends ["null", "string"]
+    ? string | null
+    : T extends ["number"]
+      ? number
+      : T extends ["null", "number"]
+        ? number | null
+        : T extends ["boolean"]
+          ? boolean
+          : T extends ["null", "boolean"]
+            ? boolean
+            : T extends ["null"]
+              ? null
+              : T extends ["object"]
+                ? Record<string, unknown>
+                : T extends ["null", "object"]
+                  ? Record<string, unknown> | null
+                  : T extends ["array"]
+                    ? unknown[]
+                    : T extends Array<infer U>
+                      ? U extends DBColumnType
+                        ? unknown
+                        : never
+                      : unknown;
 
 // Generic table type that ensures data matches column structure
-export type Table<
-  C extends Record<string, ColumnType[]> = Record<string, ColumnType[]>,
+export type DBTable<
+  C extends Record<string, DBColumnType[]> = Record<string, DBColumnType[]>,
 > = {
   columns: C;
   data: Array<{
@@ -39,32 +47,17 @@ export type Table<
 };
 
 // Database result type
-export type DatabaseResult = Record<string, Table>;
+export type DatabaseResult = Record<string, DBTable>;
 
-/**
- * Return type for the getDurableObjectsFromConfig function
- */
-export type DurableObjectsSuccess = {
-  success: true;
-  durableObjects: {
-    bindings: {
-      name: string;
-      className: string;
-      scriptName: string | null;
-    }[];
-    migrations: {
-      tag?: string;
-      newClasses: string[];
-    }[];
-  };
+// API Types
+export type AgentDetails = {
+  id: string;
+  scriptName: string | null;
+  className: string;
+  instances: Array<string>;
 };
 
-export type DurableObjectsError = {
-  success: false;
-  error: string;
-};
-
-export type DurableObjectsResult = DurableObjectsSuccess | DurableObjectsError;
+export type ListAgentsResponse = Array<AgentDetails>;
 
 export const SubscribeSchema = z.object({
   type: z.literal("subscribe"),

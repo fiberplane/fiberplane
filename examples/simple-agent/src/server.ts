@@ -38,7 +38,7 @@ export { Chat };
  * Chat Agent implementation that handles real-time AI chat interactions
  */
 @Fiber()
-class Chat extends AIChatAgent<Env> {
+class Chat extends AIChatAgent<Env, MemoryState> {
   initializeState() {
     return { memories: {} };
   }
@@ -50,6 +50,7 @@ class Chat extends AIChatAgent<Env> {
 
   // biome-ignore lint/complexity/noBannedTypes: <explanation>
   async onChatMessage(onFinish: StreamTextOnFinishCallback<{}>) {
+
     // Create a streaming response that handles both text and tool outputs
     return agentContext.run(this, async () => {
       const dataStreamResponse = createDataStreamResponse({
@@ -119,7 +120,11 @@ export default {
     }
     return (
       // Route the request to our agent or return 404 if not found
-      (await routeAgentRequest(request, env)) ||
+      (await routeAgentRequest(request, env,
+        //   {
+        //   cors: true
+        // }
+      )) ||
       new Response("Not found", { status: 404 })
     );
   },
