@@ -1,23 +1,23 @@
-import React from "react";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
-  TableHeader,
   TableBody,
-  TableHead,
-  TableRow,
-  TableCell,
   TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { z } from "zod";
 import type { DBTable } from "@/types";
+import { format } from "date-fns";
+import React from "react";
+import { z } from "zod";
 import { ListSection } from "../ListSection";
 
 // Database schema representation
@@ -234,13 +234,11 @@ export const ScheduleTableView = ({ table, className }: ScheduleTableProps) => {
     <TooltipProvider>
       <ListSection title="Scheduled tasks">
         <Table className={className}>
-          {/* <TableCaption>Scheduled tasks configuration</TableCaption> */}
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead>ID</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Callback</TableHead>
-              {/* <TableHead>Execution Time</TableHead> */}
               <TableHead>Details</TableHead>
               <TableHead>Payload</TableHead>
             </TableRow>
@@ -252,7 +250,6 @@ export const ScheduleTableView = ({ table, className }: ScheduleTableProps) => {
               }
               const { typeLabel, details } = getScheduleTypeDetails(schedule);
 
-              console.log("schedule", schedule);
               return (
                 <TableRow key={schedule.id}>
                   <TableCell className="font-mono text-xs">
@@ -266,7 +263,6 @@ export const ScheduleTableView = ({ table, className }: ScheduleTableProps) => {
                   <TableCell className="font-mono">
                     {schedule.callback}
                   </TableCell>
-                  {/* <TableCell>{formatTimestamp(schedule.time)}</TableCell> */}
                   <TableCell className="text-muted-foreground">
                     {details}
                   </TableCell>

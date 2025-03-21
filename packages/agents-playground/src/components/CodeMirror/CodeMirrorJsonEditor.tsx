@@ -5,8 +5,8 @@ import { basicDark } from "@uiw/codemirror-theme-basic";
 import { duotoneLight } from "@uiw/codemirror-theme-duotone";
 import CodeMirror, { basicSetup, EditorView } from "@uiw/react-codemirror";
 import { useMemo } from "react";
-import { customTheme } from "./themes";
 import { useThemeMode } from "../ThemeProvider";
+import { customTheme } from "./themes";
 
 type CodeMirrorEditorProps = {
   height?: string;

@@ -1,10 +1,7 @@
 import fs from "node:fs";
 import { parse } from "jsonc-parser";
 import toml from "toml";
-import type {
-  DurableObjectsResult,
-  DurableObjectsSuccess,
-} from "./types";
+import type { DurableObjectsResult, DurableObjectsSuccess } from "./types";
 
 /**
  * TypeScript interface for wrangler.toml configuration

@@ -1,29 +1,29 @@
+import { cn, noop } from "@/lib/utils";
 import type { DatabaseResult, ListAgentsResponse } from "@/types";
+import { TabsContent } from "@radix-ui/react-tabs";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ListSection } from "../ListSection";
-import { DataTableView } from "./DataTableView";
-import {
-  isStateTable,
-  type StateDBTable,
-  StateTableView,
-} from "./StateTableView";
+import { Database, History, ListIcon, Sidebar } from "lucide-react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { KeyValueTable } from "../KeyValueTable";
+import { ListSection } from "../ListSection";
+import { FpTabs, FpTabsContent, FpTabsList, FpTabsTrigger } from "../ui/tabs";
 import {
   ChatMessagesRenderer,
-  isMessagesTable,
   type MessagesTable,
+  isMessagesTable,
 } from "./ChatMessageTableView";
+import { DataTableView } from "./DataTableView";
+import { EventsView } from "./EventsView";
 import {
   ScheduleColumnsSchema,
-  ScheduleTableView,
   type ScheduleDBTable,
+  ScheduleTableView,
 } from "./SchedulaTableView";
-import { FpTabs, FpTabsContent, FpTabsList, FpTabsTrigger } from "../ui/tabs";
-import { cn, noop } from "@/lib/utils";
-import { Database, History, ListIcon, Sidebar } from "lucide-react";
-import { TabsContent } from "@radix-ui/react-tabs";
-import { EventsView } from "./EventsView";
+import {
+  type StateDBTable,
+  StateTableView,
+  isStateTable,
+} from "./StateTableView";
 
 const POLL_INTERVAL = 2000;
 

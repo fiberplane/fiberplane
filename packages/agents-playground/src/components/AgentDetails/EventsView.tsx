@@ -1,22 +1,22 @@
+import { noop } from "@/lib/utils";
+import {
+  AlertCircle,
+  ArrowRight,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  Globe,
+  Info,
+  LayoutDashboard,
+  MessageSquare,
+} from "lucide-react";
 import { useMemo, useState } from "react";
+import { CodeMirrorJsonEditor } from "../CodeMirror";
+import { ListSection } from "../ListSection";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 import { useSSE } from "./useSSE";
 import type { AgentEventType } from "./useSSE";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { ListSection } from "../ListSection";
-import { CodeMirrorJsonEditor } from "../CodeMirror";
-import { noop } from "@/lib/utils";
-import { 
-  ChevronDown, 
-  ChevronRight, 
-  Clock, 
-  Globe, 
-  MessageSquare, 
-  LayoutDashboard, 
-  Info, 
-  ArrowRight,
-  AlertCircle
-} from "lucide-react";
 
 // Define a more specific type for HTTP request payloads
 interface HttpRequestPayload {
@@ -62,7 +62,10 @@ const formatTimestamp = (timestamp: string): string => {
 };
 
 // Component to display JSON in a collapsible format
-const JSONViewer = ({ data, label = "Raw Data" }: { data: unknown, label?: string }) => {
+const JSONViewer = ({
+  data,
+  label = "Raw Data",
+}: { data: unknown; label?: string }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const jsonString = useMemo(() => {
     try {
@@ -91,11 +94,7 @@ const JSONViewer = ({ data, label = "Raw Data" }: { data: unknown, label?: strin
 
       {isExpanded && (
         <div className="mt-2">
-          <CodeMirrorJsonEditor
-            onChange={noop}
-            readOnly
-            value={jsonString}
-          />
+          <CodeMirrorJsonEditor onChange={noop} readOnly value={jsonString} />
         </div>
       )}
     </div>
@@ -124,7 +123,9 @@ const getEventIcon = (type: AgentEventType) => {
 };
 
 // Get a color variant based on event type
-const getEventVariant = (type: AgentEventType): "default" | "outline" | "secondary" | "destructive" => {
+const getEventVariant = (
+  type: AgentEventType,
+): "default" | "outline" | "secondary" | "destructive" => {
   switch (type) {
     case "http_request":
       return "secondary";
@@ -146,24 +147,30 @@ const getEventVariant = (type: AgentEventType): "default" | "outline" | "seconda
 // HTTP Request details component
 const HttpRequestDetails = ({ payload }: { payload: HttpRequestPayload }) => {
   const { method = "GET", url = "", headers = {} } = payload;
-  const displayUrl = typeof url === 'string' ? formatUrl(url) : '';
-  
+  const displayUrl = typeof url === "string" ? formatUrl(url) : "";
+
   return (
     <div className="mt-1 text-sm">
       <div>
         <span className="font-medium">{method as string}</span> {displayUrl}
       </div>
-      {payload.body && typeof payload.body === 'object' && (
-        <JSONViewer data={payload.body as Record<string, unknown>} label="Request Body" />
+      {!!payload.body && typeof payload.body === "object" && (
+        <JSONViewer
+          data={payload.body as Record<string, unknown>}
+          label="Request Body"
+        />
       )}
     </div>
   );
 };
 
 // WebSocket message details component
-const WebSocketDetails = ({ type, payload }: { type: AgentEventType, payload: EventPayload }) => {
+const WebSocketDetails = ({
+  type,
+  payload,
+}: { type: AgentEventType; payload: EventPayload }) => {
   let message = "WebSocket event";
-  
+
   if (type === "ws_open") {
     message = "WebSocket connection opened";
   } else if (type === "ws_close") {
@@ -171,74 +178,69 @@ const WebSocketDetails = ({ type, payload }: { type: AgentEventType, payload: Ev
   } else if (type === "ws_message") {
     message = "WebSocket message received";
   }
-  
-  return (
-    <div className="mt-1 text-sm">
-      {message}
-    </div>
-  );
+
+  return <div className="mt-1 text-sm">{message}</div>;
 };
 
 // State change details component
 const StateChangeDetails = ({ payload }: { payload: EventPayload }) => {
-  return (
-    <div className="mt-1 text-sm">
-      Agent state updated
-    </div>
-  );
+  return <div className="mt-1 text-sm">Agent state updated</div>;
 };
 
 // Stream event details component
-const StreamEventDetails = ({ type, payload }: { type: AgentEventType, payload: EventPayload }) => {
+const StreamEventDetails = ({
+  type,
+  payload,
+}: { type: AgentEventType; payload: EventPayload }) => {
   let message = "Stream event";
-  
+
   if (type === "stream_open") {
     message = "Stream opened";
   } else if (type === "stream_close") {
     message = "Stream closed";
   } else if (type === "stream_error") {
-    const errorMessage = typeof payload === 'string' 
-      ? payload 
-      : (payload.message as string || JSON.stringify(payload));
-      
+    const errorMessage =
+      typeof payload === "string"
+        ? payload
+        : (payload.message as string) || JSON.stringify(payload);
+
     return (
       <div className="mt-1 p-2 bg-destructive/10 rounded-md border border-destructive text-destructive">
         {errorMessage}
       </div>
     );
   }
-  
-  return (
-    <div className="mt-1 text-sm">
-      {message}
-    </div>
-  );
+
+  return <div className="mt-1 text-sm">{message}</div>;
 };
 
 // Main event summary component that selects the appropriate details component
-const EventSummary = ({ type, payload }: { type: AgentEventType, payload: EventPayload }) => {
+const EventSummary = ({
+  type,
+  payload,
+}: { type: AgentEventType; payload: EventPayload }) => {
   if (type === "http_request") {
     return <HttpRequestDetails payload={payload as HttpRequestPayload} />;
   }
-  
+
   if (type === "ws_message" || type === "ws_open" || type === "ws_close") {
     return <WebSocketDetails type={type} payload={payload} />;
   }
-  
+
   if (type === "state_change") {
     return <StateChangeDetails payload={payload} />;
   }
-  
-  if (type === "stream_open" || type === "stream_close" || type === "stream_error") {
+
+  if (
+    type === "stream_open" ||
+    type === "stream_close" ||
+    type === "stream_error"
+  ) {
     return <StreamEventDetails type={type} payload={payload} />;
   }
 
   // Fallback for any other event types
-  return (
-    <div className="mt-1 text-sm">
-      Event received
-    </div>
-  );
+  return <div className="mt-1 text-sm">Event received</div>;
 };
 
 // Single event item component
@@ -249,8 +251,8 @@ const EventItem = ({ event }: { event: AgentEvent }) => {
     <div className="p-3 rounded-lg mb-2 bg-muted border border-border">
       <div className="flex justify-between items-center mb-1">
         <div className="flex items-center gap-2">
-          <Badge 
-            variant={getEventVariant(event.type)} 
+          <Badge
+            variant={getEventVariant(event.type)}
             className="flex items-center gap-1 py-1 px-2 opacity-80 text-xs font-normal"
           >
             {getEventIcon(event.type)}
@@ -262,9 +264,9 @@ const EventItem = ({ event }: { event: AgentEvent }) => {
           {formattedDate}
         </div>
       </div>
-      
+
       <EventSummary type={event.type} payload={event.payload} />
-      
+
       <JSONViewer data={event.payload} />
     </div>
   );
@@ -272,8 +274,12 @@ const EventItem = ({ event }: { event: AgentEvent }) => {
 
 export function EventsView(props: { namespace: string; instance: string }) {
   const { namespace, instance } = props;
-  
-  const { data: events, status, clearEvents } = useSSE<AgentEvent>(`/agents/${namespace}/${instance}/admin/events`, {
+
+  const {
+    data: events,
+    status,
+    clearEvents,
+  } = useSSE<AgentEvent>(`/agents/${namespace}/${instance}/admin/events`, {
     eventTypes: [
       "http_request",
       "state_change",
@@ -298,7 +304,9 @@ export function EventsView(props: { namespace: string; instance: string }) {
     return [...events].sort((a, b) => {
       // Handle case where timestamps might be invalid
       try {
-        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+        return (
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        );
       } catch (e) {
         return 0;
       }
@@ -311,20 +319,26 @@ export function EventsView(props: { namespace: string; instance: string }) {
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
             Agent Events
-            <span className="text-muted-foreground">({events.length} total)</span>
+            <span className="text-muted-foreground">
+              ({events.length} total)
+            </span>
           </div>
-          <Button size="sm" onClick={clearEvents}>Clear Events</Button>
+          <Button size="sm" onClick={clearEvents}>
+            Clear Events
+          </Button>
         </div>
       }
     >
       {sortedEvents.length === 0 ? (
-        <div className="text-sm text-muted-foreground py-4">No events captured yet.</div>
+        <div className="text-sm text-muted-foreground py-4">
+          No events captured yet.
+        </div>
       ) : (
         <div className="space-y-2">
           {sortedEvents.map((event, idx) => (
-            <EventItem 
-              key={`${event.timestamp || 'unknown'}-${event.type || 'unknown'}-${idx}`} 
-              event={event} 
+            <EventItem
+              key={`${event.timestamp || "unknown"}-${event.type || "unknown"}-${idx}`}
+              event={event}
             />
           ))}
         </div>

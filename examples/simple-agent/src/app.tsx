@@ -1,16 +1,16 @@
-import { useEffect, useState, useRef, useCallback } from "react";
-import { useAgent } from "agents/react";
-import { useAgentChat } from "agents/ai-react";
 import type { Message } from "@ai-sdk/react";
-import { APPROVAL } from "./shared";
-import type { tools } from "./tools";
+import { useAgentChat } from "agents/ai-react";
+import { useAgent } from "agents/react";
+import { Bot, Bug, Moon, Send, Sun, Trash2 } from "lucide-react";
+import { useQueryState } from "nuqs";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Avatar, AvatarFallback } from "./components/ui/avatar";
 import { Button } from "./components/ui/button";
 import { Card } from "./components/ui/card";
 import { Input } from "./components/ui/input";
-import { Avatar, AvatarFallback } from "./components/ui/avatar";
 import { Switch } from "./components/ui/switch";
-import { Send, Bot, Trash2, Sun, Moon, Bug } from "lucide-react";
-import { useQueryState } from 'nuqs';
+import { APPROVAL } from "./shared";
+import type { tools } from "./tools";
 
 // List of tools that require human confirmation
 const toolsRequiringConfirmation: (keyof typeof tools)[] = [
@@ -25,7 +25,7 @@ export default function Chat() {
   });
   const [showDebug, setShowDebug] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [agentName] = useQueryState('agent');
+  const [agentName] = useQueryState("agent");
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -56,7 +56,7 @@ export default function Chat() {
   };
 
   const agent = useAgent(
-    agentName ? { agent: "chat", name: agentName } : { agent: "chat" }
+    agentName ? { agent: "chat", name: agentName } : { agent: "chat" },
   );
 
   const {
@@ -196,8 +196,9 @@ export default function Chat() {
                   className={`flex ${isUser ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`flex gap-2 max-w-[85%] ${isUser ? "flex-row-reverse" : "flex-row"
-                      }`}
+                    className={`flex gap-2 max-w-[85%] ${
+                      isUser ? "flex-row-reverse" : "flex-row"
+                    }`}
                   >
                     {showAvatar && !isUser ? (
                       <Avatar className="h-8 w-8 mt-1 flex-shrink-0">
@@ -217,21 +218,23 @@ export default function Chat() {
                               // biome-ignore lint/suspicious/noArrayIndexKey: it's fine here
                               <div key={i}>
                                 <Card
-                                  className={`p-3 rounded-md ${isUser
+                                  className={`p-3 rounded-md ${
+                                    isUser
                                       ? "bg-primary text-primary-foreground rounded-br-none"
                                       : "rounded-bl-none border-assistant-border"
-                                    } ${part.text.startsWith("scheduled message")
+                                  } ${
+                                    part.text.startsWith("scheduled message")
                                       ? "border-accent/50"
                                       : ""
-                                    } relative`}
+                                  } relative`}
                                 >
                                   {part.text.startsWith(
                                     "scheduled message",
                                   ) && (
-                                      <span className="absolute -top-3 -left-2 text-base">
-                                        🕒
-                                      </span>
-                                    )}
+                                    <span className="absolute -top-3 -left-2 text-base">
+                                      🕒
+                                    </span>
+                                  )}
                                   <p className="text-sm whitespace-pre-wrap">
                                     {part.text.replace(
                                       /^scheduled message: /,
@@ -240,8 +243,9 @@ export default function Chat() {
                                   </p>
                                 </Card>
                                 <p
-                                  className={`text-xs text-muted-foreground mt-1 ${isUser ? "text-right" : "text-left"
-                                    }`}
+                                  className={`text-xs text-muted-foreground mt-1 ${
+                                    isUser ? "text-right" : "text-left"
+                                  }`}
                                 >
                                   {formatTime(
                                     new Date(m.createdAt as unknown as string),

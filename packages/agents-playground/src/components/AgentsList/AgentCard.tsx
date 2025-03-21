@@ -1,34 +1,31 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import type { AgentDetails } from "@/types";
-import { Button } from "../ui/button";
-import { unset } from "../App";
 import { BoxIcon, HeartHandshake } from "lucide-react";
+import { Button } from "../ui/button";
 
 type AgentCardProps = {
   agent: AgentDetails;
-  selectAgent: (agent: string | typeof unset) => void;
-  selectInstance: (instance: string | typeof unset) => void;
+  selectAgent: (agent: string) => void;
+  selectAgentInstance: (agent: string, instance: string) => void;
 };
 
 export function AgentCard({
   agent,
   selectAgent,
-  selectInstance,
+  selectAgentInstance,
 }: AgentCardProps) {
   return (
     <Card
       onClick={() => {
-        console.log("card");
         selectAgent(agent.id);
-        selectInstance(unset);
       }}
+      className="cursor-pointer hover:-translate-y-1 transition-transform hover:scale-105"
     >
       <CardHeader>
         <HeartHandshake className="w-4 h-4" />
@@ -47,15 +44,14 @@ export function AgentCard({
           Instances:
         </span>
         <div className="flex gap-2">
-          {agent.instances.length > 0 &&
+          {agent.instances.length > 0 ? (
             agent.instances.map((instance) => (
               <Button
                 key={instance}
                 onClick={(event) => {
-                  console.log("instance", instance);
+                  // Prevent the card from being clicked
                   event.stopPropagation();
-                  selectAgent(agent.id);
-                  selectInstance(instance);
+                  selectAgentInstance(agent.id, instance);
                 }}
                 type="button"
                 size="sm"
@@ -64,7 +60,12 @@ export function AgentCard({
                 <BoxIcon className="w-3.5 h-3.5" />
                 {instance}
               </Button>
-            ))}
+            ))
+          ) : (
+            <div className="text-muted-foreground italic">
+              No instances detected yet
+            </div>
+          )}
         </div>
       </CardFooter>
     </Card>

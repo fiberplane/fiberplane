@@ -1,9 +1,9 @@
+import { noop } from "@/lib/utils";
 import type { DBTable } from "@/types";
 import { CircleDot } from "lucide-react";
 import { z } from "zod";
-import { ListSection } from "../ListSection";
 import { CodeMirrorJsonEditor } from "../CodeMirror";
-import { noop } from "@/lib/utils";
+import { ListSection } from "../ListSection";
 
 // Define the possible column types
 const columnTypeEnum = z.enum([
@@ -35,7 +35,7 @@ export function StateTableView(props: { table: StateDBTable }) {
 
   if (data.length === 0) {
     return (
-      <div className="p-4 text-center text-foreground">No data available</div>
+      <div className="text-muted-foreground text-center py-6">Empty State</div>
     );
   }
 
@@ -68,11 +68,6 @@ export function StateTableView(props: { table: StateDBTable }) {
         minHeight="auto"
         readOnly
       />
-      {/* <div>
-        <pre className="text-foreground whitespace-pre-wrap font-mono">
-          {stateString}
-        </pre>
-      </div> */}
     </ListSection>
   );
 }

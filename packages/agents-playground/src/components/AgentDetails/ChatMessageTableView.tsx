@@ -1,19 +1,19 @@
-import { useState, useEffect } from "react";
 import {
   ChevronDown,
   ChevronRight,
   Clock,
-  User,
-  MessageSquare,
   Info,
+  MessageSquare,
+  User,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 
-import { z } from "zod";
+import { noop } from "@/lib/utils";
 import type { DBTable } from "@/types";
+import { z } from "zod";
+import { CodeMirrorJsonEditor } from "../CodeMirror";
 import { ListSection } from "../ListSection";
 import { Button } from "../ui/button";
-import { CodeMirrorJsonEditor } from "../CodeMirror";
-import { noop } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableRow } from "../ui/table";
 
 /**
@@ -24,7 +24,6 @@ export const MessageColumnsSchema = z.object({
   id: z.tuple([z.literal("null"), z.literal("string")]),
   message: z.tuple([z.literal("string")]),
   created_at: z.tuple([z.literal("null"), z.literal("string")]),
-  // Define schemas for any additional columns that might be present
 });
 
 export type MessageColumns = z.infer<typeof MessageColumnsSchema>;
@@ -287,9 +286,13 @@ export const ChatMessagesRenderer = ({ data }: Props) => {
           <span className="text-muted-foreground">({data.length} total)</span>
         </div>
       }
-      // contentClassName="max-h-[70vh] overflow-y-auto"
     >
       <div className="space-y-2">
+        {data.length === 0 && (
+          <div className="text-muted-foreground text-center py-6">
+            No messages found
+          </div>
+        )}
         {data.map((message) => (
           <MessageItem key={message.id} message={message} />
         ))}

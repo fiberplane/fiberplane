@@ -62,7 +62,7 @@ function createAgentAdminRouter(agent: FiberDecoratedAgent) {
             if (column.name) {
               const colName = String(column.name);
               columnNames.push(colName);
-              const columnTypes: Array<ColumnType> = []
+              const columnTypes: Array<ColumnType> = [];
               columns[colName] = columnTypes;
               if (column.notnull === 0) {
                 columns[colName].push("null");
@@ -89,7 +89,6 @@ function createAgentAdminRouter(agent: FiberDecoratedAgent) {
                   columnTypes.push("string");
                   break;
               }
-
             }
           }
 
@@ -259,7 +258,12 @@ export function Fiber() {
         super.onConnect(connection, ctx);
       }
 
-      onClose(connection: Connection, code: number, reason: string, wasClean: boolean): void {
+      onClose(
+        connection: Connection,
+        code: number,
+        reason: string,
+        wasClean: boolean,
+      ): void {
         this.recordEvent({
           event: "ws_close",
           payload: { connection, code, reason, wasClean },

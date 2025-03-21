@@ -85,3 +85,4 @@ export const MessageSchema = z.discriminatedUnion("type", [
   UpdateSchema,
 ]);
 export type Message = z.infer<typeof MessageSchema>;
+export const unset = Symbol("unset");
