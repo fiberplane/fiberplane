@@ -1,0 +1,71 @@
+---
+title: "Debugging your vibe-coded Hono APIs powered with OpenTelemetry and MCP"
+description: "We’re bringing MCP capabilities to our OpenTelemetry Worker for Cloudflare and the Fiberplane Playground."
+slug: hono-otel-mcp
+date: 2025-03-24
+author: Micha "mies" Hernandez van Leuffen
+tags:
+  - OpenTelemetry
+  - MCP
+  - Playground
+---
+
+import PackageManagers from "@/components/PackageManagers.astro";
+import { LinkCard } from "@astrojs/starlight/components";
+import { YouTube } from "astro-lazy-youtube-embed";
+
+We all love vibe coding – lo-fi beats, bad variables, and a dream can get a developer far. The reality is often this leads to a debugging session that’s way more overhead than you planned for. We’re fast to generate code but debugging still takes cycles, much slower cycles. There is a solid feedback loop with generated code and AI Assistants such as Cursor, Windsurf and Claude Code creating new features, offering guidance, that’s super enjoyable and effective. Why can’t debugging feel the same way?
+
+![MCP Lightning Talk at Cloudflare](@/assets/blog/2025-03-24-debug.png)
+
+This is where [Model Context Protocol](https://modelcontextprotocol.io) can bring debugging capabilities much closer to your vibe coded masterpiece. MCP servers can now run alongside your IDE and use your observability data as the connective tissue across metrics, traces, and logs to figure out what’s wrong. You also get less context switching between your IDE, terminal, and observability tooling. One could even call it *vibe debugging*.
+
+That’s what we just released in the Fiberplane API Playground for Hono APIs and Cloudflare Workers. Check out how this is built with the MCP server, OpenTelemetry, and the demo below.
+
+
+<YouTube
+  title="Fiberplane Playground, Otel-Worker and MCP"
+  videoId="xxx"
+/>
+
+## API Playground and Debugger for Hono APIs and Cloudflare
+
+The [Fiberplane API Playground](https://fiberplane.com/blog/hono-native-playground/) is designed to give developers a native UX for exploring and testing their Hono service APIs. It’s an embedded middleware that uses the OpenAPI spec to discover and document API routes. Leveraging [OpenTelemetry](https://opentelemetry.io/) it instruments your handlers and captures traces. We also [shipped](https://fiberplane.com/blog/otel-cloudflare-worker/) an Otel-Worker which is an Open Telemetry Collector for Cloudflare Workers specifically - this stores traces, spans, and is written in Rust. Finally, the MCP Server connects those traces to your favorite vibe IDE.
+
+![Fiberplane API Playground](@/assets/blog/2025-03-24-mcp-1.png)
+
+## Running the Otel-Worker and MCP server
+
+Once you clone the otel-worker [repo](https://github.com/fiberplane/otel-worker), make sure you have the Wrangler CLI installed and start the otel-worker.
+
+```bash
+# Within the fiberplane/otel-worker repo
+cd otel-worker
+# Tell the MCP server where the Otel-Worker is running
+npx wrangler dev
+```
+
+Now start the MCP server:
+```bash
+# Within the fiberplane/otel-worker repo
+cd otel-worker
+# Tell the MCP server where the Otel-Worker is running
+export OTEL_WORKER_URL=http://localhost:24318
+
+# Start the MCP Server
+cargo cli mcp --transport sse
+```
+
+We can now hook up the MCP Server to our favorite IDE. Both Cursor and Windsurf support installing MCP servers. For Cursor you need to go to Cursor settings which has its own dedicated MCP section.
+
+![Fiberplane API Playground](@/assets/blog/2025-03-24-mcp-cursor.png)
+
+Now, when you test your API via the playground (or just use cURL) and an error pops up, you can paste in the trace-id, and your IDE will make a tool call to the MCP Server and help you debug the error.
+
+![Fiberplane API Playground](@/assets/blog/2025-03-24-mcp-2.png)
+
+## A future of MCP beyond the IDE
+
+We’re excited about what this means for the future of automated debugging and deployment-readiness. Imagine MCP servers that proactively identify patterns in your observability data before issues cascade, or that automatically suggest optimizations based on runtime performance. The days of context-switching between tools and piecing together disparate signals may soon give way to a unified *vibe debugging* experience
+
+Get started with the API Playground [here](https://github.com/fiberplane/fiberplane). It’s currently free and open source.
