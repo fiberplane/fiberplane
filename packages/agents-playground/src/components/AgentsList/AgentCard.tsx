@@ -8,6 +8,7 @@ import {
 import type { AgentDetails } from "@/types";
 import { BoxIcon, HeartHandshake } from "lucide-react";
 import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 type AgentCardProps = {
   agent: AgentDetails;
@@ -25,7 +26,11 @@ export function AgentCard({
       onClick={() => {
         selectAgent(agent.id);
       }}
-      className="cursor-pointer hover:-translate-y-1 transition-transform hover:scale-105"
+      className={
+        cn(
+          "cursor-pointer",
+          "shadow transition-all duration-300 hover:shadow-[0_0_15px_hsla(var(--accent)/.3)]"
+        )}
     >
       <CardHeader>
         <HeartHandshake className="w-4 h-4" />

@@ -11,7 +11,6 @@ export function Spinner(props: { spinning: boolean; className?: string }) {
   // Valid tailwind transition durations
   type Duration = 0 | 75 | 100 | 150 | 200 | 300 | 500 | 700 | 1000;
   const fadeOutDuration: Duration = 500;
-  const sticky = useStickyLoading(spinning, rotationDuration - fadeOutDuration);
-  const svgClassName = cn(animationDuration, sticky && "animate-spin");
+  const svgClassName = cn(animationDuration, spinning && "animate-spin");
   return <RefreshCw className={svgClassName} />;
 }

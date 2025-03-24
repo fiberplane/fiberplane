@@ -1,5 +1,4 @@
 import type { ListAgentsResponse } from "@/types";
-import { RefreshCw } from "lucide-react";
 import { Spinner } from "../Spinner";
 import { Button } from "../ui/button";
 import { AgentCard } from "./AgentCard";
@@ -11,7 +10,6 @@ export function AgentsList(props: {
   isLoading: boolean;
   refetch: () => void;
 }) {
-  // console.log('isLoading', props.isLoading)
   if (!props.agents || props.agents.length === 0) {
     return <div>Empty</div>;
   }

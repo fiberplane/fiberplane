@@ -65,16 +65,10 @@ export function DataTableView<
       className={className}
     >
       <FpTable className="border-0">
-        <TableHeader
-        //  className="sticky top-0 bg-white"
-        >
+        <TableHeader>
           <tr>
             {columnNames.map((column) => (
-              <TableHead
-                key={column}
-                scope="col"
-                // className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
+              <TableHead key={column} scope="col">
                 <div className="flex items-center font-medium">
                   <span>{column}</span>
                   <span className="ml-1 text-gray-400 text-xs">
@@ -85,29 +79,18 @@ export function DataTableView<
             ))}
           </tr>
         </TableHeader>
-        <TableBody
-        //  className="bg-white divide-y divide-gray-200"
-        >
+        <TableBody>
           {table.data.length === 0 ? (
             <TableRow>
-              <TableCell
-                colSpan={columnNames.length}
-                // className="px-6 py-4 text-center text-sm text-gray-500 italic"
-              >
+              <TableCell colSpan={columnNames.length}>
                 No data available
               </TableCell>
             </TableRow>
           ) : (
             table.data.map((row, rowIndex) => (
-              <TableRow
-                key={rowIndex}
-                // className={rowIndex % 2 === 0 ? "bg-gray-50" : "bg-white"}
-              >
+              <TableRow key={`row-${rowIndex}`}>
                 {columnNames.map((column) => (
-                  <TableCell
-                    key={`${rowIndex}-${column}`}
-                    // className="px-6 py-2 whitespace-nowrap text-sm text-gray-800"
-                  >
+                  <TableCell key={`${rowIndex}-${column}`}>
                     {renderCellContent(row[column])}
                   </TableCell>
                 ))}
@@ -117,28 +100,5 @@ export function DataTableView<
         </TableBody>
       </FpTable>
     </ListSection>
-    // </div>
   );
 }
-
-/**
- * Usage example:
- *
- * import { TableRenderer } from '../components/TableRenderer';
- * import { DatabaseResult } from '../plugin/utils';
- *
- * function MyComponent({ result }: { result: DatabaseResult }) {
- *   return (
- *     <div>
- *       {Object.entries(result).map(([tableName, table]) => (
- *         <TableRenderer
- *           key={tableName}
- *           table={table}
- *           title={tableName}
- *           className="mb-6"
- *         />
- *       ))}
- *     </div>
- *   );
- * }
- */

@@ -1,8 +1,8 @@
-import { cn, noop } from "@/lib/utils";
-import type { DatabaseResult, ListAgentsResponse } from "@/types";
+import { useAgentDB } from "@/hooks";
+import { cn } from "@/lib/utils";
+import type { ListAgentsResponse } from "@/types";
 import { TabsContent } from "@radix-ui/react-tabs";
-import { useQuery } from "@tanstack/react-query";
-import { Database, History, ListIcon, Sidebar } from "lucide-react";
+import { Database, History, ListIcon } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { KeyValueTable } from "../KeyValueTable";
 import { ListSection } from "../ListSection";
@@ -18,7 +18,7 @@ import {
   ScheduleColumnsSchema,
   type ScheduleDBTable,
   ScheduleTableView,
-} from "./SchedulaTableView";
+} from "./ScheduleTableView";
 import {
   type StateDBTable,
   StateTableView,
@@ -26,17 +26,6 @@ import {
 } from "./StateTableView";
 
 const POLL_INTERVAL = 2000;
-
-function useAgentDB(namespace: string, instance: string) {
-  return useQuery({
-    queryKey: ["agent_db", namespace, instance],
-    queryFn: () =>
-      fetch(`/agents/${namespace}/${instance}/admin/db`).then((res) =>
-        // fetch(`/fp-agents/api/agents/${namespace}/db`).then((res) =>
-        res.json(),
-      ) as Promise<DatabaseResult>,
-  });
-}
 
 export function AgentDetails({
   agent: agentDetails,

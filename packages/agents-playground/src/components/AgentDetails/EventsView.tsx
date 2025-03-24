@@ -1,3 +1,4 @@
+import { useSSE } from "@/hooks";
 import { noop } from "@/lib/utils";
 import {
   AlertCircle,
@@ -15,8 +16,6 @@ import { CodeMirrorJsonEditor } from "../CodeMirror";
 import { ListSection } from "../ListSection";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { useSSE } from "./useSSE";
-import type { AgentEventType } from "./useSSE";
 
 // Define a more specific type for HTTP request payloads
 interface HttpRequestPayload {
@@ -277,7 +276,7 @@ export function EventsView(props: { namespace: string; instance: string }) {
 
   const {
     data: events,
-    status,
+    // status,
     clearEvents,
   } = useSSE<AgentEvent>(`/agents/${namespace}/${instance}/admin/events`, {
     eventTypes: [

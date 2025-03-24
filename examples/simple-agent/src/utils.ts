@@ -52,19 +52,24 @@ export async function processToolCalls<
 }): Promise<Message[]> {
   const lastMessage = messages[messages.length - 1];
   const parts = lastMessage.parts;
-  if (!parts) return messages;
+  if (!parts) {
+    return messages;
+  }
 
   const processedParts = await Promise.all(
     parts.map(async (part) => {
       // Only process tool invocations parts
-      if (part.type !== "tool-invocation") return part;
+      if (part.type !== "tool-invocation") {
+        return part;
+      }
 
       const { toolInvocation } = part;
       const toolName = toolInvocation.toolName;
 
       // Only continue if we have an execute function for the tool (meaning it requires confirmation) and it's in a 'result' state
-      if (!(toolName in executions) || toolInvocation.state !== "result")
+      if (!(toolName in executions) || toolInvocation.state !== "result") {
         return part;
+      }
 
       let result: unknown;
 

@@ -1,9 +1,10 @@
-import type { ListAgentsResponse, unset } from "@/types";
+import { unset, type ListAgentsResponse } from "@/types";
 import { Box, Cpu, RefreshCw } from "lucide-react";
 import { Fragment } from "react/jsx-runtime";
 import { ListSection } from "./ListSection";
 import { Spinner } from "./Spinner";
 import { Button } from "./ui/button";
+import { cn } from "@/lib/utils";
 
 type Props = {
   setSelectedAgent: (agent: string) => void;
@@ -36,40 +37,44 @@ export function AgentsSidebar(props: Props) {
       }
     >
       <div className="w-full grid gap-2 h-full">
-        {data.map((agent) => (
-          <Fragment key={agent.id}>
+        {data.map((item) => (
+          <Fragment key={item.id}>
             <Button
-              className="flex items-center px-2 py-2 font-medium text-sm"
-              onClick={() => setSelectedAgent(agent.id)}
+              className={
+                cn("flex justify-start px-2 py-2 font-medium text-sm",
+                  instance === unset && item.id === agent ? "bg-muted" : ""
+                )}
+              variant="ghost"
+              onClick={() => setSelectedAgent(item.id)}
             >
               <Cpu className="w-3 h-3 mr-2" />
-              {agent.id}
+              {item.id}
             </Button>
-            {agent.instances.length > 0 && (
+            {item.instances.length > 0 && (
               <div className="ml-4 pl-2">
-                {agent.instances.map((item, index) => (
+                {item.instances.map((instanceItem, index) => (
                   <div
-                    key={item}
-                    className={`relative ${index !== agent.instances.length - 1 ? "mb-1" : ""}`}
+                    key={instanceItem}
+                    className={`relative ${index !== item.instances.length - 1 ? "mb-1" : ""}`}
                   >
                     <div
                       className="absolute top-0 left-0 bottom-0 w-px bg-gray-300"
                       style={{
                         bottom:
-                          index === agent.instances.length - 1 ? "50%" : 0,
+                          index === item.instances.length - 1 ? "50%" : 0,
                       }}
                     />
 
                     <Button
                       onClick={() => {
-                        setSelectAgentInstance(agent.id, item);
+                        setSelectAgentInstance(item.id, instanceItem);
                       }}
                       variant="ghost"
-                      className={`relative justify-start px-4 w-full ml-2 ${item === instance ? "bg-muted" : ""}`}
+                      className={`relative justify-start px-4 w-full ml-2 ${instanceItem === instance ? "bg-muted" : ""}`}
                     >
                       <div className="absolute -left-2 top-1/2 w-2 h-px bg-gray-300" />
                       <Box className="w-3 h-3 mr-2" />
-                      {item}
+                      {instanceItem}
                     </Button>
                   </div>
                 ))}
