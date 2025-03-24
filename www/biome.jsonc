@@ -2,6 +2,12 @@
   "$schema": "node_modules/@biomejs/biome/configuration_schema.json",
   "extends": ["../biome.jsonc"],
   "files": {
-    "ignore": ["dist", "node_modules", "src/*.ts.example"]
+    "ignore": [
+      "dist",
+      "node_modules",
+      "src/*.ts.example",
+      // Formatting messes up oscar's blog post for some reason
+      "src/content/blog/2024-12-06-client-side-guide.mdx"
+    ]
   }
 }
