@@ -26,7 +26,7 @@ In this article, we’ll be covering the steps to prepare apps like Placegoose f
 
 I won’t be getting too technical, but you’ll need to be comfortable with web fundamentals and reading TypeScript, as I won’t be explaining implementation details. It will also help if you’re familiar with Drizzle configuration and database schemas. If you’re new to the HONC stack, I’d recommend giving [the previous article](https://dev.to/fiberplane/placegoose-building-data-apis-with-honc-id8) a read first!
 
-While many production deployments require a complex multi-stage build process that incorporates advanced features like testing or dependency optimization,  we’ll focus on two key steps:
+While many production deployments require a complex multi-stage build process that incorporates advanced features like testing or dependency optimization, we’ll focus on two key steps:
 
 - Creating and seeding a remote D1 database
 - Deploying a Workers project using the [Cloudflare CLI](https://developers.cloudflare.com/workers/wrangler/commands/)
@@ -45,11 +45,11 @@ If you have a better solution, or think you see a problem with one of the implem
 When deploying Workers that rely on bindings to other Cloudflare services, we must first ensure that these services are live. Otherwise, we’ll get an error like this one:
 
 ```sh
-binding DB of type d1 must have a database that already exists. 
+binding DB of type d1 must have a database that already exists.
 Use wrangler or the UI to create the database. [code: 10021]
 ```
 
-Creating Cloudflare services is simple enough. First, [create a Cloudflare account](https://dash.cloudflare.com/sign-up), if you haven’t already, then run the `d1 create` command to create a new remote D1 database: 
+Creating Cloudflare services is simple enough. First, [create a Cloudflare account](https://dash.cloudflare.com/sign-up), if you haven’t already, then run the `d1 create` command to create a new remote D1 database:
 
 ```bash
 wrangler d1 create placegoose-d1
@@ -97,11 +97,11 @@ Even if it feels like a lot at first, using seed data for development—and espe
 
 ## Seeding Placegoose
 
-When I got started on Placegoose, [`drizzle-seed`](https://orm.drizzle.team/docs/seed-overview) had just been released. While intriguing, introducing it felt a bit like scope creep. If nothing else, it didn’t seem like it would support the goose theme I was going for, and solving *that* problem was definitely out of scope.
+When I got started on Placegoose, [`drizzle-seed`](https://orm.drizzle.team/docs/seed-overview) had just been released. While intriguing, introducing it felt a bit like scope creep. If nothing else, it didn’t seem like it would support the goose theme I was going for, and solving _that_ problem was definitely out of scope.
 
 To create the seed data, I used a generative AI tool to create arrays of entries, which I saved in local project files. This worked well for Placegoose because the schema was essentially fixed, and there was no real need (or plans) to modify it. For most projects though, re-generating entries each time the schema changes would be cost-prohibitive, especially considering the amount of scrutiny AI-generated content requires.
 
-Determining the right path to insert the data was equally a function of the project’s requirements and constraints. Unlike many projects, which grow and evolve with time, Placegoose is meant to serve as an example, and as a tool that can easily be run (and modified) locally. Seeding the remote database with a local script was the clear answer: it’s a little more transparent, and it can be integrated into an automated build process if needed. 
+Determining the right path to insert the data was equally a function of the project’s requirements and constraints. Unlike many projects, which grow and evolve with time, Placegoose is meant to serve as an example, and as a tool that can easily be run (and modified) locally. Seeding the remote database with a local script was the clear answer: it’s a little more transparent, and it can be integrated into an automated build process if needed.
 
 ### Infrastructure constraints
 
@@ -118,46 +118,45 @@ Drizzle offers an [HTTP proxy driver](https://orm.drizzle.team/docs/connect-driz
 First though, we need to adjust our `drizzle.config` so that `drizzle-kit` uses the HTTP driver when running in a `production` environment. The config definition is essentially the same: we only need to update the `driver` and `dbCredentials` properties, so that `drizzle-kit` can connect to our remote D1 when applying migrations (or introspecting).
 
 ```tsx
-import 'dotenv/config'; // We use dotenv to grab local environment variables
+import "dotenv/config"; // We use dotenv to grab local environment variables
 import { config } from "dotenv";
-import { defineConfig, type Config } from 'drizzle-kit';
+import { defineConfig, type Config } from "drizzle-kit";
 
 let drizzleConfig: Config;
 
-if (process.env.ENVIRONMENT === 'production') {
-	config({ path: './.prod.vars' });
-	
-	// Don't forget to update your local .prod.vars file!
-	const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-	const databaseId = process.env.CLOUDFLARE_DATABASE_ID;
-	const token = process.env.CLOUDFLARE_D1_TOKEN;
-	
-	// Make sure we actually set our credentials
-	if (!accountId || !databaseId || !token) {
-		console.error(
-			`Configuration Failed: Missing Credentials`,
-			JSON.stringify({ accountId, databaseId, token }, null, 2),
-		);
-		process.exit(1);
-	}
+if (process.env.ENVIRONMENT === "production") {
+  config({ path: "./.prod.vars" });
 
-	drizzleConfig = defineConfig({
-		schema: './src/schema.ts',
-	  out: './migrations',
-	  dialect: 'sqlite',
-	  driver: 'd1-http', // Use the HTTP driver
-	  dbCredentials: {
-	    accountId,
-	    databaseId,
-	    token,
-	  },
-	});
-	
-} else { 
-	// Local config
+  // Don't forget to update your local .prod.vars file!
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+  const databaseId = process.env.CLOUDFLARE_DATABASE_ID;
+  const token = process.env.CLOUDFLARE_D1_TOKEN;
+
+  // Make sure we actually set our credentials
+  if (!accountId || !databaseId || !token) {
+    console.error(
+      `Configuration Failed: Missing Credentials`,
+      JSON.stringify({ accountId, databaseId, token }, null, 2)
+    );
+    process.exit(1);
+  }
+
+  drizzleConfig = defineConfig({
+    schema: "./src/schema.ts",
+    out: "./migrations",
+    dialect: "sqlite",
+    driver: "d1-http", // Use the HTTP driver
+    dbCredentials: {
+      accountId,
+      databaseId,
+      token
+    }
+  });
+} else {
+  // Local config
 }
 
-export default drizzleConfig
+export default drizzleConfig;
 ```
 
 Next, we’ll need to update our seed script to use the HTTP driver. This is slightly more involved, but still pretty straightforward.
@@ -167,44 +166,44 @@ Next, we’ll need to update our seed script to use the HTTP driver. This is sli
 The driver takes a callback responsible for making a single query, and an optional callback for making batches of requests. In the simplest case, the batch callback is just an iterative implementation of the single-query function we provide.
 
 ```tsx
-import { drizzle } from 'drizzle-orm/sqlite-proxy';
+import { drizzle } from "drizzle-orm/sqlite-proxy";
 
 // Drizzle driver instance that we can use
 // interchangeably with the d1 or libsql drivers
 const db = drizzle(
-	/**
-	 * AsyncBatchRemoteCallback
-	 */
-	async (
-		sql: string,
-		params: any[],
-		method: 'run' | 'all' | 'values' | 'get'
-	): Promise<{ rows: any[]; }> => { 
-		// Execute a single query over HTTP
-	},
-	/**
-	 * AsyncBatchRemoteCallback
-	 */
-	async (
-		batch: {
-	    sql: string;
-	    params: any[];
-	    method: 'run' | 'all' | 'values' | 'get';
-		}[]
-	): Promise<{ rows: any[]; }> => {
-		// Iteratively execute an array of queries over HTTP
-	},
-	/**
-	 * Standard Drizzle config, instructs driver to
-	 * translate between snake and camel case column names
-	 */
-	{ casing: 'snake_case', }
+  /**
+   * AsyncBatchRemoteCallback
+   */
+  async (
+    sql: string,
+    params: any[],
+    method: "run" | "all" | "values" | "get"
+  ): Promise<{ rows: any[] }> => {
+    // Execute a single query over HTTP
+  },
+  /**
+   * AsyncBatchRemoteCallback
+   */
+  async (
+    batch: {
+      sql: string;
+      params: any[];
+      method: "run" | "all" | "values" | "get";
+    }[]
+  ): Promise<{ rows: any[] }> => {
+    // Iteratively execute an array of queries over HTTP
+  },
+  /**
+   * Standard Drizzle config, instructs driver to
+   * translate between snake and camel case column names
+   */
+  { casing: "snake_case" }
 );
 ```
 
 Since we’re seeding relational data, we’ll want to take advantage of batches (which are executed as transactions), so we’ll need to implement both callbacks. Let’s start with the single-query case though, so we can get to know [Cloudflare’s D1 HTTP query resource](https://developers.cloudflare.com/api/resources/d1/subresources/database/methods/query/).
 
-For the most part, Cloudflare’s query API matches the `AsyncRemoteCallback` function signature. Both accept a `sql` string, an array of `params`, and the `method`, so we can just pass those values through directly. 
+For the most part, Cloudflare’s query API matches the `AsyncRemoteCallback` function signature. Both accept a `sql` string, an array of `params`, and the `method`, so we can just pass those values through directly.
 
 We’ll also need to specify the `accountId`, `databaseId`, and `apiToken` for our remote D1, as the credentials we set in `drizzle.config` are only used by `drizzle-kit`.
 
@@ -214,57 +213,57 @@ Below is a minimal implementation of the single-query callback. The `fetch` requ
 import type { AsyncRemoteCallback } from "drizzle-orm/sqlite-proxy";
 
 type D1HttpQueryResponse = {
-  errors?: { code: number; message: string; }[];
-	messages?: { code: number; message: string; }[];
-	result?: { results: unknown[]; success: boolean; }[];
-	success?: boolean;
-}
+  errors?: { code: number; message: string }[];
+  messages?: { code: number; message: string }[];
+  result?: { results: unknown[]; success: boolean }[];
+  success?: boolean;
+};
 
 const httpQueryD1: AsyncRemoteCallback = (
   sql: string,
   params: unknown[],
-  method: string,
+  method: string
 ): Promise<{ rows: unknown[][] }> => {
-	const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/d1/database/${databaseId}/query`;
+  const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/d1/database/${databaseId}/query`;
 
   const response = await fetch(url, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiToken}`,
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     },
-    body: JSON.stringify({ sql, params, method }),
+    body: JSON.stringify({ sql, params, method })
   });
-  
+
   if (response.status !== 200) {
-	  /** HTTP request failed */
+    /** HTTP request failed */
   }
 
-	// Based on the Cloudflare docs
-	// In practice, the type should be validated at runtime
+  // Based on the Cloudflare docs
+  // In practice, the type should be validated at runtime
   const dbResponse: D1HttpQueryResponse = await res.json();
-  if (dbResponse.errors.length > 0 || !dbResponse.success) { 
-	  /** Query failed */ 
-	}
-  
-	const queryResult = dbResponse?.result?.at(0);
-	if (!queryResult?.success) {
-		/** Query failed */ 
-	}
-  
+  if (dbResponse.errors.length > 0 || !dbResponse.success) {
+    /** Query failed */
+  }
+
+  const queryResult = dbResponse?.result?.at(0);
+  if (!queryResult?.success) {
+    /** Query failed */
+  }
+
   // Format row data
   const rows = queryResult.results.map((row) => {
-	  if (row instanceof Object) {
-		  return Object.values(row);
-	  }
-	  
-	  throw new Error('Unexpected Response', {
-		  cause: dbResponse,
-	  });
+    if (row instanceof Object) {
+      return Object.values(row);
+    }
+
+    throw new Error("Unexpected Response", {
+      cause: dbResponse
+    });
   });
-  
+
   return { rows };
-}
+};
 ```
 
 Note that since Cloudflare’s D1 `query` endpoint returns results as JSON, we’ll need to flatten the values from each row into an array. Since the returned results are inherently `unknown`, we can use an `instanceof` check to let TypeScript know that each array element can be unpacked with `Object.values`. While it might be tempting to save a few lines by casting to `any`, [doing so should be strictly avoided](https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#any). The cost to your type safety is almost never justified.
@@ -273,21 +272,21 @@ With our single-query callback implemented, creating a function to handle batch 
 
 ```tsx
 const httpBatchQueryD1: AsyncBatchRemoteCallback = async (
-	queries: {
-		sql: string;
-		params: unknown[];
-	  method: string;
-	}[]
+  queries: {
+    sql: string;
+    params: unknown[];
+    method: string;
+  }[]
 ): Promise<{ rows: unknown[][] }> => {
-	const results = [];
-	
-	for (const query of queries) {
-	  const { sql, params, method } = query;
-	  const result = await httpQueryD1(sql, params, method);
-	  results.push(result);
-	}
-	
-	return results;
+  const results = [];
+
+  for (const query of queries) {
+    const { sql, params, method } = query;
+    const result = await httpQueryD1(sql, params, method);
+    results.push(result);
+  }
+
+  return results;
 };
 ```
 
@@ -329,33 +328,33 @@ The `batch` method effectively accepts an array of operations, but it’s typed 
 
 ```tsx
 const chunkInserts = <T extends SQLiteTable>(
-	table: T, 
-	data: T["$inferInsert"][],
-	batchSize: number,
+  table: T,
+  data: T["$inferInsert"][],
+  batchSize: number
 ) => {
-	const dataChunks = chunkArray(data, batchSize);
-	
+  const dataChunks = chunkArray(data, batchSize);
+
   // Initialize the array with the first insert to
   // satisfy the tuple type requirement
   const chunkedInserts: [BatchItem<"sqlite">, ...BatchItem<"sqlite">[]] = [
-    db.insert(table).values(dataChunks[0]),
+    db.insert(table).values(dataChunks[0])
   ];
 
   // Loop starts at 1 as we've already added 0
   for (let i = 1; i < dataChunks.length; i++) {
-	  const batchItem = db.insert(table).values(dataChunks[i]);
+    const batchItem = db.insert(table).values(dataChunks[i]);
     chunkedInserts.push(batchItem);
   }
 
   return chunkedInserts;
-}
+};
 ```
 
 ## Seeding with the CLI
 
 Adding batches to the local seed script was minimally invasive, and got the job done. It was good enough for Placegoose, but it left me wondering whether there was a lower-touch solution.
 
-After some digging, I found that [Cloudflare’s CLI](https://developers.cloudflare.com/d1/wrangler-commands) allows you to push data directly to a remote D1 database, without worrying about batching (or even scripting)! 
+After some digging, I found that [Cloudflare’s CLI](https://developers.cloudflare.com/d1/wrangler-commands) allows you to push data directly to a remote D1 database, without worrying about batching (or even scripting)!
 
 The first step is to initialize and seed a database locally. Then, export the database to a local SQL file using the `wrangler d1 export` command:
 
@@ -379,7 +378,7 @@ You don’t need to include the `--yes` flag. This will automatically approve pr
 
 ### Debugging schema issues
 
-When I first ran this script, the SQL file was uploaded successfully, but the remote execution failed. I got the following error message referring to a `sqlite_sequence` table. 
+When I first ran this script, the SQL file was uploaded successfully, but the remote execution failed. I got the following error message referring to a `sqlite_sequence` table.
 
 ```bash
 🌀 File already uploaded. Processing.
@@ -392,8 +391,8 @@ Normally this table is generated for us when we create a table with auto-increme
 ```tsx
 const metadata = {
   id: integer({ mode: "number" }).primaryKey({
-	  autoIncrement: true, // Simple fix
-  }),
+    autoIncrement: true // Simple fix
+  })
 };
 ```
 
@@ -408,9 +407,9 @@ By adding these lines to the top of the generated SQL file, I got D1 to create a
 
 ### Mapping migration tables
 
-A different change to the generated SQL file *was* necessary though. Drizzle keeps track of migrations in a `__drizzle_migrations` table, which was added to the remote D1 when we used `drizzle-kit` to apply migrations. 
+A different change to the generated SQL file _was_ necessary though. Drizzle keeps track of migrations in a `__drizzle_migrations` table, which was added to the remote D1 when we used `drizzle-kit` to apply migrations.
 
-[Wrangler *also* keeps track of migrations in a `d1_migrations` table](https://developers.cloudflare.com/d1/reference/migrations/#wrangler-customizations) though, and doesn’t have access to Drizzle’s migrations table. Consequently, the generated SQL file includes inserts to a `d1_migrations`table that doesn’t exist on the remote. The schemas are the same though, so we just need to update the table name.
+[Wrangler _also_ keeps track of migrations in a `d1_migrations` table](https://developers.cloudflare.com/d1/reference/migrations/#wrangler-customizations) though, and doesn’t have access to Drizzle’s migrations table. Consequently, the generated SQL file includes inserts to a `d1_migrations`table that doesn’t exist on the remote. The schemas are the same though, so we just need to update the table name.
 
 ```sql
 // INSERT INTO d1_migrations VALUES(...
@@ -419,7 +418,7 @@ INSERT INTO __drizzle_migrations VALUES(1,'0000_little_newton_destine.sql','2025
 
 I’m sure there is a more elegant or hands-off way to approach this (let me know if you’ve found it), but my goal in researching this approach was to verify that it was possible, not to fine-tune it.
 
-After updating the database schema and updating the generated SQL file, we can push *all* the seed data at once. We only have a few hundred records in total, so I’m not sure how this approach scales, but that volume of mock data is sufficient for many projects.
+After updating the database schema and updating the generated SQL file, we can push _all_ the seed data at once. We only have a few hundred records in total, so I’m not sure how this approach scales, but that volume of mock data is sufficient for many projects.
 
 ## Deploying a Worker
 
@@ -431,7 +430,7 @@ With the prerequisites out of the way, there’s just one more step: Run the [Wr
 wrangler deploy --minify src/index.ts
 ```
 
-That’s it! Your project is live. It will be exposed at  `<project-name>.<cloudflare-user>.workers.dev` by default, but you can [configure a custom domain](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/) in your `wrangler.toml` or Cloudflare dashboard. 
+That’s it! Your project is live. It will be exposed at `<project-name>.<cloudflare-user>.workers.dev` by default, but you can [configure a custom domain](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/) in your `wrangler.toml` or Cloudflare dashboard.
 
 If you end up using Placegoose as a starting point for your own mock data API, let me know in the comments! I’d also love to hear if there’s anything you wish I had covered in more detail, or if you’ve discovered a more streamlined approach!
 
