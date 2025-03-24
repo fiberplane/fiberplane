@@ -108,6 +108,7 @@ export default defineConfig({
       ],
       components: {
         Banner: "@/components/Banner.astro",
+        Footer: "@/components/Footer.astro",
         Head: "@/components/Head.astro",
         Header: "@/components/Header.astro",
         Hero: "@/components/Hero.astro"
