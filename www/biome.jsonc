@@ -5,9 +5,7 @@
     "ignore": [
       "dist",
       "node_modules",
-      "src/*.ts.example",
-      // Formatting messes up oscar's blog post for some reason
-      "src/content/blog/2024-12-06-client-side-guide.mdx"
+      "src/*.ts.example"
     ]
   }
 }
