@@ -1,33 +1,22 @@
+import { useStudioStore } from "@/components/playground/store";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
   usePanelConstraints,
 } from "@/components/ui/resizable";
-import { useIsLgScreen, useKeySequence } from "@/hooks";
+import { useIsLgScreen } from "@/hooks";
 import { cn } from "@/utils";
-import { useRef, useState } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
+import { useRef } from "react";
 import { CommandBar } from "../CommandBar";
 import { PlaygroundInput } from "../PlaygroundInput";
 import { RequestPanel } from "../RequestPanel";
 import { ResponsePanel } from "../ResponsePanel";
 import { useMakePlaygroundRequest } from "../queries";
-import { useStudioStore } from "../store";
 import { usePlaygroundSubmitHandler } from "../usePlaygroundSubmitHandler";
 import { getMainSectionWidth } from "./util";
 
 export const PlaygroundPageContent: React.FC = (_props) => {
-  const {
-    setShortcutsOpen,
-    setActiveRequestsPanelTab,
-    visibleRequestsPanelTabs,
-  } = useStudioStore(
-    "setShortcutsOpen",
-    "setActiveRequestsPanelTab",
-    "visibleRequestsPanelTabs",
-  );
-
   const { mutate: makeRequest, isPending: isPlaygroundRequesting } =
     useMakePlaygroundRequest();
 
@@ -38,108 +27,11 @@ export const PlaygroundPageContent: React.FC = (_props) => {
 
   const formRef = useRef<HTMLFormElement>(null);
 
-  useHotkeys(
-    "mod+enter",
-    () => {
-      if (formRef.current) {
-        formRef.current.requestSubmit();
-      }
-    },
-    {
-      enableOnFormTags: ["input"],
-    },
-  );
-
   const isLgScreen = useIsLgScreen();
 
-  const [commandBarOpen, setCommandBarOpen] = useState(false);
-
-  useHotkeys(
-    "mod+k",
-    (e) => {
-      e.preventDefault();
-      setCommandBarOpen(true);
-    },
-    {
-      enableOnFormTags: ["input"],
-    },
-  );
-
-  useHotkeys(
-    "mod+/",
-    () => {
-      setShortcutsOpen(true);
-    },
-    {
-      enableOnFormTags: ["input"],
-    },
-  );
-
-  useKeySequence(
-    ["g", "d"],
-    () => {
-      if (visibleRequestsPanelTabs.includes("docs")) {
-        setActiveRequestsPanelTab("docs");
-      }
-    },
-    { description: "View Route Docs", ignoreSelector: "[contenteditable]" },
-  );
-
-  useKeySequence(
-    ["g", "p"],
-    () => {
-      if (visibleRequestsPanelTabs.includes("params")) {
-        setActiveRequestsPanelTab("params");
-      }
-    },
-    { description: "View Request Params", ignoreSelector: "[contenteditable]" },
-  );
-
-  useKeySequence(
-    ["g", "a"],
-    () => {
-      if (visibleRequestsPanelTabs.includes("auth")) {
-        setActiveRequestsPanelTab("auth");
-      }
-    },
-    {
-      description: "View Request Auth",
-      ignoreSelector: "[contenteditable]",
-    },
-  );
-
-  useKeySequence(
-    ["g", "h"],
-    () => {
-      if (visibleRequestsPanelTabs.includes("headers")) {
-        setActiveRequestsPanelTab("headers");
-      }
-    },
-    {
-      description: "View Request Headers",
-      ignoreSelector: "[contenteditable]",
-    },
-  );
-
-  useKeySequence(
-    ["g", "b"],
-    () => {
-      // TODO - Focus the body input after this
-      if (visibleRequestsPanelTabs.includes("body")) {
-        setActiveRequestsPanelTab("body");
-      }
-    },
-    { description: "View Request Body", ignoreSelector: "[contenteditable]" },
-  );
-
-  useKeySequence(
-    ["g", "d"],
-    () => {
-      if (visibleRequestsPanelTabs.includes("docs")) {
-        setActiveRequestsPanelTab("docs");
-      }
-    },
-    { description: "View Route Docs", ignoreSelector: "[contenteditable]" },
+  const { commandBarOpen, setCommandBarOpen } = useStudioStore(
+    "commandBarOpen",
+    "setCommandBarOpen",
   );
 
   const requestContent = <RequestPanel onSubmit={onSubmit} />;

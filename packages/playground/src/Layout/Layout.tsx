@@ -1,9 +1,11 @@
 import { useStudioStore } from "@/components/playground/store";
 import { Button } from "@/components/ui/button";
+import { useKeySequence } from "@/hooks";
 import { useMountedPath } from "@/hooks/use-mounted-path";
 import { createLink, useMatches } from "@tanstack/react-router";
 import { UserCircle } from "lucide-react";
-import { type ReactNode, forwardRef } from "react";
+import { type ReactNode, forwardRef, useRef } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { cn } from "../utils";
 import { BottomBar } from "./BottomBar";
 import { SettingsScreen } from "./Settings";
@@ -36,12 +38,125 @@ NavButtonComponent.displayName = "NavButtonComponent";
 const NavButton = createLink(NavButtonComponent);
 
 export function Layout({ children }: { children?: ReactNode }) {
-  const { isWorkflowsEnabled, isTracingEnabled, shouldShowTopNav } =
-    useStudioStore(
-      "isWorkflowsEnabled",
-      "isTracingEnabled",
-      "shouldShowTopNav",
-    );
+  const {
+    isWorkflowsEnabled,
+    isTracingEnabled,
+    shouldShowTopNav,
+    setShortcutsOpen,
+    setActiveRequestsPanelTab,
+    visibleRequestsPanelTabs,
+    setCommandBarOpen,
+  } = useStudioStore(
+    "isWorkflowsEnabled",
+    "isTracingEnabled",
+    "shouldShowTopNav",
+    "setShortcutsOpen",
+    "setActiveRequestsPanelTab",
+    "visibleRequestsPanelTabs",
+    "setCommandBarOpen",
+  );
+
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useHotkeys(
+    "mod+enter",
+    () => {
+      if (formRef.current) {
+        formRef.current.requestSubmit();
+      }
+    },
+    {
+      enableOnFormTags: ["input"],
+    },
+  );
+
+  useHotkeys(
+    "mod+k",
+    (e) => {
+      e.preventDefault();
+      setCommandBarOpen(true);
+    },
+    {
+      enableOnFormTags: ["input"],
+    },
+  );
+
+  useHotkeys(
+    "mod+/",
+    () => {
+      setShortcutsOpen(true);
+    },
+    {
+      enableOnFormTags: ["input"],
+    },
+  );
+
+  useKeySequence(
+    ["g", "d"],
+    () => {
+      if (visibleRequestsPanelTabs.includes("docs")) {
+        setActiveRequestsPanelTab("docs");
+      }
+    },
+    { description: "View Route Docs", ignoreSelector: "[contenteditable]" },
+  );
+
+  useKeySequence(
+    ["g", "p"],
+    () => {
+      if (visibleRequestsPanelTabs.includes("params")) {
+        setActiveRequestsPanelTab("params");
+      }
+    },
+    { description: "View Request Params", ignoreSelector: "[contenteditable]" },
+  );
+
+  useKeySequence(
+    ["g", "a"],
+    () => {
+      if (visibleRequestsPanelTabs.includes("auth")) {
+        setActiveRequestsPanelTab("auth");
+      }
+    },
+    {
+      description: "View Request Auth",
+      ignoreSelector: "[contenteditable]",
+    },
+  );
+
+  useKeySequence(
+    ["g", "h"],
+    () => {
+      if (visibleRequestsPanelTabs.includes("headers")) {
+        setActiveRequestsPanelTab("headers");
+      }
+    },
+    {
+      description: "View Request Headers",
+      ignoreSelector: "[contenteditable]",
+    },
+  );
+
+  useKeySequence(
+    ["g", "b"],
+    () => {
+      // TODO - Focus the body input after this
+      if (visibleRequestsPanelTabs.includes("body")) {
+        setActiveRequestsPanelTab("body");
+      }
+    },
+    { description: "View Request Body", ignoreSelector: "[contenteditable]" },
+  );
+
+  useKeySequence(
+    ["g", "d"],
+    () => {
+      if (visibleRequestsPanelTabs.includes("docs")) {
+        setActiveRequestsPanelTab("docs");
+      }
+    },
+    { description: "View Route Docs", ignoreSelector: "[contenteditable]" },
+  );
 
   return (
     <div className="flex flex-col justify-between w-full min-h-screen overflow-hidden bg-muted/30 max-w-128">
