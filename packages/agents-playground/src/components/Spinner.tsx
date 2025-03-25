@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { useStickyLoading } from "@/useStickyLoading";
 import { RefreshCw } from "lucide-react";
 
 const animationDuration = "[animation-duration:1000ms]";
