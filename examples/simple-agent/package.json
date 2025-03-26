@@ -11,7 +11,11 @@
     "format": "prettier --write .",
     "check": "prettier . --check && biome lint && tsc"
   },
-  "keywords": ["cloudflare", "ai", "agents"],
+  "keywords": [
+    "cloudflare",
+    "ai",
+    "agents"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {

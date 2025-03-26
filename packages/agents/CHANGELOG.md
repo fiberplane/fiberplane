@@ -1,5 +1,11 @@
 # @fiberplane/agents
 
+## 0.2.0
+
+### Minor Changes
+
+- This release removes the vite-related components and introduces `fiberplane` wrapper for `fetch` entrypoint. It also includes significant UI updates
+
 ## 0.1.3
 
 ### Patch Changes
