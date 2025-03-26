@@ -326,7 +326,6 @@ export function fiberplane<E extends Env>(
         <body>
           <div id="root" />
           <script type="module" src={jsBundleUrl} />
-          <h1>Fiberplane Agents</h1>
         </body>
       </html>,
     );
