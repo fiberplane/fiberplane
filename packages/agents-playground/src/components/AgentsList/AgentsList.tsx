@@ -10,14 +10,10 @@ export function AgentsList(props: {
   isLoading: boolean;
   refetch: () => void;
 }) {
-  if (!props.agents || props.agents.length === 0) {
-    return <div>Empty</div>;
-  }
-
   // Render a list of agents as cards
   return (
     <div className="h-full w-[1000px] max-w-full mx-auto grid gap-4 grid-rows-[auto_1fr]">
-      <div className="grid grid-cols-[1fr_auto] items-center  pt-3 px-2">
+      <div className="grid grid-cols-[1fr_auto] items-center pt-3 px-2">
         <h2 className="text-xl">Agents</h2>
         <Button
           variant="ghost"
@@ -28,22 +24,26 @@ export function AgentsList(props: {
           <Spinner spinning={props.isLoading} />
         </Button>
       </div>
-      <div
-        className="grid grid-cols-1 lg:grid-cols-3 xlg:grid-cols-3 gap-4 items-start "
-        style={{
-          gridAutoRows: "min-content",
-        }}
-      >
-        {props.agents.map((agent) => (
-          <div key={agent.id} className="h-auto">
-            <AgentCard
-              agent={agent}
-              selectAgent={props.selectAgent}
-              selectAgentInstance={props.selectAgentInstance}
-            />
-          </div>
-        ))}
-      </div>
+      {!props.agents || props.agents.length === 0 ? (
+        <div className="text-muted-foreground">No agents found</div>
+      ) : (
+        <div
+          className="grid grid-cols=1 sm:grid-cols-2 md:grid-cols-3 gap-4 items-start "
+          style={{
+            gridAutoRows: "min-content",
+          }}
+        >
+          {props.agents.map((agent) => (
+            <div key={agent.id} className="h-auto">
+              <AgentCard
+                agent={agent}
+                selectAgent={props.selectAgent}
+                selectAgentInstance={props.selectAgentInstance}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

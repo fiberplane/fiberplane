@@ -1,10 +1,10 @@
-import { unset, type ListAgentsResponse } from "@/types";
+import { cn } from "@/lib/utils";
+import { type ListAgentsResponse, unset } from "@/types";
 import { Box, Cpu, RefreshCw } from "lucide-react";
 import { Fragment } from "react/jsx-runtime";
 import { ListSection } from "./ListSection";
 import { Spinner } from "./Spinner";
 import { Button } from "./ui/button";
-import { cn } from "@/lib/utils";
 
 type Props = {
   setSelectedAgent: (agent: string) => void;
@@ -40,10 +40,10 @@ export function AgentsSidebar(props: Props) {
         {data.map((item) => (
           <Fragment key={item.id}>
             <Button
-              className={
-                cn("flex justify-start px-2 py-2 font-medium text-sm",
-                  instance === unset && item.id === agent ? "bg-muted" : ""
-                )}
+              className={cn(
+                "flex justify-start px-2 py-2 font-medium text-sm",
+                instance === unset && item.id === agent ? "bg-muted" : "",
+              )}
               variant="ghost"
               onClick={() => setSelectedAgent(item.id)}
             >
@@ -60,8 +60,7 @@ export function AgentsSidebar(props: Props) {
                     <div
                       className="absolute top-0 left-0 bottom-0 w-px bg-gray-300"
                       style={{
-                        bottom:
-                          index === item.instances.length - 1 ? "50%" : 0,
+                        bottom: index === item.instances.length - 1 ? "50%" : 0,
                       }}
                     />
 

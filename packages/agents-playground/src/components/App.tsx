@@ -2,24 +2,25 @@ import { Button } from "./ui/button";
 
 import { useListAgents } from "@/hooks";
 import { useMinimumLoadingRefetch } from "@/useMinimumLoadingRefetch";
-import { BoxIcon, HeartHandshake } from "lucide-react";
+import { Box, BoxIcon, HeartHandshake } from "lucide-react";
+import { usePlaygroundStore } from "../store";
 import { AgentDetails } from "./AgentDetails";
 import { AgentsList } from "./AgentsList";
 import { AgentsSidebar } from "./AgentsSidebar";
 import { Layout } from "./Layout";
 import { ListSection } from "./ListSection";
-import { useAppState } from "./useAppState";
 
 export function App() {
   const { data, refetch: rawRefetch } = useListAgents();
   const [refetch, isLoading] = useMinimumLoadingRefetch(rawRefetch, 500);
 
-  const {
-    state: { selectedAgent, selectedInstance },
-    setSelectedAgent,
-    setSelectedAgentInstance,
-    reset,
-  } = useAppState();
+  const selectedAgent = usePlaygroundStore((state) => state.agent);
+  const selectedInstance = usePlaygroundStore((state) => state.instance);
+  const setSelectedAgent = usePlaygroundStore((state) => state.selectAgent);
+  const setSelectedAgentInstance = usePlaygroundStore(
+    (state) => state.selectAgentInstance,
+  );
+  const reset = usePlaygroundStore((state) => state.reset);
 
   if (data?.length === 0) {
     return (
@@ -32,9 +33,9 @@ export function App() {
     );
   }
 
-  const binding = data?.find((a) => a.id === selectedAgent);
-  const hasBinding = data && binding;
-  const instance = binding?.instances.find((i) => i === selectedInstance);
+  const agent = data?.find((a) => a.id === selectedAgent);
+  const hasBinding = data && agent;
+  const instance = agent?.instances.find((i) => i === selectedInstance);
 
   return (
     <Layout reset={reset}>
@@ -51,9 +52,13 @@ export function App() {
           />
           <div>
             {instance !== undefined ? (
-              <AgentDetails agent={binding} instance={instance} />
+              <AgentDetails agent={agent} instance={instance} />
             ) : (
-              <ListSection title={binding.id}>
+              <ListSection
+                title={agent.id}
+                className="h-full"
+                contentClassName="grid items-center justify-center"
+              >
                 <div className="grid gap-4 max-w-prose mx-auto border rounded-lg p-4 m-4">
                   <h2 className="text-lg ">Active instances</h2>
                   <p className="text-muted-foreground">
@@ -62,22 +67,34 @@ export function App() {
                     you must select one.
                   </p>
                   <div>Detected instances: </div>
-                  <div className="flex gap-2">
-                    {binding.instances.map((instance) => (
-                      <Button
-                        key={instance}
-                        onClick={(event) => {
-                          setSelectedAgentInstance(binding.id, instance);
-                        }}
-                        type="button"
-                        size="sm"
-                        className="bg-info/15 hover:bg-info/35"
-                      >
-                        <BoxIcon className="w-3.5 h-3.5" />
-                        {instance}
-                      </Button>
-                    ))}
-                  </div>
+
+                  {agent.instances.length ? (
+                    <div className="flex gap-2">
+                      {agent.instances.map((instance) => (
+                        <Button
+                          key={instance}
+                          onClick={(event) => {
+                            setSelectedAgentInstance(agent.id, instance);
+                          }}
+                          type="button"
+                          size="sm"
+                          className="bg-info/15 hover:bg-info/35"
+                        >
+                          <BoxIcon className="w-3.5 h-3.5" />
+                          {instance}
+                        </Button>
+                      ))}
+                    </div>
+                  ) : (
+                    // <div className="text-muted-foreground text-center mx-auto border p-2 rounded-lg">
+                    <div className="text-muted-foreground text-center mx-auto">
+                      <em className="text-foreground italic font-normal mb-1 flex items-center justify-center">
+                        <Box className="w-4 h-4 mr-2" />
+                        No instances detected yet.
+                      </em>
+                      Please make a request to the agent to start an instance.
+                    </div>
+                  )}
                 </div>
               </ListSection>
             )}
