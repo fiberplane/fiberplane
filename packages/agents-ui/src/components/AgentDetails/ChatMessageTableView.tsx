@@ -4,7 +4,7 @@ import {
   Clock,
   Info,
   MessageSquare,
-  User,
+  UserIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -227,7 +227,7 @@ const MessageItem = ({ message }: { message: ChatMessage }) => {
       <div className="grid justify-between grid-cols-[1fr_auto] gap-2">
         <div className="flex items-center gap-2">
           {isUser ? (
-            <User size={18} />
+            <UserIcon size={18} />
           ) : isAssistant ? (
             <MessageSquare size={18} />
           ) : (
