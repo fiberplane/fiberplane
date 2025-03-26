@@ -2,23 +2,17 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"]
     },
     "target": "ESNext",
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
+    "lib": ["ESNext", "DOM"],
     "jsx": "react-jsx",
+
+    "jsxImportSource": "hono/jsx",
     "module": "ESNext",
     "rootDir": "./src",
     "moduleResolution": "Bundler",
-    "types": [
-      "vite/client",
-      "@cloudflare/workers-types"
-    ],
+    "types": ["vite/client", "@cloudflare/workers-types"],
     "declaration": true,
     "noEmit": false,
     "outDir": "./dist",
@@ -29,10 +23,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "tests"
-  ]
+  "include": ["src"],
+  "exclude": ["tests"]
 }
