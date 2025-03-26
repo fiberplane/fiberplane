@@ -1,16 +1,16 @@
-import { useEffect, useState, useRef, useCallback } from "react";
-import { useAgent } from "agents/react";
-import { useAgentChat } from "agents/ai-react";
 import type { Message } from "@ai-sdk/react";
-import { APPROVAL } from "./shared";
-import type { tools } from "./tools";
+import { useAgentChat } from "agents/ai-react";
+import { useAgent } from "agents/react";
+import { Bot, Bug, Moon, Send, Sun, Trash2 } from "lucide-react";
+import { useQueryState } from "nuqs";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Avatar, AvatarFallback } from "./components/ui/avatar";
 import { Button } from "./components/ui/button";
 import { Card } from "./components/ui/card";
 import { Input } from "./components/ui/input";
-import { Avatar, AvatarFallback } from "./components/ui/avatar";
 import { Switch } from "./components/ui/switch";
-import { Send, Bot, Trash2, Sun, Moon, Bug } from "lucide-react";
-import { useQueryState } from 'nuqs';
+import { APPROVAL } from "./shared";
+import type { tools } from "./tools";
 
 // List of tools that require human confirmation
 const toolsRequiringConfirmation: (keyof typeof tools)[] = [
@@ -25,7 +25,7 @@ export default function Chat() {
   });
   const [showDebug, setShowDebug] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [agentName] = useQueryState('agent');
+  const [agentName] = useQueryState("agent");
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -56,7 +56,7 @@ export default function Chat() {
   };
 
   const agent = useAgent(
-    agentName ? { agent: "chat", name: agentName } : { agent: "chat" }
+    agentName ? { agent: "chat", name: agentName } : { agent: "chat" },
   );
 
   const {

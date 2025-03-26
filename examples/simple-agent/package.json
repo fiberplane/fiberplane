@@ -11,16 +11,12 @@
     "format": "prettier --write .",
     "check": "prettier . --check && biome lint && tsc"
   },
-  "keywords": [
-    "cloudflare",
-    "ai",
-    "agents"
-  ],
+  "keywords": ["cloudflare", "ai", "agents"],
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@cloudflare/vite-plugin": "0.1.11",
+    "@cloudflare/vite-plugin": "0.1.16",
     "@cloudflare/vitest-pool-workers": "^0.8.0",
     "@cloudflare/workers-types": "^4.20250313.0",
     "@tailwindcss/vite": "^4.0.14",
@@ -43,7 +39,7 @@
     "@radix-ui/react-avatar": "^1.1.3",
     "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-switch": "^1.1.3",
-    "agents": "^0.0.39",
+    "agents": "^0.0.43",
     "ai": "^4.1.61",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

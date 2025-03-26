@@ -41,7 +41,11 @@
       }
     },
     {
-      "include": ["apps/studio/studio-frontend", "packages/playground"],
+      "include": [
+        "apps/studio/studio-frontend",
+        "packages/playground",
+        "packages/agents-ui"
+      ],
       "linter": {
         "enabled": true,
         "rules": {

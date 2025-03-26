@@ -65,12 +65,19 @@ const scheduleTask = tool({
 });
 
 const memoryTool = tool({
-  description: "store or retrieve information from memory. Use this when the user wants to remember something or when they express preferences.",
+  description:
+    "store or retrieve information from memory. Use this when the user wants to remember something or when they express preferences.",
   parameters: z.object({
     action: z.enum(["store", "retrieve"]),
     key: z.string().describe("The key to store or retrieve the memory under"),
-    value: z.string().optional().describe("The value to store. Only required for store action."),
-    context: z.string().optional().describe("Optional context about when/why this memory was stored"),
+    value: z
+      .string()
+      .optional()
+      .describe("The value to store. Only required for store action."),
+    context: z
+      .string()
+      .optional()
+      .describe("Optional context about when/why this memory was stored"),
   }),
   execute: async ({ action, key, value, context }) => {
     const agent = agentContext.getStore();
@@ -78,19 +85,24 @@ const memoryTool = tool({
       throw new Error("No agent found");
     }
 
-    const state = agent.state as { memories: Record<string, { value: string; timestamp: string; context?: string }> };
-    
+    const state = agent.state as {
+      memories: Record<
+        string,
+        { value: string; timestamp: string; context?: string }
+      >;
+    };
+
     if (action === "store") {
       if (!value) {
         throw new Error("Value is required for store action");
       }
-      
+
       state.memories[key] = {
         value,
         timestamp: new Date().toISOString(),
         context,
       };
-      
+
       agent.setState(state);
       return `Stored memory under key "${key}"`;
     }

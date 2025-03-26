@@ -12,6 +12,7 @@
     "build:studio-frontend": "pnpm --filter @fiberplane/studio-frontend build && cp -r apps/studio/studio-frontend/dist/* apps/studio/studio-api/dist",
     "build:types": "pnpm --filter @fiberplane/fpx-types build",
     "build:www": "pnpm --filter www build",
+    "build:agents": "pnpm --filter @fiberplane/agents build",
     "dev:www": "pnpm --filter www dev",
     "dev:studio": "pnpm --filter @fiberplane/studio-frontend dev",
     "dev:studio-api": "pnpm --filter @fiberplane/studio dev",
@@ -21,7 +22,8 @@
     "clean:studio-frontend": "rimraf apps/studio/studio-frontend/dist",
     "format": "biome check . --write",
     "lint": "pnpm --recursive lint",
-    "typecheck": "pnpm --recursive typecheck"
+    "typecheck": "pnpm --recursive typecheck",
+    "changeset": "changeset"
   },
   "repository": {
     "type": "git",
@@ -33,9 +35,10 @@
   "homepage": "https://github.com/fiberplane/fiberplane#readme",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "@changesets/cli": "^2.28.1",
     "pkg-pr-new": "^0.0.35",
     "rimraf": "^6.0.1",
-    "typescript": "^5.7.2",
+    "typescript": "^5.8.2",
     "wrangler": "^3.91.0"
   },
   "packageManager": "pnpm@9.11.0"
