@@ -11,10 +11,11 @@ async function run() {
 
   // Build the vite-agents library using tsup
   await build({
-    entry: ["src/index.ts"],
+    entry: ["src/index.tsx"],
     format: ["esm"],
     dts: true,
     sourcemap: true,
+    external: ["vite", "cloudflare:workers", "react", "zod", "agents"],
     clean: true,
   });
 
@@ -55,7 +56,6 @@ async function run() {
 
 run().catch((error) => {
   // Ensure we're back in the original directory on uncaught errors
-  process.chdir(path.resolve(__dirname, ".."));
   console.error("Build failed:", error);
   process.exit(1);
 });
