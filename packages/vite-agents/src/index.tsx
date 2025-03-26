@@ -217,9 +217,9 @@ type FiberDecoratedAgent = Agent<unknown, unknown> & FiberProperties;
  * }
  * ```
  */
-export function Fiber() {
-  return <T extends AgentConstructor>(BaseClass: T) => {
-    return class FiberAgent extends BaseClass {
+export function Fiber<E = unknown, S = unknown>() {
+  return <T extends AgentConstructor<E, S>>(BaseClass: T) => {
+    return class extends BaseClass {
       // biome-ignore lint/complexity/noUselessConstructor: Required for TypeScript mixins
       // biome-ignore lint/suspicious/noExplicitAny: Required for TypeScript mixins
       constructor(...args: any[]) {
@@ -248,14 +248,16 @@ export function Fiber() {
           },
         });
 
-        super.onStateUpdate(state, source);
+        super.onStateUpdate(state as S, source);
       }
 
       onMessage(connection: Connection, message: WSMessage) {
         this.recordEvent({
           event: "ws_message",
           payload: {
-            connection,
+            connection: {
+              id: connection.id,
+            },
             message,
           },
         });
@@ -319,7 +321,7 @@ const agentInstances = new Map<string, string[]>();
 function createFpApp() {
   return new Hono()
     .basePath("/fp")
-    .get("/", async (c) => {
+    .get("*", async (c) => {
       const cdn =
         "https://cdn.jsdelivr.net/npm/@fiberplane/agents@latest/dist/playground/";
       const cssBundleUrl = new URL("index.css", cdn).href;
@@ -342,7 +344,7 @@ function createFpApp() {
         </html>,
       );
     })
-    .get("/agents", async (c) => {
+    .get("/api/agents", async (c) => {
       const agents = Array.from(agentInstances.entries()).map(
         ([namespace, instances]) => ({
           id: namespace,
