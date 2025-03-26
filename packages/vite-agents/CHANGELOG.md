@@ -1,5 +1,11 @@
 # @fiberplane/agents
 
+## 0.1.3
+
+### Patch Changes
+
+- Make sure that playground UI is wired properly
+
 ## 0.1.2
 
 ### Patch Changes
