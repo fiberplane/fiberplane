@@ -4,6 +4,8 @@ import { logger } from "hono/logger";
 import type { ViteDevServer } from "vite";
 import type { DurableObjectsSuccess, ListAgentsResponse } from "./types";
 import { getDurableObjectsFromConfig } from "./utils";
+import fs from "node:fs";
+import path from "node:path";
 
 type Options = {
   basePath?: string;
@@ -26,6 +28,116 @@ export function agentsPlugin(options: Options = {}) {
 
   const router = new Hono().basePath(basePath);
   router.use(logger());
+
+  // Serve files from dist/playground directory
+  router.get("/", async (c) => {
+    // Get current working directory and list key directories
+    const cwd = process.cwd();
+    let output = `Agents Plugin Directory Structure (CWD: ${cwd})\n\n`;
+    
+    // List directories in current working directory
+    try {
+      const rootFiles = fs.readdirSync(cwd);
+      output += `== Root Directory (${cwd}) ==\n`;
+      for (const file of rootFiles) {
+        try {
+          const stats = fs.statSync(path.join(cwd, file));
+          output += `${stats.isDirectory() ? '[DIR] ' : '[FILE]'} ${file}\n`;
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            output += `[ERROR] ${file} (${err.message})\n`;
+          } else {
+            output += `[ERROR] ${file} (Unknown error)\n`;
+          }
+        }
+      }
+      
+      // Check 'dist' directory if it exists
+      const distPath = path.join(cwd, 'dist');
+      if (fs.existsSync(distPath)) {
+        output += `\n== Dist Directory (${distPath}) ==\n`;
+        const distFiles = fs.readdirSync(distPath);
+        for (const file of distFiles) {
+          try {
+            const stats = fs.statSync(path.join(distPath, file));
+            output += `${stats.isDirectory() ? '[DIR] ' : '[FILE]'} ${file}\n`;
+          } catch (err: unknown) {
+            if (err instanceof Error) {
+              output += `[ERROR] ${file} (${err.message})\n`;
+            } else {
+              output += `[ERROR] ${file} (Unknown error)\n`;
+            }
+          }
+        }
+        
+        // Check 'dist/playground' if it exists
+        const playgroundPath = path.join(distPath, 'playground');
+        if (fs.existsSync(playgroundPath)) {
+          output += `\n== Playground Directory (${playgroundPath}) ==\n`;
+          const playgroundFiles = fs.readdirSync(playgroundPath);
+          for (const file of playgroundFiles) {
+            try {
+              const stats = fs.statSync(path.join(playgroundPath, file));
+              output += `${stats.isDirectory() ? '[DIR] ' : '[FILE]'} ${file}\n`;
+            } catch (err: unknown) {
+              if (err instanceof Error) {
+                output += `[ERROR] ${file} (${err.message})\n`;
+              } else {
+                output += `[ERROR] ${file} (Unknown error)\n`;
+              }
+            }
+          }
+        }
+      }
+      
+      // Check for 'src' directory
+      const srcPath = path.join(cwd, 'src');
+      if (fs.existsSync(srcPath)) {
+        output += `\n== Src Directory (${srcPath}) ==\n`;
+        const srcFiles = fs.readdirSync(srcPath);
+        for (const file of srcFiles) {
+          try {
+            const stats = fs.statSync(path.join(srcPath, file));
+            output += `${stats.isDirectory() ? '[DIR] ' : '[FILE]'} ${file}\n`;
+          } catch (err: unknown) {
+            if (err instanceof Error) {
+              output += `[ERROR] ${file} (${err.message})\n`;
+            } else {
+              output += `[ERROR] ${file} (Unknown error)\n`;
+            }
+          }
+        }
+      }
+      
+      // Check for 'public' directory
+      const publicPath = path.join(cwd, 'public');
+      if (fs.existsSync(publicPath)) {
+        output += `\n== Public Directory (${publicPath}) ==\n`;
+        const publicFiles = fs.readdirSync(publicPath);
+        for (const file of publicFiles) {
+          try {
+            const stats = fs.statSync(path.join(publicPath, file));
+            output += `${stats.isDirectory() ? '[DIR] ' : '[FILE]'} ${file}\n`;
+          } catch (err: unknown) {
+            if (err instanceof Error) {
+              output += `[ERROR] ${file} (${err.message})\n`;
+            } else {
+              output += `[ERROR] ${file} (Unknown error)\n`;
+            }
+          }
+        }
+      }
+      
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        output += `Error scanning directories: ${error.message}\n`;
+      } else {
+        output += 'Error scanning directories: Unknown error\n';
+      }
+    }
+    
+    return c.text(output);
+  });
 
   router.get("/api/agents", (c) => {
     // Build response from in-memory data instead of re-reading config
@@ -118,6 +230,15 @@ export function agentsPlugin(options: Options = {}) {
 
       // Load durable objects config once at startup
       loadDurableObjectsConfig();
+
+      // Serve playground files
+      server.middlewares.use((req, res, next) => {
+        if (req.url === "/") {
+          // Let Vite handle the request
+          return next();
+        }
+        return next();
+      });
 
       // Intercept agent requests and track instances
       server.middlewares.use((req, res, next) => {
