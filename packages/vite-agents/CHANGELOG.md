@@ -1,5 +1,11 @@
 # @fiberplane/agents
 
+## 0.1.1
+
+### Patch Changes
+
+- Correctly build the package source
+
 ## 0.1.0
 
 ### Major Changes
