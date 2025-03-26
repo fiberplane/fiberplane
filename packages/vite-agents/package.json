@@ -26,7 +26,7 @@
     }
   },
   "scripts": {
-    "dev": "tsup --watch",
+    "dev": "pnpm run build && tsup --watch",
     "build": "tsx scripts/build.ts",
     "format": "biome format --write",
     "typecheck": "tsc --noEmit",
@@ -39,6 +39,7 @@
   "dependencies": {
     "@hono/node-server": "^1.13.7",
     "@hono/node-ws": "^1.1.0",
+    "agents": "^0.0.46",
     "ai": "^4.1.61",
     "chokidar": "^3.6.0",
     "clsx": "^2.1.1",
