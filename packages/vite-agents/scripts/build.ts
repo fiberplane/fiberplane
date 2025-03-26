@@ -29,7 +29,7 @@ async function run() {
 
   // Change to the agents-playground directory so Vite can resolve all dependencies correctly
   process.chdir(agentsPlaygroundPath);
-  await viteBuild();
+  await viteBuild({ build: { sourcemap: false } });
   // Change back to original directory
   process.chdir(originalDir);
 
