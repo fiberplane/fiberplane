@@ -238,7 +238,9 @@ export function Fiber() {
         this.recordEvent({
           event: "ws_message",
           payload: {
-            connection,
+            connection: {
+              id: connection.id,
+            },
             message,
           },
         });

@@ -1,5 +1,9 @@
 import { useSSE } from "@/hooks";
-import { noop } from "@/lib/utils";
+import { useFilteredEvents } from "@/hooks/useFilteredEvents";
+import type { AgentEvent, AgentEventType, EventPayload } from "@/hooks/useSSE";
+import { useTimeAgo } from "@/hooks/useTimeAgo";
+import { cn, noop } from "@/lib/utils";
+import { EMPTY_EVENTS, usePlaygroundStore } from "@/store";
 import {
   AlertCircle,
   ArrowRight,
@@ -10,10 +14,12 @@ import {
   Info,
   LayoutDashboard,
   MessageSquare,
+  Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { CodeMirrorJsonEditor } from "../CodeMirror";
-import { ListSection } from "../ListSection";
+import { Method } from "../Method";
+import { Checkbox } from "../ui/Checkbox";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 
@@ -24,17 +30,6 @@ interface HttpRequestPayload {
   headers?: Record<string, string>;
   body?: unknown;
   [key: string]: unknown;
-}
-
-// Generic event payload type
-interface EventPayload {
-  [key: string]: unknown;
-}
-
-interface AgentEvent {
-  type: AgentEventType;
-  timestamp: string;
-  payload: EventPayload;
 }
 
 // Helper function to format the URL for display
@@ -64,7 +59,8 @@ const formatTimestamp = (timestamp: string): string => {
 const JSONViewer = ({
   data,
   label = "Raw Data",
-}: { data: unknown; label?: string }) => {
+  className,
+}: { data: unknown; label?: string; className?: string }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const jsonString = useMemo(() => {
     try {
@@ -75,7 +71,7 @@ const JSONViewer = ({
   }, [data]);
 
   return (
-    <div className="font-mono text-sm mt-2">
+    <div className={cn("font-mono text-sm mt-2", className)}>
       <Button
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
@@ -84,16 +80,21 @@ const JSONViewer = ({
         className="w-auto pr-2 pl-1 text-xs gap-1"
       >
         {isExpanded ? (
-          <ChevronDown className="h-4 w-4" />
+          <ChevronDown className="h-3.5 w-3.5" />
         ) : (
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-3.5 w-3.5" />
         )}
         {label}
       </Button>
 
       {isExpanded && (
         <div className="mt-2">
-          <CodeMirrorJsonEditor onChange={noop} readOnly value={jsonString} />
+          <CodeMirrorJsonEditor
+            onChange={noop}
+            readOnly
+            value={jsonString}
+            minHeight="auto"
+          />
         </div>
       )}
     </div>
@@ -149,10 +150,9 @@ const HttpRequestDetails = ({ payload }: { payload: HttpRequestPayload }) => {
   const displayUrl = typeof url === "string" ? formatUrl(url) : "";
 
   return (
-    <div className="mt-1 text-sm">
-      <div>
-        <span className="font-medium">{method as string}</span> {displayUrl}
-      </div>
+    <div className="mt-1 text-sm grid-cols-[auto_1fr] grid gap-2">
+      <Method method={method} />{" "}
+      <span className="font-mono text-muted-foreground">{displayUrl}</span>
       {!!payload.body && typeof payload.body === "object" && (
         <JSONViewer
           data={payload.body as Record<string, unknown>}
@@ -178,7 +178,7 @@ const WebSocketDetails = ({
     message = "WebSocket message received";
   }
 
-  return <div className="mt-1 text-sm">{message}</div>;
+  return <div className="mt-1 text-sm text-muted-foreground">{message}</div>;
 };
 
 // State change details component
@@ -244,63 +244,70 @@ const EventSummary = ({
 
 // Single event item component
 const EventItem = ({ event }: { event: AgentEvent }) => {
-  const formattedDate = formatTimestamp(event.timestamp);
+  const formattedDate = useTimeAgo(event.timestamp);
 
   return (
-    <div className="p-3 rounded-lg mb-2 bg-muted border border-border">
-      <div className="flex justify-between items-center mb-1">
-        <div className="flex items-center gap-2">
-          <Badge
-            variant={getEventVariant(event.type)}
-            className="flex items-center gap-1 py-1 px-2 opacity-80 text-xs font-normal"
-          >
-            {getEventIcon(event.type)}
-            {event.type}
-          </Badge>
+    <div className="@container/event">
+      <div
+        className={cn(
+          "p-3 @xl/event:p-0 grid",
+          "bg-muted/20",
+          "border @xl/event:border-0 border-border rounded-lg",
+          "grid-cols-1",
+          "[grid-template-areas:'badge_badge_time'_'summary_summary_summary'_'details_details_details']",
+          "@xl/event:[grid-template-areas:'badge_summary_time'_'details_details_details']",
+          "@xl/event:grid-cols-[auto_1fr_auto]",
+          "items-center",
+          // "@sm/event:opacity-80",
+        )}
+      >
+        {/* <div className="grid grid-cols-[auto_1fr] justify-between items-center"> */}
+        <div className="[grid-area:badge] grid">
+          <div className="w-fit">
+            <Badge
+              variant={getEventVariant(event.type)}
+              className="flex items-center gap-1 py-2 px-2 opacity-80 text-xs font-normal"
+            >
+              {getEventIcon(event.type)}
+              <span className="@xl/event:hidden">{event.type}</span>
+            </Badge>
+          </div>
         </div>
-        <div className="flex items-center text-sm text-muted-foreground">
+        <div className="flex items-center text-sm text-muted-foreground justify-end [grid-area:time]">
           <Clock size={14} className="mr-1" />
           {formattedDate}
         </div>
+
+        <div className="px-2.5 [grid-area:summary]">
+          <EventSummary type={event.type} payload={event.payload} />
+        </div>
+
+        <JSONViewer className="[grid-area:details] mt-0" data={event.payload} />
       </div>
-
-      <EventSummary type={event.type} payload={event.payload} />
-
-      <JSONViewer data={event.payload} />
     </div>
   );
 };
 
 export function EventsView(props: { namespace: string; instance: string }) {
-  const { namespace, instance } = props;
+  const resetAgentInstanceEvents = usePlaygroundStore(
+    (state) => state.resetAgentInstanceEvents,
+  );
+  const clearEvents = () =>
+    resetAgentInstanceEvents(props.namespace, props.instance);
 
-  const {
-    data: events,
-    // status,
-    clearEvents,
-  } = useSSE<AgentEvent>(`/agents/${namespace}/${instance}/admin/events`, {
-    eventTypes: [
-      "http_request",
-      "state_change",
-      "ws_open",
-      "ws_message",
-      "ws_close",
-      "stream_close",
-      "stream_error",
-    ],
-    maxEvents: 100, // Limit to latest 100 events
-    filterAdminEndpoints: true, // Filter out admin/db and admin/events endpoints
-  });
-
-  // For debugging - log the events to console
-  useMemo(() => {
-    if (events.length > 0) {
-      console.log("SSE Events:", events);
-    }
-  }, [events]);
+  const shownEvents = useFilteredEvents();
+  const rawEvents = usePlaygroundStore(
+    (state) =>
+      state.agentsState[props.namespace]?.instances[props.instance]?.events ??
+      EMPTY_EVENTS,
+  );
+  const showAdminEvents = usePlaygroundStore((state) => state.showAdminEvents);
+  const toggleShowAdminEvents = usePlaygroundStore(
+    (state) => state.toggleAdminEvents,
+  );
 
   const sortedEvents = useMemo(() => {
-    return [...events].sort((a, b) => {
+    return [...shownEvents].sort((a, b) => {
       // Handle case where timestamps might be invalid
       try {
         return (
@@ -310,38 +317,47 @@ export function EventsView(props: { namespace: string; instance: string }) {
         return 0;
       }
     });
-  }, [events]);
+  }, [shownEvents]);
 
   return (
-    <ListSection
-      title={
-        <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-2">
-            Agent Events
-            <span className="text-muted-foreground">
-              ({events.length} total)
-            </span>
-          </div>
-          <Button size="sm" onClick={clearEvents}>
-            Clear Events
+    <div>
+      <div className="grid items-center grid-cols-[1fr_auto] gap-2 border-b border-border pb-4">
+        <span className="text-muted-foreground">
+          Showing ({shownEvents.length} of {rawEvents.length} events)
+        </span>
+        <div className="flex items-center gap-2">
+          {/* biome-ignore lint/a11y/noLabelWithoutControl: Checkbox is the related input element */}
+          <label className="text-muted-foreground text-sm flex items-center gap-1 cursor-pointer hover:text-foreground">
+            <Checkbox
+              checked={showAdminEvents}
+              onCheckedChange={toggleShowAdminEvents}
+            />{" "}
+            Show all
+          </label>
+          <Button
+            size="icon-xs"
+            variant="ghost"
+            onClick={clearEvents}
+            className="w-auto h-auto p-1"
+          >
+            <Trash2 className="w-4 h-4" />
           </Button>
         </div>
-      }
-    >
+      </div>
+
       {sortedEvents.length === 0 ? (
-        <div className="text-sm text-muted-foreground py-4">
-          No events captured yet.
+        <div className="text-sm text-muted-foreground py-4 text-center">
+          {rawEvents.length === 0
+            ? "No events captured yet."
+            : "Filtered selection has no events."}
         </div>
       ) : (
         <div className="space-y-2">
           {sortedEvents.map((event, idx) => (
-            <EventItem
-              key={`${event.timestamp || "unknown"}-${event.type || "unknown"}-${idx}`}
-              event={event}
-            />
+            <EventItem key={`${event.id}`} event={event} />
           ))}
         </div>
       )}
-    </ListSection>
+    </div>
   );
 }

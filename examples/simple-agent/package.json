@@ -39,7 +39,7 @@
     "@radix-ui/react-avatar": "^1.1.3",
     "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-switch": "^1.1.3",
-    "agents": "^0.0.39",
+    "agents": "^0.0.43",
     "ai": "^4.1.61",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

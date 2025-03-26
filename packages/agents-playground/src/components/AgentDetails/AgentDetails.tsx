@@ -1,5 +1,7 @@
 import { useAgentDB } from "@/hooks";
+import { useFilteredEvents, useAgentInstanceEvents } from "@/hooks";
 import { cn } from "@/lib/utils";
+import { type SSEStatus, usePlaygroundStore } from "@/store";
 import type { ListAgentsResponse } from "@/types";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Database, History, ListIcon } from "lucide-react";
@@ -32,7 +34,7 @@ export function AgentDetails({
   instance,
 }: { agent: ListAgentsResponse[0]; instance: string }) {
   const { data: db, refetch } = useAgentDB(agentDetails.id, instance);
-  const ref = useRef<WebSocket | null>(null);
+  useAgentInstanceEvents(agentDetails.id, instance);
 
   useEffect(() => {
     const id = setInterval(refetch, POLL_INTERVAL);
@@ -121,15 +123,17 @@ export function AgentDetails({
         </div>
       }
       className="h-full"
+      contentClassName="h-full"
     >
-      <div className="grid gap-2 grid-cols-[auto_400px]">
+      <div className="flex flex-col gap-2 grid-rows-2 lg:grid lg:grid-rows-1 h-full lg:grid-cols-[auto_auto]">
         <FpTabs
           value={activeTab}
           onValueChange={setActiveTab}
           className={cn(
             "grid grid-rows-[auto_1fr]",
             // NOTE - This max-height is necessary to allow overflow to be scrollable
-            "max-h-full",
+            "max-h-fit overflow-hidden",
+            "lg:overflow-scroll",
           )}
         >
           <FpTabsList className="bg-transparent">
@@ -153,7 +157,8 @@ export function AgentDetails({
             className={cn(
               "grid grid-rows-[auto_1fr]",
               // NOTE - This max-height is necessary to allow overflow to be scrollable
-              "max-h-full",
+              // "max-h-full",
+              "max-h-fit overflow-hidden",
             )}
           >
             <FpTabsList className="bg-transparent">
@@ -162,16 +167,15 @@ export function AgentDetails({
                 Details
               </FpTabsTrigger>
               <FpTabsTrigger value="Events" className="flex gap-2">
-                <History className="w-3.5" />
-                Events
+                <EventsTabLabel
+                  instance={instance}
+                  namespace={agentDetails.id}
+                />
               </FpTabsTrigger>
             </FpTabsList>
             <FpTabsContent
               value="details"
-              className={cn(
-                // Need a lil bottom padding to avoid clipping the inputs of the last row in the form
-                "pb-16",
-              )}
+              className={cn("min-h-0 overflow-hidden")}
             >
               <KeyValueTable
                 keyValue={{
@@ -180,9 +184,14 @@ export function AgentDetails({
                   ScriptName: agentDetails.scriptName ?? "",
                 }}
                 className="border border-muted rounded-lg"
+                keyCellClassName="px-2"
+                valueCellClassName="px-2"
               />
             </FpTabsContent>
-            <FpTabsContent value="Events">
+            <FpTabsContent
+              value="Events"
+              className={cn("min-h-0 overflow-hidden")}
+            >
               <EventsView namespace={agentDetails.id} instance={instance} />
             </FpTabsContent>
           </FpTabs>
@@ -190,4 +199,37 @@ export function AgentDetails({
       </div>
     </ListSection>
   );
+}
+
+function EventsTabLabel(props: { instance: string; namespace: string }) {
+  const events = useFilteredEvents();
+  const eventsCount = events.length;
+  const eventStreamStatus = usePlaygroundStore(
+    (state) =>
+      state.agentsState[props.namespace]?.instances[props.instance]
+        ?.eventStreamStatus ?? "disconnected",
+  );
+
+  return (
+    <div className="flex gap-2 items-center">
+      <History className="w-3.5" />
+      Events {eventsCount ? `(${eventsCount})` : null}{" "}
+      <ConnectionStatus status={eventStreamStatus} />
+    </div>
+  );
+}
+
+function ConnectionStatus(props: { status: SSEStatus }) {
+  const { status } = props;
+
+  if (status !== "open") {
+    return (
+      <div
+        className="bg-warning w-2 h-2 rounded-full animate-in fade-in-0 duration-500"
+        title={`Event stream offline: ${status}`}
+      />
+    );
+  }
+
+  return null;
 }
