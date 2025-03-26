@@ -50,6 +50,8 @@ class MyAgent extends Agent<MyEnv, MyState> {
 }
 ```
 
+### 3. Access the Agents playground in your browser by appending `/fp` to your worker's URL
+
 ## Features
 
 - **State Introspection**: Monitor the internal state of your agents
@@ -59,7 +61,7 @@ class MyAgent extends Agent<MyEnv, MyState> {
 
 ## Current Status
 
-This package is in early development and is considered a work in progress. APIs may change in future releases.
+This package is in early development and is considered a work in progress. APIs may change in future releases. Also, please do not use this package in production yet.
 
 ## Publishing a New Version
 
