@@ -311,12 +311,21 @@ export function fiberplane<E extends Env>(
   const fpApp = new Hono().basePath("/fp");
 
   fpApp.get("/", async (c) => {
+    const cdn =
+      "https://cdn.jsdelivr.net/npm/@fiberplane/agents@latest/dist/playground/";
+    const cssBundleUrl = new URL("index.css", cdn).href;
+    const jsBundleUrl = new URL("index.js", cdn).href;
     return c.html(
       <html lang="en">
         <head>
-          <title>Fiberplane Agents</title>
+          <title>Agents Playground</title>
+          <meta charSet="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <link rel="stylesheet" href={cssBundleUrl} />
         </head>
         <body>
+          <div id="root" />
+          <script type="module" src={jsBundleUrl} />
           <h1>Fiberplane Agents</h1>
         </body>
       </html>,
