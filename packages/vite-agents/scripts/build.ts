@@ -55,7 +55,6 @@ async function run() {
 }
 
 run().catch((error) => {
-  // Ensure we're back in the original directory on uncaught errors
   console.error("Build failed:", error);
   process.exit(1);
 });
