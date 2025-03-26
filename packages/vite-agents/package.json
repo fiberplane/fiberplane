@@ -9,13 +9,7 @@
       "import": "./dist/index.js"
     }
   },
-  "files": [
-    "dist/",
-    "package.json",
-    "tsconfig.json",
-    "CHANGELOG.md",
-    "src/"
-  ],
+  "files": ["dist/", "package.json", "tsconfig.json", "CHANGELOG.md", "src/"],
   "publishConfig": {
     "access": "public",
     "exports": {
