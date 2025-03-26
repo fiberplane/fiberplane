@@ -3,6 +3,7 @@ import { AIChatAgent } from "agents/ai-chat-agent";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
 import type { AgentEvent } from "./vite/types";
+import { tryCatch } from "./util";
 
 // Define types for database schema
 type ColumnType = "string" | "number" | "boolean" | "null" | "object" | "array";
@@ -14,7 +15,7 @@ type TableSchema = {
 type DatabaseResult = Record<string, TableSchema>;
 
 type AgentConstructor<E = unknown, S = unknown> = new (
-  // biome-ignore lint/suspicious/noExplicitAny: TypeScript's mixin pattern requires any[]
+  // biome-ignore lint/suspicious/noExplicitAny: mixin pattern requires any[]
   ...args: any[]
 ) => Agent<E, S>;
 
@@ -293,23 +294,78 @@ export function Fiber() {
   };
 }
 
-// Utility function to determine the type of a value
-function getValueType(value: unknown): ColumnType {
-  if (value === null) {
-    return "null";
-  }
+// Change from a strict Record<string, string> to a more flexible type
+// that allows for any values in the environment object
+type Env = Record<string, unknown>;
 
-  const type = typeof value;
-  if (type === "string" || type === "number" || type === "boolean") {
-    return type;
-  }
+const agentInstances = new Map<string, string[]>();
 
-  if (type === "object") {
-    if (Array.isArray(value)) {
-      return "array";
+export function fiberplane<E extends Env>(
+  userFetch: (
+    request: Request,
+    env: E,
+    ctx: ExecutionContext,
+  ) => Promise<Response>,
+) {
+  // Create a Hono app for /fp routes once
+  const fpApp = new Hono().basePath("/fp");
+
+  fpApp.get("/", async (c) => {
+    return c.html(
+      <html lang="en">
+        <head>
+          <title>Fiberplane Agents</title>
+        </head>
+        <body>
+          <h1>Fiberplane Agents</h1>
+        </body>
+      </html>,
+    );
+  });
+  fpApp.get("/agents", async (c) => {
+    const agents = Array.from(agentInstances.entries()).map(
+      ([namespace, instances]) => ({
+        id: namespace,
+        className: namespace,
+        instances,
+      }),
+    );
+    return c.json(agents);
+  });
+
+  // Use notFound instead of throwing an error
+  fpApp.notFound(() => {
+    return new Response(null, { status: 404 });
+  });
+
+  return async function fetch(request: Request, env: E, ctx: ExecutionContext) {
+    const url = new URL(request.url);
+
+    // Track agent requests
+    const agentPathMatch = url.pathname.match(/^\/agents\/([^\/]+)\/([^\/]+)/);
+    if (agentPathMatch) {
+      const namespace = agentPathMatch[1];
+      const instance = agentPathMatch[2];
+
+      // Record the instance in the agentInstances map
+      if (!agentInstances.has(namespace)) {
+        agentInstances.set(namespace, []);
+      }
+
+      const instances = agentInstances.get(namespace);
+      if (instances && !instances.includes(instance)) {
+        instances.push(instance);
+      }
     }
-    return "object";
-  }
 
-  return "string"; // Default fallback
+    const { data: response, error } = await tryCatch(
+      fpApp.fetch(request, env, ctx),
+    );
+
+    if (!error && response.status !== 404) {
+      return response;
+    }
+
+    return userFetch(request, env, ctx);
+  };
 }
