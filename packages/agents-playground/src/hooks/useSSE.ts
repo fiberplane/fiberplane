@@ -322,12 +322,6 @@ const baseOptions: UseSSEWithEventsOptions = {
 };
 
 export function useAgentInstanceEvents(agent: string, instance: string) {
-  const resetAgentInstanceEvents = usePlaygroundStore(
-    (state) => state.resetAgentInstanceEvents,
-  );
-  const clearEvents = useHandler(() =>
-    resetAgentInstanceEvents(agent, instance),
-  );
   const addAgentInstanceEvent = usePlaygroundStore(
     (state) => state.addAgentInstanceEvent,
   );
@@ -358,15 +352,10 @@ export function useAgentInstanceEvents(agent: string, instance: string) {
     },
   };
 
-  const connection = useSSEConnection(
+  useSSEConnection(
     `/agents/${agent}/${instance}/admin/events`,
     options,
   );
-  return {
-    // data: events,
-    clearEvents,
-    close: connection.close,
-  };
 }
 
 let id = 0;

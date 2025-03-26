@@ -1,7 +1,4 @@
-import { useSSE } from "@/hooks";
-import { useFilteredEvents } from "@/hooks/useFilteredEvents";
-import type { AgentEvent, AgentEventType, EventPayload } from "@/hooks/useSSE";
-import { useTimeAgo } from "@/hooks/useTimeAgo";
+import { useFilteredEvents, type AgentEvent, type AgentEventType, type EventPayload, useTimeAgo } from "@/hooks";
 import { cn, noop } from "@/lib/utils";
 import { EMPTY_EVENTS, usePlaygroundStore } from "@/store";
 import {
@@ -258,10 +255,8 @@ const EventItem = ({ event }: { event: AgentEvent }) => {
           "@xl/event:[grid-template-areas:'badge_summary_time'_'details_details_details']",
           "@xl/event:grid-cols-[auto_1fr_auto]",
           "items-center",
-          // "@sm/event:opacity-80",
         )}
       >
-        {/* <div className="grid grid-cols-[auto_1fr] justify-between items-center"> */}
         <div className="[grid-area:badge] grid">
           <div className="w-fit">
             <Badge
