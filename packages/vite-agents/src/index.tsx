@@ -300,6 +300,47 @@ type Env = Record<string, unknown>;
 
 const agentInstances = new Map<string, string[]>();
 
+function createFpApp() {
+  return new Hono()
+    .basePath("/fp")
+    .get("/", async (c) => {
+      const cdn =
+        "https://cdn.jsdelivr.net/npm/@fiberplane/agents@latest/dist/playground/";
+      const cssBundleUrl = new URL("index.css", cdn).href;
+      const jsBundleUrl = new URL("index.js", cdn).href;
+      return c.html(
+        <html lang="en">
+          <head>
+            <title>Agents Playground</title>
+            <meta charSet="utf-8" />
+            <meta
+              name="viewport"
+              content="width=device-width, initial-scale=1"
+            />
+            <link rel="stylesheet" href={cssBundleUrl} />
+          </head>
+          <body>
+            <div id="root" />
+            <script type="module" src={jsBundleUrl} />
+          </body>
+        </html>,
+      );
+    })
+    .get("/agents", async (c) => {
+      const agents = Array.from(agentInstances.entries()).map(
+        ([namespace, instances]) => ({
+          id: namespace,
+          className: namespace,
+          instances,
+        }),
+      );
+      return c.json(agents);
+    })
+    .notFound(() => {
+      return new Response(null, { status: 404 });
+    });
+}
+
 export function fiberplane<E extends Env>(
   userFetch: (
     request: Request,
@@ -307,44 +348,7 @@ export function fiberplane<E extends Env>(
     ctx: ExecutionContext,
   ) => Promise<Response>,
 ) {
-  // Create a Hono app for /fp routes once
-  const fpApp = new Hono().basePath("/fp");
-
-  fpApp.get("/", async (c) => {
-    const cdn =
-      "https://cdn.jsdelivr.net/npm/@fiberplane/agents@latest/dist/playground/";
-    const cssBundleUrl = new URL("index.css", cdn).href;
-    const jsBundleUrl = new URL("index.js", cdn).href;
-    return c.html(
-      <html lang="en">
-        <head>
-          <title>Agents Playground</title>
-          <meta charSet="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link rel="stylesheet" href={cssBundleUrl} />
-        </head>
-        <body>
-          <div id="root" />
-          <script type="module" src={jsBundleUrl} />
-        </body>
-      </html>,
-    );
-  });
-  fpApp.get("/agents", async (c) => {
-    const agents = Array.from(agentInstances.entries()).map(
-      ([namespace, instances]) => ({
-        id: namespace,
-        className: namespace,
-        instances,
-      }),
-    );
-    return c.json(agents);
-  });
-
-  // Use notFound instead of throwing an error
-  fpApp.notFound(() => {
-    return new Response(null, { status: 404 });
-  });
+  const fpApp = createFpApp();
 
   return async function fetch(request: Request, env: E, ctx: ExecutionContext) {
     const url = new URL(request.url);
