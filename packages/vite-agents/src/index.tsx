@@ -23,126 +23,118 @@ function createAgentAdminRouter(agent: FiberDecoratedAgent) {
   const router = new Hono();
 
   router.get("/agents/:namespace/:instance/admin/db", async (c) => {
-    try {
-      const dbResult: DatabaseResult = {};
-
-      // Create tag template array manually to execute raw SQL
-      const tablesQuery =
-        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'";
-      const tables = agent.sql(
-        Object.assign([tablesQuery], { raw: [tablesQuery] }),
+    const fetchDbResult = async () => {
+      // Get all table names
+      const tablesQuery = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'";
+      const tablesResult = await tryCatch(
+        agent.sql(Object.assign([tablesQuery], { raw: [tablesQuery] }))
       );
-
-      // Process each table found
-      for await (const tableRow of tables) {
-        const tableName = String(tableRow.name || "");
-        // Skip empty names or the _cf_METADATA table which is not allowed to be accessed
-        if (!tableName || tableName === "_cf_METADATA") {
-          continue;
-        }
-
-        try {
-          // Get column information for the table using PRAGMA
-          const pragmaQuery = `PRAGMA table_info("${tableName}")`;
-          const columnInfo = agent.sql(
-            Object.assign([pragmaQuery], { raw: [pragmaQuery] }),
-          ) as Array<{
-            cid: number; // Column index/position (0-based)
-            name: string; // Column name
-            type: string; // Declared data type (TEXT, INTEGER, etc.)
-            notnull: number; // 1 if NOT NULL constraint exists, 0 if NULL allowed
-            dflt_value: unknown; // Default value or null if no default
-            pk: number; // 1 if column is part of PRIMARY KEY, 0 otherwise
-          }>;
-
-          // Collect column names and initialize column types
-          const columns: Record<string, ColumnType[]> = {};
-          const columnNames: string[] = [];
-
-          for await (const column of columnInfo) {
-            if (column.name) {
-              const colName = String(column.name);
-              columnNames.push(colName);
-              const columnTypes: Array<ColumnType> = [];
-              columns[colName] = columnTypes;
-              if (column.notnull === 0) {
-                columns[colName].push("null");
-              }
-
-              // Determine the column type based on the column's declared type
-              switch (column.type.toUpperCase()) {
-                case "TEXT":
-                  columnTypes.push("string");
-                  break;
-                case "INTEGER":
-                  columnTypes.push("number");
-                  break;
-                case "REAL":
-                  columnTypes.push("number");
-                  break;
-                case "BOOLEAN":
-                  columnTypes.push("boolean");
-                  break;
-                case "BLOB":
-                  columnTypes.push("object");
-                  break;
-                default:
-                  columnTypes.push("string");
-                  break;
-              }
-            }
-          }
-
-          // If we couldn't get any columns, skip this table
-          if (columnNames.length === 0) {
-            dbResult[tableName] = {
-              columns: {},
-              data: [],
-              error: "No columns found",
-            };
-            continue;
-          }
-
-          // Get actual data from the table
-          const selectQuery = `SELECT * FROM "${tableName}"`;
-          const rows = agent.sql(
-            Object.assign([selectQuery], { raw: [selectQuery] }),
-          );
-
-          // Process rows and collect data
-          const data: Record<string, unknown>[] = [];
-
-          for await (const row of rows) {
-            const typedRow: Record<string, unknown> = {};
-
-            for (const columnName of columnNames) {
-              const value = row[columnName as keyof typeof row];
-              typedRow[columnName] = value;
-            }
-
-            data.push(typedRow);
-          }
-
-          // Add table data to result
-          dbResult[tableName] = {
-            columns,
-            data,
-          };
-        } catch (error) {
-          console.error(`Error processing table ${tableName}:`, error);
-          dbResult[tableName] = {
+      
+      if (tablesResult.error) {
+        return { error: "Failed to retrieve tables" };
+      }
+      
+      // Convert result set to array of table names
+      const tableNames = Array.from(tablesResult.data)
+        .map(row => String(row.name || ""))
+        .filter(name => name && name !== "_cf_METADATA");
+      
+      // Process each table and collect results
+      const tableResultsPromises = tableNames.map(async tableName => {
+        // Get column information
+        const pragmaQuery = `PRAGMA table_info("${tableName}")`;
+        const columnInfoResult = await tryCatch(
+          agent.sql(Object.assign([pragmaQuery], { raw: [pragmaQuery] }))
+        );
+        
+        if (columnInfoResult.error) {
+          return [tableName, {
             columns: {},
             data: [],
-            error: `Error processing table: ${(error as Error).message}`,
-          };
+            error: `Error retrieving column info: ${columnInfoResult.error.message}`,
+          }];
         }
-      }
-
-      return c.json(dbResult);
-    } catch (error) {
-      console.error("Error retrieving database:", error);
+        
+        // Process column information
+        const columnData = Array.from(columnInfoResult.data)
+          .filter(column => column.name)
+          .map(column => {
+            const colName = String(column.name);
+            const types: ColumnType[] = [];
+            
+            if (column.notnull === 0) {
+              types.push("null");
+            }
+            
+            // Map SQL types to ColumnTypes
+            const colType = String(column.type || "");
+            switch (colType.toUpperCase()) {
+              case "TEXT": types.push("string"); break;
+              case "INTEGER": types.push("number"); break;
+              case "REAL": types.push("number"); break;
+              case "BOOLEAN": types.push("boolean"); break;
+              case "BLOB": types.push("object"); break;
+              default: types.push("string");
+            }
+            
+            return [colName, types];
+          });
+        
+        // Create columns object and extract column names
+        const columns = Object.fromEntries(columnData);
+        const columnNames = Object.keys(columns);
+        
+        if (columnNames.length === 0) {
+          return [tableName, {
+            columns: {},
+            data: [],
+            error: "No columns found",
+          }];
+        }
+        
+        // Get row data
+        const selectQuery = `SELECT * FROM "${tableName}"`;
+        const rowsResult = await tryCatch(
+          agent.sql(Object.assign([selectQuery], { raw: [selectQuery] }))
+        );
+        
+        if (rowsResult.error) {
+          return [tableName, {
+            columns,
+            data: [],
+            error: `Error retrieving data: ${rowsResult.error.message}`,
+          }];
+        }
+        
+        // Process row data
+        const data = [];
+        // We still need to use for-await here since we're dealing with an async iterator
+        for await (const row of rowsResult.data) {
+          // Create a new row object by mapping column names to values
+          const typedRow = columnNames.reduce((acc, colName) => {
+            acc[colName] = row[colName as keyof typeof row];
+            return acc;
+          }, {} as Record<string, unknown>);
+          
+          data.push(typedRow);
+        }
+        
+        return [tableName, { columns, data }];
+      });
+      
+      // Collect all table results and convert to object
+      const tableResults = await Promise.all(tableResultsPromises);
+      return Object.fromEntries(tableResults) as DatabaseResult;
+    };
+    
+    const result = await tryCatch(fetchDbResult());
+    
+    if (result.error) {
+      console.error("Error retrieving database:", result.error);
       return c.json({ error: "Failed to retrieve database" }, 500);
     }
+    
+    return c.json(result.data);
   });
 
   router.get("/agents/:namespace/:instance/admin/events", async (c) => {
