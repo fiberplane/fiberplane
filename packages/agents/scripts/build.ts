@@ -1,33 +1,35 @@
-import { build as viteBuild } from "vite";
-import { build } from "tsup";
 import fs from "node:fs";
 import path from "node:path";
+import { build } from "tsup";
+import { build as viteBuild } from "vite";
+import pkg from "../package.json";
 
 async function run() {
   // Store original directory to return to it later
   const originalDir = process.cwd();
 
-  console.log("Building vite-agents library...");
+  console.log("Building agents library...");
 
-  // Build the vite-agents library using tsup
+  // Build the agents library using tsup
   await build({
     entry: ["src/index.tsx"],
     format: ["esm"],
     dts: true,
-    external: ["vite", "cloudflare:workers", "react", "zod", "agents"],
+    // external: ["vite", "cloudflare:workers", "react", "zod", "agents"],
+    external: Object.keys(pkg.dependencies || {}),
     clean: true,
   });
 
-  // Define paths for agents-playground
+  // Define paths for agents-ui
   const agentsPlaygroundPath = path.resolve(
     originalDir,
-    "../../packages/agents-playground",
+    "../../packages/agents-ui",
   );
   const targetPlaygroundPath = path.resolve(originalDir, "dist/playground");
 
-  console.log("Building agents-playground...");
+  console.log("Building agents-ui...");
 
-  // Change to the agents-playground directory so Vite can resolve all dependencies correctly
+  // Change to the agents-ui directory so Vite can resolve all dependencies correctly
   process.chdir(agentsPlaygroundPath);
   await viteBuild({ build: { sourcemap: false } });
   // Change back to original directory

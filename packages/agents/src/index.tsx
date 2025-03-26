@@ -1,9 +1,8 @@
 import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
-import { AIChatAgent } from "agents/ai-chat-agent";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
-import { tryCatch } from "./util";
 import type { AgentEvent } from "./types";
+import { tryCatch } from "./util";
 
 // Define types for database schema
 type ColumnType = "string" | "number" | "boolean" | "null" | "object" | "array";

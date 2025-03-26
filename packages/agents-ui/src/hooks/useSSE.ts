@@ -352,10 +352,7 @@ export function useAgentInstanceEvents(agent: string, instance: string) {
     },
   };
 
-  useSSEConnection(
-    `/agents/${agent}/${instance}/admin/events`,
-    options,
-  );
+  useSSEConnection(`/agents/${agent}/${instance}/admin/events`, options);
 }
 
 let id = 0;

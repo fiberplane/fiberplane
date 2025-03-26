@@ -780,7 +780,7 @@ importers:
         version: 1.1.19(zod@3.24.2)
       '@fiberplane/agents':
         specifier: workspace:*
-        version: link:../../packages/vite-agents
+        version: link:../../packages/agents
       '@radix-ui/react-avatar':
         specifier: ^1.1.3
         version: 1.1.3(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -889,7 +889,71 @@ importers:
         specifier: ^3.91.0
         version: 3.91.0(@cloudflare/workers-types@4.20241112.0)
 
-  packages/agents-playground:
+  packages/agents:
+    dependencies:
+      '@hono/node-server':
+        specifier: ^1.13.7
+        version: 1.13.7(hono@4.7.4)
+      '@hono/node-ws':
+        specifier: ^1.1.0
+        version: 1.1.0(@hono/node-server@1.13.7(hono@4.7.4))(hono@4.7.4)
+      agents:
+        specifier: ^0.0.46
+        version: 0.0.46(@cloudflare/workers-types@4.20250317.0)
+      ai:
+        specifier: ^4.1.61
+        version: 4.1.61(react@19.0.0)(zod@3.24.2)
+      chokidar:
+        specifier: ^3.6.0
+        version: 3.6.0
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      hono:
+        specifier: ^4.7.4
+        version: 4.7.4
+      jsonc-parser:
+        specifier: ^3.3.1
+        version: 3.3.1
+      mime-types:
+        specifier: ^2.1.35
+        version: 2.1.35
+      toml:
+        specifier: ^3.0.0
+        version: 3.0.0
+      wrangler:
+        specifier: ^4.1.0
+        version: 4.1.0(@cloudflare/workers-types@4.20250317.0)
+      ws:
+        specifier: ^8.18.1
+        version: 8.18.1
+      zod:
+        specifier: ^3.24.2
+        version: 3.24.2
+    devDependencies:
+      '@biomejs/biome':
+        specifier: ^1.9.4
+        version: 1.9.4
+      '@cloudflare/workers-types':
+        specifier: ^4.20250317.0
+        version: 4.20250317.0
+      '@types/ws':
+        specifier: ^8.18.0
+        version: 8.18.0
+      tsup:
+        specifier: ^8.3.5
+        version: 8.3.5(@swc/core@1.11.10(@swc/helpers@0.5.13))(jiti@2.4.2)(postcss@8.5.3)(tsx@4.19.2)(typescript@5.8.2)(yaml@2.6.1)
+      tsx:
+        specifier: ^4.19.2
+        version: 4.19.2
+      typescript:
+        specifier: ^5.8.2
+        version: 5.8.2
+      vite:
+        specifier: ^6.2.2
+        version: 6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.2)(yaml@2.6.1)
+
+  packages/agents-ui:
     dependencies:
       '@codemirror/autocomplete':
         specifier: ^6.18.3
@@ -1423,70 +1487,6 @@ importers:
       zod:
         specifier: ^3.24.1
         version: 3.24.1
-
-  packages/vite-agents:
-    dependencies:
-      '@hono/node-server':
-        specifier: ^1.13.7
-        version: 1.13.7(hono@4.7.4)
-      '@hono/node-ws':
-        specifier: ^1.1.0
-        version: 1.1.0(@hono/node-server@1.13.7(hono@4.7.4))(hono@4.7.4)
-      agents:
-        specifier: ^0.0.46
-        version: 0.0.46(@cloudflare/workers-types@4.20250317.0)
-      ai:
-        specifier: ^4.1.61
-        version: 4.1.61(react@19.0.0)(zod@3.24.2)
-      chokidar:
-        specifier: ^3.6.0
-        version: 3.6.0
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
-      hono:
-        specifier: ^4.7.4
-        version: 4.7.4
-      jsonc-parser:
-        specifier: ^3.3.1
-        version: 3.3.1
-      mime-types:
-        specifier: ^2.1.35
-        version: 2.1.35
-      toml:
-        specifier: ^3.0.0
-        version: 3.0.0
-      wrangler:
-        specifier: ^4.1.0
-        version: 4.1.0(@cloudflare/workers-types@4.20250317.0)
-      ws:
-        specifier: ^8.18.1
-        version: 8.18.1
-      zod:
-        specifier: ^3.24.2
-        version: 3.24.2
-    devDependencies:
-      '@biomejs/biome':
-        specifier: ^1.9.4
-        version: 1.9.4
-      '@cloudflare/workers-types':
-        specifier: ^4.20250317.0
-        version: 4.20250317.0
-      '@types/ws':
-        specifier: ^8.18.0
-        version: 8.18.0
-      tsup:
-        specifier: ^8.3.5
-        version: 8.3.5(@swc/core@1.11.10(@swc/helpers@0.5.13))(jiti@2.4.2)(postcss@8.5.3)(tsx@4.19.2)(typescript@5.8.2)(yaml@2.6.1)
-      tsx:
-        specifier: ^4.19.2
-        version: 4.19.2
-      typescript:
-        specifier: ^5.8.2
-        version: 5.8.2
-      vite:
-        specifier: ^6.2.2
-        version: 6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.2)(yaml@2.6.1)
 
   www:
     dependencies:

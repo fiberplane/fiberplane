@@ -1,5 +1,6 @@
 {
-  "name": "agent-test",
+  "name": "agents-ui",
+  "private": true,
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

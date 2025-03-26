@@ -50,8 +50,7 @@ export function DataTableView<
     <ListSection
       title={
         title && (
-          <div
-          >
+          <div>
             <h3 className="text-lg font-medium text-foreground px-2">
               {title}
             </h3>

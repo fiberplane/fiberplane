@@ -1,4 +1,10 @@
-import { useFilteredEvents, type AgentEvent, type AgentEventType, type EventPayload, useTimeAgo } from "@/hooks";
+import {
+  type AgentEvent,
+  type AgentEventType,
+  type EventPayload,
+  useFilteredEvents,
+  useTimeAgo,
+} from "@/hooks";
 import { cn, noop } from "@/lib/utils";
 import { EMPTY_EVENTS, usePlaygroundStore } from "@/store";
 import {

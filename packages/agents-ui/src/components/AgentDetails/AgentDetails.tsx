@@ -1,5 +1,5 @@
 import { useAgentDB } from "@/hooks";
-import { useFilteredEvents, useAgentInstanceEvents } from "@/hooks";
+import { useAgentInstanceEvents, useFilteredEvents } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { type SSEStatus, usePlaygroundStore } from "@/store";
 import type { ListAgentsResponse } from "@/types";

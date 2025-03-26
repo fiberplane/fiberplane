@@ -44,7 +44,7 @@
       "include": [
         "apps/studio/studio-frontend",
         "packages/playground",
-        "packages/agents-playground"
+        "packages/agents-ui"
       ],
       "linter": {
         "enabled": true,
