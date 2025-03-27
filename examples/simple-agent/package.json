@@ -16,7 +16,7 @@
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@cloudflare/vite-plugin": "0.1.16",
+    "@cloudflare/vite-plugin": "0.1.17",
     "@cloudflare/vitest-pool-workers": "^0.8.0",
     "@cloudflare/workers-types": "^4.20250313.0",
     "@tailwindcss/vite": "^4.0.14",
