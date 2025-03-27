@@ -33,9 +33,7 @@ export function AgentsList(props: {
         >
           {props.agents.map((agent) => (
             <div key={agent.id} className="h-auto">
-              <AgentCard
-                agent={agent}
-              />
+              <AgentCard agent={agent} />
             </div>
           ))}
         </div>

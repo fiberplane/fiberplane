@@ -6,4 +6,4 @@ import type { RouterOptions } from "../types";
  */
 export function useRouterContext(): RouterOptions {
   return useRouteContext({ from: "__root__" });
-} 
+}

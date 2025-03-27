@@ -1,9 +1,7 @@
-import { Button } from "./ui/button";
 import { Link } from "@tanstack/react-router";
+import { Button } from "./ui/button";
 
-export function Layout({
-  children,
-}: { children: React.ReactNode }) {
+export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col h-full w-full">
       <div className="border-b flex items-center px-2 py-1">

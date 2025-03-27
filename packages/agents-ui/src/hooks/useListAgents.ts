@@ -1,5 +1,5 @@
 import type { ListAgentsResponse } from "@/types";
-import { useQuery, queryOptions } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 
 export function useListAgents() {
   return useQuery(listAgentsQueryOptions());

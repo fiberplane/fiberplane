@@ -7,17 +7,15 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { AgentDetails } from "@/types";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { BoxIcon, HeartHandshake } from "lucide-react";
 import { Button } from "../ui/button";
-import { Link, useNavigate } from "@tanstack/react-router";
 
 type AgentCardProps = {
   agent: AgentDetails;
 };
 
-export function AgentCard({
-  agent,
-}: AgentCardProps) {
+export function AgentCard({ agent }: AgentCardProps) {
   const navigate = useNavigate();
 
   const handleCardClick = () => {

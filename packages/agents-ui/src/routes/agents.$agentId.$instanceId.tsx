@@ -1,13 +1,13 @@
-import {
-  createFileRoute,
-  useParams,
-  useLoaderData,
-  notFound,
-} from "@tanstack/react-router";
 import { AgentDetails } from "@/components/AgentDetails";
+import { Spinner } from "@/components/Spinner";
 import { listAgentsQueryOptions } from "@/hooks/useListAgents";
 import type { ListAgentsResponse } from "@/types";
-import { Spinner } from "@/components/Spinner";
+import {
+  createFileRoute,
+  notFound,
+  useLoaderData,
+  useParams,
+} from "@tanstack/react-router";
 
 export const Route = createFileRoute("/agents/$agentId/$instanceId")({
   component: AgentInstanceRoute,

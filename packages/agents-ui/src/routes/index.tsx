@@ -1,11 +1,11 @@
-import { createFileRoute, useLoaderData } from "@tanstack/react-router";
 import { AgentsList } from "@/components/AgentsList";
-import { useMinimumLoadingRefetch } from "@/useMinimumLoadingRefetch";
-import { useListAgents } from "@/hooks";
 import { Layout } from "@/components/Layout";
-import { HeartHandshake } from "lucide-react";
-import type { ListAgentsResponse } from "@/types";
 import { Spinner } from "@/components/Spinner";
+import { useListAgents } from "@/hooks";
+import type { ListAgentsResponse } from "@/types";
+import { useMinimumLoadingRefetch } from "@/useMinimumLoadingRefetch";
+import { createFileRoute, useLoaderData } from "@tanstack/react-router";
+import { HeartHandshake } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: AgentsListRoute,
@@ -49,12 +49,8 @@ function AgentsListRoute() {
   return (
     <Layout>
       <div className="h-full w-full p-4">
-        <AgentsList
-          agents={agents}
-          isLoading={isLoading}
-          refetch={refetch}
-        />
+        <AgentsList agents={agents} isLoading={isLoading} refetch={refetch} />
       </div>
     </Layout>
   );
-} 
+}

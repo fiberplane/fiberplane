@@ -1,13 +1,13 @@
+import { useListAgents } from "@/hooks/useListAgents";
 import { cn } from "@/lib/utils";
 import type { ListAgentsResponse } from "@/types";
+import { useMinimumLoadingRefetch } from "@/useMinimumLoadingRefetch";
+import { Link, useMatches } from "@tanstack/react-router";
 import { Box, Cpu } from "lucide-react";
 import { Fragment } from "react/jsx-runtime";
 import { ListSection } from "./ListSection";
 import { Spinner } from "./Spinner";
 import { Button } from "./ui/button";
-import { Link, useMatches } from "@tanstack/react-router";
-import { useListAgents } from "@/hooks/useListAgents";
-import { useMinimumLoadingRefetch } from "@/useMinimumLoadingRefetch";
 
 export function AgentsSidebar() {
   // Get route data directly

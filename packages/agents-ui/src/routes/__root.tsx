@@ -1,10 +1,10 @@
-import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
 import { useRouterContext } from "@/hooks";
-import type { RouterOptions } from "@/types";
 import { listAgentsQueryOptions } from "@/hooks/useListAgents";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import type { RouterOptions } from "@/types";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 export const Route = createRootRouteWithContext<RouterOptions>()({
   component: RootComponent,

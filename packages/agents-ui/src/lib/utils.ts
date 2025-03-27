@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { type RouterOptions, OptionsSchema } from "../types";
+import { OptionsSchema, type RouterOptions } from "../types";
 
 type Success<T> = {
   data: T;

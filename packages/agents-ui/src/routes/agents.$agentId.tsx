@@ -1,20 +1,20 @@
-import {
-  createFileRoute,
-  useParams,
-  useLoaderData,
-  Link,
-  notFound,
-  Outlet,
-  useMatches,
-} from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
-import { Box, BoxIcon } from "lucide-react";
-import { ListSection } from "@/components/ListSection";
-import { listAgentsQueryOptions } from "@/hooks/useListAgents";
-import { Layout } from "@/components/Layout";
 import { AgentsSidebar } from "@/components/AgentsSidebar";
-import type { ListAgentsResponse } from "@/types";
+import { Layout } from "@/components/Layout";
+import { ListSection } from "@/components/ListSection";
+import { Button } from "@/components/ui/button";
+import { listAgentsQueryOptions } from "@/hooks/useListAgents";
 import { Route as RootRoute } from "@/routes/__root";
+import type { ListAgentsResponse } from "@/types";
+import {
+  Link,
+  Outlet,
+  createFileRoute,
+  notFound,
+  useLoaderData,
+  useMatches,
+  useParams,
+} from "@tanstack/react-router";
+import { Box, BoxIcon } from "lucide-react";
 
 export const Route = createFileRoute("/agents/$agentId")({
   component: AgentRoute,
