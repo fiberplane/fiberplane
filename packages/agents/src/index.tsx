@@ -261,6 +261,69 @@ export function Fiber<E = unknown, S = unknown>() {
         super.onStateUpdate(state as S, source);
       }
 
+      override broadcast(
+        msg: string | ArrayBuffer | ArrayBufferView,
+        without?: string[] | undefined,
+      ): void {
+        console.log("broadcast");
+        this.recordEvent({
+          event: "broadcast",
+          payload: {
+            message:
+              typeof msg === "string"
+                ? msg
+                : {
+                    type: "binary",
+                    size: msg instanceof Blob ? msg.size : msg.byteLength,
+                  },
+            without,
+          },
+        });
+
+        super.broadcast(msg, without);
+      }
+
+      // Create a proxy for a WebSocket-like object to intercept send calls
+      private createWebSocketProxy(connection: Connection): Connection {
+        const self = this;
+        return new Proxy(connection, {
+          get(target, prop, receiver) {
+            // Intercept the 'send' method
+            if (prop === "send") {
+              return function (
+                this: Connection,
+                message: string | ArrayBuffer | ArrayBufferView,
+              ) {
+                self.recordEvent({
+                  event: "ws_send",
+                  payload: {
+                    connection: {
+                      id: target.id,
+                    },
+                    message:
+                      typeof message === "string"
+                        ? message
+                        : {
+                            type: "binary",
+                            size:
+                              message instanceof Blob
+                                ? message.size
+                                : message.byteLength,
+                          },
+                  },
+                });
+
+                // Call the original send method
+                return Reflect.get(target, prop, receiver).call(this, message);
+              };
+            }
+
+            // Return other properties/methods unchanged
+            return Reflect.get(target, prop, receiver);
+          },
+        });
+      }
+
       onMessage(connection: Connection, message: WSMessage) {
         this.recordEvent({
           event: "ws_message",
@@ -272,7 +335,10 @@ export function Fiber<E = unknown, S = unknown>() {
           },
         });
 
-        super.onMessage(connection, message);
+        const connectionProxy = this.createWebSocketProxy(connection);
+
+        // Use the original connection for the parent class
+        super.onMessage(connectionProxy, message);
       }
 
       onConnect(connection: Connection, ctx: ConnectionContext) {
@@ -284,7 +350,11 @@ export function Fiber<E = unknown, S = unknown>() {
           },
         });
 
-        super.onConnect(connection, ctx);
+        // Create a proxied connection to intercept send calls
+        const proxiedConnection = this.createWebSocketProxy(connection);
+
+        // Use the proxied connection for the parent class
+        super.onConnect(proxiedConnection, ctx);
       }
 
       onClose(
@@ -351,8 +421,8 @@ function createFpApp() {
         const durableObjects =
           c.env && typeof c.env === "object"
             ? (Object.entries(c.env as Record<string, unknown>).filter(
-              ([key, value]) => isDurableObjectNamespace(value),
-            ) as Array<[string, DurableObjectNamespace]>)
+                ([key, value]) => isDurableObjectNamespace(value),
+              ) as Array<[string, DurableObjectNamespace]>)
             : [];
         for (const [name] of durableObjects) {
           // See if we're aware of an agent with the same id

@@ -1,7 +1,6 @@
 import { usePlaygroundStore } from "@/store";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { z } from "zod";
-import { useHandler } from "./useHandler";
 
 export const AgentEventTypeSchema = z.enum([
   "stream_open",
@@ -11,6 +10,8 @@ export const AgentEventTypeSchema = z.enum([
   "ws_open",
   "ws_close",
   "ws_message",
+  "ws_send",
+  "broadcast",
   "state_change",
 ]);
 
@@ -316,6 +317,8 @@ const baseOptions: UseSSEWithEventsOptions = {
     "ws_close",
     "stream_close",
     "stream_error",
+    "ws_send",
+    "broadcast",
   ],
   // maxEvents: 100, // Limit to latest 100 events
   // filterAdminEndpoints: true, // Filter out admin/db and admin/events endpoints

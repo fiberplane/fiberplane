@@ -16,7 +16,6 @@
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@cloudflare/vite-plugin": "0.1.16",
     "@cloudflare/vitest-pool-workers": "^0.8.0",
     "@cloudflare/workers-types": "^4.20250313.0",
     "@tailwindcss/vite": "^4.0.14",
@@ -35,6 +34,7 @@
     "@ai-sdk/openai": "^1.2.5",
     "@ai-sdk/react": "^1.1.23",
     "@ai-sdk/ui-utils": "^1.1.19",
+    "@cloudflare/vite-plugin": "^0.1.17",
     "@fiberplane/agents": "workspace:*",
     "@radix-ui/react-avatar": "^1.1.3",
     "@radix-ui/react-slot": "^1.1.2",

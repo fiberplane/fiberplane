@@ -11,7 +11,7 @@ import { Layout } from "./Layout";
 import { ListSection } from "./ListSection";
 
 export function App() {
-  const { data, refetch: rawRefetch } = useListAgents();
+  const { data, refetch: rawRefetch, error } = useListAgents();
   const [refetch, isLoading] = useMinimumLoadingRefetch(rawRefetch, 500);
 
   const selectedAgent = usePlaygroundStore((state) => state.agent);
@@ -110,10 +110,11 @@ export function App() {
           </div>
         </div>
       ) : (
-        <div className="h-full w-full p-4">
+        <div className="h-full w-full p-4 flex flex-col">
           <AgentsList
             agents={data}
             isLoading={isLoading}
+            error={error}
             refetch={refetch}
             selectAgent={setSelectedAgent}
             selectAgentInstance={setSelectedAgentInstance}

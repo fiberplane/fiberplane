@@ -778,6 +778,9 @@ importers:
       '@ai-sdk/ui-utils':
         specifier: ^1.1.19
         version: 1.1.19(zod@3.24.2)
+      '@cloudflare/vite-plugin':
+        specifier: ^0.1.17
+        version: 0.1.17(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.2)(yaml@2.6.1))(workerd@1.20250310.0)(wrangler@4.0.0(@cloudflare/workers-types@4.20250313.0))
       '@fiberplane/agents':
         specifier: workspace:*
         version: link:../../packages/agents
@@ -824,9 +827,6 @@ importers:
       '@biomejs/biome':
         specifier: ^1.9.4
         version: 1.9.4
-      '@cloudflare/vite-plugin':
-        specifier: 0.1.16
-        version: 0.1.16(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.2)(yaml@2.6.1))(workerd@1.20250310.0)(wrangler@4.0.0(@cloudflare/workers-types@4.20250313.0))
       '@cloudflare/vitest-pool-workers':
         specifier: ^0.8.0
         version: 0.8.0(@cloudflare/workers-types@4.20250313.0)(@vitest/runner@3.0.8)(@vitest/snapshot@3.0.8)(vitest@3.0.8(@types/debug@4.1.12)(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.2)(yaml@2.6.1))
@@ -2372,8 +2372,8 @@ packages:
       workerd:
         optional: true
 
-  '@cloudflare/vite-plugin@0.1.16':
-    resolution: {integrity: sha512-t6yH38mMJ4Pz0v+LmCODzSjdMVsXildm44M/wO8Hiy3MkgeNo9TeB3SrPP+7ruXhXyXf2KJUA88O3B2sL06o8w==}
+  '@cloudflare/vite-plugin@0.1.17':
+    resolution: {integrity: sha512-yYRp++/ktyQvofUIUm9UKeru1qO++vctscYrf8lBuawCbDpwlAA0o6hyMefchdwmBMbIFyjFet4q+uT306SLFQ==}
     peerDependencies:
       vite: ^6.1.0
       wrangler: ^3.101.0 || ^4.0.0
@@ -14605,7 +14605,7 @@ snapshots:
     optionalDependencies:
       workerd: 1.20250310.0
 
-  '@cloudflare/vite-plugin@0.1.16(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.2)(yaml@2.6.1))(workerd@1.20250310.0)(wrangler@4.0.0(@cloudflare/workers-types@4.20250313.0))':
+  '@cloudflare/vite-plugin@0.1.17(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.2)(yaml@2.6.1))(workerd@1.20250310.0)(wrangler@4.0.0(@cloudflare/workers-types@4.20250313.0))':
     dependencies:
       '@cloudflare/unenv-preset': 2.3.1(unenv@2.0.0-rc.15)(workerd@1.20250310.0)
       '@hattip/adapter-node': 0.0.49
@@ -19374,6 +19374,10 @@ snapshots:
     dependencies:
       acorn: 8.14.0
 
+  acorn-jsx@5.3.2(acorn@8.14.1):
+    dependencies:
+      acorn: 8.14.1
+
   acorn-walk@8.3.2: {}
 
   acorn-walk@8.3.4:
@@ -20804,7 +20808,7 @@ snapshots:
   esast-util-from-js@2.0.1:
     dependencies:
       '@types/estree-jsx': 1.0.5
-      acorn: 8.14.0
+      acorn: 8.14.1
       esast-util-from-estree: 2.0.0
       vfile-message: 4.0.2
 
@@ -23043,8 +23047,8 @@ snapshots:
 
   micromark-extension-mdxjs@3.0.0:
     dependencies:
-      acorn: 8.14.0
-      acorn-jsx: 5.3.2(acorn@8.14.0)
+      acorn: 8.14.1
+      acorn-jsx: 5.3.2(acorn@8.14.1)
       micromark-extension-mdx-expression: 3.0.0
       micromark-extension-mdx-jsx: 3.0.1
       micromark-extension-mdx-md: 2.0.0

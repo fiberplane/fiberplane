@@ -1,9 +1,23 @@
+import { HttpError } from "@/errors";
 import type { ListAgentsResponse } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 
 export function useListAgents() {
   return useQuery<ListAgentsResponse>({
     queryKey: ["list_agents"],
-    queryFn: () => fetch("/fp/api/agents").then((res) => res.json()),
+    queryFn: () =>
+      fetch("/fp/api/agents").then(async (res) => {
+        if (!res.ok) {
+          let message = res.statusText;
+          try {
+            message = await res.text();
+          } catch (e) {
+            // Ignore
+          }
+          throw new HttpError(res.statusText, res.status);
+        }
+
+        return res.json();
+      }),
   });
 }

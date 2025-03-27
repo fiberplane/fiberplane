@@ -47,6 +47,8 @@ export const AgentEventTypeSchema = z.enum([
   "ws_open",
   "ws_close",
   "ws_message",
+  "ws_send",
+  "broadcast",
   "state_change",
 ]);
 

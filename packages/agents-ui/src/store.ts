@@ -70,21 +70,21 @@ const routeSlice = combine<RouteState, RouteActions>(
 
 // UI State
 type UIState = {
-  showAdminEvents: boolean;
+  // showAdminEvents: boolean;
 };
 
 type UIActions = {
-  toggleAdminEvents: () => void;
+  // toggleAdminEvents: () => void;
 };
 
 // UI slice
 const uiSlice = combine<UIState, UIActions>(
   {
-    showAdminEvents: false,
+    // showAdminEvents: false,
   },
   (set) => ({
-    toggleAdminEvents: () =>
-      set((state) => ({ showAdminEvents: !state.showAdminEvents })),
+    // toggleAdminEvents: () =>
+    //   set((state) => ({ showAdminEvents: !state.showAdminEvents })),
   }),
 );
 

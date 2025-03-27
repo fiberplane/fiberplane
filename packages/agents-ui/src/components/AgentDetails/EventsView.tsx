@@ -17,6 +17,11 @@ import {
   Info,
   LayoutDashboard,
   MessageSquare,
+  PhoneCall,
+  PhoneIncoming,
+  PhoneOff,
+  PhoneOutgoing,
+  RadioTower,
   Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -109,10 +114,16 @@ const getEventIcon = (type: AgentEventType) => {
   switch (type) {
     case "http_request":
       return <Globe size={16} />;
+    case "ws_send":
+      return <PhoneOutgoing size={16} />;
     case "ws_message":
+      return <PhoneIncoming size={16} />;
     case "ws_open":
+      return <PhoneCall size={16} />;
     case "ws_close":
-      return <MessageSquare size={16} />;
+      return <PhoneOff size={16} />;
+    case "broadcast":
+      return <RadioTower size={16} />;
     case "state_change":
       return <LayoutDashboard size={16} />;
     case "stream_open":
@@ -179,6 +190,10 @@ const WebSocketDetails = ({
     message = "WebSocket connection closed";
   } else if (type === "ws_message") {
     message = "WebSocket message received";
+  } else if (type === "ws_send") {
+    message = "WebSocket message sent";
+  } else if (type === "broadcast") {
+    message = "Broadcast message sent";
   }
 
   return <div className="mt-1 text-sm text-muted-foreground">{message}</div>;
@@ -225,7 +240,13 @@ const EventSummary = ({
     return <HttpRequestDetails payload={payload as HttpRequestPayload} />;
   }
 
-  if (type === "ws_message" || type === "ws_open" || type === "ws_close") {
+  if (
+    type === "ws_message" ||
+    type === "ws_open" ||
+    type === "ws_close" ||
+    type === "broadcast" ||
+    type === "ws_send"
+  ) {
     return <WebSocketDetails type={type} payload={payload} />;
   }
 
@@ -268,6 +289,7 @@ const EventItem = ({ event }: { event: AgentEvent }) => {
             <Badge
               variant={getEventVariant(event.type)}
               className="flex items-center gap-1 py-2 px-2 opacity-80 text-xs font-normal"
+              title={event.type}
             >
               {getEventIcon(event.type)}
               <span className="@xl/event:hidden">{event.type}</span>
@@ -302,10 +324,6 @@ export function EventsView(props: { namespace: string; instance: string }) {
       state.agentsState[props.namespace]?.instances[props.instance]?.events ??
       EMPTY_EVENTS,
   );
-  const showAdminEvents = usePlaygroundStore((state) => state.showAdminEvents);
-  const toggleShowAdminEvents = usePlaygroundStore(
-    (state) => state.toggleAdminEvents,
-  );
 
   const sortedEvents = useMemo(() => {
     return [...shownEvents].sort((a, b) => {
@@ -322,19 +340,11 @@ export function EventsView(props: { namespace: string; instance: string }) {
 
   return (
     <div>
-      <div className="grid items-center grid-cols-[1fr_auto] gap-2 border-b border-border pb-4">
+      <div className="grid items-center grid-cols-[1fr_auto] gap-2 border-b border-border pb-4 mb-2">
         <span className="text-muted-foreground">
           Showing ({shownEvents.length} of {rawEvents.length} events)
         </span>
         <div className="flex items-center gap-2">
-          {/* biome-ignore lint/a11y/noLabelWithoutControl: Checkbox is the related input element */}
-          <label className="text-muted-foreground text-sm flex items-center gap-1 cursor-pointer hover:text-foreground">
-            <Checkbox
-              checked={showAdminEvents}
-              onCheckedChange={toggleShowAdminEvents}
-            />{" "}
-            Show all
-          </label>
           <Button
             size="icon-xs"
             variant="ghost"
