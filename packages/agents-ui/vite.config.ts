@@ -1,5 +1,5 @@
 import path from "node:path";
-// import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react-swc";
 import { config } from "dotenv";
 import { type Plugin, defineConfig } from "vite";
@@ -14,8 +14,11 @@ const { embeddedApiUrl } = getDevConfig(ENV_FILE);
 export default defineConfig({
   plugins: [
     nodePolyfills(),
+    TanStackRouterVite({
+      autoCodeSplitting: true,
+      generatedRouteTree: "./src/routes/routeTree.gen.ts",
+    }),
     react(),
-    // TanStackRouterVite(),
     svgr({
       svgrOptions: { exportType: "default", ref: true },
       include: "**/*.svg",
