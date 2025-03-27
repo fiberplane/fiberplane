@@ -1,5 +1,11 @@
 # @fiberplane/agents
 
+## 0.2.1
+
+### Patch Changes
+
+- More robust agent instance interception and correct routing for admin API calls for frontend
+
 ## 0.2.0
 
 ### Minor Changes
