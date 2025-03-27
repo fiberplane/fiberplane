@@ -56,7 +56,9 @@ export default function Chat() {
   };
 
   const agent = useAgent(
-    agentName ? { agent: "chat", name: agentName } : { agent: "chat" },
+    agentName
+      ? { agent: "chat-client", name: agentName }
+      : { agent: "chat-client" },
   );
 
   const {
