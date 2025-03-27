@@ -33,7 +33,7 @@ export default defineConfig({
     port: 6660,
     proxy: {
       // Proxy requests to the embedded API
-      "/fp-agents": {
+      "/fp/api": {
         target: embeddedApiUrl,
       },
       "/agents/": {
