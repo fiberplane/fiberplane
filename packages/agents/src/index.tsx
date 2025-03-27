@@ -4,6 +4,9 @@ import { type SSEStreamingApi, streamSSE } from "hono/streaming";
 import type { AgentEvent } from "./types";
 import { tryCatch } from "./util";
 
+const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
+const PARTYKIT_ROOM_HEADER = "x-partykit-room";
+
 // Define types for database schema
 type ColumnType = "string" | "number" | "boolean" | "null" | "object" | "array";
 type TableSchema = {
@@ -210,6 +213,7 @@ type FiberDecoratedAgent = Agent<unknown, unknown> & FiberProperties;
  *
  * Usage:
  * ```typescript
+ *
  * @Fiber()
  * export class MyAgent extends Agent {
  *   // Your agent implementation
@@ -291,6 +295,16 @@ export function Fiber<E = unknown, S = unknown>() {
       }
 
       onRequest(request: Request): Response | Promise<Response> {
+        const namespace = request.headers.get(PARTYKIT_NAMESPACE_HEADER);
+        const instance = request.headers.get(PARTYKIT_ROOM_HEADER);
+
+        if (namespace && instance) {
+          const existingInstances = agentInstances.get(namespace) || [];
+          if (!existingInstances.includes(instance)) {
+            agentInstances.set(namespace, [...existingInstances, instance]);
+          }
+        }
+
         if (!this.fiberRouter) {
           this.fiberRouter = createAgentAdminRouter(this);
         }
@@ -320,6 +334,16 @@ const agentInstances = new Map<string, string[]>();
 function createFpApp() {
   return new Hono()
     .basePath("/fp")
+    .get("/api/agents", async (c) => {
+      const agents = Array.from(agentInstances.entries()).map(
+        ([namespace, instances]) => ({
+          id: namespace,
+          className: namespace,
+          instances,
+        }),
+      );
+      return c.json(agents);
+    })
     .get("*", async (c) => {
       const cdn =
         "https://cdn.jsdelivr.net/npm/@fiberplane/agents@latest/dist/playground/";
@@ -343,16 +367,6 @@ function createFpApp() {
         </html>,
       );
     })
-    .get("/api/agents", async (c) => {
-      const agents = Array.from(agentInstances.entries()).map(
-        ([namespace, instances]) => ({
-          id: namespace,
-          className: namespace,
-          instances,
-        }),
-      );
-      return c.json(agents);
-    })
     .notFound(() => {
       return new Response(null, { status: 404 });
     });
@@ -368,25 +382,6 @@ export function fiberplane<E extends Env>(
   const fpApp = createFpApp();
 
   return async function fetch(request: Request, env: E, ctx: ExecutionContext) {
-    const url = new URL(request.url);
-
-    // Track agent requests
-    const agentPathMatch = url.pathname.match(/^\/agents\/([^\/]+)\/([^\/]+)/);
-    if (agentPathMatch) {
-      const namespace = agentPathMatch[1];
-      const instance = agentPathMatch[2];
-
-      // Record the instance in the agentInstances map
-      if (!agentInstances.has(namespace)) {
-        agentInstances.set(namespace, []);
-      }
-
-      const instances = agentInstances.get(namespace);
-      if (instances && !instances.includes(instance)) {
-        instances.push(instance);
-      }
-    }
-
     const { data: response, error } = await tryCatch(
       fpApp.fetch(request, env, ctx),
     );
