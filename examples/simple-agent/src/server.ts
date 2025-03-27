@@ -9,14 +9,14 @@ import {
   generateId,
   streamText,
 } from "ai";
-import { Fiber, fiberplane } from "../../../packages/agents/dist";
+import { Fiber, fiberplane } from "@fiberplane/agents";
 import { executions, tools } from "./tools";
 import { processToolCalls } from "./utils";
 
 // Environment variables type definition
 export type Env = {
   OPENAI_API_KEY: string;
-  Chat: AgentNamespace<Chat>;
+  ChatClient: AgentNamespace<ChatClient>;
 };
 
 interface MemoryState {
