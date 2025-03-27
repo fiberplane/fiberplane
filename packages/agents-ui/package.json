@@ -45,6 +45,7 @@
     "@biomejs/biome": "^1.9.4",
     "@shadcn/ui": "^0.0.4",
     "@tailwindcss/container-queries": "^0.1.1",
+    "@tanstack/react-query-devtools": "^5.64.1",
     "@tanstack/router-plugin": "^1.95.5",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",

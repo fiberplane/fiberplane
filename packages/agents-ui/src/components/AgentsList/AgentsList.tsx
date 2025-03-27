@@ -5,8 +5,6 @@ import { AgentCard } from "./AgentCard";
 
 export function AgentsList(props: {
   agents?: ListAgentsResponse;
-  selectAgent: (agent: string) => void;
-  selectAgentInstance: (agent: string, instance: string) => void;
   isLoading: boolean;
   refetch: () => void;
 }) {
@@ -37,8 +35,6 @@ export function AgentsList(props: {
             <div key={agent.id} className="h-auto">
               <AgentCard
                 agent={agent}
-                selectAgent={props.selectAgent}
-                selectAgentInstance={props.selectAgentInstance}
               />
             </div>
           ))}

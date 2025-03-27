@@ -16,7 +16,6 @@ export default defineConfig({
     nodePolyfills(),
     TanStackRouterVite({
       autoCodeSplitting: true,
-      generatedRouteTree: "./src/routes/routeTree.gen.ts",
     }),
     react(),
     svgr({

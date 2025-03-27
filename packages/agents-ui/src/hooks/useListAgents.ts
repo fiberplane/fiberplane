@@ -1,8 +1,12 @@
 import type { ListAgentsResponse } from "@/types";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, queryOptions } from "@tanstack/react-query";
 
 export function useListAgents() {
-  return useQuery<ListAgentsResponse>({
+  return useQuery(listAgentsQueryOptions());
+}
+
+export function listAgentsQueryOptions() {
+  return queryOptions<ListAgentsResponse>({
     queryKey: ["list_agents"],
     queryFn: () => fetch("/fp/api/agents").then((res) => res.json()),
   });

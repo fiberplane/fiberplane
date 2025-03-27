@@ -1,24 +1,42 @@
 import { cn } from "@/lib/utils";
-import { type ListAgentsResponse, unset } from "@/types";
-import { Box, Cpu, RefreshCw } from "lucide-react";
+import type { ListAgentsResponse } from "@/types";
+import { Box, Cpu } from "lucide-react";
 import { Fragment } from "react/jsx-runtime";
 import { ListSection } from "./ListSection";
 import { Spinner } from "./Spinner";
 import { Button } from "./ui/button";
+import { Link, useMatches } from "@tanstack/react-router";
+import { useListAgents } from "@/hooks/useListAgents";
+import { useMinimumLoadingRefetch } from "@/useMinimumLoadingRefetch";
 
-type Props = {
-  setSelectedAgent: (agent: string) => void;
-  setSelectAgentInstance: (agent: string, instance: string) => void;
-  data: ListAgentsResponse;
-  agent: string | typeof unset;
-  instance: string | typeof unset;
-  isLoading: boolean;
-  refetch: () => void;
-};
+export function AgentsSidebar() {
+  // Get route data directly
+  const matches = useMatches();
 
-export function AgentsSidebar(props: Props) {
-  const { setSelectedAgent, setSelectAgentInstance, data, agent, instance } =
-    props;
+  // Get params from the route
+  const agentId = matches.find(
+    (match) =>
+      match.routeId === "/agents/$agentId" ||
+      match.routeId === "/agents/$agentId/$instanceId",
+  )?.params.agentId;
+
+  const instanceId = matches.find(
+    (match) => match.routeId === "/agents/$agentId/$instanceId",
+  )?.params.instanceId;
+
+  // Fetch agents data directly
+  const { data, refetch: rawRefetch } = useListAgents();
+  const [refetch, isLoading] = useMinimumLoadingRefetch(rawRefetch, 500);
+
+  if (!data) {
+    return (
+      <ListSection title={<h2 className="text-xl">Agents</h2>}>
+        <div className="w-full grid place-items-center h-full">
+          <Spinner spinning={true} />
+        </div>
+      </ListSection>
+    );
+  }
 
   return (
     <ListSection
@@ -28,10 +46,10 @@ export function AgentsSidebar(props: Props) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={props.refetch}
-            disabled={props.isLoading}
+            onClick={refetch}
+            disabled={isLoading}
           >
-            <Spinner spinning={props.isLoading} />
+            <Spinner spinning={isLoading} />
           </Button>
         </div>
       }
@@ -39,17 +57,18 @@ export function AgentsSidebar(props: Props) {
       <div className="w-full grid gap-2 h-full">
         {data.map((item) => (
           <Fragment key={item.id}>
-            <Button
+            <Link
+              to="/agents/$agentId"
+              params={{ agentId: item.id }}
               className={cn(
-                "flex justify-start px-2 py-2 font-medium text-sm",
-                instance === unset && item.id === agent ? "bg-muted" : "",
+                "flex justify-start px-2 py-2 font-medium text-sm rounded-md",
+                !instanceId && item.id === agentId ? "bg-muted" : "",
+                "hover:bg-muted/50",
               )}
-              variant="ghost"
-              onClick={() => setSelectedAgent(item.id)}
             >
               <Cpu className="w-3 h-3 mr-2" />
               {item.id}
-            </Button>
+            </Link>
             {item.instances.length > 0 && (
               <div className="ml-4 pl-2">
                 {item.instances.map((instanceItem, index) => (
@@ -64,17 +83,19 @@ export function AgentsSidebar(props: Props) {
                       }}
                     />
 
-                    <Button
-                      onClick={() => {
-                        setSelectAgentInstance(item.id, instanceItem);
-                      }}
-                      variant="ghost"
-                      className={`relative justify-start px-4 w-full ml-2 ${instanceItem === instance ? "bg-muted" : ""}`}
+                    <Link
+                      to="/agents/$agentId/$instanceId"
+                      params={{ agentId: item.id, instanceId: instanceItem }}
+                      className={cn(
+                        "relative flex justify-start px-4 w-full ml-2 py-2 rounded-md",
+                        instanceItem === instanceId ? "bg-muted" : "",
+                        "hover:bg-muted/50",
+                      )}
                     >
                       <div className="absolute -left-2 top-1/2 w-2 h-px bg-gray-300" />
                       <Box className="w-3 h-3 mr-2" />
                       {instanceItem}
-                    </Button>
+                    </Link>
                   </div>
                 ))}
               </div>

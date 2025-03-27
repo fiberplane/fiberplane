@@ -1,136 +1,51 @@
-import { createRootRoute } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
-import { useListAgents } from "@/hooks";
-import { useMinimumLoadingRefetch } from "@/useMinimumLoadingRefetch";
-import { Box, BoxIcon, HeartHandshake } from "lucide-react";
-import { usePlaygroundStore } from "@/store";
-import { AgentDetails } from "@/components/AgentDetails";
-import { AgentsList } from "@/components/AgentsList";
-import { AgentsSidebar } from "@/components/AgentsSidebar";
+import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
-import { ListSection } from "@/components/ListSection";
+import { useRouterContext } from "@/hooks";
+import type { RouterOptions } from "@/types";
+import { listAgentsQueryOptions } from "@/hooks/useListAgents";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<RouterOptions>()({
   component: RootComponent,
+  loader: async ({ context: { queryClient } }) => {
+    const agents = await queryClient.ensureQueryData(listAgentsQueryOptions());
+    return agents;
+  },
+  errorComponent: ({ error }) => {
+    return (
+      <Layout>
+        <div className="h-full grid items-center justify-center">
+          <div className="grid gap-2 mx-auto border p-4 rounded-lg max-w-[400px]">
+            <h2 className="text-lg font-semibold">Unexpected Error</h2>
+            <p className="text-muted-foreground">
+              {error instanceof Error
+                ? error.message
+                : "An unknown error occurred"}
+            </p>
+          </div>
+        </div>
+      </Layout>
+    );
+  },
 });
 
 function RootComponent() {
-  const { data, refetch: rawRefetch } = useListAgents();
-  const [refetch, isLoading] = useMinimumLoadingRefetch(rawRefetch, 500);
+  const { version, commitHash } = useRouterContext();
 
-  const selectedAgent = usePlaygroundStore((state) => state.agent);
-  const selectedInstance = usePlaygroundStore((state) => state.instance);
-  const setSelectedAgent = usePlaygroundStore((state) => state.selectAgent);
-  const setSelectedAgentInstance = usePlaygroundStore(
-    (state) => state.selectAgentInstance,
-  );
-  const reset = usePlaygroundStore((state) => state.reset);
+  if (version) {
+    console.log(`Agent Playground version: ${version}`);
+  }
+
+  if (commitHash) {
+    console.log(`Agent Playground commit hash: ${commitHash}`);
+  }
 
   return (
     <div className="bg-background text-foreground text-sm min-h-dvh min-w-dvw grid p-2">
-      {data?.length === 0 ? (
-        <Layout reset={reset}>
-          <div className="h-full grid items-center justify-center">
-            <div className="grid gap-2 mx-auto border p-4 rounded-lg max-w-[400px]">
-              <div className="flex items-center gap-2 justify-center">
-                <HeartHandshake className="w-4 h-4" />
-                <span>Oops. No agents found!</span>
-              </div>
-              <p className="text-muted-foreground">
-                Please make sure you've decorated your Agents classes with the{" "}
-                <code className="font-mono text-warning">`@Fiber()`</code>{" "}
-                decorator
-              </p>
-            </div>
-          </div>
-        </Layout>
-      ) : (
-        (() => {
-          const agent = data?.find((a) => a.id === selectedAgent);
-          const hasBinding = data && agent;
-          const instance = agent?.instances.find((i) => i === selectedInstance);
-
-          return (
-            <Layout reset={reset}>
-              {hasBinding ? (
-                <div className="h-full w-full grid gap-4 grid-cols-[200px_auto] p-4">
-                  <AgentsSidebar
-                    agent={selectedAgent}
-                    instance={selectedInstance}
-                    data={data}
-                    refetch={refetch}
-                    isLoading={isLoading}
-                    setSelectedAgent={setSelectedAgent}
-                    setSelectAgentInstance={setSelectedAgentInstance}
-                  />
-                  <div>
-                    {instance !== undefined ? (
-                      <AgentDetails agent={agent} instance={instance} />
-                    ) : (
-                      <ListSection
-                        title={agent.id}
-                        className="h-full"
-                        contentClassName="grid items-center justify-center"
-                      >
-                        <div className="grid gap-4 max-w-prose mx-auto border rounded-lg p-4 m-4">
-                          <h2 className="text-lg ">Active instances</h2>
-                          <p className="text-muted-foreground">
-                            An active instance is an instance of the agent that
-                            is currently running. In order to view the details
-                            of an agent, you must select one.
-                          </p>
-                          <div>Detected instances: </div>
-
-                          {agent.instances.length ? (
-                            <div className="flex gap-2">
-                              {agent.instances.map((instance) => (
-                                <Button
-                                  key={instance}
-                                  onClick={(event) => {
-                                    setSelectedAgentInstance(
-                                      agent.id,
-                                      instance,
-                                    );
-                                  }}
-                                  type="button"
-                                  size="sm"
-                                  className="bg-info/15 hover:bg-info/35"
-                                >
-                                  <BoxIcon className="w-3.5 h-3.5" />
-                                  {instance}
-                                </Button>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="text-muted-foreground text-center mx-auto">
-                              <em className="text-foreground italic font-normal mb-1 flex items-center justify-center">
-                                <Box className="w-4 h-4 mr-2" />
-                                No instances detected yet.
-                              </em>
-                              Please make a request to the agent to start an
-                              instance.
-                            </div>
-                          )}
-                        </div>
-                      </ListSection>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="h-full w-full p-4">
-                  <AgentsList
-                    agents={data}
-                    isLoading={isLoading}
-                    refetch={refetch}
-                    selectAgent={setSelectedAgent}
-                    selectAgentInstance={setSelectedAgentInstance}
-                  />
-                </div>
-              )}
-            </Layout>
-          );
-        })()
-      )}
+      <Outlet />
+      {/* <TanStackRouterDevtools />
+      <ReactQueryDevtools /> */}
     </div>
   );
 }

@@ -4,18 +4,6 @@ import { devtools } from "zustand/middleware";
 import type { AgentEvent } from "./hooks/useSSE";
 import { unset } from "./types";
 
-// Route slice
-type RouteState = {
-  agent: typeof unset | string;
-  instance: typeof unset | string;
-};
-
-type RouteActions = {
-  selectAgent: (agent: string) => void;
-  selectAgentInstance: (agent: string, instance: string) => void;
-  reset: () => void;
-};
-
 export type SSEStatus = "connecting" | "open" | "closed" | "error";
 
 // Agent slice
@@ -46,28 +34,6 @@ type AgentActions = {
   ) => void;
 };
 
-// Combined store type
-type StoreState = RouteState &
-  RouteActions &
-  AgentState &
-  AgentActions &
-  UIState &
-  UIActions;
-
-// Create route slice with proper typing
-const routeSlice = combine<RouteState, RouteActions>(
-  {
-    agent: unset,
-    instance: unset,
-  },
-  (set) => ({
-    selectAgent: (agent: string) => set({ agent, instance: unset }),
-    selectAgentInstance: (agent: string, instance: string) =>
-      set({ agent, instance }),
-    reset: () => set({ agent: unset, instance: unset }),
-  }),
-);
-
 // UI State
 type UIState = {
   showAdminEvents: boolean;
@@ -76,6 +42,9 @@ type UIState = {
 type UIActions = {
   toggleAdminEvents: () => void;
 };
+
+// Combined store type
+type StoreState = AgentState & AgentActions & UIState & UIActions;
 
 // UI slice
 const uiSlice = combine<UIState, UIActions>(
@@ -185,7 +154,6 @@ export const usePlaygroundStore = create<StoreState>()(
   devtools(
     (...args) => ({
       ...uiSlice(...args),
-      ...routeSlice(...args),
       ...agentSlice(...args),
     }),
     {
