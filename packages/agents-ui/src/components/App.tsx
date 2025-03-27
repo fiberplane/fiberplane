@@ -25,9 +25,18 @@ export function App() {
   if (data?.length === 0) {
     return (
       <Layout reset={reset}>
-        <div className="flex items-center gap-2">
-          <HeartHandshake className="w-4 h-4" />
-          <span>No agents found</span>
+        <div className="h-full grid items-center justify-center">
+          <div className="grid gap-2 mx-auto border p-4 rounded-lg max-w-[400px]">
+            <div className="flex items-center gap-2 justify-center">
+              <HeartHandshake className="w-4 h-4" />
+              <span>Oops. No agents found!</span>
+            </div>
+            <p className="text-muted-foreground">
+              Please make sure you've decorated your Agents classes with the{" "}
+              <code className="font-mono text-warning">`@Fiber()`</code>{" "}
+              decorator
+            </p>
+          </div>
         </div>
       </Layout>
     );

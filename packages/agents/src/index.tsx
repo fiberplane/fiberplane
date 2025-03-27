@@ -1,8 +1,13 @@
 import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
+import {
+  getAgents,
+  registerAgent,
+  registerAgentInstance,
+} from "./agentInstances";
 import type { AgentEvent } from "./types";
-import { tryCatch } from "./util";
+import { isDurableObjectNamespace, toKebabCase, tryCatch } from "./util";
 
 const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
 const PARTYKIT_ROOM_HEADER = "x-partykit-room";
@@ -227,6 +232,8 @@ export function Fiber<E = unknown, S = unknown>() {
       // biome-ignore lint/suspicious/noExplicitAny: Required for TypeScript mixins
       constructor(...args: any[]) {
         super(...args);
+        const superClassName = Object.getPrototypeOf(this.constructor).name;
+        registerAgent(superClassName);
       }
 
       fiberRouter?: Hono;
@@ -299,10 +306,12 @@ export function Fiber<E = unknown, S = unknown>() {
         const instance = request.headers.get(PARTYKIT_ROOM_HEADER);
 
         if (namespace && instance) {
-          const existingInstances = agentInstances.get(namespace) || [];
-          if (!existingInstances.includes(instance)) {
-            agentInstances.set(namespace, [...existingInstances, instance]);
-          }
+          registerAgentInstance(namespace, instance);
+        } else {
+          console.error(
+            "Missing namespace or instance headers in request",
+            request,
+          );
         }
 
         if (!this.fiberRouter) {
@@ -329,19 +338,34 @@ export function Fiber<E = unknown, S = unknown>() {
 // that allows for any values in the environment object
 type Env = Record<string, unknown>;
 
-const agentInstances = new Map<string, string[]>();
-
 function createFpApp() {
+  let firstRequest = true;
   return new Hono()
     .basePath("/fp")
     .get("/api/agents", async (c) => {
-      const agents = Array.from(agentInstances.entries()).map(
-        ([namespace, instances]) => ({
-          id: namespace,
-          className: namespace,
-          instances,
-        }),
-      );
+      const agents = getAgents();
+
+      if (firstRequest) {
+        firstRequest = false;
+
+        const durableObjects =
+          c.env && typeof c.env === "object"
+            ? (Object.entries(c.env as Record<string, unknown>).filter(
+              ([key, value]) => isDurableObjectNamespace(value),
+            ) as Array<[string, DurableObjectNamespace]>)
+            : [];
+        for (const [name] of durableObjects) {
+          // See if we're aware of an agent with the same id
+          // However id is the namespace (kebab case of the name)
+          const namespace = toKebabCase(name);
+          if (!agents.some((agent) => agent.id === namespace)) {
+            console.warn(
+              `Warning: durable object detected but it is not decorated with the \`@Fiber()\` decorator (binding name: ${name}, expected namespace: ${namespace})`,
+            );
+          }
+        }
+      }
+
       return c.json(agents);
     })
     .get("*", async (c) => {

@@ -14,15 +14,15 @@
   "durable_objects": {
     "bindings": [
       {
-        "name": "Chat",
-        "class_name": "Chat"
+        "name": "ChatClient",
+        "class_name": "ChatClient"
       }
     ]
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["Chat"]
+      "new_sqlite_classes": ["ChatClient"]
     }
   ],
   "observability": {
