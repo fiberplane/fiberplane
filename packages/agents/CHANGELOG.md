@@ -1,5 +1,11 @@
 # @fiberplane/agents
 
+## 0.3.2
+
+### Patch Changes
+
+- Fix: remove auto code splitting as it was causing issues
+
 ## 0.3.1
 
 ### Patch Changes
