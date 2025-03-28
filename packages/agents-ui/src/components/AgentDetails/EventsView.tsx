@@ -8,7 +8,9 @@ import {
 import { cn, noop } from "@/lib/utils";
 import {
   type AgentEvent,
+  AllEventCategories,
   type CombinedEvent,
+  eventCategories,
   usePlaygroundStore,
 } from "@/store";
 import { MessagePayloadSchema } from "@/types";
@@ -21,7 +23,7 @@ import {
   Globe,
   Info,
   LayoutDashboard,
-  PhoneCall,
+  Phone,
   PhoneIncoming,
   PhoneOff,
   PhoneOutgoing,
@@ -34,6 +36,16 @@ import { Method } from "../Method";
 import { Checkbox } from "../ui/Checkbox";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import {
+  FpDropdownMenu,
+  FpDropdownMenuCheckboxItem,
+  FpDropdownMenuContent,
+  FpDropdownMenuItem,
+  FpDropdownMenuPortal,
+  FpDropdownMenuSeparator,
+  FpDropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { CaretSortIcon } from "@radix-ui/react-icons";
 
 // Define a more specific type for HTTP request payloads
 interface HttpRequestPayload {
@@ -113,7 +125,7 @@ const getEventIcon = (type: CombinedEvent["type"] | AgentEventType) => {
     case "ws_message":
       return <PhoneIncoming size={16} />;
     case "ws_open":
-      return <PhoneCall size={16} />;
+      return <Phone size={16} />;
     case "ws_close":
       return <PhoneOff size={16} />;
     case "broadcast":
@@ -356,33 +368,95 @@ export function EventsView(props: { namespace: string; instance: string }) {
   const clearEvents = () =>
     resetAgentInstanceEvents(props.namespace, props.instance);
 
-  const shownEvents = useFilteredEvents(props);
+  const events = useFilteredEvents(props);
   const combineEvents = usePlaygroundStore((state) => state.combineEvents);
   const toggleCombineEvents = usePlaygroundStore(
     (state) => state.toggleCombineEvents,
   );
 
-  const sortedEvents = useMemo(() => {
-    return [...shownEvents].sort((a, b) => {
-      // Handle case where timestamps might be invalid
-      try {
-        return (
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-        );
-      } catch (e) {
-        return 0;
-      }
-    });
-  }, [shownEvents]);
+  const selectedCategories = usePlaygroundStore(
+    (state) => state.visibleEventCategories,
+  );
+  const toggleEventCategory = usePlaygroundStore(
+    (state) => state.toggleEventCategory,
+  );
+  const resetEventCategories = usePlaygroundStore(
+    (state) => state.resetEventCategories,
+  );
 
-  console.log("shownEvents", shownEvents);
+  const visibleEventTypes = useMemo(() => {
+    const visibleTypes: Array<AgentEvent["type"]> = [];
+    for (const category of selectedCategories) {
+      const types = eventCategories[category];
+      if (types) {
+        visibleTypes.push(...types);
+      }
+    }
+    return visibleTypes;
+  }, [selectedCategories]);
+
+  const sortedEvents = useMemo(() => {
+    return [...events]
+      .filter((event) => visibleEventTypes.includes(event.type))
+      .sort((a, b) => {
+        // Handle case where timestamps might be invalid
+        try {
+          return (
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          );
+        } catch (e) {
+          return 0;
+        }
+      });
+  }, [events, visibleEventTypes]);
+
+  // console.log("shownEvents", shownEvents);
   return (
     <div>
       <div className="grid items-center grid-cols-[1fr_auto] gap-2 border-b border-border pb-4 mb-2">
         {/* <span className="text-muted-foreground">
           Showing ({shownEvents.length} of {rawEvents.length} events)
         </span> */}
-        <span />
+        <div className="flex items-center gap-2">
+          Filter:
+          <FpDropdownMenu>
+            <FpDropdownMenuTrigger
+              className={cn(
+                "flex",
+                "items-center",
+                "gap-2",
+                "h-min",
+                "hover:bg-muted",
+                "data-[state=open]:bg-muted",
+                "rounded-sm",
+                // "w-full",
+                "group/dropdown",
+              )}
+            >
+              <div className="grow-1 w-full text-start text-sm text-muted-foreground px-2">
+                {"Event categories"}
+              </div>
+              <CaretSortIcon className="w-3 h-3 mr-1 flex-shrink-0 opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-data-[state=open]/dropdown:opacity-100" />
+            </FpDropdownMenuTrigger>
+            <FpDropdownMenuPortal>
+              <FpDropdownMenuContent align="start">
+                {AllEventCategories.map((category) => (
+                  <FpDropdownMenuCheckboxItem
+                    checked={selectedCategories.includes(category)}
+                    onCheckedChange={() => toggleEventCategory(category)}
+                    key={category}
+                  >
+                    {category}
+                  </FpDropdownMenuCheckboxItem>
+                ))}
+                <FpDropdownMenuSeparator />
+                <FpDropdownMenuItem onChange={() => resetEventCategories()}>
+                  default
+                </FpDropdownMenuItem>
+              </FpDropdownMenuContent>
+            </FpDropdownMenuPortal>
+          </FpDropdownMenu>
+        </div>
         <div className="flex items-center gap-2">
           {/* biome-ignore lint/a11y/noLabelWithoutControl: Checkbox is the related input element */}
           <label className="text-muted-foreground text-sm flex items-center gap-1 cursor-pointer hover:text-foreground">
@@ -405,7 +479,7 @@ export function EventsView(props: { namespace: string; instance: string }) {
 
       {sortedEvents.length === 0 ? (
         <div className="text-sm text-muted-foreground py-4 text-center">
-          {shownEvents.length === 0
+          {events.length === 0
             ? "No events captured yet."
             : "Filtered selection has no events."}
         </div>
