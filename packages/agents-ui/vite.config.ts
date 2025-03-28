@@ -14,9 +14,7 @@ const { embeddedApiUrl } = getDevConfig(ENV_FILE);
 export default defineConfig({
   plugins: [
     nodePolyfills(),
-    TanStackRouterVite({
-      autoCodeSplitting: true,
-    }),
+    TanStackRouterVite(),
     react(),
     svgr({
       svgrOptions: { exportType: "default", ref: true },
