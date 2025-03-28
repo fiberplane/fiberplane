@@ -1,5 +1,11 @@
 # @fiberplane/agents
 
+## 0.3.0
+
+### Minor Changes
+
+- This introduces proper routing for the agents playground. This means: users can refresh the playground and come back to the same state, state management is simplified.
+
 ## 0.2.1
 
 ### Patch Changes
