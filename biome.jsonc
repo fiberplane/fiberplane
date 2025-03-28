@@ -71,8 +71,7 @@
       "include": [
         "packages/client-library-otel",
         "apps/studio/studio-api",
-        "apps/honc-code-gen",
-        "apps/fp-services"
+        "apps/honc-code-gen"
       ],
       "linter": {
         "enabled": true,
