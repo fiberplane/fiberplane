@@ -2,7 +2,6 @@ import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -16,9 +15,7 @@ import {
 } from "@/components/ui/tooltip";
 import type { DBTable } from "@/types";
 import { format } from "date-fns";
-import React from "react";
 import { z } from "zod";
-import { ListSection } from "../ListSection";
 
 // Database schema representation
 const ScheduleDBSchema = z.object({
@@ -232,72 +229,68 @@ export const ScheduleTableView = ({ table, className }: ScheduleTableProps) => {
 
   return (
     <TooltipProvider>
-      <ListSection title="Scheduled tasks">
-        <Table className={className}>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead>ID</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Callback</TableHead>
-              <TableHead>Details</TableHead>
-              <TableHead>Payload</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {schedules.map((schedule) => {
-              if (schedule === null) {
-                return null;
-              }
-              const { typeLabel, details } = getScheduleTypeDetails(schedule);
+      <Table className={className}>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead>ID</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Callback</TableHead>
+            <TableHead>Details</TableHead>
+            <TableHead>Payload</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {schedules.map((schedule) => {
+            if (schedule === null) {
+              return null;
+            }
+            const { typeLabel, details } = getScheduleTypeDetails(schedule);
 
-              return (
-                <TableRow key={schedule.id}>
-                  <TableCell className="font-mono text-xs">
-                    {schedule.id}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getScheduleTypeColor(schedule.type)}>
-                      {typeLabel}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="font-mono">
-                    {schedule.callback}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {details}
-                  </TableCell>
-                  <TableCell>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Badge variant="secondary" className="cursor-help">
-                          Payload
-                        </Badge>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <pre className="text-xs p-2 max-w-xs overflow-auto">
-                          {typeof schedule.payload === "string"
-                            ? schedule.payload
-                            : JSON.stringify(schedule.payload, null, 2)}
-                        </pre>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-            {schedules.length === 0 && (
-              <TableRow>
-                <TableCell
-                  colSpan={6}
-                  className="text-center py-6 text-muted-foreground"
-                >
-                  No scheduled tasks found
+            return (
+              <TableRow key={schedule.id}>
+                <TableCell className="font-mono text-xs">
+                  {schedule.id}
+                </TableCell>
+                <TableCell>
+                  <Badge variant={getScheduleTypeColor(schedule.type)}>
+                    {typeLabel}
+                  </Badge>
+                </TableCell>
+                <TableCell className="font-mono">{schedule.callback}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {details}
+                </TableCell>
+                <TableCell>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Badge variant="secondary" className="cursor-help">
+                        Payload
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <pre className="text-xs p-2 max-w-xs overflow-auto">
+                        {typeof schedule.payload === "string"
+                          ? schedule.payload
+                          : JSON.stringify(schedule.payload, null, 2)}
+                      </pre>
+                    </TooltipContent>
+                  </Tooltip>
                 </TableCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </ListSection>
+            );
+          })}
+          {schedules.length === 0 && (
+            <TableRow>
+              <TableCell
+                colSpan={6}
+                className="text-center py-6 text-muted-foreground"
+              >
+                No scheduled tasks found
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </TooltipProvider>
   );
 };

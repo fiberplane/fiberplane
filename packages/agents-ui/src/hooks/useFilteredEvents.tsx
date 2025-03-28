@@ -1,26 +1,21 @@
-import { EMPTY_EVENTS, usePlaygroundStore } from "@/store";
-import { useMemo } from "react";
+import {
+  EMPTY_COMBINED_EVENTS,
+  EMPTY_EVENTS,
+  usePlaygroundStore,
+} from "@/store";
 
-export function useFilteredEvents(params: {
+export function useFilteredEvents(parameters: {
   namespace: string;
   instance: string;
 }) {
-  const { namespace, instance } = params;
-  const events = usePlaygroundStore((state) => {
-    return (
-      state.agentsState[namespace]?.instances[instance]?.events ?? EMPTY_EVENTS
-    );
-  });
+  const { namespace, instance } = parameters;
+  return usePlaygroundStore((state) => {
+    const instanceDetails = state.agentsState[namespace]?.instances[instance];
 
-  const showAdminEvents = usePlaygroundStore((state) => state.showAdminEvents);
-
-  return useMemo(() => {
-    if (showAdminEvents) {
-      return events;
+    if (state.combineEvents) {
+      return instanceDetails?.combinedEvents ?? EMPTY_COMBINED_EVENTS;
     }
 
-    return events.filter((event) => {
-      return event.type !== "http_request";
-    });
-  }, [events, showAdminEvents]);
+    return instanceDetails?.events ?? EMPTY_EVENTS;
+  });
 }

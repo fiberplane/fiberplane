@@ -61,12 +61,12 @@ export function AgentsSidebar() {
               to="/agents/$agentId"
               params={{ agentId: item.id }}
               className={cn(
-                "flex justify-start px-2 py-2 font-medium text-sm rounded-md",
+                "flex justify-start px-2 py-2 font-medium text-sm rounded-md items-center",
                 !instanceId && item.id === agentId ? "bg-muted" : "",
                 "hover:bg-muted/50",
               )}
             >
-              <Cpu className="w-3 h-3 mr-2" />
+              <Cpu className="w-3.5 h-3.5 mr-2" />
               {item.id}
             </Link>
             {item.instances.length > 0 && (
@@ -74,7 +74,7 @@ export function AgentsSidebar() {
                 {item.instances.map((instanceItem, index) => (
                   <div
                     key={instanceItem}
-                    className={`relative ${index !== item.instances.length - 1 ? "mb-1" : ""}`}
+                    className={`relative ${index !== item.instances.length - 1 ? "mb-1" : ""} flex`}
                   >
                     <div
                       className="absolute top-0 left-0 bottom-0 w-px bg-gray-300"
@@ -82,18 +82,18 @@ export function AgentsSidebar() {
                         bottom: index === item.instances.length - 1 ? "50%" : 0,
                       }}
                     />
+                    <div className="relative top-[18px] w-2 h-px bg-gray-300" />
 
                     <Link
                       to="/agents/$agentId/$instanceId"
                       params={{ agentId: item.id, instanceId: instanceItem }}
                       className={cn(
-                        "relative flex justify-start px-4 w-full ml-2 py-2 rounded-md",
+                        "flex justify-start px-4 w-full py-2 rounded-md items-center",
                         instanceItem === instanceId ? "bg-muted" : "",
                         "hover:bg-muted/50",
                       )}
                     >
-                      <div className="absolute -left-2 top-1/2 w-2 h-px bg-gray-300" />
-                      <Box className="w-3 h-3 mr-2" />
+                      <Box className="w-3.5 h-3.5 mr-2" />
                       {instanceItem}
                     </Link>
                   </div>

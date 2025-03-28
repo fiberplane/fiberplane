@@ -2,7 +2,7 @@ export { useListAgents } from "./useListAgents";
 export { useAgentDB } from "./useAgentDB";
 export {
   useAgentInstanceEvents,
-  type AgentEvent,
+  type CoreAgentEvent,
   type AgentEventType,
   type EventPayload,
 } from "./useSSE";

@@ -1,16 +1,37 @@
+import { z } from "zod";
 import { create } from "zustand";
 import { combine } from "zustand/middleware";
 import { devtools } from "zustand/middleware";
-import type { AgentEvent } from "./hooks/useSSE";
+import type { CoreAgentEvent } from "./hooks/useSSE";
+import { MessagePayloadSchema } from "./types";
 
 export type SSEStatus = "connecting" | "open" | "closed" | "error";
 
 // Agent slice
 type InstanceDetails = {
   eventStreamStatus: SSEStatus;
-  events: Array<AgentEvent>;
+  events: Array<CoreAgentEvent>;
+  combinedEvents: Array<CoreAgentEvent | CombinedEvent>;
+  knownBroadcastEvents: Record<string, CombinedEvent>;
 };
 
+export type CombinedEvent = {
+  type: "combined_event";
+  id: string;
+  payload: {
+    chunks: Array<
+      CoreAgentEvent & {
+        type: "broadcast";
+        payload: { message: z.infer<typeof ChatMessageSchema> };
+      }
+    >;
+    content: string; // Combined content from all chunks
+    done: boolean;
+  };
+  timestamp: string;
+};
+
+export type AgentEvent = CoreAgentEvent | CombinedEvent;
 type AgentDetailsState = {
   instances: Record<string, InstanceDetails>;
 };
@@ -23,7 +44,7 @@ type AgentActions = {
   addAgentInstanceEvent: (
     agent: string,
     instance: string,
-    event: AgentEvent,
+    event: CoreAgentEvent,
   ) => void;
   resetAgentInstanceEvents: (agent: string, instance: string) => void;
   setAgentInstanceStreamStatus: (
@@ -35,11 +56,11 @@ type AgentActions = {
 
 // UI State
 type UIState = {
-  showAdminEvents: boolean;
+  combineEvents: boolean;
 };
 
 type UIActions = {
-  toggleAdminEvents: () => void;
+  toggleCombineEvents: () => void;
 };
 
 // Combined store type
@@ -48,15 +69,23 @@ type StoreState = AgentState & AgentActions & UIState & UIActions;
 // UI slice
 const uiSlice = combine<UIState, UIActions>(
   {
-    showAdminEvents: false,
+    combineEvents: true,
   },
   (set) => ({
-    toggleAdminEvents: () =>
-      set((state) => ({ showAdminEvents: !state.showAdminEvents })),
+    toggleCombineEvents: () =>
+      set((state) => ({ combineEvents: !state.combineEvents })),
   }),
 );
 
-export const EMPTY_EVENTS: Array<AgentEvent> = [];
+const ChatMessageSchema = z.object({
+  id: z.string(),
+  type: z.literal("cf_agent_use_chat_response"),
+  body: z.string(),
+  done: z.boolean(),
+});
+
+export const EMPTY_EVENTS: Array<CoreAgentEvent> = [];
+export const EMPTY_COMBINED_EVENTS: Array<CoreAgentEvent | CombinedEvent> = [];
 
 // Create agent slice with proper typing and fix the event update
 const agentSlice = combine<AgentState, AgentActions>(
@@ -66,13 +95,126 @@ const agentSlice = combine<AgentState, AgentActions>(
   (set) => ({
     addAgentInstanceEvent: (agent, instance, event) => {
       set((state) => {
+        // Get or initialize agent details
         const agentDetails = state.agentsState[agent] ?? {
           instances: {},
         };
 
+        // Get or initialize instance details
         const instanceDetails = agentDetails.instances[instance] ?? {
           events: [],
+          combinedEvents: [],
+          knownBroadcastEvents: {},
+          eventStreamStatus: "closed" as SSEStatus,
         };
+
+        // Always add the raw event to events array
+        const events = [...instanceDetails.events, event];
+
+        // console.log("Adding event", event);
+        if (event.type === "broadcast") {
+          console.log("Broadcast event", event);
+        }
+
+        // Make a copy of existing combinedEvents and knownBroadcastEvents
+        let combinedEvents = [
+          ...(instanceDetails.combinedEvents || EMPTY_COMBINED_EVENTS),
+        ];
+        const knownBroadcastEvents = {
+          ...(instanceDetails.knownBroadcastEvents || {}),
+        };
+
+        // Handle broadcast event combining
+        if (event.type === "broadcast") {
+          try {
+            const { message: parsedMessage } = MessagePayloadSchema.parse(
+              event.payload,
+            );
+            const parsed = ChatMessageSchema.safeParse(parsedMessage);
+
+            if (parsed.success) {
+              const { id, body, done } = parsed.data;
+              const typedEvent = event as CoreAgentEvent & {
+                type: "broadcast";
+              };
+
+              // Check if we already have a combined event with this ID
+              if (id in knownBroadcastEvents) {
+                // Update existing combined event
+                const existingEvent = knownBroadcastEvents[id];
+
+                // Add this chunk to the existing event
+                existingEvent.payload.chunks.push({
+                  ...typedEvent,
+                  payload: {
+                    message: parsed.data,
+                  },
+                });
+
+                existingEvent.payload.content += body;
+
+                // // Update the combined content
+                // existingEvent.content = existingEvent.chunks
+                //   .map(chunk => {
+                //     try {
+                //       const parsedChunk = JSON.parse(chunk.payload.message);
+                //       return parsedChunk.body || "";
+                //     } catch {
+                //       return "";
+                //     }
+                //   })
+                //   .join("");
+
+                // Update done status
+                existingEvent.payload.done = done;
+
+                // Replace the existing event in the combined events array
+                combinedEvents = combinedEvents.map((e) =>
+                  e.type === "combined_event" && e.id === id
+                    ? existingEvent
+                    : e,
+                );
+
+                // Update in known events
+                knownBroadcastEvents[id] = existingEvent;
+              } else {
+                // Create a new combined event
+                const newCombinedEvent: CombinedEvent = {
+                  type: "combined_event",
+                  id,
+                  payload: {
+                    chunks: [
+                      {
+                        ...typedEvent,
+                        payload: {
+                          message: parsed.data,
+                        },
+                      },
+                    ],
+                    content: body,
+                    done,
+                  },
+                  timestamp: event.timestamp,
+                };
+
+                // Add to combined events array
+                combinedEvents.push(newCombinedEvent);
+
+                // Add to known events
+                knownBroadcastEvents[id] = newCombinedEvent;
+              }
+            } else {
+              combinedEvents.push(event);
+            }
+          } catch (error) {
+            console.warn("Failed to handle broadcast message", error);
+            // Still add the original event to combined events for completeness
+            combinedEvents.push(event);
+          }
+        } else {
+          // For non-broadcast events, just add them to the combined events
+          combinedEvents.push(event);
+        }
 
         return {
           agentsState: {
@@ -83,7 +225,9 @@ const agentSlice = combine<AgentState, AgentActions>(
                 ...agentDetails.instances,
                 [instance]: {
                   ...instanceDetails,
-                  events: [...instanceDetails.events, event], // Fixed: properly append to events array
+                  events,
+                  combinedEvents,
+                  knownBroadcastEvents,
                 },
               },
             },
@@ -99,6 +243,9 @@ const agentSlice = combine<AgentState, AgentActions>(
 
         const instanceDetails = agentDetails.instances[instance] || {
           events: [],
+          combinedEvents: [],
+          knownBroadcastEvents: {},
+          eventStreamStatus: "closed" as SSEStatus,
         };
 
         return {
@@ -111,6 +258,8 @@ const agentSlice = combine<AgentState, AgentActions>(
                 [instance]: {
                   ...instanceDetails,
                   events: [], // Reset events array
+                  combinedEvents: [], // Reset combined events
+                  knownBroadcastEvents: {}, // Reset known broadcast events
                 },
               },
             },
@@ -126,6 +275,9 @@ const agentSlice = combine<AgentState, AgentActions>(
 
         const instanceDetails = agentDetails.instances[instance] || {
           events: [],
+          combinedEvents: [],
+          knownBroadcastEvents: {},
+          eventStreamStatus: "closed" as SSEStatus,
         };
 
         return {

@@ -1,9 +1,7 @@
 import { noop } from "@/lib/utils";
 import type { DBTable } from "@/types";
-import { CircleDot } from "lucide-react";
 import { z } from "zod";
 import { CodeMirrorJsonEditor } from "../CodeMirror";
-import { ListSection } from "../ListSection";
 
 // Define the possible column types
 const columnTypeEnum = z.enum([
@@ -53,22 +51,14 @@ export function StateTableView(props: { table: StateDBTable }) {
   const stateString = JSON.stringify(state, null, 2);
 
   return (
-    <ListSection
-      contentClassName="p-2 bg-muted"
-      title={
-        <div className="flex gap-1 items-center">
-          <CircleDot className="W-3.5 h-3.5" /> Agent State
-        </div>
-      }
-      className="h-full"
-    >
+    <div className="h-full mt-2">
       <CodeMirrorJsonEditor
         value={stateString}
         onChange={noop}
         minHeight="auto"
         readOnly
       />
-    </ListSection>
+    </div>
   );
 }
 export function isStateTable(

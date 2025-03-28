@@ -60,33 +60,39 @@ export type AgentDetails = {
 
 export type ListAgentsResponse = Array<AgentDetails>;
 
-export const SubscribeSchema = z.object({
-  type: z.literal("subscribe"),
-  payload: z.object({
-    agent: z.string(),
-  }),
-});
-export const UnsubscribeSchema = z.object({
-  type: z.literal("unsubscribe"),
-  payload: z.object({
-    agent: z.string(),
-  }),
-});
-
-export const UpdateSchema = z.object({
-  type: z.literal("update"),
-  payload: z.object({
-    agent: z.string(),
-  }),
-});
-
-export const MessageSchema = z.discriminatedUnion("type", [
-  SubscribeSchema,
-  UnsubscribeSchema,
-  UpdateSchema,
-]);
-export type Message = z.infer<typeof MessageSchema>;
 export const unset = Symbol("unset");
+
+// Schema for an object that may contain a message property
+// If message exists and is a string, it will be transformed by parsing it as JSON
+export const MessagePayloadSchema = z
+  .object({
+    // Optional message property that's a string
+    message: z
+      .string()
+      .optional()
+      .transform((val, ctx) => {
+        // If there's no message, return undefined
+        if (!val) {
+          return undefined;
+        }
+
+        try {
+          // Attempt to parse the string as JSON
+          return JSON.parse(val);
+        } catch (error) {
+          // If parsing fails, add an issue to the context and return the original string
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Failed to parse message as JSON: ${error instanceof Error ? error.message : "unknown error occurred"}`,
+          });
+          return val; // Return the original string if parsing fails
+        }
+      }),
+    // You can add other properties to the schema as needed
+  })
+  .passthrough(); // Allow other properties not explicitly defined in the schema
+
+export type MessagePayload = z.infer<typeof MessagePayloadSchema>;
 
 /**
  * Schema for options passed from the server via data-options

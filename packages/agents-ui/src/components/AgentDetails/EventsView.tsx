@@ -1,12 +1,17 @@
 import {
-  type AgentEvent,
   type AgentEventType,
+  type CoreAgentEvent,
   type EventPayload,
   useFilteredEvents,
   useTimeAgo,
 } from "@/hooks";
 import { cn, noop } from "@/lib/utils";
-import { EMPTY_EVENTS, usePlaygroundStore } from "@/store";
+import {
+  type AgentEvent,
+  type CombinedEvent,
+  usePlaygroundStore,
+} from "@/store";
+import { MessagePayloadSchema } from "@/types";
 import {
   AlertCircle,
   ArrowRight,
@@ -16,10 +21,14 @@ import {
   Globe,
   Info,
   LayoutDashboard,
-  MessageSquare,
+  PhoneCall,
+  PhoneIncoming,
+  PhoneOff,
+  PhoneOutgoing,
+  RadioTower,
   Trash2,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { CodeMirrorJsonEditor } from "../CodeMirror";
 import { Method } from "../Method";
 import { Checkbox } from "../ui/Checkbox";
@@ -45,19 +54,6 @@ const formatUrl = (url: string): string => {
   }
 };
 
-// Helper to format a timestamp
-const formatTimestamp = (timestamp: string): string => {
-  try {
-    if (!timestamp) {
-      return "Unknown time";
-    }
-    return new Date(timestamp).toLocaleString();
-  } catch (e) {
-    console.error("Error formatting timestamp:", e);
-    return "Invalid time";
-  }
-};
-
 // Component to display JSON in a collapsible format
 const JSONViewer = ({
   data,
@@ -73,6 +69,9 @@ const JSONViewer = ({
     }
   }, [data]);
 
+  if (isExpanded) {
+    console.log("data", jsonString);
+  }
   return (
     <div className={cn("font-mono text-sm mt-2", className)}>
       <Button
@@ -105,14 +104,21 @@ const JSONViewer = ({
 };
 
 // Get an icon based on event type
-const getEventIcon = (type: AgentEventType) => {
+const getEventIcon = (type: CombinedEvent["type"] | AgentEventType) => {
   switch (type) {
     case "http_request":
       return <Globe size={16} />;
+    case "ws_send":
+      return <PhoneOutgoing size={16} />;
     case "ws_message":
+      return <PhoneIncoming size={16} />;
     case "ws_open":
+      return <PhoneCall size={16} />;
     case "ws_close":
-      return <MessageSquare size={16} />;
+      return <PhoneOff size={16} />;
+    case "broadcast":
+    case "combined_event":
+      return <RadioTower size={16} />;
     case "state_change":
       return <LayoutDashboard size={16} />;
     case "stream_open":
@@ -127,7 +133,7 @@ const getEventIcon = (type: AgentEventType) => {
 
 // Get a color variant based on event type
 const getEventVariant = (
-  type: AgentEventType,
+  type: CombinedEvent["type"] | AgentEventType,
 ): "default" | "outline" | "secondary" | "destructive" => {
   switch (type) {
     case "http_request":
@@ -171,7 +177,7 @@ const WebSocketDetails = ({
   type,
   payload,
 }: { type: AgentEventType; payload: EventPayload }) => {
-  let message = "WebSocket event";
+  let message: ReactNode = "WebSocket event";
 
   if (type === "ws_open") {
     message = "WebSocket connection opened";
@@ -179,6 +185,24 @@ const WebSocketDetails = ({
     message = "WebSocket connection closed";
   } else if (type === "ws_message") {
     message = "WebSocket message received";
+  } else if (type === "ws_send") {
+    message = "WebSocket message sent";
+  } else if (type === "broadcast") {
+    try {
+      // const parsed = "message" in payload && payload.JSON.parse(payload.message);
+      const { message: messageProp } = MessagePayloadSchema.parse(payload);
+      if (
+        messageProp &&
+        typeof messageProp === "object" &&
+        "type" in messageProp
+      ) {
+        message = `Broadcast message: ${messageProp.type}`;
+      }
+      // parsed
+    } catch {
+      // swallow error
+      message = "Broadcast message sent";
+    }
   }
 
   return <div className="mt-1 text-sm text-muted-foreground">{message}</div>;
@@ -220,12 +244,18 @@ const StreamEventDetails = ({
 const EventSummary = ({
   type,
   payload,
-}: { type: AgentEventType; payload: EventPayload }) => {
+}: Pick<AgentEvent, "type" | "payload">) => {
   if (type === "http_request") {
     return <HttpRequestDetails payload={payload as HttpRequestPayload} />;
   }
 
-  if (type === "ws_message" || type === "ws_open" || type === "ws_close") {
+  if (
+    type === "ws_message" ||
+    type === "ws_open" ||
+    type === "ws_close" ||
+    type === "broadcast" ||
+    type === "ws_send"
+  ) {
     return <WebSocketDetails type={type} payload={payload} />;
   }
 
@@ -241,13 +271,37 @@ const EventSummary = ({
     return <StreamEventDetails type={type} payload={payload} />;
   }
 
+  if (type === "combined_event") {
+    const { chunks, content, done } = payload as CombinedEvent["payload"];
+    const message = done
+      ? `Combined broadcast event (${chunks.length} parts)`
+      : "Combined broadcast event in progress";
+    return (
+      <div className="mt-1 text-sm text-muted-foreground flex flex-col gap-1">
+        {message}
+        {/* <JSONViewer data={chunks} label="Chunks" className="mt-0" />
+        <JSONViewer data={content} label="Combined Content" className="mt-0" /> */}
+      </div>
+    );
+  }
+
   // Fallback for any other event types
   return <div className="mt-1 text-sm">Event received</div>;
 };
 
 // Single event item component
-const EventItem = ({ event }: { event: AgentEvent }) => {
+const EventItem = ({ event }: { event: CoreAgentEvent | CombinedEvent }) => {
   const formattedDate = useTimeAgo(event.timestamp);
+
+  let payload = event.payload;
+  try {
+    if ("message" in payload && typeof payload.message === "string") {
+      payload = JSON.parse(payload.message);
+      // console.log('payload', payload);
+    }
+  } catch (e) {
+    console.error("Error parsing payload:", e);
+  }
 
   return (
     <div className="@container/event">
@@ -260,7 +314,7 @@ const EventItem = ({ event }: { event: AgentEvent }) => {
           "[grid-template-areas:'badge_badge_time'_'summary_summary_summary'_'details_details_details']",
           "@xl/event:[grid-template-areas:'badge_summary_time'_'details_details_details']",
           "@xl/event:grid-cols-[auto_1fr_auto]",
-          "items-center",
+          // "items-center",
         )}
       >
         <div className="[grid-area:badge] grid">
@@ -268,9 +322,12 @@ const EventItem = ({ event }: { event: AgentEvent }) => {
             <Badge
               variant={getEventVariant(event.type)}
               className="flex items-center gap-1 py-2 px-2 opacity-80 text-xs font-normal"
+              title={event.type}
             >
               {getEventIcon(event.type)}
-              <span className="@xl/event:hidden">{event.type}</span>
+              <span className="@xl/event:hidden hidden @xs/event:block">
+                {event.type}
+              </span>
             </Badge>
           </div>
         </div>
@@ -283,7 +340,10 @@ const EventItem = ({ event }: { event: AgentEvent }) => {
           <EventSummary type={event.type} payload={event.payload} />
         </div>
 
-        <JSONViewer className="[grid-area:details] mt-0" data={event.payload} />
+        <JSONViewer
+          className="[grid-area:details] mt-0 text-muted-foreground ml-2.5 @xl/event:ml-11"
+          data={payload}
+        />
       </div>
     </div>
   );
@@ -297,14 +357,9 @@ export function EventsView(props: { namespace: string; instance: string }) {
     resetAgentInstanceEvents(props.namespace, props.instance);
 
   const shownEvents = useFilteredEvents(props);
-  const rawEvents = usePlaygroundStore(
-    (state) =>
-      state.agentsState[props.namespace]?.instances[props.instance]?.events ??
-      EMPTY_EVENTS,
-  );
-  const showAdminEvents = usePlaygroundStore((state) => state.showAdminEvents);
-  const toggleShowAdminEvents = usePlaygroundStore(
-    (state) => state.toggleAdminEvents,
+  const combineEvents = usePlaygroundStore((state) => state.combineEvents);
+  const toggleCombineEvents = usePlaygroundStore(
+    (state) => state.toggleCombineEvents,
   );
 
   const sortedEvents = useMemo(() => {
@@ -320,20 +375,22 @@ export function EventsView(props: { namespace: string; instance: string }) {
     });
   }, [shownEvents]);
 
+  console.log("shownEvents", shownEvents);
   return (
     <div>
-      <div className="grid items-center grid-cols-[1fr_auto] gap-2 border-b border-border pb-4">
-        <span className="text-muted-foreground">
+      <div className="grid items-center grid-cols-[1fr_auto] gap-2 border-b border-border pb-4 mb-2">
+        {/* <span className="text-muted-foreground">
           Showing ({shownEvents.length} of {rawEvents.length} events)
-        </span>
+        </span> */}
+        <span />
         <div className="flex items-center gap-2">
           {/* biome-ignore lint/a11y/noLabelWithoutControl: Checkbox is the related input element */}
           <label className="text-muted-foreground text-sm flex items-center gap-1 cursor-pointer hover:text-foreground">
             <Checkbox
-              checked={showAdminEvents}
-              onCheckedChange={toggleShowAdminEvents}
-            />{" "}
-            Show all
+              checked={combineEvents}
+              onCheckedChange={toggleCombineEvents}
+            />
+            Merge events
           </label>
           <Button
             size="icon-xs"
@@ -348,7 +405,7 @@ export function EventsView(props: { namespace: string; instance: string }) {
 
       {sortedEvents.length === 0 ? (
         <div className="text-sm text-muted-foreground py-4 text-center">
-          {rawEvents.length === 0
+          {shownEvents.length === 0
             ? "No events captured yet."
             : "Filtered selection has no events."}
         </div>

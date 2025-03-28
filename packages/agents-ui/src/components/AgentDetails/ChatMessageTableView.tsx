@@ -222,7 +222,7 @@ const MessageItem = ({ message }: { message: ChatMessage }) => {
 
   return (
     <div
-      className={`p-4 rounded-lg mb-4 grid gap-1 ${isUser ? "bg-card border border-muted" : "bg-muted"}`}
+      className={`p-4 rounded-lg mb-4 grid gap-2 ${isUser ? "bg-card border border-muted" : "bg-muted"}`}
     >
       <div className="grid justify-between grid-cols-[1fr_auto] gap-2">
         <div className="flex items-center gap-2">
@@ -279,24 +279,15 @@ function MessagePart({ part }: { part: MessagePart }) {
  */
 export const ChatMessagesRenderer = ({ data }: Props) => {
   return (
-    <ListSection
-      title={
-        <div className="flex items-center gap-2">
-          Messages
-          <span className="text-muted-foreground">({data.length} total)</span>
+    <div className="space-y-2 mt-2">
+      {data.length === 0 && (
+        <div className="text-muted-foreground text-center py-6">
+          No messages found
         </div>
-      }
-    >
-      <div className="space-y-2">
-        {data.length === 0 && (
-          <div className="text-muted-foreground text-center py-6">
-            No messages found
-          </div>
-        )}
-        {data.map((message) => (
-          <MessageItem key={message.id} message={message} />
-        ))}
-      </div>
-    </ListSection>
+      )}
+      {data.map((message) => (
+        <MessageItem key={message.id} message={message} />
+      ))}
+    </div>
   );
 };
