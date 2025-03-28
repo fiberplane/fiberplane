@@ -54,13 +54,13 @@ export function getHttpMethodTextColor(method: string) {
 /**
  * A nicer way to handle errors than a try..catch block.
  *
- * Wraps a promise in a try/catch block and returns a result object with the data or error.
- * @param promiseOrValue - The promise to wrap
+ * Wraps a function in a try/catch block and returns a result object with the data or error.
+ * @param fn - A function that might throw an error
  * @returns A result object with the data or error
  *
  * @example
  * ```ts
- * const { data, error } = await tryCatch(somePromise);
+ * const { data, error } = tryCatch(() => someSyncOperation());
  * if (error) {
  *   console.error(error);
  * } else {
@@ -68,16 +68,37 @@ export function getHttpMethodTextColor(method: string) {
  * }
  * ```
  */
-export async function tryCatch<T, E = Error>(
-  promiseOrValue: Promise<T> | T,
+export function tryCatch<T, E = Error>(fn: () => T): Result<T, E> {
+  try {
+    return { data: fn(), error: null };
+  } catch (error) {
+    return { data: null, error: error as E };
+  }
+}
+
+/**
+ * A nicer way to handle errors than a try..catch block.
+ *
+ * Wraps an async function in a try/catch block and returns a result object with the data or error.
+ * @param fn - An async function that might throw an error
+ * @returns A promise that resolves to a result object with the data or error
+ *
+ * @example
+ * ```ts
+ * const { data, error } = await tryCatchAsync(async () => await somePromise);
+ * if (error) {
+ *   console.error(error);
+ * } else {
+ *   console.log(data);
+ * }
+ * ```
+ */
+export async function tryCatchAsync<T, E = Error>(
+  promise: Promise<T>,
 ): Promise<Result<T, E>> {
   try {
-    if (promiseOrValue instanceof Promise) {
-      const data = await promiseOrValue;
-      return { data, error: null };
-    }
-
-    return { data: promiseOrValue, error: null };
+    const data = await promise;
+    return { data, error: null };
   } catch (error) {
     return { data: null, error: error as E };
   }
@@ -89,20 +110,16 @@ export async function tryCatch<T, E = Error>(
  * @param rootElement - The HTML element containing data-options
  * @returns Validated options with defaults applied
  */
-export async function parseOptions(
-  rootElement: HTMLElement,
-): Promise<RouterOptions> {
+export function parseOptions(rootElement: HTMLElement) {
   const optionsString = rootElement.dataset.options;
   if (!optionsString) {
     return OptionsSchema.parse({});
   }
 
-  const parseOptionsImpl = () => {
+  const { data, error } = tryCatch(() => {
     const parsedData = JSON.parse(optionsString);
-    return OptionsSchema.parseAsync(parsedData);
-  };
-
-  const { data, error } = await tryCatch(await parseOptionsImpl());
+    return OptionsSchema.parse(parsedData);
+  });
 
   if (error) {
     console.error("Error parsing options", error);

@@ -16,7 +16,7 @@ if (!rootElement) {
   throw new Error("Root element not found");
 }
 
-const options = await parseOptions(rootElement);
+const options = parseOptions(rootElement);
 
 const router = createRouter({
   routeTree,
