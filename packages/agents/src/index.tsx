@@ -378,8 +378,7 @@ function createFpApp() {
         version,
         commitHash,
       };
-      const cdn =
-        "https://cdn.jsdelivr.net/npm/@fiberplane/agents@latest/dist/playground/";
+      const cdn = `https://cdn.jsdelivr.net/npm/@fiberplane/agents@${version ? version : "latest"}/dist/playground/`;
       const cssBundleUrl = new URL("index.css", cdn).href;
       const jsBundleUrl = new URL("index.js", cdn).href;
       return c.html(
