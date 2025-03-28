@@ -7,25 +7,24 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { AgentDetails } from "@/types";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { BoxIcon, HeartHandshake } from "lucide-react";
 import { Button } from "../ui/button";
 
 type AgentCardProps = {
   agent: AgentDetails;
-  selectAgent: (agent: string) => void;
-  selectAgentInstance: (agent: string, instance: string) => void;
 };
 
-export function AgentCard({
-  agent,
-  selectAgent,
-  selectAgentInstance,
-}: AgentCardProps) {
+export function AgentCard({ agent }: AgentCardProps) {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate({ to: "/agents/$agentId", params: { agentId: agent.id } });
+  };
+
   return (
     <Card
-      onClick={() => {
-        selectAgent(agent.id);
-      }}
+      onClick={handleCardClick}
       className={cn(
         "cursor-pointer",
         "shadow transition-all duration-300 hover:shadow-[0_0_15px_hsla(var(--accent)/.3)]",
@@ -50,20 +49,24 @@ export function AgentCard({
         <div className="flex gap-2">
           {agent.instances.length > 0 ? (
             agent.instances.map((instance) => (
-              <Button
+              <Link
                 key={instance}
+                to="/agents/$agentId/$instanceId"
+                params={{ agentId: agent.id, instanceId: instance }}
                 onClick={(event) => {
-                  // Prevent the card from being clicked
+                  // Prevent the card click handler from being triggered
                   event.stopPropagation();
-                  selectAgentInstance(agent.id, instance);
                 }}
-                type="button"
-                size="sm"
-                className="bg-info/15 hover:bg-info/35"
               >
-                <BoxIcon className="w-3.5 h-3.5" />
-                {instance}
-              </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="bg-info/15 hover:bg-info/35"
+                >
+                  <BoxIcon className="w-3.5 h-3.5" />
+                  {instance}
+                </Button>
+              </Link>
             ))
           ) : (
             <div className="text-muted-foreground italic">

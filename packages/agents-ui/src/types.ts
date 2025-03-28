@@ -1,3 +1,4 @@
+import type { QueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 
 // Define types for the result structure
@@ -86,3 +87,19 @@ export const MessageSchema = z.discriminatedUnion("type", [
 ]);
 export type Message = z.infer<typeof MessageSchema>;
 export const unset = Symbol("unset");
+
+/**
+ * Schema for options passed from the server via data-options
+ */
+export const OptionsSchema = z.object({
+  mountedPath: z.string().default("/fp"),
+  version: z.string().optional(),
+  commitHash: z.string().optional(),
+});
+
+/**
+ * Extract the type from the Zod schema
+ */
+export type RouterOptions = z.infer<typeof OptionsSchema> & {
+  queryClient: QueryClient;
+};

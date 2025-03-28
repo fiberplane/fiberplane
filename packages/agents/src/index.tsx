@@ -1,6 +1,7 @@
 import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
+import packageJson from "../package.json" assert { type: "json" };
 import {
   getAgents,
   registerAgent,
@@ -25,6 +26,9 @@ type AgentConstructor<E = unknown, S = unknown> = new (
   // biome-ignore lint/suspicious/noExplicitAny: mixin pattern requires any[]
   ...args: any[]
 ) => Agent<E, S>;
+
+const version = packageJson.version;
+const commitHash = import.meta.env.GIT_COMMIT_HASH;
 
 function createAgentAdminRouter(agent: FiberDecoratedAgent) {
   const router = new Hono();
@@ -351,8 +355,8 @@ function createFpApp() {
         const durableObjects =
           c.env && typeof c.env === "object"
             ? (Object.entries(c.env as Record<string, unknown>).filter(
-              ([key, value]) => isDurableObjectNamespace(value),
-            ) as Array<[string, DurableObjectNamespace]>)
+                ([key, value]) => isDurableObjectNamespace(value),
+              ) as Array<[string, DurableObjectNamespace]>)
             : [];
         for (const [name] of durableObjects) {
           // See if we're aware of an agent with the same id
@@ -369,6 +373,11 @@ function createFpApp() {
       return c.json(agents);
     })
     .get("*", async (c) => {
+      const options = {
+        mountedPath: "/fp",
+        version,
+        commitHash,
+      };
       const cdn =
         "https://cdn.jsdelivr.net/npm/@fiberplane/agents@latest/dist/playground/";
       const cssBundleUrl = new URL("index.css", cdn).href;
@@ -385,7 +394,7 @@ function createFpApp() {
             <link rel="stylesheet" href={cssBundleUrl} />
           </head>
           <body>
-            <div id="root" />
+            <div id="root" data-options={JSON.stringify(options)} />
             <script type="module" src={jsBundleUrl} />
           </body>
         </html>,

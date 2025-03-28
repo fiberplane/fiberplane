@@ -1,16 +1,13 @@
+import { Link } from "@tanstack/react-router";
 import { Button } from "./ui/button";
 
-export function Layout({
-  children,
-  reset,
-}: { children: React.ReactNode; reset: () => void }) {
+export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col h-full w-full">
       <div className="border-b flex items-center px-2 py-1">
-        <button
+        <Link
+          to="/"
           className="flex items-center gap-2 hover:bg-muted py-1 px-2 rounded-lg"
-          type="button"
-          onClick={reset}
         >
           <svg
             width="24"
@@ -31,7 +28,7 @@ export function Layout({
             />
           </svg>
           <span className="font-medium">Agent Playground</span>
-        </button>
+        </Link>
       </div>
       {children}
     </div>
