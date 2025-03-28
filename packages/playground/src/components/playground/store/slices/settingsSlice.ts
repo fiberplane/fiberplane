@@ -63,7 +63,6 @@ const loadSettingsFromStorage = (): {
   enabledFeatures: FeatureFlag[];
   isWorkflowsEnabled: boolean;
   isTracingEnabled: boolean;
-  shouldShowTopNav: boolean;
   isErrorReportingEnabled: boolean;
   partitionKey: string;
 } => {
@@ -76,7 +75,6 @@ const loadSettingsFromStorage = (): {
       isWorkflowsEnabled: false,
       isTracingEnabled: false,
       isErrorReportingEnabled: false,
-      shouldShowTopNav: false,
       partitionKey: "",
     };
   }
@@ -90,7 +88,6 @@ const loadSettingsFromStorage = (): {
       isWorkflowsEnabled: false,
       isTracingEnabled: false,
       isErrorReportingEnabled: false,
-      shouldShowTopNav: false,
       partitionKey: "",
     };
   }
@@ -106,7 +103,6 @@ const loadSettingsFromStorage = (): {
   // Compute the derived states
   const isWorkflowsEnabled = enabledFeatures.includes(FEATURE_FLAG_WORKFLOWS);
   const isTracingEnabled = enabledFeatures.includes(FEATURE_FLAG_TRACES);
-  const shouldShowTopNav = isWorkflowsEnabled || isTracingEnabled;
   const isErrorReportingEnabled = enabledFeatures.includes(
     FEATURE_FLAG_ERROR_REPORTING,
   );
@@ -121,7 +117,6 @@ const loadSettingsFromStorage = (): {
     enabledFeatures,
     isWorkflowsEnabled,
     isTracingEnabled,
-    shouldShowTopNav,
     isErrorReportingEnabled,
     partitionKey: parsed.partitionKey || "",
   };
@@ -138,7 +133,6 @@ export interface SettingsSlice {
   isWorkflowsEnabled: boolean;
   isTracingEnabled: boolean;
   isErrorReportingEnabled: boolean;
-  shouldShowTopNav: boolean;
   enabledFeatures: FeatureFlag[];
 
   // Workflow settings
@@ -169,7 +163,6 @@ export const settingsSlice: StateCreator<
     );
     state.isTracingEnabled =
       state.enabledFeatures.includes(FEATURE_FLAG_TRACES);
-    state.shouldShowTopNav = state.isWorkflowsEnabled || state.isTracingEnabled;
   };
 
   return {
