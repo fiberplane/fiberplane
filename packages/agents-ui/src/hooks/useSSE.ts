@@ -36,6 +36,12 @@ interface BaseSSEOptions {
   withCredentials?: boolean;
   initialStatus?: SSEStatus;
   eventTypes?: AgentEventType[];
+  /**
+   * Whether to automatically connect when the component mounts
+   * @default true
+   * @type {boolean}
+   */
+  autoConnect?: boolean;
   onError?: (error: Event) => void;
   onOpen?: () => void;
 }
@@ -55,15 +61,7 @@ interface UseSSEWithEventsOptions extends BaseSSEOptions {
 // Return type for the low-level connection hook
 type UseSSEConnectionResult = {
   close: () => void;
-};
-
-// Return type for the high-level hook with events collection
-type UseSSEWithEventsResult<T> = {
-  status: SSEStatus;
-  data: T[];
-  lastEvent: T | null;
-  close: () => void;
-  clearEvents: () => void;
+  connect: () => void;
 };
 
 /**
@@ -116,11 +114,8 @@ export function useSSEConnection(
     updateStatus("closed");
   }, [updateStatus]);
 
-  // Setup and cleanup effect
-  useEffect(() => {
-    // If there's already a connection, clean it up first
+  const connect = useCallback(() => {
     close();
-
     // Create a new EventSource connection
     const eventSource = new EventSource(url, {
       withCredentials: optionsRef.current.withCredentials,
@@ -147,165 +142,27 @@ export function useSSEConnection(
       eventSource.addEventListener(eventType, handler);
       handlerMapRef.current.set(eventType, handler);
     }
+  }, [url, updateStatus, close]);
 
+  // Setup and cleanup effect
+  useEffect(() => {
+    // Only connect if autoConnect is not disabled
+    if (options.autoConnect === false) {
+      return;
+    }
+
+    // Connect to the SSE endpoint
+    connect();
     // Cleanup on unmount or when url changes
     return close;
-  }, [url, close, updateStatus]);
+  }, [close, connect, options.autoConnect]);
 
   // Set initial status on first render
   useEffect(() => {
     updateStatus(currentStatusRef.current);
   }, [updateStatus]);
 
-  return { close };
-}
-
-/**
- * A higher-level hook that builds on useSSEConnection to provide event collection functionality
- *
- * @param url The SSE endpoint URL
- * @param options Configuration options for the SSE connection and event collection
- * @returns Connection status, collected events, and control functions
- */
-export function useSSEWithEvents<T = unknown>(
-  url: string,
-  options: UseSSEWithEventsOptions = {},
-): UseSSEWithEventsResult<T> {
-  const [events, setEvents] = useState<T[]>([]);
-  const [lastEvent, setLastEvent] = useState<T | null>(null);
-  const [status, setStatus] = useState<SSEStatus>(
-    options.initialStatus || "connecting",
-  );
-
-  // Keep a reference to the options
-  const optionsRef = useRef(options);
-
-  // Update options ref when options change
-  useEffect(() => {
-    optionsRef.current = options;
-  }, [options]);
-
-  // Helper function to check if an event should be filtered out
-  const shouldFilterEvent = useCallback(
-    (eventType: AgentEventType, parsedData: unknown): boolean => {
-      // Only apply filtering if filterAdminEndpoints is true
-      if (!optionsRef.current.filterAdminEndpoints) {
-        return false;
-      }
-
-      // Always filter all stream_open events
-      if (eventType === "stream_open") {
-        return true;
-      }
-
-      // Check if this is an http_request event
-      if (eventType !== "http_request") {
-        return false;
-      }
-
-      // Check if the URL contains admin/db or admin/events
-      if (
-        typeof parsedData === "object" &&
-        parsedData !== null &&
-        "url" in parsedData &&
-        parsedData.url
-      ) {
-        try {
-          const urlString = parsedData.url.toString();
-          return (
-            urlString.includes("/admin/db") ||
-            urlString.includes("/admin/events")
-          );
-        } catch (e) {
-          // If there's an error parsing the URL, don't filter
-          return false;
-        }
-      }
-
-      return false;
-    },
-    [],
-  );
-
-  // Function to process incoming SSE events
-  const handleMessage = useCallback(
-    (event: MessageEvent) => {
-      try {
-        // The event type is the same as the event name in SSE
-        const eventType = event.type as AgentEventType;
-
-        // Parse the data
-        const parsedData = JSON.parse(event.data);
-
-        // Skip admin endpoint events if filtering is enabled
-        if (shouldFilterEvent(eventType, parsedData)) {
-          // Don't process this event
-          return;
-        }
-
-        // Create event with metadata
-        const eventWithMeta = {
-          type: eventType,
-          timestamp: new Date().toISOString(),
-          payload: parsedData,
-        } as unknown as T;
-
-        setLastEvent(eventWithMeta);
-        setEvents((prevEvents) => {
-          const maxEvents = optionsRef.current.maxEvents || 100;
-          const newEvents = [...prevEvents, eventWithMeta];
-          return newEvents.slice(-maxEvents); // Keep only the latest maxEvents
-        });
-      } catch (error) {
-        // Handle non-JSON data
-        const eventWithMeta = {
-          type: event.type as AgentEventType,
-          timestamp: new Date().toISOString(),
-          payload: event.data,
-        } as unknown as T;
-
-        setLastEvent(eventWithMeta);
-        setEvents((prevEvents) => {
-          const maxEvents = optionsRef.current.maxEvents || 100;
-          const newEvents = [...prevEvents, eventWithMeta];
-          return newEvents.slice(-maxEvents); // Keep only the latest maxEvents
-        });
-      }
-    },
-    [shouldFilterEvent],
-  );
-
-  // Function to clear all collected events
-  const clearEvents = useCallback(() => {
-    setEvents([]);
-    setLastEvent(null);
-  }, []);
-
-  // Use the low-level SSE connection hook
-  const { close } = useSSEConnection(url, {
-    ...options,
-    onMessage: handleMessage,
-    onConnectionStatus: setStatus,
-  });
-
-  return {
-    status,
-    data: events,
-    lastEvent,
-    close,
-    clearEvents,
-  };
-}
-
-/**
- * Legacy hook that provides the same API as the original useSSE hook
- * @deprecated Use useSSEWithEvents instead
- */
-export function useSSE<T = unknown>(
-  url: string,
-  options: UseSSEWithEventsOptions = {},
-): UseSSEWithEventsResult<T> {
-  return useSSEWithEvents<T>(url, options);
+  return { close, connect };
 }
 
 const baseOptions: UseSSEWithEventsOptions = {
@@ -354,9 +211,22 @@ export function useAgentInstanceEvents(agent: string, instance: string) {
     onConnectionStatus: (status) => {
       setAgentInstanceStreamStatus(agent, instance, status);
     },
+    autoConnect: false,
   };
 
-  useSSEConnection(`/agents/${agent}/${instance}/admin/events`, options);
+  const { connect } = useSSEConnection(
+    `/agents/${agent}/${instance}/admin/events`,
+    options,
+  );
+  const connectionStatus = usePlaygroundStore(
+    (state) => state.agentsState[agent]?.instances[instance]?.eventStreamStatus,
+  );
+
+  useEffect(() => {
+    if (connectionStatus === "connecting") {
+      connect();
+    }
+  }, [connect, connectionStatus]);
 }
 
 let id = 0;

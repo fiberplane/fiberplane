@@ -104,6 +104,7 @@ type UIActions = {
   toggleCombineEvents: () => void;
   toggleEventCategory: (category: EventCategory) => void;
   resetEventCategories: () => void;
+  unselectAllEventCategories: () => void;
 };
 
 // Combined store type
@@ -123,6 +124,12 @@ const uiSlice = combine<UIState, UIActions>(
         ...state,
         visibleEventCategories: DEFAULT_EVENT_CATEGORIES,
       })),
+    unselectAllEventCategories: () => {
+      set((state) => ({
+        ...state,
+        visibleEventCategories: [],
+      }));
+    },
     toggleEventCategory: (category: EventCategory) =>
       set((state) => {
         const isVisible = state.visibleEventCategories.includes(category);

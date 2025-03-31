@@ -16,6 +16,7 @@ import {
 import { MessagePayloadSchema } from "@/types";
 import {
   AlertCircle,
+  ArrowLeft,
   ArrowRight,
   ChevronDown,
   ChevronRight,
@@ -45,7 +46,12 @@ import {
   FpDropdownMenuSeparator,
   FpDropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { CaretSortIcon } from "@radix-ui/react-icons";
+import {
+  CaretDownIcon,
+  CaretRightIcon,
+  CaretSortIcon,
+} from "@radix-ui/react-icons";
+import { Separator } from "../ui/separator";
 
 // Define a more specific type for HTTP request payloads
 interface HttpRequestPayload {
@@ -67,23 +73,13 @@ const formatUrl = (url: string): string => {
 };
 
 // Component to display JSON in a collapsible format
-const JSONViewer = ({
+const ExpandableJSONViewer = ({
   data,
   label = "Raw Data",
   className,
 }: { data: unknown; label?: string; className?: string }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const jsonString = useMemo(() => {
-    try {
-      return JSON.stringify(data, null, 2);
-    } catch (e) {
-      return String(data);
-    }
-  }, [data]);
 
-  if (isExpanded) {
-    console.log("data", jsonString);
-  }
   return (
     <div className={cn("font-mono text-sm mt-2", className)}>
       <Button
@@ -101,16 +97,30 @@ const JSONViewer = ({
         {label}
       </Button>
 
-      {isExpanded && (
-        <div className="mt-2">
-          <CodeMirrorJsonEditor
-            onChange={noop}
-            readOnly
-            value={jsonString}
-            minHeight="auto"
-          />
-        </div>
-      )}
+      {isExpanded && <JSONViewer data={data} className="mt-2" />}
+    </div>
+  );
+};
+const JSONViewer = ({
+  data,
+  className,
+}: { data: unknown; label?: string; className?: string }) => {
+  const jsonString = useMemo(() => {
+    try {
+      return JSON.stringify(data, null, 2);
+    } catch (e) {
+      return String(data);
+    }
+  }, [data]);
+
+  return (
+    <div className={cn("font-mono text-xs pl-2 border rounded-lg", className)}>
+      <CodeMirrorJsonEditor
+        onChange={noop}
+        readOnly
+        value={jsonString}
+        minHeight="auto"
+      />
     </div>
   );
 };
@@ -119,49 +129,51 @@ const JSONViewer = ({
 const getEventIcon = (type: CombinedEvent["type"] | AgentEventType) => {
   switch (type) {
     case "http_request":
-      return <Globe size={16} />;
+      return (
+        <div className="relative">
+          <Globe className="w-3.5 h-3.5 text-muted-foreground" />
+          <ArrowLeft className="w-3 h-3 absolute -bottom-1 -right-1" />
+        </div>
+      );
     case "ws_send":
-      return <PhoneOutgoing size={16} />;
+      return <PhoneOutgoing className="w-3.5 h-3.5" />;
     case "ws_message":
-      return <PhoneIncoming size={16} />;
+      return <PhoneIncoming className="w-3.5 h-3.5" />;
     case "ws_open":
-      return <Phone size={16} />;
+      return <Phone className="w-3.5 h-3.5" />;
     case "ws_close":
-      return <PhoneOff size={16} />;
+      return <PhoneOff className="w-3.5 h-3.5" />;
     case "broadcast":
     case "combined_event":
-      return <RadioTower size={16} />;
+      return <RadioTower className="w-3.5 h-3.5" />;
     case "state_change":
-      return <LayoutDashboard size={16} />;
+      return <LayoutDashboard className="w-3.5 h-3.5" />;
     case "stream_open":
     case "stream_close":
-      return <ArrowRight size={16} />;
+      return <ArrowRight className="w-3.5 h-3.5" />;
     case "stream_error":
-      return <AlertCircle size={16} />;
+      return <AlertCircle className="w-3.5 h-3.5" />;
     default:
-      return <Info size={16} />;
+      return <Info className="w-3.5 h-3.5" />;
   }
 };
 
 // Get a color variant based on event type
 const getEventVariant = (
   type: CombinedEvent["type"] | AgentEventType,
-): "default" | "outline" | "secondary" | "destructive" => {
+): "default" | "outline" | "secondary" | "destructive" | "muted" => {
   switch (type) {
     case "http_request":
       return "secondary";
-    case "ws_message":
-      return "outline";
-    case "ws_open":
-      return "outline";
-    case "ws_close":
-      return "outline";
-    case "state_change":
-      return "outline";
     case "stream_error":
       return "destructive";
+    case "ws_message":
+    case "ws_open":
+    case "ws_close":
+    case "state_change":
+      return "muted";
     default:
-      return "outline";
+      return "muted";
   }
 };
 
@@ -175,7 +187,7 @@ const HttpRequestDetails = ({ payload }: { payload: HttpRequestPayload }) => {
       <Method method={method} />{" "}
       <span className="font-mono text-muted-foreground">{displayUrl}</span>
       {!!payload.body && typeof payload.body === "object" && (
-        <JSONViewer
+        <ExpandableJSONViewer
           data={payload.body as Record<string, unknown>}
           label="Request Body"
         />
@@ -309,11 +321,12 @@ const EventItem = ({ event }: { event: CoreAgentEvent | CombinedEvent }) => {
   try {
     if ("message" in payload && typeof payload.message === "string") {
       payload = JSON.parse(payload.message);
-      // console.log('payload', payload);
     }
   } catch (e) {
     console.error("Error parsing payload:", e);
   }
+
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <div className="@container/event">
@@ -322,18 +335,29 @@ const EventItem = ({ event }: { event: CoreAgentEvent | CombinedEvent }) => {
           "p-3 @xl/event:p-0 grid",
           "bg-muted/20",
           "border @xl/event:border-0 border-border rounded-lg",
-          "grid-cols-1",
+          "grid-cols-1 gap-1 @xl/event:gap-y-0",
           "[grid-template-areas:'badge_badge_time'_'summary_summary_summary'_'details_details_details']",
           "@xl/event:[grid-template-areas:'badge_summary_time'_'details_details_details']",
           "@xl/event:grid-cols-[auto_1fr_auto]",
-          // "items-center",
+          "items-center",
         )}
       >
         <div className="[grid-area:badge] grid">
-          <div className="w-fit">
+          <div className="w-fit px-2 py-1 mt-0.5 flex items-center gap-1">
+            <Button
+              size="icon-xs"
+              variant="ghost"
+              onClick={() => setExpanded(!expanded)}
+            >
+              {expanded ? (
+                <CaretDownIcon className="w-3 h-3" />
+              ) : (
+                <CaretRightIcon className="w-3 h-3" />
+              )}
+            </Button>
             <Badge
               variant={getEventVariant(event.type)}
-              className="flex items-center gap-1 py-2 px-2 opacity-80 text-xs font-normal"
+              className="flex items-center gap-1 py-1 px-1 opacity-80 text-xs font-normal"
               title={event.type}
             >
               {getEventIcon(event.type)}
@@ -343,19 +367,18 @@ const EventItem = ({ event }: { event: CoreAgentEvent | CombinedEvent }) => {
             </Badge>
           </div>
         </div>
-        <div className="flex items-center text-sm text-muted-foreground justify-end [grid-area:time]">
-          <Clock size={14} className="mr-1" />
+        <div className="flex items-center text-sm text-muted-foreground justify-end [grid-area:time] gap-2">
+          <Clock className="w-3.5" />
           {formattedDate}
         </div>
 
-        <div className="px-2.5 [grid-area:summary]">
+        <div className="[grid-area:summary] ml-2.5 @xl/event:ml-0">
           <EventSummary type={event.type} payload={event.payload} />
         </div>
 
-        <JSONViewer
-          className="[grid-area:details] mt-0 text-muted-foreground ml-2.5 @xl/event:ml-11"
-          data={payload}
-        />
+        {expanded && (
+          <JSONViewer data={payload} className="[grid-area:details] py-1" />
+        )}
       </div>
     </div>
   );
@@ -365,6 +388,12 @@ export function EventsView(props: { namespace: string; instance: string }) {
   const resetAgentInstanceEvents = usePlaygroundStore(
     (state) => state.resetAgentInstanceEvents,
   );
+
+  const connectionStatus = usePlaygroundStore((state) => {
+    const agentState = state.agentsState[props.namespace];
+    const instanceDetails = agentState?.instances[props.instance];
+    return instanceDetails?.eventStreamStatus ?? "connecting";
+  });
   const clearEvents = () =>
     resetAgentInstanceEvents(props.namespace, props.instance);
 
@@ -377,11 +406,17 @@ export function EventsView(props: { namespace: string; instance: string }) {
   const selectedCategories = usePlaygroundStore(
     (state) => state.visibleEventCategories,
   );
+
   const toggleEventCategory = usePlaygroundStore(
     (state) => state.toggleEventCategory,
   );
+
   const resetEventCategories = usePlaygroundStore(
     (state) => state.resetEventCategories,
+  );
+
+  const unselectAllEventCategories = usePlaygroundStore(
+    (state) => state.unselectAllEventCategories,
   );
 
   const visibleEventTypes = useMemo(() => {
@@ -410,62 +445,80 @@ export function EventsView(props: { namespace: string; instance: string }) {
       });
   }, [events, visibleEventTypes]);
 
-  // console.log("shownEvents", shownEvents);
   return (
     <div>
       <div className="grid items-center grid-cols-[1fr_auto] gap-2 border-b border-border pb-4 mb-2">
-        {/* <span className="text-muted-foreground">
-          Showing ({shownEvents.length} of {rawEvents.length} events)
-        </span> */}
-        <div className="flex items-center gap-2">
-          Filter:
-          <FpDropdownMenu>
-            <FpDropdownMenuTrigger
-              className={cn(
-                "flex",
-                "items-center",
-                "gap-2",
-                "h-min",
-                "hover:bg-muted",
-                "data-[state=open]:bg-muted",
-                "rounded-sm",
-                // "w-full",
-                "group/dropdown",
-              )}
-            >
-              <div className="grow-1 w-full text-start text-sm text-muted-foreground px-2">
-                {"Event categories"}
-              </div>
-              <CaretSortIcon className="w-3 h-3 mr-1 flex-shrink-0 opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-data-[state=open]/dropdown:opacity-100" />
-            </FpDropdownMenuTrigger>
-            <FpDropdownMenuPortal>
-              <FpDropdownMenuContent align="start">
-                {AllEventCategories.map((category) => (
-                  <FpDropdownMenuCheckboxItem
-                    checked={selectedCategories.includes(category)}
-                    onCheckedChange={() => toggleEventCategory(category)}
-                    key={category}
-                  >
-                    {category}
-                  </FpDropdownMenuCheckboxItem>
-                ))}
-                <FpDropdownMenuSeparator />
-                <FpDropdownMenuItem onChange={() => resetEventCategories()}>
-                  default
-                </FpDropdownMenuItem>
-              </FpDropdownMenuContent>
-            </FpDropdownMenuPortal>
-          </FpDropdownMenu>
+        <div className="flex gap-2 items-center">
+          <span
+            className={cn(
+              "inline-block w-3 h-3 rounded-full",
+              connectionStatus === "open" ? "bg-success" : "bg-danger",
+            )}
+          />
+          <span className="text-sm text-muted-foreground">
+            {connectionStatus === "connecting"
+              ? "Connecting to agent..."
+              : connectionStatus === "open"
+                ? "Connected to agent"
+                : "Disconnected from agent"}
+          </span>
         </div>
         <div className="flex items-center gap-2">
-          {/* biome-ignore lint/a11y/noLabelWithoutControl: Checkbox is the related input element */}
-          <label className="text-muted-foreground text-sm flex items-center gap-1 cursor-pointer hover:text-foreground">
-            <Checkbox
-              checked={combineEvents}
-              onCheckedChange={toggleCombineEvents}
-            />
-            Merge events
-          </label>
+          <div className="flex items-center gap-2">
+            Filter:
+            <FpDropdownMenu>
+              <FpDropdownMenuTrigger
+                className={cn(
+                  "flex",
+                  "items-center",
+                  "gap-2",
+                  "h-min",
+                  "hover:bg-muted",
+                  "data-[state=open]:bg-muted",
+                  "rounded-sm",
+                  "group/dropdown",
+                )}
+              >
+                <div className="grow-1 w-full text-start text-sm text-muted-foreground px-2">
+                  {"Event categories"}
+                </div>
+                <CaretSortIcon className="w-3 h-3 mr-1 flex-shrink-0 opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-data-[state=open]/dropdown:opacity-100" />
+              </FpDropdownMenuTrigger>
+              <FpDropdownMenuPortal>
+                <FpDropdownMenuContent align="start">
+                  {AllEventCategories.map((category) => (
+                    <FpDropdownMenuCheckboxItem
+                      checked={selectedCategories.includes(category)}
+                      onCheckedChange={() => toggleEventCategory(category)}
+                      key={category}
+                    >
+                      {category}
+                    </FpDropdownMenuCheckboxItem>
+                  ))}
+                  <FpDropdownMenuSeparator />
+                  <FpDropdownMenuItem onChange={() => resetEventCategories()}>
+                    Default events
+                  </FpDropdownMenuItem>
+                  <FpDropdownMenuItem
+                    onChange={() => unselectAllEventCategories()}
+                  >
+                    Hide all events
+                  </FpDropdownMenuItem>
+                </FpDropdownMenuContent>
+              </FpDropdownMenuPortal>
+            </FpDropdownMenu>
+          </div>
+          <div>
+            {/* biome-ignore lint/a11y/noLabelWithoutControl: Checkbox is the related input element */}
+            <label className="text-muted-foreground text-sm flex items-center gap-1 cursor-pointer hover:text-foreground">
+              <Checkbox
+                checked={combineEvents}
+                onCheckedChange={toggleCombineEvents}
+              />
+              Merge events
+            </label>
+          </div>
+          <Separator orientation="vertical" className="h-4" />
           <Button
             size="icon-xs"
             variant="ghost"
@@ -484,7 +537,7 @@ export function EventsView(props: { namespace: string; instance: string }) {
             : "Filtered selection has no events."}
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-1">
           {sortedEvents.map((event, idx) => (
             <EventItem key={`${event.id}`} event={event} />
           ))}

@@ -56,21 +56,21 @@ export function AgentsSidebar() {
     >
       <div className="w-full grid gap-2 h-full">
         {data.map((item) => (
-          <Fragment key={item.id}>
+          <div className="flex flex-col gap-1" key={item.id}>
             <Link
               to="/agents/$agentId"
               params={{ agentId: item.id }}
               className={cn(
-                "flex justify-start px-2 py-2 font-medium text-sm rounded-md items-center",
+                "flex justify-start gap-1.5 px-2 py-2 font-medium text-sm rounded-md items-center",
                 !instanceId && item.id === agentId ? "bg-muted" : "",
                 "hover:bg-muted/50",
               )}
             >
-              <Cpu className="w-3.5 h-3.5 mr-2" />
+              <Cpu className="w-3.5 h-3.5" />
               {item.id}
             </Link>
             {item.instances.length > 0 && (
-              <div className="ml-4 pl-2">
+              <div className="ml-1.5 pl-2">
                 {item.instances.map((instanceItem, index) => (
                   <div
                     key={instanceItem}
@@ -88,19 +88,19 @@ export function AgentsSidebar() {
                       to="/agents/$agentId/$instanceId"
                       params={{ agentId: item.id, instanceId: instanceItem }}
                       className={cn(
-                        "flex justify-start px-4 w-full py-2 rounded-md items-center",
+                        "flex justify-start px-4 w-full py-2 rounded-md items-center gap-1.5",
                         instanceItem === instanceId ? "bg-muted" : "",
                         "hover:bg-muted/50",
                       )}
                     >
-                      <Box className="w-3.5 h-3.5 mr-2" />
+                      <Box className="w-3.5 h-3.5" />
                       {instanceItem}
                     </Link>
                   </div>
                 ))}
               </div>
             )}
-          </Fragment>
+          </div>
         ))}
       </div>
     </ListSection>
