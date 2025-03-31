@@ -202,7 +202,7 @@ export function AgentDetails({
 }
 
 function EventsTabLabel(props: { instance: string; namespace: string }) {
-  const events = useFilteredEvents();
+  const events = useFilteredEvents(props);
   const eventsCount = events.length;
   const eventStreamStatus = usePlaygroundStore(
     (state) =>

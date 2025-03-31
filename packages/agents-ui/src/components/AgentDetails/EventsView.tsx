@@ -296,7 +296,7 @@ export function EventsView(props: { namespace: string; instance: string }) {
   const clearEvents = () =>
     resetAgentInstanceEvents(props.namespace, props.instance);
 
-  const shownEvents = useFilteredEvents();
+  const shownEvents = useFilteredEvents(props);
   const rawEvents = usePlaygroundStore(
     (state) =>
       state.agentsState[props.namespace]?.instances[props.instance]?.events ??

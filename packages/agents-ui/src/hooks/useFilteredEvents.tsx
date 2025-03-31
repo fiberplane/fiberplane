@@ -1,17 +1,14 @@
 import { EMPTY_EVENTS, usePlaygroundStore } from "@/store";
-import { unset } from "@/types";
 import { useMemo } from "react";
 
-export function useFilteredEvents() {
+export function useFilteredEvents(params: {
+  namespace: string;
+  instance: string;
+}) {
+  const { namespace, instance } = params;
   const events = usePlaygroundStore((state) => {
-    // state.events
-    if (state.agent === unset || state.instance === unset) {
-      return EMPTY_EVENTS;
-    }
-
     return (
-      state.agentsState[state.agent]?.instances[state.instance]?.events ??
-      EMPTY_EVENTS
+      state.agentsState[namespace]?.instances[instance]?.events ?? EMPTY_EVENTS
     );
   });
 

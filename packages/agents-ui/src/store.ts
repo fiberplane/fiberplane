@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { combine } from "zustand/middleware";
 import { devtools } from "zustand/middleware";
 import type { AgentEvent } from "./hooks/useSSE";
-import { unset } from "./types";
 
 export type SSEStatus = "connecting" | "open" | "closed" | "error";
 
