@@ -44,6 +44,7 @@ export const AgentEventTypeSchema = z.enum([
   "stream_error",
   "stream_close",
   "http_request",
+  "http_response",
   "ws_open",
   "ws_close",
   "ws_message",

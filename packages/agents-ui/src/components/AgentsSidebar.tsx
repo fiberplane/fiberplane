@@ -1,10 +1,8 @@
 import { useListAgents } from "@/hooks/useListAgents";
 import { cn } from "@/lib/utils";
-import type { ListAgentsResponse } from "@/types";
 import { useMinimumLoadingRefetch } from "@/useMinimumLoadingRefetch";
 import { Link, useMatches } from "@tanstack/react-router";
 import { Box, Cpu } from "lucide-react";
-import { Fragment } from "react/jsx-runtime";
 import { ListSection } from "./ListSection";
 import { Spinner } from "./Spinner";
 import { Button } from "./ui/button";
@@ -42,7 +40,7 @@ export function AgentsSidebar() {
     <ListSection
       title={
         <div className="grid grid-cols-[1fr_auto] items-center">
-          <h2 className="text-xl"> Agents</h2>
+          <h2 className="text-xl">Agents</h2>
           <Button
             variant="ghost"
             size="icon"
@@ -54,9 +52,9 @@ export function AgentsSidebar() {
         </div>
       }
     >
-      <div className="w-full grid gap-2 h-full">
+      <div className="w-full flex gap-2">
         {data.map((item) => (
-          <div className="flex flex-col gap-1" key={item.id}>
+          <div className="w-full flex flex-col gap-1" key={item.id}>
             <Link
               to="/agents/$agentId"
               params={{ agentId: item.id }}

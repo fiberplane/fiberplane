@@ -7,6 +7,7 @@ export const AgentEventTypeSchema = z.enum([
   "stream_error",
   "stream_close",
   "http_request",
+  "http_response",
   "ws_open",
   "ws_close",
   "ws_message",
@@ -168,6 +169,7 @@ export function useSSEConnection(
 const baseOptions: UseSSEWithEventsOptions = {
   eventTypes: [
     "http_request",
+    "http_response",
     "state_change",
     "ws_open",
     "ws_message",
@@ -176,6 +178,7 @@ const baseOptions: UseSSEWithEventsOptions = {
     "stream_error",
     "ws_send",
     "broadcast",
+
   ],
 };
 

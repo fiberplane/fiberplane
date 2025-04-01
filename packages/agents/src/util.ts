@@ -84,3 +84,12 @@ export function toKebabCase(str: string): KebabCase<string> {
 export type KebabCase<T extends string> = T extends string
   ? string & { readonly __kebabCase: unique symbol }
   : never;
+
+export function isPromiseLike<T>(obj: unknown): obj is PromiseLike<T> {
+  return (
+    obj !== null &&
+    typeof obj === "object" &&
+    "then" in obj &&
+    typeof obj.then === "function"
+  );
+}

@@ -91,6 +91,7 @@ export class ChatClient extends AIChatAgent<Env, MemoryState> {
       return dataStreamResponse;
     });
   }
+
   async executeTask(description: string, task: Schedule<string>) {
     await this.saveMessages([
       ...this.messages,

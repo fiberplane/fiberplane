@@ -55,6 +55,7 @@ export function EventsView(props: AgentInstanceParameters) {
       });
   }, [events, visibleEventTypes]);
 
+  console.log('sortedEvents', sortedEvents, events);
   return (
     <div>
       <div className="grid items-center grid-cols-[1fr_auto] gap-2 border-b border-border pb-4 mb-2">

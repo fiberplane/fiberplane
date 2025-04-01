@@ -8,7 +8,7 @@ import {
   registerAgentInstance,
 } from "./agentInstances";
 import type { AgentEvent } from "./types";
-import { isDurableObjectNamespace, toKebabCase, tryCatch } from "./util";
+import { isDurableObjectNamespace, isPromiseLike, toKebabCase, tryCatch } from "./util";
 
 const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
 const PARTYKIT_ROOM_HEADER = "x-partykit-room";
@@ -390,7 +390,7 @@ export function Fiber<E = unknown, S = unknown>() {
         if (!this.fiberRouter) {
           this.fiberRouter = createAgentAdminRouter(this);
         }
-        this.fiberRouter.notFound(() => {
+        this.fiberRouter.notFound(async () => {
           this.recordEvent({
             event: "http_request",
             payload: {
@@ -399,7 +399,72 @@ export function Fiber<E = unknown, S = unknown>() {
               headers: request.headers,
             },
           });
-          return super.onRequest(request);
+          const result = super.onRequest(request);
+
+          if (isPromiseLike(result)) {
+            return result.then(async (res) => {
+              const clonedResponse = res.clone();
+              // Check if the response has a body and read it
+              if (clonedResponse.body) {
+                const reader = clonedResponse.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let bodyText = "";
+
+                while (true) {
+                  const { done, value } = await reader.read();
+                  if (done) {
+                    break;
+                  }
+                  bodyText += decoder.decode(value, { stream: true });
+                }
+
+                this.recordEvent({
+                  event: "http_response",
+                  payload: {
+                    status: res.status,
+                    statusText: res.statusText,
+                    headers: res.headers,
+                    body: bodyText,
+                  },
+                });
+              } else {
+                this.recordEvent({
+                  event: "http_response",
+                  payload: {
+                    status: res.status,
+                    statusText: res.statusText,
+                    headers: res.headers,
+                  },
+                });
+              }
+              return res;
+            });
+          }
+
+          const clonedResponse = result.clone();
+          if (clonedResponse.body) {
+            await clonedResponse.body.getReader().read().then((data) => {
+              this.recordEvent({
+                event: "http_response",
+                payload: {
+                  status: result.status,
+                  statusText: result.statusText,
+                  headers: result.headers,
+                  body: data,
+                },
+              });
+            });
+          } else {
+            this.recordEvent({
+              event: "http_response",
+              payload: {
+                status: result.status,
+                statusText: result.statusText,
+                headers: result.headers,
+              },
+            });
+          }
+          return result;
         });
         return this.fiberRouter.fetch(request);
       }

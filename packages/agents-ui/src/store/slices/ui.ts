@@ -7,22 +7,34 @@ const streamEvents: Array<AgentEvent["type"]> = [
   "stream_close",
   "stream_error",
 ];
-const httpEvents: Array<AgentEvent["type"]> = ["http_request"];
+const httpEvents: Array<AgentEvent["type"]> = [
+  "http_request",
+  "http_response",
+];
+
 const webSocketEvents: Array<AgentEvent["type"]> = [
-  "ws_open",
-  "ws_close",
+  // "ws_open",
+  // "ws_close",
   "ws_message",
   "ws_send",
 ];
+
+const webSocketConnectionEvents: Array<AgentEvent["type"]> = [
+  "ws_open",
+  "ws_close",
+];
+
 const broadcastEvents: Array<AgentEvent["type"]> = [
   "broadcast",
   "combined_event",
 ];
+
 const stateChangeEvents: Array<AgentEvent["type"]> = ["state_change"];
 export const eventCategories = {
   Streaming: streamEvents,
   HTTP: httpEvents,
-  "Web Sockets": webSocketEvents,
+  "Web Socket Messages": webSocketEvents,
+  "Web Socket Connection": webSocketConnectionEvents,
   Broadcasts: broadcastEvents,
   "State events": stateChangeEvents,
 };
@@ -36,7 +48,8 @@ export const AllEventCategories = Object.keys(
 const DEFAULT_EVENT_CATEGORIES: Array<EventCategory> = [
   "Streaming",
   "HTTP",
-  "Web Sockets",
+  "Web Socket Messages",
+  // "Web Socket Connection",
   "Broadcasts",
   "State events",
 ];

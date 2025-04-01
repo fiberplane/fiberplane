@@ -87,7 +87,7 @@ export const agentSlice = combine<AgentState, AgentActions>(
         const events = [...instanceDetails.events, event];
 
         // console.log("Adding event", event);
-        if (event.type === "broadcast") {
+        if (event.type === "http_response") {
           console.log("Broadcast event", event);
         }
 
