@@ -12,7 +12,6 @@ import { noop } from "@/lib/utils";
 import type { DBTable } from "@/types";
 import { z } from "zod";
 import { CodeMirrorJsonEditor } from "../CodeMirror";
-import { ListSection } from "../ListSection";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableRow } from "../ui/table";
 

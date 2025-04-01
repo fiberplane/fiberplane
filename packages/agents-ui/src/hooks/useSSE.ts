@@ -177,11 +177,9 @@ const baseOptions: UseSSEWithEventsOptions = {
     "ws_send",
     "broadcast",
   ],
-  // maxEvents: 100, // Limit to latest 100 events
-  // filterAdminEndpoints: true, // Filter out admin/db and admin/events endpoints
 };
 
-export function useAgentInstanceEvents(agent: string, instance: string) {
+export function useAgentInstanceEvents(namespace: string, instance: string) {
   const addAgentInstanceEvent = usePlaygroundStore(
     (state) => state.addAgentInstanceEvent,
   );
@@ -201,7 +199,7 @@ export function useAgentInstanceEvents(agent: string, instance: string) {
       }
 
       const id = generateId();
-      addAgentInstanceEvent(agent, instance, {
+      addAgentInstanceEvent(namespace, instance, {
         type: valid.data,
         id,
         timestamp: new Date().toISOString(),
@@ -209,17 +207,18 @@ export function useAgentInstanceEvents(agent: string, instance: string) {
       });
     },
     onConnectionStatus: (status) => {
-      setAgentInstanceStreamStatus(agent, instance, status);
+      setAgentInstanceStreamStatus(namespace, instance, status);
     },
     autoConnect: false,
   };
 
-  const { connect } = useSSEConnection(
-    `/agents/${agent}/${instance}/admin/events`,
+  const { connect, close } = useSSEConnection(
+    `/agents/${namespace}/${instance}/admin/events`,
     options,
   );
   const connectionStatus = usePlaygroundStore(
-    (state) => state.agentsState[agent]?.instances[instance]?.eventStreamStatus,
+    (state) =>
+      state.agentsState[namespace]?.instances[instance]?.eventStreamStatus,
   );
 
   useEffect(() => {

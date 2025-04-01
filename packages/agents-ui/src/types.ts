@@ -109,3 +109,8 @@ export const OptionsSchema = z.object({
 export type RouterOptions = z.infer<typeof OptionsSchema> & {
   queryClient: QueryClient;
 };
+
+/**
+ * Schema for the agent/instance parameters
+ */
+export type AgentInstanceParameters = { namespace: string; instance: string };

@@ -3,11 +3,9 @@ import {
   EMPTY_EVENTS,
   usePlaygroundStore,
 } from "@/store";
+import type { AgentInstanceParameters } from "@/types";
 
-export function useFilteredEvents(parameters: {
-  namespace: string;
-  instance: string;
-}) {
+export function useFilteredEvents(parameters: AgentInstanceParameters) {
   const { namespace, instance } = parameters;
   return usePlaygroundStore((state) => {
     const instanceDetails = state.agentsState[namespace]?.instances[instance];

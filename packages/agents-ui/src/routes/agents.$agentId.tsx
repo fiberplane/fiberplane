@@ -13,6 +13,7 @@ import {
   useLoaderData,
   useMatches,
   useParams,
+  useRouter,
 } from "@tanstack/react-router";
 import { Box, BoxIcon } from "lucide-react";
 
@@ -33,18 +34,24 @@ export const Route = createFileRoute("/agents/$agentId")({
 
     return { agent };
   },
-  notFoundComponent: () => (
-    <Layout>
-      <div className="h-full grid items-center justify-center">
-        <div className="grid gap-2 mx-auto border p-4 rounded-lg max-w-[400px]">
-          <h2 className="text-lg font-semibold">Agent Not Found</h2>
-          <p className="text-muted-foreground">
-            The agent you're looking for does not exist.
-          </p>
+  notFoundComponent: () => {
+    const router = useRouter();
+    return (
+      <Layout>
+        <div className="h-full grid items-center justify-center">
+          <div className="grid gap-2 mx-auto border p-4 rounded-lg max-w-[400px]">
+            <h2 className="text-lg font-semibold">Agent Not Found</h2>
+            <p className="text-muted-foreground">
+              The agent you're looking for does not exist.
+            </p>
+            <Button variant="outline" onClick={() => router.invalidate()}>
+              Retry
+            </Button>
+          </div>
         </div>
-      </div>
-    </Layout>
-  ),
+      </Layout>
+    );
+  },
 });
 
 function AgentRoute() {

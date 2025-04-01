@@ -2,24 +2,15 @@ import {
   type AgentEventType,
   type CoreAgentEvent,
   type EventPayload,
-  useFilteredEvents,
   useTimeAgo,
 } from "@/hooks";
-import { cn, noop } from "@/lib/utils";
-import {
-  type AgentEvent,
-  AllEventCategories,
-  type CombinedEvent,
-  eventCategories,
-  usePlaygroundStore,
-} from "@/store";
+import { cn } from "@/lib/utils";
+import type { AgentEvent, CombinedEvent } from "@/store";
 import { MessagePayloadSchema } from "@/types";
 import {
   AlertCircle,
   ArrowLeft,
   ArrowRight,
-  ChevronDown,
-  ChevronRight,
   Clock,
   Globe,
   Info,
@@ -29,29 +20,13 @@ import {
   PhoneOff,
   PhoneOutgoing,
   RadioTower,
-  Trash2,
 } from "lucide-react";
-import { useMemo, useState, type ReactNode } from "react";
-import { CodeMirrorJsonEditor } from "../CodeMirror";
-import { Method } from "../Method";
-import { Checkbox } from "../ui/Checkbox";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import {
-  FpDropdownMenu,
-  FpDropdownMenuCheckboxItem,
-  FpDropdownMenuContent,
-  FpDropdownMenuItem,
-  FpDropdownMenuPortal,
-  FpDropdownMenuSeparator,
-  FpDropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import {
-  CaretDownIcon,
-  CaretRightIcon,
-  CaretSortIcon,
-} from "@radix-ui/react-icons";
-import { Separator } from "../ui/separator";
+import { useState, type ReactNode } from "react";
+import { Method } from "../../Method";
+import { Badge } from "../../ui/badge";
+import { Button } from "../../ui/button";
+import { CaretDownIcon, CaretRightIcon } from "@radix-ui/react-icons";
+import { ExpandableJSONViewer, JSONViewer } from "./JSONViewer";
 
 // Define a more specific type for HTTP request payloads
 interface HttpRequestPayload {
@@ -70,59 +45,6 @@ const formatUrl = (url: string): string => {
   } catch (e) {
     return url;
   }
-};
-
-// Component to display JSON in a collapsible format
-const ExpandableJSONViewer = ({
-  data,
-  label = "Raw Data",
-  className,
-}: { data: unknown; label?: string; className?: string }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  return (
-    <div className={cn("font-mono text-sm mt-2", className)}>
-      <Button
-        type="button"
-        onClick={() => setIsExpanded(!isExpanded)}
-        variant="outline"
-        size="icon-xs"
-        className="w-auto pr-2 pl-1 text-xs gap-1"
-      >
-        {isExpanded ? (
-          <ChevronDown className="h-3.5 w-3.5" />
-        ) : (
-          <ChevronRight className="h-3.5 w-3.5" />
-        )}
-        {label}
-      </Button>
-
-      {isExpanded && <JSONViewer data={data} className="mt-2" />}
-    </div>
-  );
-};
-const JSONViewer = ({
-  data,
-  className,
-}: { data: unknown; label?: string; className?: string }) => {
-  const jsonString = useMemo(() => {
-    try {
-      return JSON.stringify(data, null, 2);
-    } catch (e) {
-      return String(data);
-    }
-  }, [data]);
-
-  return (
-    <div className={cn("font-mono text-xs pl-2 border rounded-lg", className)}>
-      <CodeMirrorJsonEditor
-        onChange={noop}
-        readOnly
-        value={jsonString}
-        minHeight="auto"
-      />
-    </div>
-  );
 };
 
 // Get an icon based on event type
@@ -314,7 +236,9 @@ const EventSummary = ({
 };
 
 // Single event item component
-const EventItem = ({ event }: { event: CoreAgentEvent | CombinedEvent }) => {
+export const EventItem = ({
+  event,
+}: { event: CoreAgentEvent | CombinedEvent }) => {
   const formattedDate = useTimeAgo(event.timestamp);
 
   let payload = event.payload;
@@ -383,166 +307,3 @@ const EventItem = ({ event }: { event: CoreAgentEvent | CombinedEvent }) => {
     </div>
   );
 };
-
-export function EventsView(props: { namespace: string; instance: string }) {
-  const resetAgentInstanceEvents = usePlaygroundStore(
-    (state) => state.resetAgentInstanceEvents,
-  );
-
-  const connectionStatus = usePlaygroundStore((state) => {
-    const agentState = state.agentsState[props.namespace];
-    const instanceDetails = agentState?.instances[props.instance];
-    return instanceDetails?.eventStreamStatus ?? "connecting";
-  });
-  const clearEvents = () =>
-    resetAgentInstanceEvents(props.namespace, props.instance);
-
-  const events = useFilteredEvents(props);
-  const combineEvents = usePlaygroundStore((state) => state.combineEvents);
-  const toggleCombineEvents = usePlaygroundStore(
-    (state) => state.toggleCombineEvents,
-  );
-
-  const selectedCategories = usePlaygroundStore(
-    (state) => state.visibleEventCategories,
-  );
-
-  const toggleEventCategory = usePlaygroundStore(
-    (state) => state.toggleEventCategory,
-  );
-
-  const resetEventCategories = usePlaygroundStore(
-    (state) => state.resetEventCategories,
-  );
-
-  const unselectAllEventCategories = usePlaygroundStore(
-    (state) => state.unselectAllEventCategories,
-  );
-
-  const visibleEventTypes = useMemo(() => {
-    const visibleTypes: Array<AgentEvent["type"]> = [];
-    for (const category of selectedCategories) {
-      const types = eventCategories[category];
-      if (types) {
-        visibleTypes.push(...types);
-      }
-    }
-    return visibleTypes;
-  }, [selectedCategories]);
-
-  const sortedEvents = useMemo(() => {
-    return [...events]
-      .filter((event) => visibleEventTypes.includes(event.type))
-      .sort((a, b) => {
-        // Handle case where timestamps might be invalid
-        try {
-          return (
-            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-          );
-        } catch (e) {
-          return 0;
-        }
-      });
-  }, [events, visibleEventTypes]);
-
-  return (
-    <div>
-      <div className="grid items-center grid-cols-[1fr_auto] gap-2 border-b border-border pb-4 mb-2">
-        <div className="flex gap-2 items-center">
-          <span
-            className={cn(
-              "inline-block w-3 h-3 rounded-full",
-              connectionStatus === "open" ? "bg-success" : "bg-danger",
-            )}
-          />
-          <span className="text-sm text-muted-foreground">
-            {connectionStatus === "connecting"
-              ? "Connecting to agent..."
-              : connectionStatus === "open"
-                ? "Connected to agent"
-                : "Disconnected from agent"}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2">
-            Filter:
-            <FpDropdownMenu>
-              <FpDropdownMenuTrigger
-                className={cn(
-                  "flex",
-                  "items-center",
-                  "gap-2",
-                  "h-min",
-                  "hover:bg-muted",
-                  "data-[state=open]:bg-muted",
-                  "rounded-sm",
-                  "group/dropdown",
-                )}
-              >
-                <div className="grow-1 w-full text-start text-sm text-muted-foreground px-2">
-                  {"Event categories"}
-                </div>
-                <CaretSortIcon className="w-3 h-3 mr-1 flex-shrink-0 opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-data-[state=open]/dropdown:opacity-100" />
-              </FpDropdownMenuTrigger>
-              <FpDropdownMenuPortal>
-                <FpDropdownMenuContent align="start">
-                  {AllEventCategories.map((category) => (
-                    <FpDropdownMenuCheckboxItem
-                      checked={selectedCategories.includes(category)}
-                      onCheckedChange={() => toggleEventCategory(category)}
-                      key={category}
-                    >
-                      {category}
-                    </FpDropdownMenuCheckboxItem>
-                  ))}
-                  <FpDropdownMenuSeparator />
-                  <FpDropdownMenuItem onChange={() => resetEventCategories()}>
-                    Default events
-                  </FpDropdownMenuItem>
-                  <FpDropdownMenuItem
-                    onChange={() => unselectAllEventCategories()}
-                  >
-                    Hide all events
-                  </FpDropdownMenuItem>
-                </FpDropdownMenuContent>
-              </FpDropdownMenuPortal>
-            </FpDropdownMenu>
-          </div>
-          <div>
-            {/* biome-ignore lint/a11y/noLabelWithoutControl: Checkbox is the related input element */}
-            <label className="text-muted-foreground text-sm flex items-center gap-1 cursor-pointer hover:text-foreground">
-              <Checkbox
-                checked={combineEvents}
-                onCheckedChange={toggleCombineEvents}
-              />
-              Merge events
-            </label>
-          </div>
-          <Separator orientation="vertical" className="h-4" />
-          <Button
-            size="icon-xs"
-            variant="ghost"
-            onClick={clearEvents}
-            className="w-auto h-auto p-1"
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
-
-      {sortedEvents.length === 0 ? (
-        <div className="text-sm text-muted-foreground py-4 text-center">
-          {events.length === 0
-            ? "No events captured yet."
-            : "Filtered selection has no events."}
-        </div>
-      ) : (
-        <div className="space-y-1">
-          {sortedEvents.map((event, idx) => (
-            <EventItem key={`${event.id}`} event={event} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}

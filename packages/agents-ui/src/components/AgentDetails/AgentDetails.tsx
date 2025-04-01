@@ -2,7 +2,7 @@ import { useAgentDB } from "@/hooks";
 import { useAgentInstanceEvents, useFilteredEvents } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { type SSEStatus, usePlaygroundStore } from "@/store";
-import type { ListAgentsResponse } from "@/types";
+import type { AgentInstanceParameters, ListAgentsResponse } from "@/types";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Database, History, ListIcon } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
@@ -42,7 +42,7 @@ export function AgentDetails({
   }, [refetch]);
 
   const [activeTab, setActiveTab] = useState("");
-  const [sideBarTab, setSideBarTab] = useState("details");
+  const [sideBarTab, setSideBarTab] = useState("events");
   useEffect(() => {
     if (!db || activeTab !== "") {
       return;
@@ -131,7 +131,6 @@ export function AgentDetails({
           onValueChange={setActiveTab}
           className={cn(
             "grid grid-rows-[auto_1fr]",
-            // NOTE - This max-height is necessary to allow overflow to be scrollable
             "max-h-fit overflow-hidden",
             "lg:overflow-scroll",
           )}
@@ -156,21 +155,19 @@ export function AgentDetails({
             onValueChange={setSideBarTab}
             className={cn(
               "grid grid-rows-[auto_1fr]",
-              // NOTE - This max-height is necessary to allow overflow to be scrollable
-              // "max-h-full",
               "max-h-fit overflow-hidden",
             )}
           >
             <FpTabsList className="bg-transparent">
-              <FpTabsTrigger value="details" className="flex gap-2">
-                <ListIcon className="w-3.5" />
-                Details
-              </FpTabsTrigger>
-              <FpTabsTrigger value="Events" className="flex gap-2">
+              <FpTabsTrigger value="events" className="flex gap-2">
                 <EventsTabLabel
                   instance={instance}
                   namespace={agentDetails.id}
                 />
+              </FpTabsTrigger>
+              <FpTabsTrigger value="details" className="flex gap-2">
+                <ListIcon className="w-3.5" />
+                Details
               </FpTabsTrigger>
             </FpTabsList>
             <FpTabsContent
@@ -189,7 +186,7 @@ export function AgentDetails({
               />
             </FpTabsContent>
             <FpTabsContent
-              value="Events"
+              value="events"
               className={cn("min-h-0 overflow-hidden")}
             >
               <EventsView namespace={agentDetails.id} instance={instance} />
@@ -201,7 +198,7 @@ export function AgentDetails({
   );
 }
 
-function EventsTabLabel(props: { instance: string; namespace: string }) {
+function EventsTabLabel(props: AgentInstanceParameters) {
   const events = useFilteredEvents(props);
   const eventsCount = events.length;
   const eventStreamStatus = usePlaygroundStore(

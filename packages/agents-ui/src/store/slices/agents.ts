@@ -1,19 +1,34 @@
-import { z } from "zod";
-import { create } from "zustand";
 import { combine } from "zustand/middleware";
-import { devtools } from "zustand/middleware";
-import type { CoreAgentEvent } from "./hooks/useSSE";
-import { MessagePayloadSchema } from "./types";
-
-export type SSEStatus = "connecting" | "open" | "closed" | "error";
+import { EMPTY_COMBINED_EVENTS } from "./ui";
+import { MessagePayloadSchema } from "@/types";
 
 // Agent slice
-type InstanceDetails = {
+export type InstanceDetails = {
   eventStreamStatus: SSEStatus;
   events: Array<CoreAgentEvent>;
   combinedEvents: Array<CoreAgentEvent | CombinedEvent>;
   knownBroadcastEvents: Record<string, CombinedEvent>;
 };
+
+export type AgentDetailsState = {
+  instances: Record<string, InstanceDetails>;
+};
+
+export type AgentState = {
+  agentsState: Record<string, AgentDetailsState>;
+};
+
+import type { CoreAgentEvent } from "@/hooks";
+import { z } from "zod";
+
+export type SSEStatus = "connecting" | "open" | "closed" | "error";
+
+export const ChatMessageSchema = z.object({
+  id: z.string(),
+  type: z.literal("cf_agent_use_chat_response"),
+  body: z.string(),
+  done: z.boolean(),
+});
 
 export type CombinedEvent = {
   type: "combined_event";
@@ -32,15 +47,8 @@ export type CombinedEvent = {
 };
 
 export type AgentEvent = CoreAgentEvent | CombinedEvent;
-type AgentDetailsState = {
-  instances: Record<string, InstanceDetails>;
-};
 
-type AgentState = {
-  agentsState: Record<string, AgentDetailsState>;
-};
-
-type AgentActions = {
+export type AgentActions = {
   addAgentInstanceEvent: (
     agent: string,
     instance: string,
@@ -54,109 +62,8 @@ type AgentActions = {
   ) => void;
 };
 
-// const eventCategories:
-const streamEvents: Array<AgentEvent["type"]> = [
-  "stream_open",
-  "stream_close",
-  "stream_error",
-];
-const httpEvents: Array<AgentEvent["type"]> = ["http_request"];
-const webSocketEvents: Array<AgentEvent["type"]> = [
-  "ws_open",
-  "ws_close",
-  "ws_message",
-  "ws_send",
-];
-const broadcastEvents: Array<AgentEvent["type"]> = [
-  "broadcast",
-  "combined_event",
-];
-const stateChangeEvents: Array<AgentEvent["type"]> = ["state_change"];
-export const eventCategories = {
-  Streaming: streamEvents,
-  HTTP: httpEvents,
-  "Web Sockets": webSocketEvents,
-  Broadcasts: broadcastEvents,
-  "State events": stateChangeEvents,
-};
-
-type EventCategory = keyof typeof eventCategories;
-
-export const AllEventCategories = Object.keys(
-  eventCategories,
-) as Array<EventCategory>;
-
-const DEFAULT_EVENT_CATEGORIES: Array<EventCategory> = [
-  "Streaming",
-  "HTTP",
-  "Web Sockets",
-  "Broadcasts",
-  "State events",
-];
-
-// UI State
-type UIState = {
-  combineEvents: boolean;
-  visibleEventCategories: Array<EventCategory>;
-};
-
-type UIActions = {
-  toggleCombineEvents: () => void;
-  toggleEventCategory: (category: EventCategory) => void;
-  resetEventCategories: () => void;
-  unselectAllEventCategories: () => void;
-};
-
-// Combined store type
-type StoreState = AgentState & AgentActions & UIState & UIActions;
-
-// UI slice
-const uiSlice = combine<UIState, UIActions>(
-  {
-    combineEvents: true,
-    visibleEventCategories: DEFAULT_EVENT_CATEGORIES,
-  },
-  (set) => ({
-    toggleCombineEvents: () =>
-      set((state) => ({ combineEvents: !state.combineEvents })),
-    resetEventCategories: () =>
-      set((state) => ({
-        ...state,
-        visibleEventCategories: DEFAULT_EVENT_CATEGORIES,
-      })),
-    unselectAllEventCategories: () => {
-      set((state) => ({
-        ...state,
-        visibleEventCategories: [],
-      }));
-    },
-    toggleEventCategory: (category: EventCategory) =>
-      set((state) => {
-        const isVisible = state.visibleEventCategories.includes(category);
-        const newVisibleEventCategories = isVisible
-          ? state.visibleEventCategories.filter((c) => c !== category)
-          : [...state.visibleEventCategories, category];
-
-        return {
-          ...state,
-          visibleEventCategories: newVisibleEventCategories,
-        };
-      }),
-  }),
-);
-
-const ChatMessageSchema = z.object({
-  id: z.string(),
-  type: z.literal("cf_agent_use_chat_response"),
-  body: z.string(),
-  done: z.boolean(),
-});
-
-export const EMPTY_EVENTS: Array<CoreAgentEvent> = [];
-export const EMPTY_COMBINED_EVENTS: Array<CoreAgentEvent | CombinedEvent> = [];
-
 // Create agent slice with proper typing and fix the event update
-const agentSlice = combine<AgentState, AgentActions>(
+export const agentSlice = combine<AgentState, AgentActions>(
   {
     agentsState: {},
   },
@@ -173,7 +80,7 @@ const agentSlice = combine<AgentState, AgentActions>(
           events: [],
           combinedEvents: [],
           knownBroadcastEvents: {},
-          eventStreamStatus: "closed" as SSEStatus,
+          eventStreamStatus: "closed" as const,
         };
 
         // Always add the raw event to events array
@@ -313,7 +220,7 @@ const agentSlice = combine<AgentState, AgentActions>(
           events: [],
           combinedEvents: [],
           knownBroadcastEvents: {},
-          eventStreamStatus: "closed" as SSEStatus,
+          eventStreamStatus: "closed" as const,
         };
 
         return {
@@ -345,7 +252,7 @@ const agentSlice = combine<AgentState, AgentActions>(
           events: [],
           combinedEvents: [],
           knownBroadcastEvents: {},
-          eventStreamStatus: "closed" as SSEStatus,
+          eventStreamStatus: "closed" as const,
         };
 
         return {
@@ -366,17 +273,4 @@ const agentSlice = combine<AgentState, AgentActions>(
       });
     },
   }),
-);
-
-// Create the store with properly typed devtools
-export const usePlaygroundStore = create<StoreState>()(
-  devtools(
-    (...args) => ({
-      ...uiSlice(...args),
-      ...agentSlice(...args),
-    }),
-    {
-      name: "PlaygroundStore",
-    },
-  ),
 );
