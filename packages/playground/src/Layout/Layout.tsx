@@ -1,10 +1,10 @@
+import { CommandBar } from "@/components/playground/CommandBar";
 import { useStudioStore } from "@/components/playground/store";
 import { Button } from "@/components/ui/button";
-import { useKeySequence } from "@/hooks";
 import { useMountedPath } from "@/hooks/use-mounted-path";
 import { createLink, useMatches } from "@tanstack/react-router";
 import { UserCircle } from "lucide-react";
-import { type ReactNode, forwardRef, useRef } from "react";
+import { type ReactNode, forwardRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { cn } from "../utils";
 import { BottomBar } from "./BottomBar";
@@ -43,31 +43,15 @@ export function Layout({ children }: { children?: ReactNode }) {
     isTracingEnabled,
     shouldShowTopNav,
     setShortcutsOpen,
-    setActiveRequestsPanelTab,
-    visibleRequestsPanelTabs,
+    commandBarOpen,
     setCommandBarOpen,
   } = useStudioStore(
     "isWorkflowsEnabled",
     "isTracingEnabled",
     "shouldShowTopNav",
     "setShortcutsOpen",
-    "setActiveRequestsPanelTab",
-    "visibleRequestsPanelTabs",
+    "commandBarOpen",
     "setCommandBarOpen",
-  );
-
-  const formRef = useRef<HTMLFormElement>(null);
-
-  useHotkeys(
-    "mod+enter",
-    () => {
-      if (formRef.current) {
-        formRef.current.requestSubmit();
-      }
-    },
-    {
-      enableOnFormTags: ["input"],
-    },
   );
 
   useHotkeys(
@@ -91,73 +75,6 @@ export function Layout({ children }: { children?: ReactNode }) {
     },
   );
 
-  useKeySequence(
-    ["g", "d"],
-    () => {
-      if (visibleRequestsPanelTabs.includes("docs")) {
-        setActiveRequestsPanelTab("docs");
-      }
-    },
-    { description: "View Route Docs", ignoreSelector: "[contenteditable]" },
-  );
-
-  useKeySequence(
-    ["g", "p"],
-    () => {
-      if (visibleRequestsPanelTabs.includes("params")) {
-        setActiveRequestsPanelTab("params");
-      }
-    },
-    { description: "View Request Params", ignoreSelector: "[contenteditable]" },
-  );
-
-  useKeySequence(
-    ["g", "a"],
-    () => {
-      if (visibleRequestsPanelTabs.includes("auth")) {
-        setActiveRequestsPanelTab("auth");
-      }
-    },
-    {
-      description: "View Request Auth",
-      ignoreSelector: "[contenteditable]",
-    },
-  );
-
-  useKeySequence(
-    ["g", "h"],
-    () => {
-      if (visibleRequestsPanelTabs.includes("headers")) {
-        setActiveRequestsPanelTab("headers");
-      }
-    },
-    {
-      description: "View Request Headers",
-      ignoreSelector: "[contenteditable]",
-    },
-  );
-
-  useKeySequence(
-    ["g", "b"],
-    () => {
-      // TODO - Focus the body input after this
-      if (visibleRequestsPanelTabs.includes("body")) {
-        setActiveRequestsPanelTab("body");
-      }
-    },
-    { description: "View Request Body", ignoreSelector: "[contenteditable]" },
-  );
-
-  useKeySequence(
-    ["g", "d"],
-    () => {
-      if (visibleRequestsPanelTabs.includes("docs")) {
-        setActiveRequestsPanelTab("docs");
-      }
-    },
-    { description: "View Route Docs", ignoreSelector: "[contenteditable]" },
-  );
-
   return (
     <div className="flex flex-col justify-between w-full min-h-screen overflow-hidden bg-muted/30 max-w-128">
       {shouldShowTopNav && (
@@ -177,6 +94,8 @@ export function Layout({ children }: { children?: ReactNode }) {
           </div>
         </div>
       )}
+
+      <CommandBar open={commandBarOpen} setOpen={setCommandBarOpen} />
 
       <main
         className={cn(

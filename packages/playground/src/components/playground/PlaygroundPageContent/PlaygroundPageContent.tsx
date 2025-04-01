@@ -5,10 +5,10 @@ import {
   ResizablePanelGroup,
   usePanelConstraints,
 } from "@/components/ui/resizable";
-import { useIsLgScreen } from "@/hooks";
+import { useIsLgScreen, useKeySequence } from "@/hooks";
 import { cn } from "@/utils";
 import { useRef } from "react";
-import { CommandBar } from "../CommandBar";
+import { useHotkeys } from "react-hotkeys-hook";
 import { PlaygroundInput } from "../PlaygroundInput";
 import { RequestPanel } from "../RequestPanel";
 import { ResponsePanel } from "../ResponsePanel";
@@ -29,9 +29,86 @@ export const PlaygroundPageContent: React.FC = (_props) => {
 
   const isLgScreen = useIsLgScreen();
 
-  const { commandBarOpen, setCommandBarOpen } = useStudioStore(
-    "commandBarOpen",
-    "setCommandBarOpen",
+  const { setActiveRequestsPanelTab, visibleRequestsPanelTabs } =
+    useStudioStore("setActiveRequestsPanelTab", "visibleRequestsPanelTabs");
+
+  useHotkeys(
+    "mod+enter",
+    () => {
+      if (formRef.current) {
+        formRef.current.requestSubmit();
+      }
+    },
+    {
+      enableOnFormTags: ["input"],
+    },
+  );
+
+  useKeySequence(
+    ["g", "d"],
+    () => {
+      if (visibleRequestsPanelTabs.includes("docs")) {
+        setActiveRequestsPanelTab("docs");
+      }
+    },
+    { description: "View Route Docs", ignoreSelector: "[contenteditable]" },
+  );
+
+  useKeySequence(
+    ["g", "p"],
+    () => {
+      if (visibleRequestsPanelTabs.includes("params")) {
+        setActiveRequestsPanelTab("params");
+      }
+    },
+    { description: "View Request Params", ignoreSelector: "[contenteditable]" },
+  );
+
+  useKeySequence(
+    ["g", "a"],
+    () => {
+      if (visibleRequestsPanelTabs.includes("auth")) {
+        setActiveRequestsPanelTab("auth");
+      }
+    },
+    {
+      description: "View Request Auth",
+      ignoreSelector: "[contenteditable]",
+    },
+  );
+
+  useKeySequence(
+    ["g", "h"],
+    () => {
+      if (visibleRequestsPanelTabs.includes("headers")) {
+        setActiveRequestsPanelTab("headers");
+      }
+    },
+    {
+      description: "View Request Headers",
+      ignoreSelector: "[contenteditable]",
+    },
+  );
+
+  useKeySequence(
+    ["g", "b"],
+    () => {
+      // TODO - Focus the body input after this
+      if (visibleRequestsPanelTabs.includes("body")) {
+        setActiveRequestsPanelTab("body");
+      }
+    },
+    { description: "View Request Body", ignoreSelector: "[contenteditable]" },
+  );
+
+  useKeySequence(
+    ["g", "d"],
+    () => {
+      if (visibleRequestsPanelTabs.includes("docs")) {
+        setActiveRequestsPanelTab("docs");
+      }
+    },
+    { description: "View Route Docs", ignoreSelector: "[contenteditable]" },
   );
 
   const requestContent = <RequestPanel onSubmit={onSubmit} />;
@@ -60,7 +137,6 @@ export const PlaygroundPageContent: React.FC = (_props) => {
         "overflow-hidden",
       )}
     >
-      <CommandBar open={commandBarOpen} setOpen={setCommandBarOpen} />
       <PlaygroundInput
         onSubmit={onSubmit}
         isPlaygroundRequesting={isPlaygroundRequesting}
