@@ -8,7 +8,7 @@ import {
   registerAgentInstance,
 } from "./agentInstances";
 import type { AgentEvent } from "./types";
-import { isDurableObjectNamespace, toKebabCase, tryCatch } from "./util";
+import { isDurableObjectNamespace, toKebabCase, tryCatch } from "./utils";
 
 const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
 const PARTYKIT_ROOM_HEADER = "x-partykit-room";
