@@ -30,7 +30,7 @@ type AgentConstructor<E = unknown, S = unknown> = new (
 const version = packageJson.version;
 const commitHash = import.meta.env.GIT_COMMIT_HASH;
 
-function createAgentAdminRouter(agent: FiberDecoratedAgent) {
+function createAgentAdminRouter(agent: ObservedAgent) {
   const router = new Hono();
 
   router.get("/agents/:namespace/:instance/admin/db", async (c) => {
@@ -211,11 +211,11 @@ function createAgentAdminRouter(agent: FiberDecoratedAgent) {
   return router;
 }
 
-interface FiberProperties {
+interface ObservedProperties {
   activeStreams: Set<SSEStreamingApi>;
 }
 
-type FiberDecoratedAgent = Agent<unknown, unknown> & FiberProperties;
+type ObservedAgent = Agent<unknown, unknown> & ObservedProperties;
 
 /**
  * Class decorator factory that adds Fiber capabilities to Agent classes
@@ -223,13 +223,13 @@ type FiberDecoratedAgent = Agent<unknown, unknown> & FiberProperties;
  * Usage:
  * ```typescript
  *
- * @Fiber()
+ * @Observed()
  * export class MyAgent extends Agent {
  *   // Your agent implementation
  * }
  * ```
  */
-export function Fiber<E = unknown, S = unknown>() {
+export function Observed<E = unknown, S = unknown>() {
   return <T extends AgentConstructor<E, S>>(BaseClass: T) => {
     return class extends BaseClass {
       // biome-ignore lint/complexity/noUselessConstructor: Required for TypeScript mixins
@@ -364,7 +364,7 @@ function createFpApp() {
           const namespace = toKebabCase(name);
           if (!agents.some((agent) => agent.id === namespace)) {
             console.warn(
-              `Warning: durable object detected but it is not decorated with the \`@Fiber()\` decorator (binding name: ${name}, expected namespace: ${namespace})`,
+              `Warning: durable object detected but it is not decorated with the \`@Observed()\` decorator (binding name: ${name}, expected namespace: ${namespace})`,
             );
           }
         }
