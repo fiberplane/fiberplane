@@ -1,16 +1,13 @@
 import type { CoreAgentEvent } from "@/hooks";
-import type { AgentEvent, CombinedEvent } from "./agents";
 import { combine } from "zustand/middleware";
+import type { AgentEvent, CombinedEvent } from "./agents";
 
 const streamEvents: Array<AgentEvent["type"]> = [
   "stream_open",
   "stream_close",
   "stream_error",
 ];
-const httpEvents: Array<AgentEvent["type"]> = [
-  "http_request",
-  "http_response",
-];
+const httpEvents: Array<AgentEvent["type"]> = ["http_request", "http_response"];
 
 const webSocketEvents: Array<AgentEvent["type"]> = [
   // "ws_open",

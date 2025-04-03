@@ -8,7 +8,15 @@ import {
   registerAgentInstance,
 } from "./agentInstances";
 import type { AgentEvent } from "./types";
-import { isDurableObjectNamespace, isPromiseLike, toKebabCase, tryCatch } from "./util";
+import {
+  createRequestPayload,
+  createResponsePayload,
+  headersToObject,
+  isDurableObjectNamespace,
+  isPromiseLike,
+  toKebabCase,
+  tryCatch,
+} from "./util";
 
 const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
 const PARTYKIT_ROOM_HEADER = "x-partykit-room";
@@ -341,7 +349,7 @@ export function Fiber<E = unknown, S = unknown>() {
         const connectionProxy = this.createWebSocketProxy(connection);
 
         // Use the original connection for the parent class
-        super.onMessage(connectionProxy, message);
+        return super.onMessage(connectionProxy, message);
       }
 
       onConnect(connection: Connection, ctx: ConnectionContext) {
@@ -357,7 +365,7 @@ export function Fiber<E = unknown, S = unknown>() {
         const proxiedConnection = this.createWebSocketProxy(connection);
 
         // Use the proxied connection for the parent class
-        super.onConnect(proxiedConnection, ctx);
+        return super.onConnect(proxiedConnection, ctx);
       }
 
       onClose(
@@ -390,82 +398,59 @@ export function Fiber<E = unknown, S = unknown>() {
         if (!this.fiberRouter) {
           this.fiberRouter = createAgentAdminRouter(this);
         }
-        this.fiberRouter.notFound(async () => {
-          this.recordEvent({
-            event: "http_request",
-            payload: {
-              method: request.method,
-              url: request.url,
-              headers: request.headers,
-            },
+
+
+        this.fiberRouter.notFound(() => {
+          // Extract url & method for re-use in the response payload
+          const { url, method } = request;
+
+          // Create a promise chain to ensure the event is recorded
+          // since we may need to read the body of the request
+          const eventPromise = Promise.resolve().then(async () => {
+            this.recordEvent({
+              event: "http_request",
+              // Clone the request to avoid consuming the body
+              payload: await createRequestPayload(
+                request.clone() as typeof request,
+              ),
+            })
           });
           const result = super.onRequest(request);
 
+          // eventPromise.then()
           if (isPromiseLike(result)) {
             return result.then(async (res) => {
-              const clonedResponse = res.clone();
-              // Check if the response has a body and read it
-              if (clonedResponse.body) {
-                const reader = clonedResponse.body.getReader();
-                const decoder = new TextDecoder("utf-8");
-                let bodyText = "";
+              const payload = await createResponsePayload(res.clone());
+              this.recordEvent({
+                event: "http_response",
+                payload: {
+                  ...payload,
+                  url,
+                  method,
+                },
+              });
 
-                while (true) {
-                  const { done, value } = await reader.read();
-                  if (done) {
-                    break;
-                  }
-                  bodyText += decoder.decode(value, { stream: true });
-                }
-
-                this.recordEvent({
-                  event: "http_response",
-                  payload: {
-                    status: res.status,
-                    statusText: res.statusText,
-                    headers: res.headers,
-                    body: bodyText,
-                  },
-                });
-              } else {
-                this.recordEvent({
-                  event: "http_response",
-                  payload: {
-                    status: res.status,
-                    statusText: res.statusText,
-                    headers: res.headers,
-                  },
-                });
-              }
               return res;
             });
           }
 
-          const clonedResponse = result.clone();
-          if (clonedResponse.body) {
-            await clonedResponse.body.getReader().read().then((data) => {
-              this.recordEvent({
-                event: "http_response",
-                payload: {
-                  status: result.status,
-                  statusText: result.statusText,
-                  headers: result.headers,
-                  body: data,
-                },
-              });
-            });
-          } else {
+          const capturedResponse = result.clone();
+          eventPromise.then(async () => {
+            const payload = await createResponsePayload(capturedResponse);
+
             this.recordEvent({
               event: "http_response",
               payload: {
-                status: result.status,
-                statusText: result.statusText,
-                headers: result.headers,
+                ...payload,
+                url,
+                method,
               },
             });
-          }
+          });
+
           return result;
         });
+
         return this.fiberRouter.fetch(request);
       }
     } as T;

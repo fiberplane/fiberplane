@@ -1,12 +1,12 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import {
-  agentSlice,
-  uiSlice,
   type AgentActions,
   type AgentState,
   type UIActions,
   type UIState,
+  agentSlice,
+  uiSlice,
 } from "./slices";
 
 export {

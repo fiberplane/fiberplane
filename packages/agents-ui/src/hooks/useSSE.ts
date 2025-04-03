@@ -178,7 +178,6 @@ const baseOptions: UseSSEWithEventsOptions = {
     "stream_error",
     "ws_send",
     "broadcast",
-
   ],
 };
 

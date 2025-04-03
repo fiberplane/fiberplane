@@ -6,7 +6,7 @@ export {
   eventCategories,
 } from "./ui";
 export type { UIState, UIActions } from "./ui";
-export { agentSlice, ChatMessageSchema } from "./agents";
+export { agentSlice } from "./agents";
 export type {
   AgentActions,
   AgentDetailsState,

@@ -1,6 +1,10 @@
 import { combine } from "zustand/middleware";
 import { EMPTY_COMBINED_EVENTS } from "./ui";
-import { MessagePayloadSchema } from "@/types";
+import { MessagePayloadSchema, agentUseChatResponseSchema } from "@/types";
+import type { agentChatMessagesSchema } from "@/types";
+import type { CoreAgentEvent } from "@/hooks";
+import type { z } from "zod";
+import { parseEventBody, updateCombinedEvent } from "./utils";
 
 // Agent slice
 export type InstanceDetails = {
@@ -18,31 +22,27 @@ export type AgentState = {
   agentsState: Record<string, AgentDetailsState>;
 };
 
-import type { CoreAgentEvent } from "@/hooks";
-import { z } from "zod";
-
 export type SSEStatus = "connecting" | "open" | "closed" | "error";
 
-export const ChatMessageSchema = z.object({
-  id: z.string(),
-  type: z.literal("cf_agent_use_chat_response"),
-  body: z.string(),
-  done: z.boolean(),
-});
+type UseChatResponseCombinedEventPayload = {
+  type: z.infer<typeof agentUseChatResponseSchema>["type"];
+  chunks: Array<z.infer<typeof agentUseChatResponseSchema>>;
+  content: string;
+  done: boolean;
+  metadata: {
+    messageId?: string;
+    toolCalls: Record<string, unknown>[];
+    toolResults: Record<string, unknown>[];
+    status?: Record<string, unknown> | null;
+  };
+};
+
+type CombinedEventPayload = UseChatResponseCombinedEventPayload;
 
 export type CombinedEvent = {
   type: "combined_event";
   id: string;
-  payload: {
-    chunks: Array<
-      CoreAgentEvent & {
-        type: "broadcast";
-        payload: { message: z.infer<typeof ChatMessageSchema> };
-      }
-    >;
-    content: string; // Combined content from all chunks
-    done: boolean;
-  };
+  payload: CombinedEventPayload;
   timestamp: string;
 };
 
@@ -105,72 +105,76 @@ export const agentSlice = combine<AgentState, AgentActions>(
             const { message: parsedMessage } = MessagePayloadSchema.parse(
               event.payload,
             );
-            const parsed = ChatMessageSchema.safeParse(parsedMessage);
+            const parsed = agentUseChatResponseSchema.safeParse(parsedMessage);
 
             if (parsed.success) {
               const { id, body, done } = parsed.data;
-              const typedEvent = event as CoreAgentEvent & {
-                type: "broadcast";
-              };
-
-              // Check if we already have a combined event with this ID
               if (id in knownBroadcastEvents) {
                 // Update existing combined event
                 const existingEvent = knownBroadcastEvents[id];
 
-                // Add this chunk to the existing event
-                existingEvent.payload.chunks.push({
-                  ...typedEvent,
-                  payload: {
-                    message: parsed.data,
-                  },
-                });
+                if (existingEvent.payload.type === parsed.data.type) {
+                  // Add this chunk to the existing event
+                  // existingEvent.payload.chunks.push({
+                  //   ...typedEvent,
+                  //   payload: parsed.data,
+                  // });
+                  // existingEvent.payload.chunks.push(parsed.data);
 
-                existingEvent.payload.content += body;
+                  // existingEvent.payload.content += body;
 
-                // // Update the combined content
-                // existingEvent.content = existingEvent.chunks
-                //   .map(chunk => {
-                //     try {
-                //       const parsedChunk = JSON.parse(chunk.payload.message);
-                //       return parsedChunk.body || "";
-                //     } catch {
-                //       return "";
-                //     }
-                //   })
-                //   .join("");
+                  // // Update the combined content
+                  // existingEvent.content = existingEvent.chunks
+                  //   .map(chunk => {
+                  //     try {
+                  //       const parsedChunk = JSON.parse(chunk.payload.message);
+                  //       return parsedChunk.body || "";
+                  //     } catch {
+                  //       return "";
+                  //     }
+                  //   })
+                  //   .join("");
 
-                // Update done status
-                existingEvent.payload.done = done;
+                  // Update done status
+                  // existingEvent.payload.done = done;
+                  const updatedEvent = { ...existingEvent };
+                  updateCombinedEvent(updatedEvent, parsed.data);
 
-                // Replace the existing event in the combined events array
-                combinedEvents = combinedEvents.map((e) =>
-                  e.type === "combined_event" && e.id === id
-                    ? existingEvent
-                    : e,
-                );
+                  // Replace the existing event in the combined events array
+                  combinedEvents = combinedEvents.map((e) =>
+                    e.type === "combined_event" && e.id === id
+                      ? updatedEvent
+                      : e,
+                  );
 
-                // Update in known events
-                knownBroadcastEvents[id] = existingEvent;
+                  // Update in known events
+                  knownBroadcastEvents[id] = existingEvent;
+                } else {
+                  console.warn(
+                    `Event type mismatch for ID ${id}: ${existingEvent.payload.type} vs ${parsed.data.type}`,
+                  );
+                }
               } else {
                 // Create a new combined event
                 const newCombinedEvent: CombinedEvent = {
                   type: "combined_event",
                   id,
                   payload: {
-                    chunks: [
-                      {
-                        ...typedEvent,
-                        payload: {
-                          message: parsed.data,
-                        },
-                      },
-                    ],
-                    content: body,
+                    type: parsed.data.type,
+                    chunks: [parsed.data],
+                    content: "",
                     done,
+                    metadata: {
+                      messageId: "",
+                      toolCalls: [],
+                      toolResults: [],
+                      status: null,
+                    },
                   },
                   timestamp: event.timestamp,
                 };
+
+                updateCombinedEvent(newCombinedEvent, parsed.data);
 
                 // Add to combined events array
                 combinedEvents.push(newCombinedEvent);

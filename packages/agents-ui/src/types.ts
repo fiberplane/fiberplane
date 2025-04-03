@@ -14,28 +14,28 @@ export type DBColumnType =
 type TypeMapping<T extends DBColumnType[]> = T extends ["string"]
   ? string
   : T extends ["null", "string"]
-  ? string | null
-  : T extends ["number"]
-  ? number
-  : T extends ["null", "number"]
-  ? number | null
-  : T extends ["boolean"]
-  ? boolean
-  : T extends ["null", "boolean"]
-  ? boolean
-  : T extends ["null"]
-  ? null
-  : T extends ["object"]
-  ? Record<string, unknown>
-  : T extends ["null", "object"]
-  ? Record<string, unknown> | null
-  : T extends ["array"]
-  ? unknown[]
-  : T extends Array<infer U>
-  ? U extends DBColumnType
-  ? unknown
-  : never
-  : unknown;
+    ? string | null
+    : T extends ["number"]
+      ? number
+      : T extends ["null", "number"]
+        ? number | null
+        : T extends ["boolean"]
+          ? boolean
+          : T extends ["null", "boolean"]
+            ? boolean
+            : T extends ["null"]
+              ? null
+              : T extends ["object"]
+                ? Record<string, unknown>
+                : T extends ["null", "object"]
+                  ? Record<string, unknown> | null
+                  : T extends ["array"]
+                    ? unknown[]
+                    : T extends Array<infer U>
+                      ? U extends DBColumnType
+                        ? unknown
+                        : never
+                      : unknown;
 
 // Generic table type that ensures data matches column structure
 export type DBTable<
@@ -115,97 +115,233 @@ export type RouterOptions = z.infer<typeof OptionsSchema> & {
  */
 export type AgentInstanceParameters = { namespace: string; instance: string };
 
+// JSON value schema for nested JSON structures
+const jsonValueSchema: z.ZodType<unknown> = z.lazy(() =>
+  z.union([
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.null(),
+    z.array(jsonValueSchema),
+    z.record(jsonValueSchema),
+  ]),
+);
 
-// Define the schema for text parts
-const TextPartSchema = z.object({
-  type: z.literal('text'),
-  text: z.string()
+// Define schemas for Message parts (UI parts)
+const textUIPartSchema = z.object({
+  type: z.literal("text"),
+  text: z.string(),
 });
 
-// Define the schema for tool invocation parts
-const ToolInvocationPartSchema = z.object({
-  type: z.literal('tool-invocation'),
-  toolInvocation: z.object({
-    state: z.string(),
-    step: z.number(),
-    args: z.object({}).catchall(z.any()),
-    toolCallId: z.string(),
-    toolName: z.string(),
-    result: z.string()
-  })
+const reasoningUIPartSchema = z.object({
+  type: z.literal("reasoning"),
+  reasoning: z.string(),
+  details: z.array(
+    z.union([
+      z.object({
+        type: z.literal("text"),
+        text: z.string(),
+        signature: z.string().optional(),
+      }),
+      z.object({
+        type: z.literal("redacted"),
+        data: z.string(),
+      }),
+    ]),
+  ),
 });
 
-// Union type for parts
-const MessagePartSchema = z.discriminatedUnion('type', [
-  TextPartSchema,
-  ToolInvocationPartSchema
-]);
-
-// Define the schema for tool invocations
-const ToolInvocationSchema = z.object({
-  state: z.string(),
-  step: z.number(),
-  args: z.object({}).catchall(z.any()),
+// For tool invocation part, we need to define the ToolInvocation schema
+const toolCallSchema = z.object({
   toolCallId: z.string(),
   toolName: z.string(),
-  result: z.string()
+  args: z.any(),
 });
 
-// Define the schema for user messages
-const UserMessageSchema = z.object({
-  id: z.string(),
-  createdAt: z.string().datetime(),
-  role: z.literal('user'),
-  content: z.string(),
-  parts: z.array(z.union([
-    z.object({
-      type: z.literal('text'),
-      text: z.string()
-    }),
-    // In the example, user messages only have text parts, 
-    // but we'll allow for the possibility of other part types
-    z.object({}).catchall(z.any())
-  ]))
+const toolResultSchema = z.object({
+  toolCallId: z.string(),
+  toolName: z.string(),
+  args: z.any(),
+  result: z.any(),
 });
 
-// Define the schema for assistant messages
-const AssistantMessageSchema = z.object({
-  id: z.string(),
-  createdAt: z.string().datetime(),
-  role: z.literal('assistant'),
-  content: z.string(),
-  toolInvocations: z.array(ToolInvocationSchema).optional(),
-  parts: z.array(MessagePartSchema)
-});
-
-// Define the schema for scheduled messages from the user
-const ScheduledMessageSchema = z.object({
-  id: z.string(),
-  role: z.literal('user'),
-  content: z.string().startsWith('scheduled message:')
-});
-
-// Union type for messages
-const MessageSchema = z.discriminatedUnion('role', [
-  UserMessageSchema,
-  AssistantMessageSchema
+const toolInvocationSchema = z.union([
+  toolCallSchema.extend({
+    state: z.literal("partial-call"),
+    step: z.number().optional(),
+  }),
+  toolCallSchema.extend({
+    state: z.literal("call"),
+    step: z.number().optional(),
+  }),
+  toolResultSchema.extend({
+    state: z.literal("result"),
+    step: z.number().optional(),
+  }),
 ]);
 
-// Define the root schema for cf_agent_chat_messages
-const ChatMessagesSchema = z.object({
-  type: z.literal('cf_agent_chat_messages'),
-  messages: z.array(
-    z.union([
-      MessageSchema,
-      ScheduledMessageSchema
-    ])
-  )
+const toolInvocationUIPartSchema = z.object({
+  type: z.literal("tool-invocation"),
+  toolInvocation: toolInvocationSchema,
 });
 
-export type ChatMessages = z.infer<typeof ChatMessagesSchema>;
-export type Message = z.infer<typeof MessageSchema>;
-export type UserMessage = z.infer<typeof UserMessageSchema>;
-export type AssistantMessage = z.infer<typeof AssistantMessageSchema>;
-export type ScheduledMessage = z.infer<typeof ScheduledMessageSchema>;
+const sourceUIPartSchema = z.object({
+  type: z.literal("source"),
+  source: z.object({}).passthrough(), // LanguageModelV1Source structure
+});
 
-export { ChatMessagesSchema };
+const fileUIPartSchema = z.object({
+  type: z.literal("file"),
+  mimeType: z.string(),
+  data: z.string(), // base64 encoded data
+});
+
+const stepStartUIPartSchema = z.object({
+  type: z.literal("step-start"),
+});
+
+const uiPartSchema = z.union([
+  textUIPartSchema,
+  reasoningUIPartSchema,
+  toolInvocationUIPartSchema,
+  sourceUIPartSchema,
+  fileUIPartSchema,
+  stepStartUIPartSchema,
+]);
+
+// Define the Attachment schema
+const attachmentSchema = z.object({
+  name: z.string().optional(),
+  contentType: z.string().optional(),
+  url: z.string(),
+});
+
+// Complete Message schema based on the imported type from UI utils
+const chatMessageSchema = z.object({
+  id: z.string(),
+  createdAt: z.string().optional(),
+  content: z.string(),
+  reasoning: z.string().optional(),
+  experimental_attachments: z.array(attachmentSchema).optional(),
+  role: z.union([
+    z.literal("system"),
+    z.literal("user"),
+    z.literal("assistant"),
+    z.literal("data"),
+  ]),
+  data: jsonValueSchema.optional(),
+  annotations: z.array(jsonValueSchema).optional(),
+  toolInvocations: z.array(toolInvocationSchema).optional(),
+  parts: z.array(uiPartSchema).optional(),
+});
+
+// Schema for RequestInit fields that are allowed in IncomingMessage
+const requestInitSchema = z.object({
+  method: z.string().optional(),
+  keepalive: z.boolean().optional(),
+  headers: z.record(z.string()).or(z.instanceof(Headers)).optional(),
+  body: z.any().optional(), // Could be string, FormData, etc.
+  redirect: z.enum(["follow", "error", "manual"]).optional(),
+  integrity: z.string().optional(),
+  credentials: z.enum(["omit", "same-origin", "include"]).optional(),
+  mode: z.enum(["cors", "no-cors", "same-origin", "navigate"]).optional(),
+  referrer: z.string().optional(),
+  referrerPolicy: z
+    .enum([
+      "",
+      "no-referrer",
+      "no-referrer-when-downgrade",
+      "same-origin",
+      "origin",
+      "strict-origin",
+      "origin-when-cross-origin",
+      "strict-origin-when-cross-origin",
+      "unsafe-url",
+    ])
+    .optional(),
+  window: z.any().optional(), // This might need refinement depending on use case
+});
+
+export const agentChatMessagesSchema = z.object({
+  type: z.literal("cf_agent_chat_messages"),
+  messages: z.array(chatMessageSchema),
+});
+
+export const agentUseChatResponseSchema = z.object({
+  type: z.literal("cf_agent_use_chat_response"),
+  id: z.string(),
+  body: z.string(),
+  done: z.boolean(),
+});
+
+export const agentChatClearSchema = z.object({
+  type: z.literal("cf_agent_chat_clear"),
+});
+
+export const agentStateSchema = z.object({
+  type: z.literal("cf_agent_state"),
+  state: z.unknown(),
+});
+
+export const agentUseChatRequestSchema = z.object({
+  type: z.literal("cf_agent_use_chat_request"),
+  id: z.string(),
+  init: requestInitSchema,
+  url: z.string().optional(),
+});
+// IncomingMessage schema
+export const incomingMessageSchema = z.discriminatedUnion("type", [
+  agentUseChatRequestSchema,
+  agentChatClearSchema,
+  agentChatMessagesSchema,
+  agentStateSchema,
+]);
+
+// OutgoingMessage schema
+export const outgoingMessageSchema = z.discriminatedUnion("type", [
+  agentChatMessagesSchema,
+  agentUseChatResponseSchema,
+  agentChatClearSchema,
+  agentStateSchema,
+]);
+
+// Export types inferred from the schemas
+export type IncomingMessage = z.infer<typeof incomingMessageSchema>;
+export type OutgoingMessage = z.infer<typeof outgoingMessageSchema>;
+
+// Helper functions to validate messages
+export function validateIncomingMessage(message: unknown): IncomingMessage {
+  return incomingMessageSchema.parse(message);
+}
+
+export function validateOutgoingMessage(message: unknown): OutgoingMessage {
+  return outgoingMessageSchema.parse(message);
+}
+
+// Safe parsers that return success/error instead of throwing
+export function safeParseIncomingMessage(message: unknown) {
+  return incomingMessageSchema.safeParse(message);
+}
+
+export function safeParseOutgoingMessage(message: unknown) {
+  return outgoingMessageSchema.safeParse(message);
+}
+
+// Define a more specific type for HTTP request payloads
+export interface HttpRequestPayload {
+  method?: string;
+  url?: string;
+  headers?: Record<string, string>;
+  body?: unknown;
+  [key: string]: unknown;
+}
+
+export interface HttpResponsePayload {
+  status: number;
+  statusText: string;
+  headers: Record<string, string>;
+  url: string;
+  method: string;
+  body?: unknown;
+  [key: string]: unknown;
+}

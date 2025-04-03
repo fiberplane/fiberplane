@@ -33,7 +33,6 @@ export function EventCategoriesFilter(props: AgentInstanceParameters) {
 
   return (
     <div className="flex items-center gap-2">
-      <ListFilter className="w-3.5 h-3.5" />Filter
       <FpDropdownMenu>
         <FpDropdownMenuTrigger
           className={cn(
@@ -45,10 +44,11 @@ export function EventCategoriesFilter(props: AgentInstanceParameters) {
             "data-[state=open]:bg-muted",
             "rounded-sm",
             "group/dropdown",
-            "py-1"
+            "py-1",
           )}
         >
-          <div className="grow-1 w-full text-start text-sm text-muted-foreground px-2">
+          <div className="grow-1 w-full text-start text-sm text-muted-foreground px-2 flex gap-1 items-center">
+            <ListFilter className="w-3.5 h-3.5 text-foreground" />
             {selectedCategories.length === AllEventCategories.length ? (
               "All categories"
             ) : (

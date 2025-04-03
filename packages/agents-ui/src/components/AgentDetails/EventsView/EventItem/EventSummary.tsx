@@ -1,26 +1,15 @@
 import { Method } from "@/components/Method";
-import { ExpandableJSONViewer } from "../JSONViewer";
-import type { AgentEventType, EventPayload } from "@/hooks";
-import type { ReactNode } from "react";
-import { ChatMessagesSchema, MessagePayloadSchema } from "@/types";
-import type { AgentEvent, CombinedEvent } from "@/store";
 import { StatusCode } from "@/components/StatusCode";
-
-// Define a more specific type for HTTP request payloads
-interface HttpRequestPayload {
-  method?: string;
-  url?: string;
-  headers?: Record<string, string>;
-  body?: unknown;
-  [key: string]: unknown;
-}
-
-interface HttpResponsePayload {
-  status: number;
-  statusText: string;
-  headers: Record<string, string>;
-  [key: string]: unknown;
-}
+import type { AgentEventType, EventPayload } from "@/hooks";
+import type { AgentEvent, CombinedEvent } from "@/store";
+import {
+  type HttpRequestPayload,
+  type HttpResponsePayload,
+  MessagePayloadSchema,
+  outgoingMessageSchema,
+} from "@/types";
+import { incomingMessageSchema } from "@/types";
+import { ExpandableJSONViewer } from "../JSONViewer";
 
 // Helper function to format the URL for display
 const formatUrl = (url: string): string => {
@@ -32,16 +21,14 @@ const formatUrl = (url: string): string => {
   }
 };
 
-
-
 // HTTP Request details component
 const HttpRequestDetails = ({ payload }: { payload: HttpRequestPayload }) => {
-  const { method = "GET", url = "", headers = {} } = payload;
+  const { method = "GET", url = "" } = payload;
   const displayUrl = typeof url === "string" ? formatUrl(url) : "";
 
   return (
-    <div className="mt-1 text-sm grid-cols-[auto_1fr] grid gap-2">
-      <Method method={method} />{" "}
+    <div className="text-sm grid-cols-[auto_1fr] grid gap-2">
+      <Method method={method} />
       <span className="font-mono text-muted-foreground">{displayUrl}</span>
       {!!payload.body && typeof payload.body === "object" && (
         <ExpandableJSONViewer
@@ -55,62 +42,139 @@ const HttpRequestDetails = ({ payload }: { payload: HttpRequestPayload }) => {
 
 // HTTP Request details component
 const HttpResponseDetails = ({ payload }: { payload: HttpResponsePayload }) => {
-  const { status, headers } = payload;
+  const { status, url, method } = payload;
+  const displayUrl = typeof url === "string" ? formatUrl(url) : "";
   return (
-    <div className="mt-1 text-sm grid-cols-[auto_1fr] flex items-center gap-2">
+    <div className="text-sm grid-cols-[auto_1fr] flex items-center gap-2">
       <StatusCode status={status} isFailure={false} />
-      {!!headers && (
-        <ExpandableJSONViewer
-          data={headers}
-          label="Response Headers"
-          className="text-muted-foreground"
-        />
-      )}
+      <Method method={method} />
+      <span className="font-mono text-muted-foreground">{displayUrl}</span>
     </div>
   );
 };
+
+function createMessage({
+  type,
+  payload,
+}: { type: AgentEventType; payload: EventPayload }) {
+  // console.log("type", type, payload);
+  switch (type) {
+    case "http_request":
+      return "HTTP request sent";
+    case "http_response":
+      return "HTTP response received";
+    case "state_change":
+      return "Agent state updated";
+    case "stream_open":
+      return "Stream opened";
+    case "stream_close":
+      return "Stream closed";
+    case "stream_error":
+      return "Stream error";
+    case "broadcast": {
+      try {
+        return extractOutgoingMessage(payload);
+      } catch {
+        // swallow error
+        return "Broadcast message sent";
+      }
+    }
+    case "ws_open":
+      return "WebSocket connected";
+    case "ws_close":
+      return "WebSocket disconnected";
+    case "ws_message": {
+      try {
+        return extractIncomingMessage(payload);
+      } catch {
+        // swallow error
+      }
+      return "WebSocket message";
+    }
+    default: {
+      return "WebSocket event";
+    }
+  }
+}
+
+function extractIncomingMessage(payload: EventPayload) {
+  const { message: messageProp } = MessagePayloadSchema.parse(payload);
+  if (messageProp && typeof messageProp === "object" && "type" in messageProp) {
+    const validated = incomingMessageSchema.safeParse(messageProp);
+    if (validated.success) {
+      if (validated.data.type === "cf_agent_chat_clear") {
+        return "Clear chat";
+      }
+      if (validated.data.type === "cf_agent_chat_messages") {
+        const chatMessage = validated.data;
+        return `Receiving messages (${chatMessage.messages.length} total)`;
+      }
+      if (validated.data.type === "cf_agent_use_chat_request") {
+        const chatMessage = validated.data;
+        if (chatMessage.url === "/api/chat") {
+          const body = chatMessage.init.body;
+          const parsedBody = JSON.parse(body);
+          return (
+            <div className="flex gap-2">
+              “{parsedBody.messages[parsedBody.messages.length - 1].content}”
+            </div>
+          );
+        }
+        console.log(
+          "what? not the right url",
+          chatMessage.url,
+          "not",
+          chatMessage.url === "/api/chat",
+        );
+        // console.log('chatMessage', chatMessage);
+        return (
+          <div className="flex gap-2">
+            {chatMessage.init.method && (
+              <Method method={chatMessage.init.method} />
+            )}
+            {chatMessage.url && (
+              <span className="font-mono text-muted-foreground">
+                {formatUrl(chatMessage.url)}
+              </span>
+            )}
+          </div>
+        );
+        // return `Chat response (${chatMessage.body.length} total)`;
+      }
+    }
+
+    // console.log('not valid', { error: validated.error, messageProp });
+    return `${messageProp.type}`;
+  }
+}
+
+function extractOutgoingMessage(payload: EventPayload) {
+  const { message: messageProp } = MessagePayloadSchema.parse(payload);
+  if (messageProp && typeof messageProp === "object" && "type" in messageProp) {
+    const validated = outgoingMessageSchema.safeParse(messageProp);
+    if (validated.success) {
+      if (validated.data.type === "cf_agent_chat_clear") {
+        return "Chat clear";
+      }
+      if (validated.data.type === "cf_agent_chat_messages") {
+        const chatMessage = validated.data;
+        return `Sending messages (${chatMessage.messages.length} total)`;
+      }
+      if (validated.data.type === "cf_agent_use_chat_response") {
+        const chatMessage = validated.data;
+        return `Chat response (${chatMessage.body.length} bytes)`;
+      }
+    }
+  }
+  return JSON.stringify(payload);
+}
 
 // WebSocket message details component
 const WebSocketDetails = ({
   type,
   payload,
 }: { type: AgentEventType; payload: EventPayload }) => {
-  let message: ReactNode = "WebSocket event";
-
-  if (type === "ws_open") {
-    message = "WebSocket connection opened";
-  } else if (type === "ws_close") {
-    message = "WebSocket connection closed";
-  } else if (type === "ws_message") {
-    message = "WebSocket message received";
-  } else if (type === "ws_send") {
-    message = "WebSocket message sent";
-  } else if (type === "broadcast") {
-    try {
-      // const parsed = "message" in payload && payload.JSON.parse(payload.message);
-      const { message: messageProp } = MessagePayloadSchema.parse(payload);
-      if (
-        messageProp &&
-        typeof messageProp === "object" &&
-        "type" in messageProp
-      ) {
-        // console.log('messageProp', messageProp)
-        const chatMessageValidation = ChatMessagesSchema.safeParse(messageProp);
-        console.log('chatMessageValidation', chatMessageValidation.success, chatMessageValidation.error);
-        if (chatMessageValidation.success) {
-          const chatMessage = chatMessageValidation.data;
-          message = `Chat messages (${chatMessage.messages.length} total)`;
-        } else {
-          message = `${messageProp.type}`;
-        }
-      }
-      // parsed
-    } catch {
-      // swallow error
-      message = "Broadcast message sent";
-    }
-  }
-
+  const message = createMessage({ type, payload });
   return <div className="mt-1 text-sm text-muted-foreground">{message}</div>;
 };
 
@@ -145,7 +209,6 @@ const StreamEventDetails = ({
 
   return <div className="mt-1 text-sm">{message}</div>;
 };
-
 
 // Main event summary component that selects the appropriate details component
 export const EventSummary = ({
@@ -182,10 +245,13 @@ export const EventSummary = ({
   }
 
   if (type === "combined_event") {
-    const { chunks, done } = payload as CombinedEvent["payload"];
-    const message = done
-      ? `Combined event (${chunks.length} parts)`
-      : "Broadcast (events) in progress";
+    const { chunks, done, type } = payload as CombinedEvent["payload"];
+    const typeSummary =
+      type === "cf_agent_use_chat_response" ? "Streaming chat response" : type;
+    const message =
+      type === "cf_agent_use_chat_response" && done
+        ? `${typeSummary}  (${chunks.length} parts)`
+        : `Broadcast (${typeSummary}) in progress`;
     return (
       <div className="mt-1 text-sm text-muted-foreground flex flex-col gap-1">
         {message}

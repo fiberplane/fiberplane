@@ -1,12 +1,20 @@
+import { KeyValueTable } from "@/components/KeyValueTable";
 import {
-  type AgentEventType,
-  type CoreAgentEvent,
-  type EventPayload,
-  useTimeAgo,
-} from "@/hooks";
+  FpTabs,
+  FpTabsContent,
+  FpTabsList,
+  FpTabsTrigger,
+} from "@/components/ui/tabs";
+import { type AgentEventType, type CoreAgentEvent, useTimeAgo } from "@/hooks";
 import { cn } from "@/lib/utils";
-import type { AgentEvent, CombinedEvent } from "@/store";
-import { MessagePayloadSchema } from "@/types";
+import type { CombinedEvent } from "@/store";
+import {
+  type HttpRequestPayload,
+  type HttpResponsePayload,
+  MessagePayloadSchema,
+  type OutgoingMessage,
+  outgoingMessageSchema,
+} from "@/types";
 import {
   AlertCircle,
   ArrowLeft,
@@ -16,18 +24,15 @@ import {
   Info,
   LayoutDashboard,
   Phone,
-  PhoneIncoming,
   PhoneOff,
-  PhoneOutgoing,
   RadioTower,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
-import { Method } from "../../../Method";
+import { useState } from "react";
 import { Badge } from "../../../ui/badge";
-import { Button } from "../../../ui/button";
-import { CaretDownIcon, CaretRightIcon } from "@radix-ui/react-icons";
-import { ExpandableJSONViewer, JSONViewer } from "../JSONViewer";
+import { MessageItem } from "../../ChatMessageTableView";
+import { JSONViewer } from "../JSONViewer";
 import { EventSummary } from "./EventSummary";
+import { EventItemDetails } from "./EventItemDetails";
 
 // Get an icon based on event type
 const getEventIcon = (type: CombinedEvent["type"] | AgentEventType) => {
@@ -37,24 +42,32 @@ const getEventIcon = (type: CombinedEvent["type"] | AgentEventType) => {
         <div className="relative">
           <Globe className="w-3.5 h-3.5 text-muted-foreground" />
           <ArrowLeft className="w-2.5 h-2.5 absolute bottom-[5px] -right-1 text-foreground" />
-          {/* <ArrowLeft className="w-3 h-3 absolute -bottom-1 -right-1" /> */}
         </div>
       );
     case "http_response":
       return (
         <div className="relative">
           <Globe className="w-3.5 h-3.5 text-muted-foreground" />
-          <ArrowRight className="w-3 h-3 absolute -bottom-1 -right-1 text-foreground" />
+          <ArrowRight className="w-2.5 h-2.5 absolute bottom-[5px] -right-1 text-foreground" />
         </div>
       );
     case "ws_send":
-      return <PhoneOutgoing className="w-3.5 h-3.5" />;
+      return (
+        <div className="relative" title="Websocket message sent to client">
+          <div className="relative" title="WebSocket message received">
+            <Phone className="w-3.5 h-3.5 text-muted-foreground -ml-0.5" />
+            <ArrowRight className="w-2.5 h-2.5 absolute bottom-[5px] -right-1 text-foreground" />
+          </div>
+        </div>
+      );
+
     case "ws_message":
-      // return <PhoneIncoming className="w-3.5 h-3.5" />;
-      return (<div className="relative">
-        <Phone className="w-3.5 h-3.5 text-muted-foreground -ml-0.5" />
-        <ArrowLeft className="w-2.5 h-2.5 absolute bottom-[5px] -right-1 text-foreground" />
-      </div>)
+      return (
+        <div className="relative" title="WebSocket message received">
+          <Phone className="w-3.5 h-3.5 text-muted-foreground -ml-0.5" />
+          <ArrowLeft className="w-2.5 h-2.5 absolute bottom-[5px] -right-1 text-foreground" />
+        </div>
+      );
 
     case "ws_open":
       return <Phone className="w-3.5 h-3.5" />;
@@ -62,7 +75,11 @@ const getEventIcon = (type: CombinedEvent["type"] | AgentEventType) => {
       return <PhoneOff className="w-3.5 h-3.5" />;
     case "broadcast":
     case "combined_event":
-      return <RadioTower className="w-3.5 h-3.5" />;
+      return (
+        <div title="Broadcast are sent to all connected clients">
+          <RadioTower className="w-3.5 h-3.5 text-foreground" />
+        </div>
+      );
     case "state_change":
       return <LayoutDashboard className="w-3.5 h-3.5" />;
     case "stream_open":
@@ -94,7 +111,6 @@ const getEventVariant = (
   }
 };
 
-
 // Single event item component
 export const EventItem = ({
   event,
@@ -116,53 +132,53 @@ export const EventItem = ({
     <div className="@container/event">
       <div
         className={cn(
-          "p-3 @xl/event:p-0 grid",
           "bg-muted/20",
           "border @xl/event:border-0 border-border rounded-lg",
-          "grid-cols-1 gap-1 @xl/event:gap-y-0",
-          "[grid-template-areas:'badge_badge_time'_'summary_summary_summary'_'details_details_details']",
-          "@xl/event:[grid-template-areas:'badge_summary_time'_'details_details_details']",
-          "@xl/event:grid-cols-[auto_1fr_auto]",
-          "items-center",
+          "flex flex-col gap-1 @xl/event:gap-y-0",
         )}
       >
-        <div className="[grid-area:badge] grid">
-          <div className="w-fit px-2 py-1 mt-0.5 flex items-center gap-1">
-            <Button
-              size="icon-xs"
-              variant="ghost"
-              onClick={() => setExpanded(!expanded)}
-            >
-              {expanded ? (
-                <CaretDownIcon className="w-3 h-3" />
-              ) : (
-                <CaretRightIcon className="w-3 h-3" />
-              )}
-            </Button>
-            <Badge
-              variant={getEventVariant(event.type)}
-              className="flex items-center gap-1 py-1 px-1 opacity-80 text-xs font-normal"
-              title={event.type}
-            >
-              {getEventIcon(event.type)}
-              <span className="@xl/event:hidden hidden @xs/event:block">
-                {event.type}
-              </span>
-            </Badge>
+        <button
+          className={cn(
+            "grid grid-cols-1 gap-1 @xl/event:gap-y-0",
+            "[grid-template-areas:'badge_badge_time'_'summary_summary_summary']",
+            "@xl/event:[grid-template-areas:'badge_summary_time']",
+            "@xl/event:grid-cols-[auto_1fr_auto]",
+            "hover:bg-muted",
+            "p-3",
+            "text-start",
+            "items-center",
+            "rounded-lg",
+            "@xl/event:p-0",
+            "@xl/event:pr-2",
+            "cursor-pointer",
+          )}
+          onClick={() => setExpanded(!expanded)}
+          type="button"
+        >
+          <div className="[grid-area:badge] grid">
+            <div className="w-fit px-2 py-1 flex items-center gap-1">
+              <Badge
+                variant={getEventVariant(event.type)}
+                className="flex items-center gap-1 py-1 px-1 opacity-80 text-xs font-normal"
+                title={event.type}
+              >
+                {getEventIcon(event.type)}
+                <span className="@xl/event:hidden hidden @xs/event:block">
+                  {event.type}
+                </span>
+              </Badge>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center text-sm text-muted-foreground justify-end [grid-area:time] gap-2">
-          <Clock className="w-3.5" />
-          {formattedDate}
-        </div>
+          <div className="flex items-center text-sm text-muted-foreground justify-end [grid-area:time] gap-2">
+            <Clock className="w-3.5" />
+            {formattedDate}
+          </div>
 
-        <div className="[grid-area:summary] ml-2.5 @xl/event:ml-0">
-          <EventSummary type={event.type} payload={event.payload} />
-        </div>
-
-        {expanded && (
-          <JSONViewer data={payload} className="[grid-area:details] py-1" />
-        )}
+          <div className="[grid-area:summary] ml-2.5 @xl/event:ml-0">
+            <EventSummary type={event.type} payload={event.payload} />
+          </div>
+        </button>
+        {expanded && <EventItemDetails event={event} />}
       </div>
     </div>
   );
