@@ -1,10 +1,11 @@
-import { combine } from "zustand/middleware";
-import { EMPTY_COMBINED_EVENTS } from "./ui";
+import type { CoreAgentEvent } from "@/hooks";
 import { MessagePayloadSchema, agentUseChatResponseSchema } from "@/types";
 import type { agentChatMessagesSchema } from "@/types";
-import type { CoreAgentEvent } from "@/hooks";
+import type { ToolCall, ToolResult } from "ai";
 import type { z } from "zod";
-import { parseEventBody, updateCombinedEvent } from "./utils";
+import { combine } from "zustand/middleware";
+import { EMPTY_COMBINED_EVENTS } from "./ui";
+import { updateCombinedEvent } from "./utils";
 
 // Agent slice
 export type InstanceDetails = {
@@ -31,8 +32,10 @@ type UseChatResponseCombinedEventPayload = {
   done: boolean;
   metadata: {
     messageId?: string;
-    toolCalls: Record<string, unknown>[];
-    toolResults: Record<string, unknown>[];
+    // biome-ignore lint/suspicious/noExplicitAny: the default type is any
+    toolCalls: ToolCall<string, any>[];
+    // biome-ignore lint/suspicious/noExplicitAny: the default type is any
+    toolResults: Omit<ToolResult<string, any, any>, "toolName" | "args">[];
     status?: Record<string, unknown> | null;
   };
 };
@@ -86,11 +89,6 @@ export const agentSlice = combine<AgentState, AgentActions>(
         // Always add the raw event to events array
         const events = [...instanceDetails.events, event];
 
-        // console.log("Adding event", event);
-        if (event.type === "http_response") {
-          console.log("Broadcast event", event);
-        }
-
         // Make a copy of existing combinedEvents and knownBroadcastEvents
         let combinedEvents = [
           ...(instanceDetails.combinedEvents || EMPTY_COMBINED_EVENTS),
@@ -114,41 +112,16 @@ export const agentSlice = combine<AgentState, AgentActions>(
                 const existingEvent = knownBroadcastEvents[id];
 
                 if (existingEvent.payload.type === parsed.data.type) {
-                  // Add this chunk to the existing event
-                  // existingEvent.payload.chunks.push({
-                  //   ...typedEvent,
-                  //   payload: parsed.data,
-                  // });
-                  // existingEvent.payload.chunks.push(parsed.data);
-
-                  // existingEvent.payload.content += body;
-
-                  // // Update the combined content
-                  // existingEvent.content = existingEvent.chunks
-                  //   .map(chunk => {
-                  //     try {
-                  //       const parsedChunk = JSON.parse(chunk.payload.message);
-                  //       return parsedChunk.body || "";
-                  //     } catch {
-                  //       return "";
-                  //     }
-                  //   })
-                  //   .join("");
-
-                  // Update done status
-                  // existingEvent.payload.done = done;
-                  const updatedEvent = { ...existingEvent };
-                  updateCombinedEvent(updatedEvent, parsed.data);
+                  const newEvent = { ...existingEvent };
+                  updateCombinedEvent(newEvent, parsed.data);
 
                   // Replace the existing event in the combined events array
                   combinedEvents = combinedEvents.map((e) =>
-                    e.type === "combined_event" && e.id === id
-                      ? updatedEvent
-                      : e,
+                    e.type === "combined_event" && e.id === id ? newEvent : e,
                   );
 
                   // Update in known events
-                  knownBroadcastEvents[id] = existingEvent;
+                  knownBroadcastEvents[id] = newEvent;
                 } else {
                   console.warn(
                     `Event type mismatch for ID ${id}: ${existingEvent.payload.type} vs ${parsed.data.type}`,

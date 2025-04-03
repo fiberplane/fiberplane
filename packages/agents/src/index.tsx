@@ -11,7 +11,6 @@ import type { AgentEvent } from "./types";
 import {
   createRequestPayload,
   createResponsePayload,
-  headersToObject,
   isDurableObjectNamespace,
   isPromiseLike,
   toKebabCase,
@@ -284,9 +283,9 @@ export function Fiber<E = unknown, S = unknown>() {
               typeof msg === "string"
                 ? msg
                 : {
-                  type: "binary",
-                  size: msg instanceof Blob ? msg.size : msg.byteLength,
-                },
+                    type: "binary",
+                    size: msg instanceof Blob ? msg.size : msg.byteLength,
+                  },
             without,
           },
         });
@@ -315,12 +314,12 @@ export function Fiber<E = unknown, S = unknown>() {
                       typeof message === "string"
                         ? message
                         : {
-                          type: "binary",
-                          size:
-                            message instanceof Blob
-                              ? message.size
-                              : message.byteLength,
-                        },
+                            type: "binary",
+                            size:
+                              message instanceof Blob
+                                ? message.size
+                                : message.byteLength,
+                          },
                   },
                 });
 
@@ -373,13 +372,13 @@ export function Fiber<E = unknown, S = unknown>() {
         code: number,
         reason: string,
         wasClean: boolean,
-      ): void {
+      ): void | Promise<void> {
         this.recordEvent({
           event: "ws_close",
           payload: { connection, code, reason, wasClean },
         });
 
-        super.onClose(connection, code, reason, wasClean);
+        return super.onClose(connection, code, reason, wasClean);
       }
 
       onRequest(request: Request): Response | Promise<Response> {
@@ -399,7 +398,6 @@ export function Fiber<E = unknown, S = unknown>() {
           this.fiberRouter = createAgentAdminRouter(this);
         }
 
-
         this.fiberRouter.notFound(() => {
           // Extract url & method for re-use in the response payload
           const { url, method } = request;
@@ -413,13 +411,13 @@ export function Fiber<E = unknown, S = unknown>() {
               payload: await createRequestPayload(
                 request.clone() as typeof request,
               ),
-            })
+            });
           });
           const result = super.onRequest(request);
 
           // eventPromise.then()
           if (isPromiseLike(result)) {
-            return result.then(async (res) => {
+            return Promise.all([result, eventPromise]).then(async ([res]) => {
               const payload = await createResponsePayload(res.clone());
               this.recordEvent({
                 event: "http_response",
@@ -474,8 +472,8 @@ function createFpApp() {
         const durableObjects =
           c.env && typeof c.env === "object"
             ? (Object.entries(c.env as Record<string, unknown>).filter(
-              ([key, value]) => isDurableObjectNamespace(value),
-            ) as Array<[string, DurableObjectNamespace]>)
+                ([key, value]) => isDurableObjectNamespace(value),
+              ) as Array<[string, DurableObjectNamespace]>)
             : [];
         for (const [name] of durableObjects) {
           // See if we're aware of an agent with the same id

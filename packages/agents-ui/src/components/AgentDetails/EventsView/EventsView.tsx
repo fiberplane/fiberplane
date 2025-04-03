@@ -55,10 +55,9 @@ export function EventsView(props: AgentInstanceParameters) {
       });
   }, [events, visibleEventTypes]);
 
-  console.log("sortedEvents", sortedEvents, events);
   return (
     <div>
-      <div className="grid items-center grid-cols-[1fr_auto] gap-2 border-b border-border pb-4 mb-2">
+      <div className="grid items-center grid-cols-[1fr_auto] gap-2 border-b border-border px-2 pb-2">
         <StreamConnectionStatus
           instance={props.instance}
           namespace={props.namespace}
@@ -90,19 +89,21 @@ export function EventsView(props: AgentInstanceParameters) {
         </div>
       </div>
 
-      {sortedEvents.length === 0 ? (
-        <div className="text-sm text-muted-foreground py-4 text-center">
-          {events.length === 0
-            ? "No events captured yet."
-            : "Filtered selection has no events."}
-        </div>
-      ) : (
-        <div className="space-y-1">
-          {sortedEvents.map((event, idx) => (
-            <EventItem key={`${event.id}`} event={event} />
-          ))}
-        </div>
-      )}
+      <div className="p-2">
+        {sortedEvents.length === 0 ? (
+          <div className="text-sm text-muted-foreground py-4 text-center">
+            {events.length === 0
+              ? "No events captured yet."
+              : "Filtered selection has no events."}
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {sortedEvents.map((event, idx) => (
+              <EventItem key={`${event.id}`} event={event} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

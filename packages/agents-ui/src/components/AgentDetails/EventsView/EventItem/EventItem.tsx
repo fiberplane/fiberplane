@@ -1,20 +1,6 @@
-import { KeyValueTable } from "@/components/KeyValueTable";
-import {
-  FpTabs,
-  FpTabsContent,
-  FpTabsList,
-  FpTabsTrigger,
-} from "@/components/ui/tabs";
 import { type AgentEventType, type CoreAgentEvent, useTimeAgo } from "@/hooks";
 import { cn } from "@/lib/utils";
 import type { CombinedEvent } from "@/store";
-import {
-  type HttpRequestPayload,
-  type HttpResponsePayload,
-  MessagePayloadSchema,
-  type OutgoingMessage,
-  outgoingMessageSchema,
-} from "@/types";
 import {
   AlertCircle,
   ArrowLeft,
@@ -29,10 +15,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "../../../ui/badge";
-import { MessageItem } from "../../ChatMessageTableView";
-import { JSONViewer } from "../JSONViewer";
-import { EventSummary } from "./EventSummary";
 import { EventItemDetails } from "./EventItemDetails";
+import { EventSummary } from "./EventSummary";
 
 // Get an icon based on event type
 const getEventIcon = (type: CombinedEvent["type"] | AgentEventType) => {
@@ -139,12 +123,12 @@ export const EventItem = ({
       >
         <button
           className={cn(
-            "grid grid-cols-1 gap-1 @xl/event:gap-y-0",
+            "grid grid-cols-1 gap-x-1 @xl/event:gap-y-0",
             "[grid-template-areas:'badge_badge_time'_'summary_summary_summary']",
             "@xl/event:[grid-template-areas:'badge_summary_time']",
             "@xl/event:grid-cols-[auto_1fr_auto]",
             "hover:bg-muted",
-            "p-3",
+            "py-2 pr-2",
             "text-start",
             "items-center",
             "rounded-lg",

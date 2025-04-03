@@ -1,23 +1,24 @@
-import type { CoreAgentEvent } from "@/hooks";
-import type { CombinedEvent } from "@/store";
-import {
-  MessagePayloadSchema,
-  outgoingMessageSchema,
-  type HttpRequestPayload,
-  type HttpResponsePayload,
-  type OutgoingMessage,
-} from "@/types";
-import { JSONViewer } from "../JSONViewer";
-import { useState } from "react";
+import { KeyValueTable } from "@/components/KeyValueTable";
 import {
   FpTabs,
   FpTabsContent,
   FpTabsList,
   FpTabsTrigger,
 } from "@/components/ui/tabs";
-import { KeyValueTable } from "@/components/KeyValueTable";
-import { MessageItem } from "../../ChatMessageTableView";
+import type { CoreAgentEvent } from "@/hooks";
+import type { CombinedEvent } from "@/store";
+import {
+  type HttpRequestPayload,
+  type HttpResponsePayload,
+  MessagePayloadSchema,
+  type OutgoingMessage,
+  outgoingMessageSchema,
+} from "@/types";
+import { parseDataStreamPart } from "ai";
 import { Check, type CheckCheck } from "lucide-react";
+import { useState } from "react";
+import { MessageItem } from "../../ChatMessageTableView";
+import { JSONViewer } from "../JSONViewer";
 
 export function EventItemDetails(props: {
   event: CombinedEvent | CoreAgentEvent;
@@ -221,7 +222,7 @@ function CombinedEventDetails(props: {
 }) {
   const { event } = props;
   const [activeTab, setActiveTab] = useState("summary");
-  const { chunks, done, type } = event.payload;
+  const { chunks, type } = event.payload;
   return (
     <FpTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <FpTabsList className="bg-transparent">
@@ -260,7 +261,6 @@ function CombinedEventSummary(
   props: Pick<CombinedEvent["payload"], "content" | "done" | "metadata">,
 ) {
   const { content, done, metadata } = props;
-  console.log("metadata", metadata);
   const data = {
     content,
     done: done ? <Check className="text-success" /> : "In progress",
@@ -287,7 +287,7 @@ function CombinedEventChunks(props: {
       {props.chunks.map((chunk, index) => (
         <JSONViewer
           key={index}
-          data={chunk}
+          data={chunk.body ? parseDataStreamPart(chunk.body) : {}}
           className="py-1"
           label={`Chunk ${index + 1}`}
         />

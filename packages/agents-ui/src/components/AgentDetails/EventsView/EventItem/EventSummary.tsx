@@ -164,6 +164,10 @@ function extractOutgoingMessage(payload: EventPayload) {
         const chatMessage = validated.data;
         return `Chat response (${chatMessage.body.length} bytes)`;
       }
+
+      if (validated.data.type === "cf_agent_state") {
+        return "Synchronizing state";
+      }
     }
   }
   return JSON.stringify(payload);
