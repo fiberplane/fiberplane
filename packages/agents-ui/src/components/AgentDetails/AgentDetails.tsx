@@ -2,12 +2,15 @@ import { useAgentDB } from "@/hooks";
 import { useAgentInstanceEvents, useFilteredEvents } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { type SSEStatus, usePlaygroundStore } from "@/store";
-import type { ListAgentsResponse } from "@/types";
-import { TabsContent } from "@radix-ui/react-tabs";
-import { Database, History, ListIcon } from "lucide-react";
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import type { AgentInstanceParameters, ListAgentsResponse } from "@/types";
+import { History, ListIcon } from "lucide-react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { KeyValueTable } from "../KeyValueTable";
-import { ListSection } from "../ListSection";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "../ui/resizable";
 import { FpTabs, FpTabsContent, FpTabsList, FpTabsTrigger } from "../ui/tabs";
 import {
   ChatMessagesRenderer,
@@ -42,7 +45,7 @@ export function AgentDetails({
   }, [refetch]);
 
   const [activeTab, setActiveTab] = useState("");
-  const [sideBarTab, setSideBarTab] = useState("details");
+  const [sideBarTab, setSideBarTab] = useState("events");
   useEffect(() => {
     if (!db || activeTab !== "") {
       return;
@@ -113,95 +116,77 @@ export function AgentDetails({
   }, [db]);
 
   return (
-    <ListSection
-      title={
-        <div className="flex gap-2">
-          Agent:
-          <span className="font-bold text-neutral-500">
-            {agentDetails.id} - {instance}
-          </span>
-        </div>
-      }
-      className="h-full"
-      contentClassName="h-full"
-    >
-      <div className="flex flex-col gap-2 grid-rows-2 lg:grid lg:grid-rows-1 h-full lg:grid-cols-[auto_auto]">
+    <ResizablePanelGroup direction="horizontal" id="layout" className="w-full">
+      <ResizablePanel id="left" order={0}>
         <FpTabs
           value={activeTab}
           onValueChange={setActiveTab}
           className={cn(
             "grid grid-rows-[auto_1fr]",
-            // NOTE - This max-height is necessary to allow overflow to be scrollable
             "max-h-fit overflow-hidden",
             "lg:overflow-scroll",
           )}
         >
-          <FpTabsList className="bg-transparent">
+          <FpTabsList>
             {tabContent.map(({ title, key }) => (
               <FpTabsTrigger key={key} value={key} className="flex gap-2">
-                <Database className="w-3.5" />
                 {title}
               </FpTabsTrigger>
             ))}
           </FpTabsList>
           {tabContent.map(({ key, content }) => (
-            <TabsContent key={key} value={key}>
+            <FpTabsContent key={key} value={key}>
               {content}
-            </TabsContent>
+            </FpTabsContent>
           ))}
         </FpTabs>
-        <div>
-          <FpTabs
-            value={sideBarTab}
-            onValueChange={setSideBarTab}
-            className={cn(
-              "grid grid-rows-[auto_1fr]",
-              // NOTE - This max-height is necessary to allow overflow to be scrollable
-              // "max-h-full",
-              "max-h-fit overflow-hidden",
-            )}
+      </ResizablePanel>
+      <ResizableHandle
+        hitAreaMargins={{ coarse: 20, fine: 10 }}
+        className="w-[1px]"
+      />
+      <ResizablePanel id="right" order={1}>
+        <FpTabs
+          value={sideBarTab}
+          onValueChange={setSideBarTab}
+          className={cn("grid grid-rows-[auto_1fr]", "h-full overflow-hidden")}
+        >
+          <FpTabsList>
+            <FpTabsTrigger value="events" className="flex gap-2">
+              <EventsTabLabel instance={instance} namespace={agentDetails.id} />
+            </FpTabsTrigger>
+            <FpTabsTrigger value="details" className="flex gap-2">
+              Details
+            </FpTabsTrigger>
+          </FpTabsList>
+          <FpTabsContent
+            value="details"
+            className={cn("min-h-0 overflow-hidden")}
           >
-            <FpTabsList className="bg-transparent">
-              <FpTabsTrigger value="details" className="flex gap-2">
-                <ListIcon className="w-3.5" />
-                Details
-              </FpTabsTrigger>
-              <FpTabsTrigger value="Events" className="flex gap-2">
-                <EventsTabLabel
-                  instance={instance}
-                  namespace={agentDetails.id}
-                />
-              </FpTabsTrigger>
-            </FpTabsList>
-            <FpTabsContent
-              value="details"
-              className={cn("min-h-0 overflow-hidden")}
-            >
-              <KeyValueTable
-                keyValue={{
-                  Name: agentDetails.id,
-                  ClassName: agentDetails.className,
-                  ScriptName: agentDetails.scriptName ?? "",
-                }}
-                className="border border-muted rounded-lg"
-                keyCellClassName="px-2"
-                valueCellClassName="px-2"
-              />
-            </FpTabsContent>
-            <FpTabsContent
-              value="Events"
-              className={cn("min-h-0 overflow-hidden")}
-            >
-              <EventsView namespace={agentDetails.id} instance={instance} />
-            </FpTabsContent>
-          </FpTabs>
-        </div>
-      </div>
-    </ListSection>
+            <KeyValueTable
+              keyValue={{
+                Name: agentDetails.id,
+                ClassName: agentDetails.className,
+                ScriptName: agentDetails.scriptName ?? "",
+              }}
+              className="border border-muted rounded-lg"
+              keyCellClassName="px-2"
+              valueCellClassName="px-2"
+            />
+          </FpTabsContent>
+          <FpTabsContent
+            value="events"
+            className={cn("min-h-0 overflow-hidden px-0 py-0")}
+          >
+            <EventsView namespace={agentDetails.id} instance={instance} />
+          </FpTabsContent>
+        </FpTabs>
+      </ResizablePanel>
+    </ResizablePanelGroup>
   );
 }
 
-function EventsTabLabel(props: { instance: string; namespace: string }) {
+function EventsTabLabel(props: AgentInstanceParameters) {
   const events = useFilteredEvents(props);
   const eventsCount = events.length;
   const eventStreamStatus = usePlaygroundStore(
@@ -212,7 +197,6 @@ function EventsTabLabel(props: { instance: string; namespace: string }) {
 
   return (
     <div className="flex gap-2 items-center">
-      <History className="w-3.5" />
       Events {eventsCount ? `(${eventsCount})` : null}{" "}
       <ConnectionStatus status={eventStreamStatus} />
     </div>

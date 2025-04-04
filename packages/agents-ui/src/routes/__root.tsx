@@ -2,9 +2,7 @@ import { Layout } from "@/components/Layout";
 import { useRouterContext } from "@/hooks";
 import { listAgentsQueryOptions } from "@/hooks/useListAgents";
 import type { RouterOptions } from "@/types";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 export const Route = createRootRouteWithContext<RouterOptions>()({
   component: RootComponent,
@@ -42,7 +40,7 @@ function RootComponent() {
   }
 
   return (
-    <div className="bg-background text-foreground text-sm min-h-dvh min-w-dvw grid p-2">
+    <div className="bg-popover text-foreground text-sm min-h-dvh min-w-dvw grid">
       <Outlet />
       {/* <TanStackRouterDevtools />
       <ReactQueryDevtools /> */}

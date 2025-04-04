@@ -34,8 +34,6 @@ interface MemoryState {
 // we use ALS to expose the agent context to the tools
 export const agentContext = new AsyncLocalStorage<ChatClient>();
 
-export { ChatClient };
-
 /**
  * Chat Agent implementation that handles real-time AI chat interactions
  */
@@ -94,6 +92,7 @@ class ChatClient extends AIChatAgent<Env, MemoryState> {
       return dataStreamResponse;
     });
   }
+
   async executeTask(description: string, task: Schedule<string>) {
     await this.saveMessages([
       ...this.messages,
@@ -109,7 +108,7 @@ class ChatClient extends AIChatAgent<Env, MemoryState> {
 /**
  * Worker entry point that routes incoming requests to the appropriate handler
  */
-export default {
+const worker = {
   fetch: fiberplane(
     async (request: Request, env: Env, ctx: ExecutionContext) => {
       if (!env.OPENAI_API_KEY) {
@@ -131,3 +130,5 @@ export default {
     },
   ),
 };
+
+export default worker;

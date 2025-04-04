@@ -25,7 +25,7 @@ export const sqlThemeAdditionalStyles = EditorView.theme({
 
 export const customTheme = EditorView.theme({
   "&": {
-    fontSize: "14px",
+    fontSize: "12px",
     // HACK
     background: "transparent !important",
   },

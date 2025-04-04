@@ -15,12 +15,14 @@ import {
 } from "./agentInstances";
 import type { AgentEvent } from "./types";
 import {
+  createRequestPayload,
+  createResponsePayload,
   isDurableObjectNamespace,
+  isPromiseLike,
   toKebabCase,
   tryCatch,
-  tryCatchAsync,
-} from "./utils";
-import type { z } from "zod";
+  tryCatchAsync
+} from "./util";
 
 const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
 const PARTYKIT_ROOM_HEADER = "x-partykit-room";
@@ -382,6 +384,68 @@ export function Observed<E = unknown, S = unknown>() {
         super.onStateUpdate(state as S, source);
       }
 
+      override broadcast(
+        msg: string | ArrayBuffer | ArrayBufferView,
+        without?: string[] | undefined,
+      ): void {
+        this.recordEvent({
+          event: "broadcast",
+          payload: {
+            message:
+              typeof msg === "string"
+                ? msg
+                : {
+                    type: "binary",
+                    size: msg instanceof Blob ? msg.size : msg.byteLength,
+                  },
+            without,
+          },
+        });
+
+        super.broadcast(msg, without);
+      }
+
+      // Create a proxy for a WebSocket-like object to intercept send calls
+      private createWebSocketProxy(connection: Connection): Connection {
+        const self = this;
+        return new Proxy(connection, {
+          get(target, prop, receiver) {
+            // Intercept the 'send' method
+            if (prop === "send") {
+              return function (
+                this: Connection,
+                message: string | ArrayBuffer | ArrayBufferView,
+              ) {
+                self.recordEvent({
+                  event: "ws_send",
+                  payload: {
+                    connection: {
+                      id: target.id,
+                    },
+                    message:
+                      typeof message === "string"
+                        ? message
+                        : {
+                            type: "binary",
+                            size:
+                              message instanceof Blob
+                                ? message.size
+                                : message.byteLength,
+                          },
+                  },
+                });
+
+                // Call the original send method
+                return Reflect.get(target, prop, receiver).call(this, message);
+              };
+            }
+
+            // Return other properties/methods unchanged
+            return Reflect.get(target, prop, receiver);
+          },
+        });
+      }
+
       onMessage(connection: Connection, message: WSMessage) {
         this.recordEvent({
           event: "ws_message",
@@ -393,7 +457,10 @@ export function Observed<E = unknown, S = unknown>() {
           },
         });
 
-        super.onMessage(connection, message);
+        const connectionProxy = this.createWebSocketProxy(connection);
+
+        // Use the original connection for the parent class
+        return super.onMessage(connectionProxy, message);
       }
 
       onConnect(connection: Connection, ctx: ConnectionContext) {
@@ -405,7 +472,11 @@ export function Observed<E = unknown, S = unknown>() {
           },
         });
 
-        super.onConnect(connection, ctx);
+        // Create a proxied connection to intercept send calls
+        const proxiedConnection = this.createWebSocketProxy(connection);
+
+        // Use the proxied connection for the parent class
+        return super.onConnect(proxiedConnection, ctx);
       }
 
       onClose(
@@ -413,13 +484,13 @@ export function Observed<E = unknown, S = unknown>() {
         code: number,
         reason: string,
         wasClean: boolean,
-      ): void {
+      ): void | Promise<void> {
         this.recordEvent({
           event: "ws_close",
           payload: { connection, code, reason, wasClean },
         });
 
-        super.onClose(connection, code, reason, wasClean);
+        return super.onClose(connection, code, reason, wasClean);
       }
 
       onRequest(request: Request): Response | Promise<Response> {
@@ -440,16 +511,56 @@ export function Observed<E = unknown, S = unknown>() {
             this as unknown as ObservedAgent,
           );
         }
-        this._fiberRouter.notFound(() => {
-          this.recordEvent({
-            event: "http_request",
-            payload: {
-              method: request.method,
-              url: request.url,
-              headers: request.headers,
-            },
+
+        this.fiberRouter.notFound(() => {
+          // Extract url & method for re-use in the response payload
+          const { url, method } = request;
+
+          // Create a promise chain to ensure the event is recorded
+          // since we may need to read the body of the request
+          const eventPromise = Promise.resolve().then(async () => {
+            this.recordEvent({
+              event: "http_request",
+              // Clone the request to avoid consuming the body
+              payload: await createRequestPayload(
+                request.clone() as typeof request,
+              ),
+            });
           });
-          return super.onRequest(request);
+          const result = super.onRequest(request);
+
+          // eventPromise.then()
+          if (isPromiseLike(result)) {
+            return Promise.all([result, eventPromise]).then(async ([res]) => {
+              const payload = await createResponsePayload(res.clone());
+              this.recordEvent({
+                event: "http_response",
+                payload: {
+                  ...payload,
+                  url,
+                  method,
+                },
+              });
+
+              return res;
+            });
+          }
+
+          const capturedResponse = result.clone();
+          eventPromise.then(async () => {
+            const payload = await createResponsePayload(capturedResponse);
+
+            this.recordEvent({
+              event: "http_response",
+              payload: {
+                ...payload,
+                url,
+                method,
+              },
+            });
+          });
+
+          return result;
         });
         return this._fiberRouter.fetch(request);
       }
