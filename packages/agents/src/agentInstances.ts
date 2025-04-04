@@ -1,4 +1,4 @@
-import { type KebabCase, toKebabCase } from "./util";
+import { type KebabCase, toKebabCase } from "./utils";
 
 type Namespace = KebabCase<string>;
 type AgentDetails = {
