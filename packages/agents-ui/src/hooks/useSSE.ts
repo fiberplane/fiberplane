@@ -1,5 +1,5 @@
 import { usePlaygroundStore } from "@/store";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { z } from "zod";
 
 export const AgentEventTypeSchema = z.enum([
@@ -214,7 +214,7 @@ export function useAgentInstanceEvents(namespace: string, instance: string) {
     autoConnect: false,
   };
 
-  const { connect, close } = useSSEConnection(
+  const { connect } = useSSEConnection(
     `/agents/${namespace}/${instance}/admin/events`,
     options,
   );

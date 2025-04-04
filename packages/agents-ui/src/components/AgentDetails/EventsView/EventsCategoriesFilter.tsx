@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { AllEventCategories, usePlaygroundStore } from "@/store";
 import type { AgentInstanceParameters } from "@/types";
 import { CaretSortIcon } from "@radix-ui/react-icons";
-import { ListFilter } from "lucide-react";
+import { Funnel } from "lucide-react";
 
 export function EventCategoriesFilter(props: AgentInstanceParameters) {
   const selectedCategories = usePlaygroundStore(
@@ -47,8 +47,8 @@ export function EventCategoriesFilter(props: AgentInstanceParameters) {
             "py-1",
           )}
         >
-          <div className="grow-1 w-full text-start text-sm text-muted-foreground px-2 flex gap-1 items-center">
-            <ListFilter className="w-3.5 h-3.5 text-foreground" />
+          <div className="grow-1 w-full text-start text-sm text-muted-foreground px-2 flex gap-2 items-center">
+            <Funnel className="w-3.5 h-3.5 text-foreground" />
             {selectedCategories.length === AllEventCategories.length ? (
               "All categories"
             ) : (

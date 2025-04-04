@@ -15,7 +15,7 @@ import {
   outgoingMessageSchema,
 } from "@/types";
 import { parseDataStreamPart } from "ai";
-import { Check, type CheckCheck } from "lucide-react";
+import { Check } from "lucide-react";
 import { useState } from "react";
 import { MessageItem } from "../../ChatMessageTableView";
 import { JSONViewer } from "../JSONViewer";
@@ -96,10 +96,6 @@ function BroadcastDetails(props: {
   const validPayload = MessagePayloadSchema.safeParse(payload);
   const messageProp = validPayload.data?.message;
   const validateMessageProp = outgoingMessageSchema.safeParse(messageProp);
-  console.log("event", {
-    messageProp,
-    validateMessageProp,
-  });
 
   if (!validateMessageProp.success) {
     // So it's a
@@ -140,9 +136,6 @@ function ChatMessagesDetails(
         </FpTabsTrigger>
       </FpTabsList>
       <FpTabsContent value="messages">
-        {/* <div>
-          Latest first
-        </div> */}
         <div className="grid gap-2 border rounded-lg p-2">
           {[...props.messages]
             .sort((a, b) => {

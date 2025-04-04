@@ -1,5 +1,4 @@
 import { useFilteredEvents } from "@/hooks";
-import { cn } from "@/lib/utils";
 import { type AgentEvent, eventCategories, usePlaygroundStore } from "@/store";
 import type { AgentInstanceParameters } from "@/types";
 import { Trash2 } from "lucide-react";

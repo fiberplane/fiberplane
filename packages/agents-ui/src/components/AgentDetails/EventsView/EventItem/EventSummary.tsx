@@ -57,7 +57,6 @@ function createMessage({
   type,
   payload,
 }: { type: AgentEventType; payload: EventPayload }) {
-  // console.log("type", type, payload);
   switch (type) {
     case "http_request":
       return "HTTP request sent";
@@ -120,13 +119,7 @@ function extractIncomingMessage(payload: EventPayload) {
             </div>
           );
         }
-        console.log(
-          "what? not the right url",
-          chatMessage.url,
-          "not",
-          chatMessage.url === "/api/chat",
-        );
-        // console.log('chatMessage', chatMessage);
+
         return (
           <div className="flex gap-2">
             {chatMessage.init.method && (
@@ -139,11 +132,9 @@ function extractIncomingMessage(payload: EventPayload) {
             )}
           </div>
         );
-        // return `Chat response (${chatMessage.body.length} total)`;
       }
     }
 
-    // console.log('not valid', { error: validated.error, messageProp });
     return `${messageProp.type}`;
   }
 }
@@ -184,7 +175,11 @@ const WebSocketDetails = ({
 
 // State change details component
 const StateChangeDetails = ({ payload }: { payload: EventPayload }) => {
-  return <div className="mt-1 text-sm text-muted-foreground">Agent state updated</div>;
+  return (
+    <div className="mt-1 text-sm text-muted-foreground">
+      Agent state updated
+    </div>
+  );
 };
 
 // Stream event details component

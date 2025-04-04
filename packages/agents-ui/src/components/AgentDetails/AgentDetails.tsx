@@ -3,11 +3,9 @@ import { useAgentInstanceEvents, useFilteredEvents } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { type SSEStatus, usePlaygroundStore } from "@/store";
 import type { AgentInstanceParameters, ListAgentsResponse } from "@/types";
-import { TabsContent } from "@radix-ui/react-tabs";
-import { Database, History, ListIcon } from "lucide-react";
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { History, ListIcon } from "lucide-react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { KeyValueTable } from "../KeyValueTable";
-import { ListSection } from "../ListSection";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -132,7 +130,6 @@ export function AgentDetails({
           <FpTabsList>
             {tabContent.map(({ title, key }) => (
               <FpTabsTrigger key={key} value={key} className="flex gap-2">
-                {/* <Database className="w-3.5" /> */}
                 {title}
               </FpTabsTrigger>
             ))}

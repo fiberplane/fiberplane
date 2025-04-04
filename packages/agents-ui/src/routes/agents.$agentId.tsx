@@ -1,10 +1,6 @@
-import { AgentsSidebar } from "@/components/AgentsSidebar";
 import { Layout } from "@/components/Layout";
-import { ListSection } from "@/components/ListSection";
 import { Button } from "@/components/ui/button";
 import { listAgentsQueryOptions } from "@/hooks/useListAgents";
-import { Route as RootRoute } from "@/routes/__root";
-import type { ListAgentsResponse } from "@/types";
 import {
   Link,
   Outlet,

@@ -3,16 +3,6 @@ import type { DBTable } from "@/types";
 import { z } from "zod";
 import { CodeMirrorJsonEditor } from "../CodeMirror";
 
-// Define the possible column types
-const columnTypeEnum = z.enum([
-  "string",
-  "number",
-  "boolean",
-  "null",
-  "object",
-  "array",
-]);
-
 // Schema for the columns section
 export const StateTableColumnsSchema = z
   .object({

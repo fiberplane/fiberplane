@@ -18,7 +18,7 @@ export function listAgentsQueryOptions() {
           } catch (e) {
             // Ignore
           }
-          throw new HttpError(res.statusText, res.status);
+          throw new HttpError(message, res.status);
         }
 
         return res.json();

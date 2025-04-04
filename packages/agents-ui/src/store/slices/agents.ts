@@ -1,6 +1,5 @@
 import type { CoreAgentEvent } from "@/hooks";
 import { MessagePayloadSchema, agentUseChatResponseSchema } from "@/types";
-import type { agentChatMessagesSchema } from "@/types";
 import type { ToolCall, ToolResult } from "ai";
 import type { z } from "zod";
 import { combine } from "zustand/middleware";
@@ -106,7 +105,7 @@ export const agentSlice = combine<AgentState, AgentActions>(
             const parsed = agentUseChatResponseSchema.safeParse(parsedMessage);
 
             if (parsed.success) {
-              const { id, body, done } = parsed.data;
+              const { id, done } = parsed.data;
               if (id in knownBroadcastEvents) {
                 // Update existing combined event
                 const existingEvent = knownBroadcastEvents[id];
