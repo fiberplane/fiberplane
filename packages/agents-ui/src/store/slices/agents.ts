@@ -98,71 +98,76 @@ export const agentSlice = combine<AgentState, AgentActions>(
 
         // Handle broadcast event combining
         if (event.type === "broadcast") {
-          try {
-            const { message: parsedMessage } = MessagePayloadSchema.parse(
-              event.payload,
-            );
-            const parsed = agentUseChatResponseSchema.safeParse(parsedMessage);
+          const messagePayloadResult = MessagePayloadSchema.safeParse(
+            event.payload,
+          );
+          const parsed = messagePayloadResult.success
+            ? agentUseChatResponseSchema.safeParse(
+                messagePayloadResult.data.message,
+              )
+            : null;
 
-            if (parsed.success) {
-              const { id, done } = parsed.data;
-              if (id in knownBroadcastEvents) {
-                // Update existing combined event
-                const existingEvent = knownBroadcastEvents[id];
+          if (parsed?.success) {
+            console.log("1!@@!#$!@#");
+            const { id, done } = parsed.data;
+            if (id in knownBroadcastEvents) {
+              // Update existing combined event
+              const existingEvent = knownBroadcastEvents[id];
 
-                if (existingEvent.payload.type === parsed.data.type) {
-                  const newEvent = { ...existingEvent };
-                  updateCombinedEvent(newEvent, parsed.data);
+              if (existingEvent.payload.type === parsed.data.type) {
+                const newEvent = { ...existingEvent };
+                updateCombinedEvent(newEvent, parsed.data);
 
-                  // Replace the existing event in the combined events array
-                  combinedEvents = combinedEvents.map((e) =>
-                    e.type === "combined_event" && e.id === id ? newEvent : e,
-                  );
+                // Replace the existing event in the combined events array
+                combinedEvents = combinedEvents.map((e) =>
+                  e.type === "combined_event" && e.id === id ? newEvent : e,
+                );
 
-                  // Update in known events
-                  knownBroadcastEvents[id] = newEvent;
-                } else {
-                  console.warn(
-                    `Event type mismatch for ID ${id}: ${existingEvent.payload.type} vs ${parsed.data.type}`,
-                  );
-                }
+                // Update in known events
+                knownBroadcastEvents[id] = newEvent;
               } else {
-                // Create a new combined event
-                const newCombinedEvent: CombinedEvent = {
-                  type: "combined_event",
-                  id,
-                  payload: {
-                    type: parsed.data.type,
-                    chunks: [parsed.data],
-                    content: "",
-                    done,
-                    metadata: {
-                      messageId: "",
-                      toolCalls: [],
-                      toolResults: [],
-                      status: null,
-                    },
-                  },
-                  timestamp: event.timestamp,
-                };
-
-                updateCombinedEvent(newCombinedEvent, parsed.data);
-
-                // Add to combined events array
-                combinedEvents.push(newCombinedEvent);
-
-                // Add to known events
-                knownBroadcastEvents[id] = newCombinedEvent;
+                console.warn(
+                  `Event type mismatch for ID ${id}: ${existingEvent.payload.type} vs ${parsed.data.type}`,
+                );
               }
             } else {
-              combinedEvents.push(event);
+              // Create a new combined event
+              const newCombinedEvent: CombinedEvent = {
+                type: "combined_event",
+                id,
+                payload: {
+                  type: parsed.data.type,
+                  chunks: [parsed.data],
+                  content: "",
+                  done,
+                  metadata: {
+                    messageId: "",
+                    toolCalls: [],
+                    toolResults: [],
+                    status: null,
+                  },
+                },
+                timestamp: event.timestamp,
+              };
+
+              updateCombinedEvent(newCombinedEvent, parsed.data);
+
+              // Add to combined events array
+              combinedEvents.push(newCombinedEvent);
+
+              // Add to known events
+              knownBroadcastEvents[id] = newCombinedEvent;
             }
-          } catch (error) {
-            console.warn("Failed to handle broadcast message", error);
+          } else {
+            console.warn(
+              "Failed to parse broadcast event payload",
+              event.payload,
+            );
             // Still add the original event to combined events for completeness
             combinedEvents.push(event);
           }
         } else {
+          // Still add the original event to combined events for completeness
           // For non-broadcast events, just add them to the combined events
           combinedEvents.push(event);
         }
