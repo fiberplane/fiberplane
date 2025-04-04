@@ -1,4 +1,10 @@
+import type {
+  Tool,
+  Resource,
+  MCPPrompt,
+} from "@modelcontextprotocol/sdk/types.js";
 import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
+import { MCPClientManager, type getNamespacedData } from "agents/mcp/client";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
 import packageJson from "../package.json" assert { type: "json" };
@@ -8,7 +14,13 @@ import {
   registerAgentInstance,
 } from "./agentInstances";
 import type { AgentEvent } from "./types";
-import { isDurableObjectNamespace, toKebabCase, tryCatch } from "./utils";
+import {
+  isDurableObjectNamespace,
+  toKebabCase,
+  tryCatch,
+  tryCatchAsync,
+} from "./utils";
+import type { z } from "zod";
 
 const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
 const PARTYKIT_ROOM_HEADER = "x-partykit-room";
@@ -21,7 +33,6 @@ type TableSchema = {
   error?: string;
 };
 type DatabaseResult = Record<string, TableSchema>;
-
 type AgentConstructor<E = unknown, S = unknown> = new (
   // biome-ignore lint/suspicious/noExplicitAny: mixin pattern requires any[]
   ...args: any[]
@@ -38,7 +49,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
       // Get all table names
       const tablesQuery =
         "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'";
-      const tablesResult = await tryCatch(
+      const tablesResult = tryCatch(() =>
         agent.sql(Object.assign([tablesQuery], { raw: [tablesQuery] })),
       );
 
@@ -55,7 +66,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
       const tableResultsPromises = tableNames.map(async (tableName) => {
         // Get column information
         const pragmaQuery = `PRAGMA table_info("${tableName}")`;
-        const columnInfoResult = await tryCatch(
+        const columnInfoResult = tryCatch(() =>
           agent.sql(Object.assign([pragmaQuery], { raw: [pragmaQuery] })),
         );
 
@@ -123,7 +134,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
 
         // Get row data
         const selectQuery = `SELECT * FROM "${tableName}"`;
-        const rowsResult = await tryCatch(
+        const rowsResult = tryCatch(() =>
           agent.sql(Object.assign([selectQuery], { raw: [selectQuery] })),
         );
 
@@ -162,7 +173,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
       return Object.fromEntries(tableResults) as DatabaseResult;
     };
 
-    const result = await tryCatch(fetchDbResult());
+    const result = await tryCatchAsync(fetchDbResult());
 
     if (result.error) {
       console.error("Error retrieving database:", result.error);
@@ -172,14 +183,82 @@ function createAgentAdminRouter(agent: ObservedAgent) {
     return c.json(result.data);
   });
 
+  router.get("/agents/:namespace/:instance/admin/mcp", async (c) => {
+    interface ServerData {
+      tools: Tool[];
+      resources: Resource[];
+      prompts: MCPPrompt[];
+    }
+
+    if (agent._mcpManagers && agent._mcpManagers?.size > 0) {
+      const { data, error } = tryCatch(() => {
+        const allTools =
+          agent._mcpManagers
+            ?.values()
+            .flatMap((mcpManager) => mcpManager.listTools()) || [];
+        const allResources =
+          agent._mcpManagers
+            ?.values()
+            .flatMap((mcpManager) => mcpManager.listResources()) || [];
+        const allPrompts =
+          agent._mcpManagers
+            ?.values()
+            .flatMap((mcpManager) => mcpManager.listPrompts()) ||
+          ([] as MCPPrompt[]);
+
+        const serverMap = new Map<string, ServerData>();
+
+        const getOrCreateServer = (serverName: string): ServerData => {
+          let server = serverMap.get(serverName);
+          if (!server) {
+            server = {
+              tools: [],
+              resources: [],
+              prompts: [],
+            };
+            serverMap.set(serverName, server);
+          }
+          return server;
+        };
+
+        for (const tool of allTools) {
+          const server = getOrCreateServer(tool.serverName);
+          server.tools.push(tool);
+        }
+
+        for (const resource of allResources) {
+          const server = getOrCreateServer(resource.serverName);
+          server.resources.push(resource);
+        }
+
+        for (const prompt of allPrompts) {
+          // @ts-expect-error something is borked with types
+          const server = getOrCreateServer(prompt.serverName);
+          // @ts-expect-error something is borked with types
+          server.prompts.push(prompt);
+        }
+
+        return Array.from(serverMap.values());
+      });
+
+      if (error) {
+        console.error("Error retrieving MCP data:", error);
+        return c.json({ error: "Failed to retrieve MCP data" }, 500);
+      }
+
+      return c.json({ data });
+    }
+    return c.json({ data: [] });
+  });
+
   router.get("/agents/:namespace/:instance/admin/events", async (c) => {
-    if (!agent.activeStreams) {
-      agent.activeStreams = new Set();
+    if (!agent._activeStreams) {
+      agent._activeStreams = new Set();
     }
     return streamSSE(
       c,
       async (stream) => {
-        agent.activeStreams.add(stream);
+        agent._activeStreams.add(stream);
 
         await stream.writeSSE({
           event: "stream_open",
@@ -203,7 +282,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
           event: "stream_error",
           data: streamError.message,
         });
-        agent.activeStreams.delete(stream);
+        agent._activeStreams.delete(stream);
       },
     );
   });
@@ -212,7 +291,39 @@ function createAgentAdminRouter(agent: ObservedAgent) {
 }
 
 interface ObservedProperties {
-  activeStreams: Set<SSEStreamingApi>;
+  _activeStreams: Set<SSEStreamingApi>;
+  _mcpManagers?: Set<MCPClientManager>;
+  _fiberRouter?: Hono;
+}
+
+function isMCPClientManagerLike(value: object): value is MCPClientManager {
+  return value instanceof MCPClientManager;
+}
+
+/**
+ * Detects properties that are MCPClientManager instances
+ * @returns A map of property names to MCPClientManager instances
+ */
+function detectMCPClientManagers(obj: Record<string, unknown>) {
+  const managers = new Set<MCPClientManager>();
+
+  // Iterate through all properties of the object
+  for (const [key, value] of Object.entries(obj)) {
+    // Skip null or non-object values
+    if (!value || typeof value !== "object") {
+      continue;
+    }
+
+    // Use instanceof to check if it's an MCPClientManager object
+    if (isMCPClientManagerLike(value)) {
+      managers.add(value);
+      console.log(
+        `Found MCPClientManager at property '${key}' - will discover MCP servers, tools, resources and prompts`,
+      );
+    }
+  }
+
+  return managers;
 }
 
 type ObservedAgent = Agent<unknown, unknown> & ObservedProperties;
@@ -232,20 +343,26 @@ type ObservedAgent = Agent<unknown, unknown> & ObservedProperties;
 export function Observed<E = unknown, S = unknown>() {
   return <T extends AgentConstructor<E, S>>(BaseClass: T) => {
     return class extends BaseClass {
-      // biome-ignore lint/complexity/noUselessConstructor: Required for TypeScript mixins
-      // biome-ignore lint/suspicious/noExplicitAny: Required for TypeScript mixins
+      _fiberRouter?: Hono;
+      _activeStreams = new Set<SSEStreamingApi>();
+      _mcpManagers?: Set<MCPClientManager>;
+      // biome-ignore lint/suspicious/noExplicitAny: mixin pattern requires any[]
       constructor(...args: any[]) {
         super(...args);
         const superClassName = Object.getPrototypeOf(this.constructor).name;
         registerAgent(superClassName);
+
+        // Detect MCPClientManager instances
+        // We need to cast this to Record<string, unknown> for the detection function
+        // This is safe because we're only accessing properties dynamically
+        this._mcpManagers = detectMCPClientManagers(
+          // FIXME: come back to this
+          this as Record<string, unknown>,
+        );
       }
 
-      fiberRouter?: Hono;
-
-      activeStreams = new Set<SSEStreamingApi>();
-
       private recordEvent({ event, payload }: AgentEvent) {
-        for (const stream of this.activeStreams) {
+        for (const stream of this._activeStreams) {
           stream.writeSSE({
             event,
             data: JSON.stringify(payload),
@@ -318,10 +435,12 @@ export function Observed<E = unknown, S = unknown>() {
           );
         }
 
-        if (!this.fiberRouter) {
-          this.fiberRouter = createAgentAdminRouter(this);
+        if (!this._fiberRouter) {
+          this._fiberRouter = createAgentAdminRouter(
+            this as unknown as ObservedAgent,
+          );
         }
-        this.fiberRouter.notFound(() => {
+        this._fiberRouter.notFound(() => {
           this.recordEvent({
             event: "http_request",
             payload: {
@@ -332,7 +451,7 @@ export function Observed<E = unknown, S = unknown>() {
           });
           return super.onRequest(request);
         });
-        return this.fiberRouter.fetch(request);
+        return this._fiberRouter.fetch(request);
       }
     } as T;
   };
@@ -378,7 +497,9 @@ function createFpApp() {
         version,
         commitHash,
       };
-      const cdn = `https://cdn.jsdelivr.net/npm/@fiberplane/agents@${version ? version : "latest"}/dist/playground/`;
+      const cdn = `https://cdn.jsdelivr.net/npm/@fiberplane/agents@${
+        version ? version : "latest"
+      }/dist/playground/`;
       const cssBundleUrl = new URL("index.css", cdn).href;
       const jsBundleUrl = new URL("index.js", cdn).href;
       return c.html(
@@ -414,11 +535,9 @@ export function fiberplane<E extends Env>(
   const fpApp = createFpApp();
 
   return async function fetch(request: Request, env: E, ctx: ExecutionContext) {
-    const { data: response, error } = await tryCatch(
-      fpApp.fetch(request, env, ctx),
-    );
+    const response = await fpApp.fetch(request, env, ctx);
 
-    if (!error && response.status !== 404) {
+    if (response.status !== 404) {
       return response;
     }
 
