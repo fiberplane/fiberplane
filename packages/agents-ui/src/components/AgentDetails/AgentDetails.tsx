@@ -40,9 +40,15 @@ const POLL_INTERVAL = 2000;
 export function AgentDetails({
   agent: agentDetails,
   instance,
-}: { agent: ListAgentsResponse[0]; instance: string }) {
+}: {
+  agent: ListAgentsResponse[0];
+  instance: string;
+}) {
   const { data: db, refetch } = useAgentDB(agentDetails.id, instance);
-  const { data: mcpData, isLoading: isMcpLoading } = useAgentMCP(agentDetails.id, instance);
+  const { data: mcpData, isLoading: isMcpLoading } = useAgentMCP(
+    agentDetails.id,
+    instance
+  );
   useAgentInstanceEvents(agentDetails.id, instance);
 
   useEffect(() => {
@@ -124,24 +130,24 @@ export function AgentDetails({
   // Add MCP tabs
   const mcpTabs = [
     {
-      title: "Tools",
+      title: "Servers (MCP)",
+      key: "mcp-servers",
+      content: <MCPServersView data={mcpData} isLoading={isMcpLoading} />,
+    },
+    {
+      title: "Tools (MCP)",
       key: "mcp-tools",
       content: <MCPToolsView data={mcpData} isLoading={isMcpLoading} />,
     },
     {
-      title: "Resources",
+      title: "Resources (MCP)",
       key: "mcp-resources",
       content: <MCPResourcesView data={mcpData} isLoading={isMcpLoading} />,
     },
     {
-      title: "Prompts",
+      title: "Prompts (MCP)",
       key: "mcp-prompts",
       content: <MCPPromptsView data={mcpData} isLoading={isMcpLoading} />,
-    },
-    {
-      title: "Servers",
-      key: "mcp-servers",
-      content: <MCPServersView data={mcpData} isLoading={isMcpLoading} />,
     },
   ];
 
@@ -156,7 +162,7 @@ export function AgentDetails({
           className={cn(
             "grid grid-rows-[auto_1fr]",
             "max-h-fit overflow-hidden",
-            "lg:overflow-scroll",
+            "lg:overflow-scroll"
           )}
         >
           <FpTabsList>
@@ -224,7 +230,7 @@ function EventsTabLabel(props: AgentInstanceParameters) {
   const eventStreamStatus = usePlaygroundStore(
     (state) =>
       state.agentsState[props.namespace]?.instances[props.instance]
-        ?.eventStreamStatus ?? "disconnected",
+        ?.eventStreamStatus ?? "disconnected"
   );
 
   return (
