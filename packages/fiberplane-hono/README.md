@@ -25,7 +25,7 @@ app.get("/openapi.json", () => {
   // ... return your openapi spec here ...
 });
 
-app.use("/fp/*", fiberplane({
+app.use("/fp/*", createFiberplane({
   openapi: { url: "/openapi.json" },
 }));
 
