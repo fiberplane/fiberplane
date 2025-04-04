@@ -54,9 +54,9 @@ const getEventIcon = (type: CombinedEvent["type"] | AgentEventType) => {
       );
 
     case "ws_open":
-      return <Phone className="w-3.5 h-3.5" />;
+      return <Phone className="w-3.5 h-3.5 text-foreground" />;
     case "ws_close":
-      return <PhoneOff className="w-3.5 h-3.5" />;
+      return <PhoneOff className="w-3.5 h-3.5 text-foreground" />;
     case "broadcast":
     case "combined_event":
       return (
@@ -65,14 +65,14 @@ const getEventIcon = (type: CombinedEvent["type"] | AgentEventType) => {
         </div>
       );
     case "state_change":
-      return <LayoutDashboard className="w-3.5 h-3.5" />;
+      return <LayoutDashboard className="w-3.5 h-3.5 text-foreground" />;
     case "stream_open":
     case "stream_close":
-      return <ArrowRight className="w-3.5 h-3.5" />;
+      return <ArrowRight className="w-3.5 h-3.5 text-foreground" />;
     case "stream_error":
-      return <AlertCircle className="w-3.5 h-3.5" />;
+      return <AlertCircle className="w-3.5 h-3.5 text-foreground" />;
     default:
-      return <Info className="w-3.5 h-3.5" />;
+      return <Info className="w-3.5 h-3.5 text-foreground" />;
   }
 };
 

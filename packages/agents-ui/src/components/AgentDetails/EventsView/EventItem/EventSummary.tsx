@@ -184,7 +184,7 @@ const WebSocketDetails = ({
 
 // State change details component
 const StateChangeDetails = ({ payload }: { payload: EventPayload }) => {
-  return <div className="mt-1 text-sm">Agent state updated</div>;
+  return <div className="mt-1 text-sm text-muted-foreground">Agent state updated</div>;
 };
 
 // Stream event details component
