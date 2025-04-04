@@ -42,7 +42,7 @@ function RootComponent() {
   }
 
   return (
-    <div className="bg-background text-foreground text-sm min-h-dvh min-w-dvw grid p-2">
+    <div className="bg-popover text-foreground text-sm min-h-dvh min-w-dvw grid p-6">
       <Outlet />
       {/* <TanStackRouterDevtools />
       <ReactQueryDevtools /> */}

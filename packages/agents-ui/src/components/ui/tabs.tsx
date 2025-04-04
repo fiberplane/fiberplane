@@ -3,20 +3,20 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const TAB_HEIGHT = "h-8";
+const TAB_HEIGHT = "h-12";
 
 const FpTabs = TabsPrimitive.Root;
 FpTabs.displayName = "FpTabs";
 
 const FpTabsList = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.List>,
+  React.ComponentRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground",
-      "w-full justify-start rounded-none border-b space-x-6",
+      "inline-flex items-center justify-center rounded-lg px-5 text-muted-foreground",
+      "w-full justify-start rounded-none border-b gap-1 bg-transparent",
       TAB_HEIGHT,
       className,
     )}
@@ -26,7 +26,7 @@ const FpTabsList = React.forwardRef<
 FpTabsList.displayName = `Fp${TabsPrimitive.List.displayName}`;
 
 const FpTabsTrigger = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Trigger>,
+  React.ComponentRef<typeof TabsPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.Trigger
@@ -38,11 +38,10 @@ const FpTabsTrigger = React.forwardRef<
       "disabled:pointer-events-none disabled:opacity-50",
       "enabled:hover:text-foreground",
       "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow",
-      "py-2",
-      "px-0",
+      "py-1",
+      "px-2",
       "text-left",
       TAB_HEIGHT,
-      "ml-2",
       "text-xs",
       "font-normal",
       "border-b",
@@ -60,14 +59,14 @@ const FpTabsTrigger = React.forwardRef<
 FpTabsTrigger.displayName = `Fp${TabsPrimitive.Trigger.displayName}`;
 
 const FpTabsContent = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Content>,
+  React.ComponentRef<typeof TabsPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.Content
     ref={ref}
     className={cn(
-      "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-      "px-3 py-2 data-[state=active]:h-full data-[state=inactive]:hidden",
+      "ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+      "px-5 py-4 data-[state=active]:h-full data-[state=inactive]:hidden",
       "overflow-y-auto max-h-full",
       className,
     )}

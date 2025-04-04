@@ -118,100 +118,75 @@ export function AgentDetails({
   }, [db]);
 
   return (
-    <ListSection
-      title={
-        <div className="flex gap-2">
-          Agent:
-          <span className="font-bold text-neutral-500">
-            {agentDetails.id} - {instance}
-          </span>
-        </div>
-      }
-      className="h-full"
-      contentClassName="h-full p-0"
-    >
-      <ResizablePanelGroup
-        direction="horizontal"
-        id="layout"
-        className="w-full"
-      >
-        <ResizablePanel id="left" order={0}>
-          <FpTabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className={cn(
-              "grid grid-rows-[auto_1fr]",
-              "max-h-fit overflow-hidden",
-              "lg:overflow-scroll",
-            )}
-          >
-            <FpTabsList className="bg-transparent px-0 pt-1 pb-0 h-auto">
-              {tabContent.map(({ title, key }) => (
-                <FpTabsTrigger key={key} value={key} className="flex gap-2">
-                  <Database className="w-3.5" />
-                  {title}
-                </FpTabsTrigger>
-              ))}
-            </FpTabsList>
-            {tabContent.map(({ key, content }) => (
-              <TabsContent key={key} value={key}>
-                {content}
-              </TabsContent>
+    <ResizablePanelGroup direction="horizontal" id="layout" className="w-full">
+      <ResizablePanel id="left" order={0}>
+        <FpTabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className={cn(
+            "grid grid-rows-[auto_1fr]",
+            "max-h-fit overflow-hidden",
+            "lg:overflow-scroll",
+          )}
+        >
+          <FpTabsList>
+            {tabContent.map(({ title, key }) => (
+              <FpTabsTrigger key={key} value={key} className="flex gap-2">
+                {/* <Database className="w-3.5" /> */}
+                {title}
+              </FpTabsTrigger>
             ))}
-          </FpTabs>
-        </ResizablePanel>
-        <ResizableHandle
-          hitAreaMargins={{ coarse: 20, fine: 10 }}
-          className="w-[1px]"
-        />
-        <ResizablePanel id="right" order={1}>
-          <div>
-            <FpTabs
-              value={sideBarTab}
-              onValueChange={setSideBarTab}
-              className={cn(
-                "grid grid-rows-[auto_1fr]",
-                "max-h-fit overflow-hidden",
-              )}
-            >
-              <FpTabsList className="bg-transparent px-0 pt-1 pb-0 h-auto">
-                <FpTabsTrigger value="events" className="flex gap-2">
-                  <EventsTabLabel
-                    instance={instance}
-                    namespace={agentDetails.id}
-                  />
-                </FpTabsTrigger>
-                <FpTabsTrigger value="details" className="flex gap-2">
-                  <ListIcon className="w-3.5" />
-                  Details
-                </FpTabsTrigger>
-              </FpTabsList>
-              <FpTabsContent
-                value="details"
-                className={cn("min-h-0 overflow-hidden")}
-              >
-                <KeyValueTable
-                  keyValue={{
-                    Name: agentDetails.id,
-                    ClassName: agentDetails.className,
-                    ScriptName: agentDetails.scriptName ?? "",
-                  }}
-                  className="border border-muted rounded-lg"
-                  keyCellClassName="px-2"
-                  valueCellClassName="px-2"
-                />
-              </FpTabsContent>
-              <FpTabsContent
-                value="events"
-                className={cn("min-h-0 overflow-hidden px-0 py-0")}
-              >
-                <EventsView namespace={agentDetails.id} instance={instance} />
-              </FpTabsContent>
-            </FpTabs>
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
-    </ListSection>
+          </FpTabsList>
+          {tabContent.map(({ key, content }) => (
+            <FpTabsContent key={key} value={key}>
+              {content}
+            </FpTabsContent>
+          ))}
+        </FpTabs>
+      </ResizablePanel>
+      <ResizableHandle
+        hitAreaMargins={{ coarse: 20, fine: 10 }}
+        className="w-[1px]"
+      />
+      <ResizablePanel id="right" order={1}>
+        <FpTabs
+          value={sideBarTab}
+          onValueChange={setSideBarTab}
+          className={cn("grid grid-rows-[auto_1fr]", "h-full overflow-hidden")}
+        >
+          <FpTabsList>
+            <FpTabsTrigger value="events" className="flex gap-2">
+              <EventsTabLabel instance={instance} namespace={agentDetails.id} />
+            </FpTabsTrigger>
+            <FpTabsTrigger value="details" className="flex gap-2">
+              <ListIcon className="w-3.5" />
+              Details
+            </FpTabsTrigger>
+          </FpTabsList>
+          <FpTabsContent
+            value="details"
+            className={cn("min-h-0 overflow-hidden")}
+          >
+            <KeyValueTable
+              keyValue={{
+                Name: agentDetails.id,
+                ClassName: agentDetails.className,
+                ScriptName: agentDetails.scriptName ?? "",
+              }}
+              className="border border-muted rounded-lg"
+              keyCellClassName="px-2"
+              valueCellClassName="px-2"
+            />
+          </FpTabsContent>
+          <FpTabsContent
+            value="events"
+            className={cn("min-h-0 overflow-hidden px-0 py-0")}
+          >
+            <EventsView namespace={agentDetails.id} instance={instance} />
+          </FpTabsContent>
+        </FpTabs>
+      </ResizablePanel>
+    </ResizablePanelGroup>
   );
 }
 

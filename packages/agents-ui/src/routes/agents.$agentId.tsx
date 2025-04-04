@@ -64,59 +64,52 @@ function AgentRoute() {
 
   return (
     <Layout>
-      <div className="h-full w-full grid gap-4 grid-cols-[200px_auto] p-4">
-        <AgentsSidebar />
-        <div className="h-full">
-          {/* Outlet will render the child route if it's active */}
-          <Outlet />
-          {/* Show agent details when the instance route is not active */}
-          {!isInstanceRouteActive && (
-            <ListSection
-              title={agent.id}
-              className="h-full"
-              contentClassName="grid items-center justify-center"
-            >
-              <div className="grid gap-4 max-w-prose mx-auto border rounded-lg p-4 m-4">
-                <h2 className="text-lg ">Active instances</h2>
-                <p className="text-muted-foreground">
-                  An active instance is an instance of the agent that is
-                  currently running. In order to view the details of an agent,
-                  you must select one.
-                </p>
-                <div>Detected instances: </div>
+      <div className="h-full">
+        {/* Outlet will render the child route if it's active */}
+        <Outlet />
+        {/* Show agent details when the instance route is not active */}
+        {!isInstanceRouteActive && (
+          <div className="h-full grid items-center justify-center">
+            <div className="grid gap-4 max-w-prose mx-auto border rounded-lg p-4 m-4">
+              <h2 className="text-lg ">Active instances</h2>
+              <p className="text-muted-foreground">
+                An active instance is an instance of the agent that is currently
+                running. In order to view the details of an agent, you must
+                select one.
+              </p>
+              <div>Detected instances: </div>
 
-                {agent.instances.length ? (
-                  <div className="flex gap-2">
-                    {agent.instances.map((instance) => (
-                      <Link
-                        key={instance}
-                        to="/agents/$agentId/$instanceId"
-                        params={{ agentId, instanceId: instance }}
+              {agent.instances.length ? (
+                <div className="flex gap-2">
+                  {agent.instances.map((instance) => (
+                    <Link
+                      key={instance}
+                      to="/agents/$agentId/$instanceId"
+                      params={{ agentId, instanceId: instance }}
+                    >
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="bg-info/15 hover:bg-info/35"
                       >
-                        <Button
-                          type="button"
-                          size="sm"
-                          className="bg-info/15 hover:bg-info/35"
-                        >
-                          <BoxIcon className="w-3.5 h-3.5" />
-                          {instance}
-                        </Button>
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-muted-foreground text-center mx-auto">
-                    <em className="text-foreground italic font-normal mb-1 flex items-center justify-center">
-                      <Box className="w-4 h-4 mr-2" />
-                      No instances detected yet.
-                    </em>
-                    Please make a request to the agent to start an instance.
-                  </div>
-                )}
-              </div>
-            </ListSection>
-          )}
-        </div>
+                        <BoxIcon className="w-3.5 h-3.5" />
+                        {instance}
+                      </Button>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-muted-foreground text-center mx-auto">
+                  <em className="text-foreground italic font-normal mb-1 flex items-center justify-center">
+                    <Box className="w-4 h-4 mr-2" />
+                    No instances detected yet.
+                  </em>
+                  Please make a request to the agent to start an instance.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );

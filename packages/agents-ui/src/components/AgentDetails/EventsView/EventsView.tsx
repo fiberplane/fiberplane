@@ -57,7 +57,7 @@ export function EventsView(props: AgentInstanceParameters) {
 
   return (
     <div>
-      <div className="grid items-center grid-cols-[1fr_auto] gap-2 border-b border-border px-2 pb-2">
+      <div className="grid items-center grid-cols-[1fr_auto] gap-2 border-b border-border px-5 py-2.5">
         <StreamConnectionStatus
           instance={props.instance}
           namespace={props.namespace}
