@@ -19,6 +19,12 @@ import {
 import { DataTableView } from "./DataTableView";
 import { EventsView } from "./EventsView";
 import {
+  MCPPromptsView,
+  MCPResourcesView,
+  MCPServersView,
+  MCPToolsView,
+} from "./MCPViews";
+import {
   ScheduleColumnsSchema,
   type ScheduleDBTable,
   ScheduleTableView,
@@ -28,12 +34,6 @@ import {
   StateTableView,
   isStateTable,
 } from "./StateTableView";
-import {
-  MCPToolsView,
-  MCPResourcesView,
-  MCPPromptsView,
-  MCPServersView,
-} from "./MCPViews";
 
 const POLL_INTERVAL = 2000;
 
@@ -47,7 +47,7 @@ export function AgentDetails({
   const { data: db, refetch } = useAgentDB(agentDetails.id, instance);
   const { data: mcpData, isLoading: isMcpLoading } = useAgentMCP(
     agentDetails.id,
-    instance
+    instance,
   );
   useAgentInstanceEvents(agentDetails.id, instance);
 
@@ -162,7 +162,7 @@ export function AgentDetails({
           className={cn(
             "grid grid-rows-[auto_1fr]",
             "max-h-fit overflow-hidden",
-            "lg:overflow-scroll"
+            "lg:overflow-scroll",
           )}
         >
           <FpTabsList>
@@ -230,7 +230,7 @@ function EventsTabLabel(props: AgentInstanceParameters) {
   const eventStreamStatus = usePlaygroundStore(
     (state) =>
       state.agentsState[props.namespace]?.instances[props.instance]
-        ?.eventStreamStatus ?? "disconnected"
+        ?.eventStreamStatus ?? "disconnected",
   );
 
   return (

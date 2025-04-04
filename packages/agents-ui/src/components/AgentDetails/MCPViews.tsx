@@ -1,6 +1,12 @@
-import { KeyValueTable } from "../KeyValueTable";
 import type { MCPData } from "@/hooks";
+import { cn } from "@/lib/utils";
+import { noop } from "@/lib/utils";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { CodeMirrorJsonEditor } from "../CodeMirror";
+import { KeyValueTable } from "../KeyValueTable";
 import { Spinner } from "../Spinner";
+import { Button } from "../ui/button";
 import {
   Table,
   TableBody,
@@ -9,12 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
-import { useState } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
-import { CodeMirrorJsonEditor } from "../CodeMirror";
-import { noop } from "@/lib/utils";
 
 // Component for displaying MCP Tools
 export function MCPToolsView({
@@ -151,12 +151,12 @@ function safeString(value: unknown): string {
 }
 
 // Expandable JSON viewer component
-function JsonViewer({ 
-  data, 
-  isExpanded, 
-  onToggle 
-}: { 
-  data: unknown; 
+function JsonViewer({
+  data,
+  isExpanded,
+  onToggle,
+}: {
+  data: unknown;
   isExpanded: boolean;
   onToggle: () => void;
 }) {
@@ -183,11 +183,11 @@ function MCPToolsTable({ data }: { data: MCPData }) {
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
 
   // Flatten tools from all servers
-  const allTools = data.flatMap((server) => 
+  const allTools = data.flatMap((server) =>
     server.tools.map((tool) => ({
       ...tool,
-      serverName: tool.serverName || "Unknown Server"
-    }))
+      serverName: tool.serverName || "Unknown Server",
+    })),
   );
 
   if (allTools.length === 0) {
@@ -213,7 +213,7 @@ function MCPToolsTable({ data }: { data: MCPData }) {
           const description = safeString(toolObject.description);
           const rowId = `tool-${index}`;
           const isExpanded = expandedRowId === rowId;
-          
+
           return (
             <>
               <TableRow key={rowId}>
@@ -221,8 +221,8 @@ function MCPToolsTable({ data }: { data: MCPData }) {
                 <TableCell>{serverName}</TableCell>
                 <TableCell>{description || "No description"}</TableCell>
                 <TableCell>
-                  <JsonViewer 
-                    data={tool} 
+                  <JsonViewer
+                    data={tool}
                     isExpanded={isExpanded}
                     onToggle={() => setExpandedRowId(isExpanded ? null : rowId)}
                   />
@@ -254,11 +254,11 @@ function MCPResourcesTable({ data }: { data: MCPData }) {
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
 
   // Flatten resources from all servers
-  const allResources = data.flatMap((server) => 
+  const allResources = data.flatMap((server) =>
     server.resources.map((resource) => ({
       ...resource,
-      serverName: resource.serverName || "Unknown Server"
-    }))
+      serverName: resource.serverName || "Unknown Server",
+    })),
   );
 
   if (allResources.length === 0) {
@@ -286,7 +286,7 @@ function MCPResourcesTable({ data }: { data: MCPData }) {
           const resourceType = safeString(resourceObject.resourceType);
           const rowId = `resource-${index}`;
           const isExpanded = expandedRowId === rowId;
-          
+
           return (
             <>
               <TableRow key={rowId}>
@@ -295,8 +295,8 @@ function MCPResourcesTable({ data }: { data: MCPData }) {
                 <TableCell>{resourceType || "Not specified"}</TableCell>
                 <TableCell>{description || "No description"}</TableCell>
                 <TableCell>
-                  <JsonViewer 
-                    data={resource} 
+                  <JsonViewer
+                    data={resource}
                     isExpanded={isExpanded}
                     onToggle={() => setExpandedRowId(isExpanded ? null : rowId)}
                   />
@@ -328,11 +328,11 @@ function MCPPromptsTable({ data }: { data: MCPData }) {
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
 
   // Flatten prompts from all servers
-  const allPrompts = data.flatMap((server) => 
+  const allPrompts = data.flatMap((server) =>
     server.prompts.map((prompt) => ({
       ...prompt,
-      serverName: prompt.serverName || "Unknown Server"
-    }))
+      serverName: prompt.serverName || "Unknown Server",
+    })),
   );
 
   if (allPrompts.length === 0) {
@@ -360,7 +360,7 @@ function MCPPromptsTable({ data }: { data: MCPData }) {
           const promptType = safeString(promptObject.promptType);
           const rowId = `prompt-${index}`;
           const isExpanded = expandedRowId === rowId;
-          
+
           return (
             <>
               <TableRow key={rowId}>
@@ -369,8 +369,8 @@ function MCPPromptsTable({ data }: { data: MCPData }) {
                 <TableCell>{promptType || "Not specified"}</TableCell>
                 <TableCell>{description || "No description"}</TableCell>
                 <TableCell>
-                  <JsonViewer 
-                    data={prompt} 
+                  <JsonViewer
+                    data={prompt}
                     isExpanded={isExpanded}
                     onToggle={() => setExpandedRowId(isExpanded ? null : rowId)}
                   />
@@ -420,18 +420,24 @@ function MCPServersTable({ data }: { data: MCPData }) {
         {data.map((server, index) => {
           // Get server name from tools, resources, or prompts (in that order)
           let serverName = `Server ${index + 1}`;
-          
-          if (server.tools.length > 0 && 'serverName' in server.tools[0]) {
+
+          if (server.tools.length > 0 && "serverName" in server.tools[0]) {
             serverName = safeString(server.tools[0].serverName);
-          } else if (server.resources.length > 0 && 'serverName' in server.resources[0]) {
+          } else if (
+            server.resources.length > 0 &&
+            "serverName" in server.resources[0]
+          ) {
             serverName = safeString(server.resources[0].serverName);
-          } else if (server.prompts.length > 0 && 'serverName' in server.prompts[0]) {
+          } else if (
+            server.prompts.length > 0 &&
+            "serverName" in server.prompts[0]
+          ) {
             serverName = safeString(server.prompts[0].serverName);
           }
-          
+
           const rowId = `server-${index}`;
           const isExpanded = expandedRowId === rowId;
-          
+
           return (
             <>
               <TableRow key={rowId}>
@@ -440,8 +446,8 @@ function MCPServersTable({ data }: { data: MCPData }) {
                 <TableCell>{server.resources.length}</TableCell>
                 <TableCell>{server.prompts.length}</TableCell>
                 <TableCell>
-                  <JsonViewer 
-                    data={server} 
+                  <JsonViewer
+                    data={server}
                     isExpanded={isExpanded}
                     onToggle={() => setExpandedRowId(isExpanded ? null : rowId)}
                   />
@@ -466,4 +472,4 @@ function MCPServersTable({ data }: { data: MCPData }) {
       </TableBody>
     </Table>
   );
-} 
+}

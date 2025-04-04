@@ -1,7 +1,7 @@
 import type {
-  Tool,
-  Resource,
   MCPPrompt,
+  Resource,
+  Tool,
 } from "@modelcontextprotocol/sdk/types.js";
 
 export interface ServerData {
@@ -31,7 +31,8 @@ export const mockMCPData: ServerData[] = [
       {
         serverName: "market-data-server",
         name: "calculate_moving_average",
-        description: "Calculate moving average for a stock over a specified period",
+        description:
+          "Calculate moving average for a stock over a specified period",
         inputSchema: {
           type: "object",
           properties: {
@@ -42,7 +43,7 @@ export const mockMCPData: ServerData[] = [
           required: ["symbol", "days"],
         },
         returns: { type: "object" },
-      }
+      },
     ],
     resources: [
       {
@@ -58,24 +59,25 @@ export const mockMCPData: ServerData[] = [
           },
           required: ["region"],
         },
-      }
+      },
     ],
     prompts: [
       {
         serverName: "market-data-server",
         name: "market_summary",
         description: "Generate a summary of current market conditions",
-        template: "Provide a summary of the {{market}} market for {{date}} including key movements and trends.",
+        template:
+          "Provide a summary of the {{market}} market for {{date}} including key movements and trends.",
         parameters: {
           type: "object",
           properties: {
             market: { type: "string" },
-            date: { type: "string" }
+            date: { type: "string" },
           },
-          required: ["market"]
-        }
-      }
-    ]
+          required: ["market"],
+        },
+      },
+    ],
   },
   {
     tools: [
@@ -87,22 +89,22 @@ export const mockMCPData: ServerData[] = [
           type: "object",
           properties: {
             portfolioId: { type: "string" },
-            riskMeasures: { 
+            riskMeasures: {
               type: "array",
               items: {
                 type: "object",
                 properties: {
                   name: { type: "string" },
-                  parameters: { type: "object" }
-                }
-              }
+                  parameters: { type: "object" },
+                },
+              },
             },
             timeHorizon: { type: "string" },
           },
           required: ["portfolioId"],
         },
         returns: { type: "object" },
-      }
+      },
     ],
     resources: [
       {
@@ -118,51 +120,53 @@ export const mockMCPData: ServerData[] = [
           },
           required: ["portfolioId"],
         },
-      }
+      },
     ],
     prompts: [
       {
         serverName: "portfolio-management-server",
         name: "portfolio_recommendation",
         description: "Generate investment recommendations for a portfolio",
-        template: "Based on the current market conditions and the risk profile of {{portfolioType}}, provide recommended adjustments for the following objectives: {{objectives}}",
+        template:
+          "Based on the current market conditions and the risk profile of {{portfolioType}}, provide recommended adjustments for the following objectives: {{objectives}}",
         parameters: {
           type: "object",
           properties: {
             portfolioType: { type: "string" },
-            objectives: { type: "string" }
+            objectives: { type: "string" },
           },
-          required: ["portfolioType"]
-        }
-      }
-    ]
+          required: ["portfolioType"],
+        },
+      },
+    ],
   },
   {
     tools: [
       {
         serverName: "financial-analysis-server",
         name: "analyze_financial_statement",
-        description: "Analyze company financial statements and provide key metrics",
+        description:
+          "Analyze company financial statements and provide key metrics",
         inputSchema: {
           type: "object",
           properties: {
             companyId: { type: "string" },
-            statementType: { 
+            statementType: {
               type: "string",
-              enum: ["income", "balance", "cashflow"]
+              enum: ["income", "balance", "cashflow"],
             },
-            fiscalPeriod: { 
+            fiscalPeriod: {
               type: "object",
               properties: {
                 year: { type: "number" },
-                quarter: { type: "number" }
-              }
-            }
+                quarter: { type: "number" },
+              },
+            },
           },
           required: ["companyId", "statementType"],
         },
         returns: { type: "object" },
-      }
+      },
     ],
     resources: [],
     prompts: [
@@ -170,17 +174,18 @@ export const mockMCPData: ServerData[] = [
         serverName: "financial-analysis-server",
         name: "financial_health_assessment",
         description: "Generate a financial health assessment for a company",
-        template: "Provide a comprehensive assessment of {{company}}'s financial health based on their {{period}} statements, focusing on: {{metrics}}",
+        template:
+          "Provide a comprehensive assessment of {{company}}'s financial health based on their {{period}} statements, focusing on: {{metrics}}",
         parameters: {
           type: "object",
           properties: {
             company: { type: "string" },
             period: { type: "string" },
-            metrics: { type: "string" }
+            metrics: { type: "string" },
           },
-          required: ["company", "period"]
-        }
-      }
-    ]
-  }
-]; 
+          required: ["company", "period"],
+        },
+      },
+    ],
+  },
+];

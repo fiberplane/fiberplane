@@ -1,7 +1,7 @@
 import type {
-  Tool,
-  Resource,
   MCPPrompt,
+  Resource,
+  Tool,
 } from "@modelcontextprotocol/sdk/types.js";
 import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
 import { MCPClientManager, type getNamespacedData } from "agents/mcp/client";
@@ -13,6 +13,8 @@ import {
   registerAgent,
   registerAgentInstance,
 } from "./agentInstances";
+// Import mock data for MCP
+import { mockMCPData } from "./mcp-mock-data";
 import type { AgentEvent } from "./types";
 import {
   createRequestPayload,
@@ -21,10 +23,8 @@ import {
   isPromiseLike,
   toKebabCase,
   tryCatch,
-  tryCatchAsync
+  tryCatchAsync,
 } from "./utils";
-// Import mock data for MCP
-import { mockMCPData } from "./mcp-mock-data";
 
 const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
 const PARTYKIT_ROOM_HEADER = "x-partykit-room";
@@ -252,7 +252,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
 
       return c.json({ data });
     }
-    
+
     // When no real MCP data is available, return mock data
     // FIXME: This is fake data for UI development purposes
     return c.json({ data: mockMCPData });
