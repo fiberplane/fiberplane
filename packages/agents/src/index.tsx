@@ -15,7 +15,7 @@ import {
   isPromiseLike,
   toKebabCase,
   tryCatch,
-} from "./util";
+} from "./utils";
 
 const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
 const PARTYKIT_ROOM_HEADER = "x-partykit-room";
