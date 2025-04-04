@@ -23,6 +23,8 @@ import {
   tryCatch,
   tryCatchAsync
 } from "./utils";
+// Import mock data for MCP
+import { mockMCPData } from "./mcp-mock-data";
 
 const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
 const PARTYKIT_ROOM_HEADER = "x-partykit-room";
@@ -250,7 +252,10 @@ function createAgentAdminRouter(agent: ObservedAgent) {
 
       return c.json({ data });
     }
-    return c.json({ data: [] });
+    
+    // When no real MCP data is available, return mock data
+    // FIXME: This is fake data for UI development purposes
+    return c.json({ data: mockMCPData });
   });
 
   router.get("/agents/:namespace/:instance/admin/events", async (c) => {
