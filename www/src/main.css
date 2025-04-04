@@ -225,14 +225,11 @@ kbd:not(site-search kbd) {
 }
 
 a,
+a:active,
 a:visited {
   color: var(--sl-color-accent);
+}
 
-  &:hover {
-    color: var(--sl-color-accent-high);
-  }
-
-  &:active {
-    color: var(--sl-color-accent);
-  }
+a:hover {
+  color: var(--sl-color-accent-high);
 }
