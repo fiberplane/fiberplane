@@ -1,9 +1,8 @@
-import { useAgentDB } from "@/hooks";
+import { useAgentDB, useAgentMCP } from "@/hooks";
 import { useAgentInstanceEvents, useFilteredEvents } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { type SSEStatus, usePlaygroundStore } from "@/store";
 import type { AgentInstanceParameters, ListAgentsResponse } from "@/types";
-import { History, ListIcon } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { KeyValueTable } from "../KeyValueTable";
 import {
@@ -29,6 +28,12 @@ import {
   StateTableView,
   isStateTable,
 } from "./StateTableView";
+import {
+  MCPToolsView,
+  MCPResourcesView,
+  MCPPromptsView,
+  MCPServersView,
+} from "./MCPViews";
 
 const POLL_INTERVAL = 2000;
 
@@ -37,6 +42,7 @@ export function AgentDetails({
   instance,
 }: { agent: ListAgentsResponse[0]; instance: string }) {
   const { data: db, refetch } = useAgentDB(agentDetails.id, instance);
+  const { data: mcpData, isLoading: isMcpLoading } = useAgentMCP(agentDetails.id, instance);
   useAgentInstanceEvents(agentDetails.id, instance);
 
   useEffect(() => {
@@ -115,6 +121,32 @@ export function AgentDetails({
     }>;
   }, [db]);
 
+  // Add MCP tabs
+  const mcpTabs = [
+    {
+      title: "Tools",
+      key: "mcp-tools",
+      content: <MCPToolsView data={mcpData} isLoading={isMcpLoading} />,
+    },
+    {
+      title: "Resources",
+      key: "mcp-resources",
+      content: <MCPResourcesView data={mcpData} isLoading={isMcpLoading} />,
+    },
+    {
+      title: "Prompts",
+      key: "mcp-prompts",
+      content: <MCPPromptsView data={mcpData} isLoading={isMcpLoading} />,
+    },
+    {
+      title: "Servers",
+      key: "mcp-servers",
+      content: <MCPServersView data={mcpData} isLoading={isMcpLoading} />,
+    },
+  ];
+
+  const allTabs = [...tabContent, ...mcpTabs];
+
   return (
     <ResizablePanelGroup direction="horizontal" id="layout" className="w-full">
       <ResizablePanel id="left" order={0}>
@@ -128,13 +160,13 @@ export function AgentDetails({
           )}
         >
           <FpTabsList>
-            {tabContent.map(({ title, key }) => (
+            {allTabs.map(({ title, key }) => (
               <FpTabsTrigger key={key} value={key} className="flex gap-2">
                 {title}
               </FpTabsTrigger>
             ))}
           </FpTabsList>
-          {tabContent.map(({ key, content }) => (
+          {allTabs.map(({ key, content }) => (
             <FpTabsContent key={key} value={key}>
               {content}
             </FpTabsContent>
