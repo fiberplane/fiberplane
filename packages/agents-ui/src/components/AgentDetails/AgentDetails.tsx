@@ -156,7 +156,6 @@ export function AgentDetails({
               <EventsTabLabel instance={instance} namespace={agentDetails.id} />
             </FpTabsTrigger>
             <FpTabsTrigger value="details" className="flex gap-2">
-              <ListIcon className="w-3.5" />
               Details
             </FpTabsTrigger>
           </FpTabsList>
@@ -198,7 +197,6 @@ function EventsTabLabel(props: AgentInstanceParameters) {
 
   return (
     <div className="flex gap-2 items-center">
-      <History className="w-3.5" />
       Events {eventsCount ? `(${eventsCount})` : null}{" "}
       <ConnectionStatus status={eventStreamStatus} />
     </div>

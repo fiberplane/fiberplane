@@ -101,6 +101,8 @@
       ".mypy_cache",
       // API related
       "meta/*.json",
+      // Ignore package.json
+      "package.json",
       // Honc code gen playground outputs
       "apps/honc-code-gen/outputs/**/*",
       "apps/honc-code-gen/storage/**/*",
