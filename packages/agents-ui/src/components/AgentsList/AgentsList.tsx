@@ -1,4 +1,5 @@
 import type { ListAgentsResponse } from "@/types";
+import { HeartHandshake } from "lucide-react";
 import { Spinner } from "../Spinner";
 import { Button } from "../ui/button";
 import { AgentCard } from "./AgentCard";
@@ -7,6 +8,7 @@ export function AgentsList(props: {
   agents?: ListAgentsResponse;
   isLoading: boolean;
   refetch: () => void;
+  error?: Error | null;
 }) {
   // Render a list of agents as cards
   return (
@@ -22,8 +24,26 @@ export function AgentsList(props: {
           <Spinner spinning={props.isLoading} />
         </Button>
       </div>
+      {props.error && (
+        <div>
+          <div className="border p-4 rounded-lg text-danger w-64 mx-auto border-danger flex flex-col gap-2">
+            <div className="font-bold flex items-center gap-2">
+              <HeartHandshake className="w-4 h-4" />
+              Failed to load agents
+            </div>
+            <div className="flex flex-col gap-2 text-foreground">
+              <p>Due to an error:</p>
+              <pre>
+                <code>{props.error.message}</code>
+              </pre>
+            </div>
+          </div>
+        </div>
+      )}
       {!props.agents || props.agents.length === 0 ? (
-        <div className="text-muted-foreground">No agents found</div>
+        props.error ? null : (
+          <div className="text-muted-foreground mx-auto">No agents found</div>
+        )
       ) : (
         <div
           className="grid grid-cols=1 sm:grid-cols-2 md:grid-cols-3 gap-4 items-start "

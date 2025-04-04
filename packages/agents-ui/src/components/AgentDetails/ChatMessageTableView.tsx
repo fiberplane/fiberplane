@@ -12,7 +12,6 @@ import { noop } from "@/lib/utils";
 import type { DBTable } from "@/types";
 import { z } from "zod";
 import { CodeMirrorJsonEditor } from "../CodeMirror";
-import { ListSection } from "../ListSection";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableRow } from "../ui/table";
 
@@ -45,11 +44,11 @@ export function isMessagesTable(
  */
 type ToolInvocation = {
   state: string;
-  step: number;
+  step?: number;
   toolCallId: string;
   toolName: string;
-  args: Record<string, unknown>;
-  result: string;
+  args?: Record<string, unknown>;
+  result?: string;
 };
 
 type MessagePart = {
@@ -183,7 +182,7 @@ const ToolInvocationViewer = ({ tool }: { tool: ToolInvocation }) => {
 /**
  * Main message component for displaying a single message
  */
-const MessageItem = ({ message }: { message: ChatMessage }) => {
+export const JSONMessageItem = ({ message }: { message: ChatMessage }) => {
   const [parsedData, setParsedData] = useState<ParsedMessage | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -209,20 +208,25 @@ const MessageItem = ({ message }: { message: ChatMessage }) => {
     return <div className="text-muted-foreground">Loading...</div>;
   }
 
-  const createdAt = parsedData.createdAt || message.created_at;
+  return <MessageItem {...message} {...parsedData} />;
+};
+
+export const MessageItem = (
+  props: Pick<ChatMessage, "id" | "created_at"> & ParsedMessage,
+) => {
+  const createdAt = props.createdAt;
   const formattedDate = createdAt ? (
     new Date(createdAt).toLocaleString()
   ) : (
     <em>{JSON.stringify(createdAt)}</em>
   );
-  const isUser = parsedData.role === "user";
-  const isAssistant = parsedData.role === "assistant";
-  const hasTools =
-    parsedData.toolInvocations && parsedData.toolInvocations.length > 0;
+  const isUser = props.role === "user";
+  const isAssistant = props.role === "assistant";
+  const hasTools = props.toolInvocations && props.toolInvocations.length > 0;
 
   return (
     <div
-      className={`p-4 rounded-lg mb-4 grid gap-1 ${isUser ? "bg-card border border-muted" : "bg-muted"}`}
+      className={`p-4 rounded-lg mb-4 grid gap-2 ${isUser ? "bg-card border border-muted" : "bg-muted"}`}
     >
       <div className="grid justify-between grid-cols-[1fr_auto] gap-2">
         <div className="flex items-center gap-2">
@@ -233,7 +237,7 @@ const MessageItem = ({ message }: { message: ChatMessage }) => {
           ) : (
             <Info size={18} />
           )}
-          <span className="font-medium">{parsedData.role || "unknown"}</span>
+          <span className="font-medium">{props.role || "unknown"}</span>
           {hasTools && (
             <span className="ml-2 bg-info/15 text-info-foreground text-xs px-2 py-1 rounded">
               Tool Usage
@@ -248,16 +252,16 @@ const MessageItem = ({ message }: { message: ChatMessage }) => {
       <div>
         <div className="text-muted-foreground">Message:</div>
         {/* Display message parts if available */}
-        {parsedData.parts && parsedData.parts.length > 0 && (
+        {props.parts && props.parts.length > 0 && (
           <div className="grid gap-2">
-            {parsedData.parts.map((part, index) => {
+            {props.parts.map((part, index) => {
               return <MessagePart key={index} part={part} />;
             })}
           </div>
         )}
       </div>
 
-      <JSONViewer data={parsedData} />
+      <JSONViewer data={props} />
     </div>
   );
 };
@@ -279,24 +283,15 @@ function MessagePart({ part }: { part: MessagePart }) {
  */
 export const ChatMessagesRenderer = ({ data }: Props) => {
   return (
-    <ListSection
-      title={
-        <div className="flex items-center gap-2">
-          Messages
-          <span className="text-muted-foreground">({data.length} total)</span>
+    <div className="space-y-2 mt-2">
+      {data.length === 0 && (
+        <div className="text-muted-foreground text-center py-6">
+          No messages found
         </div>
-      }
-    >
-      <div className="space-y-2">
-        {data.length === 0 && (
-          <div className="text-muted-foreground text-center py-6">
-            No messages found
-          </div>
-        )}
-        {data.map((message) => (
-          <MessageItem key={message.id} message={message} />
-        ))}
-      </div>
-    </ListSection>
+      )}
+      {data.map((message) => (
+        <JSONMessageItem key={message.id} message={message} />
+      ))}
+    </div>
   );
 };

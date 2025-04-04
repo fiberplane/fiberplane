@@ -20,7 +20,7 @@ export function KeyValueTable({
   valueCellClassName,
 }: {
   keyValue:
-    | Record<string, string>
+    | Record<string, string | ReactNode>
     | Array<[string | ReactNode, string | ReactNode]>;
   emptyMessage?: string;
   className?: string;
@@ -70,6 +70,7 @@ type Props = {
   title: string;
   sensitiveKeys?: string[] | ((key: string) => boolean);
   keyCellClassName?: string;
+  valueCellClassName?: string;
 };
 
 export function CollapsibleKeyValueTableV2({
@@ -80,6 +81,7 @@ export function CollapsibleKeyValueTableV2({
   title,
   sensitiveKeys = [],
   keyCellClassName,
+  valueCellClassName,
   headerClassName,
 }: Props) {
   const [isOpen, setIsOpen] = useState(!defaultCollapsed);
@@ -115,6 +117,7 @@ export function CollapsibleKeyValueTableV2({
             className="pl-6 mt-1"
             sensitiveKeys={sensitiveKeys}
             keyCellClassName={keyCellClassName}
+            valueCellClassName={valueCellClassName}
           />
         </CollapsibleContent>
       </Collapsible>

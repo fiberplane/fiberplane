@@ -1,5 +1,6 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { createOpenAI } from "@ai-sdk/openai";
+import { Fiber, fiberplane } from "@fiberplane/agents";
 import { type AgentNamespace, type Schedule, routeAgentRequest } from "agents";
 import { AIChatAgent } from "agents/ai-chat-agent";
 import {
@@ -9,7 +10,6 @@ import {
   generateId,
   streamText,
 } from "ai";
-import { Fiber, fiberplane } from "@fiberplane/agents";
 import { executions, tools } from "./tools";
 import { processToolCalls } from "./utils";
 
@@ -33,13 +33,11 @@ interface MemoryState {
 // we use ALS to expose the agent context to the tools
 export const agentContext = new AsyncLocalStorage<ChatClient>();
 
-export { ChatClient };
-
 /**
  * Chat Agent implementation that handles real-time AI chat interactions
  */
 @Fiber()
-class ChatClient extends AIChatAgent<Env, MemoryState> {
+export class ChatClient extends AIChatAgent<Env, MemoryState> {
   initialState = { memories: {} };
 
   /**
@@ -93,6 +91,7 @@ class ChatClient extends AIChatAgent<Env, MemoryState> {
       return dataStreamResponse;
     });
   }
+
   async executeTask(description: string, task: Schedule<string>) {
     await this.saveMessages([
       ...this.messages,
@@ -108,7 +107,7 @@ class ChatClient extends AIChatAgent<Env, MemoryState> {
 /**
  * Worker entry point that routes incoming requests to the appropriate handler
  */
-export default {
+const worker = {
   fetch: fiberplane(
     async (request: Request, env: Env, ctx: ExecutionContext) => {
       if (!env.OPENAI_API_KEY) {
@@ -130,3 +129,5 @@ export default {
     },
   ),
 };
+
+export default worker;
