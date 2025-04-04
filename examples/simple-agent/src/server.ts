@@ -34,6 +34,8 @@ interface MemoryState {
 // we use ALS to expose the agent context to the tools
 export const agentContext = new AsyncLocalStorage<ChatClient>();
 
+export { ChatClient };
+
 /**
  * Chat Agent implementation that handles real-time AI chat interactions
  */

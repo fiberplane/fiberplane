@@ -22,7 +22,7 @@ import {
   toKebabCase,
   tryCatch,
   tryCatchAsync
-} from "./util";
+} from "./utils";
 
 const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
 const PARTYKIT_ROOM_HEADER = "x-partykit-room";
@@ -512,7 +512,7 @@ export function Observed<E = unknown, S = unknown>() {
           );
         }
 
-        this.fiberRouter.notFound(() => {
+        this._fiberRouter.notFound(() => {
           // Extract url & method for re-use in the response payload
           const { url, method } = request;
 
