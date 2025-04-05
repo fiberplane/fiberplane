@@ -39,5 +39,13 @@ export const uiSlice: StateCreator<
         state.shortcutsOpen = open;
         return state;
       }),
+
+    commandBarOpen: false,
+    setCommandBarOpen: (open: boolean) =>
+      set((initialState: StudioState): StudioState => {
+        const state = { ...initialState };
+        state.commandBarOpen = open;
+        return state;
+      }),
   };
 };

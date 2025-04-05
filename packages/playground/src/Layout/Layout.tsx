@@ -1,9 +1,11 @@
+import { CommandBar } from "@/components/playground/CommandBar";
 import { useStudioStore } from "@/components/playground/store";
 import { Button } from "@/components/ui/button";
 import { useMountedPath } from "@/hooks/use-mounted-path";
 import { createLink, useMatches } from "@tanstack/react-router";
 import { UserCircle } from "lucide-react";
 import { type ReactNode, forwardRef } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { cn } from "../utils";
 import { BottomBar } from "./BottomBar";
 import { SettingsScreen } from "./Settings";
@@ -36,12 +38,42 @@ NavButtonComponent.displayName = "NavButtonComponent";
 const NavButton = createLink(NavButtonComponent);
 
 export function Layout({ children }: { children?: ReactNode }) {
-  const { isWorkflowsEnabled, isTracingEnabled, shouldShowTopNav } =
-    useStudioStore(
-      "isWorkflowsEnabled",
-      "isTracingEnabled",
-      "shouldShowTopNav",
-    );
+  const {
+    isWorkflowsEnabled,
+    isTracingEnabled,
+    shouldShowTopNav,
+    setShortcutsOpen,
+    commandBarOpen,
+    setCommandBarOpen,
+  } = useStudioStore(
+    "isWorkflowsEnabled",
+    "isTracingEnabled",
+    "shouldShowTopNav",
+    "setShortcutsOpen",
+    "commandBarOpen",
+    "setCommandBarOpen",
+  );
+
+  useHotkeys(
+    "mod+k",
+    (e) => {
+      e.preventDefault();
+      setCommandBarOpen(true);
+    },
+    {
+      enableOnFormTags: ["input"],
+    },
+  );
+
+  useHotkeys(
+    "mod+/",
+    () => {
+      setShortcutsOpen(true);
+    },
+    {
+      enableOnFormTags: ["input"],
+    },
+  );
 
   return (
     <div className="flex flex-col justify-between w-full min-h-screen overflow-hidden bg-muted/30 max-w-128">
@@ -62,6 +94,8 @@ export function Layout({ children }: { children?: ReactNode }) {
           </div>
         </div>
       )}
+
+      <CommandBar open={commandBarOpen} setOpen={setCommandBarOpen} />
 
       <main
         className={cn(

@@ -1,3 +1,4 @@
+import { useStudioStore } from "@/components/playground/store";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -6,28 +7,16 @@ import {
 } from "@/components/ui/resizable";
 import { useIsLgScreen, useKeySequence } from "@/hooks";
 import { cn } from "@/utils";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { CommandBar } from "../CommandBar";
 import { PlaygroundInput } from "../PlaygroundInput";
 import { RequestPanel } from "../RequestPanel";
 import { ResponsePanel } from "../ResponsePanel";
 import { useMakePlaygroundRequest } from "../queries";
-import { useStudioStore } from "../store";
 import { usePlaygroundSubmitHandler } from "../usePlaygroundSubmitHandler";
 import { getMainSectionWidth } from "./util";
 
 export const PlaygroundPageContent: React.FC = (_props) => {
-  const {
-    setShortcutsOpen,
-    setActiveRequestsPanelTab,
-    visibleRequestsPanelTabs,
-  } = useStudioStore(
-    "setShortcutsOpen",
-    "setActiveRequestsPanelTab",
-    "visibleRequestsPanelTabs",
-  );
-
   const { mutate: makeRequest, isPending: isPlaygroundRequesting } =
     useMakePlaygroundRequest();
 
@@ -38,37 +27,17 @@ export const PlaygroundPageContent: React.FC = (_props) => {
 
   const formRef = useRef<HTMLFormElement>(null);
 
+  const isLgScreen = useIsLgScreen();
+
+  const { setActiveRequestsPanelTab, visibleRequestsPanelTabs } =
+    useStudioStore("setActiveRequestsPanelTab", "visibleRequestsPanelTabs");
+
   useHotkeys(
     "mod+enter",
     () => {
       if (formRef.current) {
         formRef.current.requestSubmit();
       }
-    },
-    {
-      enableOnFormTags: ["input"],
-    },
-  );
-
-  const isLgScreen = useIsLgScreen();
-
-  const [commandBarOpen, setCommandBarOpen] = useState(false);
-
-  useHotkeys(
-    "mod+k",
-    (e) => {
-      e.preventDefault();
-      setCommandBarOpen(true);
-    },
-    {
-      enableOnFormTags: ["input"],
-    },
-  );
-
-  useHotkeys(
-    "mod+/",
-    () => {
-      setShortcutsOpen(true);
     },
     {
       enableOnFormTags: ["input"],
@@ -168,7 +137,6 @@ export const PlaygroundPageContent: React.FC = (_props) => {
         "overflow-hidden",
       )}
     >
-      <CommandBar open={commandBarOpen} setOpen={setCommandBarOpen} />
       <PlaygroundInput
         onSubmit={onSubmit}
         isPlaygroundRequesting={isPlaygroundRequesting}
