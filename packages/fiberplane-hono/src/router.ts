@@ -27,6 +27,7 @@ export function createRouter<E extends Env>(
     otelToken,
     debug,
     fiberplaneServicesUrl,
+    authTraces = true,
     ...sanitizedOptions
   } = options;
 
@@ -72,7 +73,14 @@ export function createRouter<E extends Env>(
     );
     app.route(
       "/api/traces",
-      createTracesApiRoute(fetchFn, otelEndpoint, otelToken),
+      createTracesApiRoute(
+        authTraces,
+        fetchFn,
+        otelEndpoint,
+        otelToken,
+        fiberplaneServicesUrl,
+        apiKey,
+      ),
     );
   } else {
     logIfDebug(
@@ -80,7 +88,7 @@ export function createRouter<E extends Env>(
       "OpenTelemetry Endpoint *NOT* Present. Internal traces API router disabled.",
     );
     app.use("/api/traces/*", async (c) => {
-      return c.json({ error: "OpenTelemetry endpoint is not set" }, 401);
+      return c.json({ error: "OpenTelemetry endpoint is not set" }, 402);
     });
   }
 

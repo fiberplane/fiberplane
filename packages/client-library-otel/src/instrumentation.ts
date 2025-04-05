@@ -101,15 +101,19 @@ export function instrument(app: HonoLikeApp, userConfig?: FpConfigOptions) {
             patchFetch();
           }
 
+          const promiseStore = new PromiseStore();
+
           const provider = setupTracerProvider({
             serviceName,
             otelEndpoint,
             otelToken,
             fetchFn: webStandardFetch,
+            promiseStore,
             logger,
+            waitUntil: executionContext?.waitUntil
+              ? (p: Promise<unknown>) => executionContext.waitUntil(p)
+              : undefined,
           });
-
-          const promiseStore = new PromiseStore();
 
           // Enable tracing for waitUntil (Cloudflare only - allows us to still trace promises that extend beyond the life of the request itself)
           const proxyExecutionCtx =
@@ -177,13 +181,18 @@ export function instrument(app: HonoLikeApp, userConfig?: FpConfigOptions) {
           } finally {
             // Make sure all promises are resolved before sending data to the server
             if (proxyExecutionCtx) {
+              logger.debug(
+                "Waiting for promises to resolve before flushing traces",
+              );
               proxyExecutionCtx.waitUntil(
                 promiseStore.allSettled().finally(() => {
+                  logger.debug("Force flushing traces");
                   return provider.forceFlush();
                 }),
               );
             } else {
               // Otherwise just await flushing the provider
+              logger.debug("No execution context: Force flushing traces");
               await provider.forceFlush();
             }
           }
@@ -201,9 +210,19 @@ function setupTracerProvider(options: {
   otelEndpoint: string;
   otelToken: string | null;
   fetchFn: FetchFn;
+  promiseStore: PromiseStore;
   logger: FpxLogger;
+  waitUntil?: (promise: Promise<unknown>) => void;
 }) {
-  const { otelEndpoint, otelToken, serviceName, fetchFn, logger } = options;
+  const {
+    otelEndpoint,
+    otelToken,
+    serviceName,
+    fetchFn,
+    promiseStore,
+    logger,
+    waitUntil,
+  } = options;
 
   // We need to use async hooks to be able to propagate context
   const asyncHooksContextManager = new AsyncLocalStorageContextManager();
@@ -228,7 +247,9 @@ function setupTracerProvider(options: {
     // NOTE - We bind the fetch function to globalThis so that it can be called
     //        without a specific context. Otherwise, I got a runtime error.
     fetchFn.bind(globalThis),
+    promiseStore,
     logger,
+    waitUntil,
   );
 
   provider.addSpanProcessor(

@@ -6,6 +6,7 @@ import {
 import { createExportTraceServiceRequest } from "@opentelemetry/otlp-transformer";
 import type { ReadableSpan, SpanExporter } from "@opentelemetry/sdk-trace-base";
 import type { FpxLogger } from "./logger";
+import type { PromiseStore } from "./promiseStore";
 import type { FetchFn } from "./types";
 import { isWrapped } from "./utils";
 
@@ -36,12 +37,22 @@ export class FPOTLPExporter implements SpanExporter {
   private url: string;
   private fetchFn: FetchFn;
   private logger: FpxLogger;
+  private promiseStore: PromiseStore;
+  private waitUntil: (promise: Promise<unknown>) => void;
 
-  constructor(config: OTLPExporterConfig, fetchFn: FetchFn, logger: FpxLogger) {
+  constructor(
+    config: OTLPExporterConfig,
+    fetchFn: FetchFn,
+    promiseStore: PromiseStore,
+    logger: FpxLogger,
+    waitUntil?: (promise: Promise<unknown>) => void,
+  ) {
     this.url = config.url;
     this.headers = Object.assign({}, defaultHeaders, config.headers);
     this.fetchFn = fetchFn;
+    this.promiseStore = promiseStore;
     this.logger = logger;
+    this.waitUntil = waitUntil ?? (() => {});
 
     if (isWrapped(this.fetchFn)) {
       this.logger.error(
@@ -57,9 +68,11 @@ export class FPOTLPExporter implements SpanExporter {
   ): void {
     this._export(items)
       .then(() => {
+        this.logger.debug("Successfully exported spans");
         resultCallback({ code: ExportResultCode.SUCCESS });
       })
       .catch((error: ExportServiceError) => {
+        this.logger.error("Error exporting spans", { error });
         resultCallback({ code: ExportResultCode.FAILED, error });
       });
   }
@@ -106,9 +119,9 @@ export class FPOTLPExporter implements SpanExporter {
     };
 
     // NOTE - You can log the payload to the console for debugging purposes
-    // this.logger.debug(`Payload to send to OTLP (${body.length})\n`, body);
+    // this.logger.debug(`Sending payload to OTLP (${this.url})`, params);
 
-    this.fetchFn(this.url, params)
+    const fetchPromise = this.fetchFn(this.url, params)
       .then(async (response) => {
         if (response.ok) {
           onSuccess();
@@ -129,6 +142,11 @@ export class FPOTLPExporter implements SpanExporter {
           ),
         );
       });
+
+    // We need to directly add the promise to the waitUntil queue,
+    // since in Cloudflare Workers, the Worker might terminate before we send the span
+    this.waitUntil(fetchPromise);
+    this.promiseStore.add(fetchPromise);
   }
 
   async shutdown(): Promise<void> {}

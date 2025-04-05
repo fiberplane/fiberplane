@@ -9,6 +9,7 @@ import { z } from "zod";
 
 const SettingsRouteSchema = z.object({
   settings: z.boolean().optional(),
+  code: z.string().optional(),
 });
 
 const ApiRouteSchema = SettingsRouteSchema.extend({

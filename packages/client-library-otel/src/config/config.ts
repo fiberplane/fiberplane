@@ -60,6 +60,7 @@ export const DEFAULT_REDACTED_QUERY_PARAMS = [
   "secret",
   "password",
   "api_key",
+  "session",
 ];
 
 export const DEFAULT_CONFIG: FpConfig = Object.freeze({

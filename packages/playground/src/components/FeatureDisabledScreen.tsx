@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Icon } from "@iconify/react";
 import { Link, useCanGoBack, useRouter } from "@tanstack/react-router";
 import { Button } from "./ui/button";
@@ -6,13 +7,14 @@ export function FeatureDisabledScreen(props: {
   error: Error;
   title: string;
   message: string;
+  className?: string;
 }) {
-  const { error: _error, message, title } = props;
+  const { error: _error, message, title, className } = props;
   const router = useRouter();
   const canGoBack = useCanGoBack();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={cn("min-h-screen bg-background", className)}>
       <div className="flex flex-col items-center justify-center h-screen gap-2">
         <Icon
           icon="lucide:lock"

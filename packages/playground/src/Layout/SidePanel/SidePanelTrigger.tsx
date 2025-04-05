@@ -32,7 +32,11 @@ export function SidePanelTrigger() {
           />
         </Button>
       </TooltipTrigger>
-      <TooltipContent className=" px-2 py-1.5 flex gap-1.5" align="start">
+      <TooltipContent
+        className=" px-2 py-1.5 flex gap-1.5"
+        align="start"
+        side="right"
+      >
         Open Side Panel
         <div className="flex gap-0.5">
           <KeyboardShortcutKey>{isMac ? "⌘" : "Ctrl"}</KeyboardShortcutKey>{" "}
