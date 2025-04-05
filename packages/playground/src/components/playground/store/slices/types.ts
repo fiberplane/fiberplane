@@ -84,6 +84,8 @@ export interface UISlice {
   timelineAsTree: boolean;
   toggleTimelineLogs: () => void;
   toggleTimelineAsTree: () => void;
+  commandBarOpen: boolean;
+  setCommandBarOpen: (open: boolean) => void;
 }
 
 export type StudioState = RequestResponseSlice &

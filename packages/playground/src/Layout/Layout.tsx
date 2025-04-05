@@ -1,9 +1,11 @@
+import { CommandBar } from "@/components/playground/CommandBar";
 import { useStudioStore } from "@/components/playground/store";
 import { Button } from "@/components/ui/button";
 import { useHasFiberplaneServices } from "@/hooks";
 import { useMountedPath } from "@/hooks/use-mounted-path";
 import { createLink, useMatchRoute, useMatches } from "@tanstack/react-router";
 import { type ReactNode, forwardRef } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { cn } from "../utils";
 import { BottomBar } from "./BottomBar";
 import { SettingsScreen } from "./Settings";
@@ -38,14 +40,44 @@ NavButtonComponent.displayName = "NavButtonComponent";
 const NavButton = createLink(NavButtonComponent);
 
 export function Layout({ children }: { children?: ReactNode }) {
-  const hasFiberplaneServices = useHasFiberplaneServices();
-
-  const { isWorkflowsEnabled, isTracingEnabled } = useStudioStore(
-    "isWorkflowsEnabled",
-    "isTracingEnabled",
-  );
   const matchRoute = useMatchRoute();
   const isTracesRoute = matchRoute({ to: "/traces", fuzzy: true });
+  const hasFiberplaneServices = useHasFiberplaneServices();
+
+  const {
+    isWorkflowsEnabled,
+    isTracingEnabled,
+    setShortcutsOpen,
+    commandBarOpen,
+    setCommandBarOpen,
+  } = useStudioStore(
+    "isWorkflowsEnabled",
+    "isTracingEnabled",
+    "setShortcutsOpen",
+    "commandBarOpen",
+    "setCommandBarOpen",
+  );
+
+  useHotkeys(
+    "mod+k",
+    (e) => {
+      e.preventDefault();
+      setCommandBarOpen(true);
+    },
+    {
+      enableOnFormTags: ["input"],
+    },
+  );
+
+  useHotkeys(
+    "mod+/",
+    () => {
+      setShortcutsOpen(true);
+    },
+    {
+      enableOnFormTags: ["input"],
+    },
+  );
 
   return (
     <div className="flex flex-col justify-between w-full min-h-screen overflow-hidden bg-muted/30 max-w-128">
@@ -71,6 +103,8 @@ export function Layout({ children }: { children?: ReactNode }) {
 
         {hasFiberplaneServices ? <UserMenu /> : <div className="w-6 hidden" />}
       </div>
+
+      <CommandBar open={commandBarOpen} setOpen={setCommandBarOpen} />
 
       <main
         className={cn("md:gap-8", "overflow-hidden", "h-[calc(100vh-70px)]")}
