@@ -11,6 +11,10 @@ tags:
   - cloudflare
 ---
 
+import PackageManagers from "@/components/PackageManagers.astro";
+import { LinkCard } from "@astrojs/starlight/components";
+import { YouTube } from "astro-lazy-youtube-embed";
+
 What if there was a super easy way to build, test, and deploy a Hono Worker App in literally minutes. Hold my goose, because the time is now! Cloudflare just launched the [deploy to workers](https:y) feature, an easy one-click deployment pipeline for Workers.
 
 ## Fiberplane and Cloudflare Dev Week
@@ -46,6 +50,11 @@ With Cloudflare’s brand new Deploy button, launching a Cloudflare Worker has n
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/fiberplane/create-honc-app/tree/main/examples/uptime-monitor)
 
 How does this work with Fiberplane? Fiberplane’s pre-built HONC applications come with a public [GitHub repository](https://github.com/fiberplane/create-honc-app/tree/main/examples) that Cloudflare can clone directly to your account. Once you locally test and debug,  you can easily configure the repository name and Worker name in the setup page plsu other necessary details for your project.
+
+<YouTube
+  title="Instantly deploy HONC apps to Cloudflare Workers"
+  videoId="KaeTwXXiMig"
+/>
 
 Cloudflare automatically builds the app and deploys it to the Cloudflare network, provisioning any required resources (like databases or storage) in the process. Then check the deployment details in the Fiberplane API Playground.
 The application will be live on your Cloudflare account within minutes, allowing you to test, iterate, and scale as needed.
