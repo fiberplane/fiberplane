@@ -2,7 +2,6 @@ import { AsyncLocalStorage } from "node:async_hooks";
 import { createOpenAI } from "@ai-sdk/openai";
 import { Observed, fiberplane } from "@fiberplane/agents";
 import { type AgentNamespace, type Schedule, routeAgentRequest } from "agents";
-import { Agent } from "agents";
 import { AIChatAgent } from "agents/ai-chat-agent";
 import {
   type Message,
@@ -34,13 +33,11 @@ interface MemoryState {
 // we use ALS to expose the agent context to the tools
 export const agentContext = new AsyncLocalStorage<ChatClient>();
 
-export { ChatClient };
-
 /**
  * Chat Agent implementation that handles real-time AI chat interactions
  */
 @Observed()
-class ChatClient extends AIChatAgent<Env, MemoryState> {
+export class ChatClient extends AIChatAgent<Env, MemoryState> {
   initialState = { memories: {} };
 
   /**

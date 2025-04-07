@@ -1,0 +1,83 @@
+---
+title: "Introducing the Fiberplane Playground for Cloudflare Agents"
+description: "We're launching an Agents Playground for the Cloudflare Agents SDK"
+slug: cloudflare-agents-playground
+date: 2025-04-07
+author: Fiberplane team
+tags:
+  - cloudflare
+  - agents
+  - playground
+  - services architecture
+---
+
+import { Aside, LinkCard } from "@astrojs/starlight/components";
+import PackageManagers from "@/components/PackageManagers.astro";
+import { YouTube } from "astro-lazy-youtube-embed";
+
+Today we're releasing a new companion playground to help you build, test, and debug your agents on Cloudflare.
+
+The [Agents SDK](https://github.com/cloudflare/agents) on Cloudflare [launched](https://blog.cloudflare.com/build-ai-agents-on-cloudflare/) recently has made it straightforward to build, deploy, and scale AI agents directly at the edge using Workers and Durable Objects. The Fiberplane agents playground specifically addresses the challenges of debugging agents which can still be difficult:
+
+- they are inherently stateful and that state substantially influences LLM behavior;
+- they run on [Durable Objects](https://developers.cloudflare.com/durable-objects/), potentially spawning multiple instances.
+
+The Fiberplane team has had a lot of fun building agents, but we were lacking an overview of the agents themselves, and a way to debug them.
+
+## A bird's eye view of your agents
+
+The Fiberplane Agents [Playground](https://github.com/fiberplane/fiberplane/tree/main/packages/agents) provides comprehensive visibility into all underlying state stored in each agent's Durable Object SQLite database, including state snapshots, messages, schedules, and tool calls with their full parameters and responses. This detailed introspection is captured separately for each instantiation of an agent, giving you complete clarity into individual agent behaviors.
+
+![Agents Playground](@/assets/blog/2025-04-07-agents-playground.png)
+
+## Monitor your agent in action
+
+The playground updates in real-time, capturing every change instantly. An "events" table offers deeper insights, displaying detailed event data categorized by Streaming, HTTP, WebSocket Messages, WebSocket Connections, Broadcasts, and State events. This allows you to filter and focus precisely on the interactions you care about, significantly reducing debugging time and increasing development efficiency.
+
+<YouTube
+  title="Fiberplane Agents Playground for Cloudflare Agents SDK"
+  videoId="5QIwjL2mNM4"
+/>
+
+## Getting Started
+The Fiberplane agents playground is available as an `npm` package:
+
+<PackageManagers pkg="@fiberplane/agents" />
+
+It works with just two key components:
+
+1. Wrap your worker's fetch entrypoint with the `fiberplane` wrapper:
+
+```typescript
+import { fiberplane } from "@fiberplane/agents";
+
+export default {
+  fetch: fiberplane(async (request, env, ctx) => {
+    return await routeAgentRequest(request, env) ||
+      new Response("Not found", { status: 404 });
+  }),
+};
+````
+
+2. Add the `@Observed()` decorator to any agent class you want to debug:
+
+```typescript
+import { Observed } from "@fiberplane/agents";
+
+@Observed()
+class ChatClient extends AIChatAgent<Env, MemoryState> {
+  // Your agent implementation
+}
+```
+
+Once integrated, access the playground by appending `/fp` to your worker's URL in the browser.
+
+## It's alpha - here's what's in progress
+
+Just a few disclaimers:
+
+- There are type errors in the decorator; we're working on improving introspection.
+- Use this only in local development—proper authentication for production is coming soon.
+- The playground is currently read-only. Interactive testing is planned, and feedback is welcome!
+
+The Fiberplane Agents Playground is open source alongside our Hono Playground on [GitHub](https://github.com/fiberplane/fiberplane).

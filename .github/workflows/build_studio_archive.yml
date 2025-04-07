@@ -4,13 +4,13 @@ on:
   pull_request:
     branches: ["*"]
     paths:
-      - "apps/studio/studio-api/**"
-      - "apps/studio/studio-frontend/**"
+      - "legacy/apps/studio/studio-api/**"
+      - "legacy/apps/studio/studio-frontend/**"
   push:
     branches: ["main", "release-*"]
     paths:
-      - "apps/studio/studio-api/**"
-      - "apps/studio/studio-frontend/**"
+      - "legacy/apps/studio/studio-api/**"
+      - "legacy/apps/studio/studio-frontend/**"
 
 env:
   CARGO_TERM_COLOR: always
@@ -85,7 +85,7 @@ jobs:
       # Release a preview version
 
       - name: Copy the frontend files into the api
-        run: cp -r ./apps/studio/studio-frontend/dist/* ./apps/studio/studio-api/dist
+        run: cp -r ./legacy/apps/studio/studio-frontend/dist/* ./legacy/apps/studio/studio-api/dist
 
       - name: Publish a temporary preview version
-        run: pnpx pkg-pr-new publish --pnpm "./apps/studio/studio-api" "./packages/client-library-otel"
+        run: pnpx pkg-pr-new publish --pnpm "./legacy/apps/studio/studio-api" "./legacy/packages/client-library-otel"

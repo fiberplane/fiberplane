@@ -2,6 +2,8 @@
 
 A toolkit for introspecting and debugging agents built with Cloudflare's Agents SDK.
 
+![agents-playground-preview](https://github.com/user-attachments/assets/4e33d966-aee7-4a70-8087-6a369fd753c7)
+
 ## Overview
 
 `@fiberplane/agents` provides debugging and introspection capabilities for agents built with Cloudflare's Agents SDK. It allows you to monitor agent state, track messages, and view instance information in real-time.
@@ -38,13 +40,13 @@ export default {
 
 ### 2. Decorate your agent classes
 
-Add the `@Fiber()` decorator to any agent class you want to introspect:
+Add the `@Observed()` decorator to any agent class you want to introspect:
 
 ```typescript
-import { Fiber } from "@fiberplane/agents";
+import { Observed } from "@fiberplane/agents";
 import { Agent } from "agents";
 
-@Fiber()
+@Observed()
 class MyAgent extends Agent<MyEnv, MyState> {
   // Your agent implementation...
 }

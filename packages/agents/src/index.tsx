@@ -441,7 +441,10 @@ export function Observed<E = unknown, S = unknown>() {
                 });
 
                 // Call the original send method
-                return Reflect.get(target, prop, receiver).call(this, message);
+                return Reflect.get(target, prop, receiver).call(
+                  target,
+                  message,
+                );
               };
             }
 

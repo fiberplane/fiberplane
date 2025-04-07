@@ -37,7 +37,7 @@ function AgentsListRoute() {
             </div>
             <p className="text-muted-foreground">
               Please make sure you've decorated your Agents classes with the{" "}
-              <code className="font-mono text-warning">`@Fiber()`</code>{" "}
+              <code className="font-mono text-warning">`@Observed()`</code>{" "}
               decorator
             </p>
           </div>
