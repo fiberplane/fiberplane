@@ -225,18 +225,18 @@ interface FiberProperties {
 type FiberDecoratedAgent = Agent<unknown, unknown> & FiberProperties;
 
 /**
- * Class decorator factory that adds Fiber capabilities to Agent classes
+ * Class decorator factory that adds Observed capabilities to Agent classes
  *
  * Usage:
  * ```typescript
  *
- * @Fiber()
+ * @Observed()
  * export class MyAgent extends Agent {
  *   // Your agent implementation
  * }
  * ```
  */
-export function Fiber<E = unknown, S = unknown>() {
+export function Observed<E = unknown, S = unknown>() {
   return <T extends AgentConstructor<E, S>>(BaseClass: T) => {
     return class extends BaseClass {
       // biome-ignore lint/complexity/noUselessConstructor: Required for TypeScript mixins
@@ -484,7 +484,7 @@ function createFpApp() {
           const namespace = toKebabCase(name);
           if (!agents.some((agent) => agent.id === namespace)) {
             console.warn(
-              `Warning: durable object detected but it is not decorated with the \`@Fiber()\` decorator (binding name: ${name}, expected namespace: ${namespace})`,
+              `Warning: durable object detected but it is not decorated with the \`@Observed()\` decorator (binding name: ${name}, expected namespace: ${namespace})`,
             );
           }
         }
