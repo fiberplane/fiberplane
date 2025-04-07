@@ -1,5 +1,11 @@
 # @fiberplane/agents
 
+## 0.3.5
+
+### Patch Changes
+
+- Rename @Fiber to @Observed
+
 ## 0.3.4
 
 ### Patch Changes
