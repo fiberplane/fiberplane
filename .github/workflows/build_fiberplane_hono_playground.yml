@@ -4,13 +4,13 @@ on:
   pull_request:
     branches: ["*"]
     paths:
-      - "packages/fiberplane-hono/**"
-      - "packages/playground/**"
+      - "packages/hono/**"
+      - "packages/hono-ui/**"
   push:
     branches: ["main", "release-*"]
     paths:
-      - "packages/fiberplane-hono/**"
-      - "packages/playground/**"
+      - "packages/hono/**"
+      - "packages/hono-ui/**"
 
 env:
   CARGO_TERM_COLOR: always
@@ -55,13 +55,13 @@ jobs:
       - name: Lint all workspaces (eslint or other linters)
         run: pnpm --recursive lint:ci
 
-      - name: Typecheck @fiberplane/playground and @fiberplane/hono packages
-        run: pnpm --filter @fiberplane/playground --filter @fiberplane/hono typecheck
+      - name: Typecheck @fiberplane/hono-ui and @fiberplane/hono packages
+        run: pnpm --filter @fiberplane/hono-ui --filter @fiberplane/hono typecheck
 
       # Testing
 
-      - name: Test @fiberplane/playground
-        run: pnpm --filter @fiberplane/playground test
+      - name: Test @fiberplane/hono-ui
+        run: pnpm --filter @fiberplane/hono-ui test
 
       - name: Test @fiberplane/hono
         run: pnpm --filter @fiberplane/hono test
@@ -76,4 +76,4 @@ jobs:
       # Release a preview version
 
       - name: Publish a temporary preview version
-        run: pnpx pkg-pr-new publish --pnpm "./packages/fiberplane-hono"
+        run: pnpx pkg-pr-new publish --pnpm "./packages/hono"

@@ -12,7 +12,7 @@ You will also want to use the project root to prepare the npx command for the di
 
 Always publish with `pnpm publish`.
 
-If you've updated the code in `packages/types`, you'll need to publish a new version of the package before publishing any other packages that depend on it.
+If you've updated the code in `packages/fpx-types`, you'll need to publish a new version of the package before publishing any other packages that depend on it.
 
 
 ## Projects
@@ -21,9 +21,9 @@ If you've updated the code in `packages/types`, you'll need to publish a new ver
 
 The `@fiberplane/hono` package is a library for embedding a Fiberplane API Explorer into your Hono app.
 
-The package that is published to npm is in `packages/fiberplane-hono`.
+The package that is published to npm is in `packages/hono`.
 
-The frontend that is bundled with the package is in `packages/playground`
+The frontend that is bundled with the package is in `packages/hono-ui`
 
 ### Fiberplane Studio
 
@@ -37,8 +37,8 @@ The frontend is a React + Typescript + Tailwind app that uses [shadcn/ui](https:
 
 There are also folders containing:
 
-- `packages/types` - The shared typescript types (and constants) used across the projects in the monorepo
-- `apps/webhonc`- A proxy service for sending requests to your Hono app from a static public url
+- `packages/fpx-types` - The shared typescript types (and constants) used across the projects in the monorepo
+- `legacy/apps/webhonc`- A proxy service for sending requests to your Hono app from a static public url
 - `www` - The documentation website for Studio
 
 #### Setup
