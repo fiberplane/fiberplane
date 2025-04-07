@@ -38,13 +38,13 @@ export default {
 
 ### 2. Decorate your agent classes
 
-Add the `@Fiber()` decorator to any agent class you want to introspect:
+Add the `@Observed()` decorator to any agent class you want to introspect:
 
 ```typescript
-import { Fiber } from "@fiberplane/agents";
+import { Observed } from "@fiberplane/agents";
 import { Agent } from "agents";
 
-@Fiber()
+@Observed()
 class MyAgent extends Agent<MyEnv, MyState> {
   // Your agent implementation...
 }
