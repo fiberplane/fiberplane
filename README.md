@@ -1,1 +1,1 @@
-packages/fiberplane-hono/README.md
+packages/hono/README.md
