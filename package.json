@@ -4,25 +4,26 @@
   "description": "Local development debugging interface for Hono apps, powered by OpenTelemetry",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "postinstall": "pnpm run build:types && pnpm run build:source-analysis",
-    "build:fp-hono": "pnpm build:playground && pnpm clean:fp-hono && pnpm --filter @fiberplane/hono build && cp -r packages/playground/dist packages/hono/dist/playground",
+    "build:fp-hono": "pnpm build:playground && pnpm clean:fp-hono && pnpm --filter @fiberplane/hono build && cp -r packages/hono-ui/dist packages/hono/dist/playground",
     "build:playground": "pnpm --filter @fiberplane/hono-ui build",
     "build:source-analysis": "pnpm --filter @fiberplane/source-analysis build",
     "build:studio": "pnpm clean:studio && pnpm build:studio-api && pnpm build:studio-frontend",
     "build:studio-api": "pnpm --filter @fiberplane/studio build",
-    "build:studio-frontend": "pnpm --filter @fiberplane/studio-frontend build && cp -r apps/studio/studio-frontend/dist/* apps/studio/studio-api/dist",
+    "build:studio-frontend": "pnpm --filter @fiberplane/studio-frontend build && cp -r legacy/apps/studio/studio-frontend/dist/* legacy/apps/studio/studio-api/dist",
     "build:types": "pnpm --filter @fiberplane/fpx-types build",
     "build:www": "pnpm --filter www build",
+    "build:agents": "pnpm --filter @fiberplane/agents build",
     "dev:www": "pnpm --filter www dev",
     "dev:studio": "pnpm --filter @fiberplane/studio-frontend dev",
     "dev:studio-api": "pnpm --filter @fiberplane/studio dev",
-    "clean:fp-hono": "rimraf packages/hono-ui/dist",
+    "clean:fp-hono": "rimraf packages/hono/dist",
     "clean:studio": "pnpm clean:studio-api && pnpm clean:studio-frontend",
-    "clean:studio-api": "rimraf apps/studio/studio-api/dist",
-    "clean:studio-frontend": "rimraf apps/studio/studio-frontend/dist",
+    "clean:studio-api": "rimraf legacy/apps/studio/studio-api/dist",
+    "clean:studio-frontend": "rimraf legacy/apps/studio/studio-frontend/dist",
     "format": "biome check . --write",
     "lint": "pnpm --recursive lint",
-    "typecheck": "pnpm --recursive typecheck"
+    "typecheck": "pnpm --recursive typecheck",
+    "changeset": "changeset"
   },
   "repository": {
     "type": "git",
@@ -34,10 +35,11 @@
   "homepage": "https://github.com/fiberplane/fiberplane#readme",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "@changesets/cli": "^2.28.1",
     "pkg-pr-new": "^0.0.35",
     "rimraf": "^6.0.1",
-    "typescript": "^5.7.2",
+    "typescript": "^5.8.2",
     "wrangler": "^3.91.0"
   },
-  "packageManager": "pnpm@9.11.0"
+  "packageManager": "pnpm@10.7.0"
 }
