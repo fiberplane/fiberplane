@@ -2,6 +2,8 @@
 
 A toolkit for introspecting and debugging agents built with Cloudflare's Agents SDK.
 
+![agents-playground-preview](https://github.com/user-attachments/assets/4e33d966-aee7-4a70-8087-6a369fd753c7)
+
 ## Overview
 
 `@fiberplane/agents` provides debugging and introspection capabilities for agents built with Cloudflare's Agents SDK. It allows you to monitor agent state, track messages, and view instance information in real-time.
