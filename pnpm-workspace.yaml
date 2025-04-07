@@ -1,7 +1,9 @@
 packages:
-  - "apps/*"
-  - "apps/studio/*"
   - "examples/*"
   - "packages/*"
+  - "legacy/apps/*"
+  - "legacy/apps/studio/*"
+  - "legacy/packages/*"
+  - "legacy/examples/*"
   - "examples/service-bindings/*"
   - "www"

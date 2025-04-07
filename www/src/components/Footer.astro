@@ -1,0 +1,174 @@
+---
+import fpLogo from "@/assets/fp-logo.svg?url";
+import { Icon } from "@astrojs/starlight/components";
+import Default from "@astrojs/starlight/components/Footer.astro";
+import type { ComponentProps } from "astro/types";
+
+const isHomepage = Astro.locals.starlightRoute.id === "";
+
+const socials: Array<{
+  iconName: ComponentProps<typeof Icon>["name"];
+  url: string;
+  title: string;
+}> = [
+  {
+    iconName: "twitter",
+    url: "https://x.com/fiberplane",
+    title: "Twitter"
+  },
+  {
+    iconName: "linkedin",
+    url: "https://www.linkedin.com/company/fiberplane",
+    title: "LinkedIn"
+  },
+  {
+    iconName: "github",
+    url: "https://github.com/fiberplane",
+    title: "GitHub"
+  },
+  {
+    iconName: "discord",
+    url: "https://discord.com/invite/cqdY6SpfVR",
+    title: "Discord"
+  }
+];
+---
+
+{
+  isHomepage ? (
+    <footer class="footer-large">
+      <div class="wrapper">
+        <div class="footer-column footer-column--company">
+          <img src={fpLogo} width="64" alt="Fiberplane icon logo" />
+
+          <ul>
+            {socials.map(({ iconName, title, url }) => (
+              <li>
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={title}
+                >
+                  <Icon name={iconName} size="1.75rem" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Resources</h4>
+          <ul>
+            <li>
+              <a href="/docs/get-started">Documentation</a>
+            </li>
+            <li>
+              <a href="/blog">Blog</a>
+            </li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4>Get Started</h4>
+          <ul>
+            <li>
+              <a href="https://honc.dev">HONC</a>
+            </li>
+            <li>
+              <a href="https://github.com/fiberplane/fiberplane">GitHub</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="footnote">
+        Copyright &copy; 2025 Fiberplane &bull;{" "}
+        <a href="/privacy-policy">privacy policy</a>
+      </p>
+    </footer>
+  ) : (
+    <>
+      <Default />
+      <p class="footnote">
+        Copyright &copy; 2025 Fiberplane &bull;{" "}
+        <a href="/privacy-policy">privacy policy</a>
+      </p>
+    </>
+  )
+}
+
+<style>
+  .footer-large {
+    border-top: 1px solid var(--sl-color-hairline-shade);
+    margin-block-start: -4rem;
+    padding-block-start: 4rem;
+    margin-inline: calc(var(--sl-content-pad-x) * -1);
+    padding-inline: var(--sl-content-pad-x);
+  }
+
+  .footnote {
+    margin-top: 4em;
+    font-size: 0.875rem;
+    color: var(--fg-muted);
+    text-align: center;
+  }
+
+  .wrapper {
+    max-width: 69rem;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    justify-items: center;
+  }
+
+  .footer-column--company {
+    grid-column: 1 / 3;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 2rem;
+    justify-items: center;
+
+    ul {
+      display: flex;
+      gap: 1.25rem;
+
+      li {
+        margin: 0;
+
+        a {
+          color: var(--fg-muted);
+        }
+      }
+    }
+  }
+
+  .footer-column h4 {
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: var(--fg-muted);
+  }
+
+  .footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-column a {
+    text-decoration: none;
+  }
+
+  @media (min-width: 768px) {
+    .wrapper {
+      grid-template-columns: 1fr repeat(2, auto);
+      gap: 6rem;
+      justify-items: start;
+    }
+
+    .footer-column--company {
+      grid-column: auto;
+      justify-items: start;
+    }
+  }
+</style>
