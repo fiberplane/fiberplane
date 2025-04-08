@@ -1,7 +1,7 @@
 import { Hono } from "hono";
+import packageJson from "../package.json" assert { type: "json" };
 import { getAgents } from "./agentInstances";
 import { isDurableObjectNamespace, toKebabCase, tryCatch } from "./utils";
-import packageJson from "../package.json" assert { type: "json" };
 
 const version = packageJson.version;
 const commitHash = import.meta.env.GIT_COMMIT_HASH;
@@ -9,10 +9,10 @@ const commitHash = import.meta.env.GIT_COMMIT_HASH;
 /**
  * Creates the main Fiberplane app router
  */
-export function createFpApp() {
+export function createFpApp(customPath = "/fp") {
   let firstRequest = true;
   return new Hono()
-    .basePath("/fp")
+    .basePath(customPath)
     .get("/api/agents", async (c) => {
       const agents = getAgents();
 
@@ -41,7 +41,7 @@ export function createFpApp() {
     })
     .get("*", async (c) => {
       const options = {
-        mountedPath: "/fp",
+        mountedPath: customPath,
         version,
         commitHash,
       };
@@ -75,6 +75,10 @@ export function createFpApp() {
 // that allows for any values in the environment object
 type Env = Record<string, unknown>;
 
+interface FiberplaneEntryWrapperOptions {
+  customPath?: string;
+}
+
 /**
  * Creates a fetch handler that serves the Fiberplane app
  */
@@ -84,8 +88,9 @@ export function fiberplane<E extends Env>(
     env: E,
     ctx: ExecutionContext,
   ) => Promise<Response>,
+  options?: FiberplaneEntryWrapperOptions,
 ) {
-  const fpApp = createFpApp();
+  const fpApp = createFpApp(options?.customPath);
 
   return async function fetch(request: Request, env: E, ctx: ExecutionContext) {
     const { data: response, error } = await tryCatch(
