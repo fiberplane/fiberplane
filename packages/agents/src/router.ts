@@ -4,7 +4,13 @@ import type { FiberDecoratedAgent } from "./observed";
 import { tryCatch } from "./utils";
 
 // Define types for database schema
-export type ColumnType = "string" | "number" | "boolean" | "null" | "object" | "array";
+export type ColumnType =
+  | "string"
+  | "number"
+  | "boolean"
+  | "null"
+  | "object"
+  | "array";
 export type TableSchema = {
   columns: Record<string, ColumnType[]>;
   data: Record<string, unknown>[];
