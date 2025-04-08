@@ -1,0 +1,64 @@
+---
+title: "One-click deployment of HONC apps to Cloudflare Workers"
+description: "Deploy to Workers feature helps you instantly deploy HONC apps to Cloudflare Workers"
+slug: honc-deploy-to-workers
+date: 2025-04-08
+author: The Fiberplane team
+tags:
+  - hono
+  - honc
+  - workers
+  - cloudflare
+---
+
+import PackageManagers from "@/components/PackageManagers.astro";
+import { LinkCard } from "@astrojs/starlight/components";
+import { YouTube } from "astro-lazy-youtube-embed";
+
+What if there was a super easy way to build, test, and deploy a Hono Worker App in literally minutes. Hold my goose, because the time is now! Cloudflare just launched the [deploy to workers](https://blog.cloudflare.com/deploy-workers-applications-in-seconds/) feature, an easy one-click deployment pipeline for Workers.
+
+## Fiberplane and Cloudflare Dev Week
+
+Want to share your Hono Worker app with the world? Now you can — instantly. With the new [Deploy to Cloudflare button](https://developers.cloudflare.com/workers/platform/deploy-buttons/), you can embed one-click deployment links in your README, blog post, or docs, making it effortless for other developers to launch your app on their own Cloudflare account. No setup headaches, no guesswork — just fork, configure, and deploy from your public GitHub repo in seconds. We teamed up with Cloudflare to bring these buttons to your favorite goosey stack; the [HONC Stack](https://honc.dev).
+
+## Made for Typescript APIs: The HONC Stack
+The [HONC stack](https://honc.dev) is a combination of cutting-edge tools and frameworks that work seamlessly together to empower developers building modern, scalable applications. It includes:
+
+* Hono: A [minimal](https://hono.dev), high-performance web framework for Cloudflare Workers, perfect for building APIs.
+* ORM (Drizzle): A lightweight and efficient [ORM](https://orm.drizzle.team/) for working with databases in the Cloudflare Workers environment.
+* (Name your) D1 Database: Cloudflare's serverless [SQL database](https://developers.cloudflare.com/d1/get-started/) providing seamless storage and retrieval of data.
+* Cloudflare Workers: The serverless [platform](https://workers.cloudflare.com/) that lets you run code at the edge, close to your users, with minimal latency.
+
+With this stack, developers can rapidly prototype and deploy applications, all while benefiting from the speed and flexibility that Cloudflare Workers offer.
+
+## Native Debugging and Testing with the Fiberplane API Playground
+
+Fiberplane’s embeddable API [Playground](https://fiberplane.com/blog/hono-native-playground/) is an innovative tool that allows developers to build, test, and explore APIs directly within an intuitive interface. And now, with the new HONC stack sample applications, Fiberplane has integrated this playground with every project, allowing you to:
+
+* Generate OpenAPI Docs: Easily [create and view](https://fiberplane.com/blog/honc-stack-openapi/) OpenAPI specifications for your handlers and endpoints.
+* Test Handlers: Send requests to your API and quickly debug or refine your code.
+* Explore Your API: Dive into the API functionality directly in an embeddable interface without leaving your api.
+
+![Fiberplane API Playground for Hono](@/assets/blog/2025-02-12-fiberplane-hono-api-playground.png)
+
+
+## Deploy to Cloudflare Button Now Live
+
+
+With Cloudflare’s brand new Deploy button, launching a Cloudflare Worker has never been easier. As an example, the button below sets up the uptime monitoring HONC api inside your Cloudflare account and forks it into you GitHub repository.
+
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/fiberplane/create-honc-app/tree/main/examples/uptime-monitor)
+
+How does this work with Fiberplane? Fiberplane’s pre-built HONC applications come with a public [GitHub repository](https://github.com/fiberplane/create-honc-app/tree/main/examples) that Cloudflare can clone directly to your account. Once you locally test and debug,  you can easily configure the repository name and Worker name in the setup page plsu other necessary details for your project.
+
+<YouTube
+  title="Instantly deploy HONC apps to Cloudflare Workers"
+  videoId="KaeTwXXiMig"
+/>
+
+Cloudflare automatically builds the app and deploys it to the Cloudflare network, provisioning any required resources (like databases or storage) in the process. Then check the deployment details in the Fiberplane API Playground.
+The application will be live on your Cloudflare account within minutes, allowing you to test, iterate, and scale as needed.
+
+The Fiberplane HONC stack sample apps are now available in our [GitHub repository](https://github.com/fiberplane/create-honc-app/tree/main/examples), and each one comes with a Deploy to Cloudflare button to help you get up and running in just a few clicks.
+
+Happy coding! 🚀
