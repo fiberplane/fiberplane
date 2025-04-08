@@ -1,6 +1,6 @@
 import { HttpError } from "@/errors";
-import type { ListAgentsResponse } from "@/types";
 import { parseOptions } from "@/lib/utils";
+import type { ListAgentsResponse } from "@/types";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
 /**

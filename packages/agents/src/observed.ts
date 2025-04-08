@@ -1,14 +1,14 @@
 import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
-import { Hono } from "hono";
+import type { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
+import { registerAgent, registerAgentInstance } from "./agentInstances";
+import { createAgentAdminRouter } from "./router";
 import type { AgentEvent } from "./types";
 import {
   createRequestPayload,
   createResponsePayload,
   isPromiseLike,
 } from "./utils";
-import { registerAgent, registerAgentInstance } from "./agentInstances";
-import { createAgentAdminRouter } from "./router";
 
 // Constants for PartyKit headers
 export const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
@@ -202,7 +202,9 @@ export function Observed<E = unknown, S = unknown>() {
         }
 
         if (!this.fiberRouter) {
-          this.fiberRouter = createAgentAdminRouter(this as FiberDecoratedAgent);
+          this.fiberRouter = createAgentAdminRouter(
+            this as FiberDecoratedAgent,
+          );
         }
 
         this.fiberRouter.notFound(() => {
