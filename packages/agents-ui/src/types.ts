@@ -16,28 +16,28 @@ export type DBColumnType =
 type TypeMapping<T extends DBColumnType[]> = T extends ["string"]
   ? string
   : T extends ["null", "string"]
-  ? string | null
-  : T extends ["number"]
-  ? number
-  : T extends ["null", "number"]
-  ? number | null
-  : T extends ["boolean"]
-  ? boolean
-  : T extends ["null", "boolean"]
-  ? boolean
-  : T extends ["null"]
-  ? null
-  : T extends ["object"]
-  ? Record<string, unknown>
-  : T extends ["null", "object"]
-  ? Record<string, unknown> | null
-  : T extends ["array"]
-  ? unknown[]
-  : T extends Array<infer U>
-  ? U extends DBColumnType
-  ? unknown
-  : never
-  : unknown;
+    ? string | null
+    : T extends ["number"]
+      ? number
+      : T extends ["null", "number"]
+        ? number | null
+        : T extends ["boolean"]
+          ? boolean
+          : T extends ["null", "boolean"]
+            ? boolean
+            : T extends ["null"]
+              ? null
+              : T extends ["object"]
+                ? Record<string, unknown>
+                : T extends ["null", "object"]
+                  ? Record<string, unknown> | null
+                  : T extends ["array"]
+                    ? unknown[]
+                    : T extends Array<infer U>
+                      ? U extends DBColumnType
+                        ? unknown
+                        : never
+                      : unknown;
 
 // Generic table type that ensures data matches column structure
 export type DBTable<

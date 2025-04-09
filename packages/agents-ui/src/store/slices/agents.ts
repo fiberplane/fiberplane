@@ -1,6 +1,4 @@
-import type {
-  UIAgentEvent,
-} from "@/types";
+import type { UIAgentEvent } from "@/types";
 import { combine } from "zustand/middleware";
 import { EMPTY_COMBINED_EVENTS } from "./ui";
 import { updateCombinedEvent } from "./utils";
@@ -126,7 +124,7 @@ export const agentSlice = combine<AgentState, AgentActions>(
               knownBroadcastEvents[id] = newCombinedEvent;
             }
           } else {
-            // Still the original event to combined events for completeness
+            // Still add the original event to combined events for completeness
             combinedEvents.push(event);
           }
         } else {

@@ -260,8 +260,6 @@ export function Observed<E = unknown, S = unknown>() {
           registerAgentInstance(this.superClassName, this.name);
         }
 
-        // const validate = agentEventSchema.safeParse(event);
-        // console.log('valid', validate.success);
         const { type: eventName, payload } = event;
         for (const stream of this.activeStreams) {
           stream.writeSSE({

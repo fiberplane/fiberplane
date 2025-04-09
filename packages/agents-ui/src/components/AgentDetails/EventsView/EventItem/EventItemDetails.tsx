@@ -11,12 +11,12 @@ import type {
   OutgoingMessage,
   UIAgentEvent,
 } from "@/types";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { parseDataStreamPart } from "ai";
 import { Check } from "lucide-react";
-import { useRef, useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MessageItem } from "../../ChatMessageTableView";
 import { JSONViewer } from "../JSONViewer";
-import { useVirtualizer } from "@tanstack/react-virtual";
 
 export function EventItemDetails(props: {
   event: UIAgentEvent;
