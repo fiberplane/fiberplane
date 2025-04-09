@@ -38,26 +38,6 @@ export type AgentDetails = {
 
 export type ListAgentsResponse = Array<AgentDetails>;
 
-// Event types
-// export const AgentEventTypeSchema = z.enum([
-//   "stream_open",
-//   "stream_error",
-//   "stream_close",
-//   "http_request",
-//   "http_response",
-//   "ws_open",
-//   "ws_close",
-//   "ws_message",
-//   "ws_send",
-//   "broadcast",
-//   "state_change",
-// ]);
-
-// export const AgentEventSchema = z.object({
-//   event: AgentEventTypeSchema,
-//   // payload: z.any().optional(),
-// });
-
 export const streamOpenEventSchema = z.object({
   type: z.literal("stream_open"),
   // payload is the stringified value of null
