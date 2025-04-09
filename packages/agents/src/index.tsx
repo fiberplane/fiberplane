@@ -239,12 +239,18 @@ type FiberDecoratedAgent = Agent<unknown, unknown> & FiberProperties;
 export function Observed<E = unknown, S = unknown>() {
   return <T extends AgentConstructor<E, S>>(BaseClass: T) => {
     return class extends BaseClass {
+      // Store the class name of the super class
+      private superClassName: string;
+
+      // Store whether we've registered the instance already
+      private instanceRegistered = false;
+
       // biome-ignore lint/complexity/noUselessConstructor: Required for TypeScript mixins
       // biome-ignore lint/suspicious/noExplicitAny: Required for TypeScript mixins
       constructor(...args: any[]) {
         super(...args);
-        const superClassName = Object.getPrototypeOf(this.constructor).name;
-        registerAgent(superClassName);
+        this.superClassName = Object.getPrototypeOf(this.constructor).name;
+        registerAgent(this.superClassName);
       }
 
       fiberRouter?: Hono;
@@ -252,6 +258,11 @@ export function Observed<E = unknown, S = unknown>() {
       activeStreams = new Set<SSEStreamingApi>();
 
       private recordEvent({ event, payload }: AgentEvent) {
+        if (!this.instanceRegistered) {
+          this.instanceRegistered = true;
+          registerAgentInstance(this.superClassName, this.name);
+        }
+
         for (const stream of this.activeStreams) {
           stream.writeSSE({
             event,
@@ -385,18 +396,6 @@ export function Observed<E = unknown, S = unknown>() {
       }
 
       onRequest(request: Request): Response | Promise<Response> {
-        const namespace = request.headers.get(PARTYKIT_NAMESPACE_HEADER);
-        const instance = request.headers.get(PARTYKIT_ROOM_HEADER);
-
-        if (namespace && instance) {
-          registerAgentInstance(namespace, instance);
-        } else {
-          console.error(
-            "Missing namespace or instance headers in request",
-            request,
-          );
-        }
-
         if (!this.fiberRouter) {
           this.fiberRouter = createAgentAdminRouter(this);
         }
