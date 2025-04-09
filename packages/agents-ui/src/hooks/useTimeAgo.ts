@@ -10,7 +10,6 @@ const TEN_SECONDS = 10_000;
 const HALF_MINUTE = 30_000;
 const MINUTE = 60_000; /* 60 * 1000ms */
 const HOUR = 3_600_000; /* 60 * 60 * 1000ms */
-// const DAY = 86_400_000; /* 24 hours, 24 * 60 * 60 * 1000ms */
 
 // By defining the intervals this way, we can determine which interval should
 // be applied in a time window. This allows us to give more descriptive readable

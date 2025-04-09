@@ -1,6 +1,7 @@
 import type { QueryClient } from "@tanstack/react-query";
 import type { ToolCall, ToolResult } from "ai";
 import { z } from "zod";
+import { tryCatch } from "./lib/utils";
 
 // Define types for the result structure
 export type DBColumnType =
@@ -15,28 +16,28 @@ export type DBColumnType =
 type TypeMapping<T extends DBColumnType[]> = T extends ["string"]
   ? string
   : T extends ["null", "string"]
-    ? string | null
-    : T extends ["number"]
-      ? number
-      : T extends ["null", "number"]
-        ? number | null
-        : T extends ["boolean"]
-          ? boolean
-          : T extends ["null", "boolean"]
-            ? boolean
-            : T extends ["null"]
-              ? null
-              : T extends ["object"]
-                ? Record<string, unknown>
-                : T extends ["null", "object"]
-                  ? Record<string, unknown> | null
-                  : T extends ["array"]
-                    ? unknown[]
-                    : T extends Array<infer U>
-                      ? U extends DBColumnType
-                        ? unknown
-                        : never
-                      : unknown;
+  ? string | null
+  : T extends ["number"]
+  ? number
+  : T extends ["null", "number"]
+  ? number | null
+  : T extends ["boolean"]
+  ? boolean
+  : T extends ["null", "boolean"]
+  ? boolean
+  : T extends ["null"]
+  ? null
+  : T extends ["object"]
+  ? Record<string, unknown>
+  : T extends ["null", "object"]
+  ? Record<string, unknown> | null
+  : T extends ["array"]
+  ? unknown[]
+  : T extends Array<infer U>
+  ? U extends DBColumnType
+  ? unknown
+  : never
+  : unknown;
 
 // Generic table type that ensures data matches column structure
 export type DBTable<
@@ -452,23 +453,26 @@ export const wsMessageEventSchema = z.object({
     })
     .transform((data) => {
       // If the message is a string, parse it as JSON
-      if (typeof data.message === "string") {
-        try {
-          const parsed = JSON.parse(data.message);
-          // data.message = ;
-          const incomingMessage = incomingMessageSchema.safeParse(parsed);
-          if (incomingMessage.success) {
-            data.incomingMessage = incomingMessage.data;
-          }
-          const typedMessage = messageWithTypeSchema.safeParse(parsed);
-          if (typedMessage.success) {
-            data.typedMessage = typedMessage.data;
-          }
-        } catch (error) {
-          // If parsing fails, log the error and keep the original string
-          console.error("Failed to parse broadcast message:", error);
-        }
+      const jsonResult = tryCatch(() =>
+        typeof data.message === "string"
+          ? JSON.parse(data.message)
+          : data.message,
+      );
+      if (jsonResult.error) {
+        console.error("Failed to parse ws_message message:", jsonResult.error);
+        return data;
       }
+
+      const incomingMessage = incomingMessageSchema.safeParse(jsonResult.data);
+      if (incomingMessage.success) {
+        data.incomingMessage = incomingMessage.data;
+      }
+
+      const typedMessage = messageWithTypeSchema.safeParse(jsonResult.data);
+      if (typedMessage.success) {
+        data.typedMessage = typedMessage.data;
+      }
+
       return data;
     }),
 });
@@ -492,23 +496,26 @@ export const wsSendEventSchema = z.object({
     })
     .transform((data) => {
       // If the message is a string, parse it as JSON
-      if (typeof data.message === "string") {
-        try {
-          const parsed = JSON.parse(data.message);
-          // data.message = ;
-          const outgoingMessage = outgoingMessageSchema.safeParse(parsed);
-          if (outgoingMessage.success) {
-            data.outgoingMessage = outgoingMessage.data;
-          }
-          const typedMessage = messageWithTypeSchema.safeParse(parsed);
-          if (typedMessage.success) {
-            data.typedMessage = typedMessage.data;
-          }
-        } catch (error) {
-          // If parsing fails, log the error and keep the original string
-          console.error("Failed to parse broadcast message:", error);
-        }
+      const jsonResult = tryCatch(() =>
+        typeof data.message === "string"
+          ? JSON.parse(data.message)
+          : data.message,
+      );
+      if (jsonResult.error) {
+        console.error("Failed to parse ws_send message:", jsonResult.error);
+        return data;
       }
+
+      const outgoingMessage = outgoingMessageSchema.safeParse(jsonResult.data);
+      if (outgoingMessage.success) {
+        data.outgoingMessage = outgoingMessage.data;
+      }
+
+      const typedMessage = messageWithTypeSchema.safeParse(jsonResult.data);
+      if (typedMessage.success) {
+        data.typedMessage = typedMessage.data;
+      }
+
       return data;
     }),
 });
@@ -533,23 +540,26 @@ export const broadcastEventSchema = z.object({
     })
     .transform((data) => {
       // If the message is a string, parse it as JSON
-      if (typeof data.message === "string") {
-        try {
-          const parsed = JSON.parse(data.message);
-          // data.message = ;
-          const outgoingMessage = outgoingMessageSchema.safeParse(parsed);
-          if (outgoingMessage.success) {
-            data.outgoingMessage = outgoingMessage.data;
-          }
-          const typedMessage = messageWithTypeSchema.safeParse(parsed);
-          if (typedMessage.success) {
-            data.typedMessage = typedMessage.data;
-          }
-        } catch (error) {
-          // If parsing fails, log the error and keep the original string
-          console.error("Failed to parse broadcast message:", error);
-        }
+      const jsonResult = tryCatch(() =>
+        typeof data.message === "string"
+          ? JSON.parse(data.message)
+          : data.message,
+      );
+      if (jsonResult.error) {
+        console.error("Failed to parse broadcast message:", jsonResult.error);
+        return data;
       }
+
+      const outgoingMessage = outgoingMessageSchema.safeParse(jsonResult.data);
+      if (outgoingMessage.success) {
+        data.outgoingMessage = outgoingMessage.data;
+      }
+
+      const typedMessage = messageWithTypeSchema.safeParse(jsonResult.data);
+      if (typedMessage.success) {
+        data.typedMessage = typedMessage.data;
+      }
+
       return data;
     }),
 });

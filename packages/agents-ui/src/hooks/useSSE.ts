@@ -172,9 +172,7 @@ export function useAgentInstanceEvents(namespace: string, instance: string) {
         payload: data,
       });
       if (!valid.success) {
-        console.log("invalid event", valid.error);
-        console.log("invalid event", data);
-        console.log("event", event.type, event);
+        console.error("invalid event", valid.error);
         return;
       }
 

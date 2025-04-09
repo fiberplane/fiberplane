@@ -88,7 +88,6 @@ function createMessage({
 function extractIncomingMessage(
   payload: (UIAgentEvent & { type: "ws_message" })["payload"],
 ): ReactNode {
-  // const { message: messageProp } = MessagePayloadSchema.parse(payload);
   if (payload.incomingMessage) {
     const data = payload.incomingMessage;
 
@@ -232,8 +231,6 @@ export const EventSummary = (props: Props) => {
   }
 
   if (props.type === "state_change") {
-    // Type cast the payload to the expected structure
-    // const stateChangePayload = payload as { source: string; state?: unknown };
     return <StateChangeDetails {...props} />;
   }
 

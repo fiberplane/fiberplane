@@ -1,7 +1,5 @@
-import {
-  MessagePayloadSchema,
-  type UIAgentEvent,
-  agentUseChatResponseSchema,
+import type {
+  UIAgentEvent,
 } from "@/types";
 import { combine } from "zustand/middleware";
 import { EMPTY_COMBINED_EVENTS } from "./ui";
@@ -75,25 +73,17 @@ export const agentSlice = combine<AgentState, AgentActions>(
 
         // Handle broadcast event combining
         if (event.type === "broadcast") {
-          const messagePayloadResult = MessagePayloadSchema.safeParse(
-            event.payload,
-          );
-          const parsed = messagePayloadResult.success
-            ? agentUseChatResponseSchema.safeParse(
-                messagePayloadResult.data.message,
-              )
-            : null;
+          const outgoingMessage = event.payload.outgoingMessage;
 
-          if (parsed?.success) {
-            console.log("1!@@!#$!@#");
-            const { id, done } = parsed.data;
+          if (outgoingMessage?.type === "cf_agent_use_chat_response") {
+            const { id, done } = outgoingMessage;
             if (id in knownBroadcastEvents) {
               // Update existing combined event
               const existingEvent = knownBroadcastEvents[id];
 
-              if (existingEvent.payload.type === parsed.data.type) {
+              if (existingEvent.payload.type === outgoingMessage.type) {
                 const newEvent = { ...existingEvent };
-                updateCombinedEvent(newEvent, parsed.data);
+                updateCombinedEvent(newEvent, outgoingMessage);
 
                 // Replace the existing event in the combined events array
                 combinedEvents = combinedEvents.map((e) =>
@@ -104,7 +94,7 @@ export const agentSlice = combine<AgentState, AgentActions>(
                 knownBroadcastEvents[id] = newEvent;
               } else {
                 console.warn(
-                  `Event type mismatch for ID ${id}: ${existingEvent.payload.type} vs ${parsed.data.type}`,
+                  `Event type mismatch for ID ${id}: ${existingEvent.payload.type}`,
                 );
               }
             } else {
@@ -113,8 +103,8 @@ export const agentSlice = combine<AgentState, AgentActions>(
                 type: "combined_event",
                 id,
                 payload: {
-                  type: parsed.data.type,
-                  chunks: [parsed.data],
+                  type: outgoingMessage.type,
+                  chunks: [outgoingMessage],
                   content: "",
                   done,
                   metadata: {
@@ -127,7 +117,7 @@ export const agentSlice = combine<AgentState, AgentActions>(
                 timestamp: event.timestamp,
               };
 
-              updateCombinedEvent(newCombinedEvent, parsed.data);
+              updateCombinedEvent(newCombinedEvent, outgoingMessage);
 
               // Add to combined events array
               combinedEvents.push(newCombinedEvent);
@@ -136,11 +126,7 @@ export const agentSlice = combine<AgentState, AgentActions>(
               knownBroadcastEvents[id] = newCombinedEvent;
             }
           } else {
-            console.warn(
-              "Failed to parse broadcast event payload",
-              event.payload,
-            );
-            // Still add the original event to combined events for completeness
+            // Still the original event to combined events for completeness
             combinedEvents.push(event);
           }
         } else {

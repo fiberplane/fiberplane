@@ -13,9 +13,10 @@ import type {
 } from "@/types";
 import { parseDataStreamPart } from "ai";
 import { Check } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { MessageItem } from "../../ChatMessageTableView";
 import { JSONViewer } from "../JSONViewer";
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 export function EventItemDetails(props: {
   event: UIAgentEvent;
@@ -273,16 +274,90 @@ function CombinedEventSummary(
 function CombinedEventChunks(props: {
   chunks: (UIAgentEvent & { type: "combined_event" })["payload"]["chunks"];
 }) {
+  const parentRef = useRef<HTMLDivElement>(null);
+  const [measuredHeights, setMeasuredHeights] = useState<
+    Record<number, number>
+  >({});
+
+  // Measure and remember heights of rendered items
+  const estimateSize = (index: number) => {
+    return measuredHeights[index] || 85; // Start with a reasonable estimate
+  };
+
+  const virtualizer = useVirtualizer({
+    count: props.chunks.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize,
+    overscan: 5, // Pre-render items above and below the visible area for smoother scrolling
+    getItemKey: (index) => index,
+  });
+
+  // Track measured heights after render
+  const handleItemResize = (index: number, element: HTMLElement) => {
+    const height = element.getBoundingClientRect().height;
+    if (height !== measuredHeights[index]) {
+      setMeasuredHeights((prev) => ({
+        ...prev,
+        [index]: height,
+      }));
+    }
+  };
+
+  // Effect to measure initial items after first render
+  // biome-ignore lint/correctness/useExhaustiveDependencies: measure should happen again when the chunks change
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      virtualizer.measure();
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [virtualizer.measure, props.chunks]);
+
   return (
-    <div className="grid gap-2 border rounded-lg p-2">
-      {props.chunks.map((chunk, index) => (
-        <JSONViewer
-          key={index}
-          data={chunk.body ? parseDataStreamPart(chunk.body) : {}}
-          className="py-1"
-          label={`Chunk ${index + 1}`}
-        />
-      ))}
+    <div
+      ref={parentRef}
+      className="border rounded-lg p-2 overflow-auto"
+      style={{
+        maxHeight: "600px",
+        // height: '400px', // Set a reasonable container height
+        width: "100%",
+        position: "relative",
+      }}
+    >
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          width: "100%",
+          position: "relative",
+        }}
+      >
+        {virtualizer.getVirtualItems().map((virtualRow) => {
+          const chunk = props.chunks[virtualRow.index];
+          return (
+            <div
+              key={virtualRow.key}
+              data-index={virtualRow.index}
+              ref={(el) => {
+                if (el) {
+                  virtualizer.measureElement(el);
+                  handleItemResize(virtualRow.index, el);
+                }
+              }}
+              className="py-1 absolute top-0 left-0 w-full"
+              style={{
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+            >
+              <div className="min-h-[85px] border rounded-lg">
+                <JSONViewer
+                  data={chunk.body ? parseDataStreamPart(chunk.body) : {}}
+                  className="py-1 border-0"
+                  label={`Chunk ${virtualRow.index + 1}`}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

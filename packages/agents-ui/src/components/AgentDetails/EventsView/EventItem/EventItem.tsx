@@ -100,7 +100,7 @@ export const EventItem = ({ event }: { event: UIAgentEvent }) => {
   const formattedDate = useTimeAgo(event.timestamp);
   const props = {
     type: event.type,
-    package: event.payload,
+    payload: event.payload,
   } as DiscriminatedSubset<UIAgentEvent, "type" | "payload">;
 
   const [expanded, setExpanded] = useState(false);
