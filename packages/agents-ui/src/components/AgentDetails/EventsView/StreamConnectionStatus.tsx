@@ -4,7 +4,11 @@ import { usePlaygroundStore } from "@/store";
 import type { AgentInstanceParameters } from "@/types";
 import { Wifi, WifiOff, WifiZero } from "lucide-react";
 
-export function StreamConnectionStatus(props: AgentInstanceParameters) {
+type Props = AgentInstanceParameters & {
+  short: boolean;
+};
+
+export function StreamConnectionStatus(props: Props) {
   const connectionStatus = usePlaygroundStore((state) => {
     const agentState = state.agentsState[props.namespace];
     const instanceDetails = agentState?.instances[props.instance];
@@ -32,7 +36,7 @@ export function StreamConnectionStatus(props: AgentInstanceParameters) {
       ) : connectionStatus === "open" ? (
         <>
           <Wifi className="w-4 h-4 text-success" />
-          Receiving events
+          {!props.short ? "Receiving events" : ""}
         </>
       ) : (
         <>

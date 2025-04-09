@@ -10,9 +10,7 @@ export { agentSlice } from "./agents";
 export type {
   AgentActions,
   AgentDetailsState,
-  AgentEvent,
   AgentState,
-  CombinedEvent,
   InstanceDetails,
   SSEStatus,
 } from "./agents";

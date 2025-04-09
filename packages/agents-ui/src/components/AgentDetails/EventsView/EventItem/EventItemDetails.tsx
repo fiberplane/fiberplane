@@ -5,14 +5,11 @@ import {
   FpTabsList,
   FpTabsTrigger,
 } from "@/components/ui/tabs";
-import type { CoreAgentEvent } from "@/hooks";
-import type { CombinedEvent } from "@/store";
-import {
-  type HttpRequestPayload,
-  type HttpResponsePayload,
-  MessagePayloadSchema,
-  type OutgoingMessage,
-  outgoingMessageSchema,
+import type {
+  HttpRequestPayload,
+  HttpResponsePayload,
+  OutgoingMessage,
+  UIAgentEvent,
 } from "@/types";
 import { parseDataStreamPart } from "ai";
 import { Check } from "lucide-react";
@@ -21,7 +18,7 @@ import { MessageItem } from "../../ChatMessageTableView";
 import { JSONViewer } from "../JSONViewer";
 
 export function EventItemDetails(props: {
-  event: CombinedEvent | CoreAgentEvent;
+  event: UIAgentEvent;
 }) {
   const { event } = props;
   if (event.type === "http_request") {
@@ -89,38 +86,35 @@ function HttpRequestDetails(props: { payload: HttpRequestPayload }) {
   );
 }
 
-function BroadcastDetails(props: {
-  payload: (CombinedEvent | CoreAgentEvent)["payload"];
-}) {
+function BroadcastDetails(
+  props: Pick<UIAgentEvent & { type: "broadcast" }, "payload">,
+) {
   const { payload } = props;
-  const validPayload = MessagePayloadSchema.safeParse(payload);
-  const messageProp = validPayload.data?.message;
-  const validateMessageProp = outgoingMessageSchema.safeParse(messageProp);
 
-  if (!validateMessageProp.success) {
-    // So it's a
-    return (
-      <JSONViewer data={payload} className="py-1" label="Broadcast Payload" />
-    );
+  if (payload.outgoingMessage) {
+    const data = payload.outgoingMessage;
+    if (data.type === "cf_agent_chat_clear") {
+      return (
+        <JSONViewer data={payload} className="py-1" label="Broadcast Payload" />
+      );
+    }
+    if (data.type === "cf_agent_chat_messages") {
+      return <ChatMessagesDetails {...data} without={payload.without} />;
+    }
   }
-
-  const data = validateMessageProp.data;
-  if (data.type === "cf_agent_chat_clear") {
-    return (
-      <JSONViewer data={payload} className="py-1" label="Broadcast Payload" />
-    );
-  }
-  if (data.type === "cf_agent_chat_messages") {
-    return <ChatMessagesDetails {...data} raw={payload} />;
-  }
-
-  return <JSONViewer data={data} className="py-1" label="Broadcast Payload" />;
+  return (
+    <JSONViewer
+      data={payload.typedMessage ?? payload.message}
+      className="py-1"
+      label="Broadcast Payload"
+    />
+  );
 }
 
 function ChatMessagesDetails(
   props: OutgoingMessage & {
     type: "cf_agent_chat_messages";
-    raw: (CombinedEvent | CoreAgentEvent)["payload"];
+    without?: Array<string>;
   },
 ) {
   const [activeTab, setActiveTab] = useState("messages");
@@ -155,8 +149,9 @@ function ChatMessagesDetails(
         </div>
       </FpTabsContent>
       <FpTabsContent value="raw">
+        <div>Excluding: {props.without?.join(", ")}</div>
         <JSONViewer
-          data={props.raw}
+          data={props.messages}
           className="py-1"
           label="Broadcast Payload"
         />
@@ -211,7 +206,7 @@ function HttpResponseDetails(props: { payload: HttpResponsePayload }) {
 }
 
 function CombinedEventDetails(props: {
-  event: CombinedEvent;
+  event: UIAgentEvent & { type: "combined_event" };
 }) {
   const { event } = props;
   const [activeTab, setActiveTab] = useState("summary");
@@ -251,7 +246,10 @@ function CombinedEventDetails(props: {
 }
 
 function CombinedEventSummary(
-  props: Pick<CombinedEvent["payload"], "content" | "done" | "metadata">,
+  props: Pick<
+    (UIAgentEvent & { type: "combined_event" })["payload"],
+    "content" | "done" | "metadata"
+  >,
 ) {
   const { content, done, metadata } = props;
   const data = {
@@ -273,7 +271,7 @@ function CombinedEventSummary(
 }
 
 function CombinedEventChunks(props: {
-  chunks: CombinedEvent["payload"]["chunks"];
+  chunks: (UIAgentEvent & { type: "combined_event" })["payload"]["chunks"];
 }) {
   return (
     <div className="grid gap-2 border rounded-lg p-2">

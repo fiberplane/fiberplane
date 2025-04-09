@@ -39,23 +39,166 @@ export type AgentDetails = {
 export type ListAgentsResponse = Array<AgentDetails>;
 
 // Event types
-export const AgentEventTypeSchema = z.enum([
-  "stream_open",
-  "stream_error",
-  "stream_close",
-  "http_request",
-  "http_response",
-  "ws_open",
-  "ws_close",
-  "ws_message",
-  "ws_send",
-  "broadcast",
-  "state_change",
-]);
+// export const AgentEventTypeSchema = z.enum([
+//   "stream_open",
+//   "stream_error",
+//   "stream_close",
+//   "http_request",
+//   "http_response",
+//   "ws_open",
+//   "ws_close",
+//   "ws_message",
+//   "ws_send",
+//   "broadcast",
+//   "state_change",
+// ]);
 
-export const AgentEventSchema = z.object({
-  event: AgentEventTypeSchema,
-  payload: z.any().optional(),
+// export const AgentEventSchema = z.object({
+//   event: AgentEventTypeSchema,
+//   // payload: z.any().optional(),
+// });
+
+export const streamOpenEventSchema = z.object({
+  type: z.literal("stream_open"),
+  // payload is the stringified value of null
+  payload: z.undefined(),
 });
 
-export type AgentEvent = z.infer<typeof AgentEventSchema>;
+export const streamCloseEventSchema = z.object({
+  type: z.literal("stream_close"),
+  // payload is the stringified value of null
+  payload: z.undefined(),
+});
+
+export const streamErrorEventSchema = z.object({
+  type: z.literal("stream_error"),
+  payload: z.string(),
+});
+
+const httpRequestPayloadSchema = z.object({
+  method: z.string(),
+  url: z.string(),
+  headers: z.record(z.string()),
+  body: z.string().optional(),
+});
+
+export const httpRequestEventSchema = z.object({
+  type: z.literal("http_request"),
+  payload: z.string().transform((str, ctx) => {
+    try {
+      const parsed = JSON.parse(str);
+      return httpRequestPayloadSchema.parse(parsed);
+    } catch (error) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid JSON",
+      });
+      return z.NEVER;
+    }
+  }),
+});
+
+export const httpResponsePayloadSchema = httpRequestPayloadSchema.extend({
+  status: z.number(),
+  statusText: z.string(),
+});
+
+export const httpResponseEventSchema = z.object({
+  type: z.literal("http_response"),
+  payload: z.string().transform((str, ctx) => {
+    try {
+      const parsed = JSON.parse(str);
+      return httpResponsePayloadSchema.parse(parsed);
+    } catch (error) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid JSON",
+      });
+      return z.NEVER;
+    }
+  }),
+});
+
+export const wsOpenEventSchema = z.object({
+  type: z.literal("ws_open"),
+  payload: z.object({
+    connectionId: z.string(),
+  }),
+});
+
+export const wsCloseEventSchema = z.object({
+  type: z.literal("ws_close"),
+  // payload is the stringified value of null
+  payload: z.object({
+    connectionId: z.string(),
+    code: z.number(),
+    reason: z.string(),
+    wasClean: z.boolean(),
+  }),
+});
+
+export const wsMessageEventSchema = z.object({
+  type: z.literal("ws_message"),
+  payload: z.object({
+    connectionId: z.string(),
+    message: z.union([
+      z.string(),
+      z.object({
+        type: z.literal("binary"),
+        size: z.number(),
+      }),
+    ]),
+  }),
+});
+
+export const wsSendEventSchema = z.object({
+  type: z.literal("ws_send"),
+  payload: z.object({
+    connectionId: z.string(),
+    message: z.union([
+      z.string(),
+      z.object({
+        type: z.literal("binary"),
+        size: z.number(),
+      }),
+    ]),
+  }),
+});
+
+export const broadcastEventSchema = z.object({
+  type: z.literal("broadcast"),
+  payload: z.object({
+    message: z.union([
+      z.string(),
+      z.object({
+        type: z.literal("binary"),
+        size: z.number(),
+      }),
+    ]),
+    // Excluded connection ids
+    without: z.array(z.string()).optional(),
+  }),
+});
+
+export const stateChangeEventSchema = z.object({
+  type: z.literal("state_change"),
+  payload: z.object({
+    state: z.unknown(),
+    source: z.union([z.literal("server"), z.string()]),
+  }),
+});
+
+export const agentEventSchema = z.discriminatedUnion("type", [
+  streamOpenEventSchema,
+  streamCloseEventSchema,
+  streamErrorEventSchema,
+  httpRequestEventSchema,
+  httpResponseEventSchema,
+  wsOpenEventSchema,
+  wsCloseEventSchema,
+  wsMessageEventSchema,
+  wsSendEventSchema,
+  broadcastEventSchema,
+  stateChangeEventSchema,
+]);
+export type AgentEvent = z.infer<typeof agentEventSchema>;

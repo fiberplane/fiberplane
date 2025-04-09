@@ -1,17 +1,20 @@
-import type { CoreAgentEvent } from "@/hooks";
-import { MessagePayloadSchema, agentUseChatResponseSchema } from "@/types";
-import type { ToolCall, ToolResult } from "ai";
-import type { z } from "zod";
+import {
+  MessagePayloadSchema,
+  type UIAgentEvent,
+  agentUseChatResponseSchema,
+} from "@/types";
 import { combine } from "zustand/middleware";
 import { EMPTY_COMBINED_EVENTS } from "./ui";
 import { updateCombinedEvent } from "./utils";
 
-// Agent slice
 export type InstanceDetails = {
   eventStreamStatus: SSEStatus;
-  events: Array<CoreAgentEvent>;
-  combinedEvents: Array<CoreAgentEvent | CombinedEvent>;
-  knownBroadcastEvents: Record<string, CombinedEvent>;
+  events: Array<UIAgentEvent>;
+  combinedEvents: Array<UIAgentEvent>;
+  knownBroadcastEvents: Record<
+    string,
+    UIAgentEvent & { type: "combined_event" }
+  >;
 };
 
 export type AgentDetailsState = {
@@ -24,37 +27,11 @@ export type AgentState = {
 
 export type SSEStatus = "connecting" | "open" | "closed" | "error";
 
-type UseChatResponseCombinedEventPayload = {
-  type: z.infer<typeof agentUseChatResponseSchema>["type"];
-  chunks: Array<z.infer<typeof agentUseChatResponseSchema>>;
-  content: string;
-  done: boolean;
-  metadata: {
-    messageId?: string;
-    // biome-ignore lint/suspicious/noExplicitAny: the default type is any
-    toolCalls: ToolCall<string, any>[];
-    // biome-ignore lint/suspicious/noExplicitAny: the default type is any
-    toolResults: Omit<ToolResult<string, any, any>, "toolName" | "args">[];
-    status?: Record<string, unknown> | null;
-  };
-};
-
-type CombinedEventPayload = UseChatResponseCombinedEventPayload;
-
-export type CombinedEvent = {
-  type: "combined_event";
-  id: string;
-  payload: CombinedEventPayload;
-  timestamp: string;
-};
-
-export type AgentEvent = CoreAgentEvent | CombinedEvent;
-
 export type AgentActions = {
   addAgentInstanceEvent: (
     agent: string,
     instance: string,
-    event: CoreAgentEvent,
+    event: UIAgentEvent,
   ) => void;
   resetAgentInstanceEvents: (agent: string, instance: string) => void;
   setAgentInstanceStreamStatus: (
@@ -132,7 +109,7 @@ export const agentSlice = combine<AgentState, AgentActions>(
               }
             } else {
               // Create a new combined event
-              const newCombinedEvent: CombinedEvent = {
+              const newCombinedEvent: UIAgentEvent = {
                 type: "combined_event",
                 id,
                 payload: {

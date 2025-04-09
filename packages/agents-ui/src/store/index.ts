@@ -15,11 +15,7 @@ export {
   EMPTY_EVENTS,
   eventCategories,
 } from "./slices";
-export type {
-  AgentEvent,
-  SSEStatus,
-  CombinedEvent,
-} from "./slices";
+export type { SSEStatus } from "./slices";
 
 // Combined store type
 export type StoreState = AgentState & AgentActions & UIState & UIActions;

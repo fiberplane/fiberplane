@@ -1,6 +1,6 @@
-import { type AgentEventType, type CoreAgentEvent, useTimeAgo } from "@/hooks";
+import { useTimeAgo } from "@/hooks";
 import { cn } from "@/lib/utils";
-import type { CombinedEvent } from "@/store";
+import type { DiscriminatedSubset, UIAgentEvent } from "@/types";
 import {
   AlertCircle,
   ArrowLeft,
@@ -19,7 +19,7 @@ import { EventItemDetails } from "./EventItemDetails";
 import { EventSummary } from "./EventSummary";
 
 // Get an icon based on event type
-const getEventIcon = (type: CombinedEvent["type"] | AgentEventType) => {
+const getEventIcon = (type: UIAgentEvent["type"]) => {
   switch (type) {
     case "http_request":
       return (
@@ -78,7 +78,7 @@ const getEventIcon = (type: CombinedEvent["type"] | AgentEventType) => {
 
 // Get a color variant based on event type
 const getEventVariant = (
-  type: CombinedEvent["type"] | AgentEventType,
+  type: UIAgentEvent["type"],
 ): "default" | "outline" | "secondary" | "destructive" | "muted" => {
   switch (type) {
     case "http_request":
@@ -96,19 +96,12 @@ const getEventVariant = (
 };
 
 // Single event item component
-export const EventItem = ({
-  event,
-}: { event: CoreAgentEvent | CombinedEvent }) => {
+export const EventItem = ({ event }: { event: UIAgentEvent }) => {
   const formattedDate = useTimeAgo(event.timestamp);
-
-  let payload = event.payload;
-  try {
-    if ("message" in payload && typeof payload.message === "string") {
-      payload = JSON.parse(payload.message);
-    }
-  } catch (e) {
-    console.error("Error parsing payload:", e);
-  }
+  const props = {
+    type: event.type,
+    package: event.payload,
+  } as DiscriminatedSubset<UIAgentEvent, "type" | "payload">;
 
   const [expanded, setExpanded] = useState(false);
 
@@ -159,7 +152,7 @@ export const EventItem = ({
           </div>
 
           <div className="[grid-area:summary] ml-2.5 @xl/event:ml-0">
-            <EventSummary type={event.type} payload={event.payload} />
+            <EventSummary {...props} />
           </div>
         </button>
         {expanded && <EventItemDetails event={event} />}

@@ -58,6 +58,7 @@ export function DataTableView<
         )
       }
       className={className}
+      contentClassName="overflow-x-auto"
     >
       <FpTable className="border-0">
         <TableHeader>
