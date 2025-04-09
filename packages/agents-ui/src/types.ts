@@ -307,12 +307,11 @@ export const outgoingMessageSchema = z.discriminatedUnion("type", [
   agentStateSchema,
 ]);
 
-export const messageWithTypeSchema = z.union([
-  z.object({
+export const messageWithTypeSchema = z
+  .object({
     type: z.string(),
-  }),
-  z.record(z.unknown()),
-]);
+  })
+  .catchall(z.unknown());
 
 // Export types inferred from the schemas
 export type IncomingMessage = z.infer<typeof incomingMessageSchema>;

@@ -39,6 +39,32 @@ export function EventItemDetails(props: {
     return <CombinedEventDetails event={event} />;
   }
 
+  if (event.type === "ws_message") {
+    return (
+      <JSONViewer
+        data={
+          event.payload.incomingMessage ??
+          event.payload.typedMessage ??
+          event.payload.message
+        }
+        className="py-1"
+      />
+    );
+  }
+
+  if (event.type === "ws_send") {
+    return (
+      <JSONViewer
+        data={
+          event.payload.outgoingMessage ??
+          event.payload.typedMessage ??
+          event.payload.message
+        }
+        className="py-1"
+      />
+    );
+  }
+
   return <JSONViewer data={event.payload} className="py-1" />;
 }
 
@@ -211,7 +237,7 @@ function CombinedEventDetails(props: {
 }) {
   const { event } = props;
   const [activeTab, setActiveTab] = useState("summary");
-  const { chunks, type } = event.payload;
+  const { chunks } = event.payload;
   return (
     <FpTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <FpTabsList className="bg-transparent">

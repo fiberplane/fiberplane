@@ -79,6 +79,9 @@ function createMessage({
       return "WebSocket disconnected";
     case "ws_send":
       return extractOutgoingMessage(payload) ?? "WebSocket message sent";
+    case "combined_event": {
+      return "Combined event";
+    }
     default: {
       return "WebSocket event";
     }
