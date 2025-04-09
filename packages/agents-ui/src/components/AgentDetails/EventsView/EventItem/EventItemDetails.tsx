@@ -221,9 +221,6 @@ function CombinedEventDetails(props: {
         <FpTabsTrigger value="chunks" className="flex gap-2">
           Chunks
         </FpTabsTrigger>
-        <FpTabsTrigger value="raw" className="flex gap-2">
-          Raw
-        </FpTabsTrigger>
       </FpTabsList>
       <FpTabsContent value="chunks">
         <CombinedEventChunks chunks={chunks} />
@@ -233,13 +230,6 @@ function CombinedEventDetails(props: {
           content={event.payload.content}
           done={event.payload.done}
           metadata={event.payload.metadata}
-        />
-      </FpTabsContent>
-      <FpTabsContent value="raw">
-        <JSONViewer
-          data={event}
-          className="py-1"
-          label={`Combined Event (${type})`}
         />
       </FpTabsContent>
     </FpTabs>
