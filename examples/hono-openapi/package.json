@@ -1,5 +1,5 @@
 {
-  "name": "hono-openapi",
+  "name": "hono-openapi-example",
   "scripts": {
     "dev": "wrangler dev src/index.ts",
     "deploy": "wrangler deploy --minify src/index.ts",
