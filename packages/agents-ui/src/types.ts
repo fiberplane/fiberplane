@@ -354,28 +354,6 @@ export interface HttpResponsePayload {
   [key: string]: unknown;
 }
 
-// // Event types
-// export const agentEventTypeSchema = z.enum([
-//   "stream_open",
-//   "stream_error",
-//   "stream_close",
-//   "http_request",
-//   "http_response",
-//   "ws_open",
-//   "ws_close",
-//   "ws_message",
-//   "ws_send",
-//   "broadcast",
-//   "state_change",
-// ]);
-
-// export const agentEventSchema = z.object({
-//   event: agentEventTypeSchema,
-//   payload: z.any().optional(),
-// });
-
-// export type AgentEvent = z.infer<typeof agentEventSchema>;
-
 export const streamOpenEventSchema = z.object({
   type: z.literal("stream_open"),
   // payload is the stringified value of null
