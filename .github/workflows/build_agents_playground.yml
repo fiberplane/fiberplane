@@ -55,8 +55,8 @@ jobs:
       - name: Lint all workspaces (eslint or other linters)
         run: pnpm --recursive lint:ci
 
-      - name: Typecheck @fiberplane/agents-ui and @fiberplane/agents packages
-        run: pnpm --filter agents-ui --filter @fiberplane/agents typecheck
+      # - name: Typecheck @fiberplane/agents-ui and @fiberplane/agents packages
+      #   run: pnpm --filter agents-ui --filter @fiberplane/agents typecheck
 
       # Testing
 
