@@ -1,7 +1,7 @@
 import type { Message } from "@ai-sdk/react";
 import { useAgentChat } from "agents/ai-react";
 import { useAgent } from "agents/react";
-import { Bot, Bug, Moon, Send, Sun, Trash2, ExternalLink } from "lucide-react";
+import { Bot, Bug, ExternalLink, Moon, Send, Sun, Trash2 } from "lucide-react";
 import { useQueryState } from "nuqs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
@@ -242,30 +242,35 @@ export default function Chat() {
                                     <ReactMarkdown
                                       components={{
                                         a: ({ node, ...props }) => {
-                                          const isAuthLink = 
-                                            (props.href?.toLowerCase().includes('authorize')) ||
-                                            (props.children && typeof props.children === 'string' && props.children.toLowerCase().includes('authorize'));
-                                          
+                                          const isAuthLink =
+                                            props.href
+                                              ?.toLowerCase()
+                                              .includes("authorize") ||
+                                            (props.children &&
+                                              typeof props.children ===
+                                                "string" &&
+                                              props.children
+                                                .toLowerCase()
+                                                .includes("authorize"));
+
                                           return (
                                             <a
                                               {...props}
                                               target="_blank"
                                               rel="noopener noreferrer"
-                                              onClick={(e) => {
-                                                if (isAuthLink) {
-                                                  console.log('Authorization link clicked:', props.href);
-                                                }
-                                              }}
-                                              className={`inline-flex items-center gap-1 ${isAuthLink ? 'text-[#F48120] font-medium' : 'text-blue-500'}`}
+                                              className={`inline-flex items-center gap-1 ${isAuthLink ? "text-[#F48120] font-medium" : "text-blue-500"}`}
                                             >
                                               {props.children}
                                               <ExternalLink className="h-3 w-3" />
                                             </a>
                                           );
-                                        }
+                                        },
                                       }}
                                     >
-                                      {part.text.replace(/^scheduled message: /, "")}
+                                      {part.text.replace(
+                                        /^scheduled message: /,
+                                        "",
+                                      )}
                                     </ReactMarkdown>
                                   </div>
                                 </Card>

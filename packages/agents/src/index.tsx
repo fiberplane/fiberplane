@@ -39,6 +39,9 @@ type AgentConstructor<E = unknown, S = unknown> = new (
   ...args: any[]
 ) => Agent<E, S>;
 
+const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
+const PARTYKIT_ROOM_HEADER = "x-partykit-room";
+
 const version = packageJson.version;
 const commitHash = import.meta.env.GIT_COMMIT_HASH;
 
@@ -252,7 +255,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
 
     // When no real MCP data is available, return mock data
     // FIXME: This is fake data for UI development purposes
-    return c.json({ data: mockMCPData });
+    return c.json({});
   });
 
   router.get("/agents/:namespace/:instance/admin/events", async (c) => {
@@ -313,8 +316,12 @@ function detectMCPClientManagers(obj: Record<string, unknown>) {
 
   // Iterate through all properties of the object
   for (const [key, value] of Object.entries(obj)) {
+    console.log(`Checking property '${key}'`);
     // Skip null or non-object values
     if (!value || typeof value !== "object") {
+      console.log(
+        `Skipping non-object value at property '${key}' ${typeof value}`,
+      );
       continue;
     }
 
@@ -355,20 +362,12 @@ export function Observed<E = unknown, S = unknown>() {
         super(...args);
         const superClassName = Object.getPrototypeOf(this.constructor).name;
         registerAgent(superClassName);
-
-        // Detect MCPClientManager instances
-        // We need to cast this to Record<string, unknown> for the detection function
-        // This is safe because we're only accessing properties dynamically
-        this._mcpManagers = detectMCPClientManagers(
-          // FIXME: come back to this
-          this as Record<string, unknown>,
-        );
       }
 
-      private recordEvent({ event, payload }: AgentEvent) {
+      private recordEvent({ type, payload }: AgentEvent) {
         for (const stream of this._activeStreams) {
           stream.writeSSE({
-            event: eventName,
+            event: type,
             data: JSON.stringify(payload),
           });
         }
@@ -385,6 +384,18 @@ export function Observed<E = unknown, S = unknown>() {
         });
 
         super.onStateUpdate(state as S, source);
+      }
+
+      onStart() {
+        super.onStart();
+
+        // Detect MCPClientManager instances
+        // We need to cast this to Record<string, unknown> for the detection function
+        // This is safe because we're only accessing properties dynamically
+        this._mcpManagers = detectMCPClientManagers(
+          // FIXME: come back to this
+          this as Record<string, unknown>,
+        );
       }
 
       override broadcast(
