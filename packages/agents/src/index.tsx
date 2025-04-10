@@ -1,5 +1,5 @@
 import type {
-  Prompt,
+  MCPPrompt,
   Resource,
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
@@ -191,7 +191,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
     interface ServerData {
       tools: Tool[];
       resources: Resource[];
-      prompts: Prompt[];
+      prompts: MCPPrompt[];
     }
 
     if (agent._mcpManagers && agent._mcpManagers?.size > 0) {
@@ -208,7 +208,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
           agent._mcpManagers
             ?.values()
             .flatMap((mcpManager) => mcpManager.listPrompts()) ||
-          ([] as Prompt[]);
+          ([] as MCPPrompt[]);
 
         const serverMap = new Map<string, ServerData>();
 
@@ -236,7 +236,9 @@ function createAgentAdminRouter(agent: ObservedAgent) {
         }
 
         for (const prompt of allPrompts) {
+          // @ts-expect-error something is borked with types
           const server = getOrCreateServer(prompt.serverName);
+          // @ts-expect-error something is borked with types
           server.prompts.push(prompt);
         }
 
