@@ -39,29 +39,64 @@ export function EventItemDetails(props: {
     return <CombinedEventDetails event={event} />;
   }
 
+  if (event.type === "ws_open") {
+    return (
+      <div className="border rounded-lg p-2 flex">
+        <div className="min-w-[200px] text-muted-foreground">
+          Connection ID:
+        </div>
+        <div>{event.payload.connectionId}</div>
+      </div>
+    );
+  }
+
+  if (event.type === "ws_close") {
+    return (
+      <div className="border rounded-lg p-2">
+        <KeyValueTable keyValue={event.payload} />
+      </div>
+    );
+  }
+
   if (event.type === "ws_message") {
     return (
-      <JSONViewer
-        data={
-          event.payload.incomingMessage ??
-          event.payload.typedMessage ??
-          event.payload.message
-        }
-        className="py-1"
-      />
+      <div className="border rounded-lg ">
+        <div className="p-2 flex">
+          <div className="min-w-[200px] text-muted-foreground">
+            Connection ID:
+          </div>
+          <div>{event.payload.connectionId}</div>
+        </div>
+        <JSONViewer
+          data={
+            event.payload.incomingMessage ??
+            event.payload.typedMessage ??
+            event.payload.message
+          }
+          className="py-1 border-x-0 rounded-none"
+        />
+      </div>
     );
   }
 
   if (event.type === "ws_send") {
     return (
-      <JSONViewer
-        data={
-          event.payload.outgoingMessage ??
-          event.payload.typedMessage ??
-          event.payload.message
-        }
-        className="py-1"
-      />
+      <div className="border rounded-lg ">
+        <div className="p-2 flex">
+          <div className="min-w-[200px] text-muted-foreground">
+            Target Connection ID:
+          </div>
+          <div>{event.payload.connectionId}</div>
+        </div>
+        <JSONViewer
+          data={
+            event.payload.outgoingMessage ??
+            event.payload.typedMessage ??
+            event.payload.message
+          }
+          className="py-1 rounded-none border-x-0"
+        />
+      </div>
     );
   }
 
@@ -125,10 +160,12 @@ function BroadcastDetails(
         <JSONViewer data={payload} className="py-1" label="Broadcast Payload" />
       );
     }
+
     if (data.type === "cf_agent_chat_messages") {
       return <ChatMessagesDetails {...data} without={payload.without} />;
     }
   }
+
   return (
     <JSONViewer
       data={payload.typedMessage ?? payload.message}

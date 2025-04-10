@@ -155,7 +155,11 @@ export const EventItem = ({ event }: { event: UIAgentEvent }) => {
             <EventSummary {...props} />
           </div>
         </button>
-        {expanded && <EventItemDetails event={event} />}
+        {expanded && (
+          <div className="px-2.5">
+            <EventItemDetails event={event} />
+          </div>
+        )}
       </div>
     </div>
   );
