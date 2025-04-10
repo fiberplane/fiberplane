@@ -1,34 +1,6 @@
 import { usePlaygroundStore } from "@/store";
+import { type AgentEventType, agentEventSchema } from "@/types";
 import { useCallback, useEffect, useRef } from "react";
-import { z } from "zod";
-
-export const AgentEventTypeSchema = z.enum([
-  "stream_open",
-  "stream_error",
-  "stream_close",
-  "http_request",
-  "http_response",
-  "ws_open",
-  "ws_close",
-  "ws_message",
-  "ws_send",
-  "broadcast",
-  "state_change",
-]);
-
-export type AgentEventType = z.infer<typeof AgentEventTypeSchema>;
-
-// Generic event payload type
-export interface EventPayload {
-  [key: string]: unknown;
-}
-
-export interface CoreAgentEvent {
-  type: AgentEventType;
-  id: string;
-  timestamp: string;
-  payload: EventPayload;
-}
 
 export type SSEStatus = "connecting" | "open" | "closed" | "error";
 
@@ -195,17 +167,22 @@ export function useAgentInstanceEvents(namespace: string, instance: string) {
     onMessage: (event) => {
       const data = JSON.parse(event.data);
 
-      const valid = AgentEventTypeSchema.safeParse(event.type);
+      const valid = agentEventSchema.safeParse({
+        type: event.type,
+        payload: data,
+      });
       if (!valid.success) {
+        console.error("invalid event", valid.error);
         return;
       }
 
       const id = generateId();
       addAgentInstanceEvent(namespace, instance, {
-        type: valid.data,
+        ...valid.data,
+        // type: valid.data,
         id,
         timestamp: new Date().toISOString(),
-        payload: data,
+        // payload: data,
       });
     },
     onConnectionStatus: (status) => {

@@ -1,6 +1,6 @@
 import { useFilteredEvents } from "@/hooks";
-import { type AgentEvent, eventCategories, usePlaygroundStore } from "@/store";
-import type { AgentInstanceParameters } from "@/types";
+import { eventCategories, usePlaygroundStore } from "@/store";
+import type { AgentInstanceParameters, UIAgentEvent } from "@/types";
 import { Trash2 } from "lucide-react";
 import { useMemo } from "react";
 import { Checkbox } from "../../ui/Checkbox";
@@ -29,7 +29,7 @@ export function EventsView(props: AgentInstanceParameters) {
   );
 
   const visibleEventTypes = useMemo(() => {
-    const visibleTypes: Array<AgentEvent["type"]> = [];
+    const visibleTypes: Array<UIAgentEvent["type"]> = [];
     for (const category of selectedCategories) {
       const types = eventCategories[category];
       if (types) {
@@ -54,13 +54,24 @@ export function EventsView(props: AgentInstanceParameters) {
       });
   }, [events, visibleEventTypes]);
 
+  const showFilterSummary = events.length !== sortedEvents.length;
+
   return (
     <div>
       <div className="grid items-center grid-cols-[1fr_auto] gap-2 border-b border-border px-5 py-2.5">
-        <StreamConnectionStatus
-          instance={props.instance}
-          namespace={props.namespace}
-        />
+        <div className="flex items-center gap-4 min-w-0">
+          <StreamConnectionStatus
+            instance={props.instance}
+            namespace={props.namespace}
+            short={showFilterSummary}
+          />
+          {showFilterSummary && (
+            <div className="text-sm text-muted-foreground text-nowrap overflow-hidden text-ellipsis flex-1">
+              Showing {sortedEvents.length} of {events.length} events
+            </div>
+          )}
+        </div>
+
         <div className="flex items-center gap-2">
           <EventCategoriesFilter
             namespace={props.namespace}

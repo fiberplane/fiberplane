@@ -15,7 +15,7 @@ import {
 } from "./agentInstances";
 // Import mock data for MCP
 import { mockMCPData } from "./mcp-mock-data";
-import type { AgentEvent } from "./types";
+import { type AgentEvent, agentEventSchema } from "./types";
 import {
   createRequestPayload,
   createResponsePayload,
@@ -25,9 +25,6 @@ import {
   tryCatch,
   tryCatchAsync,
 } from "./utils";
-
-const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
-const PARTYKIT_ROOM_HEADER = "x-partykit-room";
 
 // Define types for database schema
 type ColumnType = "string" | "number" | "boolean" | "null" | "object" | "array";
@@ -287,7 +284,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
         console.error("Error in stream:", streamError);
         stream.writeSSE({
           event: "stream_error",
-          data: streamError.message,
+          data: JSON.stringify(streamError.message),
         });
         agent._activeStreams.delete(stream);
       },
@@ -371,18 +368,19 @@ export function Observed<E = unknown, S = unknown>() {
       private recordEvent({ event, payload }: AgentEvent) {
         for (const stream of this._activeStreams) {
           stream.writeSSE({
-            event,
+            event: eventName,
             data: JSON.stringify(payload),
           });
         }
       }
 
       onStateUpdate(state: unknown, source: Connection | "server"): void {
+        const sourceId = source === "server" ? "server" : source.id;
         this.recordEvent({
-          event: "state_change",
+          type: "state_change",
           payload: {
             state,
-            source,
+            source: sourceId,
           },
         });
 
@@ -394,7 +392,7 @@ export function Observed<E = unknown, S = unknown>() {
         without?: string[] | undefined,
       ): void {
         this.recordEvent({
-          event: "broadcast",
+          type: "broadcast",
           payload: {
             message:
               typeof msg === "string"
@@ -422,16 +420,14 @@ export function Observed<E = unknown, S = unknown>() {
                 message: string | ArrayBuffer | ArrayBufferView,
               ) {
                 self.recordEvent({
-                  event: "ws_send",
+                  type: "ws_send",
                   payload: {
-                    connection: {
-                      id: target.id,
-                    },
+                    connectionId: target.id,
                     message:
                       typeof message === "string"
                         ? message
                         : {
-                            type: "binary",
+                            type: "binary" as const,
                             size:
                               message instanceof Blob
                                 ? message.size
@@ -456,12 +452,13 @@ export function Observed<E = unknown, S = unknown>() {
 
       onMessage(connection: Connection, message: WSMessage) {
         this.recordEvent({
-          event: "ws_message",
+          type: "ws_message",
           payload: {
-            connection: {
-              id: connection.id,
-            },
-            message,
+            connectionId: connection.id,
+            message:
+              typeof message === "string"
+                ? message
+                : { type: "binary", size: message.byteLength },
           },
         });
 
@@ -473,10 +470,9 @@ export function Observed<E = unknown, S = unknown>() {
 
       onConnect(connection: Connection, ctx: ConnectionContext) {
         this.recordEvent({
-          event: "ws_open",
+          type: "ws_open",
           payload: {
-            connection,
-            ctx,
+            connectionId: connection.id,
           },
         });
 
@@ -494,8 +490,8 @@ export function Observed<E = unknown, S = unknown>() {
         wasClean: boolean,
       ): void | Promise<void> {
         this.recordEvent({
-          event: "ws_close",
-          payload: { connection, code, reason, wasClean },
+          type: "ws_close",
+          payload: { connectionId: connection.id, code, reason, wasClean },
         });
 
         return super.onClose(connection, code, reason, wasClean);
@@ -528,7 +524,7 @@ export function Observed<E = unknown, S = unknown>() {
           // since we may need to read the body of the request
           const eventPromise = Promise.resolve().then(async () => {
             this.recordEvent({
-              event: "http_request",
+              type: "http_request",
               // Clone the request to avoid consuming the body
               payload: await createRequestPayload(
                 request.clone() as typeof request,
@@ -542,7 +538,7 @@ export function Observed<E = unknown, S = unknown>() {
             return Promise.all([result, eventPromise]).then(async ([res]) => {
               const payload = await createResponsePayload(res.clone());
               this.recordEvent({
-                event: "http_response",
+                type: "http_response",
                 payload: {
                   ...payload,
                   url,
@@ -559,7 +555,7 @@ export function Observed<E = unknown, S = unknown>() {
             const payload = await createResponsePayload(capturedResponse);
 
             this.recordEvent({
-              event: "http_response",
+              type: "http_response",
               payload: {
                 ...payload,
                 url,

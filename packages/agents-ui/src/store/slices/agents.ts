@@ -1,17 +1,16 @@
-import type { CoreAgentEvent } from "@/hooks";
-import { MessagePayloadSchema, agentUseChatResponseSchema } from "@/types";
-import type { ToolCall, ToolResult } from "ai";
-import type { z } from "zod";
+import type { UIAgentEvent } from "@/types";
 import { combine } from "zustand/middleware";
 import { EMPTY_COMBINED_EVENTS } from "./ui";
 import { updateCombinedEvent } from "./utils";
 
-// Agent slice
 export type InstanceDetails = {
   eventStreamStatus: SSEStatus;
-  events: Array<CoreAgentEvent>;
-  combinedEvents: Array<CoreAgentEvent | CombinedEvent>;
-  knownBroadcastEvents: Record<string, CombinedEvent>;
+  events: Array<UIAgentEvent>;
+  combinedEvents: Array<UIAgentEvent>;
+  knownBroadcastEvents: Record<
+    string,
+    UIAgentEvent & { type: "combined_event" }
+  >;
 };
 
 export type AgentDetailsState = {
@@ -24,37 +23,11 @@ export type AgentState = {
 
 export type SSEStatus = "connecting" | "open" | "closed" | "error";
 
-type UseChatResponseCombinedEventPayload = {
-  type: z.infer<typeof agentUseChatResponseSchema>["type"];
-  chunks: Array<z.infer<typeof agentUseChatResponseSchema>>;
-  content: string;
-  done: boolean;
-  metadata: {
-    messageId?: string;
-    // biome-ignore lint/suspicious/noExplicitAny: the default type is any
-    toolCalls: ToolCall<string, any>[];
-    // biome-ignore lint/suspicious/noExplicitAny: the default type is any
-    toolResults: Omit<ToolResult<string, any, any>, "toolName" | "args">[];
-    status?: Record<string, unknown> | null;
-  };
-};
-
-type CombinedEventPayload = UseChatResponseCombinedEventPayload;
-
-export type CombinedEvent = {
-  type: "combined_event";
-  id: string;
-  payload: CombinedEventPayload;
-  timestamp: string;
-};
-
-export type AgentEvent = CoreAgentEvent | CombinedEvent;
-
 export type AgentActions = {
   addAgentInstanceEvent: (
     agent: string,
     instance: string,
-    event: CoreAgentEvent,
+    event: UIAgentEvent,
   ) => void;
   resetAgentInstanceEvents: (agent: string, instance: string) => void;
   setAgentInstanceStreamStatus: (
@@ -98,25 +71,17 @@ export const agentSlice = combine<AgentState, AgentActions>(
 
         // Handle broadcast event combining
         if (event.type === "broadcast") {
-          const messagePayloadResult = MessagePayloadSchema.safeParse(
-            event.payload,
-          );
-          const parsed = messagePayloadResult.success
-            ? agentUseChatResponseSchema.safeParse(
-                messagePayloadResult.data.message,
-              )
-            : null;
+          const outgoingMessage = event.payload.outgoingMessage;
 
-          if (parsed?.success) {
-            console.log("1!@@!#$!@#");
-            const { id, done } = parsed.data;
+          if (outgoingMessage?.type === "cf_agent_use_chat_response") {
+            const { id, done } = outgoingMessage;
             if (id in knownBroadcastEvents) {
               // Update existing combined event
               const existingEvent = knownBroadcastEvents[id];
 
-              if (existingEvent.payload.type === parsed.data.type) {
+              if (existingEvent.payload.type === outgoingMessage.type) {
                 const newEvent = { ...existingEvent };
-                updateCombinedEvent(newEvent, parsed.data);
+                updateCombinedEvent(newEvent, outgoingMessage);
 
                 // Replace the existing event in the combined events array
                 combinedEvents = combinedEvents.map((e) =>
@@ -127,17 +92,17 @@ export const agentSlice = combine<AgentState, AgentActions>(
                 knownBroadcastEvents[id] = newEvent;
               } else {
                 console.warn(
-                  `Event type mismatch for ID ${id}: ${existingEvent.payload.type} vs ${parsed.data.type}`,
+                  `Event type mismatch for ID ${id}: ${existingEvent.payload.type}`,
                 );
               }
             } else {
               // Create a new combined event
-              const newCombinedEvent: CombinedEvent = {
+              const newCombinedEvent: UIAgentEvent = {
                 type: "combined_event",
                 id,
                 payload: {
-                  type: parsed.data.type,
-                  chunks: [parsed.data],
+                  type: outgoingMessage.type,
+                  chunks: [outgoingMessage],
                   content: "",
                   done,
                   metadata: {
@@ -150,7 +115,7 @@ export const agentSlice = combine<AgentState, AgentActions>(
                 timestamp: event.timestamp,
               };
 
-              updateCombinedEvent(newCombinedEvent, parsed.data);
+              updateCombinedEvent(newCombinedEvent, outgoingMessage);
 
               // Add to combined events array
               combinedEvents.push(newCombinedEvent);
@@ -159,10 +124,6 @@ export const agentSlice = combine<AgentState, AgentActions>(
               knownBroadcastEvents[id] = newCombinedEvent;
             }
           } else {
-            console.warn(
-              "Failed to parse broadcast event payload",
-              event.payload,
-            );
             // Still add the original event to combined events for completeness
             combinedEvents.push(event);
           }
