@@ -1,5 +1,7 @@
 import type { QueryClient } from "@tanstack/react-query";
+import type { ToolCall, ToolResult } from "ai";
 import { z } from "zod";
+import { tryCatch } from "./lib/utils";
 
 // Define types for the result structure
 export type DBColumnType =
@@ -305,6 +307,12 @@ export const outgoingMessageSchema = z.discriminatedUnion("type", [
   agentStateSchema,
 ]);
 
+export const messageWithTypeSchema = z
+  .object({
+    type: z.string(),
+  })
+  .catchall(z.unknown());
+
 // Export types inferred from the schemas
 export type IncomingMessage = z.infer<typeof incomingMessageSchema>;
 export type OutgoingMessage = z.infer<typeof outgoingMessageSchema>;
@@ -345,3 +353,248 @@ export interface HttpResponsePayload {
   body?: unknown;
   [key: string]: unknown;
 }
+
+export const streamOpenEventSchema = z.object({
+  type: z.literal("stream_open"),
+  // payload is the stringified value of null
+  payload: z.undefined(),
+});
+
+export const streamCloseEventSchema = z.object({
+  type: z.literal("stream_close"),
+  // payload is the stringified value of null
+  payload: z.undefined(),
+});
+
+export const streamErrorEventSchema = z.object({
+  type: z.literal("stream_error"),
+  payload: z.string(),
+});
+
+const httpRequestPayloadSchema = z.object({
+  method: z.string(),
+  url: z.string(),
+  headers: z.record(z.string()),
+  body: z.string().optional(),
+});
+
+export const httpRequestEventSchema = z.object({
+  type: z.literal("http_request"),
+  payload: httpRequestPayloadSchema,
+});
+
+export const httpResponsePayloadSchema = httpRequestPayloadSchema.extend({
+  status: z.number(),
+  statusText: z.string(),
+});
+
+export const httpResponseEventSchema = z.object({
+  type: z.literal("http_response"),
+  payload: httpResponsePayloadSchema,
+});
+
+export const wsOpenEventSchema = z.object({
+  type: z.literal("ws_open"),
+  payload: z.object({
+    connectionId: z.string(),
+  }),
+});
+
+export const wsCloseEventSchema = z.object({
+  type: z.literal("ws_close"),
+  // payload is the stringified value of null
+  payload: z.object({
+    connectionId: z.string(),
+    code: z.number(),
+    reason: z.string(),
+    wasClean: z.boolean(),
+  }),
+});
+
+export const wsMessageEventSchema = z.object({
+  type: z.literal("ws_message"),
+  payload: z
+    .object({
+      connectionId: z.string(),
+      message: z.union([
+        z.string(),
+        z.object({
+          type: z.literal("binary"),
+          size: z.number(),
+        }),
+      ]),
+      // Added by the transformation
+      incomingMessage: incomingMessageSchema.optional(),
+      // Added by the transformation
+      typedMessage: messageWithTypeSchema.optional(),
+    })
+    .transform((data) => {
+      // If the message is a string, parse it as JSON
+      const jsonResult = tryCatch(() =>
+        typeof data.message === "string"
+          ? JSON.parse(data.message)
+          : data.message,
+      );
+      if (jsonResult.error) {
+        console.error("Failed to parse ws_message message:", jsonResult.error);
+        return data;
+      }
+
+      const incomingMessage = incomingMessageSchema.safeParse(jsonResult.data);
+      if (incomingMessage.success) {
+        data.incomingMessage = incomingMessage.data;
+      }
+
+      const typedMessage = messageWithTypeSchema.safeParse(jsonResult.data);
+      if (typedMessage.success) {
+        data.typedMessage = typedMessage.data;
+      }
+
+      return data;
+    }),
+});
+
+export const wsSendEventSchema = z.object({
+  type: z.literal("ws_send"),
+  payload: z
+    .object({
+      connectionId: z.string(),
+      message: z.union([
+        z.string(),
+        z.object({
+          type: z.literal("binary"),
+          size: z.number(),
+        }),
+      ]),
+      // Added by the transformation
+      outgoingMessage: outgoingMessageSchema.optional(),
+      // Added by the transformation
+      typedMessage: messageWithTypeSchema.optional(),
+    })
+    .transform((data) => {
+      // If the message is a string, parse it as JSON
+      const jsonResult = tryCatch(() =>
+        typeof data.message === "string"
+          ? JSON.parse(data.message)
+          : data.message,
+      );
+      if (jsonResult.error) {
+        console.error("Failed to parse ws_send message:", jsonResult.error);
+        return data;
+      }
+
+      const outgoingMessage = outgoingMessageSchema.safeParse(jsonResult.data);
+      if (outgoingMessage.success) {
+        data.outgoingMessage = outgoingMessage.data;
+      }
+
+      const typedMessage = messageWithTypeSchema.safeParse(jsonResult.data);
+      if (typedMessage.success) {
+        data.typedMessage = typedMessage.data;
+      }
+
+      return data;
+    }),
+});
+
+export const broadcastEventSchema = z.object({
+  type: z.literal("broadcast"),
+  payload: z
+    .object({
+      message: z.union([
+        z.string(),
+        z.object({
+          type: z.literal("binary"),
+          size: z.number(),
+        }),
+      ]),
+      // Excluded connection ids
+      without: z.array(z.string()).optional(),
+      // Added by the transformation
+      outgoingMessage: outgoingMessageSchema.optional(),
+      // Added by the transformation
+      typedMessage: messageWithTypeSchema.optional(),
+    })
+    .transform((data) => {
+      // If the message is a string, parse it as JSON
+      const jsonResult = tryCatch(() =>
+        typeof data.message === "string"
+          ? JSON.parse(data.message)
+          : data.message,
+      );
+      if (jsonResult.error) {
+        console.error("Failed to parse broadcast message:", jsonResult.error);
+        return data;
+      }
+
+      const outgoingMessage = outgoingMessageSchema.safeParse(jsonResult.data);
+      if (outgoingMessage.success) {
+        data.outgoingMessage = outgoingMessage.data;
+      }
+
+      const typedMessage = messageWithTypeSchema.safeParse(jsonResult.data);
+      if (typedMessage.success) {
+        data.typedMessage = typedMessage.data;
+      }
+
+      return data;
+    }),
+});
+
+export const stateChangeEventSchema = z.object({
+  type: z.literal("state_change"),
+  payload: z.object({
+    state: z.unknown(),
+    source: z.union([z.literal("server"), z.string()]),
+  }),
+});
+
+export const agentEventSchema = z.discriminatedUnion("type", [
+  streamOpenEventSchema,
+  streamCloseEventSchema,
+  streamErrorEventSchema,
+  httpRequestEventSchema,
+  httpResponseEventSchema,
+  wsOpenEventSchema,
+  wsCloseEventSchema,
+  wsMessageEventSchema,
+  wsSendEventSchema,
+  broadcastEventSchema,
+  stateChangeEventSchema,
+]);
+export type AgentEvent = z.infer<typeof agentEventSchema>;
+export type AgentEventType = AgentEvent["type"];
+export type DiscriminatedSubset<T, K extends keyof T> = T extends {
+  type: infer TType;
+}
+  ? { type: TType } & Pick<T, Exclude<K, "type">>
+  : never;
+
+type UseChatResponseCombinedEventPayload = {
+  type: z.infer<typeof agentUseChatResponseSchema>["type"];
+  chunks: Array<z.infer<typeof agentUseChatResponseSchema>>;
+  content: string;
+  done: boolean;
+  metadata: {
+    messageId?: string;
+    // biome-ignore lint/suspicious/noExplicitAny: the default type is any
+    toolCalls: ToolCall<string, any>[];
+    // biome-ignore lint/suspicious/noExplicitAny: the default type is any
+    toolResults: Omit<ToolResult<string, any, any>, "toolName" | "args">[];
+    status?: Record<string, unknown> | null;
+  };
+};
+
+type CombinedEventPayload = UseChatResponseCombinedEventPayload;
+
+export type CombinedEvent = {
+  type: "combined_event";
+  payload: CombinedEventPayload;
+};
+
+export type WithIdAndTimestamp = {
+  id: string;
+  timestamp: string;
+};
+
+export type UIAgentEvent = WithIdAndTimestamp & (AgentEvent | CombinedEvent);

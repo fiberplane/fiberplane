@@ -5,23 +5,21 @@ import {
   FpTabsList,
   FpTabsTrigger,
 } from "@/components/ui/tabs";
-import type { CoreAgentEvent } from "@/hooks";
-import type { CombinedEvent } from "@/store";
-import {
-  type HttpRequestPayload,
-  type HttpResponsePayload,
-  MessagePayloadSchema,
-  type OutgoingMessage,
-  outgoingMessageSchema,
+import type {
+  HttpRequestPayload,
+  HttpResponsePayload,
+  OutgoingMessage,
+  UIAgentEvent,
 } from "@/types";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { parseDataStreamPart } from "ai";
 import { Check } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MessageItem } from "../../ChatMessageTableView";
 import { JSONViewer } from "../JSONViewer";
 
 export function EventItemDetails(props: {
-  event: CombinedEvent | CoreAgentEvent;
+  event: UIAgentEvent;
 }) {
   const { event } = props;
   if (event.type === "http_request") {
@@ -39,6 +37,67 @@ export function EventItemDetails(props: {
 
   if (event.type === "combined_event") {
     return <CombinedEventDetails event={event} />;
+  }
+
+  if (event.type === "ws_open") {
+    return (
+      <div className="border rounded-lg p-2 flex">
+        <div className="min-w-[200px] text-muted-foreground">
+          Connection ID:
+        </div>
+        <div>{event.payload.connectionId}</div>
+      </div>
+    );
+  }
+
+  if (event.type === "ws_close") {
+    return (
+      <div className="border rounded-lg p-2">
+        <KeyValueTable keyValue={event.payload} />
+      </div>
+    );
+  }
+
+  if (event.type === "ws_message") {
+    return (
+      <div className="border rounded-lg ">
+        <div className="p-2 flex">
+          <div className="min-w-[200px] text-muted-foreground">
+            Connection ID:
+          </div>
+          <div>{event.payload.connectionId}</div>
+        </div>
+        <JSONViewer
+          data={
+            event.payload.incomingMessage ??
+            event.payload.typedMessage ??
+            event.payload.message
+          }
+          className="py-1 border-x-0 rounded-none"
+        />
+      </div>
+    );
+  }
+
+  if (event.type === "ws_send") {
+    return (
+      <div className="border rounded-lg ">
+        <div className="p-2 flex">
+          <div className="min-w-[200px] text-muted-foreground">
+            Target Connection ID:
+          </div>
+          <div>{event.payload.connectionId}</div>
+        </div>
+        <JSONViewer
+          data={
+            event.payload.outgoingMessage ??
+            event.payload.typedMessage ??
+            event.payload.message
+          }
+          className="py-1 rounded-none border-x-0"
+        />
+      </div>
+    );
   }
 
   return <JSONViewer data={event.payload} className="py-1" />;
@@ -89,38 +148,37 @@ function HttpRequestDetails(props: { payload: HttpRequestPayload }) {
   );
 }
 
-function BroadcastDetails(props: {
-  payload: (CombinedEvent | CoreAgentEvent)["payload"];
-}) {
+function BroadcastDetails(
+  props: Pick<UIAgentEvent & { type: "broadcast" }, "payload">,
+) {
   const { payload } = props;
-  const validPayload = MessagePayloadSchema.safeParse(payload);
-  const messageProp = validPayload.data?.message;
-  const validateMessageProp = outgoingMessageSchema.safeParse(messageProp);
 
-  if (!validateMessageProp.success) {
-    // So it's a
-    return (
-      <JSONViewer data={payload} className="py-1" label="Broadcast Payload" />
-    );
+  if (payload.outgoingMessage) {
+    const data = payload.outgoingMessage;
+    if (data.type === "cf_agent_chat_clear") {
+      return (
+        <JSONViewer data={payload} className="py-1" label="Broadcast Payload" />
+      );
+    }
+
+    if (data.type === "cf_agent_chat_messages") {
+      return <ChatMessagesDetails {...data} without={payload.without} />;
+    }
   }
 
-  const data = validateMessageProp.data;
-  if (data.type === "cf_agent_chat_clear") {
-    return (
-      <JSONViewer data={payload} className="py-1" label="Broadcast Payload" />
-    );
-  }
-  if (data.type === "cf_agent_chat_messages") {
-    return <ChatMessagesDetails {...data} raw={payload} />;
-  }
-
-  return <JSONViewer data={data} className="py-1" label="Broadcast Payload" />;
+  return (
+    <JSONViewer
+      data={payload.typedMessage ?? payload.message}
+      className="py-1"
+      label="Broadcast Payload"
+    />
+  );
 }
 
 function ChatMessagesDetails(
   props: OutgoingMessage & {
     type: "cf_agent_chat_messages";
-    raw: (CombinedEvent | CoreAgentEvent)["payload"];
+    without?: Array<string>;
   },
 ) {
   const [activeTab, setActiveTab] = useState("messages");
@@ -155,8 +213,9 @@ function ChatMessagesDetails(
         </div>
       </FpTabsContent>
       <FpTabsContent value="raw">
+        <div>Excluding: {props.without?.join(", ")}</div>
         <JSONViewer
-          data={props.raw}
+          data={props.messages}
           className="py-1"
           label="Broadcast Payload"
         />
@@ -211,11 +270,11 @@ function HttpResponseDetails(props: { payload: HttpResponsePayload }) {
 }
 
 function CombinedEventDetails(props: {
-  event: CombinedEvent;
+  event: UIAgentEvent & { type: "combined_event" };
 }) {
   const { event } = props;
   const [activeTab, setActiveTab] = useState("summary");
-  const { chunks, type } = event.payload;
+  const { chunks } = event.payload;
   return (
     <FpTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <FpTabsList className="bg-transparent">
@@ -224,9 +283,6 @@ function CombinedEventDetails(props: {
         </FpTabsTrigger>
         <FpTabsTrigger value="chunks" className="flex gap-2">
           Chunks
-        </FpTabsTrigger>
-        <FpTabsTrigger value="raw" className="flex gap-2">
-          Raw
         </FpTabsTrigger>
       </FpTabsList>
       <FpTabsContent value="chunks">
@@ -239,19 +295,15 @@ function CombinedEventDetails(props: {
           metadata={event.payload.metadata}
         />
       </FpTabsContent>
-      <FpTabsContent value="raw">
-        <JSONViewer
-          data={event}
-          className="py-1"
-          label={`Combined Event (${type})`}
-        />
-      </FpTabsContent>
     </FpTabs>
   );
 }
 
 function CombinedEventSummary(
-  props: Pick<CombinedEvent["payload"], "content" | "done" | "metadata">,
+  props: Pick<
+    (UIAgentEvent & { type: "combined_event" })["payload"],
+    "content" | "done" | "metadata"
+  >,
 ) {
   const { content, done, metadata } = props;
   const data = {
@@ -273,18 +325,92 @@ function CombinedEventSummary(
 }
 
 function CombinedEventChunks(props: {
-  chunks: CombinedEvent["payload"]["chunks"];
+  chunks: (UIAgentEvent & { type: "combined_event" })["payload"]["chunks"];
 }) {
+  const parentRef = useRef<HTMLDivElement>(null);
+  const [measuredHeights, setMeasuredHeights] = useState<
+    Record<number, number>
+  >({});
+
+  // Measure and remember heights of rendered items
+  const estimateSize = (index: number) => {
+    return measuredHeights[index] || 85; // Start with a reasonable estimate
+  };
+
+  const virtualizer = useVirtualizer({
+    count: props.chunks.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize,
+    overscan: 5, // Pre-render items above and below the visible area for smoother scrolling
+    getItemKey: (index) => index,
+  });
+
+  // Track measured heights after render
+  const handleItemResize = (index: number, element: HTMLElement) => {
+    const height = element.getBoundingClientRect().height;
+    if (height !== measuredHeights[index]) {
+      setMeasuredHeights((prev) => ({
+        ...prev,
+        [index]: height,
+      }));
+    }
+  };
+
+  // Effect to measure initial items after first render
+  // biome-ignore lint/correctness/useExhaustiveDependencies: measure should happen again when the chunks change
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      virtualizer.measure();
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [virtualizer.measure, props.chunks]);
+
   return (
-    <div className="grid gap-2 border rounded-lg p-2">
-      {props.chunks.map((chunk, index) => (
-        <JSONViewer
-          key={index}
-          data={chunk.body ? parseDataStreamPart(chunk.body) : {}}
-          className="py-1"
-          label={`Chunk ${index + 1}`}
-        />
-      ))}
+    <div
+      ref={parentRef}
+      className="border rounded-lg p-2 overflow-auto"
+      style={{
+        maxHeight: "600px",
+        // height: '400px', // Set a reasonable container height
+        width: "100%",
+        position: "relative",
+      }}
+    >
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          width: "100%",
+          position: "relative",
+        }}
+      >
+        {virtualizer.getVirtualItems().map((virtualRow) => {
+          const chunk = props.chunks[virtualRow.index];
+          return (
+            <div
+              key={virtualRow.key}
+              data-index={virtualRow.index}
+              ref={(el) => {
+                if (el) {
+                  virtualizer.measureElement(el);
+                  handleItemResize(virtualRow.index, el);
+                }
+              }}
+              className="py-1 absolute top-0 left-0 w-full"
+              style={{
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+            >
+              <div className="min-h-[85px] border rounded-lg">
+                <JSONViewer
+                  data={chunk.body ? parseDataStreamPart(chunk.body) : {}}
+                  className="py-1 border-0"
+                  label={`Chunk ${virtualRow.index + 1}`}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

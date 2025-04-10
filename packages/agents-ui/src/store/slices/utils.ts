@@ -1,5 +1,5 @@
+import type { UIAgentEvent } from "@/types";
 import { parseDataStreamPart } from "ai";
-import type { CombinedEvent } from "./agents";
 
 /**
  * Updates the combined event with the new chunk of data.
@@ -8,8 +8,10 @@ import type { CombinedEvent } from "./agents";
  * @returns void
  */
 export function updateCombinedEvent(
-  combinedEvent: CombinedEvent,
-  event: CombinedEvent["payload"]["chunks"][number],
+  combinedEvent: UIAgentEvent & { type: "combined_event" },
+  event: (UIAgentEvent & {
+    type: "combined_event";
+  })["payload"]["chunks"][number],
 ): void {
   if (event.body === "" && event.done) {
     combinedEvent.payload.done = event.done;

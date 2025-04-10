@@ -1,32 +1,34 @@
-import type { CoreAgentEvent } from "@/hooks";
+import type { UIAgentEvent } from "@/types";
 import { combine } from "zustand/middleware";
-import type { AgentEvent, CombinedEvent } from "./agents";
 
-const streamEvents: Array<AgentEvent["type"]> = [
+const streamEvents: Array<UIAgentEvent["type"]> = [
   "stream_open",
   "stream_close",
   "stream_error",
 ];
-const httpEvents: Array<AgentEvent["type"]> = ["http_request", "http_response"];
+const httpEvents: Array<UIAgentEvent["type"]> = [
+  "http_request",
+  "http_response",
+];
 
-const webSocketEvents: Array<AgentEvent["type"]> = [
+const webSocketEvents: Array<UIAgentEvent["type"]> = [
   // "ws_open",
   // "ws_close",
   "ws_message",
   "ws_send",
 ];
 
-const webSocketConnectionEvents: Array<AgentEvent["type"]> = [
+const webSocketConnectionEvents: Array<UIAgentEvent["type"]> = [
   "ws_open",
   "ws_close",
 ];
 
-const broadcastEvents: Array<AgentEvent["type"]> = [
+const broadcastEvents: Array<UIAgentEvent["type"]> = [
   "broadcast",
   "combined_event",
 ];
 
-const stateChangeEvents: Array<AgentEvent["type"]> = ["state_change"];
+const stateChangeEvents: Array<UIAgentEvent["type"]> = ["state_change"];
 export const eventCategories = {
   Streaming: streamEvents,
   HTTP: httpEvents,
@@ -51,8 +53,8 @@ const DEFAULT_EVENT_CATEGORIES: Array<EventCategory> = [
   "State events",
 ];
 
-export const EMPTY_EVENTS: Array<CoreAgentEvent> = [];
-export const EMPTY_COMBINED_EVENTS: Array<CoreAgentEvent | CombinedEvent> = [];
+export const EMPTY_EVENTS: Array<UIAgentEvent> = [];
+export const EMPTY_COMBINED_EVENTS: Array<UIAgentEvent> = [];
 
 // UI State
 export type UIState = {
