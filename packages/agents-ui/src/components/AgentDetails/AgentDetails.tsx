@@ -44,17 +44,24 @@ export function AgentDetails({
   agent: ListAgentsResponse[0];
   instance: string;
 }) {
-  const { data: db, refetch } = useAgentDB(agentDetails.id, instance);
-  const { data: mcpData, isLoading: isMcpLoading } = useAgentMCP(
+  const { data: db, refetch: refetchDb } = useAgentDB(
     agentDetails.id,
     instance,
   );
+  const {
+    data: mcpData,
+    refetch: refetchMCP,
+    isLoading: isMcpLoading,
+  } = useAgentMCP(agentDetails.id, instance);
   useAgentInstanceEvents(agentDetails.id, instance);
 
   useEffect(() => {
-    const id = setInterval(refetch, POLL_INTERVAL);
+    const id = setInterval(() => {
+      refetchDb();
+      refetchMCP();
+    }, POLL_INTERVAL);
     return () => clearInterval(id);
-  }, [refetch]);
+  }, [refetchDb, refetchMCP]);
 
   const [activeTab, setActiveTab] = useState("");
   const [sideBarTab, setSideBarTab] = useState("events");

@@ -4,7 +4,6 @@ import { noop } from "@/lib/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { CodeMirrorJsonEditor } from "../CodeMirror";
-import { KeyValueTable } from "../KeyValueTable";
 import { Spinner } from "../Spinner";
 import { Button } from "../ui/button";
 import {
@@ -166,14 +165,23 @@ function JsonViewer({
       onClick={onToggle}
       variant="outline"
       size="icon-xs"
-      className="w-auto pr-2 pl-1 text-xs gap-1"
+      className="w-[112px] pr-2 pl-1 text-xs relative"
     >
-      {isExpanded ? (
-        <ChevronDown className="h-4 w-4" />
-      ) : (
-        <ChevronRight className="h-4 w-4" />
-      )}
-      View Details
+      <div className="absolute left-1 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center">
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 absolute",
+            isExpanded ? "opacity-100" : "opacity-0",
+          )}
+        />
+        <ChevronRight
+          className={cn(
+            "h-4 w-4 absolute",
+            isExpanded ? "opacity-0" : "opacity-100",
+          )}
+        />
+      </div>
+      <span className="ml-5">View Details</span>
     </Button>
   );
 }
@@ -201,7 +209,7 @@ function MCPToolsTable({ data }: { data: MCPData }) {
           <TableHead>Name</TableHead>
           <TableHead>Server</TableHead>
           <TableHead>Description</TableHead>
-          <TableHead>Details</TableHead>
+          <TableHead className="w-[120px]">Details</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -218,8 +226,14 @@ function MCPToolsTable({ data }: { data: MCPData }) {
             <>
               <TableRow key={rowId}>
                 <TableCell className="font-medium">{name}</TableCell>
-                <TableCell>{serverName}</TableCell>
-                <TableCell>{description || "No description"}</TableCell>
+                <TableCell className="max-w-[100px]">
+                  <div className="truncate">{serverName}</div>
+                </TableCell>
+                <TableCell className="max-w-[300px]">
+                  <div className="truncate">
+                    {description || "No description"}
+                  </div>
+                </TableCell>
                 <TableCell>
                   <JsonViewer
                     data={tool}
@@ -273,7 +287,7 @@ function MCPResourcesTable({ data }: { data: MCPData }) {
           <TableHead>Server</TableHead>
           <TableHead>Type</TableHead>
           <TableHead>Description</TableHead>
-          <TableHead>Details</TableHead>
+          <TableHead className="w-[120px]">Details</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -293,7 +307,11 @@ function MCPResourcesTable({ data }: { data: MCPData }) {
                 <TableCell className="font-medium">{name}</TableCell>
                 <TableCell>{serverName}</TableCell>
                 <TableCell>{resourceType || "Not specified"}</TableCell>
-                <TableCell>{description || "No description"}</TableCell>
+                <TableCell className="max-w-[300px]">
+                  <div className="truncate">
+                    {description || "No description"}
+                  </div>
+                </TableCell>
                 <TableCell>
                   <JsonViewer
                     data={resource}
@@ -347,7 +365,7 @@ function MCPPromptsTable({ data }: { data: MCPData }) {
           <TableHead>Server</TableHead>
           <TableHead>Type</TableHead>
           <TableHead>Description</TableHead>
-          <TableHead>Details</TableHead>
+          <TableHead className="w-[120px]">Details</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -367,7 +385,11 @@ function MCPPromptsTable({ data }: { data: MCPData }) {
                 <TableCell className="font-medium">{name}</TableCell>
                 <TableCell>{serverName}</TableCell>
                 <TableCell>{promptType || "Not specified"}</TableCell>
-                <TableCell>{description || "No description"}</TableCell>
+                <TableCell className="max-w-[300px]">
+                  <div className="truncate">
+                    {description || "No description"}
+                  </div>
+                </TableCell>
                 <TableCell>
                   <JsonViewer
                     data={prompt}
@@ -413,7 +435,7 @@ function MCPServersTable({ data }: { data: MCPData }) {
           <TableHead>Tools</TableHead>
           <TableHead>Resources</TableHead>
           <TableHead>Prompts</TableHead>
-          <TableHead>Details</TableHead>
+          <TableHead className="w-[120px]">Details</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
