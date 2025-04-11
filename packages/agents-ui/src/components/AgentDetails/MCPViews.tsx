@@ -1,11 +1,12 @@
 import type { MCPData } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { noop } from "@/lib/utils";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Server } from "lucide-react";
 import { useState } from "react";
 import { CodeMirrorJsonEditor } from "../CodeMirror";
 import { Spinner } from "../Spinner";
 import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
   Table,
   TableBody,
@@ -136,7 +137,7 @@ export function MCPServersView({
   return (
     <div className="p-4 overflow-auto">
       <h2 className="text-lg font-semibold mb-4">MCP Servers</h2>
-      <MCPServersTable data={data} />
+      <MCPServersGrid data={data} />
     </div>
   );
 }
@@ -419,79 +420,119 @@ function MCPPromptsTable({ data }: { data: MCPData }) {
   );
 }
 
-// MCP Servers table component
-function MCPServersTable({ data }: { data: MCPData }) {
-  const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
-
+// MCP Servers grid component with cards
+function MCPServersGrid({ data }: { data: MCPData }) {
   if (data.length === 0) {
     return <div className="text-muted-foreground">No servers available</div>;
   }
 
+  const MAX_ITEMS_TO_DISPLAY = 3;
+
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Tools</TableHead>
-          <TableHead>Resources</TableHead>
-          <TableHead>Prompts</TableHead>
-          <TableHead className="w-[120px]">Details</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data.map((server, index) => {
-          // Get server name from tools, resources, or prompts (in that order)
-          let serverName = `Server ${index + 1}`;
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {data.map((server, index) => {
+        // Get server name from tools, resources, or prompts (in that order)
+        let serverName = `Server ${index + 1}`;
 
-          if (server.tools.length > 0 && "serverName" in server.tools[0]) {
-            serverName = safeString(server.tools[0].serverName);
-          } else if (
-            server.resources.length > 0 &&
-            "serverName" in server.resources[0]
-          ) {
-            serverName = safeString(server.resources[0].serverName);
-          } else if (
-            server.prompts.length > 0 &&
-            "serverName" in server.prompts[0]
-          ) {
-            serverName = safeString(server.prompts[0].serverName);
-          }
+        if (server.tools.length > 0 && "serverName" in server.tools[0]) {
+          serverName = safeString(server.tools[0].serverName);
+        } else if (
+          server.resources.length > 0 &&
+          "serverName" in server.resources[0]
+        ) {
+          serverName = safeString(server.resources[0].serverName);
+        } else if (
+          server.prompts.length > 0 &&
+          "serverName" in server.prompts[0]
+        ) {
+          serverName = safeString(server.prompts[0].serverName);
+        }
 
-          const rowId = `server-${index}`;
-          const isExpanded = expandedRowId === rowId;
+        const cardId = `server-card-${index}`;
+        const toolsToDisplay = server.tools.slice(0, MAX_ITEMS_TO_DISPLAY);
+        const hasMoreTools = server.tools.length > MAX_ITEMS_TO_DISPLAY;
 
-          return (
-            <>
-              <TableRow key={rowId}>
-                <TableCell className="font-medium">{serverName}</TableCell>
-                <TableCell>{server.tools.length}</TableCell>
-                <TableCell>{server.resources.length}</TableCell>
-                <TableCell>{server.prompts.length}</TableCell>
-                <TableCell>
-                  <JsonViewer
-                    data={server}
-                    isExpanded={isExpanded}
-                    onToggle={() => setExpandedRowId(isExpanded ? null : rowId)}
-                  />
-                </TableCell>
-              </TableRow>
-              {isExpanded && (
-                <TableRow className="bg-muted/50">
-                  <TableCell colSpan={5} className="p-0">
-                    <div className="p-4">
-                      <CodeMirrorJsonEditor
-                        onChange={noop}
-                        readOnly
-                        value={JSON.stringify(server, null, 2)}
-                      />
+        const resourcesToDisplay = server.resources.slice(
+          0,
+          MAX_ITEMS_TO_DISPLAY,
+        );
+        const hasMoreResources = server.resources.length > MAX_ITEMS_TO_DISPLAY;
+
+        return (
+          <Card key={cardId}>
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2">
+                <Server className="h-5 w-5 text-muted-foreground" />
+                <CardTitle className="text-lg">{serverName}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="pb-4 text-sm min-h-[14rem]">
+              <div className="space-y-4">
+                {server.tools.length > 0 && (
+                  <div>
+                    <h4 className="text-xs text-muted-foreground font-medium mb-2">
+                      Tools
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {toolsToDisplay.map((tool, toolIndex) => (
+                        <div
+                          className="text-xs bg-muted rounded-md px-1 py-0.5 truncate flex items-center max-w-[95%]"
+                          key={toolIndex}
+                          title={safeString(tool.name)}
+                        >
+                          {safeString(tool.name)}
+                        </div>
+                      ))}
+                      {hasMoreTools && (
+                        <div className="text-xs text-muted-foreground px-1 flex items-center">
+                          +{server.tools.length - MAX_ITEMS_TO_DISPLAY} more
+                        </div>
+                      )}
                     </div>
-                  </TableCell>
-                </TableRow>
-              )}
-            </>
-          );
-        })}
-      </TableBody>
-    </Table>
+                  </div>
+                )}
+                <div>
+                  {server.resources.length > 0 && (
+                    <div>
+                      <h4 className="text-xs text-muted-foreground font-medium mb-2">
+                        Resources
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {resourcesToDisplay.map((resource, resourceIdx) => (
+                          <div
+                            className="text-xs bg-muted rounded-md px-1 py-0.5 truncate flex items-center max-w-[95%]"
+                            key={resourceIdx}
+                            title={safeString(resource.name)}
+                          >
+                            {safeString(resource.name)}
+                          </div>
+                        ))}
+                        {hasMoreResources && (
+                          <div className="text-xs text-muted-foreground px-1 flex items-center">
+                            +{server.resources.length - MAX_ITEMS_TO_DISPLAY}{" "}
+                            more
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {server.prompts.length > 0 && (
+                    <div>
+                      <h4 className="text-xs text-muted-foreground font-medium mb-2">
+                        Prompts
+                      </h4>
+                      <div className="text-lg font-medium">
+                        {server.prompts.length}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+            {/* CardFooter and expanded view removed for density */}
+          </Card>
+        );
+      })}
+    </div>
   );
 }

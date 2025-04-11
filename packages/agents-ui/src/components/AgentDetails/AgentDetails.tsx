@@ -141,21 +141,6 @@ export function AgentDetails({
       key: "mcp-servers",
       content: <MCPServersView data={mcpData} isLoading={isMcpLoading} />,
     },
-    {
-      title: "Tools (MCP)",
-      key: "mcp-tools",
-      content: <MCPToolsView data={mcpData} isLoading={isMcpLoading} />,
-    },
-    {
-      title: "Resources (MCP)",
-      key: "mcp-resources",
-      content: <MCPResourcesView data={mcpData} isLoading={isMcpLoading} />,
-    },
-    {
-      title: "Prompts (MCP)",
-      key: "mcp-prompts",
-      content: <MCPPromptsView data={mcpData} isLoading={isMcpLoading} />,
-    },
   ];
 
   const allTabs = [...tabContent, ...mcpTabs];
