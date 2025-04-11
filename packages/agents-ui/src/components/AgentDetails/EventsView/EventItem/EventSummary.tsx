@@ -24,7 +24,9 @@ const HttpRequestDetails = ({
   return (
     <div className="text-sm grid-cols-[auto_1fr] grid gap-2">
       <Method method={method} />
-      <span className="font-mono text-muted-foreground">{displayUrl}</span>
+      <span className="font-mono text-muted-foreground truncate">
+        {displayUrl}
+      </span>
       {payload.body && (
         <ExpandableJSONViewer data={payload.body} label="Request Body" />
       )}
@@ -42,10 +44,12 @@ const HttpResponseDetails = ({
   const { status, url, method } = payload;
   const displayUrl = typeof url === "string" ? formatUrl(url) : "";
   return (
-    <div className="text-sm grid-cols-[auto_1fr] flex items-center gap-2">
+    <div className="text-sm grid-cols-[auto_auto_1fr] grid gap-2">
       <StatusCode status={status} isFailure={false} />
       <Method method={method} />
-      <span className="font-mono text-muted-foreground">{displayUrl}</span>
+      <span className="font-mono text-muted-foreground truncate">
+        {displayUrl}
+      </span>
     </div>
   );
 };
