@@ -1,13 +1,15 @@
 import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
+import Cloudflare from "cloudflare";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
+import type { BlankEnv } from "hono/types";
 import packageJson from "../package.json" assert { type: "json" };
 import {
   getAgents,
   registerAgent,
   registerAgentInstance,
 } from "./agentInstances";
-import { type AgentEvent, agentEventSchema } from "./types";
+import { type AgentEvent, aiGatewayEnvSchema } from "./types";
 import {
   createRequestPayload,
   createResponsePayload,
@@ -34,8 +36,10 @@ type AgentConstructor<E = unknown, S = unknown> = new (
 const version = packageJson.version;
 const commitHash = import.meta.env.GIT_COMMIT_HASH ?? "";
 
-function createAgentAdminRouter(agent: FiberDecoratedAgent) {
-  const router = new Hono();
+function createAgentAdminRouter<E extends Env = BlankEnv>(
+  agent: FiberDecoratedAgent,
+) {
+  const router = new Hono<E>();
 
   router.get("/agents/:namespace/:instance/admin/db", async (c) => {
     const fetchDbResult = async () => {
@@ -212,6 +216,103 @@ function createAgentAdminRouter(agent: FiberDecoratedAgent) {
     );
   });
 
+  // List all available AI gateways
+  router.get("/agents/:namespace/:instance/admin/ai-gateways", async (c) => {
+    // Extract required environment variables
+    // const { CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT } = c.env as Env;
+    const parsedEnv = aiGatewayEnvSchema.safeParse(c.env);
+    if (!parsedEnv.success) {
+      console.error("Invalid environment variables:", parsedEnv.error);
+      return c.json(
+        {
+          error: "Missing or invalid environment variables",
+          details: parsedEnv.error.format(),
+        },
+        422,
+      );
+    }
+
+    // const { CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID } = parsedEnv.data;
+    const client = new Cloudflare({
+      apiToken: parsedEnv.data.CLOUDFLARE_API_TOKEN,
+    });
+
+    const gateways = await client.aiGateway.list({
+      account_id: parsedEnv.data.CLOUDFLARE_ACCOUNT_ID,
+    });
+
+    if (!gateways) {
+      return c.json({ error: "Failed to retrieve gateways" }, 500);
+    }
+    return c.json(gateways.result);
+  });
+
+  router.get(
+    "/agents/:namespace/:instance/admin/ai-gateways/:id/logs",
+    async (c) => {
+      // Extract required environment variables
+
+      const parsedEnv = aiGatewayEnvSchema.safeParse(c.env);
+      if (!parsedEnv.success) {
+        console.error("Invalid environment variables:", parsedEnv.error);
+        return c.json(
+          {
+            error: "Missing or invalid environment variables",
+            details: parsedEnv.error.format(),
+          },
+          422,
+        );
+      }
+
+      const client = new Cloudflare({
+        apiToken: parsedEnv.data.CLOUDFLARE_API_TOKEN,
+      });
+      const { id } = c.req.param();
+
+      const logs = await client.aiGateway.logs.list(id, {
+        account_id: parsedEnv.data.CLOUDFLARE_ACCOUNT_ID,
+      });
+
+      if (!logs) {
+        return c.json({ error: "Failed to retrieve logs" }, 500);
+      }
+
+      return c.json(logs.result);
+    },
+  );
+
+  router.get(
+    "agents/:namespace/:instance/admin/ai-gateways/:id/logs/:logId",
+    async (c) => {
+      // Extract required environment variables
+      const parsedEnv = aiGatewayEnvSchema.safeParse(c.env);
+      if (!parsedEnv.success) {
+        console.error("Invalid environment variables:", parsedEnv.error);
+        return c.json(
+          {
+            error: "Missing or invalid environment variables",
+            details: parsedEnv.error.format(),
+          },
+          422,
+        );
+      }
+
+      const client = new Cloudflare({
+        apiToken: parsedEnv.data.CLOUDFLARE_API_TOKEN,
+      });
+      const { id, logId } = c.req.param();
+
+      const log = await client.aiGateway.logs.get(id, logId, {
+        account_id: parsedEnv.data.CLOUDFLARE_ACCOUNT_ID,
+      });
+
+      if (!log) {
+        return c.json({ error: "Failed to retrieve log" }, 500);
+      }
+
+      return c.json(log);
+    },
+  );
   return router;
 }
 
@@ -448,7 +549,7 @@ export function Observed<E = unknown, S = unknown>() {
           return result;
         });
 
-        return this.fiberRouter.fetch(request);
+        return this.fiberRouter.fetch(request, this.env);
       }
     } as T;
   };
@@ -482,6 +583,14 @@ function createFpApp() {
             console.warn(
               `Warning: durable object detected but it is not decorated with the \`@Observed()\` decorator (binding name: ${name}, expected namespace: ${namespace})`,
             );
+            console.debug(
+              "Known agents",
+              agents.map((a) => a.id),
+            );
+            console.debug("Durable object binding", name);
+            console.debug("Durable object namespace", namespace);
+            // console.debug("Durable object binding value", c.env[name]);
+            // console.debug("Durable object binding value type", typeof c.env[name]);
           }
         }
       }

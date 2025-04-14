@@ -11,6 +11,7 @@ import {
   ResizablePanelGroup,
 } from "../ui/resizable";
 import { FpTabs, FpTabsContent, FpTabsList, FpTabsTrigger } from "../ui/tabs";
+import { AIGatewayList } from "./AIGatewayList";
 import {
   ChatMessagesRenderer,
   type MessagesTable,
@@ -127,12 +128,21 @@ export function AgentDetails({
           )}
         >
           <FpTabsList>
+            <FpTabsTrigger value="AI Gateways" className="flex gap-2">
+              AI Gateways
+            </FpTabsTrigger>
             {tabContent.map(({ title, key }) => (
               <FpTabsTrigger key={key} value={key} className="flex gap-2">
                 {title}
               </FpTabsTrigger>
             ))}
           </FpTabsList>
+          <FpTabsContent
+            value="AI Gateways"
+            className={cn("min-h-0 overflow-hidden px-0 py-0")}
+          >
+            <AIGatewayList namespace={agentDetails.id} instance={instance} />
+          </FpTabsContent>
           {tabContent.map(({ key, content }) => (
             <FpTabsContent key={key} value={key}>
               {content}

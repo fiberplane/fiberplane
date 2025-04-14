@@ -1,7 +1,10 @@
-export { useListAgents } from "./useListAgents";
 export { useAgentDB } from "./useAgentDB";
 export { useAgentInstanceEvents } from "./useSSE";
-export { useHandler } from "./useHandler";
+export { useAIGatewayLogs } from "./useAiGatewayLogs";
 export { useFilteredEvents } from "./useFilteredEvents";
-export { useTimeAgo } from "./useTimeAgo";
+export { useHandler } from "./useHandler";
+export { useListAgents } from "./useListAgents";
+export { useListAIGateway } from "./useListAIGateways";
 export { useRouterContext } from "./useRouterContext";
+export { useTimeAgo } from "./useTimeAgo";
+export { useAIGatewayLogDetail } from "./useAIGatewayLogDetail";
