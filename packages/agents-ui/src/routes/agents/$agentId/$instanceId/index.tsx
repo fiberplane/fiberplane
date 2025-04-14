@@ -1,4 +1,4 @@
-import { redirect, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/agents/$agentId/$instanceId/")({
   loader: async ({ params }) => {
