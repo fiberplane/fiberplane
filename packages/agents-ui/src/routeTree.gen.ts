@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
 import { Route as AgentsAgentIdIndexImport } from './routes/agents/$agentId/index'
 import { Route as AgentsAgentIdInstanceIdImport } from './routes/agents/$agentId/$instanceId'
+import { Route as AgentsAgentIdInstanceIdIndexImport } from './routes/agents/$agentId/$instanceId/index'
 import { Route as AgentsAgentIdInstanceIdTabIdImport } from './routes/agents/$agentId/$instanceId/$tabId'
 import { Route as AgentsAgentIdInstanceIdMcpIndexImport } from './routes/agents/$agentId/$instanceId/mcp/index'
 import { Route as AgentsAgentIdInstanceIdMcpServerIdImport } from './routes/agents/$agentId/$instanceId/mcp/$serverId'
@@ -37,6 +38,13 @@ const AgentsAgentIdInstanceIdRoute = AgentsAgentIdInstanceIdImport.update({
   path: '/agents/$agentId/$instanceId',
   getParentRoute: () => rootRoute,
 } as any)
+
+const AgentsAgentIdInstanceIdIndexRoute =
+  AgentsAgentIdInstanceIdIndexImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AgentsAgentIdInstanceIdRoute,
+  } as any)
 
 const AgentsAgentIdInstanceIdTabIdRoute =
   AgentsAgentIdInstanceIdTabIdImport.update({
@@ -91,6 +99,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentsAgentIdInstanceIdTabIdImport
       parentRoute: typeof AgentsAgentIdInstanceIdImport
     }
+    '/agents/$agentId/$instanceId/': {
+      id: '/agents/$agentId/$instanceId/'
+      path: '/'
+      fullPath: '/agents/$agentId/$instanceId/'
+      preLoaderRoute: typeof AgentsAgentIdInstanceIdIndexImport
+      parentRoute: typeof AgentsAgentIdInstanceIdImport
+    }
     '/agents/$agentId/$instanceId/mcp/$serverId': {
       id: '/agents/$agentId/$instanceId/mcp/$serverId'
       path: '/mcp/$serverId'
@@ -112,6 +127,7 @@ declare module '@tanstack/react-router' {
 
 interface AgentsAgentIdInstanceIdRouteChildren {
   AgentsAgentIdInstanceIdTabIdRoute: typeof AgentsAgentIdInstanceIdTabIdRoute
+  AgentsAgentIdInstanceIdIndexRoute: typeof AgentsAgentIdInstanceIdIndexRoute
   AgentsAgentIdInstanceIdMcpServerIdRoute: typeof AgentsAgentIdInstanceIdMcpServerIdRoute
   AgentsAgentIdInstanceIdMcpIndexRoute: typeof AgentsAgentIdInstanceIdMcpIndexRoute
 }
@@ -119,6 +135,7 @@ interface AgentsAgentIdInstanceIdRouteChildren {
 const AgentsAgentIdInstanceIdRouteChildren: AgentsAgentIdInstanceIdRouteChildren =
   {
     AgentsAgentIdInstanceIdTabIdRoute: AgentsAgentIdInstanceIdTabIdRoute,
+    AgentsAgentIdInstanceIdIndexRoute: AgentsAgentIdInstanceIdIndexRoute,
     AgentsAgentIdInstanceIdMcpServerIdRoute:
       AgentsAgentIdInstanceIdMcpServerIdRoute,
     AgentsAgentIdInstanceIdMcpIndexRoute: AgentsAgentIdInstanceIdMcpIndexRoute,
@@ -134,15 +151,16 @@ export interface FileRoutesByFullPath {
   '/agents/$agentId/$instanceId': typeof AgentsAgentIdInstanceIdRouteWithChildren
   '/agents/$agentId': typeof AgentsAgentIdIndexRoute
   '/agents/$agentId/$instanceId/$tabId': typeof AgentsAgentIdInstanceIdTabIdRoute
+  '/agents/$agentId/$instanceId/': typeof AgentsAgentIdInstanceIdIndexRoute
   '/agents/$agentId/$instanceId/mcp/$serverId': typeof AgentsAgentIdInstanceIdMcpServerIdRoute
   '/agents/$agentId/$instanceId/mcp': typeof AgentsAgentIdInstanceIdMcpIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/agents/$agentId/$instanceId': typeof AgentsAgentIdInstanceIdRouteWithChildren
   '/agents/$agentId': typeof AgentsAgentIdIndexRoute
   '/agents/$agentId/$instanceId/$tabId': typeof AgentsAgentIdInstanceIdTabIdRoute
+  '/agents/$agentId/$instanceId': typeof AgentsAgentIdInstanceIdIndexRoute
   '/agents/$agentId/$instanceId/mcp/$serverId': typeof AgentsAgentIdInstanceIdMcpServerIdRoute
   '/agents/$agentId/$instanceId/mcp': typeof AgentsAgentIdInstanceIdMcpIndexRoute
 }
@@ -153,6 +171,7 @@ export interface FileRoutesById {
   '/agents/$agentId/$instanceId': typeof AgentsAgentIdInstanceIdRouteWithChildren
   '/agents/$agentId/': typeof AgentsAgentIdIndexRoute
   '/agents/$agentId/$instanceId/$tabId': typeof AgentsAgentIdInstanceIdTabIdRoute
+  '/agents/$agentId/$instanceId/': typeof AgentsAgentIdInstanceIdIndexRoute
   '/agents/$agentId/$instanceId/mcp/$serverId': typeof AgentsAgentIdInstanceIdMcpServerIdRoute
   '/agents/$agentId/$instanceId/mcp/': typeof AgentsAgentIdInstanceIdMcpIndexRoute
 }
@@ -164,14 +183,15 @@ export interface FileRouteTypes {
     | '/agents/$agentId/$instanceId'
     | '/agents/$agentId'
     | '/agents/$agentId/$instanceId/$tabId'
+    | '/agents/$agentId/$instanceId/'
     | '/agents/$agentId/$instanceId/mcp/$serverId'
     | '/agents/$agentId/$instanceId/mcp'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/agents/$agentId/$instanceId'
     | '/agents/$agentId'
     | '/agents/$agentId/$instanceId/$tabId'
+    | '/agents/$agentId/$instanceId'
     | '/agents/$agentId/$instanceId/mcp/$serverId'
     | '/agents/$agentId/$instanceId/mcp'
   id:
@@ -180,6 +200,7 @@ export interface FileRouteTypes {
     | '/agents/$agentId/$instanceId'
     | '/agents/$agentId/'
     | '/agents/$agentId/$instanceId/$tabId'
+    | '/agents/$agentId/$instanceId/'
     | '/agents/$agentId/$instanceId/mcp/$serverId'
     | '/agents/$agentId/$instanceId/mcp/'
   fileRoutesById: FileRoutesById
@@ -219,6 +240,7 @@ export const routeTree = rootRoute
       "filePath": "agents/$agentId/$instanceId.tsx",
       "children": [
         "/agents/$agentId/$instanceId/$tabId",
+        "/agents/$agentId/$instanceId/",
         "/agents/$agentId/$instanceId/mcp/$serverId",
         "/agents/$agentId/$instanceId/mcp/"
       ]
@@ -228,6 +250,10 @@ export const routeTree = rootRoute
     },
     "/agents/$agentId/$instanceId/$tabId": {
       "filePath": "agents/$agentId/$instanceId/$tabId.tsx",
+      "parent": "/agents/$agentId/$instanceId"
+    },
+    "/agents/$agentId/$instanceId/": {
+      "filePath": "agents/$agentId/$instanceId/index.tsx",
       "parent": "/agents/$agentId/$instanceId"
     },
     "/agents/$agentId/$instanceId/mcp/$serverId": {
