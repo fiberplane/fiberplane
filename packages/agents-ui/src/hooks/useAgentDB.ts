@@ -1,12 +1,27 @@
 import type { DatabaseResult } from "@/types";
-import { useQuery } from "@tanstack/react-query";
+import {
+  type QueryObserverOptions,
+  queryOptions,
+  useQuery,
+} from "@tanstack/react-query";
 
-export function useAgentDB(namespace: string, instance: string) {
-  return useQuery({
+export function agentDBQueryOptions(namespace: string, instance: string) {
+  return queryOptions<DatabaseResult>({
     queryKey: ["agent_db", namespace, instance],
     queryFn: () =>
       fetch(`/agents/${namespace}/${instance}/admin/db`).then((res) =>
-        res.json(),
-      ) as Promise<DatabaseResult>,
+        res.json()
+      ),
+  });
+}
+
+export function useAgentDB(
+  namespace: string,
+  instance: string,
+  options?: Omit<QueryObserverOptions<DatabaseResult>, "queryKey" | "queryFn">
+) {
+  return useQuery({
+    ...agentDBQueryOptions(namespace, instance),
+    ...options,
   });
 }
