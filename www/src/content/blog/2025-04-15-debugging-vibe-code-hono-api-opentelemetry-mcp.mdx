@@ -2,7 +2,7 @@
 title: "Debugging your vibe-coded Hono APIs powered with OpenTelemetry and MCP"
 description: "We’re bringing MCP capabilities to our OpenTelemetry Worker for Cloudflare and the Fiberplane Playground."
 slug: hono-otel-mcp
-date: 2025-03-24
+date: 2025-04-15
 author: Micha "mies" Hernandez van Leuffen
 tags:
   - OpenTelemetry
@@ -22,10 +22,9 @@ This is where [Model Context Protocol](https://modelcontextprotocol.io) can brin
 
 That’s what we just released in the Fiberplane API Playground for Hono APIs and Cloudflare Workers. Check out how this is built with the MCP server, OpenTelemetry, and the demo below.
 
-
 <YouTube
   title="Fiberplane Playground, Otel-Worker and MCP"
-  videoId="xxx"
+  videoId="9e-vTQI4rk8"
 />
 
 ## API Playground and Debugger for Hono APIs and Cloudflare
@@ -49,11 +48,9 @@ Now start the MCP server:
 ```bash
 # Within the fiberplane/otel-worker repo
 cd otel-worker
-# Tell the MCP server where the Otel-Worker is running
-export OTEL_WORKER_URL=http://localhost:24318
 
 # Start the MCP Server
-cargo cli mcp --transport sse
+cargo cli mcp --transport sse --otel-worker-url http://localhost:24318 --otel-worker-token your-secret-token-here
 ```
 
 We can now hook up the MCP Server to our favorite IDE. Both Cursor and Windsurf support installing MCP servers. For Cursor you need to go to Cursor settings which has its own dedicated MCP section.
