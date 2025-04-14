@@ -1,5 +1,11 @@
 # @fiberplane/agents
 
+## 0.3.7
+
+### Patch Changes
+
+- Fix an issue where accessing non-existing env variable would throw
+
 ## 0.3.6
 
 ### Patch Changes

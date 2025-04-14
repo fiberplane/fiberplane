@@ -32,7 +32,7 @@ type AgentConstructor<E = unknown, S = unknown> = new (
 ) => Agent<E, S>;
 
 const version = packageJson.version;
-const commitHash = import.meta.env.GIT_COMMIT_HASH;
+const commitHash = import.meta.env.GIT_COMMIT_HASH ?? "";
 
 function createAgentAdminRouter(agent: FiberDecoratedAgent) {
   const router = new Hono();
