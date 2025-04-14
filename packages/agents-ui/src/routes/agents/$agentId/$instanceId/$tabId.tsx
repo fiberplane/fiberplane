@@ -1,19 +1,19 @@
 import {
   ChatMessagesRenderer,
-  isMessagesTable,
   type MessagesTable,
+  isMessagesTable,
 } from "@/components/AgentDetails/ChatMessageTableView";
 import { DataTableView } from "@/components/AgentDetails/DataTableView";
 import { MCPServersView } from "@/components/AgentDetails/MCPViews";
 import {
   ScheduleColumnsSchema,
-  ScheduleTableView,
   type ScheduleDBTable,
+  ScheduleTableView,
 } from "@/components/AgentDetails/ScheduleTableView";
 import {
+  type StateDBTable,
   StateTableView,
   isStateTable,
-  type StateDBTable,
 } from "@/components/AgentDetails/StateTableView";
 import { Spinner } from "@/components/Spinner";
 import { useAgentDB } from "@/hooks/useAgentDB"; // Import hook
@@ -82,7 +82,7 @@ function AgentTabContent() {
   const { data: db, isLoading: isDbLoading } = useAgentDB(agentId, instanceId);
   const { data: mcpData, isLoading: isMcpLoading } = useAgentMCP(
     agentId,
-    instanceId
+    instanceId,
   );
 
   return <div className="p-4 overflow-auto h-full">{renderTabContent()}</div>;

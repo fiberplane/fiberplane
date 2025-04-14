@@ -1,10 +1,9 @@
-import { useAgentDB, useAgentMCP } from "@/hooks";
-import { useAgentInstanceEvents, useFilteredEvents } from "@/hooks";
+import { useAgentDB, useFilteredEvents } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { type SSEStatus, usePlaygroundStore } from "@/store";
 import type { AgentInstanceParameters, ListAgentsResponse } from "@/types";
-import { Outlet, useNavigate, useParams } from "@tanstack/react-router";
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { Outlet, useMatches, useNavigate } from "@tanstack/react-router";
+import { type ReactNode, useMemo, useState } from "react";
 import { KeyValueTable } from "../KeyValueTable";
 import {
   ResizableHandle,
@@ -13,8 +12,6 @@ import {
 } from "../ui/resizable";
 import { FpTabs, FpTabsContent, FpTabsList, FpTabsTrigger } from "../ui/tabs";
 import { EventsView } from "./EventsView";
-
-const POLL_INTERVAL = 2000;
 
 // Tab ordering preference
 export const TAB_ORDER = ["state", "messages", "schedule", "mcp"];
@@ -42,38 +39,22 @@ export function AgentDetails({
   instance: string;
 }) {
   const navigate = useNavigate();
-  const { tabId } = useParams({ from: "/agents/$agentId/$instanceId/$tabId" });
+  const matches = useMatches();
 
-  const { data: db, refetch: refetchDb } = useAgentDB(
-    agentDetails.id,
-    instance,
+  // Find the match for the tab route and extract tabId
+  const tabRouteMatch = matches.find(
+    (match) => match.routeId === "/agents/$agentId/$instanceId/$tabId",
   );
-  const {
-    data: mcpData,
-    refetch: refetchMCP,
-    isLoading: isMcpLoading,
-  } = useAgentMCP(agentDetails.id, instance);
-  useAgentInstanceEvents(agentDetails.id, instance);
+  const tabId = tabRouteMatch?.params.tabId as string | undefined;
 
-  useEffect(() => {
-    const id = setInterval(() => {
-      refetchDb();
-      refetchMCP();
-    }, POLL_INTERVAL);
-    return () => clearInterval(id);
-  }, [refetchDb, refetchMCP]);
+  const { data: db } = useAgentDB(agentDetails.id, instance);
 
-  // For right sidebar tab
   const [sideBarTab, setSideBarTab] = useState("events");
 
-  // Build the list of tabs with friendly URLs
   const tabs = useMemo(() => {
-    // Collect all available tabs
     const availableTabs = new Map<string, ReactNode>();
 
-    // Add known tabs based on database presence
     if (db) {
-      // Add tables with known friendly URLs
       for (const [tableName, friendlyName] of Object.entries(tableToTabMap)) {
         if (tableName in db) {
           availableTabs.set(
@@ -82,8 +63,6 @@ export function AgentDetails({
           );
         }
       }
-
-      // Add remaining tables that don't have friendly mappings
       for (const table of Object.keys(db)) {
         if (!table.startsWith("_cf") && !(table in tableToTabMap)) {
           availableTabs.set(table, table);
@@ -91,13 +70,9 @@ export function AgentDetails({
       }
     }
 
-    // Add MCP tab
     availableTabs.set("mcp", "Servers (MCP)");
 
-    // Order tabs according to preference
     const orderedTabs: Array<{ title: ReactNode; key: string }> = [];
-
-    // First add tabs in preferred order
     for (const tabKey of TAB_ORDER) {
       if (availableTabs.has(tabKey)) {
         orderedTabs.push({
@@ -107,19 +82,13 @@ export function AgentDetails({
         availableTabs.delete(tabKey);
       }
     }
-
-    // Then add any remaining tabs
     for (const [tabKey, tabTitle] of availableTabs.entries()) {
-      orderedTabs.push({
-        title: tabTitle,
-        key: tabKey,
-      });
+      orderedTabs.push({ title: tabTitle, key: tabKey });
     }
 
     return orderedTabs;
   }, [db]);
 
-  // Handle tab changes
   const handleTabChange = (value: string) => {
     navigate({
       to: "/agents/$agentId/$instanceId/$tabId",
@@ -128,29 +97,33 @@ export function AgentDetails({
         instanceId: instance,
         tabId: value,
       },
+      replace: true,
     });
   };
 
   return (
-    <ResizablePanelGroup direction="horizontal" id="layout" className="w-full">
+    <ResizablePanelGroup
+      direction="horizontal"
+      id="layout"
+      className="w-full h-full"
+    >
       <ResizablePanel id="left" order={0}>
         <FpTabs
-          value={tabId || ""}
+          value={tabId ?? ""}
           onValueChange={handleTabChange}
-          className={cn(
-            "grid grid-rows-[auto_1fr]",
-            "max-h-fit overflow-hidden",
-            "lg:overflow-scroll",
-          )}
+          className={cn("grid grid-rows-[auto_1fr] h-full", "overflow-hidden")}
         >
-          <FpTabsList>
+          <FpTabsList className="shrink-0">
             {tabs.map(({ title, key }) => (
               <FpTabsTrigger key={key} value={key} className="flex gap-2">
                 {title}
               </FpTabsTrigger>
             ))}
           </FpTabsList>
-          <FpTabsContent value={tabId || ""}>
+          <FpTabsContent
+            value={tabId ?? ""}
+            className="min-h-0 grow overflow-y-auto"
+          >
             <Outlet />
           </FpTabsContent>
         </FpTabs>
@@ -175,7 +148,7 @@ export function AgentDetails({
           </FpTabsList>
           <FpTabsContent
             value="details"
-            className={cn("min-h-0 overflow-hidden")}
+            className={cn("min-h-0 overflow-hidden p-2")}
           >
             <KeyValueTable
               keyValue={{
@@ -184,8 +157,8 @@ export function AgentDetails({
                 ScriptName: agentDetails.scriptName ?? "",
               }}
               className="border border-muted rounded-lg"
-              keyCellClassName="px-2"
-              valueCellClassName="px-2"
+              keyCellClassName="px-2 py-1"
+              valueCellClassName="px-2 py-1"
             />
           </FpTabsContent>
           <FpTabsContent

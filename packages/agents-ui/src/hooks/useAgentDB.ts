@@ -10,7 +10,7 @@ export function agentDBQueryOptions(namespace: string, instance: string) {
     queryKey: ["agent_db", namespace, instance],
     queryFn: () =>
       fetch(`/agents/${namespace}/${instance}/admin/db`).then((res) =>
-        res.json()
+        res.json(),
       ),
   });
 }
@@ -18,7 +18,7 @@ export function agentDBQueryOptions(namespace: string, instance: string) {
 export function useAgentDB(
   namespace: string,
   instance: string,
-  options?: Omit<QueryObserverOptions<DatabaseResult>, "queryKey" | "queryFn">
+  options?: Omit<QueryObserverOptions<DatabaseResult>, "queryKey" | "queryFn">,
 ) {
   return useQuery({
     ...agentDBQueryOptions(namespace, instance),

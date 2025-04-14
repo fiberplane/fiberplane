@@ -1,8 +1,14 @@
-import { listAgentsQueryOptions } from "@/hooks/useListAgents";
-import { createFileRoute, notFound, useLoaderData } from "@tanstack/react-router";
 import { Spinner } from "@/components/Spinner";
+import { listAgentsQueryOptions } from "@/hooks/useListAgents";
+import {
+  createFileRoute,
+  notFound,
+  useLoaderData,
+} from "@tanstack/react-router";
 
-export const Route = createFileRoute("/agents/$agentId/$instanceId/mcp/$serverId")({
+export const Route = createFileRoute(
+  "/agents/$agentId/$instanceId/mcp/$serverId",
+)({
   component: MCPServerDetails,
   loader: async ({ params, context }) => {
     // Get route parameters
@@ -10,7 +16,7 @@ export const Route = createFileRoute("/agents/$agentId/$instanceId/mcp/$serverId
 
     // Access the agents data
     const agents = await context.queryClient.ensureQueryData(
-      listAgentsQueryOptions()
+      listAgentsQueryOptions(),
     );
 
     // Find the agent by ID

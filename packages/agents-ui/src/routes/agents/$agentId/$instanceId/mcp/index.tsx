@@ -1,12 +1,12 @@
 import { Spinner } from "@/components/Spinner";
 import { useAgentMCP } from "@/hooks";
 import { listAgentsQueryOptions } from "@/hooks/useListAgents";
-import { 
-  Link, 
-  createFileRoute, 
-  notFound, 
+import {
+  Link,
+  createFileRoute,
+  notFound,
   useLoaderData,
-  useParams
+  useParams,
 } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/agents/$agentId/$instanceId/mcp/")({
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/agents/$agentId/$instanceId/mcp/")({
 
     // Access the agents data
     const agents = await context.queryClient.ensureQueryData(
-      listAgentsQueryOptions()
+      listAgentsQueryOptions(),
     );
 
     // Find the agent by ID
@@ -48,9 +48,9 @@ function MCPServersList() {
   const { agent, instanceId } = useLoaderData({
     from: "/agents/$agentId/$instanceId/mcp/",
   });
-  
+
   const { agentId } = useParams({ from: "/agents/$agentId/$instanceId/mcp/" });
-  
+
   // Fetch MCP data
   const { data: mcpData, isLoading } = useAgentMCP(agent.id, instanceId);
 
@@ -62,7 +62,7 @@ function MCPServersList() {
       </div>
     );
   }
-  
+
   return (
     <div className="p-4">
       <div className="grid gap-4">
@@ -76,16 +76,22 @@ function MCPServersList() {
                 params={{
                   agentId,
                   instanceId,
-                  serverId: server.id || `server-${idx}`
+                  serverId: server.id || `server-${idx}`,
                 }}
                 className="p-3 border rounded-md hover:bg-muted cursor-pointer block"
               >
-                <div className="font-medium">{server.name || `Server ${idx+1}`}</div>
-                <div className="text-sm text-muted-foreground">{server.id || `ID: server-${idx}`}</div>
+                <div className="font-medium">
+                  {server.name || `Server ${idx + 1}`}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {server.id || `ID: server-${idx}`}
+                </div>
               </Link>
             ))
           ) : (
-            <div className="text-muted-foreground">No MCP servers available.</div>
+            <div className="text-muted-foreground">
+              No MCP servers available.
+            </div>
           )}
         </div>
       </div>

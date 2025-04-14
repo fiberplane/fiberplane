@@ -22,7 +22,7 @@ export function agentMCPQueryOptions(namespace: string, instance: string) {
     queryKey: ["agent_mcp", namespace, instance],
     queryFn: async () => {
       const response = await fetch(
-        `/agents/${namespace}/${instance}/admin/mcp`
+        `/agents/${namespace}/${instance}/admin/mcp`,
       );
       // TODO: Consider adding error handling for non-ok responses
       const result = await response.json();
@@ -35,7 +35,7 @@ export function agentMCPQueryOptions(namespace: string, instance: string) {
 export function useAgentMCP(
   namespace: string,
   instance: string,
-  options?: Omit<QueryObserverOptions<MCPData>, "queryKey" | "queryFn">
+  options?: Omit<QueryObserverOptions<MCPData>, "queryKey" | "queryFn">,
 ) {
   return useQuery({
     ...agentMCPQueryOptions(namespace, instance),
