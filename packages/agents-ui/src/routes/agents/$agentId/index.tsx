@@ -1,18 +1,18 @@
-import {
-  createFileRoute,
-  Outlet,
-  useParams,
-  Link,
-  useMatches,
-} from "@tanstack/react-router";
-import { Suspense } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { listAgentsQueryOptions } from "@/hooks/useListAgents";
-import { Spinner } from "@/components/Spinner";
-import type { ListAgentsResponse } from "@/types";
-import { Button } from "@/components/ui/button";
-import { BoxIcon, Box } from "lucide-react";
 import { Layout } from "@/components/Layout";
+import { Spinner } from "@/components/Spinner";
+import { Button } from "@/components/ui/button";
+import { listAgentsQueryOptions } from "@/hooks/useListAgents";
+import type { ListAgentsResponse } from "@/types";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Link,
+  Outlet,
+  createFileRoute,
+  useMatches,
+  useParams,
+} from "@tanstack/react-router";
+import { Box, BoxIcon } from "lucide-react";
+import { Suspense } from "react";
 
 export const Route = createFileRoute("/agents/$agentId/")({
   component: AgentIndexComponent,

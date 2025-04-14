@@ -71,7 +71,6 @@ export const Route = createFileRoute("/agents/$agentId/$instanceId/$tabId")({
   ),
 });
 
-
 function AgentTabContent() {
   const { tabId } = Route.useLoaderData();
   // Get agentId and instanceId from URL parameters

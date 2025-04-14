@@ -17,7 +17,7 @@ export const Route = createFileRoute("/agents/$agentId/$instanceId/mcp/")({
 
     // Access the agents data
     const agents = await context.queryClient.ensureQueryData(
-      listAgentsQueryOptions()
+      listAgentsQueryOptions(),
     );
 
     // Find the agent by ID
