@@ -17,18 +17,16 @@ export const Route = createFileRoute("/agents/$agentId/$instanceId/mcp/")({
 
     // Access the agents data
     const agents = await context.queryClient.ensureQueryData(
-      listAgentsQueryOptions(),
+      listAgentsQueryOptions()
     );
 
     // Find the agent by ID
     const agent = agents.find((a) => a.id === agentId);
 
-    // If agent doesn't exist, throw a not found error
     if (!agent) {
       throw notFound();
     }
 
-    // Ensure the instance exists in the agent's instances
     if (!agent.instances.includes(instanceId)) {
       throw notFound();
     }
@@ -71,7 +69,7 @@ function MCPServersList() {
           {mcpData && mcpData.length > 0 ? (
             mcpData.map((server, idx) => (
               <Link
-                key={server.id || idx}
+                key={idx}
                 to="/agents/$agentId/$instanceId/mcp/$serverId"
                 params={{
                   agentId,

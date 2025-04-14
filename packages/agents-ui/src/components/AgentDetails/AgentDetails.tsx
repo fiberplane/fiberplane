@@ -54,23 +54,30 @@ export function AgentDetails({
   const tabs = useMemo(() => {
     const availableTabs = new Map<string, ReactNode>();
 
+    // Always include MCP as potentially available, even if db is undefined initially
+    availableTabs.set("mcp", "Servers (MCP)");
+
     if (db) {
+      const dbTables = Object.keys(db);
       for (const [tableName, friendlyName] of Object.entries(tableToTabMap)) {
-        if (tableName in db) {
+        if (dbTables.includes(tableName)) {
           availableTabs.set(
             friendlyName,
             tabTitleMap[friendlyName] || friendlyName,
           );
         }
       }
-      for (const table of Object.keys(db)) {
-        if (!table.startsWith("_cf") && !(table in tableToTabMap)) {
-          availableTabs.set(table, table);
+      for (const table of dbTables) {
+        // Check if it's a custom table (not prefixed or already mapped)
+        if (
+          !table.startsWith("_cf") &&
+          !Object.values(tableToTabMap).includes(table) &&
+          !Object.keys(tableToTabMap).includes(table)
+        ) {
+          availableTabs.set(table, table); // Use table name as title
         }
       }
     }
-
-    availableTabs.set("mcp", "Servers (MCP)");
 
     const orderedTabs: Array<{ title: ReactNode; key: string }> = [];
     for (const tabKey of TAB_ORDER) {

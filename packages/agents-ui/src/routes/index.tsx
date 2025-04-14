@@ -28,29 +28,25 @@ function AgentsListRoute() {
 
   if (agents.length === 0) {
     return (
-      <Layout>
-        <div className="h-full grid items-center justify-center">
-          <div className="grid gap-2 mx-auto border p-4 rounded-lg max-w-[400px]">
-            <div className="flex items-center gap-2 justify-center">
-              <HeartHandshake className="w-4 h-4" />
-              <span>Oops. No agents found!</span>
-            </div>
-            <p className="text-muted-foreground">
-              Please make sure you've decorated your Agents classes with the{" "}
-              <code className="font-mono text-warning">`@Observed()`</code>{" "}
-              decorator
-            </p>
+      <div className="h-full grid items-center justify-center">
+        <div className="grid gap-2 mx-auto border p-4 rounded-lg max-w-[400px]">
+          <div className="flex items-center gap-2 justify-center">
+            <HeartHandshake className="w-4 h-4" />
+            <span>Oops. No agents found!</span>
           </div>
+          <p className="text-muted-foreground">
+            Please make sure you've decorated your Agents classes with the{" "}
+            <code className="font-mono text-warning">`@Observed()`</code>{" "}
+            decorator
+          </p>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="h-full w-full p-4">
-        <AgentsList agents={agents} isLoading={isLoading} refetch={refetch} />
-      </div>
-    </Layout>
+    <div className="h-full w-full p-4">
+      <AgentsList agents={agents} isLoading={isLoading} refetch={refetch} />
+    </div>
   );
 }

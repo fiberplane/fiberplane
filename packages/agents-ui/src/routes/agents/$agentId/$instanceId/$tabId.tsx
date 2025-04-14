@@ -71,7 +71,6 @@ export const Route = createFileRoute("/agents/$agentId/$instanceId/$tabId")({
   ),
 });
 
-// Removed: const parentApi = getRouteApi(ParentRoute.id);
 
 function AgentTabContent() {
   const { tabId } = Route.useLoaderData();
@@ -134,7 +133,6 @@ function AgentTabContent() {
       );
     }
 
-    // --- Type-Safe Rendering (should work now) ---
     if (isMessagesTable(tableName, tableData)) {
       // tableData is now MessagesTable
       return <ChatMessagesRenderer data={tableData.data} />;

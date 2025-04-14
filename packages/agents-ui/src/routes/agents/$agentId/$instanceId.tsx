@@ -1,10 +1,8 @@
 import { AgentDetails } from "@/components/AgentDetails";
 import { Spinner } from "@/components/Spinner";
 import { useAgentInstanceEvents } from "@/hooks";
-import { agentDBQueryOptions } from "@/hooks/useAgentDB";
-import { type MCPData, agentMCPQueryOptions } from "@/hooks/useAgentMCP";
 import { listAgentsQueryOptions } from "@/hooks/useListAgents";
-import type { DatabaseResult, ListAgentsResponse } from "@/types";
+import type { ListAgentsResponse, RouterOptions } from "@/types";
 import type { QueryClient } from "@tanstack/react-query";
 import {
   createFileRoute,
@@ -13,31 +11,64 @@ import {
   useLoaderData,
 } from "@tanstack/react-router";
 
-interface AgentInstanceLoaderData {
-  agent: ListAgentsResponse[number];
-  instanceId: string;
-  initialDb: DatabaseResult;
-  initialMcpData: MCPData;
-}
-
-// Helper constants used in loader, need to be defined or imported
+// Constants needed for tab calculation (can be imported or defined here)
+// Defined here to avoid circular dependency if imported from AgentDetails
+const TAB_ORDER = ["state", "messages", "schedule", "mcp"];
 const tableToTabMap: Record<string, string> = {
   cf_ai_chat_agent_messages: "messages",
   cf_agents_schedules: "schedule",
   cf_agents_state: "state",
 };
 
+interface AgentInstanceLoaderData {
+  agent: ListAgentsResponse[number];
+  instanceId: string;
+}
+
 export const Route = createFileRoute("/agents/$agentId/$instanceId")({
+  beforeLoad: async ({ context, location, params }) => {
+    const { mountedPath } = context;
+    const { agentId, instanceId } = params;
+
+    const relativePath = `/agents/${agentId}/${instanceId}`;
+    const expectedFullPath = `${mountedPath}${relativePath}`;
+
+    console.log("[beforeLoad Check]", {
+      pathname: location.pathname,
+      expectedFullPath,
+      shouldRedirect:
+        location.pathname === expectedFullPath ||
+        location.pathname === `${expectedFullPath}/`,
+    });
+
+    // Check if the current path is exactly the instance path (no tab specified)
+    if (
+      location.pathname === expectedFullPath ||
+      location.pathname === `${expectedFullPath}/`
+    ) {
+      // If it is, always redirect to the 'state' tab
+      const defaultTab = "state"; // Hardcode the default tab
+
+      console.log(
+        `Redirecting from base instance path to default tab: ${defaultTab}`,
+      );
+      throw redirect({
+        to: "/agents/$agentId/$instanceId/$tabId", // Use relative, type-safe path
+        params: { agentId, instanceId, tabId: defaultTab }, // Use hardcoded default tab
+        replace: true,
+      });
+    }
+
+    // If no redirect needed, beforeLoad implicitly allows the loader to run
+  },
   loader: async ({
     params,
-    context: parentContext,
-    location,
+    context: parentContext, // Keep parentContext for queryClient
   }): Promise<AgentInstanceLoaderData> => {
     const { agentId, instanceId } = params;
     const { queryClient } = parentContext;
 
-    console.log("Instance Loader Pathname:", location.pathname);
-
+    // Loader just validates agent/instance and returns basic data
     const agents = await queryClient.ensureQueryData(listAgentsQueryOptions());
     const agent = agents.find((a) => a.id === agentId);
     if (!agent) {
@@ -49,46 +80,8 @@ export const Route = createFileRoute("/agents/$agentId/$instanceId")({
       });
     }
 
-    const initialDb = await queryClient.ensureQueryData(
-      agentDBQueryOptions(agentId, instanceId),
-    );
-    const initialMcpData = await queryClient.ensureQueryData(
-      agentMCPQueryOptions(agentId, instanceId),
-    );
-
-    // Determine default tab
-    const dbTables = Object.keys(initialDb || {});
-    const defaultTab = ["state", "messages", "schedule"].find((tabKey) => {
-      const tableName = Object.entries(tableToTabMap).find(
-        ([, friendlyName]) => friendlyName === tabKey,
-      )?.[0];
-      return tableName ? dbTables.includes(tableName) : false;
-    });
-
-    const firstAvailableTab =
-      defaultTab ||
-      (dbTables.length > 0
-        ? tableToTabMap[dbTables[0]] || dbTables[0]
-        : null) ||
-      "mcp";
-
-    // Check if the current path is exactly the instance path (no tab)
-    const expectedPath = `/agents/${agentId}/${instanceId}`;
-    if (
-      location.pathname === expectedPath ||
-      location.pathname === `${expectedPath}/`
-    ) {
-      console.log(
-        `Redirecting from ${location.pathname} to tab: ${firstAvailableTab}`,
-      );
-      throw redirect({
-        to: "/agents/$agentId/$instanceId/$tabId",
-        params: { agentId, instanceId, tabId: firstAvailableTab },
-        replace: true,
-      });
-    }
-
-    return { agent, instanceId, initialDb, initialMcpData };
+    // If a tab was already present or redirect happened, just return agent data
+    return { agent, instanceId };
   },
   component: AgentInstanceRoute,
   pendingComponent: () => (

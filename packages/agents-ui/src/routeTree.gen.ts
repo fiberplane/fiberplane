@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
+import { Route as AgentsAgentIdIndexImport } from './routes/agents/$agentId/index'
 import { Route as AgentsAgentIdInstanceIdImport } from './routes/agents/$agentId/$instanceId'
 import { Route as AgentsAgentIdInstanceIdTabIdImport } from './routes/agents/$agentId/$instanceId/$tabId'
 import { Route as AgentsAgentIdInstanceIdMcpIndexImport } from './routes/agents/$agentId/$instanceId/mcp/index'
@@ -22,6 +23,12 @@ import { Route as AgentsAgentIdInstanceIdMcpServerIdImport } from './routes/agen
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AgentsAgentIdIndexRoute = AgentsAgentIdIndexImport.update({
+  id: '/agents/$agentId/',
+  path: '/agents/$agentId/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -68,6 +75,13 @@ declare module '@tanstack/react-router' {
       path: '/agents/$agentId/$instanceId'
       fullPath: '/agents/$agentId/$instanceId'
       preLoaderRoute: typeof AgentsAgentIdInstanceIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/agents/$agentId/': {
+      id: '/agents/$agentId/'
+      path: '/agents/$agentId'
+      fullPath: '/agents/$agentId'
+      preLoaderRoute: typeof AgentsAgentIdIndexImport
       parentRoute: typeof rootRoute
     }
     '/agents/$agentId/$instanceId/$tabId': {
@@ -118,6 +132,7 @@ const AgentsAgentIdInstanceIdRouteWithChildren =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/agents/$agentId/$instanceId': typeof AgentsAgentIdInstanceIdRouteWithChildren
+  '/agents/$agentId': typeof AgentsAgentIdIndexRoute
   '/agents/$agentId/$instanceId/$tabId': typeof AgentsAgentIdInstanceIdTabIdRoute
   '/agents/$agentId/$instanceId/mcp/$serverId': typeof AgentsAgentIdInstanceIdMcpServerIdRoute
   '/agents/$agentId/$instanceId/mcp': typeof AgentsAgentIdInstanceIdMcpIndexRoute
@@ -126,6 +141,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/agents/$agentId/$instanceId': typeof AgentsAgentIdInstanceIdRouteWithChildren
+  '/agents/$agentId': typeof AgentsAgentIdIndexRoute
   '/agents/$agentId/$instanceId/$tabId': typeof AgentsAgentIdInstanceIdTabIdRoute
   '/agents/$agentId/$instanceId/mcp/$serverId': typeof AgentsAgentIdInstanceIdMcpServerIdRoute
   '/agents/$agentId/$instanceId/mcp': typeof AgentsAgentIdInstanceIdMcpIndexRoute
@@ -135,6 +151,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/agents/$agentId/$instanceId': typeof AgentsAgentIdInstanceIdRouteWithChildren
+  '/agents/$agentId/': typeof AgentsAgentIdIndexRoute
   '/agents/$agentId/$instanceId/$tabId': typeof AgentsAgentIdInstanceIdTabIdRoute
   '/agents/$agentId/$instanceId/mcp/$serverId': typeof AgentsAgentIdInstanceIdMcpServerIdRoute
   '/agents/$agentId/$instanceId/mcp/': typeof AgentsAgentIdInstanceIdMcpIndexRoute
@@ -145,6 +162,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/agents/$agentId/$instanceId'
+    | '/agents/$agentId'
     | '/agents/$agentId/$instanceId/$tabId'
     | '/agents/$agentId/$instanceId/mcp/$serverId'
     | '/agents/$agentId/$instanceId/mcp'
@@ -152,6 +170,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/agents/$agentId/$instanceId'
+    | '/agents/$agentId'
     | '/agents/$agentId/$instanceId/$tabId'
     | '/agents/$agentId/$instanceId/mcp/$serverId'
     | '/agents/$agentId/$instanceId/mcp'
@@ -159,6 +178,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/agents/$agentId/$instanceId'
+    | '/agents/$agentId/'
     | '/agents/$agentId/$instanceId/$tabId'
     | '/agents/$agentId/$instanceId/mcp/$serverId'
     | '/agents/$agentId/$instanceId/mcp/'
@@ -168,11 +188,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AgentsAgentIdInstanceIdRoute: typeof AgentsAgentIdInstanceIdRouteWithChildren
+  AgentsAgentIdIndexRoute: typeof AgentsAgentIdIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AgentsAgentIdInstanceIdRoute: AgentsAgentIdInstanceIdRouteWithChildren,
+  AgentsAgentIdIndexRoute: AgentsAgentIdIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -186,7 +208,8 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/agents/$agentId/$instanceId"
+        "/agents/$agentId/$instanceId",
+        "/agents/$agentId/"
       ]
     },
     "/": {
@@ -199,6 +222,9 @@ export const routeTree = rootRoute
         "/agents/$agentId/$instanceId/mcp/$serverId",
         "/agents/$agentId/$instanceId/mcp/"
       ]
+    },
+    "/agents/$agentId/": {
+      "filePath": "agents/$agentId/index.tsx"
     },
     "/agents/$agentId/$instanceId/$tabId": {
       "filePath": "agents/$agentId/$instanceId/$tabId.tsx",
