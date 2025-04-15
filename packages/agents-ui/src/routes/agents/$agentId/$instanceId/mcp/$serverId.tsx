@@ -16,6 +16,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { agentMCPQueryOptions } from "@/hooks/useAgentMCP";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { listAgentsQueryOptions } from "@/hooks/useListAgents";
 import {
   createFileRoute,
@@ -25,8 +27,6 @@ import {
 import { ChevronDown, ChevronRight, Copy } from "lucide-react";
 import { useState } from "react";
 import React from "react";
-import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
-import { agentMCPQueryOptions } from "@/hooks/useAgentMCP";
 
 // Define the shape of the items we'll display in the tables
 interface TableItem {
@@ -135,7 +135,7 @@ function ExpandableTableSection({
 }
 
 export const Route = createFileRoute(
-  "/agents/$agentId/$instanceId/mcp/$serverId"
+  "/agents/$agentId/$instanceId/mcp/$serverId",
 )({
   component: MCPServerDetails,
   loader: async ({ params, context }) => {
@@ -144,7 +144,7 @@ export const Route = createFileRoute(
 
     // Access the agents data
     const agents = await context.queryClient.ensureQueryData(
-      listAgentsQueryOptions()
+      listAgentsQueryOptions(),
     );
 
     // Find the agent by ID
@@ -162,10 +162,10 @@ export const Route = createFileRoute(
 
     // Fetch all MCP servers for this agent/instance
     const mcpServers = await context.queryClient.ensureQueryData(
-      agentMCPQueryOptions(agentId, instanceId)
+      agentMCPQueryOptions(agentId, instanceId),
     );
     const server = mcpServers?.find(
-      (s: { serverId: string }) => s.serverId === serverId
+      (s: { serverId: string }) => s.serverId === serverId,
     );
     if (!server) {
       throw notFound();
@@ -205,10 +205,10 @@ function MCPServerDetails() {
   // Expansion state for each table
   const [expandedToolIdx, setExpandedToolIdx] = useState<number | null>(null);
   const [expandedResourceIdx, setExpandedResourceIdx] = useState<number | null>(
-    null
+    null,
   );
   const [expandedPromptIdx, setExpandedPromptIdx] = useState<number | null>(
-    null
+    null,
   );
 
   return (
@@ -259,7 +259,6 @@ function MCPServerDetails() {
           </div>
         </div>
 
-        {/* Tools Table */}
         <ExpandableTableSection
           title="Tools"
           caption="Tools available on this server."
@@ -268,7 +267,6 @@ function MCPServerDetails() {
           onExpand={setExpandedToolIdx}
         />
 
-        {/* Resources Table */}
         <ExpandableTableSection
           title="Resources"
           caption="Resources available on this server."
@@ -277,7 +275,6 @@ function MCPServerDetails() {
           onExpand={setExpandedResourceIdx}
         />
 
-        {/* Prompts Table */}
         <ExpandableTableSection
           title="Prompts"
           caption="Prompts available on this server."

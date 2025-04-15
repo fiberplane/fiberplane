@@ -5,8 +5,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { listAgentsQueryOptions } from "@/hooks/useListAgents";
 import { agentMCPQueryOptions } from "@/hooks/useAgentMCP";
+import { listAgentsQueryOptions } from "@/hooks/useListAgents";
 import {
   Link,
   createFileRoute,
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/agents/$agentId/$instanceId/mcp/")({
 
     // Access the agents data
     const agents = await context.queryClient.ensureQueryData(
-      listAgentsQueryOptions()
+      listAgentsQueryOptions(),
     );
 
     // Find the agent by ID
@@ -40,7 +40,7 @@ export const Route = createFileRoute("/agents/$agentId/$instanceId/mcp/")({
 
     // Fetch MCP servers for this agent/instance
     const mcpServers = await context.queryClient.ensureQueryData(
-      agentMCPQueryOptions(agentId, instanceId)
+      agentMCPQueryOptions(agentId, instanceId),
     );
 
     return { agent, instanceId, mcpServers };
@@ -124,8 +124,8 @@ function MCPServersList() {
                       server.connectionState === "ready"
                         ? "bg-green-100 text-green-800"
                         : server.connectionState === "authenticating"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-gray-100 text-gray-800"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-gray-100 text-gray-800"
                     }`}
                     title="Connection State"
                   >
