@@ -67,28 +67,10 @@ function AgentTabContent() {
 
   // Fetch data directly using hooks
   const { data: db, isLoading: isDbLoading } = useAgentDB(agentId, instanceId);
-  const { data: mcpData, isLoading: isMcpLoading } = useAgentMCP(
-    agentId,
-    instanceId,
-  );
 
   return <div className="p-4 overflow-auto h-full">{renderTabContent()}</div>;
 
   function renderTabContent() {
-    // Handle MCP Tab separately
-    if (tabId === "mcp") {
-      // Use MCP loading state
-      if (isMcpLoading) {
-        return (
-          <div className="p-4 flex items-center gap-2 justify-center">
-            <Spinner spinning={true} />
-            <span>Loading MCP data...</span>
-          </div>
-        );
-      }
-      return <MCPServersView data={mcpData ?? undefined} isLoading={false} />;
-    }
-
     // Handle DB tabs
     // Use DB loading state
     if (isDbLoading) {
@@ -122,12 +104,10 @@ function AgentTabContent() {
     }
 
     if (isMessagesTable(tableName, tableData)) {
-      // tableData is now MessagesTable
       return <ChatMessagesRenderer data={tableData.data} />;
     }
 
     if (isStateTable(tableName, tableData)) {
-      // tableData is now StateDBTable
       return <StateTableView table={tableData} />;
     }
 
@@ -135,11 +115,9 @@ function AgentTabContent() {
       tableName === "cf_agents_schedules" &&
       ScheduleColumnsSchema.safeParse(tableData.columns).success
     ) {
-      // tableData is now ScheduleDBTable (cast is safe)
       return <ScheduleTableView table={tableData as ScheduleDBTable} />;
     }
 
-    // Fallback for any other DB table type (tableData is base DBTable type)
     return <DataTableView table={tableData} title={tableName} />;
   }
 }

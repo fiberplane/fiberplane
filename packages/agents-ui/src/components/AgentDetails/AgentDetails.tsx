@@ -45,7 +45,17 @@ export function AgentDetails({
   const tabRouteMatch = matches.find(
     (match) => match.routeId === "/agents/$agentId/$instanceId/$tabId",
   );
-  const tabId = tabRouteMatch?.params.tabId as string | undefined;
+  let tabId = tabRouteMatch?.params.tabId as string | undefined;
+
+  // Use TanStack Router routeId matching for MCP subroutes
+  const isMcpRoute = matches.some(
+    (match) =>
+      match.routeId === "/agents/$agentId/$instanceId/mcp/" ||
+      match.routeId === "/agents/$agentId/$instanceId/mcp/$serverId",
+  );
+  if (isMcpRoute) {
+    tabId = "mcp";
+  }
 
   const { data: db } = useAgentDB(agentDetails.id, instance);
 
@@ -104,7 +114,6 @@ export function AgentDetails({
         instanceId: instance,
         tabId: value,
       },
-      replace: true,
     });
   };
 
