@@ -1,4 +1,4 @@
-import { useAgentDB } from "@/hooks";
+import { useAgentDB, useListAIGateway } from "@/hooks";
 import { useAgentInstanceEvents, useFilteredEvents } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { type SSEStatus, usePlaygroundStore } from "@/store";
@@ -11,7 +11,7 @@ import {
   ResizablePanelGroup,
 } from "../ui/resizable";
 import { FpTabs, FpTabsContent, FpTabsList, FpTabsTrigger } from "../ui/tabs";
-import { AIGatewayList } from "./AIGatewayList";
+import { AIGatewayList } from "./AIGatewayList/AIGatewayList";
 import {
   ChatMessagesRenderer,
   type MessagesTable,
@@ -38,6 +38,8 @@ export function AgentDetails({
 }: { agent: ListAgentsResponse[0]; instance: string }) {
   const { data: db, refetch } = useAgentDB(agentDetails.id, instance);
   useAgentInstanceEvents(agentDetails.id, instance);
+  const { data: gateways } = useListAIGateway(agentDetails.id, instance);
+  const hasGateways = !!gateways?.length;
 
   useEffect(() => {
     const id = setInterval(refetch, POLL_INTERVAL);
@@ -128,14 +130,19 @@ export function AgentDetails({
           )}
         >
           <FpTabsList>
-            <FpTabsTrigger value="AI Gateways" className="flex gap-2">
-              AI Gateways
-            </FpTabsTrigger>
             {tabContent.map(({ title, key }) => (
               <FpTabsTrigger key={key} value={key} className="flex gap-2">
                 {title}
               </FpTabsTrigger>
             ))}
+            {hasGateways && (
+              <FpTabsTrigger
+                value="AI Gateways"
+                className="flex gap-2 animate-fadeIn duration-300"
+              >
+                AI Gateways
+              </FpTabsTrigger>
+            )}
           </FpTabsList>
           <FpTabsContent
             value="AI Gateways"

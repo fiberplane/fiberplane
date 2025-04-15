@@ -8,3 +8,4 @@ export { useListAIGateway } from "./useListAIGateways";
 export { useRouterContext } from "./useRouterContext";
 export { useTimeAgo } from "./useTimeAgo";
 export { useAIGatewayLogDetail } from "./useAIGatewayLogDetail";
+export { useFormatDuration } from "./useFormatDuration";

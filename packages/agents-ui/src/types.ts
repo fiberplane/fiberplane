@@ -604,79 +604,44 @@ export interface AIGatewayListResponse {
    * gateway id
    */
   id: string;
-
   account_id: string;
-
   account_tag: string;
-
   cache_invalidate_on_update: boolean;
-
   cache_ttl: number | null;
-
   collect_logs: boolean;
-
   created_at: string;
-
   internal_id: string;
-
   modified_at: string;
-
   rate_limiting_interval: number | null;
-
   rate_limiting_limit: number | null;
-
   rate_limiting_technique: "fixed" | "sliding";
-
   authentication?: boolean;
-
   log_management?: number | null;
-
   log_management_strategy?: "STOP_INSERTING" | "DELETE_OLDEST" | null;
-
   logpush?: boolean;
-
   logpush_public_key?: string | null;
 }
 
 export interface LogListResponse {
   id: string;
-
   cached: boolean;
-
   created_at: string;
-
   duration: number;
-
   model: string;
-
   path: string;
-
   provider: string;
-
   success: boolean;
-
   tokens_in: number | null;
-
   tokens_out: number | null;
-
   cost?: number;
-
   custom_cost?: boolean;
-
   metadata?: string;
-
   model_type?: string;
-
   request_content_type?: string;
-
   request_type?: string;
-
   response_content_type?: string;
-
   status_code?: number;
-
   step?: number;
-
   timings: {
     total: number;
     latency: number;
@@ -685,53 +650,29 @@ export interface LogListResponse {
 
 export interface LogGetResponse {
   id: string;
-
   cached: boolean;
-
   created_at: string;
-
   duration: number;
-
   model: string;
-
   path: string;
-
   provider: string;
-
   success: boolean;
-
   tokens_in: number | null;
-
   tokens_out: number | null;
-
   cost?: number;
-
   custom_cost?: boolean;
-
   metadata?: string;
-
   model_type?: string;
-
   request_content_type?: string;
-
   request_head?: string;
-
   request_head_complete?: boolean;
-
   request_size?: number;
-
   request_type?: string;
-
   response_content_type?: string;
-
   response_head?: string;
-
   response_head_complete?: boolean;
-
   response_size?: number;
-
   status_code?: number;
-
   step?: number;
 }
 

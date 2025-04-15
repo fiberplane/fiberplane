@@ -146,6 +146,7 @@ export const EventItem = ({ event }: { event: UIAgentEvent }) => {
               </Badge>
             </div>
           </div>
+
           <div className="flex items-center text-sm text-muted-foreground justify-end [grid-area:time] gap-2">
             <Clock className="w-3.5" />
             {formattedDate}
