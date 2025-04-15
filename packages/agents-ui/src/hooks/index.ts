@@ -5,4 +5,5 @@ export { useHandler } from "./useHandler";
 export { useFilteredEvents } from "./useFilteredEvents";
 export { useTimeAgo } from "./useTimeAgo";
 export { useRouterContext } from "./useRouterContext";
-export { useAgentMCP, type ServerData, type MCPData } from "./useAgentMCP";
+export { useAgentMCP } from "./useAgentMCP";
+export { useCopyToClipboard } from "./useCopyToClipboard";
