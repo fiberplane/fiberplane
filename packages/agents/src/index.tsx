@@ -54,7 +54,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
       const tablesQuery =
         "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'";
       const tablesResult = tryCatch(() =>
-        agent.sql(Object.assign([tablesQuery], { raw: [tablesQuery] }))
+        agent.sql(Object.assign([tablesQuery], { raw: [tablesQuery] })),
       );
 
       if (tablesResult.error) {
@@ -71,7 +71,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
         // Get column information
         const pragmaQuery = `PRAGMA table_info("${tableName}")`;
         const columnInfoResult = tryCatch(() =>
-          agent.sql(Object.assign([pragmaQuery], { raw: [pragmaQuery] }))
+          agent.sql(Object.assign([pragmaQuery], { raw: [pragmaQuery] })),
         );
 
         if (columnInfoResult.error) {
@@ -139,7 +139,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
         // Get row data
         const selectQuery = `SELECT * FROM "${tableName}"`;
         const rowsResult = tryCatch(() =>
-          agent.sql(Object.assign([selectQuery], { raw: [selectQuery] }))
+          agent.sql(Object.assign([selectQuery], { raw: [selectQuery] })),
         );
 
         if (rowsResult.error) {
@@ -158,10 +158,13 @@ function createAgentAdminRouter(agent: ObservedAgent) {
         // We still need to use for-await here since we're dealing with an async iterator
         for await (const row of rowsResult.data) {
           // Create a new row object by mapping column names to values
-          const typedRow = columnNames.reduce((acc, colName) => {
-            acc[colName] = row[colName as keyof typeof row];
-            return acc;
-          }, {} as Record<string, unknown>);
+          const typedRow = columnNames.reduce(
+            (acc, colName) => {
+              acc[colName] = row[colName as keyof typeof row];
+              return acc;
+            },
+            {} as Record<string, unknown>,
+          );
 
           data.push(typedRow);
         }
@@ -185,9 +188,8 @@ function createAgentAdminRouter(agent: ObservedAgent) {
   });
 
   router.get("/agents/:namespace/:instance/admin/mcp", async (c) => {
-
     agent._mcpConnections = detectMCPConnections(
-      agent as unknown as Record<string, unknown>
+      agent as unknown as Record<string, unknown>,
     );
 
     if (agent._mcpConnections && agent._mcpConnections.size > 0) {
@@ -205,7 +207,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
             prompts: conn.prompts,
             serverCapabilities: conn.serverCapabilities,
           };
-        }
+        },
       );
       return c.json({ data: connections });
     }
@@ -244,7 +246,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
           data: JSON.stringify(streamError.message),
         });
         agent._activeStreams.delete(stream);
-      }
+      },
     );
   });
 
@@ -332,23 +334,22 @@ export function Observed<E = unknown, S = unknown>() {
         });
 
         this._mcpConnections = detectMCPConnections(
-          this as Record<string, unknown>
+          this as Record<string, unknown>,
         );
 
         super.onStateUpdate(state as S, source);
       }
 
-
       onStart() {
         super.onStart();
         this._mcpConnections = detectMCPConnections(
-          this as Record<string, unknown>
+          this as Record<string, unknown>,
         );
       }
 
       override broadcast(
         msg: string | ArrayBuffer | ArrayBufferView,
-        without?: string[] | undefined
+        without?: string[] | undefined,
       ): void {
         this.recordEvent({
           type: "broadcast",
@@ -376,7 +377,7 @@ export function Observed<E = unknown, S = unknown>() {
             if (prop === "send") {
               return function (
                 this: Connection,
-                message: string | ArrayBuffer | ArrayBufferView
+                message: string | ArrayBuffer | ArrayBufferView,
               ) {
                 self.recordEvent({
                   type: "ws_send",
@@ -398,7 +399,7 @@ export function Observed<E = unknown, S = unknown>() {
                 // Call the original send method
                 return Reflect.get(target, prop, receiver).call(
                   target,
-                  message
+                  message,
                 );
               };
             }
@@ -436,7 +437,7 @@ export function Observed<E = unknown, S = unknown>() {
         });
 
         this._mcpConnections = detectMCPConnections(
-          this as Record<string, unknown>
+          this as Record<string, unknown>,
         );
 
         // Create a proxied connection to intercept send calls
@@ -450,7 +451,7 @@ export function Observed<E = unknown, S = unknown>() {
         connection: Connection,
         code: number,
         reason: string,
-        wasClean: boolean
+        wasClean: boolean,
       ): void | Promise<void> {
         this.recordEvent({
           type: "ws_close",
@@ -469,13 +470,13 @@ export function Observed<E = unknown, S = unknown>() {
         } else {
           console.error(
             "Missing namespace or instance headers in request",
-            request
+            request,
           );
         }
 
         if (!this._fiberRouter) {
           this._fiberRouter = createAgentAdminRouter(
-            this as unknown as ObservedAgent
+            this as unknown as ObservedAgent,
           );
         }
 
@@ -490,7 +491,7 @@ export function Observed<E = unknown, S = unknown>() {
               type: "http_request",
               // Clone the request to avoid consuming the body
               payload: await createRequestPayload(
-                request.clone() as typeof request
+                request.clone() as typeof request,
               ),
             });
           });
@@ -552,7 +553,7 @@ function createFpApp() {
         const durableObjects =
           c.env && typeof c.env === "object"
             ? (Object.entries(c.env as Record<string, unknown>).filter(
-                ([key, value]) => isDurableObjectNamespace(value)
+                ([key, value]) => isDurableObjectNamespace(value),
               ) as Array<[string, DurableObjectNamespace]>)
             : [];
         for (const [name] of durableObjects) {
@@ -561,7 +562,7 @@ function createFpApp() {
           const namespace = toKebabCase(name);
           if (!agents.some((agent) => agent.id === namespace)) {
             console.warn(
-              `Warning: durable object detected but it is not decorated with the \`@Observed()\` decorator (binding name: ${name}, expected namespace: ${namespace})`
+              `Warning: durable object detected but it is not decorated with the \`@Observed()\` decorator (binding name: ${name}, expected namespace: ${namespace})`,
             );
           }
         }
@@ -595,7 +596,7 @@ function createFpApp() {
             <div id="root" data-options={JSON.stringify(options)} />
             <script type="module" src={jsBundleUrl} />
           </body>
-        </html>
+        </html>,
       );
     })
     .notFound(() => {
@@ -607,8 +608,8 @@ export function fiberplane<E extends Env>(
   userFetch: (
     request: Request,
     env: E,
-    ctx: ExecutionContext
-  ) => Promise<Response>
+    ctx: ExecutionContext,
+  ) => Promise<Response>,
 ) {
   const fpApp = createFpApp();
 

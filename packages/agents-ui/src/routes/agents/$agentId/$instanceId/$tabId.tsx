@@ -69,7 +69,7 @@ function AgentTabContent() {
   const { data: db, isLoading: isDbLoading } = useAgentDB(agentId, instanceId);
   const { data: mcpData, isLoading: isMcpLoading } = useAgentMCP(
     agentId,
-    instanceId
+    instanceId,
   );
 
   return <div className="p-4 overflow-auto h-full">{renderTabContent()}</div>;

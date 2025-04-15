@@ -78,9 +78,7 @@ function MCPServersList() {
                 }}
                 className="p-3 border rounded-md hover:bg-muted cursor-pointer block"
               >
-                <div className="font-medium">
-                  {`Server ${idx + 1}`}
-                </div>
+                <div className="font-medium">{`Server ${idx + 1}`}</div>
                 <div className="text-sm text-muted-foreground">
                   {server.serverId}
                 </div>
@@ -92,8 +90,8 @@ function MCPServersList() {
                     server.connectionState === "connected"
                       ? "bg-green-100 text-green-800"
                       : server.connectionState === "authenticating"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-gray-100 text-gray-800"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-gray-100 text-gray-800"
                   }`}
                   title="Connection State"
                 >

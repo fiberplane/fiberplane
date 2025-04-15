@@ -24,13 +24,12 @@ export interface MCPConnection {
   };
 }
 
-
 export function agentMCPQueryOptions(namespace: string, instance: string) {
   return queryOptions<MCPConnection[]>({
     queryKey: ["agent_mcp", namespace, instance],
     queryFn: async () => {
       const response = await fetch(
-        `/agents/${namespace}/${instance}/admin/mcp`
+        `/agents/${namespace}/${instance}/admin/mcp`,
       );
       if (!response.ok) {
         throw new Error(`Failed to fetch MCP data: ${response.statusText}`);
@@ -45,7 +44,7 @@ export function agentMCPQueryOptions(namespace: string, instance: string) {
 export function useAgentMCP(
   namespace: string,
   instance: string,
-  options?: Omit<QueryObserverOptions<MCPConnection[]>, "queryKey" | "queryFn">
+  options?: Omit<QueryObserverOptions<MCPConnection[]>, "queryKey" | "queryFn">,
 ) {
   return useQuery({
     ...agentMCPQueryOptions(namespace, instance),
