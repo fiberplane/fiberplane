@@ -24,7 +24,7 @@ import {
   notFound,
   useLoaderData,
 } from "@tanstack/react-router";
-import { ChevronDown, ChevronRight, Copy } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Copy } from "lucide-react";
 import { useState } from "react";
 import React from "react";
 
@@ -38,7 +38,7 @@ interface TableItem {
 
 interface ExpandableTableSectionProps {
   title: string;
-  caption: string;
+  caption?: string;
   items: TableItem[];
   expandedIndex: number | null;
   onExpand: (index: number | null) => void;
@@ -55,12 +55,12 @@ function ExpandableTableSection({
     <div>
       <h3 className="text-lg font-medium mb-2">{title}</h3>
       <Table>
-        <TableCaption>{caption}</TableCaption>
+        {caption && <TableCaption>{caption}</TableCaption>}
         <TableHeader>
           <TableRow>
-            <TableHead className="w-8" />
-            <TableHead>Name</TableHead>
+            <TableHead className="pl-0">Name</TableHead>
             <TableHead>Description</TableHead>
+            <TableHead>Details</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -92,13 +92,6 @@ function ExpandableTableSection({
                     tabIndex={0}
                     aria-expanded={isExpanded}
                   >
-                    <TableCell className="align-middle w-8 p-0 text-center">
-                      {isExpanded ? (
-                        <ChevronDown className="w-4 h-4 mx-auto" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4 mx-auto" />
-                      )}
-                    </TableCell>
                     <TableCell className="font-mono align-middle">
                       {item.name || "Unnamed"}
                     </TableCell>
@@ -113,6 +106,13 @@ function ExpandableTableSection({
                           </span>
                         )}
                       </div>
+                    </TableCell>
+                    <TableCell className="align-middle w-8 p-0 text-center">
+                      {isExpanded ? (
+                        <ChevronDown className="w-4 h-4 mx-auto" />
+                      ) : (
+                        <ChevronLeft className="w-4 h-4 mx-auto" />
+                      )}
                     </TableCell>
                   </TableRow>
                   {isExpanded && (
@@ -261,7 +261,6 @@ function MCPServerDetails() {
 
         <ExpandableTableSection
           title="Tools"
-          caption="Tools available on this server."
           items={server.tools}
           expandedIndex={expandedToolIdx}
           onExpand={setExpandedToolIdx}
@@ -269,7 +268,6 @@ function MCPServerDetails() {
 
         <ExpandableTableSection
           title="Resources"
-          caption="Resources available on this server."
           items={server.resources}
           expandedIndex={expandedResourceIdx}
           onExpand={setExpandedResourceIdx}
@@ -277,7 +275,6 @@ function MCPServerDetails() {
 
         <ExpandableTableSection
           title="Prompts"
-          caption="Prompts available on this server."
           items={server.prompts}
           expandedIndex={expandedPromptIdx}
           onExpand={setExpandedPromptIdx}
