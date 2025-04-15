@@ -112,15 +112,17 @@ function MCPServersGrid({ data }: { data: MCPConnection[] }) {
                         Resources
                       </h4>
                       <div className="flex flex-wrap gap-2">
-                        {resourcesToDisplay.map((resource, resourceIdx: number) => (
-                          <div
-                            className="text-xs bg-muted rounded-md px-1 py-0.5 truncate flex items-center max-w-[95%]"
-                            key={resourceIdx}
-                            title={safeString(resource.name)}
-                          >
-                            {safeString(resource.name)}
-                          </div>
-                        ))}
+                        {resourcesToDisplay.map(
+                          (resource, resourceIdx: number) => (
+                            <div
+                              className="text-xs bg-muted rounded-md px-1 py-0.5 truncate flex items-center max-w-[95%]"
+                              key={resourceIdx}
+                              title={safeString(resource.name)}
+                            >
+                              {safeString(resource.name)}
+                            </div>
+                          ),
+                        )}
                         {hasMoreResources && (
                           <div className="text-xs text-muted-foreground px-1 flex items-center">
                             +{server.resources.length - MAX_ITEMS_TO_DISPLAY}{" "}

@@ -1,31 +1,31 @@
+import { JSONViewer } from "@/components/AgentDetails/EventsView/JSONViewer";
 import { Spinner } from "@/components/Spinner";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useAgentMCP } from "@/hooks/useAgentMCP";
 import { listAgentsQueryOptions } from "@/hooks/useListAgents";
 import {
   createFileRoute,
   notFound,
   useLoaderData,
 } from "@tanstack/react-router";
-import { useAgentMCP } from "@/hooks/useAgentMCP";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableCaption,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
+import { ChevronDown, ChevronRight, Copy } from "lucide-react";
 import { useState } from "react";
 import React from "react";
-import { Copy, ChevronDown, ChevronRight } from "lucide-react";
-import { JSONViewer } from "@/components/AgentDetails/EventsView/JSONViewer";
 
 // Define the shape of the items we'll display in the tables
 interface TableItem {
@@ -65,16 +65,21 @@ function ExpandableTableSection({
         <TableBody>
           {items.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={3} className="text-muted-foreground text-center">
+              <TableCell
+                colSpan={3}
+                className="text-muted-foreground text-center"
+              >
                 No {title.toLowerCase()} available.
               </TableCell>
             </TableRow>
           ) : (
             items.map((item, idx) => {
               const isExpanded = expandedIndex === idx;
-              const descriptionText = typeof item.description === "string" && item.description.length > 0
-                ? item.description
-                : null;
+              const descriptionText =
+                typeof item.description === "string" &&
+                item.description.length > 0
+                  ? item.description
+                  : null;
 
               return (
                 <React.Fragment key={item.name || idx}>
@@ -91,13 +96,19 @@ function ExpandableTableSection({
                         <ChevronRight className="w-4 h-4 mx-auto" />
                       )}
                     </TableCell>
-                    <TableCell className="font-mono align-middle">{item.name || "Unnamed"}</TableCell>
+                    <TableCell className="font-mono align-middle">
+                      {item.name || "Unnamed"}
+                    </TableCell>
                     <TableCell className="align-middle">
                       <div
                         className="truncate max-w-[320px]"
                         title={descriptionText ?? undefined}
                       >
-                        {descriptionText || <span className="text-muted-foreground">No description</span>}
+                        {descriptionText || (
+                          <span className="text-muted-foreground">
+                            No description
+                          </span>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -172,7 +183,11 @@ function MCPServerDetails() {
   });
 
   // Fetch all MCP servers for this agent/instance
-  const { data: mcpServers, isLoading, error } = useAgentMCP(agent.id, instanceId);
+  const {
+    data: mcpServers,
+    isLoading,
+    error,
+  } = useAgentMCP(agent.id, instanceId);
 
   // Find the server by serverId
   const server = mcpServers?.find((s) => s.serverId === serverId);
@@ -187,8 +202,12 @@ function MCPServerDetails() {
 
   // Expansion state for each table
   const [expandedToolIdx, setExpandedToolIdx] = useState<number | null>(null);
-  const [expandedResourceIdx, setExpandedResourceIdx] = useState<number | null>(null);
-  const [expandedPromptIdx, setExpandedPromptIdx] = useState<number | null>(null);
+  const [expandedResourceIdx, setExpandedResourceIdx] = useState<number | null>(
+    null,
+  );
+  const [expandedPromptIdx, setExpandedPromptIdx] = useState<number | null>(
+    null,
+  );
 
   if (isLoading) {
     return (
@@ -216,7 +235,9 @@ function MCPServerDetails() {
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-base">URL:</span>
-            <span className="font-mono text-sm break-all select-all">{server.url}</span>
+            <span className="font-mono text-sm break-all select-all">
+              {server.url}
+            </span>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -235,7 +256,9 @@ function MCPServerDetails() {
           </div>
           <div className="flex items-center gap-2">
             <span className="font-semibold text-base">Server ID:</span>
-            <span className="font-mono text-sm break-all select-all">{server.serverId}</span>
+            <span className="font-mono text-sm break-all select-all">
+              {server.serverId}
+            </span>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
