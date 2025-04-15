@@ -3,7 +3,6 @@ import {
   isMessagesTable,
 } from "@/components/AgentDetails/ChatMessageTableView";
 import { DataTableView } from "@/components/AgentDetails/DataTableView";
-import { MCPServersView } from "@/components/AgentDetails/MCPViews";
 import {
   ScheduleColumnsSchema,
   type ScheduleDBTable,
@@ -15,7 +14,6 @@ import {
 } from "@/components/AgentDetails/StateTableView";
 import { Spinner } from "@/components/Spinner";
 import { useAgentDB } from "@/hooks/useAgentDB"; // Import hook
-import { useAgentMCP } from "@/hooks/useAgentMCP"; // Import hook
 import { createFileRoute } from "@tanstack/react-router";
 
 // Map friendly tab IDs back to actual DB table names
@@ -26,18 +24,8 @@ const tabToTableMap: Record<string, string | null> = {
   mcp: null, // Represents the MCP tab, not a DB table
 };
 
-// Loader only returns tabId
-interface AgentTabLoaderData {
-  tabId: string;
-}
-
 export const Route = createFileRoute("/agents/$agentId/$instanceId/$tabId")({
   component: AgentTabContent,
-  loader: async ({ params }): Promise<AgentTabLoaderData> => {
-    const { tabId } = params;
-    // Loader doesn't need complex validation, component will handle data availability
-    return { tabId };
-  },
   pendingComponent: () => (
     <div className="p-4 flex items-center gap-2 justify-center">
       <Spinner spinning={true} />
@@ -61,9 +49,7 @@ export const Route = createFileRoute("/agents/$agentId/$instanceId/$tabId")({
 });
 
 function AgentTabContent() {
-  const { tabId } = Route.useLoaderData();
-  // Get agentId and instanceId from URL parameters
-  const { agentId, instanceId } = Route.useParams();
+  const { agentId, instanceId, tabId } = Route.useParams();
 
   // Fetch data directly using hooks
   const { data: db, isLoading: isDbLoading } = useAgentDB(agentId, instanceId);

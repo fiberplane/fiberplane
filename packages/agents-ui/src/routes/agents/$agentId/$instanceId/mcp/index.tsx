@@ -5,8 +5,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useAgentMCP } from "@/hooks";
 import { listAgentsQueryOptions } from "@/hooks/useListAgents";
+import { agentMCPQueryOptions } from "@/hooks/useAgentMCP";
 import {
   Link,
   createFileRoute,
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/agents/$agentId/$instanceId/mcp/")({
 
     // Access the agents data
     const agents = await context.queryClient.ensureQueryData(
-      listAgentsQueryOptions(),
+      listAgentsQueryOptions()
     );
 
     // Find the agent by ID
@@ -38,7 +38,12 @@ export const Route = createFileRoute("/agents/$agentId/$instanceId/mcp/")({
       throw notFound();
     }
 
-    return { agent, instanceId };
+    // Fetch MCP servers for this agent/instance
+    const mcpServers = await context.queryClient.ensureQueryData(
+      agentMCPQueryOptions(agentId, instanceId)
+    );
+
+    return { agent, instanceId, mcpServers };
   },
   pendingComponent: () => (
     <div className="p-4 flex items-center gap-2">
@@ -50,23 +55,11 @@ export const Route = createFileRoute("/agents/$agentId/$instanceId/mcp/")({
 
 function MCPServersList() {
   // Get the data from the loader
-  const { agent, instanceId } = useLoaderData({
+  const { instanceId, mcpServers } = useLoaderData({
     from: "/agents/$agentId/$instanceId/mcp/",
   });
 
   const { agentId } = useParams({ from: "/agents/$agentId/$instanceId/mcp/" });
-
-  // Fetch MCP data
-  const { data: mcpData, isLoading } = useAgentMCP(agent.id, instanceId);
-
-  if (isLoading) {
-    return (
-      <div className="p-4 flex items-center gap-2">
-        <Spinner spinning={true} />
-        <span>Loading MCP servers...</span>
-      </div>
-    );
-  }
 
   return (
     <div className="p-4">
@@ -77,8 +70,8 @@ function MCPServersList() {
           as a client.
         </p>
         <div className="grid gap-2">
-          {mcpData && mcpData.length > 0 ? (
-            mcpData.map((server, idx) => (
+          {mcpServers && mcpServers.length > 0 ? (
+            mcpServers.map((server, idx) => (
               <Link
                 key={server.serverId}
                 to="/agents/$agentId/$instanceId/mcp/$serverId"
@@ -131,8 +124,8 @@ function MCPServersList() {
                       server.connectionState === "ready"
                         ? "bg-green-100 text-green-800"
                         : server.connectionState === "authenticating"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-gray-100 text-gray-800"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-gray-100 text-gray-800"
                     }`}
                     title="Connection State"
                   >

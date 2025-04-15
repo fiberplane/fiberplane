@@ -16,7 +16,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useAgentMCP } from "@/hooks/useAgentMCP";
 import { listAgentsQueryOptions } from "@/hooks/useListAgents";
 import {
   createFileRoute,
@@ -26,6 +25,8 @@ import {
 import { ChevronDown, ChevronRight, Copy } from "lucide-react";
 import { useState } from "react";
 import React from "react";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
+import { agentMCPQueryOptions } from "@/hooks/useAgentMCP";
 
 // Define the shape of the items we'll display in the tables
 interface TableItem {
@@ -52,7 +53,7 @@ function ExpandableTableSection({
 }: ExpandableTableSectionProps): React.ReactNode {
   return (
     <div>
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
+      <h3 className="text-lg font-medium mb-2">{title}</h3>
       <Table>
         <TableCaption>{caption}</TableCaption>
         <TableHeader>
@@ -84,7 +85,9 @@ function ExpandableTableSection({
               return (
                 <React.Fragment key={item.name || idx}>
                   <TableRow
-                    className={`${isExpanded ? "bg-muted/30 " : ""}cursor-pointer transition-colors hover:bg-muted/20`}
+                    className={`${
+                      isExpanded ? "bg-muted/30 " : ""
+                    }cursor-pointer transition-colors hover:bg-muted/20`}
                     onClick={() => onExpand(isExpanded ? null : idx)}
                     tabIndex={0}
                     aria-expanded={isExpanded}
@@ -132,7 +135,7 @@ function ExpandableTableSection({
 }
 
 export const Route = createFileRoute(
-  "/agents/$agentId/$instanceId/mcp/$serverId",
+  "/agents/$agentId/$instanceId/mcp/$serverId"
 )({
   component: MCPServerDetails,
   loader: async ({ params, context }) => {
@@ -141,7 +144,7 @@ export const Route = createFileRoute(
 
     // Access the agents data
     const agents = await context.queryClient.ensureQueryData(
-      listAgentsQueryOptions(),
+      listAgentsQueryOptions()
     );
 
     // Find the agent by ID
@@ -157,8 +160,19 @@ export const Route = createFileRoute(
       throw notFound();
     }
 
+    // Fetch all MCP servers for this agent/instance
+    const mcpServers = await context.queryClient.ensureQueryData(
+      agentMCPQueryOptions(agentId, instanceId)
+    );
+    const server = mcpServers?.find(
+      (s: { serverId: string }) => s.serverId === serverId
+    );
+    if (!server) {
+      throw notFound();
+    }
+
     // Return data needed for the MCP server view
-    return { agent, instanceId, serverId };
+    return { agent, instanceId, serverId, server };
   },
   pendingComponent: () => (
     <div className="p-4 flex items-center gap-2">
@@ -178,63 +192,31 @@ export const Route = createFileRoute(
 
 function MCPServerDetails() {
   // Get the data from the loader
-  const { agent, instanceId, serverId } = useLoaderData({
+  const { server } = useLoaderData({
     from: "/agents/$agentId/$instanceId/mcp/$serverId",
   });
 
-  // Fetch all MCP servers for this agent/instance
-  const {
-    data: mcpServers,
-    isLoading,
-    error,
-  } = useAgentMCP(agent.id, instanceId);
-
-  // Find the server by serverId
-  const server = mcpServers?.find((s) => s.serverId === serverId);
-
-  // Copy-to-clipboard state
-  const [copiedField, setCopiedField] = useState<string | null>(null);
-  const handleCopy = (value: string, field: string) => {
-    navigator.clipboard.writeText(value);
-    setCopiedField(field);
-    setTimeout(() => setCopiedField(null), 1200);
+  // Copy-to-clipboard state using the custom hook
+  const { isCopied, copyToClipboard } = useCopyToClipboard();
+  const handleCopy = (value: string) => {
+    copyToClipboard(value);
   };
 
   // Expansion state for each table
   const [expandedToolIdx, setExpandedToolIdx] = useState<number | null>(null);
   const [expandedResourceIdx, setExpandedResourceIdx] = useState<number | null>(
-    null,
+    null
   );
   const [expandedPromptIdx, setExpandedPromptIdx] = useState<number | null>(
-    null,
+    null
   );
-
-  if (isLoading) {
-    return (
-      <div className="p-4 flex items-center gap-2">
-        <Spinner spinning={true} />
-        <span>Loading MCP server details...</span>
-      </div>
-    );
-  }
-
-  if (error || !server) {
-    return (
-      <div className="p-4 border rounded-lg m-4">
-        <h2 className="text-lg font-semibold">MCP Server Not Found</h2>
-        <p className="text-muted-foreground">
-          The MCP server you're looking for does not exist.
-        </p>
-      </div>
-    );
-  }
 
   return (
     <TooltipProvider>
       <div className="p-4 space-y-6">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-base">URL:</span>
+            <span className="font-medium text-base">URL:</span>
             <span className="font-mono text-sm break-all select-all">
               {server.url}
             </span>
@@ -242,20 +224,20 @@ function MCPServerDetails() {
               <TooltipTrigger asChild>
                 <Button
                   size="icon-xs"
-                  variant="outline"
+                  variant="ghost"
                   aria-label="Copy URL"
-                  onClick={() => handleCopy(server.url, "url")}
+                  onClick={() => handleCopy(server.url)}
                 >
                   <Copy className="w-4 h-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent sideOffset={4}>
-                {copiedField === "url" ? "Copied!" : "Copy URL"}
+                {isCopied ? "Copied!" : "Copy URL"}
               </TooltipContent>
             </Tooltip>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-base">Server ID:</span>
+            <span className="font-medium text-base">Server ID:</span>
             <span className="font-mono text-sm break-all select-all">
               {server.serverId}
             </span>
@@ -263,15 +245,15 @@ function MCPServerDetails() {
               <TooltipTrigger asChild>
                 <Button
                   size="icon-xs"
-                  variant="outline"
+                  variant="ghost"
                   aria-label="Copy Server ID"
-                  onClick={() => handleCopy(server.serverId, "serverId")}
+                  onClick={() => handleCopy(server.serverId)}
                 >
                   <Copy className="w-4 h-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent sideOffset={4}>
-                {copiedField === "serverId" ? "Copied!" : "Copy Server ID"}
+                {isCopied ? "Copied!" : "Copy Server ID"}
               </TooltipContent>
             </Tooltip>
           </div>
