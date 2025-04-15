@@ -1,4 +1,5 @@
 import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
+import type { AIChatAgent } from "agents/ai-chat-agent";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
 import packageJson from "../package.json" assert { type: "json" };
@@ -7,7 +8,7 @@ import {
   registerAgent,
   registerAgentInstance,
 } from "./agentInstances";
-import { type AgentEvent, agentEventSchema } from "./types";
+import { type AgentEvent } from "./types";
 import {
   createRequestPayload,
   createResponsePayload,
@@ -16,7 +17,6 @@ import {
   toKebabCase,
   tryCatch,
 } from "./utils";
-
 // Define types for database schema
 type ColumnType = "string" | "number" | "boolean" | "null" | "object" | "array";
 type TableSchema = {
@@ -26,9 +26,28 @@ type TableSchema = {
 };
 type DatabaseResult = Record<string, TableSchema>;
 
+interface DurableObjectState {
+  waitUntil(promise: Promise<any>): void;
+  readonly id: DurableObjectId;
+  readonly storage: DurableObjectStorage;
+  container?: Container;
+  blockConcurrencyWhile<T>(callback: () => Promise<T>): Promise<T>;
+  acceptWebSocket(ws: WebSocket, tags?: string[]): void;
+  getWebSockets(tag?: string): WebSocket[];
+  setWebSocketAutoResponse(maybeReqResp?: WebSocketRequestResponsePair): void;
+  getWebSocketAutoResponse(): WebSocketRequestResponsePair | null;
+  getWebSocketAutoResponseTimestamp(ws: WebSocket): Date | null;
+  setHibernatableWebSocketEventTimeout(timeoutMs?: number): void;
+  getHibernatableWebSocketEventTimeout(): number | null;
+  getTags(ws: WebSocket): string[];
+  abort(reason?: string): void;
+}
+
 type AgentConstructor<E = unknown, S = unknown> = new (
   // biome-ignore lint/suspicious/noExplicitAny: mixin pattern requires any[]
-  ...args: any[]
+  // ...args: any[]
+  ctx: DurableObjectState,
+  env: E,
 ) => Agent<E, S>;
 
 const version = packageJson.version;
@@ -219,7 +238,7 @@ interface FiberProperties {
   activeStreams: Set<SSEStreamingApi>;
 }
 
-type FiberDecoratedAgent = Agent<unknown, unknown> & FiberProperties;
+type FiberDecoratedAgent<E = unknown, S = unknown> = Agent<E, S> & FiberProperties;
 
 /**
  * Class decorator factory that adds Observed capabilities to Agent classes
@@ -234,30 +253,30 @@ type FiberDecoratedAgent = Agent<unknown, unknown> & FiberProperties;
  * ```
  */
 export function Observed<E = unknown, S = unknown>() {
-  return <T extends AgentConstructor<E, S>>(BaseClass: T) => {
-    return class extends BaseClass {
+  return (BaseClass: AgentConstructor<E, S>) => {
+    return class ObservedClass extends BaseClass {
       // Store the class name of the super class
-      private superClassName: string;
+      #superClassName: string;
 
       // Store whether we've registered the instance already
-      private instanceRegistered = false;
+      #instanceRegistered = false;
 
       // biome-ignore lint/complexity/noUselessConstructor: Required for TypeScript mixins
       // biome-ignore lint/suspicious/noExplicitAny: Required for TypeScript mixins
-      constructor(...args: any[]) {
-        super(...args);
-        this.superClassName = Object.getPrototypeOf(this.constructor).name;
-        registerAgent(this.superClassName);
+      constructor(readonly ctx: DurableObjectState, readonly env: E) {
+        super(ctx, env);
+        this.#superClassName = Object.getPrototypeOf(this.constructor).name;
+        registerAgent(this.#superClassName);
       }
 
       fiberRouter?: Hono;
 
       activeStreams = new Set<SSEStreamingApi>();
 
-      private recordEvent(event: AgentEvent) {
-        if (!this.instanceRegistered) {
-          this.instanceRegistered = true;
-          registerAgentInstance(this.superClassName, this.name);
+      #recordEvent(event: AgentEvent) {
+        if (!this.#instanceRegistered) {
+          this.#instanceRegistered = true;
+          registerAgentInstance(this.#superClassName, this.name);
         }
 
         const { type: eventName, payload } = event;
@@ -271,7 +290,7 @@ export function Observed<E = unknown, S = unknown>() {
 
       onStateUpdate(state: unknown, source: Connection | "server"): void {
         const sourceId = source === "server" ? "server" : source.id;
-        this.recordEvent({
+        this.#recordEvent({
           type: "state_change",
           payload: {
             state,
@@ -282,20 +301,20 @@ export function Observed<E = unknown, S = unknown>() {
         super.onStateUpdate(state as S, source);
       }
 
-      override broadcast(
+      broadcast(
         msg: string | ArrayBuffer | ArrayBufferView,
         without?: string[] | undefined,
       ): void {
-        this.recordEvent({
+        this.#recordEvent({
           type: "broadcast",
           payload: {
             message:
               typeof msg === "string"
                 ? msg
                 : {
-                    type: "binary",
-                    size: msg instanceof Blob ? msg.size : msg.byteLength,
-                  },
+                  type: "binary",
+                  size: msg instanceof Blob ? msg.size : msg.byteLength,
+                },
             without,
           },
         });
@@ -304,7 +323,7 @@ export function Observed<E = unknown, S = unknown>() {
       }
 
       // Create a proxy for a WebSocket-like object to intercept send calls
-      private createWebSocketProxy(connection: Connection): Connection {
+      #createWebSocketProxy(connection: Connection): Connection {
         const self = this;
         return new Proxy(connection, {
           get(target, prop, receiver) {
@@ -314,7 +333,7 @@ export function Observed<E = unknown, S = unknown>() {
                 this: Connection,
                 message: string | ArrayBuffer | ArrayBufferView,
               ) {
-                self.recordEvent({
+                self.#recordEvent({
                   type: "ws_send",
                   payload: {
                     connectionId: target.id,
@@ -322,12 +341,12 @@ export function Observed<E = unknown, S = unknown>() {
                       typeof message === "string"
                         ? message
                         : {
-                            type: "binary" as const,
-                            size:
-                              message instanceof Blob
-                                ? message.size
-                                : message.byteLength,
-                          },
+                          type: "binary" as const,
+                          size:
+                            message instanceof Blob
+                              ? message.size
+                              : message.byteLength,
+                        },
                   },
                 });
 
@@ -346,7 +365,7 @@ export function Observed<E = unknown, S = unknown>() {
       }
 
       onMessage(connection: Connection, message: WSMessage) {
-        this.recordEvent({
+        this.#recordEvent({
           type: "ws_message",
           payload: {
             connectionId: connection.id,
@@ -357,14 +376,14 @@ export function Observed<E = unknown, S = unknown>() {
           },
         });
 
-        const connectionProxy = this.createWebSocketProxy(connection);
+        const connectionProxy = this.#createWebSocketProxy(connection);
 
         // Use the original connection for the parent class
         return super.onMessage(connectionProxy, message);
       }
 
       onConnect(connection: Connection, ctx: ConnectionContext) {
-        this.recordEvent({
+        this.#recordEvent({
           type: "ws_open",
           payload: {
             connectionId: connection.id,
@@ -372,7 +391,7 @@ export function Observed<E = unknown, S = unknown>() {
         });
 
         // Create a proxied connection to intercept send calls
-        const proxiedConnection = this.createWebSocketProxy(connection);
+        const proxiedConnection = this.#createWebSocketProxy(connection);
 
         // Use the proxied connection for the parent class
         return super.onConnect(proxiedConnection, ctx);
@@ -384,7 +403,7 @@ export function Observed<E = unknown, S = unknown>() {
         reason: string,
         wasClean: boolean,
       ): void | Promise<void> {
-        this.recordEvent({
+        this.#recordEvent({
           type: "ws_close",
           payload: { connectionId: connection.id, code, reason, wasClean },
         });
@@ -404,7 +423,7 @@ export function Observed<E = unknown, S = unknown>() {
           // Create a promise chain to ensure the event is recorded
           // since we may need to read the body of the request
           const eventPromise = Promise.resolve().then(async () => {
-            this.recordEvent({
+            this.#recordEvent({
               type: "http_request",
               // Clone the request to avoid consuming the body
               payload: await createRequestPayload(
@@ -418,7 +437,7 @@ export function Observed<E = unknown, S = unknown>() {
           if (isPromiseLike(result)) {
             return Promise.all([result, eventPromise]).then(async ([res]) => {
               const payload = await createResponsePayload(res.clone());
-              this.recordEvent({
+              this.#recordEvent({
                 type: "http_response",
                 payload: {
                   ...payload,
@@ -435,7 +454,7 @@ export function Observed<E = unknown, S = unknown>() {
           eventPromise.then(async () => {
             const payload = await createResponsePayload(capturedResponse);
 
-            this.recordEvent({
+            this.#recordEvent({
               type: "http_response",
               payload: {
                 ...payload,
@@ -450,7 +469,7 @@ export function Observed<E = unknown, S = unknown>() {
 
         return this.fiberRouter.fetch(request);
       }
-    } as T;
+    };
   };
 }
 
@@ -471,8 +490,8 @@ function createFpApp() {
         const durableObjects =
           c.env && typeof c.env === "object"
             ? (Object.entries(c.env as Record<string, unknown>).filter(
-                ([key, value]) => isDurableObjectNamespace(value),
-              ) as Array<[string, DurableObjectNamespace]>)
+              ([key, value]) => isDurableObjectNamespace(value),
+            ) as Array<[string, DurableObjectNamespace]>)
             : [];
         for (const [name] of durableObjects) {
           // See if we're aware of an agent with the same id

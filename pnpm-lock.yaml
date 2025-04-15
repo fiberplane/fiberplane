@@ -196,6 +196,9 @@ importers:
       mime-types:
         specifier: ^2.1.35
         version: 2.1.35
+      reflect-metadata:
+        specifier: ^0.2.2
+        version: 0.2.2
       toml:
         specifier: ^3.0.0
         version: 3.0.0
@@ -7967,6 +7970,9 @@ packages:
 
   recma-stringify@1.0.0:
     resolution: {integrity: sha512-cjwII1MdIIVloKvC9ErQ+OgAtwHBmcZ0Bg4ciz78FtbT8In39aAYbaA7zvxQ61xVMSPE8WxhLwLbhif4Js2C+g==}
+
+  reflect-metadata@0.2.2:
+    resolution: {integrity: sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==}
 
   refractor@3.6.0:
     resolution: {integrity: sha512-MY9W41IOWxxk31o+YvFCNyNzdkc9M20NoZK5vq6jkv4I/uh2zkWcfudj0Q1fovjUQJrNewS9NMzeTtqPf+n5EA==}
@@ -17560,6 +17566,8 @@ snapshots:
       estree-util-to-js: 2.0.0
       unified: 11.0.5
       vfile: 6.0.3
+
+  reflect-metadata@0.2.2: {}
 
   refractor@3.6.0:
     dependencies:
