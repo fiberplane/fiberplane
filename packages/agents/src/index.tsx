@@ -1,5 +1,5 @@
 import type {
-  MCPPrompt,
+  Prompt as MCPPrompt,
   Resource,
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
@@ -13,8 +13,6 @@ import {
   registerAgent,
   registerAgentInstance,
 } from "./agentInstances";
-// Import mock data for MCP
-import { mockMCPData } from "./mcp-mock-data";
 import { type AgentEvent, agentEventSchema } from "./types";
 import {
   createRequestPayload,
@@ -39,6 +37,8 @@ type AgentConstructor<E = unknown, S = unknown> = new (
   ...args: any[]
 ) => Agent<E, S>;
 
+type MCPClientConnection = MCPClientManager["mcpConnections"][string];
+
 const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
 const PARTYKIT_ROOM_HEADER = "x-partykit-room";
 
@@ -54,7 +54,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
       const tablesQuery =
         "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'";
       const tablesResult = tryCatch(() =>
-        agent.sql(Object.assign([tablesQuery], { raw: [tablesQuery] })),
+        agent.sql(Object.assign([tablesQuery], { raw: [tablesQuery] }))
       );
 
       if (tablesResult.error) {
@@ -64,14 +64,14 @@ function createAgentAdminRouter(agent: ObservedAgent) {
       // Convert result set to array of table names
       const tableNames = Array.from(tablesResult.data)
         .map((row) => String(row.name || ""))
-        .filter((name) => name && name !== "_cf_METADATA");
+        .filter((name) => name && name !== "_cf_METADATA" && name !== "_cf_KV");
 
       // Process each table and collect results
       const tableResultsPromises = tableNames.map(async (tableName) => {
         // Get column information
         const pragmaQuery = `PRAGMA table_info("${tableName}")`;
         const columnInfoResult = tryCatch(() =>
-          agent.sql(Object.assign([pragmaQuery], { raw: [pragmaQuery] })),
+          agent.sql(Object.assign([pragmaQuery], { raw: [pragmaQuery] }))
         );
 
         if (columnInfoResult.error) {
@@ -139,7 +139,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
         // Get row data
         const selectQuery = `SELECT * FROM "${tableName}"`;
         const rowsResult = tryCatch(() =>
-          agent.sql(Object.assign([selectQuery], { raw: [selectQuery] })),
+          agent.sql(Object.assign([selectQuery], { raw: [selectQuery] }))
         );
 
         if (rowsResult.error) {
@@ -158,13 +158,10 @@ function createAgentAdminRouter(agent: ObservedAgent) {
         // We still need to use for-await here since we're dealing with an async iterator
         for await (const row of rowsResult.data) {
           // Create a new row object by mapping column names to values
-          const typedRow = columnNames.reduce(
-            (acc, colName) => {
-              acc[colName] = row[colName as keyof typeof row];
-              return acc;
-            },
-            {} as Record<string, unknown>,
-          );
+          const typedRow = columnNames.reduce((acc, colName) => {
+            acc[colName] = row[colName as keyof typeof row];
+            return acc;
+          }, {} as Record<string, unknown>);
 
           data.push(typedRow);
         }
@@ -188,73 +185,30 @@ function createAgentAdminRouter(agent: ObservedAgent) {
   });
 
   router.get("/agents/:namespace/:instance/admin/mcp", async (c) => {
-    interface ServerData {
-      tools: Tool[];
-      resources: Resource[];
-      prompts: MCPPrompt[];
+
+    agent._mcpConnections = detectMCPConnections(
+      agent as unknown as Record<string, unknown>
+    );
+
+    if (agent._mcpConnections && agent._mcpConnections.size > 0) {
+      const connections = Array.from(agent._mcpConnections).map(
+        ([serverId, conn]) => {
+          return {
+            serverId,
+            // @ts-expect-error for some reason the types are not up to date with the class itself
+            url: conn.url,
+            // @ts-expect-error for some reason the types are not up to date with the class itself
+            connectionState: conn.connectionState,
+            instructions: conn.instructions,
+            tools: conn.tools,
+            resources: conn.resources,
+            prompts: conn.prompts,
+            serverCapabilities: conn.serverCapabilities,
+          };
+        }
+      );
+      return c.json({ data: connections });
     }
-
-    if (agent._mcpManagers && agent._mcpManagers?.size > 0) {
-      const { data, error } = tryCatch(() => {
-        const allTools =
-          agent._mcpManagers
-            ?.values()
-            .flatMap((mcpManager) => mcpManager.listTools()) || [];
-        const allResources =
-          agent._mcpManagers
-            ?.values()
-            .flatMap((mcpManager) => mcpManager.listResources()) || [];
-        const allPrompts =
-          agent._mcpManagers
-            ?.values()
-            .flatMap((mcpManager) => mcpManager.listPrompts()) ||
-          ([] as MCPPrompt[]);
-
-        const serverMap = new Map<string, ServerData>();
-
-        const getOrCreateServer = (serverName: string): ServerData => {
-          let server = serverMap.get(serverName);
-          if (!server) {
-            server = {
-              tools: [],
-              resources: [],
-              prompts: [],
-            };
-            serverMap.set(serverName, server);
-          }
-          return server;
-        };
-
-        for (const tool of allTools) {
-          const server = getOrCreateServer(tool.serverName);
-          server.tools.push(tool);
-        }
-
-        for (const resource of allResources) {
-          const server = getOrCreateServer(resource.serverName);
-          server.resources.push(resource);
-        }
-
-        for (const prompt of allPrompts) {
-          // @ts-expect-error something is borked with types
-          const server = getOrCreateServer(prompt.serverName);
-          // @ts-expect-error something is borked with types
-          server.prompts.push(prompt);
-        }
-
-        return Array.from(serverMap.values());
-      });
-
-      if (error) {
-        console.error("Error retrieving MCP data:", error);
-        return c.json({ error: "Failed to retrieve MCP data" }, 500);
-      }
-
-      return c.json({ data });
-    }
-
-    // When no real MCP data is available, return mock data
-    // FIXME: This is fake data for UI development purposes
     return c.json({});
   });
 
@@ -290,7 +244,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
           data: JSON.stringify(streamError.message),
         });
         agent._activeStreams.delete(stream);
-      },
+      }
     );
   });
 
@@ -299,7 +253,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
 
 interface ObservedProperties {
   _activeStreams: Set<SSEStreamingApi>;
-  _mcpManagers?: Set<MCPClientManager>;
+  _mcpConnections?: Map<string, MCPClientConnection>;
   _fiberRouter?: Hono;
 }
 
@@ -308,33 +262,27 @@ function isMCPClientManagerLike(value: object): value is MCPClientManager {
 }
 
 /**
- * Detects properties that are MCPClientManager instances
- * @returns A map of property names to MCPClientManager instances
+ * Detects all MCP connections from MCPClientManager instances on the object
+ * @returns A flat set of all MCP connections
  */
-function detectMCPClientManagers(obj: Record<string, unknown>) {
-  const managers = new Set<MCPClientManager>();
+function detectMCPConnections(obj: Record<string, unknown>) {
+  const connections = new Map<string, MCPClientConnection>();
 
-  // Iterate through all properties of the object
   for (const [key, value] of Object.entries(obj)) {
-    console.log(`Checking property '${key}'`);
-    // Skip null or non-object values
     if (!value || typeof value !== "object") {
-      console.log(
-        `Skipping non-object value at property '${key}' ${typeof value}`,
-      );
       continue;
     }
-
-    // Use instanceof to check if it's an MCPClientManager object
     if (isMCPClientManagerLike(value)) {
-      managers.add(value);
-      console.log(
-        `Found MCPClientManager at property '${key}' - will discover MCP servers, tools, resources and prompts`,
-      );
+      const managerConnections = value.mcpConnections;
+      if (managerConnections && typeof managerConnections === "object") {
+        for (const [serverId, conn] of Object.entries(managerConnections)) {
+          connections.set(serverId, conn);
+        }
+      }
     }
   }
 
-  return managers;
+  return connections;
 }
 
 type ObservedAgent = Agent<unknown, unknown> & ObservedProperties;
@@ -356,7 +304,7 @@ export function Observed<E = unknown, S = unknown>() {
     return class extends BaseClass {
       _fiberRouter?: Hono;
       _activeStreams = new Set<SSEStreamingApi>();
-      _mcpManagers?: Set<MCPClientManager>;
+      _mcpConnections?: Map<string, MCPClientConnection>;
       // biome-ignore lint/suspicious/noExplicitAny: mixin pattern requires any[]
       constructor(...args: any[]) {
         super(...args);
@@ -383,24 +331,24 @@ export function Observed<E = unknown, S = unknown>() {
           },
         });
 
+        this._mcpConnections = detectMCPConnections(
+          this as Record<string, unknown>
+        );
+
         super.onStateUpdate(state as S, source);
       }
 
+
       onStart() {
         super.onStart();
-
-        // Detect MCPClientManager instances
-        // We need to cast this to Record<string, unknown> for the detection function
-        // This is safe because we're only accessing properties dynamically
-        this._mcpManagers = detectMCPClientManagers(
-          // FIXME: come back to this
-          this as Record<string, unknown>,
+        this._mcpConnections = detectMCPConnections(
+          this as Record<string, unknown>
         );
       }
 
       override broadcast(
         msg: string | ArrayBuffer | ArrayBufferView,
-        without?: string[] | undefined,
+        without?: string[] | undefined
       ): void {
         this.recordEvent({
           type: "broadcast",
@@ -428,7 +376,7 @@ export function Observed<E = unknown, S = unknown>() {
             if (prop === "send") {
               return function (
                 this: Connection,
-                message: string | ArrayBuffer | ArrayBufferView,
+                message: string | ArrayBuffer | ArrayBufferView
               ) {
                 self.recordEvent({
                   type: "ws_send",
@@ -450,7 +398,7 @@ export function Observed<E = unknown, S = unknown>() {
                 // Call the original send method
                 return Reflect.get(target, prop, receiver).call(
                   target,
-                  message,
+                  message
                 );
               };
             }
@@ -487,6 +435,10 @@ export function Observed<E = unknown, S = unknown>() {
           },
         });
 
+        this._mcpConnections = detectMCPConnections(
+          this as Record<string, unknown>
+        );
+
         // Create a proxied connection to intercept send calls
         const proxiedConnection = this.createWebSocketProxy(connection);
 
@@ -498,7 +450,7 @@ export function Observed<E = unknown, S = unknown>() {
         connection: Connection,
         code: number,
         reason: string,
-        wasClean: boolean,
+        wasClean: boolean
       ): void | Promise<void> {
         this.recordEvent({
           type: "ws_close",
@@ -517,13 +469,13 @@ export function Observed<E = unknown, S = unknown>() {
         } else {
           console.error(
             "Missing namespace or instance headers in request",
-            request,
+            request
           );
         }
 
         if (!this._fiberRouter) {
           this._fiberRouter = createAgentAdminRouter(
-            this as unknown as ObservedAgent,
+            this as unknown as ObservedAgent
           );
         }
 
@@ -538,7 +490,7 @@ export function Observed<E = unknown, S = unknown>() {
               type: "http_request",
               // Clone the request to avoid consuming the body
               payload: await createRequestPayload(
-                request.clone() as typeof request,
+                request.clone() as typeof request
               ),
             });
           });
@@ -600,7 +552,7 @@ function createFpApp() {
         const durableObjects =
           c.env && typeof c.env === "object"
             ? (Object.entries(c.env as Record<string, unknown>).filter(
-                ([key, value]) => isDurableObjectNamespace(value),
+                ([key, value]) => isDurableObjectNamespace(value)
               ) as Array<[string, DurableObjectNamespace]>)
             : [];
         for (const [name] of durableObjects) {
@@ -609,7 +561,7 @@ function createFpApp() {
           const namespace = toKebabCase(name);
           if (!agents.some((agent) => agent.id === namespace)) {
             console.warn(
-              `Warning: durable object detected but it is not decorated with the \`@Observed()\` decorator (binding name: ${name}, expected namespace: ${namespace})`,
+              `Warning: durable object detected but it is not decorated with the \`@Observed()\` decorator (binding name: ${name}, expected namespace: ${namespace})`
             );
           }
         }
@@ -643,7 +595,7 @@ function createFpApp() {
             <div id="root" data-options={JSON.stringify(options)} />
             <script type="module" src={jsBundleUrl} />
           </body>
-        </html>,
+        </html>
       );
     })
     .notFound(() => {
@@ -655,8 +607,8 @@ export function fiberplane<E extends Env>(
   userFetch: (
     request: Request,
     env: E,
-    ctx: ExecutionContext,
-  ) => Promise<Response>,
+    ctx: ExecutionContext
+  ) => Promise<Response>
 ) {
   const fpApp = createFpApp();
 

@@ -69,21 +69,36 @@ function MCPServersList() {
           {mcpData && mcpData.length > 0 ? (
             mcpData.map((server, idx) => (
               <Link
-                key={idx}
+                key={server.serverId}
                 to="/agents/$agentId/$instanceId/mcp/$serverId"
                 params={{
                   agentId,
                   instanceId,
-                  serverId: server.id || `server-${idx}`,
+                  serverId: server.serverId,
                 }}
                 className="p-3 border rounded-md hover:bg-muted cursor-pointer block"
               >
                 <div className="font-medium">
-                  {server.name || `Server ${idx + 1}`}
+                  {`Server ${idx + 1}`}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {server.id || `ID: server-${idx}`}
+                  {server.serverId}
                 </div>
+                <div className="text-xs text-muted-foreground break-all">
+                  {server.url}
+                </div>
+                <span
+                  className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${
+                    server.connectionState === "connected"
+                      ? "bg-green-100 text-green-800"
+                      : server.connectionState === "authenticating"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-gray-100 text-gray-800"
+                  }`}
+                  title="Connection State"
+                >
+                  {server.connectionState}
+                </span>
               </Link>
             ))
           ) : (

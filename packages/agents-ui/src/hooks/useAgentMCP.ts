@@ -1,5 +1,5 @@
 import type {
-  MCPPrompt,
+  Prompt,
   Resource,
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
@@ -9,24 +9,34 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 
-export interface ServerData {
+// Local type for a single MCP server, using SDK types for fields
+export interface MCPConnection {
+  serverId: string;
+  url: string;
+  connectionState: string;
   tools: Tool[];
   resources: Resource[];
-  prompts: MCPPrompt[];
+  prompts: Prompt[];
+  serverCapabilities?: {
+    resources?: object;
+    tools?: object;
+    [key: string]: unknown;
+  };
 }
 
-export type MCPData = ServerData[];
 
 export function agentMCPQueryOptions(namespace: string, instance: string) {
-  return queryOptions<MCPData>({
+  return queryOptions<MCPConnection[]>({
     queryKey: ["agent_mcp", namespace, instance],
     queryFn: async () => {
       const response = await fetch(
-        `/agents/${namespace}/${instance}/admin/mcp`,
+        `/agents/${namespace}/${instance}/admin/mcp`
       );
-      // TODO: Consider adding error handling for non-ok responses
+      if (!response.ok) {
+        throw new Error(`Failed to fetch MCP data: ${response.statusText}`);
+      }
       const result = await response.json();
-      return result.data as MCPData;
+      return result.data as MCPConnection[];
     },
   });
 }
@@ -35,7 +45,7 @@ export function agentMCPQueryOptions(namespace: string, instance: string) {
 export function useAgentMCP(
   namespace: string,
   instance: string,
-  options?: Omit<QueryObserverOptions<MCPData>, "queryKey" | "queryFn">,
+  options?: Omit<QueryObserverOptions<MCPConnection[]>, "queryKey" | "queryFn">
 ) {
   return useQuery({
     ...agentMCPQueryOptions(namespace, instance),

@@ -1,6 +1,5 @@
 import {
   ChatMessagesRenderer,
-  type MessagesTable,
   isMessagesTable,
 } from "@/components/AgentDetails/ChatMessageTableView";
 import { DataTableView } from "@/components/AgentDetails/DataTableView";
@@ -11,23 +10,13 @@ import {
   ScheduleTableView,
 } from "@/components/AgentDetails/ScheduleTableView";
 import {
-  type StateDBTable,
   StateTableView,
   isStateTable,
 } from "@/components/AgentDetails/StateTableView";
 import { Spinner } from "@/components/Spinner";
 import { useAgentDB } from "@/hooks/useAgentDB"; // Import hook
 import { useAgentMCP } from "@/hooks/useAgentMCP"; // Import hook
-// Removed MCPData import from hooks
-import type { DatabaseResult } from "@/types";
-import {
-  createFileRoute,
-  notFound,
-  useLoaderData,
-  useParams, // Keep useParams
-  // Removed useRouteContext
-} from "@tanstack/react-router";
-// import { Route as ParentRoute } from "./index"; // Removed
+import { createFileRoute } from "@tanstack/react-router";
 
 // Map friendly tab IDs back to actual DB table names
 const tabToTableMap: Record<string, string | null> = {
@@ -80,7 +69,7 @@ function AgentTabContent() {
   const { data: db, isLoading: isDbLoading } = useAgentDB(agentId, instanceId);
   const { data: mcpData, isLoading: isMcpLoading } = useAgentMCP(
     agentId,
-    instanceId,
+    instanceId
   );
 
   return <div className="p-4 overflow-auto h-full">{renderTabContent()}</div>;
