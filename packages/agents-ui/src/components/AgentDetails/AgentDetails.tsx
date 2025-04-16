@@ -1,8 +1,9 @@
-import { useAgentDB, useFilteredEvents } from "@/hooks";
+import { useAgentDB, useAgentMCP, useFilteredEvents } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { type SSEStatus, usePlaygroundStore } from "@/store";
 import type { AgentInstanceParameters, ListAgentsResponse } from "@/types";
-import { Outlet, useMatches, useNavigate } from "@tanstack/react-router";
+import { Link, Outlet, useMatches, useNavigate } from "@tanstack/react-router";
+import { ChevronRight } from "lucide-react";
 import { type ReactNode, useMemo, useState } from "react";
 import { KeyValueTable } from "../KeyValueTable";
 import {
@@ -12,6 +13,7 @@ import {
 } from "../ui/resizable";
 import { FpTabs, FpTabsContent, FpTabsList, FpTabsTrigger } from "../ui/tabs";
 import { EventsView } from "./EventsView";
+import { NavTabs } from "./NavTabs";
 
 // Tab ordering preference
 export const TAB_ORDER = ["state", "messages", "schedule", "mcp"];
@@ -31,6 +33,37 @@ export const tabTitleMap: Record<string, string> = {
   mcp: "Servers (MCP)",
 };
 
+// Dedicated component for MCP breadcrumb label
+function McpBreadcrumbLabel({
+  parentLabel,
+  nestedLabel,
+  onParentClick,
+}: {
+  parentLabel: string;
+  nestedLabel: string;
+  onParentClick?: (e: React.MouseEvent) => void;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1">
+      <span
+        className="truncate max-w-[10em] cursor-pointer"
+        tabIndex={onParentClick ? 0 : undefined}
+        role={onParentClick ? "button" : undefined}
+        aria-label={onParentClick ? `Go to ${parentLabel}` : undefined}
+      >
+        {parentLabel}
+      </span>
+      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+      <span
+        className="truncate max-w-[14em] text-muted-foreground"
+        title={nestedLabel}
+      >
+        {nestedLabel}
+      </span>
+    </span>
+  );
+}
+
 export function AgentDetails({
   agent: agentDetails,
   instance,
@@ -38,7 +71,6 @@ export function AgentDetails({
   agent: ListAgentsResponse[0];
   instance: string;
 }) {
-  const navigate = useNavigate();
   const matches = useMatches();
 
   // Find the match for the tab route and extract tabId
@@ -48,25 +80,37 @@ export function AgentDetails({
   let tabId = tabRouteMatch?.params.tabId as string | undefined;
 
   // Use TanStack Router routeId matching for MCP subroutes
+  const mcpServerMatch = matches.find(
+    (match) => match.routeId === "/agents/$agentId/$instanceId/mcp/$serverId",
+  );
   const isMcpRoute = matches.some(
     (match) =>
-      match.routeId === "/agents/$agentId/$instanceId/mcp/" ||
-      match.routeId === "/agents/$agentId/$instanceId/mcp/$serverId",
+      match.routeId === "/agents/$agentId/$instanceId/mcp/" || mcpServerMatch,
   );
   if (isMcpRoute) {
     tabId = "mcp";
   }
 
   const { data: db } = useAgentDB(agentDetails.id, instance);
-
   const [sideBarTab, setSideBarTab] = useState("events");
+  const { data: mcpServers } = useAgentMCP(agentDetails.id, instance);
+
+  // Derive current MCP server from route params
+  const currentServerId = mcpServerMatch?.params.serverId as string | undefined;
+  const mcpServer =
+    currentServerId && mcpServers?.find((s) => s.serverId === currentServerId);
+  const mcpLabel = mcpServer ? (
+    <McpBreadcrumbLabel
+      parentLabel={tabTitleMap.mcp}
+      nestedLabel={mcpServer.url}
+    />
+  ) : (
+    tabTitleMap.mcp
+  );
 
   const tabs = useMemo(() => {
     const availableTabs = new Map<string, ReactNode>();
-
-    // Always include MCP as potentially available, even if db is undefined initially
-    availableTabs.set("mcp", "Servers (MCP)");
-
+    availableTabs.set("mcp", mcpLabel);
     if (db) {
       const dbTables = Object.keys(db);
       for (const [tableName, friendlyName] of Object.entries(tableToTabMap)) {
@@ -78,44 +122,27 @@ export function AgentDetails({
         }
       }
       for (const table of dbTables) {
-        // Check if it's a custom table (not prefixed or already mapped)
         if (
           !table.startsWith("_cf") &&
           !Object.values(tableToTabMap).includes(table) &&
           !Object.keys(tableToTabMap).includes(table)
         ) {
-          availableTabs.set(table, table); // Use table name as title
+          availableTabs.set(table, table);
         }
       }
     }
-
     const orderedTabs: Array<{ title: ReactNode; key: string }> = [];
     for (const tabKey of TAB_ORDER) {
       if (availableTabs.has(tabKey)) {
-        orderedTabs.push({
-          title: availableTabs.get(tabKey) as ReactNode,
-          key: tabKey,
-        });
+        orderedTabs.push({ title: availableTabs.get(tabKey), key: tabKey });
         availableTabs.delete(tabKey);
       }
     }
     for (const [tabKey, tabTitle] of availableTabs.entries()) {
       orderedTabs.push({ title: tabTitle, key: tabKey });
     }
-
     return orderedTabs;
-  }, [db]);
-
-  const handleTabChange = (value: string) => {
-    navigate({
-      to: "/agents/$agentId/$instanceId/$tabId",
-      params: {
-        agentId: agentDetails.id,
-        instanceId: instance,
-        tabId: value,
-      },
-    });
-  };
+  }, [db, mcpLabel]);
 
   return (
     <ResizablePanelGroup
@@ -124,25 +151,30 @@ export function AgentDetails({
       className="w-full h-full"
     >
       <ResizablePanel id="left" order={0}>
-        <FpTabs
-          value={tabId ?? ""}
-          onValueChange={handleTabChange}
-          className={cn("grid grid-rows-[auto_1fr] h-full", "overflow-hidden")}
-        >
-          <FpTabsList className="shrink-0">
-            {tabs.map(({ title, key }) => (
-              <FpTabsTrigger key={key} value={key} className="flex gap-2">
-                {title}
-              </FpTabsTrigger>
-            ))}
-          </FpTabsList>
-          <FpTabsContent
-            value={tabId ?? ""}
-            className="min-h-0 grow overflow-y-auto"
-          >
+        <div className={cn("flex flex-col h-full", "overflow-hidden")}>
+          <NavTabs
+            tabs={tabs}
+            tabId={tabId}
+            renderTab={({ key, title }) => {
+              return (
+                <Link
+                  to="/agents/$agentId/$instanceId/$tabId"
+                  params={{
+                    agentId: agentDetails.id,
+                    instanceId: instance,
+                    tabId: key,
+                  }}
+                  tabIndex={-1}
+                >
+                  {title}
+                </Link>
+              );
+            }}
+          />
+          <div className="min-h-0 grow overflow-y-auto">
             <Outlet />
-          </FpTabsContent>
-        </FpTabs>
+          </div>
+        </div>
       </ResizablePanel>
       <ResizableHandle
         hitAreaMargins={{ coarse: 20, fine: 10 }}
