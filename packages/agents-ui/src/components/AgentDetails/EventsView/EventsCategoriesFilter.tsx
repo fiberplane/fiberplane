@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { AllEventCategories, usePlaygroundStore } from "@/store";
 import type { AgentInstanceParameters } from "@/types";
 import { CaretSortIcon } from "@radix-ui/react-icons";
-import { Funnel } from "lucide-react";
+import { ChevronsUpDown, Funnel, ListFilter } from "lucide-react";
 
 export function EventCategoriesFilter(props: AgentInstanceParameters) {
   const selectedCategories = usePlaygroundStore(
@@ -47,18 +47,11 @@ export function EventCategoriesFilter(props: AgentInstanceParameters) {
             "py-1",
           )}
         >
-          <div className="grow-1 w-full text-start text-sm text-muted-foreground px-2 flex gap-2 items-center">
-            <Funnel className="w-3.5 h-3.5 text-foreground" />
-            {selectedCategories.length === AllEventCategories.length ? (
-              "All categories"
-            ) : (
-              <>
-                {selectedCategories.length}{" "}
-                {selectedCategories.length === 1 ? "category" : "categories"}
-              </>
-            )}
+          <div className="grow-1 w-full text-start text-sm text-foreground px-2 flex gap-2 items-center">
+            <ListFilter className="w-3.5 h-3.5 text-foreground" />
+            Categories
           </div>
-          <CaretSortIcon className="w-3 h-3 mr-1 flex-shrink-0 opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-data-[state=open]/dropdown:opacity-100" />
+          <ChevronsUpDown className="w-4 h-4 mr-1 flex-shrink-0" />
         </FpDropdownMenuTrigger>
         <FpDropdownMenuPortal>
           <FpDropdownMenuContent align="start">

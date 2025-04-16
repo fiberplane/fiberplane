@@ -113,7 +113,7 @@ function HttpRequestDetails(props: { payload: HttpRequestPayload }) {
 
   return (
     <FpTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <FpTabsList className="bg-transparent">
+      <FpTabsList className="bg-transparent border-b-0">
         {hasHeaders && (
           <FpTabsTrigger value="headers" className="flex gap-2">
             Headers
@@ -128,9 +128,9 @@ function HttpRequestDetails(props: { payload: HttpRequestPayload }) {
       <FpTabsContent value="headers">
         {hasHeaders && !!payload.headers && (
           <KeyValueTable
-            className="text-xs"
+            className="text-xs border"
             keyValue={payload.headers}
-            keyCellClassName="p-1"
+            keyCellClassName="p-1 px-4"
             valueCellClassName="p-1"
           />
         )}
@@ -234,7 +234,7 @@ function HttpResponseDetails(props: { payload: HttpResponsePayload }) {
 
   return (
     <FpTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <FpTabsList className="bg-transparent">
+      <FpTabsList className="bg-transparent border-b-0">
         {hasHeaders && (
           <FpTabsTrigger value="headers" className="flex gap-2">
             Headers
@@ -246,12 +246,12 @@ function HttpResponseDetails(props: { payload: HttpResponsePayload }) {
           </FpTabsTrigger>
         )}
       </FpTabsList>
-      <FpTabsContent value="headers">
+      <FpTabsContent value="headers" className="pt-0">
         {hasHeaders && !!payload.headers && (
           <KeyValueTable
-            className="text-xs"
+            className="text-xs border"
             keyValue={payload.headers}
-            keyCellClassName="p-1"
+            keyCellClassName="p-1 px-4"
             valueCellClassName="p-1"
           />
         )}
