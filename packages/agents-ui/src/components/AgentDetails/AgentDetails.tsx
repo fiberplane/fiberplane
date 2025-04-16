@@ -28,6 +28,7 @@ import {
   StateTableView,
   isStateTable,
 } from "./StateTableView";
+import { FileText, ListCheck } from "lucide-react";
 
 const POLL_INTERVAL = 2000;
 
@@ -152,9 +153,11 @@ export function AgentDetails({
         >
           <FpTabsList>
             <FpTabsTrigger value="events" className="flex gap-2">
-              <EventsTabLabel instance={instance} namespace={agentDetails.id} />
+              <ListCheck className="w-4 h-4" />
+              Events
             </FpTabsTrigger>
             <FpTabsTrigger value="details" className="flex gap-2">
+              <FileText className="w-4 h-4" />
               Details
             </FpTabsTrigger>
           </FpTabsList>

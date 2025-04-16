@@ -234,9 +234,9 @@ function HttpResponseDetails(props: { payload: HttpResponsePayload }) {
 
   return (
     <FpTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <FpTabsList className="bg-transparent border-b-0">
+      <FpTabsList className="bg-transparent border-b-0 py-1.5 h-auto">
         {hasHeaders && (
-          <FpTabsTrigger value="headers" className="flex gap-2">
+          <FpTabsTrigger value="headers" className="flex gap-2 text-xs">
             Headers
           </FpTabsTrigger>
         )}

@@ -95,7 +95,7 @@ export const EventItem = ({ event }: { event: UIAgentEvent }) => {
       <div
         className={cn(
           "border @xl/event:border-0 border-border",
-          "flex flex-col gap-1 @xl/event:gap-y-0",
+          "flex flex-col @xl/event:gap-y-0",
         )}
       >
         <button
