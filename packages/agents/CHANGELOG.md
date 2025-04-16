@@ -1,5 +1,11 @@
 # @fiberplane/agents
 
+## 0.4.0-canary.1
+
+### Patch Changes
+
+- Fix the MCP discovery to use "duck typing"
+
 ## 0.4.0-canary.0
 
 ### Minor Changes

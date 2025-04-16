@@ -4,7 +4,7 @@ import type {
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
 import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
-import { MCPClientManager, type getNamespacedData } from "agents/mcp/client";
+import type { MCPClientManager, getNamespacedData } from "agents/mcp/client";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
 import packageJson from "../package.json" assert { type: "json" };
@@ -259,8 +259,14 @@ interface ObservedProperties {
   _fiberRouter?: Hono;
 }
 
-function isMCPClientManagerLike(value: object): value is MCPClientManager {
-  return value instanceof MCPClientManager;
+function isMCPClientManagerLike(value: unknown): value is MCPClientManager {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as Record<string, unknown>).mcpConnections === "object" &&
+    (value as Record<string, unknown>).mcpConnections !== null &&
+    !Array.isArray((value as Record<string, unknown>).mcpConnections)
+  );
 }
 
 /**
