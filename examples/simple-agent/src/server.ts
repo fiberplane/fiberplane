@@ -1,10 +1,14 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { createOpenAI } from "@ai-sdk/openai";
 import { Observed, fiberplane } from "@fiberplane/agents";
-import { Agent, type Schedule, getAgentByName, routeAgentRequest } from "agents";
+import {
+  Agent,
+  type Schedule,
+  getAgentByName,
+  routeAgentRequest,
+} from "agents";
 import { AIChatAgent } from "agents/ai-chat-agent";
 import {
-  // type Message,
   type StreamTextOnFinishCallback,
   createDataStreamResponse,
   generateId,
@@ -99,7 +103,6 @@ export class ChatClient extends AIChatAgent<Env, MemoryState> {
   }
 }
 
-
 // @ts-ignore
 @Observed()
 export class CustomClient extends Agent<Env, MemoryState> {
@@ -124,18 +127,17 @@ const worker = {
 
       // Only call this to generate some traffic to the custom client
       // completely outside of the backend agent routing logic
-      // Make a call and directly return a response
+      // Make a call
       await doSomethingWithCustomClient(request, env);
-      return new Response("Not found", { status: 404 });
+      // return a response
+      // return new Response("Not found", { status: 404 });
 
       // Use the agent request routing as provided by the agents library
-      // return (
-      //   // Route the request to our agent or return 404 if not found
-      //   (await routeAgentRequest(
-      //     request,
-      //     env,
-      //   )) || new Response("Not found", { status: 404 })
-      // );
+      return (
+        // Route the request to our agent or return 404 if not found
+        (await routeAgentRequest(request, env)) ||
+        new Response("Not found", { status: 404 })
+      );
     },
   ),
 };
@@ -146,13 +148,13 @@ async function doSomethingWithCustomClient(request: Request, env: Env) {
     console.error("Agent not found");
     return new Response("Agent not found", { status: 404 });
   }
-  agent.fetch(new Request("https://example.com", {
-    headers: {
-      "x-partykit-room": "my-custom-client",
-    }
-  }));
-
-
+  agent.fetch(
+    new Request("https://example.com", {
+      headers: {
+        "x-partykit-room": "my-custom-client",
+      },
+    }),
+  );
 }
 
 export default worker;

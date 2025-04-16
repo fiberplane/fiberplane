@@ -78,6 +78,7 @@ export function useSSEConnection(
       return;
     }
 
+
     // Clean up event listeners
     for (const [eventType, handler] of handlerMapRef.current.entries()) {
       es.removeEventListener(eventType, handler);
@@ -85,6 +86,7 @@ export function useSSEConnection(
     handlerMapRef.current.clear();
 
     es.close();
+
     eventSourceRef.current = null;
     updateStatus("closed");
   }, [updateStatus]);
@@ -95,7 +97,6 @@ export function useSSEConnection(
     const eventSource = new EventSource(url, {
       withCredentials: optionsRef.current.withCredentials,
       fetch: (input: string | URL, init?: RequestInit) => {
-        console.log('fetch')
         const headers = new Headers(init?.headers);
         if (optionsRef.current.headers) {
           for (const [key, value] of Object.entries(
@@ -176,6 +177,11 @@ export function useAgentInstanceEvents(namespace: string, instance: string) {
     (state) => state.setAgentInstanceStreamStatus,
   );
 
+  useEffect(() => {
+    setAgentInstanceStreamStatus(namespace, instance, "connecting");
+  }, [namespace, instance, setAgentInstanceStreamStatus]);
+
+
   const options: UseSSEConnectionOptions = {
     ...baseOptions,
     headers: {
@@ -218,7 +224,7 @@ export function useAgentInstanceEvents(namespace: string, instance: string) {
   );
 
   useEffect(() => {
-    if (connectionStatus === "connecting") {
+    if (connectionStatus === "connecting" || connectionStatus === undefined) {
       connect();
     }
   }, [connect, connectionStatus]);

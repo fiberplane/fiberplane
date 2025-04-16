@@ -8,14 +8,14 @@ import {
   registerAgent,
   registerAgentInstance,
 } from "./agentInstances";
-import { type AgentEvent } from "./types";
+import type { AgentEvent } from "./types";
 import {
   createRequestPayload,
   createResponsePayload,
+  getDurableObjectAgentNamespace,
   isDurableObjectNamespace,
   isPromiseLike,
   toKebabCase,
-  toPascalCase,
   tryCatch,
 } from "./utils";
 import type { StatusCode } from "hono/utils/http-status";
@@ -457,11 +457,7 @@ export function Observed<E = unknown, S = unknown>() {
   };
 }
 
-// Change from a strict Record<string, string> to a more flexible type
-// that allows for any values in the environment object
-// type Env = Record<string, unknown>;
-
-function createFpApp<E = unknown>() {
+function createFpApp() {
   let firstRequest = true;
   return new Hono()
     .basePath("/fp")
@@ -494,40 +490,30 @@ function createFpApp<E = unknown>() {
     .get("/api/agents/:namespace/:instance/admin/*", async (c) => {
       const { namespace: rawNamespace, instance } = c.req.param();
 
-      const namespace = toPascalCase(rawNamespace)
-      // const agents = getAgents();
+      const durableObject = getDurableObjectAgentNamespace(c.env, rawNamespace);
 
-      // console.log('keys', c.env !== null && typeof c.env === "object" && Object.keys(c.env));
-
-      const durableObject =
-        c.env && typeof c.env === "object" && namespace in c.env
-          ? (c.env as Record<string, unknown>)[namespace]
-          : null;
-
-      // console.log('got me a durable object', durableObject, namespace, instance);
-      if (!isDurableObjectNamespace(durableObject)) {
+      if (!durableObject) {
         return c.json(
           {
-            error: `Agent ${namespace} not found`,
+            error: `Agent ${rawNamespace} not found`,
           },
           404,
         );
       }
 
-      // const id = durableObject.idFromName(instance);
       const doInstance = await getAgentByName(durableObject, instance);
 
-      // console.log("here is the instance", doInstance, id);
       const baseURI = `/agents/${rawNamespace}/${instance}`;
       const restURI = c.req.url.split(baseURI)[1];
-      const requestInfo = new Request(new URL(`${baseURI}${restURI}`, "http://internal"), {
-        method: c.req.method,
-        headers: new Headers(c.req.header()),
-        body: c.req.raw.body,
-      });
+      const requestInfo = new Request(
+        new URL(`${baseURI}${restURI}`, "http://internal"),
+        {
+          method: c.req.method,
+          headers: new Headers(c.req.header()),
+          body: c.req.raw.body,
+        },
+      );
 
-      console.log('requestInfo', requestInfo.url);
-      // }
       const response = await doInstance.onRequest(requestInfo);
 
       // Create a new response with the same status and body

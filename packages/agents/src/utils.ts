@@ -1,3 +1,6 @@
+import type { Agent } from "agents";
+import { getAgents } from "./agentInstances";
+
 // Types for the result object with discriminated union
 type Success<T> = {
   data: T;
@@ -63,6 +66,40 @@ export function isDurableObjectNamespace(
     typeof value.get === "function" &&
     typeof value.jurisdiction === "function"
   );
+}
+
+export function getDurableObjectAgentNamespace(
+  env: unknown,
+  name: string,
+): undefined | DurableObjectNamespace<Agent<unknown, unknown>> {
+  const agents = getAgents();
+  const namespace = toPascalCase(name);
+
+  const agent = agents.find((agent) => agent.id === name);
+  if (!agent) {
+    return;
+  }
+
+  const durableObject =
+    env && typeof env === "object" && namespace in env
+      ? (env as Record<string, unknown>)[namespace]
+      : null;
+
+  if (!isDurableObjectNamespace(durableObject)) {
+    return;
+  }
+
+  return durableObject as unknown as DurableObjectNamespace<
+    Agent<unknown, unknown>
+  >;
+}
+
+export function isDurableObjectAgent(
+  value: unknown,
+): value is DurableObjectNamespace<Agent<unknown, unknown>> {
+  return isDurableObjectNamespace(value);
+  // Note: In the future, we could add more specific checks if needed
+  // to verify that the namespace is specifically for an Agent
 }
 
 /**
