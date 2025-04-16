@@ -1,7 +1,8 @@
-import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
-import type { AIChatAgent } from "agents/ai-chat-agent";
+import type { Agent as IAgent, Connection, ConnectionContext, WSMessage } from "agents";
+// import type { AIChatAgent } from "agents/ai-chat-agent";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
+import "reflect-metadata"; // Import reflect-metadata
 import packageJson from "../package.json" assert { type: "json" };
 import {
   getAgents,
@@ -17,6 +18,11 @@ import {
   toKebabCase,
   tryCatch,
 } from "./utils";
+// import type { IAgent, ConnectionContext, Connection, WSMessage, } from "./agent-types";
+// import type { IAgent, ConnectionContext, Connection, WSMessage, } from "./agent-types";
+
+// Metadata keys for the decorator
+const METADATA_OBSERVED = Symbol("ob:observed");
 // Define types for database schema
 type ColumnType = "string" | "number" | "boolean" | "null" | "object" | "array";
 type TableSchema = {
@@ -43,17 +49,19 @@ interface DurableObjectState {
   abort(reason?: string): void;
 }
 
-type AgentConstructor<E = unknown, S = unknown> = new (
+
+
+type AgentConstructor<T, E = unknown, S = unknown> = new (
   // biome-ignore lint/suspicious/noExplicitAny: mixin pattern requires any[]
   // ...args: any[]
   ctx: DurableObjectState,
   env: E,
-) => Agent<E, S>;
+) => T extends IAgent<E, S> ? T : never;
 
 const version = packageJson.version;
 const commitHash = import.meta.env.GIT_COMMIT_HASH ?? "";
 
-function createAgentAdminRouter(agent: FiberDecoratedAgent) {
+function createAgentAdminRouter<E = unknown, S = unknown>(agent: FiberDecoratedAgent<E, S>) {
   const router = new Hono();
 
   router.get("/agents/:namespace/:instance/admin/db", async (c) => {
@@ -238,35 +246,34 @@ interface FiberProperties {
   activeStreams: Set<SSEStreamingApi>;
 }
 
-type FiberDecoratedAgent<E = unknown, S = unknown> = Agent<E, S> & FiberProperties;
+type FiberDecoratedAgent<E = unknown, S = unknown> = IAgent<E, S> & FiberProperties;
 
 /**
  * Class decorator factory that adds Observed capabilities to Agent classes
- *
- * Usage:
- * ```typescript
- *
- * @Observed()
- * export class MyAgent extends Agent {
- *   // Your agent implementation
- * }
- * ```
  */
 export function Observed<E = unknown, S = unknown>() {
   return (BaseClass: AgentConstructor<E, S>) => {
-    return class ObservedClass extends BaseClass {
+    // Mark the class as observed with reflect-metadata
+    Reflect.defineMetadata(METADATA_OBSERVED, true, BaseClass);
+
+    // Create the new class that extends the base class
+    const ObservedClass = class extends BaseClass {
       // Store the class name of the super class
       #superClassName: string;
 
       // Store whether we've registered the instance already
       #instanceRegistered = false;
 
-      // biome-ignore lint/complexity/noUselessConstructor: Required for TypeScript mixins
-      // biome-ignore lint/suspicious/noExplicitAny: Required for TypeScript mixins
       constructor(readonly ctx: DurableObjectState, readonly env: E) {
         super(ctx, env);
         this.#superClassName = Object.getPrototypeOf(this.constructor).name;
         registerAgent(this.#superClassName);
+
+        // Store metadata about this instance
+        Reflect.defineMetadata(METADATA_OBSERVED, {
+          className: this.#superClassName,
+          instanceName: this.name
+        }, this);
       }
 
       fiberRouter?: Hono;
@@ -413,7 +420,7 @@ export function Observed<E = unknown, S = unknown>() {
 
       onRequest(request: Request): Response | Promise<Response> {
         if (!this.fiberRouter) {
-          this.fiberRouter = createAgentAdminRouter(this);
+          this.fiberRouter = createAgentAdminRouter<E, S>(this);
         }
 
         this.fiberRouter.notFound(() => {
@@ -470,6 +477,16 @@ export function Observed<E = unknown, S = unknown>() {
         return this.fiberRouter.fetch(request);
       }
     };
+
+    // Copy all static properties from BaseClass to ObservedClass
+    Object.getOwnPropertyNames(BaseClass).forEach(prop => {
+      if (prop !== 'prototype' && prop !== 'name' && prop !== 'length') {
+        // @ts-ignore - We're copying all static properties
+        ObservedClass[prop] = BaseClass[prop];
+      }
+    });
+
+    return ObservedClass;
   };
 }
 

@@ -36,7 +36,7 @@ export const agentContext = new AsyncLocalStorage<ChatClient>();
 /**
  * Chat Agent implementation that handles real-time AI chat interactions
  */
-@Observed()
+@Observed<Env, MemoryState>()
 export class ChatClient extends AIChatAgent<Env, MemoryState> {
   initialState = { memories: {} };
 
