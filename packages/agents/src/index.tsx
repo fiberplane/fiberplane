@@ -43,7 +43,7 @@ const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
 const PARTYKIT_ROOM_HEADER = "x-partykit-room";
 
 const version = packageJson.version;
-const commitHash = import.meta.env.GIT_COMMIT_HASH;
+const commitHash = import.meta.env.GIT_COMMIT_HASH ?? "";
 
 function createAgentAdminRouter(agent: ObservedAgent) {
   const router = new Hono();
