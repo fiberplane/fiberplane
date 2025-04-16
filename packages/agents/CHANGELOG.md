@@ -1,5 +1,11 @@
 # @fiberplane/agents
 
+## 0.4.0-canary.0
+
+### Minor Changes
+
+- Enable agents playground to see and inspect client connections
+
 ## 0.3.7
 
 ### Patch Changes
