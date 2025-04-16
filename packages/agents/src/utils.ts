@@ -78,6 +78,18 @@ export function toKebabCase(str: string): KebabCase<string> {
 }
 
 /**
+ * Converts a string to PascalCase (capitalized camelCase)
+ * @param str The input string to convert
+ * @returns The PascalCase version of the input string
+ */
+export function toPascalCase(str: string): string {
+  return str
+    .replace(/-./g, (match) => match[1].toUpperCase()) // Convert kebab-case to camelCase
+    .replace(/^./g, (match) => match.toUpperCase()) // Capitalize the first letter
+    .replace(/_/g, " "); // Replace underscores with spaces
+}
+
+/**
  * Type for kebab-case strings
  * This is a branded type that ensures type safety for kebab-case strings
  */

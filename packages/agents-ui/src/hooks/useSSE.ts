@@ -1,6 +1,7 @@
 import { usePlaygroundStore } from "@/store";
 import { type AgentEventType, agentEventSchema } from "@/types";
 import { useCallback, useEffect, useRef } from "react";
+import { EventSource } from "eventsource";
 
 export type SSEStatus = "connecting" | "open" | "closed" | "error";
 
@@ -8,6 +9,7 @@ export type SSEStatus = "connecting" | "open" | "closed" | "error";
 interface BaseSSEOptions {
   withCredentials?: boolean;
   initialStatus?: SSEStatus;
+  headers?: Record<string, string>;
   eventTypes?: AgentEventType[];
   /**
    * Whether to automatically connect when the component mounts
@@ -92,6 +94,18 @@ export function useSSEConnection(
     // Create a new EventSource connection
     const eventSource = new EventSource(url, {
       withCredentials: optionsRef.current.withCredentials,
+      fetch: (input: string | URL, init?: RequestInit) => {
+        console.log('fetch')
+        const headers = new Headers(init?.headers);
+        if (optionsRef.current.headers) {
+          for (const [key, value] of Object.entries(
+            optionsRef.current.headers,
+          )) {
+            headers.append(key, value);
+          }
+        }
+        return fetch(input, { ...init, headers });
+      }
     });
     eventSourceRef.current = eventSource;
 
@@ -164,6 +178,9 @@ export function useAgentInstanceEvents(namespace: string, instance: string) {
 
   const options: UseSSEConnectionOptions = {
     ...baseOptions,
+    headers: {
+      "x-partykit-room": instance,
+    },
     onMessage: (event) => {
       const data = JSON.parse(event.data);
 
@@ -192,7 +209,7 @@ export function useAgentInstanceEvents(namespace: string, instance: string) {
   };
 
   const { connect } = useSSEConnection(
-    `/agents/${namespace}/${instance}/admin/events`,
+    `/fp/api/agents/${namespace}/${instance}/admin/events`,
     options,
   );
   const connectionStatus = usePlaygroundStore(
