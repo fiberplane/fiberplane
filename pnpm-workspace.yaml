@@ -1,5 +1,4 @@
 packages:
   - "examples/*"
   - "packages/*"
-  - "examples/service-bindings/*"
   - "www"
