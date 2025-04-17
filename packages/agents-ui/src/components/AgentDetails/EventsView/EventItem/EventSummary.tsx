@@ -144,7 +144,9 @@ function extractOutgoingMessage(
     }
     if (data.type === "cf_agent_chat_messages") {
       const chatMessage = data;
-      return `Sending messages (${chatMessage.messages.length} total)`;
+      return (
+        <div>Synchronizing messages ({chatMessage.messages.length} total)</div>
+      );
     }
     if (data.type === "cf_agent_use_chat_response") {
       const chatMessage = data;
@@ -246,14 +248,32 @@ export const EventSummary = (props: Props) => {
 
   if (props.type === "combined_event") {
     const { chunks, done, type } = props.payload;
-    const typeSummary =
-      type === "cf_agent_use_chat_response" ? "Streaming chat response" : type;
+    const contentElement =
+      type === "cf_agent_use_chat_response" ? (
+        <div className="flex items-center gap-1 overflow-hidden w-full">
+          <span className="flex-shrink-0">Streaming:</span>
+          <div className="overflow-hidden text-ellipsis whitespace-nowrap w-full">
+            “{props.payload.content}”
+          </div>
+        </div>
+      ) : (
+        type
+      );
+
     const message =
-      type === "cf_agent_use_chat_response" && done
-        ? `${typeSummary}  (${chunks.length} parts)`
-        : `Broadcast (${typeSummary}) in progress`;
+      type === "cf_agent_use_chat_response" && done ? (
+        <div className="flex items-center gap-1 overflow-hidden w-full">
+          <div className="overflow-hidden min-w-0 flex-1">{contentElement}</div>
+          <span className="flex-shrink-0 whitespace-nowrap">
+            ({chunks.length} parts)
+          </span>
+        </div>
+      ) : (
+        `Broadcast (${type}) in progress`
+      );
+
     return (
-      <div className="mt-1 text-sm text-muted-foreground flex flex-col gap-1">
+      <div className="text-sm text-muted-foreground overflow-hidden w-full min-w-0">
         {message}
       </div>
     );

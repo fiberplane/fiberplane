@@ -100,7 +100,7 @@ export const EventItem = ({ event }: { event: UIAgentEvent }) => {
       >
         <button
           className={cn(
-            "grid grid-cols-1 gap-x-1 @xl/event:gap-y-0",
+            "grid grid-cols-1 gap-x-2 @xl/event:gap-y-0",
             "[grid-template-areas:'badge_badge_time'_'summary_summary_summary']",
             "@xl/event:[grid-template-areas:'badge_summary_time']",
             "@xl/event:grid-cols-[auto_1fr_auto]",
@@ -110,6 +110,8 @@ export const EventItem = ({ event }: { event: UIAgentEvent }) => {
             "text-start",
             "items-center",
             "cursor-pointer",
+            "overflow-hidden", // Added to contain child elements
+            "min-w-0", // Ensures grid can shrink below min-content
             {
               "bg-secondary": expanded,
             },
@@ -143,7 +145,7 @@ export const EventItem = ({ event }: { event: UIAgentEvent }) => {
             {formattedDate}
           </div>
 
-          <div className="[grid-area:summary] ml-2.5 @xl/event:ml-0">
+          <div className="[grid-area:summary] ml-2.5 @xl/event:ml-0 min-w-0 overflow-hidden">
             <EventSummary {...props} />
           </div>
         </button>

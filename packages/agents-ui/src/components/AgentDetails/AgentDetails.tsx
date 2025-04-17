@@ -3,6 +3,7 @@ import { useAgentInstanceEvents, useFilteredEvents } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { type SSEStatus, usePlaygroundStore } from "@/store";
 import type { AgentInstanceParameters, ListAgentsResponse } from "@/types";
+import { FileText, ListCheck } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { KeyValueTable } from "../KeyValueTable";
 import {
@@ -28,7 +29,6 @@ import {
   StateTableView,
   isStateTable,
 } from "./StateTableView";
-import { FileText, ListCheck } from "lucide-react";
 
 const POLL_INTERVAL = 2000;
 
