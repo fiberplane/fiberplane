@@ -34,6 +34,7 @@
     "@tanstack/react-virtual": "^3.13.0",
     "@uiw/codemirror-theme-basic": "^4.23.7",
     "@uiw/codemirror-theme-duotone": "^4.23.6",
+    "@modelcontextprotocol/sdk": "^1.9.0",
     "@uiw/react-codemirror": "^4.23.6",
     "ai": "^4.2.11",
     "class-variance-authority": "^0.7.1",

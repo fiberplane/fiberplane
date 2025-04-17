@@ -8,6 +8,7 @@ import {
   routeAgentRequest,
 } from "agents";
 import { AIChatAgent } from "agents/ai-chat-agent";
+import { MCPClientManager } from "agents/mcp/client";
 import {
   type StreamTextOnFinishCallback,
   createDataStreamResponse,
@@ -31,6 +32,8 @@ interface MemoryState {
 // we use ALS to expose the agent context to the tools
 export const agentContext = new AsyncLocalStorage<ChatClient>();
 
+const agentNamespace = "chat-client";
+
 /**
  * Chat Agent implementation that handles real-time AI chat interactions
  */
@@ -39,11 +42,46 @@ export const agentContext = new AsyncLocalStorage<ChatClient>();
 export class ChatClient extends AIChatAgent<Env, MemoryState> {
   initialState = { memories: {} };
 
+  mcp_: MCPClientManager | undefined;
+
+  onStart() {
+    this.mcp_ = new MCPClientManager("chat-client", "1.0.0", {
+      baseCallbackUri: `${this.env.HOST}/agents/${agentNamespace}/${this.name}/callback`,
+      storage: this.ctx.storage,
+    });
+  }
+
+  async addMcpServer(url: string) {
+    const { id, authUrl } = await this.mcp.connect(url);
+    console.log(`Added MCP server with ID: ${id}`);
+    return authUrl ?? "";
+  }
+
+  get mcp() {
+    if (!this.mcp_) {
+      throw new Error("MCPClientManager not initialized");
+    }
+
+    return this.mcp_;
+  }
+
+  async onRequest(request: Request) {
+    if (this.mcp.isCallbackRequest(request)) {
+      const { serverId } = await this.mcp.handleCallbackRequest(request);
+
+      return new Response(JSON.stringify({ serverId }), {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    return super.onRequest(request);
+  }
+
   /**
    * Handles incoming chat messages and manages the response stream
    * @param onFinish - Callback function executed when streaming completes
    */
-
   // biome-ignore lint/complexity/noBannedTypes: <explanation>
   async onChatMessage(onFinish: StreamTextOnFinishCallback<{}>) {
     // Create a streaming response that handles both text and tool outputs

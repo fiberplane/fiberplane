@@ -41,11 +41,7 @@
       }
     },
     {
-      "include": [
-        "legacy/apps/studio/studio-frontend",
-        "packages/hono-ui",
-        "packages/agents-ui"
-      ],
+      "include": ["packages/hono-ui", "packages/agents-ui"],
       "linter": {
         "enabled": true,
         "rules": {
@@ -100,6 +96,10 @@
       ".mypy_cache",
       // API related
       "meta/*.json",
+      // ignore all legacy stuff
+      "legacy/**/*",
+      // ignore worker generated files
+      "worker-configuration.d.ts",
       // Ignore package.json
       "package.json",
       // Honc code gen playground outputs

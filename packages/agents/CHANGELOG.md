@@ -1,5 +1,16 @@
 # @fiberplane/agents
 
+## 0.4.0-canary.1
+
+### Patch Changes
+
+- Fix the MCP discovery to use "duck typing"
+
+## 0.4.0-canary.0
+
+### Minor Changes
+
+- Enable agents playground to see and inspect client connections
 ## 0.3.8
 
 ### Patch Changes
