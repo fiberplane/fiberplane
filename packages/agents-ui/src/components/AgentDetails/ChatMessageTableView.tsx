@@ -286,13 +286,13 @@ function MessagePart({ part }: { part: MessagePart }) {
  */
 export const ChatMessagesList = ({ data }: Props) => {
   return (
-    <div className="space-y-2.5">
+    <div >
       {data.length === 0 ? (
         <div className="text-muted-foreground text-center py-6">
           No messages found
         </div>
       ) : (
-        <div>
+        <div className="space-y-2.5">
           <div className="h-9">
             {data.length} message{data.length > 1 ? "s" : ""}
           </div>

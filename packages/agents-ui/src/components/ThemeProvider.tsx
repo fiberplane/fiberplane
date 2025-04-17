@@ -14,7 +14,7 @@ type ThemeProviderState = {
 };
 
 const initialState: ThemeProviderState = {
-  theme: "system",
+  theme: "dark", // Changed from "system" to "dark"
   setTheme: () => null,
 };
 
@@ -22,37 +22,27 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
 export function ThemeProvider({
   children,
-  defaultTheme = "system",
+  defaultTheme = "dark", // Changed from "system" to "dark"
   storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
+    () => "dark" // Always initialize to dark mode
   );
 
   useEffect(() => {
     const root = window.document.documentElement;
 
-    root.classList.remove("light", "dark");
-
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light";
-
-      root.classList.add(systemTheme);
-      return;
-    }
-
-    root.classList.add(theme);
+    // Always set dark mode
+    root.classList.remove("light");
+    root.classList.add("dark");
   }, [theme]);
 
   const value = {
     theme,
     setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
-      setTheme(theme);
+      localStorage.setItem(storageKey, "dark"); // Always store "dark"
+      setTheme("dark"); // Always set to "dark"
     },
   };
 
@@ -74,30 +64,6 @@ export const useTheme = () => {
 };
 
 export const useThemeMode = () => {
-  const { theme } = useTheme();
-  const [mode, setMode] = useState<"light" | "dark">("light");
-
-  useEffect(() => {
-    const updateMode = () => {
-      if (theme === "system") {
-        setMode(
-          window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light",
-        );
-      } else {
-        setMode(theme);
-      }
-    };
-
-    updateMode();
-
-    if (theme === "system") {
-      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      mediaQuery.addEventListener("change", updateMode);
-      return () => mediaQuery.removeEventListener("change", updateMode);
-    }
-  }, [theme]);
-
-  return mode;
+  // Always return dark mode
+  return "dark";
 };

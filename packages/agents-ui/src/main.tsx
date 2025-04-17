@@ -16,6 +16,10 @@ if (!rootElement) {
   throw new Error("Root element not found");
 }
 
+// Force dark mode on the document element as early as possible
+document.documentElement.classList.remove("light");
+document.documentElement.classList.add("dark");
+
 const options = parseOptions(rootElement);
 
 const router = createRouter({
@@ -38,7 +42,7 @@ declare module "@tanstack/react-router" {
 
 createRoot(rootElement).render(
   <React.StrictMode>
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
       </QueryClientProvider>
