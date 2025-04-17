@@ -1,14 +1,15 @@
 import { useAgentDB, useAgentMCP } from "@/hooks";
 import { cn } from "@/lib/utils";
+import type { ListAgentsResponse } from "@/types";
 import { Link, Outlet, useMatches } from "@tanstack/react-router";
 import {
+  ChevronRight,
   Code2,
+  Database,
   FileText,
   FolderTree,
   ListCheck,
   MessagesSquare,
-  ChevronRight,
-  Database,
 } from "lucide-react";
 import { type ReactNode, useMemo, useState } from "react";
 import { KeyValueTable } from "../KeyValueTable";
@@ -20,7 +21,6 @@ import {
 import { FpTabs, FpTabsContent, FpTabsList, FpTabsTrigger } from "../ui/tabs";
 import { EventsView } from "./EventsView";
 import { NavTabs } from "./NavTabs";
-import type { ListAgentsResponse } from "@/types";
 
 // Tab ordering preference
 export const TAB_ORDER = ["state", "messages", "schedule", "mcp"];

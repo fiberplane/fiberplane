@@ -1,4 +1,5 @@
 import { KeyValueTable } from "@/components/KeyValueTable";
+import { StatusCode } from "@/components/StatusCode";
 import {
   FpTabs,
   FpTabsContent,
@@ -17,7 +18,6 @@ import { Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { MessageItem } from "../../ChatMessageTableView";
 import { JSONViewer } from "../JSONViewer";
-import { StatusCode } from "@/components/StatusCode";
 
 export function EventItemDetails(props: {
   event: UIAgentEvent;

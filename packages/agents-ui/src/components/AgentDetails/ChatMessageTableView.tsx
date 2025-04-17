@@ -7,13 +7,13 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { useTimeAgo } from "@/hooks";
 import { cn, noop } from "@/lib/utils";
 import type { DBColumnType, DBTable } from "@/types";
 import { z } from "zod";
 import { CodeMirrorJsonEditor } from "../CodeMirror";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableRow } from "../ui/table";
-import { useTimeAgo } from "@/hooks";
 
 /**
  * Schema for the columns section of the chat agent messages JSON
