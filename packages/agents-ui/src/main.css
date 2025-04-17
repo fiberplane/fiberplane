@@ -226,7 +226,7 @@
 
     --bg-background-dark: var(--neutral-900);
     --bg-primary-dark: var(--flame-600);
-    --bg-secondary-dark: var(--neutral-700);
+    --bg-secondary-dark: var(--neutral-800);
     --bg-brand-dark: var(--flame-500);
     --bg-emphasis-dark: var(--neutral-800);
     /* --bg-info-dark: var(--info-15%); */
@@ -299,7 +299,7 @@
     --primary-foreground: var(--fg-on-primary);
 
     /* TODO - Secondary... probably should not be this color? */
-    --secondary: var(--bg-emphasis);
+    --secondary: var(--bg-secondary);
     --secondary-foreground: var(--fg-default);
 
     --muted: var(--bg-emphasis);
@@ -340,7 +340,7 @@
     --primary-foreground: var(--fg-on-primary-dark);
 
     /* TODO - Secondary... probably should not be this color? */
-    --secondary: var(--bg-emphasis-dark);
+    --secondary: var(--bg-secondary-dark);
     --secondary-foreground: var(--fg-default-dark);
 
     --muted: var(--bg-emphasis-dark);

@@ -3,7 +3,13 @@ import { useAgentInstanceEvents, useFilteredEvents } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { type SSEStatus, usePlaygroundStore } from "@/store";
 import type { AgentInstanceParameters, ListAgentsResponse } from "@/types";
-import { FileText, ListCheck } from "lucide-react";
+import {
+  Code2,
+  FileText,
+  FolderTree,
+  ListCheck,
+  MessagesSquare,
+} from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { KeyValueTable } from "../KeyValueTable";
 import {
@@ -13,7 +19,7 @@ import {
 } from "../ui/resizable";
 import { FpTabs, FpTabsContent, FpTabsList, FpTabsTrigger } from "../ui/tabs";
 import {
-  ChatMessagesRenderer,
+  ChatMessagesList,
   type MessagesTable,
   isMessagesTable,
 } from "./ChatMessageTableView";
@@ -75,10 +81,15 @@ export function AgentDetails({
 
         if (isMessagesTable(tableName, data as MessagesTable)) {
           return {
-            title: "Messages",
+            title: (
+              <>
+                <MessagesSquare className="w-4 h-4" />
+                Messages
+              </>
+            ),
             key: tableName,
             content: (
-              <ChatMessagesRenderer data={data.data as MessagesTable["data"]} />
+              <ChatMessagesList data={data.data as MessagesTable["data"]} />
             ),
           };
         }
@@ -88,7 +99,11 @@ export function AgentDetails({
           ScheduleColumnsSchema.safeParse(data.columns).success
         ) {
           return {
-            title: "Schedule",
+            title: (
+              <>
+                <FolderTree className="w-4 h-4" /> Schedule
+              </>
+            ),
             key: tableName,
             content: <ScheduleTableView table={data as ScheduleDBTable} />,
           };
@@ -96,7 +111,11 @@ export function AgentDetails({
 
         if (isStateTable(tableName, data as StateDBTable)) {
           return {
-            title: "State",
+            title: (
+              <>
+                <Code2 className="w-4 h-4" /> State
+              </>
+            ),
             key: tableName,
             content: <StateTableView table={data as StateDBTable} />,
           };

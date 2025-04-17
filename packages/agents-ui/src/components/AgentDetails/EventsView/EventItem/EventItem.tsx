@@ -1,20 +1,8 @@
 import { useTimeAgo } from "@/hooks";
 import { cn } from "@/lib/utils";
 import type { DiscriminatedSubset, UIAgentEvent } from "@/types";
-import {
-  AlertCircle,
-  ArrowLeft,
-  ArrowRight,
-  Clock,
-  Globe,
-  Info,
-  LayoutDashboard,
-  Phone,
-  PhoneOff,
-  RadioTower,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useState } from "react";
-import { Badge } from "../../../ui/badge";
 import { EventItemDetails } from "./EventItemDetails";
 import { EventSummary } from "./EventSummary";
 
@@ -49,25 +37,6 @@ const getEventIcon = (type: UIAgentEvent["type"]) => {
   }
 };
 
-// Get a color variant based on event type
-const getEventVariant = (
-  type: UIAgentEvent["type"],
-): "default" | "outline" | "secondary" | "destructive" | "muted" => {
-  switch (type) {
-    case "http_request":
-      return "secondary";
-    case "stream_error":
-      return "destructive";
-    case "ws_message":
-    case "ws_open":
-    case "ws_close":
-    case "state_change":
-      return "muted";
-    default:
-      return "muted";
-  }
-};
-
 function getStatusColor(status: number) {
   const isSuccess = status <= 400;
   const isWarning = status >= 400 && status < 500;
@@ -82,7 +51,11 @@ function getStatusColor(status: number) {
 
 // Single event item component
 export const EventItem = ({ event }: { event: UIAgentEvent }) => {
-  const formattedDate = useTimeAgo(event.timestamp);
+  const formattedDate = useTimeAgo(event.timestamp, {
+    fallbackWithDate: true,
+    fallbackWithTime: true,
+    strict: false,
+  });
   const props = {
     type: event.type,
     payload: event.payload,
@@ -121,24 +94,16 @@ export const EventItem = ({ event }: { event: UIAgentEvent }) => {
         >
           <div className="[grid-area:badge] grid">
             <div className="w-fit px-2 py-1 flex items-center gap-1">
-              {/* <Badge
-                variant={getEventVariant(event.type)}
-                className="flex items-center gap-1 py-1 px-1 opacity-80 text-xs font-normal"
-                title={event.type}
-              > */}
               <div
                 className={cn(
                   event.type === "http_response"
                     ? getStatusColor(event.payload.status)
                     : "text-foreground",
                 )}
+                title={event.type}
               >
                 {getEventIcon(event.type)}
               </div>
-              {/* <span className="@xl/event:hidden hidden @xs/event:block">
-                  {event.type}
-                </span> */}
-              {/* </Badge> */}
             </div>
           </div>
           <div className="flex items-center text-sm text-muted-foreground justify-end [grid-area:time] gap-2">

@@ -184,8 +184,12 @@ function ChatMessagesDetails(
   const [activeTab, setActiveTab] = useState("messages");
 
   return (
-    <FpTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <FpTabsList className="bg-transparent">
+    <FpTabs
+      value={activeTab}
+      onValueChange={setActiveTab}
+      className="w-full pt-1.5"
+    >
+      <FpTabsList className="bg-transparent border-b-0 py-1.5 h-auto mb-1.5">
         <FpTabsTrigger value="messages" className="flex gap-2">
           Messages
         </FpTabsTrigger>
@@ -193,8 +197,8 @@ function ChatMessagesDetails(
           Raw
         </FpTabsTrigger>
       </FpTabsList>
-      <FpTabsContent value="messages">
-        <div className="grid gap-2 border rounded-lg p-2">
+      <FpTabsContent value="messages" className="pt-0 px-3">
+        <div className="grid gap-2 p-2">
           {[...props.messages]
             .sort((a, b) => {
               const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -212,13 +216,15 @@ function ChatMessagesDetails(
             ))}
         </div>
       </FpTabsContent>
-      <FpTabsContent value="raw">
-        <div>Excluding: {props.without?.join(", ")}</div>
+      <FpTabsContent value="raw" className="pt-0 grid gap-2">
         <JSONViewer
           data={props.messages}
           className="py-1"
           label="Broadcast Payload"
         />
+        <div className="text-muted-foreground">
+          Excluding connections: {props.without?.join(", ")}{" "}
+        </div>
       </FpTabsContent>
     </FpTabs>
   );
