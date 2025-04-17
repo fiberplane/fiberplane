@@ -4,10 +4,11 @@ import type {
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
 import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
-import type { MCPClientManager, getNamespacedData } from "agents/mcp/client";
 import { getAgentByName } from "agents";
+import type { MCPClientManager, getNamespacedData } from "agents/mcp/client";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
+import type { StatusCode } from "hono/utils/http-status";
 import packageJson from "../package.json" assert { type: "json" };
 import {
   getAgents,
@@ -25,7 +26,6 @@ import {
   tryCatch,
   tryCatchAsync,
 } from "./utils";
-import type { StatusCode } from "hono/utils/http-status";
 
 // Define types for database schema
 type ColumnType = "string" | "number" | "boolean" | "null" | "object" | "array";
@@ -367,9 +367,9 @@ export function Observed<E = unknown, S = unknown>() {
               typeof msg === "string"
                 ? msg
                 : {
-                  type: "binary",
-                  size: msg instanceof Blob ? msg.size : msg.byteLength,
-                },
+                    type: "binary",
+                    size: msg instanceof Blob ? msg.size : msg.byteLength,
+                  },
             without,
           },
         });
@@ -396,12 +396,12 @@ export function Observed<E = unknown, S = unknown>() {
                       typeof message === "string"
                         ? message
                         : {
-                          type: "binary" as const,
-                          size:
-                            message instanceof Blob
-                              ? message.size
-                              : message.byteLength,
-                        },
+                            type: "binary" as const,
+                            size:
+                              message instanceof Blob
+                                ? message.size
+                                : message.byteLength,
+                          },
                   },
                 });
 
@@ -558,8 +558,8 @@ function createFpApp() {
         const durableObjects =
           c.env && typeof c.env === "object"
             ? (Object.entries(c.env as Record<string, unknown>).filter(
-              ([key, value]) => isDurableObjectNamespace(value),
-            ) as Array<[string, DurableObjectNamespace]>)
+                ([key, value]) => isDurableObjectNamespace(value),
+              ) as Array<[string, DurableObjectNamespace]>)
             : [];
         for (const [name] of durableObjects) {
           // See if we're aware of an agent with the same id

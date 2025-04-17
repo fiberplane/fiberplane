@@ -1,7 +1,7 @@
 import { usePlaygroundStore } from "@/store";
 import { type AgentEventType, agentEventSchema } from "@/types";
-import { useCallback, useEffect, useRef } from "react";
 import { EventSource } from "eventsource";
+import { useCallback, useEffect, useRef } from "react";
 
 export type SSEStatus = "connecting" | "open" | "closed" | "error";
 
@@ -78,7 +78,6 @@ export function useSSEConnection(
       return;
     }
 
-
     // Clean up event listeners
     for (const [eventType, handler] of handlerMapRef.current.entries()) {
       es.removeEventListener(eventType, handler);
@@ -106,7 +105,7 @@ export function useSSEConnection(
           }
         }
         return fetch(input, { ...init, headers });
-      }
+      },
     });
     eventSourceRef.current = eventSource;
 
@@ -180,7 +179,6 @@ export function useAgentInstanceEvents(namespace: string, instance: string) {
   useEffect(() => {
     setAgentInstanceStreamStatus(namespace, instance, "connecting");
   }, [namespace, instance, setAgentInstanceStreamStatus]);
-
 
   const options: UseSSEConnectionOptions = {
     ...baseOptions,
