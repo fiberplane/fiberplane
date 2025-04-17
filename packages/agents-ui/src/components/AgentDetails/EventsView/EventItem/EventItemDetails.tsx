@@ -112,8 +112,12 @@ function HttpRequestDetails(props: { payload: HttpRequestPayload }) {
   const [activeTab, setActiveTab] = useState(hasHeaders ? "headers" : "body");
 
   return (
-    <FpTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <FpTabsList className="bg-transparent border-b-0">
+    <FpTabs
+      value={activeTab}
+      onValueChange={setActiveTab}
+      className="w-full pt-1.5"
+    >
+      <FpTabsList className="bg-transparent border-b-0 py-1.5 h-auto">
         {hasHeaders && (
           <FpTabsTrigger value="headers" className="flex gap-2">
             Headers
@@ -125,7 +129,7 @@ function HttpRequestDetails(props: { payload: HttpRequestPayload }) {
           </FpTabsTrigger>
         )}
       </FpTabsList>
-      <FpTabsContent value="headers">
+      <FpTabsContent value="headers" className="pt-2">
         {hasHeaders && !!payload.headers && (
           <KeyValueTable
             className="text-xs border"
@@ -135,7 +139,7 @@ function HttpRequestDetails(props: { payload: HttpRequestPayload }) {
           />
         )}
       </FpTabsContent>
-      <FpTabsContent value="body">
+      <FpTabsContent value="body" className="pt-2">
         {hasBody && (
           <JSONViewer
             data={payload.body}
@@ -239,7 +243,11 @@ function HttpResponseDetails(props: { payload: HttpResponsePayload }) {
   const [activeTab, setActiveTab] = useState(hasHeaders ? "headers" : "body");
 
   return (
-    <FpTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+    <FpTabs
+      value={activeTab}
+      onValueChange={setActiveTab}
+      className="w-full pt-1.5"
+    >
       <FpTabsList className="bg-transparent border-b-0 py-1.5 h-auto">
         {hasHeaders && (
           <FpTabsTrigger value="headers" className="flex gap-2 text-xs">
@@ -252,7 +260,7 @@ function HttpResponseDetails(props: { payload: HttpResponsePayload }) {
           </FpTabsTrigger>
         )}
       </FpTabsList>
-      <FpTabsContent value="headers" className="pt-0">
+      <FpTabsContent value="headers" className="pt-2">
         {hasHeaders && !!payload.headers && (
           <KeyValueTable
             className="text-xs border"
@@ -262,7 +270,7 @@ function HttpResponseDetails(props: { payload: HttpResponsePayload }) {
           />
         )}
       </FpTabsContent>
-      <FpTabsContent value="body">
+      <FpTabsContent value="body" className="pt-2">
         {hasBody && (
           <JSONViewer
             data={payload.body}
@@ -282,8 +290,12 @@ function CombinedEventDetails(props: {
   const [activeTab, setActiveTab] = useState("summary");
   const { chunks } = event.payload;
   return (
-    <FpTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <FpTabsList className="bg-transparent">
+    <FpTabs
+      value={activeTab}
+      onValueChange={setActiveTab}
+      className="w-full pt-1.5"
+    >
+      <FpTabsList className="bg-transparent border-b-0 py-1.5 h-auto">
         <FpTabsTrigger value="summary" className="flex gap-2">
           Summary
         </FpTabsTrigger>
@@ -291,10 +303,10 @@ function CombinedEventDetails(props: {
           Chunks
         </FpTabsTrigger>
       </FpTabsList>
-      <FpTabsContent value="chunks">
+      <FpTabsContent value="chunks" className="pt-2">
         <CombinedEventChunks chunks={chunks} />
       </FpTabsContent>
-      <FpTabsContent value="summary">
+      <FpTabsContent value="summary" className="pt-2">
         <CombinedEventSummary
           content={event.payload.content}
           done={event.payload.done}

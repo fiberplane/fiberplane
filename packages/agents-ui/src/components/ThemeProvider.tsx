@@ -27,7 +27,7 @@ export function ThemeProvider({
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(
-    () => "dark" // Always initialize to dark mode
+    () => "dark", // Always initialize to dark mode
   );
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export function ThemeProvider({
     // Always set dark mode
     root.classList.remove("light");
     root.classList.add("dark");
-  }, [theme]);
+  }, []);
 
   const value = {
     theme,

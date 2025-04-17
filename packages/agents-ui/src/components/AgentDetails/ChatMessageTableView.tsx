@@ -286,7 +286,7 @@ function MessagePart({ part }: { part: MessagePart }) {
  */
 export const ChatMessagesList = ({ data }: Props) => {
   return (
-    <div >
+    <div>
       {data.length === 0 ? (
         <div className="text-muted-foreground text-center py-6">
           No messages found
