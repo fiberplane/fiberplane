@@ -1,9 +1,16 @@
-import { useAgentDB, useAgentMCP, useFilteredEvents } from "@/hooks";
+import { useAgentDB, useAgentMCP } from "@/hooks";
 import { cn } from "@/lib/utils";
-import { type SSEStatus, usePlaygroundStore } from "@/store";
-import type { AgentInstanceParameters, ListAgentsResponse } from "@/types";
-import { Link, Outlet, useMatches, useNavigate } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
+import type { ListAgentsResponse } from "@/types";
+import { Link, Outlet, useMatches } from "@tanstack/react-router";
+import {
+  ChevronRight,
+  Code2,
+  Database,
+  FileText,
+  FolderTree,
+  ListCheck,
+  MessagesSquare,
+} from "lucide-react";
 import { type ReactNode, useMemo, useState } from "react";
 import { KeyValueTable } from "../KeyValueTable";
 import {
@@ -32,6 +39,21 @@ export const tabTitleMap: Record<string, string> = {
   state: "State",
   mcp: "Servers (MCP)",
 };
+
+function TabIcon({ tabId }: { tabId: string }) {
+  switch (tabId) {
+    case "messages":
+      return <MessagesSquare className="w-4 h-4" />;
+    case "schedule":
+      return <ListCheck className="w-4 h-4" />;
+    case "state":
+      return <FolderTree className="w-4 h-4" />;
+    case "mcp":
+      return <Code2 className="w-4 h-4" />;
+    default:
+      return <Database className="w-4 h-4" />;
+  }
+}
 
 // Dedicated component for MCP breadcrumb label
 function McpBreadcrumbLabel({
@@ -165,7 +187,9 @@ export function AgentDetails({
                     tabId: key,
                   }}
                   tabIndex={-1}
+                  className="flex gap-2"
                 >
+                  <TabIcon tabId={key} />
                   {title}
                 </Link>
               );
@@ -188,9 +212,11 @@ export function AgentDetails({
         >
           <FpTabsList>
             <FpTabsTrigger value="events" className="flex gap-2">
-              <EventsTabLabel instance={instance} namespace={agentDetails.id} />
+              <ListCheck className="w-4 h-4" />
+              Events
             </FpTabsTrigger>
             <FpTabsTrigger value="details" className="flex gap-2">
+              <FileText className="w-4 h-4" />
               Details
             </FpTabsTrigger>
           </FpTabsList>
@@ -219,36 +245,4 @@ export function AgentDetails({
       </ResizablePanel>
     </ResizablePanelGroup>
   );
-}
-
-function EventsTabLabel(props: AgentInstanceParameters) {
-  const events = useFilteredEvents(props);
-  const eventsCount = events.length;
-  const eventStreamStatus = usePlaygroundStore(
-    (state) =>
-      state.agentsState[props.namespace]?.instances[props.instance]
-        ?.eventStreamStatus ?? "disconnected",
-  );
-
-  return (
-    <div className="flex gap-2 items-center">
-      Events {eventsCount ? `(${eventsCount})` : null}{" "}
-      <ConnectionStatus status={eventStreamStatus} />
-    </div>
-  );
-}
-
-function ConnectionStatus(props: { status: SSEStatus }) {
-  const { status } = props;
-
-  if (status !== "open") {
-    return (
-      <div
-        className="bg-warning w-2 h-2 rounded-full animate-in fade-in-0 duration-500"
-        title={`Event stream offline: ${status}`}
-      />
-    );
-  }
-
-  return null;
 }

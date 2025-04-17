@@ -61,7 +61,7 @@ const FpTabsTrigger = React.forwardRef<
         "py-1",
         "px-2",
         "text-left",
-        "text-sm",
+        "text-xs",
         "font-normal",
         className,
       )}

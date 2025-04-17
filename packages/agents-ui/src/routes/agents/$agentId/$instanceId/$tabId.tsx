@@ -1,5 +1,5 @@
 import {
-  ChatMessagesRenderer,
+  ChatMessagesList,
   isMessagesTable,
 } from "@/components/AgentDetails/ChatMessageTableView";
 import { DataTableView } from "@/components/AgentDetails/DataTableView";
@@ -90,7 +90,7 @@ function AgentTabContent() {
     }
 
     if (isMessagesTable(tableName, tableData)) {
-      return <ChatMessagesRenderer data={tableData.data} />;
+      return <ChatMessagesList data={tableData.data} />;
     }
 
     if (isStateTable(tableName, tableData)) {

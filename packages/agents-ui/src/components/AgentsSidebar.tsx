@@ -15,12 +15,14 @@ export function AgentsSidebar() {
   // Get params from the route
   const agentId = matches.find(
     (match) =>
-      match.routeId === "/agents/$agentId" ||
+      match.routeId === "/agents/$agentId/" ||
       match.routeId === "/agents/$agentId/$instanceId",
   )?.params.agentId;
 
   const instanceId = matches.find(
-    (match) => match.routeId === "/agents/$agentId/$instanceId",
+    (match) =>
+      match.routeId === "/agents/$agentId/$instanceId" ||
+      match.routeId === "/agents/$agentId/$instanceId/$tabId",
   )?.params.instanceId;
 
   // Fetch agents data directly
