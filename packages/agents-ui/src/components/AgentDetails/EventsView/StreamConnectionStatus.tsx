@@ -34,10 +34,6 @@ export function StreamConnectionStatus(props: Props) {
           Connecting...
         </>
       ) : connectionStatus === "open" ? null : (
-        // <>
-        //   <Wifi className="w-4 h-4 text-success" />
-        //   {!props.short ? "Receiving events" : ""}
-        // </>
         <>
           <WifiOff className="w-4 h-4 text-danger" />
           <Button size="sm" variant="outline" onClick={reconnect}>

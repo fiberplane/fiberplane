@@ -1,10 +1,15 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { createOpenAI } from "@ai-sdk/openai";
 import { Observed, fiberplane } from "@fiberplane/agents";
-import { type AgentNamespace, type Schedule, routeAgentRequest } from "agents";
-import { AIChatAgent } from "agents/ai-chat-agent";
 import {
-  type Message,
+  Agent,
+  type Schedule,
+  getAgentByName,
+  routeAgentRequest,
+} from "agents";
+import { AIChatAgent } from "agents/ai-chat-agent";
+import { MCPClientManager } from "agents/mcp/client";
+import {
   type StreamTextOnFinishCallback,
   createDataStreamResponse,
   generateId,
@@ -12,12 +17,6 @@ import {
 } from "ai";
 import { executions, tools } from "./tools";
 import { processToolCalls } from "./utils";
-
-// Environment variables type definition
-export type Env = {
-  OPENAI_API_KEY: string;
-  ChatClient: AgentNamespace<ChatClient>;
-};
 
 interface MemoryState {
   memories: Record<
@@ -33,18 +32,56 @@ interface MemoryState {
 // we use ALS to expose the agent context to the tools
 export const agentContext = new AsyncLocalStorage<ChatClient>();
 
+const agentNamespace = "chat-client";
+
 /**
  * Chat Agent implementation that handles real-time AI chat interactions
  */
+// @ts-ignore
 @Observed()
 export class ChatClient extends AIChatAgent<Env, MemoryState> {
   initialState = { memories: {} };
+
+  mcp_: MCPClientManager | undefined;
+
+  onStart() {
+    this.mcp_ = new MCPClientManager("chat-client", "1.0.0", {
+      baseCallbackUri: `${this.env.HOST}/agents/${agentNamespace}/${this.name}/callback`,
+      storage: this.ctx.storage,
+    });
+  }
+
+  async addMcpServer(url: string) {
+    const { id, authUrl } = await this.mcp.connect(url);
+    console.log(`Added MCP server with ID: ${id}`);
+    return authUrl ?? "";
+  }
+
+  get mcp() {
+    if (!this.mcp_) {
+      throw new Error("MCPClientManager not initialized");
+    }
+
+    return this.mcp_;
+  }
+
+  async onRequest(request: Request) {
+    if (this.mcp.isCallbackRequest(request)) {
+      const { serverId } = await this.mcp.handleCallbackRequest(request);
+
+      return new Response(JSON.stringify({ serverId }), {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    return super.onRequest(request);
+  }
 
   /**
    * Handles incoming chat messages and manages the response stream
    * @param onFinish - Callback function executed when streaming completes
    */
-
   // biome-ignore lint/complexity/noBannedTypes: <explanation>
   async onChatMessage(onFinish: StreamTextOnFinishCallback<{}>) {
     // Create a streaming response that handles both text and tool outputs
@@ -104,11 +141,20 @@ export class ChatClient extends AIChatAgent<Env, MemoryState> {
   }
 }
 
+// @ts-ignore
+@Observed()
+export class CustomClient extends Agent<Env, MemoryState> {
+  async executeTask(description: string, task: Schedule<string>) {
+    // Custom implementation for executing tasks
+    console.log(`Executing task: ${description} at ${task}`);
+  }
+}
+
 /**
  * Worker entry point that routes incoming requests to the appropriate handler
  */
 const worker = {
-  fetch: fiberplane(
+  fetch: fiberplane<Env>(
     async (request: Request, env: Env, ctx: ExecutionContext) => {
       if (!env.OPENAI_API_KEY) {
         console.error(
@@ -116,18 +162,37 @@ const worker = {
         );
         return new Response("OPENAI_API_KEY is not set", { status: 500 });
       }
+
+      // Only call this to generate some traffic to the custom client
+      // completely outside of the backend agent routing logic
+      // Make a call
+      await doSomethingWithCustomClient(request, env);
+      // return a response
+      // return new Response("Not found", { status: 404 });
+
+      // Use the agent request routing as provided by the agents library
       return (
         // Route the request to our agent or return 404 if not found
-        (await routeAgentRequest(
-          request,
-          env,
-          //   {
-          //   cors: true
-          // }
-        )) || new Response("Not found", { status: 404 })
+        (await routeAgentRequest(request, env)) ||
+        new Response("Not found", { status: 404 })
       );
     },
   ),
 };
+
+async function doSomethingWithCustomClient(request: Request, env: Env) {
+  const agent = await getAgentByName(env.CustomClient, "my-custom-client");
+  if (!agent) {
+    console.error("Agent not found");
+    return new Response("Agent not found", { status: 404 });
+  }
+  agent.fetch(
+    new Request("https://example.com", {
+      headers: {
+        "x-partykit-room": "my-custom-client",
+      },
+    }),
+  );
+}
 
 export default worker;

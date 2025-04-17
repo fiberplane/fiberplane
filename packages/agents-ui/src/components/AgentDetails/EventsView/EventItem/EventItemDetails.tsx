@@ -17,6 +17,7 @@ import { Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { MessageItem } from "../../ChatMessageTableView";
 import { JSONViewer } from "../JSONViewer";
+import { StatusCode } from "@/components/StatusCode";
 
 export function EventItemDetails(props: {
   event: UIAgentEvent;
@@ -60,49 +61,101 @@ export function EventItemDetails(props: {
 
   if (event.type === "ws_message") {
     return (
-      <div className="border rounded-lg ">
-        <div className="p-2 flex">
-          <div className="min-w-[200px] text-muted-foreground">
-            Connection ID:
-          </div>
-          <div>{event.payload.connectionId}</div>
+      <div className="grid gap-2 px-4 pt-2">
+        <div className="flex gap-2 justify-end w-full">
+          <EventTypeInfo type={event.type} />
         </div>
-        <JSONViewer
-          data={
-            event.payload.incomingMessage ??
-            event.payload.typedMessage ??
-            event.payload.message
-          }
-          className="py-1 border-x-0 rounded-none"
-        />
+        <div className="border rounded-lg ">
+          <div className="p-2 flex">
+            <div className="min-w-[200px] text-muted-foreground">
+              Connection ID:
+            </div>
+            <div>{event.payload.connectionId}</div>
+          </div>
+          <JSONViewer
+            data={
+              event.payload.incomingMessage ??
+              event.payload.typedMessage ??
+              event.payload.message
+            }
+            className="py-1 border-x-0 rounded-none"
+          />
+        </div>
       </div>
     );
   }
 
   if (event.type === "ws_send") {
     return (
-      <div className="border rounded-lg ">
-        <div className="p-2 flex">
-          <div className="min-w-[200px] text-muted-foreground">
-            Target Connection ID:
-          </div>
-          <div>{event.payload.connectionId}</div>
+      <div className="grid gap-2 px-4 pt-2">
+        <div className="flex gap-2 justify-end w-full">
+          <EventTypeInfo type={event.type} />
         </div>
-        <JSONViewer
-          data={
-            event.payload.outgoingMessage ??
-            event.payload.typedMessage ??
-            event.payload.message
-          }
-          className="py-1 rounded-none border-x-0"
-        />
+
+        <div className="border rounded-lg ">
+          <div className="p-2 flex">
+            <div className="min-w-[200px] text-muted-foreground">
+              Target Connection ID:
+            </div>
+            <div>{event.payload.connectionId}</div>
+          </div>
+          <JSONViewer
+            data={
+              event.payload.outgoingMessage ??
+              event.payload.typedMessage ??
+              event.payload.message
+            }
+            className="py-1 rounded-none border-x-0"
+          />
+        </div>
       </div>
     );
   }
 
-  return <JSONViewer data={event.payload} className="py-1" />;
+  return (
+    <div className="grid gap-2 px-4 pt-2">
+      <div className="flex gap-2 justify-end w-full">
+        <EventTypeInfo type={event.type} />
+      </div>
+      <JSONViewer data={event.payload} className="py-1" />
+    </div>
+  );
 }
 
+function EventTypeInfo({ type }: Pick<UIAgentEvent, "type">) {
+  let message = "Unknown event type";
+  if (type === "http_request") {
+    message = "HTTP Request";
+  } else if (type === "http_response") {
+    message = "HTTP Response";
+  } else if (type === "broadcast") {
+    message = "Broadcast";
+  } else if (type === "ws_open") {
+    message = "WebSocket Open";
+  } else if (type === "ws_close") {
+    message = "WebSocket Close";
+  } else if (type === "ws_message") {
+    message = "WebSocket Message";
+  } else if (type === "ws_send") {
+    message = "WebSocket Send";
+  } else if (type === "combined_event") {
+    message = "Multiple Broadcast";
+  } else if (type === "state_change") {
+    message = "State Change";
+  } else if (type === "stream_open") {
+    message = "Stream Open";
+  } else if (type === "stream_close") {
+    message = "Stream Close";
+  } else if (type === "stream_error") {
+    message = "Stream Error";
+  }
+
+  return (
+    <div className="text-sm text-muted-foreground bg-muted p-1 rounded-lg">
+      {message}
+    </div>
+  );
+}
 function HttpRequestDetails(props: { payload: HttpRequestPayload }) {
   const { payload } = props;
 
@@ -117,17 +170,20 @@ function HttpRequestDetails(props: { payload: HttpRequestPayload }) {
       onValueChange={setActiveTab}
       className="w-full pt-1.5"
     >
-      <FpTabsList className="bg-transparent border-b-0 py-1.5 h-auto">
-        {hasHeaders && (
-          <FpTabsTrigger value="headers" className="flex gap-2">
-            Headers
-          </FpTabsTrigger>
-        )}
-        {hasBody && (
-          <FpTabsTrigger value="body" className="flex gap-2">
-            Body
-          </FpTabsTrigger>
-        )}
+      <FpTabsList className="bg-transparent border-b-0 py-1.5 h-auto grid grid-cols-[1fr_auto]">
+        <div className="flex gap-2">
+          {hasHeaders && (
+            <FpTabsTrigger value="headers" className="flex gap-2">
+              Headers
+            </FpTabsTrigger>
+          )}
+          {hasBody && (
+            <FpTabsTrigger value="body" className="flex gap-2">
+              Body
+            </FpTabsTrigger>
+          )}
+        </div>
+        <EventTypeInfo type="http_request" />
       </FpTabsList>
       <FpTabsContent value="headers" className="pt-2">
         {hasHeaders && !!payload.headers && (
@@ -161,7 +217,16 @@ function BroadcastDetails(
     const data = payload.outgoingMessage;
     if (data.type === "cf_agent_chat_clear") {
       return (
-        <JSONViewer data={payload} className="py-1" label="Broadcast Payload" />
+        <div className="grid gap-2 px-4 pt-2">
+          <div className="flex gap-2 justify-end w-full">
+            <EventTypeInfo type="broadcast" />
+          </div>
+          <JSONViewer
+            data={payload}
+            className="py-1"
+            label="Broadcast Payload"
+          />
+        </div>
       );
     }
 
@@ -171,11 +236,16 @@ function BroadcastDetails(
   }
 
   return (
-    <JSONViewer
-      data={payload.typedMessage ?? payload.message}
-      className="py-1"
-      label="Broadcast Payload"
-    />
+    <div className="grid gap-2 px-4 pt-2">
+      <div className="flex gap-2 justify-end w-full">
+        <EventTypeInfo type="broadcast" />
+      </div>
+      <JSONViewer
+        data={payload.typedMessage ?? payload.message}
+        className="py-1"
+        label="Broadcast Payload"
+      />
+    </div>
   );
 }
 
@@ -193,13 +263,18 @@ function ChatMessagesDetails(
       onValueChange={setActiveTab}
       className="w-full pt-1.5"
     >
-      <FpTabsList className="bg-transparent border-b-0 py-1.5 h-auto mb-1.5">
-        <FpTabsTrigger value="messages" className="flex gap-2">
-          Messages
-        </FpTabsTrigger>
-        <FpTabsTrigger value="raw" className="flex gap-2">
-          Raw
-        </FpTabsTrigger>
+      <FpTabsList className="bg-transparent border-b-0 py-1.5 h-auto grid grid-cols-[1fr_auto]">
+        <div className="flex gap-2">
+          <FpTabsTrigger value="messages" className="flex gap-2">
+            Messages
+          </FpTabsTrigger>
+          <FpTabsTrigger value="raw" className="flex gap-2">
+            Raw
+          </FpTabsTrigger>
+        </div>
+        <div className="flex gap-2">
+          <EventTypeInfo type="broadcast" />
+        </div>
       </FpTabsList>
       <FpTabsContent value="messages" className="pt-0 px-3">
         <div className="grid gap-2 p-2">
@@ -248,17 +323,28 @@ function HttpResponseDetails(props: { payload: HttpResponsePayload }) {
       onValueChange={setActiveTab}
       className="w-full pt-1.5"
     >
-      <FpTabsList className="bg-transparent border-b-0 py-1.5 h-auto">
-        {hasHeaders && (
-          <FpTabsTrigger value="headers" className="flex gap-2 text-xs">
-            Headers
-          </FpTabsTrigger>
-        )}
-        {hasBody && (
-          <FpTabsTrigger value="body" className="flex gap-2">
-            Body
-          </FpTabsTrigger>
-        )}
+      <FpTabsList className="bg-transparent border-b-0 py-1.5 h-auto grid grid-cols-[1fr_auto]">
+        <div className="flex gap-2">
+          {hasHeaders && (
+            <FpTabsTrigger value="headers" className="flex gap-2 text-xs">
+              Headers
+            </FpTabsTrigger>
+          )}
+          {hasBody && (
+            <FpTabsTrigger value="body" className="flex gap-2">
+              Body
+            </FpTabsTrigger>
+          )}
+        </div>
+        <div className="flex gap-2">
+          {payload.status && (
+            <StatusCode
+              status={payload.status}
+              isFailure={payload.status >= 500}
+            />
+          )}
+          <EventTypeInfo type="http_response" />
+        </div>
       </FpTabsList>
       <FpTabsContent value="headers" className="pt-2">
         {hasHeaders && !!payload.headers && (
@@ -295,13 +381,18 @@ function CombinedEventDetails(props: {
       onValueChange={setActiveTab}
       className="w-full pt-1.5"
     >
-      <FpTabsList className="bg-transparent border-b-0 py-1.5 h-auto">
-        <FpTabsTrigger value="summary" className="flex gap-2">
-          Summary
-        </FpTabsTrigger>
-        <FpTabsTrigger value="chunks" className="flex gap-2">
-          Chunks
-        </FpTabsTrigger>
+      <FpTabsList className="bg-transparent border-b-0 py-1.5 h-auto grid grid-cols-[1fr_auto]">
+        <div className="flex gap-2">
+          <FpTabsTrigger value="summary" className="flex gap-2">
+            Summary
+          </FpTabsTrigger>
+          <FpTabsTrigger value="chunks" className="flex gap-2">
+            Chunks
+          </FpTabsTrigger>
+        </div>
+        <div>
+          <EventTypeInfo type="combined_event" />
+        </div>
       </FpTabsList>
       <FpTabsContent value="chunks" className="pt-2">
         <CombinedEventChunks chunks={chunks} />

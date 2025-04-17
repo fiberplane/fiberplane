@@ -41,7 +41,7 @@ export function StateTableView(props: { table: StateDBTable }) {
   const stateString = JSON.stringify(state, null, 2);
 
   return (
-    <div className="h-full mt-2 rounded-lg bg-background px-4 py-1.5">
+    <div className="mt-2 rounded-lg bg-background px-4 py-1.5">
       <CodeMirrorJsonEditor
         value={stateString}
         onChange={noop}

@@ -115,6 +115,24 @@ const memoryTool = tool({
   },
 });
 
+export const mcpServerTool = tool({
+  description: "Register remote MCP servers in chat",
+  parameters: z.object({
+    url: z
+      .string()
+      .min(1)
+      .url()
+      .describe("The full URL of the remote MCP server"),
+  }),
+  execute: async ({ url }) => {
+    const agent = agentContext.getStore();
+    if (!agent) {
+      throw new Error("Agent not found");
+    }
+    return agent.addMcpServer(url);
+  },
+});
+
 /**
  * Export all available tools
  * These will be provided to the AI model to describe available capabilities
@@ -124,6 +142,7 @@ export const tools = {
   getLocalTime,
   scheduleTask,
   memoryTool,
+  mcpServerTool,
 };
 
 /**

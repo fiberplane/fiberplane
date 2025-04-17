@@ -275,7 +275,7 @@ function MessagePart({ part }: { part: MessagePart }) {
   }
 
   if (part.type === "text" && part.text) {
-    return <div className="text-sm">{part.text}</div>;
+    return <div className="text-sm text-wrap break-all">{part.text}</div>;
   }
 
   return null;

@@ -52,7 +52,7 @@ export function AgentsSidebar() {
           <Spinner spinning={isLoading} />
         </Button>
       </div>
-      <div className="w-full flex gap-2 py-2">
+      <div className="w-full flex flex-col gap-2 py-2">
         {data.map((item) => (
           <div className="w-full flex flex-col gap-1" key={item.id}>
             <Link

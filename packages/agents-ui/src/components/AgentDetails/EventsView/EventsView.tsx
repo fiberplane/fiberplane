@@ -88,12 +88,7 @@ export function EventsView(props: AgentInstanceParameters) {
             instance={props.instance}
           />
           <Separator orientation="vertical" className="h-full" />
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={clearEvents}
-            // className="w-auto h-auto p-1"
-          >
+          <Button size="icon" variant="ghost" onClick={clearEvents}>
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>

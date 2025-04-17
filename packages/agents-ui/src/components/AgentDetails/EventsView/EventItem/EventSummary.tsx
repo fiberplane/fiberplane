@@ -1,5 +1,4 @@
 import { Method } from "@/components/Method";
-import { StatusCode } from "@/components/StatusCode";
 import type { DiscriminatedSubset, UIAgentEvent } from "@/types";
 import type { ReactNode } from "react";
 import { ExpandableJSONViewer } from "../JSONViewer";
@@ -24,7 +23,9 @@ const HttpRequestDetails = ({
   return (
     <div className="text-sm grid-cols-[auto_1fr] grid gap-2">
       {method}
-      <span className="font-mono text-muted-foreground">{displayUrl}</span>
+      <span className="font-mono text-muted-foreground truncate">
+        {displayUrl}
+      </span>
       {payload.body && (
         <ExpandableJSONViewer data={payload.body} label="Request Body" />
       )}
@@ -44,7 +45,9 @@ const HttpResponseDetails = ({
   return (
     <div className="text-sm grid-cols-[auto_1fr] flex items-center gap-2">
       {method}
-      <span className="font-mono text-muted-foreground">{displayUrl}</span>
+      <span className="font-mono text-muted-foreground truncate">
+        {displayUrl}
+      </span>
     </div>
   );
 };
