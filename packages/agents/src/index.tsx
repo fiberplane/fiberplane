@@ -667,7 +667,7 @@ export function fiberplane<E = unknown>(
     ctx: ExecutionContext,
   ) => Promise<Response>,
 ) {
-  const fpApp = createFpApp<E>();
+  const fpApp = createFpApp();
 
   return async function fetch(request: Request, env: E, ctx: ExecutionContext) {
     const response = await fpApp.fetch(request, env, ctx);

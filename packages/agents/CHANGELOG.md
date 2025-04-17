@@ -11,6 +11,11 @@
 ### Minor Changes
 
 - Enable agents playground to see and inspect client connections
+## 0.3.8
+
+### Patch Changes
+
+- Allow playground to work with routing without routeAgentRequeset
 
 ## 0.3.7
 
