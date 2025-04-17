@@ -1,11 +1,15 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { createOpenAI } from "@ai-sdk/openai";
 import { Observed, fiberplane } from "@fiberplane/agents";
-import { type AgentNamespace, type Schedule, routeAgentRequest } from "agents";
+import {
+  Agent,
+  type Schedule,
+  getAgentByName,
+  routeAgentRequest,
+} from "agents";
 import { AIChatAgent } from "agents/ai-chat-agent";
 import { MCPClientManager } from "agents/mcp/client";
 import {
-  type Message,
   type StreamTextOnFinishCallback,
   createDataStreamResponse,
   generateId,
@@ -13,12 +17,6 @@ import {
 } from "ai";
 import { executions, tools } from "./tools";
 import { processToolCalls } from "./utils";
-
-// Environment variables type definition
-export type Env = {
-  OPENAI_API_KEY: string;
-  ChatClient: AgentNamespace<ChatClient>;
-};
 
 interface MemoryState {
   memories: Record<
@@ -39,6 +37,7 @@ const agentNamespace = "chat-client";
 /**
  * Chat Agent implementation that handles real-time AI chat interactions
  */
+// @ts-ignore
 @Observed()
 export class ChatClient extends AIChatAgent<Env, MemoryState> {
   initialState = { memories: {} };
@@ -142,11 +141,20 @@ export class ChatClient extends AIChatAgent<Env, MemoryState> {
   }
 }
 
+// @ts-ignore
+@Observed()
+export class CustomClient extends Agent<Env, MemoryState> {
+  async executeTask(description: string, task: Schedule<string>) {
+    // Custom implementation for executing tasks
+    console.log(`Executing task: ${description} at ${task}`);
+  }
+}
+
 /**
  * Worker entry point that routes incoming requests to the appropriate handler
  */
 const worker = {
-  fetch: fiberplane(
+  fetch: fiberplane<Env>(
     async (request: Request, env: Env, ctx: ExecutionContext) => {
       if (!env.OPENAI_API_KEY) {
         console.error(
@@ -154,18 +162,37 @@ const worker = {
         );
         return new Response("OPENAI_API_KEY is not set", { status: 500 });
       }
+
+      // Only call this to generate some traffic to the custom client
+      // completely outside of the backend agent routing logic
+      // Make a call
+      await doSomethingWithCustomClient(request, env);
+      // return a response
+      // return new Response("Not found", { status: 404 });
+
+      // Use the agent request routing as provided by the agents library
       return (
         // Route the request to our agent or return 404 if not found
-        (await routeAgentRequest(
-          request,
-          env,
-          //   {
-          //   cors: true
-          // }
-        )) || new Response("Not found", { status: 404 })
+        (await routeAgentRequest(request, env)) ||
+        new Response("Not found", { status: 404 })
       );
     },
   ),
 };
+
+async function doSomethingWithCustomClient(request: Request, env: Env) {
+  const agent = await getAgentByName(env.CustomClient, "my-custom-client");
+  if (!agent) {
+    console.error("Agent not found");
+    return new Response("Agent not found", { status: 404 });
+  }
+  agent.fetch(
+    new Request("https://example.com", {
+      headers: {
+        "x-partykit-room": "my-custom-client",
+      },
+    }),
+  );
+}
 
 export default worker;

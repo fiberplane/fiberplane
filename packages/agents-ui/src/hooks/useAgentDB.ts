@@ -9,7 +9,7 @@ export function agentDBQueryOptions(namespace: string, instance: string) {
   return queryOptions<DatabaseResult>({
     queryKey: ["agent_db", namespace, instance],
     queryFn: () =>
-      fetch(`/agents/${namespace}/${instance}/admin/db`).then((res) =>
+      fetch(`/fp/api/agents/${namespace}/${instance}/admin/db`).then((res) =>
         res.json(),
       ),
   });

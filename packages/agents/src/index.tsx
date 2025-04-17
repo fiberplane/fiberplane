@@ -5,6 +5,7 @@ import type {
 } from "@modelcontextprotocol/sdk/types.js";
 import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
 import type { MCPClientManager, getNamespacedData } from "agents/mcp/client";
+import { getAgentByName } from "agents";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
 import packageJson from "../package.json" assert { type: "json" };
@@ -13,16 +14,18 @@ import {
   registerAgent,
   registerAgentInstance,
 } from "./agentInstances";
-import { type AgentEvent, agentEventSchema } from "./types";
+import type { AgentEvent } from "./types";
 import {
   createRequestPayload,
   createResponsePayload,
+  getDurableObjectAgentNamespace,
   isDurableObjectNamespace,
   isPromiseLike,
   toKebabCase,
   tryCatch,
   tryCatchAsync,
 } from "./utils";
+import type { StatusCode } from "hono/utils/http-status";
 
 // Define types for database schema
 type ColumnType = "string" | "number" | "boolean" | "null" | "object" | "array";
@@ -364,9 +367,9 @@ export function Observed<E = unknown, S = unknown>() {
               typeof msg === "string"
                 ? msg
                 : {
-                    type: "binary",
-                    size: msg instanceof Blob ? msg.size : msg.byteLength,
-                  },
+                  type: "binary",
+                  size: msg instanceof Blob ? msg.size : msg.byteLength,
+                },
             without,
           },
         });
@@ -393,12 +396,12 @@ export function Observed<E = unknown, S = unknown>() {
                       typeof message === "string"
                         ? message
                         : {
-                            type: "binary" as const,
-                            size:
-                              message instanceof Blob
-                                ? message.size
-                                : message.byteLength,
-                          },
+                          type: "binary" as const,
+                          size:
+                            message instanceof Blob
+                              ? message.size
+                              : message.byteLength,
+                        },
                   },
                 });
 
@@ -542,10 +545,6 @@ export function Observed<E = unknown, S = unknown>() {
   };
 }
 
-// Change from a strict Record<string, string> to a more flexible type
-// that allows for any values in the environment object
-type Env = Record<string, unknown>;
-
 function createFpApp() {
   let firstRequest = true;
   return new Hono()
@@ -559,8 +558,8 @@ function createFpApp() {
         const durableObjects =
           c.env && typeof c.env === "object"
             ? (Object.entries(c.env as Record<string, unknown>).filter(
-                ([key, value]) => isDurableObjectNamespace(value),
-              ) as Array<[string, DurableObjectNamespace]>)
+              ([key, value]) => isDurableObjectNamespace(value),
+            ) as Array<[string, DurableObjectNamespace]>)
             : [];
         for (const [name] of durableObjects) {
           // See if we're aware of an agent with the same id
@@ -575,6 +574,57 @@ function createFpApp() {
       }
 
       return c.json(agents);
+    })
+    .get("/api/agents/:namespace/:instance/admin/*", async (c) => {
+      const { namespace: rawNamespace, instance } = c.req.param();
+
+      const durableObject = getDurableObjectAgentNamespace(c.env, rawNamespace);
+
+      if (!durableObject) {
+        return c.json(
+          {
+            error: `Agent ${rawNamespace} not found`,
+          },
+          404,
+        );
+      }
+
+      const doInstance = await getAgentByName(durableObject, instance);
+
+      const baseURI = `/agents/${rawNamespace}/${instance}`;
+      const restURI = c.req.url.split(baseURI)[1];
+      const requestInfo = new Request(
+        new URL(`${baseURI}${restURI}`, "http://internal"),
+        {
+          method: c.req.method,
+          headers: new Headers(c.req.header()),
+          body: c.req.raw.body,
+        },
+      );
+
+      const response = await doInstance.onRequest(requestInfo);
+
+      // Create a new response with the same status and body
+      const newResponse = new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+      });
+
+      // Copy all headers from the original response
+      response.headers.forEach((value, key) => {
+        c.header(key, value);
+      });
+
+      // Send the new response content back using the methods on the Hono context
+      // Convert raw number to StatusCode by explicitly casting it
+      c.status(newResponse.status as StatusCode);
+
+      // Handle null body case
+      if (newResponse.body === null) {
+        return c.body("");
+      }
+
+      return c.body(newResponse.body);
     })
     .get("*", async (c) => {
       const options = {
@@ -610,14 +660,14 @@ function createFpApp() {
     });
 }
 
-export function fiberplane<E extends Env>(
+export function fiberplane<E = unknown>(
   userFetch: (
     request: Request,
     env: E,
     ctx: ExecutionContext,
   ) => Promise<Response>,
 ) {
-  const fpApp = createFpApp();
+  const fpApp = createFpApp<E>();
 
   return async function fetch(request: Request, env: E, ctx: ExecutionContext) {
     const response = await fpApp.fetch(request, env, ctx);
