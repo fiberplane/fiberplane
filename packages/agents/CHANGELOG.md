@@ -1,5 +1,11 @@
 # @fiberplane/agents
 
+## 0.3.8
+
+### Patch Changes
+
+- Allow playground to work with routing without routeAgentRequeset
+
 ## 0.3.7
 
 ### Patch Changes
