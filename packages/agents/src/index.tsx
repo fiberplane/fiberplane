@@ -605,6 +605,7 @@ function createFpApp() {
       const response = await doInstance.onRequest(requestInfo);
 
       // Create a new response with the same status and body
+      // @ts-ignore
       const newResponse = new Response(response.body, {
         status: response.status,
         statusText: response.statusText,
