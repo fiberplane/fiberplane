@@ -1,5 +1,5 @@
 import { noop } from "@/lib/utils";
-import type { DBTable } from "@/types";
+import type { DBColumnType, DBTable } from "@/types";
 import { z } from "zod";
 import { CodeMirrorJsonEditor } from "../CodeMirror";
 
@@ -53,7 +53,7 @@ export function StateTableView(props: { table: StateDBTable }) {
 }
 export function isStateTable(
   name: string,
-  table: StateDBTable,
+  table: DBTable<Record<string, DBColumnType[]>>,
 ): table is StateDBTable {
   return (
     name === StateTableName &&

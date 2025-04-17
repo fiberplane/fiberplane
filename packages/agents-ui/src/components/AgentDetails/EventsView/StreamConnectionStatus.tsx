@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useHandler } from "@/hooks";
 import { usePlaygroundStore } from "@/store";
 import type { AgentInstanceParameters } from "@/types";
-import { Wifi, WifiOff, WifiZero } from "lucide-react";
+import { WifiOff, WifiZero } from "lucide-react";
 
 type Props = AgentInstanceParameters & {
   short: boolean;

@@ -24,7 +24,7 @@ import {
   notFound,
   useLoaderData,
 } from "@tanstack/react-router";
-import { ChevronDown, ChevronLeft, ChevronRight, Copy } from "lucide-react";
+import { ChevronDown, ChevronLeft, Copy } from "lucide-react";
 import { useState } from "react";
 import React from "react";
 

@@ -1,7 +1,6 @@
 import {
   ChevronDown,
   ChevronRight,
-  Clock,
   Info,
   MessageSquare,
   UserCircle,
@@ -9,7 +8,7 @@ import {
 import { useEffect, useState } from "react";
 
 import { cn, noop } from "@/lib/utils";
-import type { DBTable } from "@/types";
+import type { DBColumnType, DBTable } from "@/types";
 import { z } from "zod";
 import { CodeMirrorJsonEditor } from "../CodeMirror";
 import { Button } from "../ui/button";
@@ -32,7 +31,7 @@ export type MessagesTable = DBTable<MessageColumns>;
 
 export function isMessagesTable(
   name: string,
-  table: MessagesTable,
+  table: DBTable<Record<string, DBColumnType[]>>,
 ): table is MessagesTable {
   return (
     name === "cf_ai_chat_agent_messages" &&

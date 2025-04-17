@@ -11,8 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { AllEventCategories, usePlaygroundStore } from "@/store";
 import type { AgentInstanceParameters } from "@/types";
-import { CaretSortIcon } from "@radix-ui/react-icons";
-import { ChevronsUpDown, Funnel, ListFilter } from "lucide-react";
+import { ChevronsUpDown, ListFilter } from "lucide-react";
 
 export function EventCategoriesFilter(props: AgentInstanceParameters) {
   const selectedCategories = usePlaygroundStore(
