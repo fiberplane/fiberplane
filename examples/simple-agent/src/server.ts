@@ -144,6 +144,18 @@ export class ChatClient extends AIChatAgent<Env, MemoryState> {
 // @ts-ignore
 @Observed()
 export class CustomClient extends Agent<Env, MemoryState> {
+  async onRequest(request: Request) {
+    return new Response(
+      JSON.stringify({
+        url: request.url,
+      }),
+      {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
+      },
+    );
+  }
+
   async executeTask(description: string, task: Schedule<string>) {
     // Custom implementation for executing tasks
     console.log(`Executing task: ${description} at ${task}`);
@@ -181,7 +193,8 @@ const worker = {
 };
 
 async function doSomethingWithCustomClient(request: Request, env: Env) {
-  const agent = await getAgentByName(env.CustomClient, "my-custom-client");
+  const instanceName = "my-default-instance";
+  const agent = await getAgentByName(env.CustomClient, instanceName);
   if (!agent) {
     console.error("Agent not found");
     return new Response("Agent not found", { status: 404 });
@@ -189,7 +202,14 @@ async function doSomethingWithCustomClient(request: Request, env: Env) {
   agent.fetch(
     new Request("https://example.com", {
       headers: {
-        "x-partykit-room": "my-custom-client",
+        // These headers are required by the Observed durable object
+        // to identify the agent (namespace) and the room (instance) it belongs to
+
+        // Namespace (kebab case of the agent name)
+        // So CustomClient -> custom-client
+        "x-partykit-namespace": "custom-client",
+        // instance
+        "x-partykit-room": instanceName,
       },
     }),
   );
