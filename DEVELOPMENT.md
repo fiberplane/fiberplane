@@ -4,66 +4,45 @@ Welcome to the Fiberplane monorepo!
 
 ## Developing
 
-This project uses typescript, biome and pnpm workspaces. Linting and formatting is handled with [biome](https://biomejs.dev/).
+This project uses TypeScript, Biome and pnpm workspaces. Linting and formatting is handled with [Biome](https://biomejs.dev/).
 
-In the project root you can format all typescript codebases with `pnpm run format`.
-
-You will also want to use the project root to prepare the npx command for the distributable API. See the root's `package.json` scripts, as well as the api's README for more details on testing the npx command.
+In the project root you can format all TypeScript codebases with `pnpm run format`.
 
 Always publish with `pnpm publish`.
 
 If you've updated the code in `packages/fpx-types`, you'll need to publish a new version of the package before publishing any other packages that depend on it.
 
-
 ## Projects
 
-### Fiberplane `@fiberplane/hono`
+### Fiberplane Hono (`@fiberplane/hono`)
 
 The `@fiberplane/hono` package is a library for embedding a Fiberplane API Explorer into your Hono app.
 
 The package that is published to npm is in `packages/hono`.
 
-The frontend that is bundled with the package is in `packages/hono-ui`
+The frontend that is bundled with the package is in `packages/hono-ui`.
 
-### Fiberplane Studio
+### Fiberplane Agents (`@fiberplane/agents`)
 
-`apps/studio` contains an api and a frontend that can consume telemetry data from a Hono app.
+The `@fiberplane/agents` package is a toolkit for introspecting and debugging agents built with Cloudflare's Agents SDK. It provides:
 
-To connect your Hono app to the Studio api, you'll need to add the code in [`packages/client-library-otel`](./packages/client-library-otel) to your Hono app. You can do this via NPM, or linking to the local codebase. Please read [the client library README.md](./packages/client-library-otel/README.md) for instructions.
+- State introspection: Monitor internal state of your agents
+- Message tracking: View incoming and outgoing messages between agents
+- Instance monitoring: Track each instance of your agents
+- Database inspection: View the state of underlying SQLite database used by the agent
 
-Worth noting is that the api connects to a local libsql (sqlite) database. Setup steps for this are simple (you just need to run migrations), and are in [api/README.md](./api/README.md).
+The package is located in `packages/agents`.
 
-The frontend is a React + Typescript + Tailwind app that uses [shadcn/ui](https://ui.shadcn.com/) components. For more info on the frontend, see: [studio-frontend/README.md](./apps/studio/studio-frontend/README.md).
+The frontend components for the agents playground are in `packages/agents-ui`.
 
-There are also folders containing:
+### Shared Types
 
-- `packages/fpx-types` - The shared typescript types (and constants) used across the projects in the monorepo
-- `legacy/apps/webhonc`- A proxy service for sending requests to your Hono app from a static public url
-- `www` - The documentation website for Studio
+- `packages/fpx-types` - The shared TypeScript types (and constants) used across the projects in the monorepo
 
-#### Setup
+### Examples
 
-Let's focus on running the Studio api and frontend for now.
-
-You'll want to
-
-1. Run the code in this repo, and then
-2. Add some client code to a Hono app
-
-The next two sections take you through how to do this.
-
-#### Spinning up the database, api, and dashboard
-
-1. Clone this repo
-1. `cd api` and spin up the api (follow instructions in [api/README](./api/README.md))
-1. Check the api is running on `http://localhost:8788`
-1. `cd frontend` in a separate shell, and spin up the frontend (follow instructions in in [frontend/README](./frontend/README.md))
-1. Check the frontend is running on `http://localhost:5173`
-
-#### Adding Fiberplane Studio to your Hono project
-
-Follow the instructions in the [`client-library-otel` README](./packages/client-library-otel/README.md) to add FPX telemetry to your Hono project.
-
+- `examples/hono-openapi` - Example implementation of the Hono OpenAPI integration
+- `examples/simple-agent` - Example implementation of a simple agent
 
 ## License
 
