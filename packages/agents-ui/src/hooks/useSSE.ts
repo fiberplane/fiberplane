@@ -182,8 +182,7 @@ export function useAgentInstanceEvents(namespace: string, instance: string) {
 
   const options: UseSSEConnectionOptions = {
     ...baseOptions,
-    headers: {
-    },
+    headers: {},
     onMessage: (event) => {
       const data = JSON.parse(event.data);
 
