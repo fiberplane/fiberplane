@@ -35,7 +35,7 @@ export function agentMCPQueryOptions(namespace: string, instance: string) {
         throw new Error(`Failed to fetch MCP data: ${response.statusText}`);
       }
       const result = await response.json();
-      return result.data as MCPConnection[];
+      return (result.data ?? []) as MCPConnection[];
     },
   });
 }
