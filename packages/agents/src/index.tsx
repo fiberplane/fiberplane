@@ -258,7 +258,6 @@ function createAgentAdminRouter(agent: ObservedAgent) {
   // List all available AI gateways
   router.get("/agents/:namespace/:instance/admin/ai-gateways", async (c) => {
     // Extract required environment variables
-    // const { CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT } = c.env as Env;
     const parsedEnv = aiGatewayEnvSchema.safeParse(c.env);
     if (!parsedEnv.success) {
       console.error("Invalid environment variables:", parsedEnv.error);
@@ -271,7 +270,6 @@ function createAgentAdminRouter(agent: ObservedAgent) {
       );
     }
 
-    // const { CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID } = parsedEnv.data;
     const client = new Cloudflare({
       apiToken: parsedEnv.data.CLOUDFLARE_API_TOKEN,
     });
