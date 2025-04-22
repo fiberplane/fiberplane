@@ -466,9 +466,9 @@ export function Observed<E = unknown, S = unknown>() {
               typeof msg === "string"
                 ? msg
                 : {
-                  type: "binary",
-                  size: msg instanceof Blob ? msg.size : msg.byteLength,
-                },
+                    type: "binary",
+                    size: msg instanceof Blob ? msg.size : msg.byteLength,
+                  },
             without,
           },
         });
@@ -495,12 +495,12 @@ export function Observed<E = unknown, S = unknown>() {
                       typeof message === "string"
                         ? message
                         : {
-                          type: "binary" as const,
-                          size:
-                            message instanceof Blob
-                              ? message.size
-                              : message.byteLength,
-                        },
+                            type: "binary" as const,
+                            size:
+                              message instanceof Blob
+                                ? message.size
+                                : message.byteLength,
+                          },
                   },
                 });
 
@@ -659,8 +659,8 @@ function createFpApp() {
         const durableObjects =
           c.env && typeof c.env === "object"
             ? (Object.entries(c.env as Record<string, unknown>).filter(
-              ([key, value]) => isDurableObjectNamespace(value),
-            ) as Array<[string, DurableObjectNamespace]>)
+                ([key, value]) => isDurableObjectNamespace(value),
+              ) as Array<[string, DurableObjectNamespace]>)
             : [];
         for (const [name] of durableObjects) {
           // See if we're aware of an agent with the same id
@@ -738,8 +738,9 @@ function createFpApp() {
         version,
         commitHash,
       };
-      const cdn = `https://cdn.jsdelivr.net/npm/@fiberplane/agents@${version ? version : "latest"
-        }/dist/playground/`;
+      const cdn = `https://cdn.jsdelivr.net/npm/@fiberplane/agents@${
+        version ? version : "latest"
+      }/dist/playground/`;
       const cssBundleUrl = new URL("index.css", cdn).href;
       const jsBundleUrl = new URL("index.js", cdn).href;
       return c.html(
