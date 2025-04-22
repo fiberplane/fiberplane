@@ -21,7 +21,7 @@ import {
 import { FpTabs, FpTabsContent, FpTabsList, FpTabsTrigger } from "../ui/tabs";
 import { EventsView } from "./EventsView";
 import { NavTabs } from "./NavTabs";
-import { TAB_ORDER, tableToTabMap, tabTitleMap } from "./tabs";
+import { TAB_ORDER, tabTitleMap, tableToTabMap } from "./tabs";
 
 function TabIcon({ tabId }: { tabId: string }) {
   switch (tabId) {

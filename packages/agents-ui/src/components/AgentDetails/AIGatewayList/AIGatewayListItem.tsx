@@ -1,8 +1,8 @@
 import type { AIGatewayListResponse, AgentInstanceParameters } from "@/types";
+import { Link } from "@tanstack/react-router";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "../../ui/button";
 import { AIGatewayLogList } from "./AIGatewayLogList";
-import { Link } from "@tanstack/react-router";
 
 export function AIGatewayListItem(
   props: AgentInstanceParameters & {

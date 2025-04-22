@@ -4,12 +4,12 @@ import type {
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
 import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
+import { getAgentByName } from "agents";
+import type { MCPClientManager, getNamespacedData } from "agents/mcp/client";
 import Cloudflare from "cloudflare";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
 import type { BlankEnv } from "hono/types";
-import { getAgentByName } from "agents";
-import type { MCPClientManager, getNamespacedData } from "agents/mcp/client";
 import type { StatusCode } from "hono/utils/http-status";
 import packageJson from "../package.json" assert { type: "json" };
 import {
