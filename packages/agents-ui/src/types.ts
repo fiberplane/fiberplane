@@ -678,7 +678,7 @@ export interface LogGetResponse {
 
 export const stringToJSONSchema = z
   .string()
-  .transform((str, ctx): z.infer<ReturnType<typeof json>> => {
+  .transform((str, ctx): z.infer<typeof jsonValueSchema> => {
     try {
       return JSON.parse(str);
     } catch (e) {

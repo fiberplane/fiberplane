@@ -58,25 +58,21 @@ export function EventsView(props: AgentInstanceParameters) {
 
   return (
     <div>
-      <div className="grid items-center grid-cols-[1fr_auto] gap-2 border-b border-border px-5 py-2.5">
-        <div className="flex items-center gap-4 min-w-0">
+      <div className="grid items-center grid-cols-[1fr_auto] gap-2 border-b border-border px-5">
+        <div className="flex items-center gap-4 min-w-0 py-2">
           <StreamConnectionStatus
             instance={props.instance}
             namespace={props.namespace}
             short={showFilterSummary}
           />
           {showFilterSummary && (
-            <div className="text-sm text-muted-foreground text-nowrap overflow-hidden text-ellipsis flex-1">
+            <div className="text-sm text-foreground text-nowrap overflow-hidden text-ellipsis flex-1 not-first:none">
               Showing {sortedEvents.length} of {events.length} events
             </div>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          <EventCategoriesFilter
-            namespace={props.namespace}
-            instance={props.instance}
-          />
+        <div className="flex items-center gap-2 h-full">
           <div>
             {/* biome-ignore lint/a11y/noLabelWithoutControl: Checkbox is the related input element */}
             <label className="text-muted-foreground text-sm flex items-center gap-1 cursor-pointer hover:text-foreground">
@@ -87,19 +83,18 @@ export function EventsView(props: AgentInstanceParameters) {
               Merge events
             </label>
           </div>
-          <Separator orientation="vertical" className="h-4" />
-          <Button
-            size="icon-xs"
-            variant="outline"
-            onClick={clearEvents}
-            className="w-auto h-auto p-1"
-          >
+          <EventCategoriesFilter
+            namespace={props.namespace}
+            instance={props.instance}
+          />
+          <Separator orientation="vertical" className="h-full" />
+          <Button size="icon" variant="ghost" onClick={clearEvents}>
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>
       </div>
 
-      <div className="p-2">
+      <div>
         {sortedEvents.length === 0 ? (
           <div className="text-sm text-muted-foreground py-4 text-center">
             {events.length === 0
@@ -107,7 +102,7 @@ export function EventsView(props: AgentInstanceParameters) {
               : "Filtered selection has no events."}
           </div>
         ) : (
-          <div className="space-y-1">
+          <div>
             {sortedEvents.map((event, idx) => (
               <EventItem key={`${event.id}`} event={event} />
             ))}

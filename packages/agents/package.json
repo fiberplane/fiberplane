@@ -1,6 +1,6 @@
 {
   "name": "@fiberplane/agents",
-  "version": "0.3.7",
+  "version": "0.4.0",
   "description": "",
   "type": "module",
   "exports": {
@@ -39,7 +39,7 @@
   "dependencies": {
     "@hono/node-server": "^1.13.7",
     "@hono/node-ws": "^1.1.0",
-    "agents": "^0.0.46",
+    "agents": "^0.0.50",
     "ai": "^4.1.61",
     "chokidar": "^3.6.0",
     "cloudflare": "^4.2.0",
@@ -55,6 +55,7 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@cloudflare/workers-types": "^4.20250317.0",
+    "@modelcontextprotocol/sdk": "^1.8.0",
     "@types/ws": "^8.18.0",
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
@@ -62,6 +63,6 @@
     "vite": "^6.2.2"
   },
   "peerDependencies": {
-    "agents": "^0.0.39"
+    "agents": "^0.0.46"
   }
 }

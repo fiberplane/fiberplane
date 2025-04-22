@@ -1,11 +1,13 @@
 export { useAgentDB } from "./useAgentDB";
-export { useAgentInstanceEvents } from "./useSSE";
+export { useAgentMCP } from "./useAgentMCP";
+export { useAIGatewayLogDetail } from "./useAIGatewayLogDetail";
 export { useAIGatewayLogs } from "./useAiGatewayLogs";
+export { useCopyToClipboard } from "./useCopyToClipboard";
 export { useFilteredEvents } from "./useFilteredEvents";
+export { useFormatDuration } from "./useFormatDuration";
 export { useHandler } from "./useHandler";
 export { useListAgents } from "./useListAgents";
-export { useListAIGateway } from "./useListAIGateways";
+export { useListAIGateway, listAiGatewayOptions } from "./useListAIGateways";
 export { useRouterContext } from "./useRouterContext";
+export { useAgentInstanceEvents } from "./useSSE";
 export { useTimeAgo } from "./useTimeAgo";
-export { useAIGatewayLogDetail } from "./useAIGatewayLogDetail";
-export { useFormatDuration } from "./useFormatDuration";

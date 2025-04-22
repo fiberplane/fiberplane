@@ -16,13 +16,17 @@
       {
         "name": "ChatClient",
         "class_name": "ChatClient"
+      },
+      {
+        "name": "CustomClient",
+        "class_name": "CustomClient"
       }
     ]
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["ChatClient"]
+      "new_sqlite_classes": ["ChatClient", "CustomClient"]
     }
   ],
   "observability": {

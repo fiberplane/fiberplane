@@ -15,12 +15,14 @@ export function AgentsSidebar() {
   // Get params from the route
   const agentId = matches.find(
     (match) =>
-      match.routeId === "/agents/$agentId" ||
+      match.routeId === "/agents/$agentId/" ||
       match.routeId === "/agents/$agentId/$instanceId",
   )?.params.agentId;
 
   const instanceId = matches.find(
-    (match) => match.routeId === "/agents/$agentId/$instanceId",
+    (match) =>
+      match.routeId === "/agents/$agentId/$instanceId" ||
+      match.routeId === "/agents/$agentId/$instanceId/$tabId",
   )?.params.instanceId;
 
   // Fetch agents data directly
@@ -52,7 +54,7 @@ export function AgentsSidebar() {
           <Spinner spinning={isLoading} />
         </Button>
       </div>
-      <div className="w-full flex gap-2 py-2">
+      <div className="w-full flex flex-col gap-2 py-2">
         {data.map((item) => (
           <div className="w-full flex flex-col gap-1" key={item.id}>
             <Link

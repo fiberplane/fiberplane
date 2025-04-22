@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useHandler } from "@/hooks";
 import { usePlaygroundStore } from "@/store";
 import type { AgentInstanceParameters } from "@/types";
-import { Wifi, WifiOff, WifiZero } from "lucide-react";
+import { WifiOff, WifiZero } from "lucide-react";
 
 type Props = AgentInstanceParameters & {
   short: boolean;
@@ -33,12 +33,7 @@ export function StreamConnectionStatus(props: Props) {
           <WifiZero className="w-4 h-4 text-muted-foreground" />
           Connecting...
         </>
-      ) : connectionStatus === "open" ? (
-        <>
-          <Wifi className="w-4 h-4 text-success" />
-          {!props.short ? "Receiving events" : ""}
-        </>
-      ) : (
+      ) : connectionStatus === "open" ? null : (
         <>
           <WifiOff className="w-4 h-4 text-danger" />
           <Button size="sm" variant="outline" onClick={reconnect}>

@@ -1,15 +1,15 @@
 import {
   ChevronDown,
   ChevronRight,
-  Clock,
   Info,
   MessageSquare,
-  UserIcon,
+  UserCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { noop } from "@/lib/utils";
-import type { DBTable } from "@/types";
+import { useTimeAgo } from "@/hooks";
+import { cn, noop } from "@/lib/utils";
+import type { DBColumnType, DBTable } from "@/types";
 import { z } from "zod";
 import { CodeMirrorJsonEditor } from "../CodeMirror";
 import { Button } from "../ui/button";
@@ -31,7 +31,7 @@ export type MessagesTable = DBTable<MessageColumns>;
 
 export function isMessagesTable(
   name: string,
-  table: MessagesTable,
+  table: DBTable<Record<string, DBColumnType[]>>,
 ): table is MessagesTable {
   return (
     name === "cf_ai_chat_agent_messages" &&
@@ -86,28 +86,34 @@ const JSONViewer = ({ data }: { data: unknown }) => {
   const toggleExpand = () => setIsExpanded(!isExpanded);
 
   return (
-    <div className="font-mono text-sm -ml-1.5">
+    <div className="font-mono text-sm flex flex-col gap-2.5 border-t border-t-border-secondary px-4 py-1.5">
       <Button
         type="button"
         onClick={toggleExpand}
-        variant="outline"
+        variant="default"
         size="icon-xs"
-        className="w-auto pr-2 pl-1 text-xs gap-1"
+        className={cn(
+          "gap-1 w-full flex justify-between items-center",
+          "px-0 text-xs",
+          "shadow-none text-muted-foreground hover:text-foreground",
+        )}
       >
+        Details
         {isExpanded ? (
           <ChevronDown className="h-4 w-4" />
         ) : (
           <ChevronRight className="h-4 w-4" />
         )}
-        Message Details
       </Button>
 
       {isExpanded && (
-        <CodeMirrorJsonEditor
-          onChange={noop}
-          readOnly
-          value={JSON.stringify(data, null, 2)}
-        />
+        <div className="border border-border-secondary rounded-lg p-2.5 mb-2.5">
+          <CodeMirrorJsonEditor
+            onChange={noop}
+            readOnly
+            value={JSON.stringify(data, null, 2)}
+          />
+        </div>
       )}
     </div>
   );
@@ -215,52 +221,48 @@ export const MessageItem = (
   props: Pick<ChatMessage, "id" | "created_at"> & ParsedMessage,
 ) => {
   const createdAt = props.createdAt;
-  const formattedDate = createdAt ? (
-    new Date(createdAt).toLocaleString()
-  ) : (
-    <em>{JSON.stringify(createdAt)}</em>
-  );
+  const formattedDate = useTimeAgo(createdAt, {
+    fallbackWithDate: true,
+    fallbackWithTime: true,
+    strict: false,
+  });
   const isUser = props.role === "user";
   const isAssistant = props.role === "assistant";
   const hasTools = props.toolInvocations && props.toolInvocations.length > 0;
 
   return (
-    <div
-      className={`p-4 rounded-lg mb-4 grid gap-2 ${isUser ? "bg-card border border-muted" : "bg-muted"}`}
-    >
-      <div className="grid justify-between grid-cols-[1fr_auto] gap-2">
-        <div className="flex items-center gap-2">
+    <div className="rounded-lg grid bg-secondary">
+      <div
+        className={`px-4 py-1.5 grid items-center justify-between grid-cols-[1fr_auto] gap-2 ${isUser ? "bg-foreground/20" : "bg-muted-foreground"} rounded-t-lg`}
+      >
+        <div className="flex items-center gap-2.5 text-sm">
           {isUser ? (
-            <UserIcon size={18} />
+            <UserCircle size={18} />
           ) : isAssistant ? (
             <MessageSquare size={18} />
           ) : (
             <Info size={18} />
           )}
-          <span className="font-medium">{props.role || "unknown"}</span>
+          <span>{props.role || "unknown"}</span>
           {hasTools && (
             <span className="ml-2 bg-info/15 text-info-foreground text-xs px-2 py-1 rounded">
               Tool Usage
             </span>
           )}
         </div>
-        <div className="flex items-center text-sm text-muted-foreground">
-          <Clock size={14} className="mr-1" />
+        <div className="flex items-center text-xs font-mono">
           {formattedDate}
         </div>
       </div>
-      <div>
-        <div className="text-muted-foreground">Message:</div>
-        {/* Display message parts if available */}
+      <div className="px-4">
         {props.parts && props.parts.length > 0 && (
-          <div className="grid gap-2">
+          <div className="grid gap-2 py-3  max-w-prose">
             {props.parts.map((part, index) => {
               return <MessagePart key={index} part={part} />;
             })}
           </div>
         )}
       </div>
-
       <JSONViewer data={props} />
     </div>
   );
@@ -272,7 +274,7 @@ function MessagePart({ part }: { part: MessagePart }) {
   }
 
   if (part.type === "text" && part.text) {
-    return <div className="text-sm">{part.text}</div>;
+    return <div className="text-sm text-wrap break-all">{part.text}</div>;
   }
 
   return null;
@@ -281,17 +283,23 @@ function MessagePart({ part }: { part: MessagePart }) {
 /**
  * Main component that displays all messages
  */
-export const ChatMessagesRenderer = ({ data }: Props) => {
+export const ChatMessagesList = ({ data }: Props) => {
   return (
-    <div className="space-y-2 mt-2">
-      {data.length === 0 && (
+    <div>
+      {data.length === 0 ? (
         <div className="text-muted-foreground text-center py-6">
           No messages found
         </div>
+      ) : (
+        <div className="space-y-2.5">
+          <div className="h-9">
+            {data.length} message{data.length > 1 ? "s" : ""}
+          </div>
+          {data.map((message) => (
+            <JSONMessageItem key={message.id} message={message} />
+          ))}
+        </div>
       )}
-      {data.map((message) => (
-        <JSONMessageItem key={message.id} message={message} />
-      ))}
     </div>
   );
 };
