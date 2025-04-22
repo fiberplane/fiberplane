@@ -367,9 +367,9 @@ export function Observed<E = unknown, S = unknown>() {
               typeof msg === "string"
                 ? msg
                 : {
-                    type: "binary",
-                    size: msg instanceof Blob ? msg.size : msg.byteLength,
-                  },
+                  type: "binary",
+                  size: msg instanceof Blob ? msg.size : msg.byteLength,
+                },
             without,
           },
         });
@@ -396,12 +396,12 @@ export function Observed<E = unknown, S = unknown>() {
                       typeof message === "string"
                         ? message
                         : {
-                            type: "binary" as const,
-                            size:
-                              message instanceof Blob
-                                ? message.size
-                                : message.byteLength,
-                          },
+                          type: "binary" as const,
+                          size:
+                            message instanceof Blob
+                              ? message.size
+                              : message.byteLength,
+                        },
                   },
                 });
 
@@ -558,8 +558,8 @@ function createFpApp() {
         const durableObjects =
           c.env && typeof c.env === "object"
             ? (Object.entries(c.env as Record<string, unknown>).filter(
-                ([key, value]) => isDurableObjectNamespace(value),
-              ) as Array<[string, DurableObjectNamespace]>)
+              ([key, value]) => isDurableObjectNamespace(value),
+            ) as Array<[string, DurableObjectNamespace]>)
             : [];
         for (const [name] of durableObjects) {
           // See if we're aware of an agent with the same id
@@ -633,9 +633,8 @@ function createFpApp() {
         version,
         commitHash,
       };
-      const cdn = `https://cdn.jsdelivr.net/npm/@fiberplane/agents@${
-        version ? version : "latest"
-      }/dist/playground/`;
+      const cdn = `https://cdn.jsdelivr.net/npm/@fiberplane/agents@${version ? version : "latest"
+        }/dist/playground/`;
       const cssBundleUrl = new URL("index.css", cdn).href;
       const jsBundleUrl = new URL("index.js", cdn).href;
       return c.html(
@@ -659,6 +658,260 @@ function createFpApp() {
     .notFound(() => {
       return new Response(null, { status: 404 });
     });
+}
+
+/**
+ * Mixin factory that adds Fiber capabilities to Agent classes
+ *
+ * Usage:
+ * ```typescript
+ * export class MyAgent extends ObservedMixin(Agent)<Env, MyState> {
+ *   // Your agent implementation
+ * }
+ * ```
+ */
+export function ObservedMixin<
+  E, S,
+  C extends Agent<E, S>,
+  B = new (...args: any[]) => C,
+>(BaseClass: B): B & {
+  new <E, S>(...args: ConstructorParameters<B>):
+    ObservedProperties &
+    InstanceType<B>
+} {
+  return class ObservedAgent extends BaseClass implements ObservedProperties {
+    _fiberRouter?: Hono;
+    _activeStreams = new Set<SSEStreamingApi>();
+    _mcpConnections?: Map<string, MCPClientConnection>;
+
+    constructor(...args: any[]) {
+      super(...args);
+      const superClassName = Object.getPrototypeOf(this.constructor).name;
+      registerAgent(superClassName);
+    }
+
+    private recordEvent({ type, payload }: AgentEvent) {
+      for (const stream of this._activeStreams) {
+        stream.writeSSE({
+          event: type,
+          data: JSON.stringify(payload),
+        });
+      }
+    }
+
+    onStateUpdate(state: unknown, source: Connection | "server"): void {
+      const sourceId = source === "server" ? "server" : source.id;
+      this.recordEvent({
+        type: "state_change",
+        payload: {
+          state,
+          source: sourceId,
+        },
+      });
+
+      this._mcpConnections = detectMCPConnections(
+        this as unknown as Record<string, unknown>,
+      );
+
+      super.onStateUpdate(state as S, source);
+    }
+
+    onStart() {
+      super.onStart();
+      this._mcpConnections = detectMCPConnections(
+        this as unknown as Record<string, unknown>,
+      );
+    }
+
+    override broadcast(
+      msg: string | ArrayBuffer | ArrayBufferView,
+      without?: string[] | undefined,
+    ): void {
+      this.recordEvent({
+        type: "broadcast",
+        payload: {
+          message:
+            typeof msg === "string"
+              ? msg
+              : {
+                type: "binary",
+                size: msg instanceof Blob ? msg.size : msg.byteLength,
+              },
+          without,
+        },
+      });
+
+      super.broadcast(msg, without);
+    }
+
+    // Create a proxy for a WebSocket-like object to intercept send calls
+    private createWebSocketProxy(connection: Connection): Connection {
+      const self = this;
+      return new Proxy(connection, {
+        get(target, prop, receiver) {
+          // Intercept the 'send' method
+          if (prop === "send") {
+            return function (
+              this: Connection,
+              message: string | ArrayBuffer | ArrayBufferView,
+            ) {
+              self.recordEvent({
+                type: "ws_send",
+                payload: {
+                  connectionId: target.id,
+                  message:
+                    typeof message === "string"
+                      ? message
+                      : {
+                        type: "binary" as const,
+                        size:
+                          message instanceof Blob
+                            ? message.size
+                            : message.byteLength,
+                      },
+                },
+              });
+
+              // Call the original send method
+              return Reflect.get(target, prop, receiver).call(
+                target,
+                message,
+              );
+            };
+          }
+
+          // Return other properties/methods unchanged
+          return Reflect.get(target, prop, receiver);
+        },
+      });
+    }
+
+    onMessage(connection: Connection, message: WSMessage) {
+      this.recordEvent({
+        type: "ws_message",
+        payload: {
+          connectionId: connection.id,
+          message:
+            typeof message === "string"
+              ? message
+              : { type: "binary", size: message.byteLength },
+        },
+      });
+
+      const connectionProxy = this.createWebSocketProxy(connection);
+
+      // Use the original connection for the parent class
+      return super.onMessage(connectionProxy, message);
+    }
+
+    onConnect(connection: Connection, ctx: ConnectionContext) {
+      this.recordEvent({
+        type: "ws_open",
+        payload: {
+          connectionId: connection.id,
+        },
+      });
+
+      this._mcpConnections = detectMCPConnections(
+        this as unknown as Record<string, unknown>,
+      );
+
+      // Create a proxied connection to intercept send calls
+      const proxiedConnection = this.createWebSocketProxy(connection);
+
+      // Use the proxied connection for the parent class
+      return super.onConnect(proxiedConnection, ctx);
+    }
+
+    onClose(
+      connection: Connection,
+      code: number,
+      reason: string,
+      wasClean: boolean,
+    ): void | Promise<void> {
+      this.recordEvent({
+        type: "ws_close",
+        payload: { connectionId: connection.id, code, reason, wasClean },
+      });
+
+      return super.onClose(connection, code, reason, wasClean);
+    }
+
+    onRequest(request: Request): Response | Promise<Response> {
+      const namespace = request.headers.get(PARTYKIT_NAMESPACE_HEADER);
+      const instance = request.headers.get(PARTYKIT_ROOM_HEADER);
+
+      if (namespace && instance) {
+        registerAgentInstance(namespace, instance);
+      } else {
+        console.error(
+          "Missing namespace and/or instance headers in request",
+          request.headers,
+          { namespace, instance },
+        );
+      }
+
+      if (!this._fiberRouter) {
+        this._fiberRouter = createAgentAdminRouter(
+          this as unknown as Agent<unknown, unknown> & ObservedProperties,
+        );
+      }
+
+      this._fiberRouter.notFound(() => {
+        // Extract url & method for re-use in the response payload
+        const { url, method } = request;
+
+        // Create a promise chain to ensure the event is recorded
+        // since we may need to read the body of the request
+        const eventPromise = Promise.resolve().then(async () => {
+          this.recordEvent({
+            type: "http_request",
+            // Clone the request to avoid consuming the body
+            payload: await createRequestPayload(
+              request.clone() as typeof request,
+            ),
+          });
+        });
+        const result = super.onRequest(request);
+
+        // eventPromise.then()
+        if (isPromiseLike(result)) {
+          return Promise.all([result, eventPromise]).then(async ([res]) => {
+            const payload = await createResponsePayload(res.clone());
+            this.recordEvent({
+              type: "http_response",
+              payload: {
+                ...payload,
+                url,
+                method,
+              },
+            });
+
+            return res;
+          });
+        }
+
+        const capturedResponse = result.clone();
+        eventPromise.then(async () => {
+          const payload = await createResponsePayload(capturedResponse);
+
+          this.recordEvent({
+            type: "http_response",
+            payload: {
+              ...payload,
+              url,
+              method,
+            },
+          });
+        });
+
+        return result;
+      });
+      return this._fiberRouter.fetch(request);
+    }
+  } as {
+    new(...args: ConstructorParameters<B>): InstanceType<B> & ObservedProperties;
+  };
 }
 
 export function fiberplane<E = unknown>(

@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { createOpenAI } from "@ai-sdk/openai";
-import { Observed, fiberplane } from "@fiberplane/agents";
+import { Observed, ObservedMixin, fiberplane } from "@fiberplane/agents";
 import {
   Agent,
   type Schedule,
@@ -38,8 +38,8 @@ const agentNamespace = "chat-client";
  * Chat Agent implementation that handles real-time AI chat interactions
  */
 // @ts-ignore
-@Observed()
-export class ChatClient extends AIChatAgent<Env, MemoryState> {
+// @Observed()
+export class ChatClient extends ObservedMixin(AIChatAgent<Env, MemoryState>) {
   initialState = { memories: {} };
 
   mcp_: MCPClientManager | undefined;
@@ -142,8 +142,8 @@ export class ChatClient extends AIChatAgent<Env, MemoryState> {
 }
 
 // @ts-ignore
-@Observed()
-export class CustomClient extends Agent<Env, MemoryState> {
+// @Observed()
+export class CustomClient extends ObservedMixin(Agent<Env, MemoryState>) {
   async executeTask(description: string, task: Schedule<string>) {
     // Custom implementation for executing tasks
     console.log(`Executing task: ${description} at ${task}`);
