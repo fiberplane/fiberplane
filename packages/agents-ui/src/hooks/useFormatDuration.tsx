@@ -14,7 +14,8 @@ export interface FormatDurationOptions {
   /**
    * Maximum number of decimal places.
    * Will be automatically reduced for large numbers:
-   * - Values >= 100: max 1 decimal place
+   * - Values >= 10: `precision` decimal places
+   * - Values >= 100: 1 decimal places
    * - Values >= 1000: 0 decimal places
    */
   precision?: number;
