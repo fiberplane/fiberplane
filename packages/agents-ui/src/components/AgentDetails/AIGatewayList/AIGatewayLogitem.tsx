@@ -109,7 +109,12 @@ export function AIGatewayLogItem(
                 Tokens In:
               </CardHeader>
               <CardContent className="p-3 pt-1">
-                <div className="text-sm font-mono">{logDetails.tokens_in}</div>
+                <div className="flex flex-col">
+                  {logDetails.tokens_in ?? <em>Not set</em>}
+                  <em className="text-xs text-muted-foreground">
+                    Value not always accurate
+                  </em>
+                </div>
               </CardContent>
             </Card>
             <Card>
@@ -117,8 +122,11 @@ export function AIGatewayLogItem(
                 Tokens Out:
               </CardHeader>
               <CardContent className="p-3 pt-1">
-                <div className="text-sm font-mono">
+                <div className="flex flex-col">
                   {logDetails.tokens_out ?? <em>Not set</em>}
+                  <em className="text-xs text-muted-foreground">
+                    Value not always accurate
+                  </em>
                 </div>
               </CardContent>
             </Card>
@@ -127,7 +135,12 @@ export function AIGatewayLogItem(
                 Cost
               </CardHeader>
               <CardContent className="flex gap-2 items-center p-3 pt-1">
-                {cost ?? <em>Not set</em>}
+                <div className="flex flex-col">
+                  {cost ?? <em>Not set</em>}
+                  <em className="text-xs text-muted-foreground">
+                    Value not always accurate
+                  </em>
+                </div>
               </CardContent>
             </Card>
 

@@ -2,8 +2,10 @@ import { useListAIGateway } from "@/hooks";
 import type { AgentInstanceParameters } from "@/types";
 import { AIGatewayListItem } from "./AIGatewayListItem";
 
-export function AIGatewayList(props: AgentInstanceParameters) {
-  const { namespace, instance } = props;
+export function AIGatewayList(
+  props: AgentInstanceParameters & { gatewayId?: string },
+) {
+  const { namespace, instance, gatewayId } = props;
   const {
     data: aiGateways,
     error,
@@ -35,6 +37,7 @@ export function AIGatewayList(props: AgentInstanceParameters) {
                 namespace={namespace}
                 instance={instance}
                 details={gateway}
+                isSelected={gatewayId === gateway.id}
               />
             </li>
           ))}
