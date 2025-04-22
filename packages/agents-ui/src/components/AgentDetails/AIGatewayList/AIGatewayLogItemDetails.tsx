@@ -32,11 +32,11 @@ export function AIGatewayLogItemDetails(props: LogGetResponse) {
         <FpTabsTrigger value="request">Request</FpTabsTrigger>
         <FpTabsTrigger value="response">Response</FpTabsTrigger>
       </FpTabsList>
-      <FpTabsContent value="request">
-        <JSONViewer data={requestHead} label="Request" />
+      <FpTabsContent value="request" className="p-2">
+        <JSONViewer data={requestHead} label="Request" className="border-0" />
       </FpTabsContent>
-      <FpTabsContent value="response">
-        <JSONViewer data={responseHead} label="Response" />
+      <FpTabsContent value="response" className="p-2">
+        <JSONViewer data={responseHead} label="Response" className="border-0" />
       </FpTabsContent>
     </FpTabs>
   );

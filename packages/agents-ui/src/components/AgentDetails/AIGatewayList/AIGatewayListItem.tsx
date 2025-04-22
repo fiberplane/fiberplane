@@ -27,7 +27,7 @@ export function AIGatewayListItem(
       </Button>
       {expanded &&
         (details.collect_logs ? (
-          <div className="pl-5">
+          <div className="px-5">
             <AIGatewayLogList
               namespace={namespace}
               instance={instance}

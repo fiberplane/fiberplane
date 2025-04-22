@@ -30,7 +30,7 @@ export function AIGatewayList(props: AgentInstanceParameters) {
       <div className="text-gray-400 text-left text-sm flex flex-col gap-4 border-t">
         <ol className="flex flex-col">
           {aiGateways.map((gateway) => (
-            <li key={gateway.id} className="border-b not-last:border-b-0 pr-5 ">
+            <li key={gateway.id} className="border-b not-last:border-b-0">
               <AIGatewayListItem
                 namespace={namespace}
                 instance={instance}

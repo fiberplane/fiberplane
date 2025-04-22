@@ -28,7 +28,7 @@ export function AIGatewayLogList(
   return (
     <div className="flex flex-col gap-2">
       <div className="text-gray-400 text-left text-sm flex flex-col gap-3">
-        <ol className="flex flex-col gap-2">
+        <ol className="flex flex-col gap-2.5">
           {logs.map((log) => (
             <li key={log.id}>
               <AIGatewayLogItem {...props} log={log} />

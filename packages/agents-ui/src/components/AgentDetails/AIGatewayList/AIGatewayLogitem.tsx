@@ -1,4 +1,9 @@
-import { useAIGatewayLogDetail, useFormatDuration, useTimeAgo } from "@/hooks";
+import {
+  useAIGatewayLogDetail,
+  useCost,
+  useFormatDuration,
+  useTimeAgo,
+} from "@/hooks";
 import type { AgentInstanceParameters, LogListResponse } from "@/types";
 import { Calendar, Clock, FileTextIcon } from "lucide-react";
 import { useState } from "react";
@@ -31,7 +36,8 @@ export function AIGatewayLogItem(
   const [expanded, setExpanded] = useState(false);
 
   const formattedDuration = useFormatDuration(log.duration);
-
+  const latency = useFormatDuration(log.timings.latency);
+  const cost = useCost(logDetails?.cost);
   if (isLoading || isFetching) {
     return <div className="py-2 border px-5">Loading...</div>;
   }
@@ -53,7 +59,7 @@ export function AIGatewayLogItem(
     >
       <div
         className={cn(
-          "grid [grid-template-areas:'primary_secondary'_'primaryDetails_secondaryDetails'] gap-1",
+          "grid [grid-template-areas:'primary_secondary'_'primaryDetails_secondaryDetails'] gap-y-2.5 gap-x-1",
           "cursor-pointer p-4 px-4 border-border",
           "hover:bg-muted/60",
           {
@@ -63,7 +69,7 @@ export function AIGatewayLogItem(
         onClick={() => setExpanded(!expanded)}
         onKeyDown={(e) => e.key === "Enter" && setExpanded(!expanded)}
       >
-        <div className="flex gap-4 items-center text-lg">
+        <div className="flex gap-4 items-center text-base">
           <div className="flex gap-2 items-center">
             <Clock className="w-4" />
             {formattedDuration}
@@ -73,12 +79,12 @@ export function AIGatewayLogItem(
               <StatusCode
                 status={log.status_code}
                 isFailure={false}
-                className="text-lg"
+                className="text-base"
               />
             )}
           </div>
         </div>
-        <div className="text-right text-lg font-bold">
+        <div className="text-right text-base font-bold">
           {log.provider}/{log.model}
         </div>
 
@@ -121,7 +127,7 @@ export function AIGatewayLogItem(
                 Cost
               </CardHeader>
               <CardContent className="flex gap-2 items-center p-3 pt-1">
-                {logDetails.cost ?? <em>Not set</em>}
+                {cost ?? <em>Not set</em>}
               </CardContent>
             </Card>
 
@@ -130,7 +136,7 @@ export function AIGatewayLogItem(
                 Latency:
               </CardHeader>
               <CardContent className="p-3 pt-1">
-                <div className="text-sm font-mono">{log.timings.latency}</div>
+                <div className="text-sm font-mono">{latency}</div>
               </CardContent>
             </Card>
 
