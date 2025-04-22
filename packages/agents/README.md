@@ -52,6 +52,11 @@ class MyAgent extends Agent<MyEnv, MyState> {
 }
 ```
 
+### 2b. Bonus step: gain visibility into your LLM calls
+
+When you use Cloudflare's AI Gateway you can gain visibility into the most recent calls by adding an `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` to your `.dev.vars` file. The API token only needs `AI Gateway:Read` permissions. See the Cloudflare documentation around [Create API Token](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/) 
+
+
 ### 3. Access the Agents playground in your browser by appending `/fp` to your worker's URL
 
 ## Features
@@ -60,6 +65,8 @@ class MyAgent extends Agent<MyEnv, MyState> {
 - **Message Tracking**: View incoming and outgoing messages between agents
 - **Instance Monitoring**: Track each instance of your agents
 - **Database Inspection**: View the state of underlying SQLite database used by the agent
+- **AI Gateway Inspection**: Gain visibility into the calls that go through Cloudflare's AI Gateway
+
 
 ## Current Status
 
