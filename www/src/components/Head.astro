@@ -2,8 +2,12 @@
 import ogDefaultImage from "@/assets/og-default.png?url";
 import Default from "@astrojs/starlight/components/Head.astro";
 
-const { id } = Astro.props;
-const ogImagePath = id ? `og/${id}.png` : ogDefaultImage;
+const id = Astro.locals.starlightRoute.id;
+
+// If the page is the home page or the blog page, use the default OG image. As
+// blog pages are part of a collection, the root `blog` doesn't have an ID.
+const isHomeOrBlog = !id || id === "blog";
+const ogImagePath = isHomeOrBlog ? ogDefaultImage : `og/${id}.png`;
 const canonicalImageSrc = new URL(ogImagePath, Astro.site);
 ---
 

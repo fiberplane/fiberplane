@@ -577,8 +577,9 @@ export function Observed<E = unknown, S = unknown>() {
           registerAgentInstance(namespace, instance);
         } else {
           console.error(
-            "Missing namespace or instance headers in request",
-            request,
+            "Missing namespace and/or instance headers in request",
+            request.headers,
+            { namespace, instance },
           );
         }
 
@@ -701,11 +702,15 @@ function createFpApp() {
 
       const baseURI = `/agents/${rawNamespace}/${instance}`;
       const restURI = c.req.url.split(baseURI)[1];
+      const headers = new Headers(c.req.header());
+      headers.set(PARTYKIT_NAMESPACE_HEADER, rawNamespace);
+      headers.set(PARTYKIT_ROOM_HEADER, instance);
+
       const requestInfo = new Request(
         new URL(`${baseURI}${restURI}`, "http://internal"),
         {
           method: c.req.method,
-          headers: new Headers(c.req.header()),
+          headers,
           body: c.req.raw.body,
         },
       );

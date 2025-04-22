@@ -19,10 +19,18 @@ export function registerAgent(agent: string) {
 
 export function registerAgentInstance(agent: string, instance: string) {
   const namespace = toKebabCase(agent);
-  const details = agentInstances.get(namespace) || {
-    className: agent,
-    instances: [],
-  };
+  if (!agentInstances.has(namespace)) {
+    agentInstances.set(namespace, {
+      className: agent,
+      instances: [],
+    });
+  }
+  const details = agentInstances.get(namespace);
+
+  if (!details) {
+    // Note: this should not happen if the agent was registered correctly
+    throw new Error(`Agent details not found for namespace: ${namespace}`);
+  }
 
   const existingInstances = details.instances;
   if (!existingInstances.includes(instance)) {
