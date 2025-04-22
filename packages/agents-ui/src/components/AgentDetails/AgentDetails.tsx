@@ -95,6 +95,14 @@ export function AgentDetails({
   if (isMcpRoute) {
     tabId = "mcp";
   }
+  const isGatewayRoute = matches.some(
+    (match) =>
+      match.routeId === "/agents/$agentId/$instanceId/gateways/" ||
+      match.routeId === "/agents/$agentId/$instanceId/gateways/$gatewayId",
+  );
+  if (isGatewayRoute) {
+    tabId = "gateways";
+  }
 
   const { data: db } = useAgentDB(agentDetails.id, instance);
   const { data: gateways } = useListAIGateway(agentDetails.id, instance);
