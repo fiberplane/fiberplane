@@ -12,7 +12,7 @@ async function run() {
 
   // Build the agents library using tsup
   await build({
-    entry: ["src/index.ts"],
+    entry: ["src/index.tsx"],
     format: ["esm"],
     dts: true,
     // external: ["vite", "cloudflare:workers", "react", "zod", "agents"],
