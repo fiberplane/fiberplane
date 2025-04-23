@@ -732,7 +732,7 @@ function createFpApp(customPath = "/fp") {
     })
     .get("*", async (c) => {
       const options = {
-        mountedPath: "/fp",
+        mountedPath: customPath,
         version,
         commitHash,
       };
