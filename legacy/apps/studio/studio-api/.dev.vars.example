@@ -1,3 +1,0 @@
-FPX_DATABASE_URL=file:fpx.db
-FPX_LOG_LEVEL=debug
-FPX_AUTH_BASE_URL=http://localhost:3578

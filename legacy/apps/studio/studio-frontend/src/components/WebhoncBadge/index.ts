@@ -1,1 +1,0 @@
-export { WebhoncBadge } from "./WebhoncBadge";
