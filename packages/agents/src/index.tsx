@@ -644,10 +644,10 @@ export function Observed<E = unknown, S = unknown>() {
   };
 }
 
-function createFpApp() {
+function createFpApp(customPath = "/fp") {
   let firstRequest = true;
   return new Hono()
-    .basePath("/fp")
+    .basePath(customPath)
     .get("/api/agents", async (c) => {
       const agents = getAgents();
 
@@ -732,7 +732,7 @@ function createFpApp() {
     })
     .get("*", async (c) => {
       const options = {
-        mountedPath: "/fp",
+        mountedPath: customPath,
         version,
         commitHash,
       };
@@ -764,14 +764,22 @@ function createFpApp() {
     });
 }
 
+interface FiberplaneEntryWrapperOptions {
+  customPath?: string;
+}
+
+/**
+ * Creates a fetch handler that serves the Fiberplane app
+ */
 export function fiberplane<E = unknown>(
   userFetch: (
     request: Request,
     env: E,
     ctx: ExecutionContext,
   ) => Promise<Response>,
+  options?: FiberplaneEntryWrapperOptions,
 ) {
-  const fpApp = createFpApp();
+  const fpApp = createFpApp(options?.customPath);
 
   return async function fetch(request: Request, env: E, ctx: ExecutionContext) {
     const response = await fpApp.fetch(request, env, ctx);
