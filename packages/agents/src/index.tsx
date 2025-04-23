@@ -42,6 +42,10 @@ type AgentConstructor<E = unknown, S = unknown> = new (
   ...args: any[]
 ) => Agent<E, S>;
 
+// Add this type to fix the ConstructorType not found error
+// biome-ignore lint/suspicious/noExplicitAny: mixin pattern requires generic constructor parameters
+type ConstructorType<T> = new (...args: any[]) => T;
+
 type MCPClientConnection = MCPClientManager["mcpConnections"][string];
 
 const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
@@ -202,9 +206,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
         ([serverId, conn]) => {
           return {
             serverId,
-            // @ts-expect-error for some reason the types are not up to date with the class itself
             url: conn.url,
-            // @ts-expect-error for some reason the types are not up to date with the class itself
             connectionState: conn.connectionState,
             instructions: conn.instructions,
             tools: conn.tools,
@@ -407,7 +409,7 @@ type ObservedAgent = Agent<unknown, unknown> & ObservedProperties;
  * }
  * ```
  */
-export function Observed<E = unknown, S = unknown>() {
+function Observed<E = unknown, S = unknown>() {
   return <T extends AgentConstructor<E, S>>(BaseClass: T) => {
     return class extends BaseClass {
       _fiberRouter?: Hono;
@@ -464,9 +466,9 @@ export function Observed<E = unknown, S = unknown>() {
               typeof msg === "string"
                 ? msg
                 : {
-                  type: "binary",
-                  size: msg instanceof Blob ? msg.size : msg.byteLength,
-                },
+                    type: "binary",
+                    size: msg instanceof Blob ? msg.size : msg.byteLength,
+                  },
             without,
           },
         });
@@ -493,12 +495,12 @@ export function Observed<E = unknown, S = unknown>() {
                       typeof message === "string"
                         ? message
                         : {
-                          type: "binary" as const,
-                          size:
-                            message instanceof Blob
-                              ? message.size
-                              : message.byteLength,
-                        },
+                            type: "binary" as const,
+                            size:
+                              message instanceof Blob
+                                ? message.size
+                                : message.byteLength,
+                          },
                   },
                 });
 
@@ -657,8 +659,8 @@ function createFpApp() {
         const durableObjects =
           c.env && typeof c.env === "object"
             ? (Object.entries(c.env as Record<string, unknown>).filter(
-              ([key, value]) => isDurableObjectNamespace(value),
-            ) as Array<[string, DurableObjectNamespace]>)
+                ([key, value]) => isDurableObjectNamespace(value),
+              ) as Array<[string, DurableObjectNamespace]>)
             : [];
         for (const [name] of durableObjects) {
           // See if we're aware of an agent with the same id
@@ -736,8 +738,9 @@ function createFpApp() {
         version,
         commitHash,
       };
-      const cdn = `https://cdn.jsdelivr.net/npm/@fiberplane/agents@${version ? version : "latest"
-        }/dist/playground/`;
+      const cdn = `https://cdn.jsdelivr.net/npm/@fiberplane/agents@${
+        version ? version : "latest"
+      }/dist/playground/`;
       const cssBundleUrl = new URL("index.css", cdn).href;
       const jsBundleUrl = new URL("index.js", cdn).href;
       return c.html(
@@ -768,21 +771,23 @@ function createFpApp() {
  *
  * Usage:
  * ```typescript
- * export class MyAgent extends ObservedMixin(Agent)<Env, MyState> {
+ * export class MyAgent extends ObservedMixin(BaseClass)<Env, MyState> {
  *   // Your agent implementation
  * }
  * ```
  */
-
-
-
 export function ObservedMixin<
-  E,
-  C,
-  BaseT extends new (...args: any[]) => Agent<E, C>
->(BaseClass: BaseT): BaseT & (new (...args: any[]) => ObservedProperties) {
-  // Create the mixed class
-  class ObservedAgent extends BaseClass implements ObservedProperties {
+  E = BlankEnv,
+  S = unknown,
+  BaseAgent extends ConstructorType<Agent<E, S>> = ConstructorType<Agent<E, S>>,
+>(
+  BaseClass: BaseAgent,
+): BaseAgent & {
+  new (
+    ...args: ConstructorParameters<BaseAgent>
+  ): Agent<E, S> & ObservedProperties;
+} {
+  return class ObservedAgent extends BaseClass implements ObservedProperties {
     _fiberRouter?: Hono;
     _activeStreams = new Set<SSEStreamingApi>();
     _mcpConnections?: Map<string, MCPClientConnection>;
@@ -817,8 +822,8 @@ export function ObservedMixin<
         this as unknown as Record<string, unknown>,
       );
 
-      // Pass the state without casting to S since it's not in scope here
-      super.onStateUpdate(state, source);
+      // Cast state to S to satisfy the type constraint of the parent class
+      super.onStateUpdate(state as S, source);
     }
 
     onStart() {
@@ -839,9 +844,9 @@ export function ObservedMixin<
             typeof msg === "string"
               ? msg
               : {
-                type: "binary",
-                size: msg instanceof Blob ? msg.size : msg.byteLength,
-              },
+                  type: "binary",
+                  size: msg instanceof Blob ? msg.size : msg.byteLength,
+                },
           without,
         },
       });
@@ -868,12 +873,12 @@ export function ObservedMixin<
                     typeof message === "string"
                       ? message
                       : {
-                        type: "binary" as const,
-                        size:
-                          message instanceof Blob
-                            ? message.size
-                            : message.byteLength,
-                      },
+                          type: "binary" as const,
+                          size:
+                            message instanceof Blob
+                              ? message.size
+                              : message.byteLength,
+                        },
                 },
               });
 
@@ -1011,9 +1016,7 @@ export function ObservedMixin<
       });
       return this._fiberRouter.fetch(request);
     }
-  }
-
-  return ObservedAgent as any;
+  };
 }
 
 export function fiberplane<E = unknown>(

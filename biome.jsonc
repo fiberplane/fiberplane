@@ -119,7 +119,8 @@
       // ignore any test data files
       "test-data/*.js",
       // fpx-workers build files
-      "fpx-workers/build/**/*"
+      "fpx-workers/build/**/*",
+      "**/*.d.ts"
       // Rust code related
       // This caused biome to ignore the entire fpx folder
       // commenting out for now as we still want to find a way to

@@ -40,12 +40,32 @@ const agentNamespace = "chat-client";
  */
 // @ts-ignore
 
-// const ChatAgent = ObservedMixin(AIChatAgent)<Env, MemoryState>;
-const ChatAgent = ObservedMixin<AIChatAgent<Env, MemoryState>>(AIChatAgent);
+// const ChatAgent =
+const ChatAgent = ObservedMixin(AIChatAgent)<Env, MemoryState>;
+
+export class Silly extends ChatAgent {
+  // initialState = { memories: {} };
+
+  onStart() {
+    // console.log("Silly agent started");
+    console.log(this.env.CustomClient);
+  }
+
+  async onRequest(request: Request) {
+    return new Response(
+      JSON.stringify({
+        url: request.url,
+      }),
+      {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
+      },
+    );
+  }
+}
+
 // @Observed()
 export class ChatClient extends ChatAgent {
-  // export class ChatClient extends AIChatAgent<Env, MemoryState> {
-  // export class ChatClient extends AIChatAgent<Env, MemoryState> {
   initialState = { memories: {} };
 
   mcp_: MCPClientManager | undefined;
@@ -147,11 +167,10 @@ export class ChatClient extends ChatAgent {
   }
 }
 
-
 // const ObservedAgent = ObservedMixin(Agent<Env, MemoryState>)<Env, MemoryState>;
 // @Observed()
-export class CustomClient extends ObservedMixin<Env, MemoryState, typeof Agent<Env, MemoryState>>(Agent) {
-  // export class CustomClient extends ObservedMixin(Agent<Env, MemoryState>) {
+// export class CustomClient extends ObservedMixin<Env, MemoryState, typeof Agent<Env, MemoryState>>(Agent) {
+export class CustomClient extends ObservedMixin<Env, MemoryState>(Agent) {
   // Initialize with the required properties
   initialState = { memories: {} };
 
