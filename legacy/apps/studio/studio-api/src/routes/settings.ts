@@ -73,4 +73,16 @@ app.post("/v0/settings", cors(), async (ctx) => {
   return ctx.json(updatedSettings);
 });
 
+/**
+ * Documentation Links
+ */
+app.get("/v0/settings/docs", cors(), async (ctx) => {
+  const documentationLinks = {
+    apiKey: "https://docs.fiberplane.com/ai-api-keys",
+    aiProvider: "https://docs.fiberplane.com/ai-credits",
+    model: "https://docs.fiberplane.com/ai-models",
+  };
+  return ctx.json(documentationLinks);
+});
+
 export default app;

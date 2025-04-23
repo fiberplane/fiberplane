@@ -148,6 +148,26 @@ function SettingsLayout({
         </TabsContent>
         <TabsContent className="m-0" value={AI_TAB}>
           <AISettingsForm settings={settings} />
+          <div className="mt-4">
+            <h4 className="text-md font-medium">Documentation Links</h4>
+            <ul className="list-disc list-inside">
+              <li>
+                <a href="https://docs.fiberplane.com/ai-api-keys" target="_blank" rel="noopener noreferrer">
+                  How to get API key from OpenAI
+                </a>
+              </li>
+              <li>
+                <a href="https://docs.fiberplane.com/ai-credits" target="_blank" rel="noopener noreferrer">
+                  Credits explanation for Fiberplane AI
+                </a>
+              </li>
+              <li>
+                <a href="https://docs.fiberplane.com/ai-models" target="_blank" rel="noopener noreferrer">
+                  Documentation explaining various models
+                </a>
+              </li>
+            </ul>
+          </div>
         </TabsContent>
         <TabsContent className="m-0" value={PROXY_REQUESTS_TAB}>
           <ProxyRequestsSettingsForm settings={settings} />

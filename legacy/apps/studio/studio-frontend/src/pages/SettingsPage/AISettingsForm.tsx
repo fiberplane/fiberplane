@@ -166,7 +166,7 @@ export function AISettingsForm({
                   <div className="flex flex-col gap-2">
                     <FormLabel>AI Provider</FormLabel>
                     <FormDescription>
-                      Select the AI provider for request autofill.
+                      Select the AI provider for request autofill. For more information, see the <a href="https://docs.fiberplane.com/ai-providers">Fiberplane AI Providers documentation</a>.
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -212,6 +212,9 @@ export function AISettingsForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="pr-2">Model</FormLabel>
+                        <FormDescription>
+                          For more information on the available models, see the <a href="https://docs.fiberplane.com/ai-models">Fiberplane AI Models documentation</a>.
+                        </FormDescription>
                         <FormControl>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -250,6 +253,9 @@ export function AISettingsForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>API Key</FormLabel>
+                        <FormDescription>
+                          For more information on obtaining an API key, see the <a href="https://docs.fiberplane.com/ai-api-keys">Fiberplane AI API Keys documentation</a>.
+                        </FormDescription>
                         <FormControl>
                           <ApiKeyInput
                             value={field.value ?? ""}
