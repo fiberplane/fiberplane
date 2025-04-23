@@ -64,7 +64,6 @@ export class Silly extends ChatAgent {
   }
 }
 
-// @Observed()
 export class ChatClient extends ChatAgent {
   initialState = { memories: {} };
 
@@ -167,10 +166,7 @@ export class ChatClient extends ChatAgent {
   }
 }
 
-// const ObservedAgent = ObservedMixin(Agent<Env, MemoryState>)<Env, MemoryState>;
-// @Observed()
-// export class CustomClient extends ObservedMixin<Env, MemoryState, typeof Agent<Env, MemoryState>>(Agent) {
-export class CustomClient extends ObservedMixin<Env, MemoryState>(Agent) {
+export class CustomClient extends ObservedMixin(Agent)<Env, MemoryState> {
   // Initialize with the required properties
   initialState = { memories: {} };
 
