@@ -101,7 +101,6 @@ const JSONViewer = ({ data }: { data: unknown }) => {
         )}
       >
         <div className="flex justify-between items-center w-full px-4">
-
           Details
           {isExpanded ? (
             <ChevronUp className="h-4 w-4" />
@@ -112,7 +111,7 @@ const JSONViewer = ({ data }: { data: unknown }) => {
       </Button>
 
       {isExpanded && (
-        <div className="border border-border-secondary rounded-b-lg p-2.5 px-4 font-mono ">
+        <div className="border border-border-secondary rounded-b-lg p-2.5 px-4 font-mono">
           <CodeMirrorJsonEditor
             onChange={noop}
             readOnly

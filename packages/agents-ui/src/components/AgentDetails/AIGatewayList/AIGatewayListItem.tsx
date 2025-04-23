@@ -14,17 +14,17 @@ export function AIGatewayListItem(
 
   const linkProps = isSelected
     ? {
-      to: "/agents/$agentId/$instanceId/gateways",
-      params: { agentId: namespace, instanceId: instance },
-    }
+        to: "/agents/$agentId/$instanceId/gateways",
+        params: { agentId: namespace, instanceId: instance },
+      }
     : {
-      to: "/agents/$agentId/$instanceId/gateways/$gatewayId",
-      params: {
-        agentId: namespace,
-        instanceId: instance,
-        gatewayId: details.id,
-      },
-    };
+        to: "/agents/$agentId/$instanceId/gateways/$gatewayId",
+        params: {
+          agentId: namespace,
+          instanceId: instance,
+          gatewayId: details.id,
+        },
+      };
 
   return (
     <div className="grid grid-cols-1 gap-2.5">
