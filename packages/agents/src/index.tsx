@@ -1,11 +1,6 @@
-import type {
-  Prompt as MCPPrompt,
-  Resource,
-  Tool,
-} from "@modelcontextprotocol/sdk/types.js";
 import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
 import { getAgentByName } from "agents";
-import type { MCPClientManager, getNamespacedData } from "agents/mcp/client";
+import type { MCPClientManager } from "agents/mcp/client";
 import Cloudflare from "cloudflare";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
@@ -37,10 +32,6 @@ type TableSchema = {
   error?: string;
 };
 type DatabaseResult = Record<string, TableSchema>;
-type AgentConstructor<E = unknown, S = unknown> = new (
-  // biome-ignore lint/suspicious/noExplicitAny: mixin pattern requires any[]
-  ...args: any[]
-) => Agent<E, S>;
 
 // Add this type to fix the ConstructorType not found error
 // biome-ignore lint/suspicious/noExplicitAny: mixin pattern requires generic constructor parameters
@@ -378,7 +369,7 @@ function isMCPClientManagerLike(value: unknown): value is MCPClientManager {
 function detectMCPConnections(obj: Record<string, unknown>) {
   const connections = new Map<string, MCPClientConnection>();
 
-  for (const [key, value] of Object.entries(obj)) {
+  for (const [_, value] of Object.entries(obj)) {
     if (!value || typeof value !== "object") {
       continue;
     }
@@ -397,255 +388,6 @@ function detectMCPConnections(obj: Record<string, unknown>) {
 
 type ObservedAgent = Agent<unknown, unknown> & ObservedProperties;
 
-/**
- * Class decorator factory that adds Fiber capabilities to Agent classes
- *
- * Usage:
- * ```typescript
- *
- * @Observed()
- * export class MyAgent extends Agent {
- *   // Your agent implementation
- * }
- * ```
- */
-function Observed<E = unknown, S = unknown>() {
-  return <T extends AgentConstructor<E, S>>(BaseClass: T) => {
-    return class extends BaseClass {
-      _fiberRouter?: Hono;
-      _activeStreams = new Set<SSEStreamingApi>();
-      _mcpConnections?: Map<string, MCPClientConnection>;
-      // biome-ignore lint/suspicious/noExplicitAny: mixin pattern requires any[]
-      constructor(...args: any[]) {
-        super(...args);
-        const superClassName = Object.getPrototypeOf(this.constructor).name;
-        registerAgent(superClassName);
-      }
-
-      private recordEvent({ type, payload }: AgentEvent) {
-        for (const stream of this._activeStreams) {
-          stream.writeSSE({
-            event: type,
-            data: JSON.stringify(payload),
-          });
-        }
-      }
-
-      onStateUpdate(state: unknown, source: Connection | "server"): void {
-        const sourceId = source === "server" ? "server" : source.id;
-        this.recordEvent({
-          type: "state_change",
-          payload: {
-            state,
-            source: sourceId,
-          },
-        });
-
-        this._mcpConnections = detectMCPConnections(
-          this as Record<string, unknown>,
-        );
-
-        super.onStateUpdate(state as S, source);
-      }
-
-      onStart() {
-        super.onStart();
-        this._mcpConnections = detectMCPConnections(
-          this as Record<string, unknown>,
-        );
-      }
-
-      override broadcast(
-        msg: string | ArrayBuffer | ArrayBufferView,
-        without?: string[] | undefined,
-      ): void {
-        this.recordEvent({
-          type: "broadcast",
-          payload: {
-            message:
-              typeof msg === "string"
-                ? msg
-                : {
-                    type: "binary",
-                    size: msg instanceof Blob ? msg.size : msg.byteLength,
-                  },
-            without,
-          },
-        });
-
-        super.broadcast(msg, without);
-      }
-
-      // Create a proxy for a WebSocket-like object to intercept send calls
-      private createWebSocketProxy(connection: Connection): Connection {
-        const self = this;
-        return new Proxy(connection, {
-          get(target, prop, receiver) {
-            // Intercept the 'send' method
-            if (prop === "send") {
-              return function (
-                this: Connection,
-                message: string | ArrayBuffer | ArrayBufferView,
-              ) {
-                self.recordEvent({
-                  type: "ws_send",
-                  payload: {
-                    connectionId: target.id,
-                    message:
-                      typeof message === "string"
-                        ? message
-                        : {
-                            type: "binary" as const,
-                            size:
-                              message instanceof Blob
-                                ? message.size
-                                : message.byteLength,
-                          },
-                  },
-                });
-
-                // Call the original send method
-                return Reflect.get(target, prop, receiver).call(
-                  target,
-                  message,
-                );
-              };
-            }
-
-            // Return other properties/methods unchanged
-            return Reflect.get(target, prop, receiver);
-          },
-        });
-      }
-
-      onMessage(connection: Connection, message: WSMessage) {
-        this.recordEvent({
-          type: "ws_message",
-          payload: {
-            connectionId: connection.id,
-            message:
-              typeof message === "string"
-                ? message
-                : { type: "binary", size: message.byteLength },
-          },
-        });
-
-        const connectionProxy = this.createWebSocketProxy(connection);
-
-        // Use the original connection for the parent class
-        return super.onMessage(connectionProxy, message);
-      }
-
-      onConnect(connection: Connection, ctx: ConnectionContext) {
-        this.recordEvent({
-          type: "ws_open",
-          payload: {
-            connectionId: connection.id,
-          },
-        });
-
-        this._mcpConnections = detectMCPConnections(
-          this as Record<string, unknown>,
-        );
-
-        // Create a proxied connection to intercept send calls
-        const proxiedConnection = this.createWebSocketProxy(connection);
-
-        // Use the proxied connection for the parent class
-        return super.onConnect(proxiedConnection, ctx);
-      }
-
-      onClose(
-        connection: Connection,
-        code: number,
-        reason: string,
-        wasClean: boolean,
-      ): void | Promise<void> {
-        this.recordEvent({
-          type: "ws_close",
-          payload: { connectionId: connection.id, code, reason, wasClean },
-        });
-
-        return super.onClose(connection, code, reason, wasClean);
-      }
-
-      onRequest(request: Request): Response | Promise<Response> {
-        const namespace = request.headers.get(PARTYKIT_NAMESPACE_HEADER);
-        const instance = request.headers.get(PARTYKIT_ROOM_HEADER);
-
-        if (namespace && instance) {
-          registerAgentInstance(namespace, instance);
-        } else {
-          console.error(
-            "Missing namespace and/or instance headers in request",
-            request.headers,
-            { namespace, instance },
-          );
-        }
-
-        if (!this._fiberRouter) {
-          this._fiberRouter = createAgentAdminRouter(
-            this as unknown as ObservedAgent,
-          );
-        }
-
-        this._fiberRouter.notFound(() => {
-          // Extract url & method for re-use in the response payload
-          const { url, method } = request;
-
-          // Create a promise chain to ensure the event is recorded
-          // since we may need to read the body of the request
-          const eventPromise = Promise.resolve().then(async () => {
-            this.recordEvent({
-              type: "http_request",
-              // Clone the request to avoid consuming the body
-              payload: await createRequestPayload(
-                request.clone() as typeof request,
-              ),
-            });
-          });
-          const result = super.onRequest(request);
-
-          // eventPromise.then()
-          if (isPromiseLike(result)) {
-            return Promise.all([result, eventPromise]).then(async ([res]) => {
-              const payload = await createResponsePayload(res.clone());
-              this.recordEvent({
-                type: "http_response",
-                payload: {
-                  ...payload,
-                  url,
-                  method,
-                },
-              });
-
-              return res;
-            });
-          }
-
-          const capturedResponse = result.clone();
-          eventPromise.then(async () => {
-            const payload = await createResponsePayload(capturedResponse);
-
-            this.recordEvent({
-              type: "http_response",
-              payload: {
-                ...payload,
-                url,
-                method,
-              },
-            });
-          });
-
-          return result;
-        });
-
-        return this._fiberRouter.fetch(request, this.env);
-      }
-    } as T;
-  };
-}
-
 function createFpApp() {
   let firstRequest = true;
   return new Hono()
@@ -659,7 +401,7 @@ function createFpApp() {
         const durableObjects =
           c.env && typeof c.env === "object"
             ? (Object.entries(c.env as Record<string, unknown>).filter(
-                ([key, value]) => isDurableObjectNamespace(value),
+                ([_, value]) => isDurableObjectNamespace(value),
               ) as Array<[string, DurableObjectNamespace]>)
             : [];
         for (const [name] of durableObjects) {
