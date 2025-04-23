@@ -1,0 +1,278 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`barrel-files 1`] = `
+"/* index.ts */
+const app = new Hono();
+
+app.get("/", (c) => c.text("Hello, Hono!")
+/* EOF: index.ts */"
+`;
+
+exports[`barrel-files 2`] = `
+"/* index.ts */
+import { cors } from "hono/cors";
+import { getUser } from "./db";
+const app = new Hono();
+
+app.get("/user/1", cors()async (c) => {
+  // await getUser();
+  const user = await getUser();
+  return c.json(user);
+}
+/* EOF: index.ts */
+/* db/index.ts */
+
+export { getUser } from "./getUser"
+/* EOF: db/index.ts */
+/* db/getUser.ts */
+import { measure } from "@fiberplane/hono-otel";
+import { sleep } from "../utils";
+import { User } from "../types";
+
+const DEFAULT_USER_NAME = "John Doe"
+
+const DEFAULT_EMAIL = "john@doe.com"
+
+export const getUser = measure("getUser", async () => {
+  await sleep(100);
+  const value: User = {
+    name: DEFAULT_USER_NAME,
+    email: DEFAULT_EMAIL,
+  };
+  return value;
+});
+/* EOF: db/getUser.ts */
+/* utils.ts */
+
+export async function sleep(duration: number) {
+  return new Promise((resolve) => setTimeout(resolve, duration));
+}
+/* EOF: utils.ts */
+/* types.ts */
+
+export type Email = string;
+
+export type User = {
+  name: string;
+  email: Email;
+};
+/* EOF: types.ts */"
+`;
+
+exports[`hono-factory 1`] = `
+"/* index.ts */
+const app = new Hono();
+/* EOF: index.ts */
+/* factory.ts */
+const app = new Hono();
+
+app.get("/", (c) => c.text("Hello, Hono!")
+/* EOF: factory.ts */"
+`;
+
+exports[`import-as 1`] = `
+"/* index.ts */
+import { cors } from "hono/cors";
+import * as db from "./db";
+const app = new Hono();
+
+app.get("/user/1", cors()async (c) => {
+  const user = await db.getUser();
+  return c.json(user);
+}
+/* EOF: index.ts */
+/* db.ts */
+import { measure } from "@fiberplane/hono-otel";
+import { path } from "node:path";
+
+const sleep = (duration = 100) =>
+  new Promise((resolve) => setTimeout(resolve, duration))
+
+export const getUser = measure("getUser", async () => {
+  await sleep();
+
+  // Do something silly with the path module
+  const parent = path.resolve(__dirname, "..");
+  console.log("parent folder", parent);
+  const value = {
+    name: "John Doe",
+    email: "john@doe.com",
+  };
+  return value;
+});
+/* EOF: db.ts */"
+`;
+
+exports[`import-as 2`] = `
+"/* index.ts */
+import { cors } from "hono/cors";
+import { getProfile as getUserProfile } from "./db";
+const app = new Hono();
+
+app.get("/user/1/profile", cors()async (c) => {
+  const profile = await getUserProfile();
+  return c.json(profile);
+}
+/* EOF: index.ts */
+/* db.ts */
+import { measure } from "@fiberplane/hono-otel";
+import { path } from "node:path";
+
+const sleep = (duration = 100) =>
+  new Promise((resolve) => setTimeout(resolve, duration))
+
+export const getUser = measure("getUser", async () => {
+  await sleep();
+
+  // Do something silly with the path module
+  const parent = path.resolve(__dirname, "..");
+  console.log("parent folder", parent);
+  const value = {
+    name: "John Doe",
+    email: "john@doe.com",
+  };
+  return value;
+});
+
+export async function getProfile() {
+  const user = await getUser();
+  await sleep(10);
+  return {
+    ...user,
+    image: "https://xsgames.co/randomusers/avatar.php?g=pixel",
+  };
+}
+/* EOF: db.ts */"
+`;
+
+exports[`multiple 1`] = `
+"/* other.ts */
+const app = new Hono();
+
+app.get("/", (c) => {
+  return c.json({});
+}
+/* EOF: other.ts */"
+`;
+
+exports[`multiple 2`] = `
+"/* other.ts */
+const app = new Hono();
+/* EOF: other.ts */"
+`;
+
+exports[`multiple 3`] = `
+"/* other.ts */
+const app = new Hono();
+
+app.post("/hello-world", (c) => c.json({ hello: "world" })
+/* EOF: other.ts */"
+`;
+
+exports[`zod-openapi 1`] = `
+"/* index.ts */
+import { createRoute,z,z } from "@hono/zod-openapi";
+import { basicAuth } from "hono/basic-auth";
+const app = new OpenAPIHono();
+
+const NewUserSchema = z
+  .object({
+    name: z.string().openapi({
+      example: "John Doe",
+      description: "The name of the user",
+    }),
+    age: z.number().openapi({
+      example: 42,
+    }),
+  })
+  .openapi("NewUser")
+
+const UserSchema = z
+  .object({
+    id: z.number().openapi({
+      example: 123,
+    }),
+    name: z.string().openapi({
+      example: "John Doe",
+    }),
+    age: z.number().openapi({
+      example: 42,
+    }),
+  })
+  .openapi("User")
+
+app.post("/users", const createUserRoute = createRoute({
+  method: "post",
+  path: "/users",
+  middleware: [
+    basicAuth({
+      username: "goose",
+      password: "honkhonk",
+    }),
+  ] as const, // Use \`as const\` to ensure TypeScript infers the middleware's Context correctly
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: NewUserSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    201: {
+      content: {
+        "application/json": {
+          schema: UserSchema,
+        },
+      },
+      description: "Retrieve the user",
+    },
+  },
+})
+/* EOF: index.ts */"
+`;
+
+exports[`zod-openapi 2`] = `
+"/* index.ts */
+import { createRoute,z,z } from "@hono/zod-openapi";
+import { basicAuth } from "hono/basic-auth";
+const app = new OpenAPIHono();
+
+const UserSchema = z
+  .object({
+    id: z.number().openapi({
+      example: 123,
+    }),
+    name: z.string().openapi({
+      example: "John Doe",
+    }),
+    age: z.number().openapi({
+      example: 42,
+    }),
+  })
+  .openapi("User")
+
+app.get("/users", createRoute({
+    method: "get",
+    path: "/users",
+    middleware: [
+      basicAuth({
+        username: "goose",
+        password: "honkhonk",
+      }),
+    ] as const, // Use \`as const\` to ensure TypeScript infers the middleware's Context correctly
+    request: {},
+    responses: {
+      20: {
+        content: {
+          "application/json": {
+            schema: z.Array(UserSchema),
+          },
+        },
+        description: "Retrieve all users",
+      },
+    },
+  })
+/* EOF: index.ts */"
+`;

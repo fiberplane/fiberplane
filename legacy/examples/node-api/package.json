@@ -1,0 +1,16 @@
+{
+  "name": "node-api",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "debug": "tsx --inspect-brk src/index.ts"
+  },
+  "dependencies": {
+    "@fiberplane/hono-otel": "workspace:*",
+    "@hono/node-server": "^1.13.7",
+    "hono": "^4.6.12"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.8",
+    "tsx": "^4.19.2"
+  }
+}

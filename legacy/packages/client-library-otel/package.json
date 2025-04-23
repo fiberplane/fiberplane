@@ -1,0 +1,55 @@
+{
+  "name": "@fiberplane/hono-otel",
+  "description": "Hono middleware to forward OpenTelemetry traces to a local instance of @fiberplane/studio",
+  "author": "Fiberplane<info@fiberplane.com>",
+  "type": "module",
+  "main": "dist/index.js",
+  "version": "0.8.0",
+  "dependencies": {
+    "@opentelemetry/api": "~1.9.0",
+    "@opentelemetry/core": "1.9.0",
+    "@opentelemetry/exporter-trace-otlp-http": "0.35.0",
+    "@opentelemetry/otlp-exporter-base": "0.35.0",
+    "@opentelemetry/otlp-transformer": "0.35.0",
+    "@opentelemetry/resources": "^1.28.0",
+    "@opentelemetry/sdk-trace-base": "^1.28.0",
+    "@opentelemetry/semantic-conventions": "^1.28.0",
+    "@types/shimmer": "^1.2.0",
+    "shimmer": "^1.2.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@cloudflare/workers-types": "^4.20241112.0",
+    "hono": "^4.6.12",
+    "nodemon": "^3.1.9",
+    "rimraf": "^6.0.1",
+    "tsc-alias": "^1.8.10",
+    "typescript": "^5.7.2",
+    "vitest": "^1.6.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT or Apache 2",
+  "keywords": [
+    "hono",
+    "hono middleware",
+    "local",
+    "debugging",
+    "open-telemetry",
+    "otel"
+  ],
+  "scripts": {
+    "format": "biome check . --write",
+    "lint": "biome lint .",
+    "typecheck": "tsc --noEmit",
+    "build": "pnpm run clean && npm run build:types && pnpm run build:alias",
+    "build:types": "tsc --project tsconfig.json",
+    "build:alias": "tsc-alias -p tsconfig.json -f",
+    "dev": "wrangler dev sample/index.ts",
+    "prepublishOnly": "pnpm run build",
+    "clean": "rimraf dist",
+    "test": "vitest --run",
+    "watch": "nodemon --watch src --ext ts,js,json --exec \"pnpm run build\""
+  }
+}
