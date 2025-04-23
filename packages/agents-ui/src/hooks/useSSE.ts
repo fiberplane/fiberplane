@@ -182,9 +182,7 @@ export function useAgentInstanceEvents(namespace: string, instance: string) {
 
   const options: UseSSEConnectionOptions = {
     ...baseOptions,
-    headers: {
-      "x-partykit-room": instance,
-    },
+    headers: {},
     onMessage: (event) => {
       const data = JSON.parse(event.data);
 

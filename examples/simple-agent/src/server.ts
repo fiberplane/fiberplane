@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { createOpenAI } from "@ai-sdk/openai";
-import { Observed, ObservedMixin, fiberplane } from "@fiberplane/agents";
+import { ObservedMixin, fiberplane } from "@fiberplane/agents";
 import {
   Agent,
   type Schedule,
@@ -34,12 +34,18 @@ export const agentContext = new AsyncLocalStorage<ChatClient>();
 
 const agentNamespace = "chat-client";
 
+// const New
 /**
  * Chat Agent implementation that handles real-time AI chat interactions
  */
 // @ts-ignore
+
+// const ChatAgent = ObservedMixin(AIChatAgent)<Env, MemoryState>;
+const ChatAgent = ObservedMixin<AIChatAgent<Env, MemoryState>>(AIChatAgent);
 // @Observed()
-export class ChatClient extends ObservedMixin(AIChatAgent<Env, MemoryState>) {
+export class ChatClient extends ChatAgent {
+  // export class ChatClient extends AIChatAgent<Env, MemoryState> {
+  // export class ChatClient extends AIChatAgent<Env, MemoryState> {
   initialState = { memories: {} };
 
   mcp_: MCPClientManager | undefined;
@@ -141,9 +147,32 @@ export class ChatClient extends ObservedMixin(AIChatAgent<Env, MemoryState>) {
   }
 }
 
-// @ts-ignore
+
+// const ObservedAgent = ObservedMixin(Agent<Env, MemoryState>)<Env, MemoryState>;
 // @Observed()
-export class CustomClient extends ObservedMixin(Agent<Env, MemoryState>) {
+export class CustomClient extends ObservedMixin<Env, MemoryState, typeof Agent<Env, MemoryState>>(Agent) {
+  // export class CustomClient extends ObservedMixin(Agent<Env, MemoryState>) {
+  // Initialize with the required properties
+  initialState = { memories: {} };
+
+  // Implement required methods from Agent interface
+  async onStart() {
+    // Initialize anything needed when the agent starts
+    console.log("CustomClient agent started");
+  }
+
+  async onRequest(request: Request) {
+    return new Response(
+      JSON.stringify({
+        url: request.url,
+      }),
+      {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
+      },
+    );
+  }
+
   async executeTask(description: string, task: Schedule<string>) {
     // Custom implementation for executing tasks
     console.log(`Executing task: ${description} at ${task}`);
@@ -181,7 +210,8 @@ const worker = {
 };
 
 async function doSomethingWithCustomClient(request: Request, env: Env) {
-  const agent = await getAgentByName(env.CustomClient, "my-custom-client");
+  const instanceName = "my-default-instance";
+  const agent = await getAgentByName(env.CustomClient, instanceName);
   if (!agent) {
     console.error("Agent not found");
     return new Response("Agent not found", { status: 404 });
@@ -189,7 +219,14 @@ async function doSomethingWithCustomClient(request: Request, env: Env) {
   agent.fetch(
     new Request("https://example.com", {
       headers: {
-        "x-partykit-room": "my-custom-client",
+        // These headers are required by the Observed durable object
+        // to identify the agent (namespace) and the room (instance) it belongs to
+
+        // Namespace (kebab case of the agent name)
+        // So CustomClient -> custom-client
+        "x-partykit-namespace": "custom-client",
+        // instance
+        "x-partykit-room": instanceName,
       },
     }),
   );

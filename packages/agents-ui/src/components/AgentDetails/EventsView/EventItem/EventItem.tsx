@@ -106,6 +106,7 @@ export const EventItem = ({ event }: { event: UIAgentEvent }) => {
               </div>
             </div>
           </div>
+
           <div className="flex items-center text-sm text-muted-foreground justify-end [grid-area:time] gap-2">
             {formattedDate}
           </div>
