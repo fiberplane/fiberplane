@@ -1,6 +1,6 @@
 import type { AIGatewayListResponse, AgentInstanceParameters } from "@/types";
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "../../ui/button";
 import { AIGatewayLogList } from "./AIGatewayLogList";
 
@@ -14,26 +14,26 @@ export function AIGatewayListItem(
 
   const linkProps = isSelected
     ? {
-        to: "/agents/$agentId/$instanceId/gateways",
-        params: { agentId: namespace, instanceId: instance },
-      }
+      to: "/agents/$agentId/$instanceId/gateways",
+      params: { agentId: namespace, instanceId: instance },
+    }
     : {
-        to: "/agents/$agentId/$instanceId/gateways/$gatewayId",
-        params: {
-          agentId: namespace,
-          instanceId: instance,
-          gatewayId: details.id,
-        },
-      };
+      to: "/agents/$agentId/$instanceId/gateways/$gatewayId",
+      params: {
+        agentId: namespace,
+        instanceId: instance,
+        gatewayId: details.id,
+      },
+    };
 
   return (
     <div className="grid grid-cols-1 gap-2.5">
       <Link {...linkProps}>
         <Button size="default" variant="ghost" className="w-full justify-start">
           {isSelected ? (
-            <ChevronDown className="w-3.5" />
+            <ChevronUp className="w-3.5" />
           ) : (
-            <ChevronRight className="w-3.5" />
+            <ChevronDown className="w-3.5" />
           )}
           {details.id}
         </Button>
