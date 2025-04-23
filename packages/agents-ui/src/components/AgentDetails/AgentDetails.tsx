@@ -1,4 +1,4 @@
-import { useAgentDB, useAgentMCP } from "@/hooks";
+import { useAgentDB, useAgentMCP, useListAIGateway } from "@/hooks";
 import { cn } from "@/lib/utils";
 import type { ListAgentsResponse } from "@/types";
 import { Link, Outlet, useMatches } from "@tanstack/react-router";
@@ -21,24 +21,7 @@ import {
 import { FpTabs, FpTabsContent, FpTabsList, FpTabsTrigger } from "../ui/tabs";
 import { EventsView } from "./EventsView";
 import { NavTabs } from "./NavTabs";
-
-// Tab ordering preference
-export const TAB_ORDER = ["state", "messages", "schedule", "mcp"];
-
-// Map DB table names to friendly tab IDs
-export const tableToTabMap: Record<string, string> = {
-  cf_ai_chat_agent_messages: "messages",
-  cf_agents_schedules: "schedule",
-  cf_agents_state: "state",
-};
-
-// Map friendly tab IDs to titles for display
-export const tabTitleMap: Record<string, string> = {
-  messages: "Messages",
-  schedule: "Schedule",
-  state: "State",
-  mcp: "Servers (MCP)",
-};
+import { TAB_ORDER, tabTitleMap, tableToTabMap } from "./tabs";
 
 function TabIcon({ tabId }: { tabId: string }) {
   switch (tabId) {
@@ -99,7 +82,7 @@ export function AgentDetails({
   const tabRouteMatch = matches.find(
     (match) => match.routeId === "/agents/$agentId/$instanceId/$tabId",
   );
-  let tabId = tabRouteMatch?.params.tabId as string | undefined;
+  let tabId = tabRouteMatch?.params.tabId;
 
   // Use TanStack Router routeId matching for MCP subroutes
   const mcpServerMatch = matches.find(
@@ -112,8 +95,19 @@ export function AgentDetails({
   if (isMcpRoute) {
     tabId = "mcp";
   }
+  const isGatewayRoute = matches.some(
+    (match) =>
+      match.routeId === "/agents/$agentId/$instanceId/gateways/" ||
+      match.routeId === "/agents/$agentId/$instanceId/gateways/$gatewayId",
+  );
+  if (isGatewayRoute) {
+    tabId = "gateways";
+  }
 
   const { data: db } = useAgentDB(agentDetails.id, instance);
+  const { data: gateways } = useListAIGateway(agentDetails.id, instance);
+  const hasGateways = !!gateways?.length;
+
   const [sideBarTab, setSideBarTab] = useState("events");
   const { data: mcpServers } = useAgentMCP(agentDetails.id, instance);
 
@@ -133,6 +127,9 @@ export function AgentDetails({
   const tabs = useMemo(() => {
     const availableTabs = new Map<string, ReactNode>();
     availableTabs.set("mcp", mcpLabel);
+    if (hasGateways) {
+      availableTabs.set("gateways", "Gateways");
+    }
     if (db) {
       const dbTables = Object.keys(db);
       for (const [tableName, friendlyName] of Object.entries(tableToTabMap)) {
@@ -164,7 +161,7 @@ export function AgentDetails({
       orderedTabs.push({ title: tabTitle, key: tabKey });
     }
     return orderedTabs;
-  }, [db, mcpLabel]);
+  }, [db, mcpLabel, hasGateways]);
 
   return (
     <ResizablePanelGroup

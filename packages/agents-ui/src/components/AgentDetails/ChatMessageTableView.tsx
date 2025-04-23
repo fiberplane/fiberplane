@@ -1,6 +1,7 @@
 import {
   ChevronDown,
   ChevronRight,
+  ChevronUp,
   Info,
   MessageSquare,
   UserCircle,
@@ -86,28 +87,31 @@ const JSONViewer = ({ data }: { data: unknown }) => {
   const toggleExpand = () => setIsExpanded(!isExpanded);
 
   return (
-    <div className="font-mono text-sm flex flex-col gap-2.5 border-t border-t-border-secondary px-4 py-1.5">
+    <div className="text-sm flex flex-col border-t border-t-border-secondary pt-1.5">
       <Button
         type="button"
         onClick={toggleExpand}
         variant="default"
         size="icon-xs"
         className={cn(
-          "gap-1 w-full flex justify-between items-center",
+          "gap-1 w-full",
           "px-0 text-xs",
+          "pb-1.5",
           "shadow-none text-muted-foreground hover:text-foreground",
         )}
       >
-        Details
-        {isExpanded ? (
-          <ChevronDown className="h-4 w-4" />
-        ) : (
-          <ChevronRight className="h-4 w-4" />
-        )}
+        <div className="flex justify-between items-center w-full px-4">
+          Details
+          {isExpanded ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : (
+            <ChevronDown className="h-4 w-4" />
+          )}
+        </div>
       </Button>
 
       {isExpanded && (
-        <div className="border border-border-secondary rounded-lg p-2.5 mb-2.5">
+        <div className="border border-border-secondary rounded-b-lg p-2.5 px-4 font-mono">
           <CodeMirrorJsonEditor
             onChange={noop}
             readOnly
