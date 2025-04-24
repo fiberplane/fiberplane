@@ -35,9 +35,9 @@ function AgentsListRoute() {
             <span>Oops. No agents found!</span>
           </div>
           <p className="text-muted-foreground">
-            Please make sure you've decorated your Agents classes with the{" "}
-            <code className="font-mono text-warning">`@Observed()`</code>{" "}
-            decorator
+            Please make sure you've added the{" "}
+            <code className="font-mono text-warning">@ObservedMixin</code> to
+            your Agents classes
           </p>
         </div>
       </div>

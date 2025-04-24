@@ -1,3 +1,4 @@
+import { getApiBasePath } from "@/lib/utils";
 import type { DatabaseResult } from "@/types";
 import {
   type QueryObserverOptions,
@@ -6,11 +7,12 @@ import {
 } from "@tanstack/react-query";
 
 export function agentDBQueryOptions(namespace: string, instance: string) {
+  const basePrefix = getApiBasePath();
   return queryOptions<DatabaseResult>({
     queryKey: ["agent_db", namespace, instance],
     queryFn: () =>
-      fetch(`/fp/api/agents/${namespace}/${instance}/admin/db`).then((res) =>
-        res.json(),
+      fetch(`${basePrefix}/api/agents/${namespace}/${instance}/admin/db`).then(
+        (res) => res.json(),
       ),
   });
 }

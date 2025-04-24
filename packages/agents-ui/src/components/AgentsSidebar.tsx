@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { useMinimumLoadingRefetch } from "@/useMinimumLoadingRefetch";
 import { Link, useMatches } from "@tanstack/react-router";
 import { Box, Shapes } from "lucide-react";
-import { ListSection } from "./ListSection";
 import { Spinner } from "./Spinner";
 import Logo from "./logo.svg";
 import { Button } from "./ui/button";
@@ -31,11 +30,13 @@ export function AgentsSidebar() {
 
   if (!data) {
     return (
-      <ListSection title={<h2 className="text-xl">Agents</h2>}>
-        <div className="w-full grid place-items-center h-full">
+      <div className="w-full grid place-items-center h-full">
+        {isLoading ? (
           <Spinner spinning={true} />
-        </div>
-      </ListSection>
+        ) : (
+          <div className="text-muted-foreground">No agents available</div>
+        )}
+      </div>
     );
   }
 

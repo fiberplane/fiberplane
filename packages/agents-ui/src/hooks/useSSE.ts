@@ -1,3 +1,4 @@
+import { getApiBasePath } from "@/lib/utils";
 import { usePlaygroundStore } from "@/store";
 import { type AgentEventType, agentEventSchema } from "@/types";
 import { EventSource } from "eventsource";
@@ -87,10 +88,22 @@ export function useSSEConnection(
     es.close();
 
     eventSourceRef.current = null;
+    console.log("SSE connection closed", currentStatusRef.current);
     updateStatus("closed");
   }, [updateStatus]);
 
   const connect = useCallback(() => {
+    // console.log("closing because of connect", eventSourceRef.current?.url, url);
+    const currentUrl = eventSourceRef.current?.url
+      ? new URL(eventSourceRef.current.url)
+      : null;
+    if (
+      currentUrl?.pathname === url &&
+      currentStatusRef.current === "connecting"
+    ) {
+      console.log("already attempting to connect the same URL. skipping");
+      return;
+    }
     close();
     // Create a new EventSource connection
     const eventSource = new EventSource(url, {
@@ -108,6 +121,7 @@ export function useSSEConnection(
       },
     });
     eventSourceRef.current = eventSource;
+    console.log("setting", eventSourceRef.current);
 
     // Set up handlers
     eventSource.onopen = () => {
@@ -210,8 +224,9 @@ export function useAgentInstanceEvents(namespace: string, instance: string) {
     autoConnect: false,
   };
 
+  const basePrefix = getApiBasePath();
   const { connect } = useSSEConnection(
-    `/fp/api/agents/${namespace}/${instance}/admin/events`,
+    `${basePrefix}/api/agents/${namespace}/${instance}/admin/events`,
     options,
   );
   const connectionStatus = usePlaygroundStore(

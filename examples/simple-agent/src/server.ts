@@ -34,21 +34,15 @@ export const agentContext = new AsyncLocalStorage<ChatClient>();
 
 const agentNamespace = "chat-client";
 
-// const New
 /**
  * Chat Agent implementation that handles real-time AI chat interactions
  */
-// @ts-ignore
 
-// const ChatAgent =
-const ChatAgent = ObservedMixin(AIChatAgent)<Env, MemoryState>;
+// const ChatAgent = ObservedMixin(AIChatAgent)<Env, MemoryState>;
 
-export class Silly extends ChatAgent {
-  // initialState = { memories: {} };
-
+export class Example extends ObservedMixin(AIChatAgent)<Env, MemoryState> {
   onStart() {
-    // console.log("Silly agent started");
-    console.log(this.env.CustomClient);
+    console.log("Example agent started");
   }
 
   async onRequest(request: Request) {
@@ -64,7 +58,7 @@ export class Silly extends ChatAgent {
   }
 }
 
-export class ChatClient extends ChatAgent {
+export class ChatClient extends ObservedMixin(AIChatAgent)<Env, MemoryState> {
   initialState = { memories: {} };
 
   mcp_: MCPClientManager | undefined;
@@ -74,6 +68,9 @@ export class ChatClient extends ChatAgent {
       baseCallbackUri: `${this.env.HOST}/agents/${agentNamespace}/${this.name}/callback`,
       storage: this.ctx.storage,
     });
+
+    console.log("this.onRequest", this.onRequest.toString());
+    super.onStart();
   }
 
   async addMcpServer(url: string) {
@@ -100,6 +97,7 @@ export class ChatClient extends ChatAgent {
       });
     }
 
+    // It is important that we call the super.onRequest
     return super.onRequest(request);
   }
 
@@ -210,7 +208,7 @@ const worker = {
       // Only call this to generate some traffic to the custom client
       // completely outside of the backend agent routing logic
       // Make a call
-      await doSomethingWithCustomClient(request, env);
+      // await doSomethingWithCustomClient(request, env);
       // return a response
       // return new Response("Not found", { status: 404 });
 

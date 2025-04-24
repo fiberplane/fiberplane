@@ -128,3 +128,16 @@ export function parseOptions(rootElement: HTMLElement) {
 
   return data;
 }
+
+/**
+ * Returns the base path for API requests based on the mounted path
+ */
+export function getApiBasePath(): string {
+  const rootElement = document.getElementById("root");
+  if (!rootElement) {
+    return "/fp"; // Fallback to default
+  }
+
+  const { mountedPath } = parseOptions(rootElement);
+  return mountedPath;
+}

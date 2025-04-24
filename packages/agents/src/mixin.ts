@@ -1,26 +1,27 @@
+import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
+import type { MCPClientManager } from "agents/mcp/client";
+import Cloudflare from "cloudflare";
+import { Hono } from "hono";
+// import type { SSEStreamingApi } from "hono/streaming";
+import { type SSEStreamingApi, streamSSE } from "hono/streaming";
 import type { BlankEnv } from "hono/types";
+import { registerAgent, registerAgentInstance } from "./agentInstances";
 import {
-  aiGatewayEnvSchema,
   type AgentEvent,
   type ColumnType,
   type DatabaseResult,
   type MCPClientConnection,
+  aiGatewayEnvSchema,
 } from "./types";
-import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
-import { Hono } from "hono";
 import {
+  PARTYKIT_NAMESPACE_HEADER,
+  PARTYKIT_ROOM_HEADER,
   createRequestPayload,
   createResponsePayload,
   isPromiseLike,
-  PARTYKIT_NAMESPACE_HEADER,
-  PARTYKIT_ROOM_HEADER,
   tryCatch,
   tryCatchAsync,
 } from "./utils";
-import { type SSEStreamingApi, streamSSE } from "hono/streaming";
-import Cloudflare from "cloudflare";
-import { registerAgent, registerAgentInstance } from "./agentInstances";
-import type { MCPClientManager } from "agents/mcp/client";
 
 // biome-ignore lint/suspicious/noExplicitAny: mixin pattern requires generic constructor parameters
 type ConstructorType<T> = new (...args: any[]) => T;
@@ -29,7 +30,6 @@ type ObservedAgent = Agent<unknown, unknown> & ObservedProperties;
 
 function createAgentAdminRouter(agent: ObservedAgent) {
   const router = new Hono();
-
   router.get("/agents/:namespace/:instance/admin/db", async (c) => {
     const fetchDbResult = async () => {
       // Get all table names
@@ -201,22 +201,26 @@ function createAgentAdminRouter(agent: ObservedAgent) {
     return streamSSE(
       c,
       async (stream) => {
-        agent._activeStreams.add(stream);
+        try {
+          agent._activeStreams.add(stream);
 
-        await stream.writeSSE({
-          event: "stream_open",
-          data: "",
-        });
-
-        // Keep the connection open with a heartbeat
-        let heartbeatCount = 0;
-        while (!stream.closed && !stream.aborted) {
-          // Send a heartbeat every 30 seconds to keep the connection alive
-          await stream.sleep(30000);
           await stream.writeSSE({
-            event: "heartbeat",
-            data: String(heartbeatCount++),
+            event: "stream_open",
+            data: "",
           });
+
+          // Keep the connection open with a heartbeat
+          let heartbeatCount = 0;
+          while (!stream.closed && !stream.aborted) {
+            // Send a heartbeat every 30 seconds to keep the connection alive
+            await stream.sleep(3000);
+            await stream.writeSSE({
+              event: "heartbeat",
+              data: String(heartbeatCount++),
+            });
+          }
+        } catch (error) {
+          console.error("Error in stream:", error);
         }
       },
       async (streamError, stream) => {
@@ -259,6 +263,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
     return c.json(gateways.result);
   });
 
+  // Get log list for a specific AI gateway
   router.get(
     "/agents/:namespace/:instance/admin/ai-gateways/:id/logs",
     async (c) => {
@@ -293,8 +298,9 @@ function createAgentAdminRouter(agent: ObservedAgent) {
     },
   );
 
+  // Get log details for a specific gateway/log
   router.get(
-    "agents/:namespace/:instance/admin/ai-gateways/:id/logs/:logId",
+    "/agents/:namespace/:instance/admin/ai-gateways/:id/logs/:logId",
     async (c) => {
       // Extract required environment variables
       const parsedEnv = aiGatewayEnvSchema.safeParse(c.env);
@@ -325,6 +331,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
       return c.json(log);
     },
   );
+
   return router;
 }
 
@@ -527,32 +534,49 @@ export function ObservedMixin<
       }
 
       if (!this._fiberRouter) {
-        this._fiberRouter = createAgentAdminRouter(
-          this as unknown as Agent<unknown, unknown> & ObservedProperties,
-        );
-      }
+        this._fiberRouter = createAgentAdminRouter(this);
+        // this.fiberRouter = createAgentAdminRouter(
+        //   this as unknown as Agent<unknown, unknown> & ObservedProperties,
+        // );
 
-      this._fiberRouter.notFound(() => {
-        // Extract url & method for re-use in the response payload
-        const { url, method } = request;
+        this._fiberRouter.notFound((c) => {
+          // Extract url & method for re-use in the response payload
+          const { url, method } = c.req;
 
-        // Create a promise chain to ensure the event is recorded
-        // since we may need to read the body of the request
-        const eventPromise = Promise.resolve().then(async () => {
-          this.recordEvent({
-            type: "http_request",
-            // Clone the request to avoid consuming the body
-            payload: await createRequestPayload(
-              request.clone() as typeof request,
-            ),
+          // Create a promise chain to ensure the event is recorded
+          // since we may need to read the body of the request
+          const eventPromise = Promise.resolve().then(async () => {
+            this.recordEvent({
+              type: "http_request",
+              // Clone the request to avoid consuming the body
+              payload: await createRequestPayload(
+                c.req.raw.clone() as typeof c.req.raw,
+              ),
+            });
           });
-        });
-        const result = super.onRequest(request);
+          const result = super.onRequest(c.req.raw);
 
-        // eventPromise.then()
-        if (isPromiseLike(result)) {
-          return Promise.all([result, eventPromise]).then(async ([res]) => {
-            const payload = await createResponsePayload(res.clone());
+          // eventPromise.then()
+          if (isPromiseLike(result)) {
+            return Promise.all([result, eventPromise]).then(async ([res]) => {
+              const payload = await createResponsePayload(res.clone());
+              this.recordEvent({
+                type: "http_response",
+                payload: {
+                  ...payload,
+                  url,
+                  method,
+                },
+              });
+
+              return res;
+            });
+          }
+
+          const capturedResponse = result.clone();
+          eventPromise.then(async () => {
+            const payload = await createResponsePayload(capturedResponse);
+
             this.recordEvent({
               type: "http_response",
               payload: {
@@ -561,27 +585,12 @@ export function ObservedMixin<
                 method,
               },
             });
-
-            return res;
           });
-        }
 
-        const capturedResponse = result.clone();
-        eventPromise.then(async () => {
-          const payload = await createResponsePayload(capturedResponse);
-
-          this.recordEvent({
-            type: "http_response",
-            payload: {
-              ...payload,
-              url,
-              method,
-            },
-          });
+          return result;
         });
+      }
 
-        return result;
-      });
       return this._fiberRouter.fetch(request);
     }
   };
@@ -620,3 +629,20 @@ function detectMCPConnections(obj: Record<string, unknown>) {
 
   return connections;
 }
+
+// function formatSSE(data: string, event?: string, id?: string): string {
+//   let message = '';
+//   if (event) {
+//     message += `event: ${event}\n`;
+//   }
+//   if (id) {
+//     message += `id: ${id}\n`;
+//   }
+//   // Handle multi-line data
+//   const dataLines = data.split('\n');
+//   for (const line of dataLines) {
+//     message += `data: ${line}\n`;
+//   }
+//   message += '\n'; // End of message marker (double newline)
+//   return message;
+// }

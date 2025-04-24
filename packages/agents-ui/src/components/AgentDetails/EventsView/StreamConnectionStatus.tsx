@@ -18,6 +18,7 @@ export function StreamConnectionStatus(props: Props) {
   const setAgentInstanceStreamStatus = usePlaygroundStore(
     (state) => state.setAgentInstanceStreamStatus,
   );
+  console.log("connectionStatus", connectionStatus);
 
   const reconnect = useHandler(() => {
     setAgentInstanceStreamStatus(props.namespace, props.instance, "connecting");

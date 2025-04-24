@@ -1,3 +1,4 @@
+import { getApiBasePath } from "@/lib/utils";
 import type {
   Prompt,
   Resource,
@@ -25,11 +26,12 @@ export interface MCPConnection {
 }
 
 export function agentMCPQueryOptions(namespace: string, instance: string) {
+  const basePrefix = getApiBasePath();
   return queryOptions<MCPConnection[]>({
     queryKey: ["agent_mcp", namespace, instance],
     queryFn: async () => {
       const response = await fetch(
-        `/agents/${namespace}/${instance}/admin/mcp`,
+        `${basePrefix}/api/agents/${namespace}/${instance}/admin/mcp`,
       );
       if (!response.ok) {
         throw new Error(`Failed to fetch MCP data: ${response.statusText}`);
