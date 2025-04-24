@@ -69,7 +69,6 @@ export class ChatClient extends ObservedMixin(AIChatAgent)<Env, MemoryState> {
       storage: this.ctx.storage,
     });
 
-    console.log("this.onRequest", this.onRequest.toString());
     super.onStart();
   }
 
