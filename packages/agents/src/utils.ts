@@ -1,6 +1,9 @@
 import type { Agent } from "agents";
 import { getAgents } from "./agentInstances";
 
+export const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
+export const PARTYKIT_ROOM_HEADER = "x-partykit-room";
+
 // Types for the result object with discriminated union
 type Success<T> = {
   data: T;
