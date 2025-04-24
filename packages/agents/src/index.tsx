@@ -388,10 +388,10 @@ function detectMCPConnections(obj: Record<string, unknown>) {
 
 type ObservedAgent = Agent<unknown, unknown> & ObservedProperties;
 
-function createFpApp() {
+function createFpApp(customPath = "/fp") {
   let firstRequest = true;
   return new Hono()
-    .basePath("/fp")
+    .basePath(customPath)
     .get("/api/agents", async (c) => {
       const agents = getAgents();
 
@@ -401,8 +401,8 @@ function createFpApp() {
         const durableObjects =
           c.env && typeof c.env === "object"
             ? (Object.entries(c.env as Record<string, unknown>).filter(
-                ([_, value]) => isDurableObjectNamespace(value),
-              ) as Array<[string, DurableObjectNamespace]>)
+              ([_, value]) => isDurableObjectNamespace(value),
+            ) as Array<[string, DurableObjectNamespace]>)
             : [];
         for (const [name] of durableObjects) {
           // See if we're aware of an agent with the same id
@@ -476,13 +476,12 @@ function createFpApp() {
     })
     .get("*", async (c) => {
       const options = {
-        mountedPath: "/fp",
+        mountedPath: customPath,
         version,
         commitHash,
       };
-      const cdn = `https://cdn.jsdelivr.net/npm/@fiberplane/agents@${
-        version ? version : "latest"
-      }/dist/playground/`;
+      const cdn = `https://cdn.jsdelivr.net/npm/@fiberplane/agents@${version ? version : "latest"
+        }/dist/playground/`;
       const cssBundleUrl = new URL("index.css", cdn).href;
       const jsBundleUrl = new URL("index.js", cdn).href;
       return c.html(
@@ -525,7 +524,7 @@ export function ObservedMixin<
 >(
   BaseClass: BaseAgent,
 ): BaseAgent & {
-  new (
+  new(
     ...args: ConstructorParameters<BaseAgent>
   ): Agent<E, S> & ObservedProperties;
 } {
@@ -586,9 +585,9 @@ export function ObservedMixin<
             typeof msg === "string"
               ? msg
               : {
-                  type: "binary",
-                  size: msg instanceof Blob ? msg.size : msg.byteLength,
-                },
+                type: "binary",
+                size: msg instanceof Blob ? msg.size : msg.byteLength,
+              },
           without,
         },
       });
@@ -615,12 +614,12 @@ export function ObservedMixin<
                     typeof message === "string"
                       ? message
                       : {
-                          type: "binary" as const,
-                          size:
-                            message instanceof Blob
-                              ? message.size
-                              : message.byteLength,
-                        },
+                        type: "binary" as const,
+                        size:
+                          message instanceof Blob
+                            ? message.size
+                            : message.byteLength,
+                      },
                 },
               });
 
@@ -761,14 +760,22 @@ export function ObservedMixin<
   };
 }
 
+interface FiberplaneEntryWrapperOptions {
+  customPath?: string;
+}
+
+/**
+ * Creates a fetch handler that serves the Fiberplane app
+ */
 export function fiberplane<E = unknown>(
   userFetch: (
     request: Request,
     env: E,
     ctx: ExecutionContext,
   ) => Promise<Response>,
+  options?: FiberplaneEntryWrapperOptions,
 ) {
-  const fpApp = createFpApp();
+  const fpApp = createFpApp(options?.customPath);
 
   return async function fetch(request: Request, env: E, ctx: ExecutionContext) {
     const response = await fpApp.fetch(request, env, ctx);
