@@ -24,9 +24,9 @@ import {
 } from "./utils";
 
 // biome-ignore lint/suspicious/noExplicitAny: mixin pattern requires generic constructor parameters
-type ConstructorType<T> = new (...args: any[]) => T;
+export type ConstructorType<T> = new (...args: any[]) => T;
 
-type ObservedAgent = Agent<unknown, unknown> & ObservedProperties;
+type ObservedAgent = Agent<unknown, unknown> & InstrumentedProperties;
 
 function createAgentAdminRouter(agent: ObservedAgent) {
   const router = new Hono();
@@ -335,34 +335,32 @@ function createAgentAdminRouter(agent: ObservedAgent) {
   return router;
 }
 
-interface ObservedProperties {
+interface InstrumentedProperties {
   _activeStreams: Set<SSEStreamingApi>;
   _mcpConnections?: Map<string, MCPClientConnection>;
   _fiberRouter?: Hono;
 }
 
 /**
- * Mixin factory that adds Fiber capabilities to Agent classes
+ * Mixin factory that adds Fiber capabilities (observability) to Agent classes
  *
  * Usage:
  * ```typescript
- * export class MyAgent extends ObservedMixin(BaseClass)<Env, MyState> {
+ * export class MyCoreAgent extends Agent<Env, MyState> {
  *   // Your agent implementation
  * }
+ *
+ * // Creates a new class that extends MyCoreAgent with observability features
+ * const MyAgent = withInstrumentation(MyCoreAgent);
  * ```
  */
-export function ObservedMixin<
-  E = BlankEnv,
-  S = unknown,
-  BaseAgent extends ConstructorType<Agent<E, S>> = ConstructorType<Agent<E, S>>,
->(
-  BaseClass: BaseAgent,
-): BaseAgent & {
-  new (
-    ...args: ConstructorParameters<BaseAgent>
-  ): Agent<E, S> & ObservedProperties;
-} {
-  return class ObservedAgent extends BaseClass implements ObservedProperties {
+export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
+  BaseClass: ConstructorType<BaseAgent>,
+): ConstructorType<BaseAgent & InstrumentedProperties> {
+  return class ObservedAgent
+    extends (BaseClass as ConstructorType<Agent<BlankEnv, unknown>>)
+    implements InstrumentedProperties
+  {
     _fiberRouter?: Hono;
     _activeStreams = new Set<SSEStreamingApi>();
     _mcpConnections?: Map<string, MCPClientConnection>;
@@ -398,7 +396,7 @@ export function ObservedMixin<
       );
 
       // Cast state to S to satisfy the type constraint of the parent class
-      super.onStateUpdate(state as S, source);
+      super.onStateUpdate(state, source);
     }
 
     onStart() {
@@ -535,9 +533,6 @@ export function ObservedMixin<
 
       if (!this._fiberRouter) {
         this._fiberRouter = createAgentAdminRouter(this);
-        // this.fiberRouter = createAgentAdminRouter(
-        //   this as unknown as Agent<unknown, unknown> & ObservedProperties,
-        // );
 
         this._fiberRouter.notFound((c) => {
           // Extract url & method for re-use in the response payload
@@ -556,7 +551,6 @@ export function ObservedMixin<
           });
           const result = super.onRequest(c.req.raw);
 
-          // eventPromise.then()
           if (isPromiseLike(result)) {
             return Promise.all([result, eventPromise]).then(async ([res]) => {
               const payload = await createResponsePayload(res.clone());
@@ -593,7 +587,7 @@ export function ObservedMixin<
 
       return this._fiberRouter.fetch(request);
     }
-  };
+  } as unknown as ConstructorType<BaseAgent & InstrumentedProperties>;
 }
 
 function isMCPClientManagerLike(value: unknown): value is MCPClientManager {
@@ -629,20 +623,3 @@ function detectMCPConnections(obj: Record<string, unknown>) {
 
   return connections;
 }
-
-// function formatSSE(data: string, event?: string, id?: string): string {
-//   let message = '';
-//   if (event) {
-//     message += `event: ${event}\n`;
-//   }
-//   if (id) {
-//     message += `id: ${id}\n`;
-//   }
-//   // Handle multi-line data
-//   const dataLines = data.split('\n');
-//   for (const line of dataLines) {
-//     message += `data: ${line}\n`;
-//   }
-//   message += '\n'; // End of message marker (double newline)
-//   return message;
-// }

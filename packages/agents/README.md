@@ -38,18 +38,19 @@ export default {
 };
 ```
 
-### 2. Use the ObservedMixin
+### 2. Use the withInstrumentation
 
-Add the `@ObservedMixin()` mixin to any agent class you want to introspect:
+Add the `withInstrumentation` mixin to any agent class you want to introspect:
 
 ```typescript
-import { ObservedMixin } from "@fiberplane/agents";
+import { withInstrumentation } from "@fiberplane/agents";
 import { Agent } from "agents";
 
-@ObservedMixin()
-class MyAgent extends ObservedMixin(Agent)<MyEnv, MyState> {
+class SpecialAgent extends Agent<MyEnv, MyState> {
   // Your agent implementation...
 }
+
+const MySpecialAgent = withInstrumentation(SpecialAgent)
 ```
 
 ### 2b. Bonus step: gain visibility into your LLM calls

@@ -1,6 +1,10 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { createOpenAI } from "@ai-sdk/openai";
-import { ObservedMixin, fiberplane } from "@fiberplane/agents";
+import {
+  type ConstructorType,
+  fiberplane,
+  withInstrumentation,
+} from "@fiberplane/agents";
 import {
   Agent,
   type Schedule,
@@ -30,7 +34,7 @@ interface MemoryState {
 }
 
 // we use ALS to expose the agent context to the tools
-export const agentContext = new AsyncLocalStorage<ChatClient>();
+export const agentContext = new AsyncLocalStorage<CoreChatClient>();
 
 const agentNamespace = "chat-client";
 
@@ -38,27 +42,7 @@ const agentNamespace = "chat-client";
  * Chat Agent implementation that handles real-time AI chat interactions
  */
 
-// const ChatAgent = ObservedMixin(AIChatAgent)<Env, MemoryState>;
-
-export class Example extends ObservedMixin(AIChatAgent)<Env, MemoryState> {
-  onStart() {
-    console.log("Example agent started");
-  }
-
-  async onRequest(request: Request) {
-    return new Response(
-      JSON.stringify({
-        url: request.url,
-      }),
-      {
-        headers: { "Content-Type": "application/json" },
-        status: 200,
-      },
-    );
-  }
-}
-
-export class ChatClient extends ObservedMixin(AIChatAgent)<Env, MemoryState> {
+export class CoreChatClient extends AIChatAgent<Env, MemoryState> {
   initialState = { memories: {} };
 
   mcp_: MCPClientManager | undefined;
@@ -163,7 +147,9 @@ export class ChatClient extends ObservedMixin(AIChatAgent)<Env, MemoryState> {
   }
 }
 
-export class CustomClient extends ObservedMixin(Agent)<Env, MemoryState> {
+export const ChatClient = withInstrumentation(CoreChatClient);
+
+export class CustomClient extends withInstrumentation(Agent<Env, MemoryState>) {
   // Initialize with the required properties
   initialState = { memories: {} };
 
@@ -231,7 +217,7 @@ async function doSomethingWithCustomClient(request: Request, env: Env) {
   agent.fetch(
     new Request("https://example.com", {
       headers: {
-        // These headers are required by the Observed durable object
+        // These headers are required by the instrumented durable object
         // to identify the agent (namespace) and the room (instance) it belongs to
 
         // Namespace (kebab case of the agent name)

@@ -35,9 +35,11 @@ function AgentsListRoute() {
             <span>Oops. No agents found!</span>
           </div>
           <p className="text-muted-foreground">
-            Please make sure you've added the{" "}
-            <code className="font-mono text-warning">@ObservedMixin</code> to
-            your Agents classes
+            Please make sure you've wrapped your agents classes with the{" "}
+            <code className="font-mono text-warning">
+              withInstrumentation()
+            </code>{" "}
+            mixin
           </p>
         </div>
       </div>

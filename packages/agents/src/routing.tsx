@@ -36,7 +36,7 @@ function createFpApp(customPath = "/fp") {
         const namespace = toKebabCase(name);
         if (!agents.some((agent) => agent.id === namespace)) {
           console.warn(
-            `Warning: durable object detected but it is not enhanced with the \`ObservedMixin()\` (binding name: ${name}, expected namespace: ${namespace})`,
+            `Warning: durable object detected but it is not enhanced with the \`withInstrumentation()\` (binding name: ${name}, expected namespace: ${namespace})`,
           );
         }
       }
