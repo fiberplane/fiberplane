@@ -242,7 +242,6 @@ function createAgentAdminRouter(agent: ObservedAgent) {
         "ai-gateways: Invalid environment variables:",
         parsedEnv.error,
       );
-      console.warn("Raw env", c.env ? JSON.stringify(c.env) : "No env");
       return c.json(
         {
           error: "Missing or invalid environment variables",
@@ -315,7 +314,6 @@ function createAgentAdminRouter(agent: ObservedAgent) {
           "ai-gateways/id/logs/logId: Invalid environment variables:",
           parsedEnv.error,
         );
-        console.warn("Raw env", c.env ? JSON.stringify(c.env) : "No env");
         return c.json(
           {
             error: "Missing or invalid environment variables",
