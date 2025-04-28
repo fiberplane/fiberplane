@@ -140,11 +140,6 @@ function createFpApp(customPath = "/fp") {
     );
   });
 
-  // app.notFound(() => {
-  //   console.log('not found')
-  //   return new Response(null, { status: 404 });
-  // });
-
   return app;
 }
 
@@ -166,10 +161,8 @@ export function fiberplane<E = unknown>(
   const fpApp = createFpApp(options?.customPath);
 
   return async function fetch(request: Request, env: E, ctx: ExecutionContext) {
-    // console.log("[FP] Request URL:", request.url);
     const newRequest = new Request(request);
     const response = await fpApp.fetch(newRequest, env, ctx);
-    // console.log("got me a ", response.status, response.url);
     if (response.status !== 404) {
       // If the response is not 404, return it
       return response;

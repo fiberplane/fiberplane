@@ -342,7 +342,8 @@ interface InstrumentedProperties {
 }
 
 /**
- * Mixin factory that adds Fiber capabilities (observability) to Agent classes
+ * Mixin factory that adds instruments the Agent class with observability capabilities
+ * allowing it to be viewed in the Fiberplane agents playground
  *
  * Usage:
  * ```typescript
