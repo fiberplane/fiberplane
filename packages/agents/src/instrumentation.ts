@@ -403,7 +403,6 @@ export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
 
     onStart() {
       super.onStart();
-      console.log(this.env);
       this._mcpConnections = detectMCPConnections(
         this as unknown as Record<string, unknown>,
       );
