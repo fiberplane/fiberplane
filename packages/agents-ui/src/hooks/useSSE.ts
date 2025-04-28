@@ -88,7 +88,6 @@ export function useSSEConnection(
     es.close();
 
     eventSourceRef.current = null;
-    console.log("SSE connection closed", currentStatusRef.current);
     updateStatus("closed");
   }, [updateStatus]);
 
@@ -101,7 +100,6 @@ export function useSSEConnection(
       currentUrl?.pathname === url &&
       currentStatusRef.current === "connecting"
     ) {
-      console.log("already attempting to connect the same URL. skipping");
       return;
     }
     close();
@@ -121,7 +119,6 @@ export function useSSEConnection(
       },
     });
     eventSourceRef.current = eventSource;
-    console.log("setting", eventSourceRef.current);
 
     // Set up handlers
     eventSource.onopen = () => {

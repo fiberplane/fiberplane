@@ -73,7 +73,6 @@ function getDevConfig(envVarsFile: string) {
   const EMBEDDED_API_URL =
     process.env.EMBEDDED_API_URL ?? "http://localhost:5173";
 
-  console.log(EMBEDDED_API_URL);
   return {
     /**
      * The URL of the embedded API
