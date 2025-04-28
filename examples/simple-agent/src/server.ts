@@ -1,6 +1,10 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { createOpenAI } from "@ai-sdk/openai";
-import { Observed, fiberplane } from "@fiberplane/agents";
+import {
+  type ConstructorType,
+  fiberplane,
+  withInstrumentation,
+} from "@fiberplane/agents";
 import {
   Agent,
   type Schedule,
@@ -30,16 +34,15 @@ interface MemoryState {
 }
 
 // we use ALS to expose the agent context to the tools
-export const agentContext = new AsyncLocalStorage<ChatClient>();
+export const agentContext = new AsyncLocalStorage<CoreChatClient>();
 
 const agentNamespace = "chat-client";
 
 /**
  * Chat Agent implementation that handles real-time AI chat interactions
  */
-// @ts-ignore
-@Observed()
-export class ChatClient extends AIChatAgent<Env, MemoryState> {
+
+export class CoreChatClient extends AIChatAgent<Env, MemoryState> {
   initialState = { memories: {} };
 
   mcp_: MCPClientManager | undefined;
@@ -49,6 +52,8 @@ export class ChatClient extends AIChatAgent<Env, MemoryState> {
       baseCallbackUri: `${this.env.HOST}/agents/${agentNamespace}/${this.name}/callback`,
       storage: this.ctx.storage,
     });
+
+    super.onStart();
   }
 
   async addMcpServer(url: string) {
@@ -75,6 +80,7 @@ export class ChatClient extends AIChatAgent<Env, MemoryState> {
       });
     }
 
+    // It is important that we call the super.onRequest
     return super.onRequest(request);
   }
 
@@ -141,9 +147,18 @@ export class ChatClient extends AIChatAgent<Env, MemoryState> {
   }
 }
 
-// @ts-ignore
-@Observed()
-export class CustomClient extends Agent<Env, MemoryState> {
+export const ChatClient = withInstrumentation(CoreChatClient);
+
+export class CustomClient extends withInstrumentation(Agent<Env, MemoryState>) {
+  // Initialize with the required properties
+  initialState = { memories: {} };
+
+  // Implement required methods from Agent interface
+  async onStart() {
+    // Initialize anything needed when the agent starts
+    console.log("CustomClient agent started");
+  }
+
   async onRequest(request: Request) {
     return new Response(
       JSON.stringify({
@@ -178,7 +193,7 @@ const worker = {
       // Only call this to generate some traffic to the custom client
       // completely outside of the backend agent routing logic
       // Make a call
-      await doSomethingWithCustomClient(request, env);
+      // await doSomethingWithCustomClient(request, env);
       // return a response
       // return new Response("Not found", { status: 404 });
 
@@ -202,7 +217,7 @@ async function doSomethingWithCustomClient(request: Request, env: Env) {
   agent.fetch(
     new Request("https://example.com", {
       headers: {
-        // These headers are required by the Observed durable object
+        // These headers are required by the instrumented durable object
         // to identify the agent (namespace) and the room (instance) it belongs to
 
         // Namespace (kebab case of the agent name)

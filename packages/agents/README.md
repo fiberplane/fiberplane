@@ -38,18 +38,19 @@ export default {
 };
 ```
 
-### 2. Decorate your agent classes
+### 2. Use the withInstrumentation
 
-Add the `@Observed()` decorator to any agent class you want to introspect:
+Add the `withInstrumentation` mixin to any agent class you want to introspect:
 
 ```typescript
-import { Observed } from "@fiberplane/agents";
+import { withInstrumentation } from "@fiberplane/agents";
 import { Agent } from "agents";
 
-@Observed()
-class MyAgent extends Agent<MyEnv, MyState> {
+class SpecialAgent extends Agent<MyEnv, MyState> {
   // Your agent implementation...
 }
+
+const MySpecialAgent = withInstrumentation(SpecialAgent)
 ```
 
 ### 2b. Bonus step: gain visibility into your LLM calls

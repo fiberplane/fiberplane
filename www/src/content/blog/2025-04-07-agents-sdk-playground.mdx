@@ -59,15 +59,16 @@ export default {
 };
 ````
 
-2. Add the `@Observed()` decorator to any agent class you want to debug:
+2. Use the `withInstrumentation()` mixin to any agent class you want to debug:
 
 ```typescript
-import { Observed } from "@fiberplane/agents";
+import { withInstrumentation } from "@fiberplane/agents";
 
-@Observed()
 class ChatClient extends AIChatAgent<Env, MemoryState> {
   // Your agent implementation
 }
+
+export const MyChatClient = withInstrumentation(ChatClient);
 ```
 
 Once integrated, access the playground by appending `/fp` to your worker's URL in the browser.
@@ -76,7 +77,6 @@ Once integrated, access the playground by appending `/fp` to your worker's URL i
 
 Just a few disclaimers:
 
-- There are type errors in the decorator; we're working on improving introspection.
 - Use this only in local development—proper authentication for production is coming soon.
 - The playground is currently read-only. Interactive testing is planned, and feedback is welcome!
 

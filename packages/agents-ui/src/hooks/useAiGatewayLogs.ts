@@ -1,3 +1,4 @@
+import { getApiBasePath } from "@/lib/utils";
 import type { LogListResponse } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 
@@ -8,6 +9,7 @@ export function useAIGatewayLogs(
   page: number,
   pageSize: number,
 ) {
+  const basePrefix = getApiBasePath();
   return useQuery({
     queryKey: [
       "ai_gateways",
@@ -20,7 +22,7 @@ export function useAIGatewayLogs(
     ],
     queryFn: () =>
       fetch(
-        `/agents/${namespace}/${instance}/admin/ai-gateways/${gatewayId}/logs?page=${page}&pageSize=${pageSize}`,
+        `${basePrefix}/agents/${namespace}/${instance}/admin/ai-gateways/${gatewayId}/logs?page=${page}&pageSize=${pageSize}`,
       ).then((res) => res.json() as Promise<Array<LogListResponse>>),
     // keepPreviousData: true,
     // staleTime: 1000 * 60 * 5, // 5 minutes

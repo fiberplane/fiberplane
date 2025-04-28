@@ -1,5 +1,11 @@
 # @fiberplane/agents
 
+## 0.5.0
+
+### Minor Changes
+
+- Switch from Observed class decorator to withInstrumentation mixin
+
 ## 0.4.1
 
 ### Patch Changes

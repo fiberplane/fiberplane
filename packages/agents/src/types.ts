@@ -1,3 +1,4 @@
+import type { MCPClientManager } from "agents/mcp/client";
 import { z } from "zod";
 
 /**
@@ -187,3 +188,21 @@ export const aiGatewayEnvSchema = z.object({
   CLOUDFLARE_API_TOKEN: z.string(),
   CLOUDFLARE_ACCOUNT_ID: z.string(),
 });
+
+// Define types for database schema
+export type ColumnType =
+  | "string"
+  | "number"
+  | "boolean"
+  | "null"
+  | "object"
+  | "array";
+export type TableSchema = {
+  columns: Record<string, ColumnType[]>;
+  data: Record<string, unknown>[];
+  error?: string;
+};
+
+export type DatabaseResult = Record<string, TableSchema>;
+
+export type MCPClientConnection = MCPClientManager["mcpConnections"][string];

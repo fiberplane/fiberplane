@@ -2,6 +2,6 @@
   "$schema": "../../node_modules/@biomejs/biome/configuration_schema.json",
   "extends": ["../../biome.jsonc"],
   "files": {
-    "ignore": ["storage/**/*", "outputs/**/*", ".wrangler"]
+    "ignore": ["storage/**/*", "outputs/**/*", ".wrangler", "*.d.ts"]
   }
 }

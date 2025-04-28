@@ -1,3 +1,4 @@
+import { getApiBasePath } from "@/lib/utils";
 import type { AIGatewayListResponse } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 
@@ -14,11 +15,13 @@ export function listAiGatewayOptions(
   queryKey: string[];
   queryFn: () => Promise<Array<AIGatewayListResponse>>;
 } {
+  const basePrefix = getApiBasePath();
+
   return {
     queryKey: ["ai_gateways", namespace, instance],
     queryFn: () =>
-      fetch(`/agents/${namespace}/${instance}/admin/ai-gateways`).then(
-        (res) => res.json() as Promise<Array<AIGatewayListResponse>>,
-      ),
+      fetch(
+        `${basePrefix}/agents/${namespace}/${instance}/admin/ai-gateways`,
+      ).then((res) => res.json() as Promise<Array<AIGatewayListResponse>>),
   };
 }
