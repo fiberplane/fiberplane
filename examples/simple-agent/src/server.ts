@@ -42,7 +42,7 @@ const agentNamespace = "chat-client";
  * Chat Agent implementation that handles real-time AI chat interactions
  */
 
-export class CoreChatClient extends AIChatAgent<Env, MemoryState> {
+class CoreChatClient extends AIChatAgent<Env, MemoryState> {
   initialState = { memories: {} };
 
   mcp_: MCPClientManager | undefined;
@@ -214,6 +214,7 @@ async function doSomethingWithCustomClient(request: Request, env: Env) {
     console.error("Agent not found");
     return new Response("Agent not found", { status: 404 });
   }
+
   agent.fetch(
     new Request("https://example.com", {
       headers: {

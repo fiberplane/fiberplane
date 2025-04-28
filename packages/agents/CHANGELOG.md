@@ -1,5 +1,11 @@
 # @fiberplane/agents
 
+## 0.5.1
+
+### Patch Changes
+
+- Fix listing gateways and avoid invalid agent registration
+
 ## 0.5.0
 
 ### Minor Changes
