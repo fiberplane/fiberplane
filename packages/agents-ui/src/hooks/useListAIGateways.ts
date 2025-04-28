@@ -21,7 +21,7 @@ export function listAiGatewayOptions(
     queryKey: ["ai_gateways", namespace, instance],
     queryFn: () =>
       fetch(
-        `${basePrefix}/agents/${namespace}/${instance}/admin/ai-gateways`,
+        `${basePrefix}/api/agents/${namespace}/${instance}/admin/ai-gateways`,
       ).then((res) => res.json() as Promise<Array<AIGatewayListResponse>>),
   };
 }

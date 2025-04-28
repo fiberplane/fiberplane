@@ -2,10 +2,9 @@ import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
 import type { MCPClientManager } from "agents/mcp/client";
 import Cloudflare from "cloudflare";
 import { Hono } from "hono";
-// import type { SSEStreamingApi } from "hono/streaming";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
 import type { BlankEnv } from "hono/types";
-import { registerAgent, registerAgentInstance } from "./agentInstances";
+import { registerAgentInstance } from "./agentInstances";
 import {
   type AgentEvent,
   type ColumnType,
@@ -239,7 +238,11 @@ function createAgentAdminRouter(agent: ObservedAgent) {
     // Extract required environment variables
     const parsedEnv = aiGatewayEnvSchema.safeParse(c.env);
     if (!parsedEnv.success) {
-      console.error("Invalid environment variables:", parsedEnv.error);
+      console.error(
+        "ai-gateways: Invalid environment variables:",
+        parsedEnv.error,
+      );
+      console.warn("Raw env", c.env ? JSON.stringify(c.env) : "No env");
       return c.json(
         {
           error: "Missing or invalid environment variables",
@@ -271,7 +274,10 @@ function createAgentAdminRouter(agent: ObservedAgent) {
 
       const parsedEnv = aiGatewayEnvSchema.safeParse(c.env);
       if (!parsedEnv.success) {
-        console.error("Invalid environment variables:", parsedEnv.error);
+        console.error(
+          "ai-gateways/id/logs: Invalid environment variables:",
+          parsedEnv.error,
+        );
         return c.json(
           {
             error: "Missing or invalid environment variables",
@@ -305,7 +311,11 @@ function createAgentAdminRouter(agent: ObservedAgent) {
       // Extract required environment variables
       const parsedEnv = aiGatewayEnvSchema.safeParse(c.env);
       if (!parsedEnv.success) {
-        console.error("Invalid environment variables:", parsedEnv.error);
+        console.error(
+          "ai-gateways/id/logs/logId: Invalid environment variables:",
+          parsedEnv.error,
+        );
+        console.warn("Raw env", c.env ? JSON.stringify(c.env) : "No env");
         return c.json(
           {
             error: "Missing or invalid environment variables",
@@ -366,13 +376,6 @@ export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
     _activeStreams = new Set<SSEStreamingApi>();
     _mcpConnections?: Map<string, MCPClientConnection>;
 
-    // biome-ignore lint/suspicious/noExplicitAny: mixin pattern requires any[]
-    constructor(...args: any[]) {
-      super(...args);
-      const superClassName = Object.getPrototypeOf(this.constructor).name;
-      registerAgent(superClassName);
-    }
-
     private recordEvent({ type, payload }: AgentEvent) {
       for (const stream of this._activeStreams) {
         stream.writeSSE({
@@ -402,6 +405,7 @@ export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
 
     onStart() {
       super.onStart();
+      console.log(this.env);
       this._mcpConnections = detectMCPConnections(
         this as unknown as Record<string, unknown>,
       );
@@ -586,7 +590,7 @@ export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
         });
       }
 
-      return this._fiberRouter.fetch(request);
+      return this._fiberRouter.fetch(request, this.env);
     }
   } as unknown as ConstructorType<BaseAgent & InstrumentedProperties>;
 }

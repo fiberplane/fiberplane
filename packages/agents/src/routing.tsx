@@ -7,40 +7,16 @@ import {
   PARTYKIT_NAMESPACE_HEADER,
   PARTYKIT_ROOM_HEADER,
   getDurableObjectAgentNamespace,
-  isDurableObjectNamespace,
-  toKebabCase,
 } from "./utils";
 
 const version = packageJson.version;
 const commitHash = import.meta.env.GIT_COMMIT_HASH ?? "";
 
 function createFpApp(customPath = "/fp") {
-  let firstRequest = true;
   const app = new Hono().basePath(customPath);
   const api = new Hono();
   api.get("/agents", async (c) => {
     const agents = getAgents();
-
-    if (firstRequest) {
-      firstRequest = false;
-
-      const durableObjects =
-        c.env && typeof c.env === "object"
-          ? (Object.entries(c.env as Record<string, unknown>).filter(
-              ([_, value]) => isDurableObjectNamespace(value),
-            ) as Array<[string, DurableObjectNamespace]>)
-          : [];
-      for (const [name] of durableObjects) {
-        // See if we're aware of an agent with the same id
-        // However id is the namespace (kebab case of the name)
-        const namespace = toKebabCase(name);
-        if (!agents.some((agent) => agent.id === namespace)) {
-          console.warn(
-            `Warning: durable object detected but it is not enhanced with the \`withInstrumentation()\` (binding name: ${name}, expected namespace: ${namespace})`,
-          );
-        }
-      }
-    }
 
     return c.json(agents);
   });
