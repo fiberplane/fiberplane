@@ -13,6 +13,7 @@ import {
 } from "agents";
 import { AIChatAgent } from "agents/ai-chat-agent";
 import { MCPClientManager } from "agents/mcp/client";
+import { DurableObjectOAuthClientProvider } from "agents/mcp/do-oauth-client-provider";
 import {
   type StreamTextOnFinishCallback,
   createDataStreamResponse,
@@ -21,7 +22,6 @@ import {
 } from "ai";
 import { executions, tools } from "./tools";
 import { processToolCalls } from "./utils";
-import { DurableObjectOAuthClientProvider } from "agents/mcp/do-oauth-client-provider";
 
 interface MemoryState {
   memories: Record<

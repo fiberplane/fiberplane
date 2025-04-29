@@ -34,7 +34,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
       const tablesQuery =
         "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'";
       const tablesResult = tryCatch(() =>
-        agent.sql(Object.assign([tablesQuery], { raw: [tablesQuery] }))
+        agent.sql(Object.assign([tablesQuery], { raw: [tablesQuery] })),
       );
 
       if (tablesResult.error) {
@@ -51,7 +51,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
         // Get column information
         const pragmaQuery = `PRAGMA table_info("${tableName}")`;
         const columnInfoResult = tryCatch(() =>
-          agent.sql(Object.assign([pragmaQuery], { raw: [pragmaQuery] }))
+          agent.sql(Object.assign([pragmaQuery], { raw: [pragmaQuery] })),
         );
 
         if (columnInfoResult.error) {
@@ -119,7 +119,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
         // Get row data
         const selectQuery = `SELECT * FROM "${tableName}"`;
         const rowsResult = tryCatch(() =>
-          agent.sql(Object.assign([selectQuery], { raw: [selectQuery] }))
+          agent.sql(Object.assign([selectQuery], { raw: [selectQuery] })),
         );
 
         if (rowsResult.error) {
@@ -138,10 +138,13 @@ function createAgentAdminRouter(agent: ObservedAgent) {
         // We still need to use for-await here since we're dealing with an async iterator
         for await (const row of rowsResult.data) {
           // Create a new row object by mapping column names to values
-          const typedRow = columnNames.reduce((acc, colName) => {
-            acc[colName] = row[colName as keyof typeof row];
-            return acc;
-          }, {} as Record<string, unknown>);
+          const typedRow = columnNames.reduce(
+            (acc, colName) => {
+              acc[colName] = row[colName as keyof typeof row];
+              return acc;
+            },
+            {} as Record<string, unknown>,
+          );
 
           data.push(typedRow);
         }
@@ -184,7 +187,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
             prompts: conn.prompts,
             serverCapabilities: conn.serverCapabilities,
           };
-        }
+        },
       );
       return c.json({ data: connections });
     }
@@ -227,7 +230,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
           data: JSON.stringify(streamError.message),
         });
         agent._activeStreams.delete(stream);
-      }
+      },
     );
   });
 
@@ -238,14 +241,14 @@ function createAgentAdminRouter(agent: ObservedAgent) {
     if (!parsedEnv.success) {
       console.error(
         "ai-gateways: Invalid environment variables:",
-        parsedEnv.error
+        parsedEnv.error,
       );
       return c.json(
         {
           error: "Missing or invalid environment variables",
           details: parsedEnv.error.format(),
         },
-        422
+        422,
       );
     }
 
@@ -273,14 +276,14 @@ function createAgentAdminRouter(agent: ObservedAgent) {
       if (!parsedEnv.success) {
         console.error(
           "ai-gateways/id/logs: Invalid environment variables:",
-          parsedEnv.error
+          parsedEnv.error,
         );
         return c.json(
           {
             error: "Missing or invalid environment variables",
             details: parsedEnv.error.format(),
           },
-          422
+          422,
         );
       }
 
@@ -298,7 +301,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
       }
 
       return c.json(logs.result);
-    }
+    },
   );
 
   // Get log details for a specific gateway/log
@@ -310,14 +313,14 @@ function createAgentAdminRouter(agent: ObservedAgent) {
       if (!parsedEnv.success) {
         console.error(
           "ai-gateways/id/logs/logId: Invalid environment variables:",
-          parsedEnv.error
+          parsedEnv.error,
         );
         return c.json(
           {
             error: "Missing or invalid environment variables",
             details: parsedEnv.error.format(),
           },
-          422
+          422,
         );
       }
 
@@ -335,7 +338,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
       }
 
       return c.json(log);
-    }
+    },
   );
 
   return router;
@@ -362,7 +365,7 @@ interface InstrumentedProperties {
  * ```
  */
 export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
-  BaseClass: ConstructorType<BaseAgent>
+  BaseClass: ConstructorType<BaseAgent>,
 ): ConstructorType<BaseAgent & InstrumentedProperties> {
   return class ObservedAgent
     extends (BaseClass as ConstructorType<Agent<BlankEnv, unknown>>)
@@ -404,7 +407,7 @@ export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
 
     override broadcast(
       msg: string | ArrayBuffer | ArrayBufferView,
-      without?: string[] | undefined
+      without?: string[] | undefined,
     ): void {
       this.recordEvent({
         type: "broadcast",
@@ -432,7 +435,7 @@ export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
           if (prop === "send") {
             return function (
               this: Connection,
-              message: string | ArrayBuffer | ArrayBufferView
+              message: string | ArrayBuffer | ArrayBufferView,
             ) {
               self.recordEvent({
                 type: "ws_send",
@@ -501,7 +504,7 @@ export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
       connection: Connection,
       code: number,
       reason: string,
-      wasClean: boolean
+      wasClean: boolean,
     ): void | Promise<void> {
       this.recordEvent({
         type: "ws_close",
@@ -521,7 +524,7 @@ export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
         console.error(
           "Missing namespace and/or instance headers in request",
           request.headers,
-          { namespace, instance }
+          { namespace, instance },
         );
       }
 
@@ -539,7 +542,7 @@ export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
               type: "http_request",
               // Clone the request to avoid consuming the body
               payload: await createRequestPayload(
-                c.req.raw.clone() as typeof c.req.raw
+                c.req.raw.clone() as typeof c.req.raw,
               ),
             });
           });
