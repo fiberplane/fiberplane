@@ -1,5 +1,17 @@
 # @fiberplane/agents
 
+## 0.5.3
+
+### Patch Changes
+
+- Clean up MCP support to use the now-designated `mcp` property on Agents.
+
+## 0.5.2
+
+### Patch Changes
+
+- Fix an issue where importing Vite-specific env vars would break in Wrangler
+
 ## 0.5.1
 
 ### Patch Changes
