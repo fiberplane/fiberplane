@@ -1,7 +1,7 @@
+import { execSync } from "node:child_process";
 // TODO(laurynas): refactor the build.ts to support watch mode and remove this
 // it's just for the dev script
 import { defineConfig } from "tsup";
-import { execSync } from "node:child_process";
 
 const commitHash = execSync("git rev-parse --short HEAD").toString().trim();
 

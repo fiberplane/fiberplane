@@ -1,9 +1,9 @@
+import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { build } from "tsup";
 import { build as viteBuild } from "vite";
 import pkg from "../package.json";
-import { execSync } from "node:child_process";
 
 async function run() {
   // Store original directory to return to it later
