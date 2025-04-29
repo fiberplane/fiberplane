@@ -10,7 +10,8 @@ import {
 } from "./utils";
 
 const version = packageJson.version;
-const commitHash = import.meta.env.GIT_COMMIT_HASH ?? "";
+const commitHash =
+  typeof __COMMIT_HASH__ !== "undefined" ? __COMMIT_HASH__ : "";
 
 function createFpApp(customPath = "/fp") {
   const app = new Hono().basePath(customPath);

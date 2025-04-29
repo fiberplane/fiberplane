@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { build } from "tsup";
@@ -7,6 +8,9 @@ import pkg from "../package.json";
 async function run() {
   // Store original directory to return to it later
   const originalDir = process.cwd();
+
+  // Get the current git commit hash
+  const commitHash = execSync("git rev-parse --short HEAD").toString().trim();
 
   console.log("Building agents library...");
 
@@ -18,6 +22,9 @@ async function run() {
     // external: ["vite", "cloudflare:workers", "react", "zod", "agents"],
     external: Object.keys(pkg.dependencies || {}),
     clean: true,
+    define: {
+      __COMMIT_HASH__: JSON.stringify(commitHash),
+    },
   });
 
   // Define paths for agents-ui
