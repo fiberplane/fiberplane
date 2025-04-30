@@ -10,7 +10,6 @@
     "build": "vite build",
     "format": "biome format --write",
     "lint": "biome lint",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [],

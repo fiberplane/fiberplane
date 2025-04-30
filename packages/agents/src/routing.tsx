@@ -1,5 +1,5 @@
 import { getAgentByName } from "agents";
-import { Hono } from "hono";
+import { Hono, type ExecutionContext } from "hono";
 import type { StatusCode } from "hono/utils/http-status";
 import packageJson from "../package.json" assert { type: "json" };
 import { getAgents } from "./agentInstances";
@@ -96,9 +96,8 @@ function createFpApp(customPath = "/fp") {
       version,
       commitHash,
     };
-    const cdn = `https://cdn.jsdelivr.net/npm/@fiberplane/agents@${
-      version ? version : "latest"
-    }/dist/playground/`;
+    const cdn = `https://cdn.jsdelivr.net/npm/@fiberplane/agents@${version ? version : "latest"
+      }/dist/playground/`;
     const cssBundleUrl = new URL("index.css", cdn).href;
     const jsBundleUrl = new URL("index.js", cdn).href;
     return c.html(
@@ -137,9 +136,13 @@ export function fiberplane<E = unknown>(
 ) {
   const fpApp = createFpApp(options?.customPath);
 
-  return async function fetch(request: Request, env: E, ctx: ExecutionContext) {
-    const newRequest = new Request(request);
-    const response = await fpApp.fetch(newRequest, env, ctx);
+  return async function fetch(incoming: Request, env: E, ctx: ExecutionContext) {
+    // Clone the request instead of recreating it to avoid body usage issues
+    // const [request, duplicatedRequest] =
+    //   [incoming, new Request(incoming)];
+    const [request, duplicatedRequest] = duplicateRequest(incoming);
+
+    const response = await fpApp.fetch(duplicatedRequest, env, ctx);
     if (response.status !== 404) {
       // If the response is not 404, return it
       return response;
@@ -147,4 +150,36 @@ export function fiberplane<E = unknown>(
 
     return userFetch(request, env, ctx);
   };
+}
+
+
+function duplicateRequest<T extends Request>(request: T): [T, T] {
+  // Clone the request for reading the body multiple times
+  // const originalBody = request.body;
+  // // console.log('request', request.bodyUsed);
+  // if (originalBody) {
+  //   // Create two streams from the original
+  //   const [stream1, stream2] = originalBody.tee();
+
+  //   // Create two requests with independent body streams
+  //   const request1 = new Request(request.url, {
+  //     method: request.method,
+  //     headers: request.headers,
+  //     body: stream1,
+  //     mode: request.mode,
+  //     credentials: request.credentials
+  //   });
+
+  //   const request2 = new Request(request.url, {
+  //     method: request.method,
+  //     headers: request.headers,
+  //     body: stream2,
+  //     mode: request.mode,
+  //     credentials: request.credentials
+  //   });
+  //   return [request1, request2];
+  return [request.clone() as T, request.clone() as T];
+  // }
+
+  // return [request, request];
 }

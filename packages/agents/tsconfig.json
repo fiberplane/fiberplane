@@ -12,7 +12,7 @@
     "module": "ESNext",
     "rootDir": "./src",
     "moduleResolution": "Bundler",
-    "types": ["vite/client", "@cloudflare/workers-types"],
+    "types": ["vite/client", "@cloudflare/workers-types", "@cloudflare/vitest-pool-workers"],
     "declaration": true,
     "noEmit": false,
     "outDir": "./dist",

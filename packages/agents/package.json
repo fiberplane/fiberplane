@@ -31,12 +31,14 @@
     "format": "biome format --write",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [],
   "author": "",
   "license": "MIT/Apache-2.0",
   "dependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.8.0",
     "@hono/node-server": "^1.13.7",
     "@hono/node-ws": "^1.1.0",
     "agents": "^0.0.59",
@@ -60,6 +62,7 @@
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
     "typescript": "^5.8.2",
-    "vite": "^6.2.2"
+    "vite": "^6.2.2",
+    "vitest": "^3.0.8"
   }
 }
