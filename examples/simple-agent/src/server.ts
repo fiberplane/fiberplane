@@ -13,6 +13,7 @@ import {
 } from "agents";
 import { AIChatAgent } from "agents/ai-chat-agent";
 import { MCPClientManager } from "agents/mcp/client";
+import { DurableObjectOAuthClientProvider } from "agents/mcp/do-oauth-client-provider";
 import {
   type StreamTextOnFinishCallback,
   createDataStreamResponse,
@@ -45,29 +46,18 @@ const agentNamespace = "chat-client";
 class CoreChatClient extends AIChatAgent<Env, MemoryState> {
   initialState = { memories: {} };
 
-  mcp_: MCPClientManager | undefined;
-
-  onStart() {
-    this.mcp_ = new MCPClientManager("chat-client", "1.0.0", {
-      baseCallbackUri: `${this.env.HOST}/agents/${agentNamespace}/${this.name}/callback`,
-      storage: this.ctx.storage,
-    });
-
-    super.onStart();
-  }
-
   async addMcpServer(url: string) {
-    const { id, authUrl } = await this.mcp.connect(url);
+    const { id, authUrl } = await this.mcp.connect(url, {
+      transport: {
+        authProvider: new DurableObjectOAuthClientProvider(
+          this.ctx.storage,
+          "chat-client",
+          `${this.env.HOST}/agents/${agentNamespace}/${this.name}/callback`,
+        ),
+      },
+    });
     console.log(`Added MCP server with ID: ${id}`);
     return authUrl ?? "";
-  }
-
-  get mcp() {
-    if (!this.mcp_) {
-      throw new Error("MCPClientManager not initialized");
-    }
-
-    return this.mcp_;
   }
 
   async onRequest(request: Request) {
@@ -99,7 +89,10 @@ class CoreChatClient extends AIChatAgent<Env, MemoryState> {
           const processedMessages = await processToolCalls({
             messages: this.messages,
             dataStream,
-            tools,
+            tools: {
+              ...tools,
+              ...this.mcp.unstable_getAITools(),
+            },
             executions,
           });
 
@@ -121,7 +114,10 @@ class CoreChatClient extends AIChatAgent<Env, MemoryState> {
               You are a helpful assistant that can do various tasks. If the user asks, then you can also schedule tasks to be executed later. The input may have a date/time/cron pattern to be input as an object into a scheduler The time is now: ${new Date().toISOString()}.
               `,
             messages: processedMessages,
-            tools,
+            tools: {
+              ...tools,
+              ...this.mcp.unstable_getAITools(),
+            },
             onFinish,
             maxSteps: 10,
           });

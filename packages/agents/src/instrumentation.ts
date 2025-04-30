@@ -1,5 +1,4 @@
 import type { Agent, Connection, ConnectionContext, WSMessage } from "agents";
-import type { MCPClientManager } from "agents/mcp/client";
 import Cloudflare from "cloudflare";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
@@ -169,9 +168,7 @@ function createAgentAdminRouter(agent: ObservedAgent) {
   });
 
   router.get("/agents/:namespace/:instance/admin/mcp", async (c) => {
-    agent._mcpConnections = detectMCPConnections(
-      agent as unknown as Record<string, unknown>,
-    );
+    agent._mcpConnections = new Map(Object.entries(agent.mcp.mcpConnections));
 
     if (agent._mcpConnections && agent._mcpConnections.size > 0) {
       const connections = Array.from(agent._mcpConnections).map(
@@ -393,9 +390,7 @@ export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
         },
       });
 
-      this._mcpConnections = detectMCPConnections(
-        this as unknown as Record<string, unknown>,
-      );
+      this._mcpConnections = new Map(Object.entries(this.mcp.mcpConnections));
 
       // Cast state to S to satisfy the type constraint of the parent class
       super.onStateUpdate(state, source);
@@ -403,9 +398,7 @@ export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
 
     onStart() {
       super.onStart();
-      this._mcpConnections = detectMCPConnections(
-        this as unknown as Record<string, unknown>,
-      );
+      this._mcpConnections = new Map(Object.entries(this.mcp.mcpConnections));
     }
 
     override broadcast(
@@ -494,9 +487,7 @@ export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
         },
       });
 
-      this._mcpConnections = detectMCPConnections(
-        this as unknown as Record<string, unknown>,
-      );
+      this._mcpConnections = new Map(Object.entries(this.mcp.mcpConnections));
 
       // Create a proxied connection to intercept send calls
       const proxiedConnection = this.createWebSocketProxy(connection);
@@ -590,38 +581,4 @@ export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
       return this._fiberRouter.fetch(request, this.env);
     }
   } as unknown as ConstructorType<BaseAgent & InstrumentedProperties>;
-}
-
-function isMCPClientManagerLike(value: unknown): value is MCPClientManager {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    typeof (value as Record<string, unknown>).mcpConnections === "object" &&
-    (value as Record<string, unknown>).mcpConnections !== null &&
-    !Array.isArray((value as Record<string, unknown>).mcpConnections)
-  );
-}
-
-/**
- * Detects all MCP connections from MCPClientManager instances on the object
- * @returns A flat set of all MCP connections
- */
-function detectMCPConnections(obj: Record<string, unknown>) {
-  const connections = new Map<string, MCPClientConnection>();
-
-  for (const [_, value] of Object.entries(obj)) {
-    if (!value || typeof value !== "object") {
-      continue;
-    }
-    if (isMCPClientManagerLike(value)) {
-      const managerConnections = value.mcpConnections;
-      if (managerConnections && typeof managerConnections === "object") {
-        for (const [serverId, conn] of Object.entries(managerConnections)) {
-          connections.set(serverId, conn);
-        }
-      }
-    }
-  }
-
-  return connections;
 }

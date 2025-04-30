@@ -1,6 +1,6 @@
 {
   "name": "@fiberplane/agents",
-  "version": "0.5.1",
+  "version": "0.5.3",
   "description": "",
   "type": "module",
   "exports": {
@@ -39,7 +39,7 @@
   "dependencies": {
     "@hono/node-server": "^1.13.7",
     "@hono/node-ws": "^1.1.0",
-    "agents": "^0.0.59",
+    "agents": "^0.0.75",
     "ai": "^4.1.61",
     "chokidar": "^3.6.0",
     "cloudflare": "^4.2.0",
