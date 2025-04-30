@@ -168,10 +168,6 @@ function createAgentAdminRouter(agent: ObservedAgent) {
   });
 
   router.get("/agents/:namespace/:instance/admin/mcp", async (c) => {
-    // agent._mcpConnections = detectMCPConnections(
-    //   agent as unknown as Record<string, unknown>,
-    // );
-
     agent._mcpConnections = new Map(Object.entries(agent.mcp.mcpConnections));
 
     if (agent._mcpConnections && agent._mcpConnections.size > 0) {
