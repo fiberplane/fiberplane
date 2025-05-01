@@ -39,19 +39,26 @@ export type AgentDetails = {
 
 export type ListAgentsResponse = Array<AgentDetails>;
 
-export const streamOpenEventSchema = z.object({
+export const baseEventDataSchema = z.object({
+  stub: z.string().optional(),
+  className: z.string(),
+  instance: z.string(),
+  id: z.string(),
+  timestamp: z.number(),
+});
+export const streamOpenEventSchema = baseEventDataSchema.extend({
   type: z.literal("stream_open"),
   // payload is the stringified value of null
   payload: z.undefined(),
 });
 
-export const streamCloseEventSchema = z.object({
+export const streamCloseEventSchema = baseEventDataSchema.extend({
   type: z.literal("stream_close"),
   // payload is the stringified value of null
   payload: z.undefined(),
 });
 
-export const streamErrorEventSchema = z.object({
+export const streamErrorEventSchema = baseEventDataSchema.extend({
   type: z.literal("stream_error"),
   payload: z.string(),
 });
@@ -63,8 +70,8 @@ const httpRequestPayloadSchema = z.object({
   body: z.string().optional(),
 });
 
-export const httpRequestEventSchema = z.object({
-  type: z.literal("http_request"),
+export const httpRequestEventSchema = baseEventDataSchema.extend({
+  type: z.literal("request"),
   payload: z.string().transform((str, ctx) => {
     try {
       const parsed = JSON.parse(str);
@@ -84,7 +91,7 @@ export const httpResponsePayloadSchema = httpRequestPayloadSchema.extend({
   statusText: z.string(),
 });
 
-export const httpResponseEventSchema = z.object({
+export const httpResponseEventSchema = baseEventDataSchema.extend({
   type: z.literal("http_response"),
   payload: z.string().transform((str, ctx) => {
     try {
@@ -100,14 +107,14 @@ export const httpResponseEventSchema = z.object({
   }),
 });
 
-export const wsOpenEventSchema = z.object({
-  type: z.literal("ws_open"),
+export const connectEventSchema = baseEventDataSchema.extend({
+  type: z.literal("connect"),
   payload: z.object({
     connectionId: z.string(),
   }),
 });
 
-export const wsCloseEventSchema = z.object({
+export const wsCloseEventSchema = baseEventDataSchema.extend({
   type: z.literal("ws_close"),
   // payload is the stringified value of null
   payload: z.object({
@@ -118,7 +125,7 @@ export const wsCloseEventSchema = z.object({
   }),
 });
 
-export const wsMessageEventSchema = z.object({
+export const wsMessageEventSchema = baseEventDataSchema.extend({
   type: z.literal("ws_message"),
   payload: z.object({
     connectionId: z.string(),
@@ -132,7 +139,7 @@ export const wsMessageEventSchema = z.object({
   }),
 });
 
-export const wsSendEventSchema = z.object({
+export const wsSendEventSchema = baseEventDataSchema.extend({
   type: z.literal("ws_send"),
   payload: z.object({
     connectionId: z.string(),
@@ -146,7 +153,7 @@ export const wsSendEventSchema = z.object({
   }),
 });
 
-export const broadcastEventSchema = z.object({
+export const broadcastEventSchema = baseEventDataSchema.extend({
   type: z.literal("broadcast"),
   payload: z.object({
     message: z.union([
@@ -161,7 +168,7 @@ export const broadcastEventSchema = z.object({
   }),
 });
 
-export const stateChangeEventSchema = z.object({
+export const stateChangeEventSchema = baseEventDataSchema.extend({
   type: z.literal("state_change"),
   payload: z.object({
     state: z.unknown(),
@@ -175,7 +182,7 @@ export const agentEventSchema = z.discriminatedUnion("type", [
   streamErrorEventSchema,
   httpRequestEventSchema,
   httpResponseEventSchema,
-  wsOpenEventSchema,
+  connectEventSchema,
   wsCloseEventSchema,
   wsMessageEventSchema,
   wsSendEventSchema,

@@ -164,10 +164,10 @@ export function useSSEConnection(
 
 const baseOptions: UseSSEWithEventsOptions = {
   eventTypes: [
-    "http_request",
+    "request",
     "http_response",
     "state_change",
-    "ws_open",
+    "connect",
     "ws_message",
     "ws_close",
     "stream_close",
@@ -196,23 +196,16 @@ export function useAgentInstanceEvents(namespace: string, instance: string) {
     onMessage: (event) => {
       const data = JSON.parse(event.data);
 
-      const valid = agentEventSchema.safeParse({
+      const dataToParse = {
         type: event.type,
-        payload: data,
-      });
+        ...data,
+      };
+      const valid = agentEventSchema.safeParse(dataToParse);
       if (!valid.success) {
-        console.error("invalid event", valid.error);
+        console.error("invalid event", valid.error, event, dataToParse);
         return;
       }
-
-      const id = generateId();
-      addAgentInstanceEvent(namespace, instance, {
-        ...valid.data,
-        // type: valid.data,
-        id,
-        timestamp: new Date().toISOString(),
-        // payload: data,
-      });
+      addAgentInstanceEvent(namespace, instance, valid.data);
     },
     onConnectionStatus: (status) => {
       setAgentInstanceStreamStatus(namespace, instance, status);
@@ -235,9 +228,4 @@ export function useAgentInstanceEvents(namespace: string, instance: string) {
       connect();
     }
   }, [connect, connectionStatus]);
-}
-
-let id = 0;
-function generateId() {
-  return (id++).toString();
 }

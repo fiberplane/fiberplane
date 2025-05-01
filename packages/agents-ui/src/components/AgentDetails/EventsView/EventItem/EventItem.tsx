@@ -9,7 +9,7 @@ import { EventSummary } from "./EventSummary";
 // Get an icon based on event type
 const getEventIcon = (type: UIAgentEvent["type"]) => {
   switch (type) {
-    case "http_request":
+    case "request":
       return <ArrowLeft className="w-4 h-4" />;
     case "http_response":
       return <ArrowRight className="w-4 h-4" />;
@@ -19,7 +19,7 @@ const getEventIcon = (type: UIAgentEvent["type"]) => {
     case "ws_message":
       return <ArrowLeft className="w-4 h-4" />;
 
-    case "ws_open":
+    case "connect":
       return <ArrowLeft className="w-4 h-4" />;
     case "ws_close":
       return <ArrowLeft className="w-4 h-4" />;

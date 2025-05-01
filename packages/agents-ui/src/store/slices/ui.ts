@@ -6,10 +6,7 @@ const streamEvents: Array<UIAgentEvent["type"]> = [
   "stream_close",
   "stream_error",
 ];
-const httpEvents: Array<UIAgentEvent["type"]> = [
-  "http_request",
-  "http_response",
-];
+const httpEvents: Array<UIAgentEvent["type"]> = ["request", "http_response"];
 
 const webSocketEvents: Array<UIAgentEvent["type"]> = [
   // "ws_open",
@@ -19,7 +16,7 @@ const webSocketEvents: Array<UIAgentEvent["type"]> = [
 ];
 
 const webSocketConnectionEvents: Array<UIAgentEvent["type"]> = [
-  "ws_open",
+  "connect",
   "ws_close",
 ];
 

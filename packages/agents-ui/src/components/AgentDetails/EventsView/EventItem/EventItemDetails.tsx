@@ -23,7 +23,7 @@ export function EventItemDetails(props: {
   event: UIAgentEvent;
 }) {
   const { event } = props;
-  if (event.type === "http_request") {
+  if (event.type === "request") {
     const payload = event.payload as HttpRequestPayload;
     return <HttpRequestDetails payload={payload} />;
   }
@@ -40,7 +40,7 @@ export function EventItemDetails(props: {
     return <CombinedEventDetails event={event} />;
   }
 
-  if (event.type === "ws_open") {
+  if (event.type === "connect") {
     return (
       <div className="border rounded-lg p-2 flex">
         <div className="min-w-[200px] text-muted-foreground">
@@ -124,13 +124,13 @@ export function EventItemDetails(props: {
 
 function EventTypeInfo({ type }: Pick<UIAgentEvent, "type">) {
   let message = "Unknown event type";
-  if (type === "http_request") {
+  if (type === "request") {
     message = "HTTP Request";
   } else if (type === "http_response") {
     message = "HTTP Response";
   } else if (type === "broadcast") {
     message = "Broadcast";
-  } else if (type === "ws_open") {
+  } else if (type === "connect") {
     message = "WebSocket Open";
   } else if (type === "ws_close") {
     message = "WebSocket Close";
@@ -183,7 +183,7 @@ function HttpRequestDetails(props: { payload: HttpRequestPayload }) {
             </FpTabsTrigger>
           )}
         </div>
-        <EventTypeInfo type="http_request" />
+        <EventTypeInfo type="request" />
       </FpTabsList>
       <FpTabsContent value="headers" className="pt-2">
         {hasHeaders && !!payload.headers && (

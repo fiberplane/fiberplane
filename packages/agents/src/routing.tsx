@@ -1,5 +1,10 @@
 import { getAgentByName, getAgentEventStream } from "agents";
+import Cloudflare from "cloudflare";
 import { Hono } from "hono";
+import {
+  //  SSEStreamingApi,
+  streamSSE,
+} from "hono/streaming";
 import packageJson from "../package.json" assert { type: "json" };
 import {
   getAgents,
@@ -8,17 +13,16 @@ import {
   // type EventPayloads,
 } from "./agentInstances";
 import {
+  type ColumnType,
+  type DatabaseResult,
+  aiGatewayEnvSchema,
+} from "./types";
+import {
+  type Result,
   // createRequestPayload,
   getDurableObjectAgentNamespace,
   tryCatchAsync,
-  type Result,
 } from "./utils";
-import {
-  //  SSEStreamingApi,
-  streamSSE,
-} from "hono/streaming";
-import { aiGatewayEnvSchema, type ColumnType, type DatabaseResult } from "./types";
-import Cloudflare from "cloudflare";
 // import type { number } from "zod";
 
 const version = packageJson.version;
@@ -31,9 +35,7 @@ function createFpApp(customPath = "/fp") {
   api.get("/agents", async (c) => {
     const agents = getAgents();
 
-    return c.json(
-      agents,
-    );
+    return c.json(agents);
   });
 
   api.get("/agents/:namespace/:instance/admin/events", async (c) => {
@@ -217,7 +219,10 @@ function createFpApp(customPath = "/fp") {
 
         // Get row data
         const selectQuery = `SELECT * FROM "${tableName}"`;
-        const rowsResult: Result<Record<string, string | number | boolean | null>[], Error> = await tryCatchAsync(
+        const rowsResult: Result<
+          Record<string, string | number | boolean | null>[],
+          Error
+        > = await tryCatchAsync(
           agent.sql(Object.assign([selectQuery], { raw: [selectQuery] })),
         );
 
@@ -409,8 +414,9 @@ function createFpApp(customPath = "/fp") {
       version,
       commitHash,
     };
-    const cdn = `https://cdn.jsdelivr.net/npm/@fiberplane/agents@${version ? version : "latest"
-      }/dist/playground/`;
+    const cdn = `https://cdn.jsdelivr.net/npm/@fiberplane/agents@${
+      version ? version : "latest"
+    }/dist/playground/`;
     const cssBundleUrl = new URL("index.css", cdn).href;
     const jsBundleUrl = new URL("index.js", cdn).href;
     return c.html(

@@ -16,8 +16,8 @@ const formatUrl = (url: string): string => {
 // HTTP Request details component
 const HttpRequestDetails = ({
   payload,
-}: DiscriminatedSubset<UIAgentEvent & { type: "http_request" }, "payload">) => {
-  const { method = "GET", url = "" } = payload;
+}: DiscriminatedSubset<UIAgentEvent & { type: "request" }, "payload">) => {
+  const { method = "GET", url = "" } = payload.request;
   const displayUrl = typeof url === "string" ? formatUrl(url) : "";
 
   return (
@@ -26,8 +26,11 @@ const HttpRequestDetails = ({
       <span className="font-mono text-muted-foreground truncate">
         {displayUrl}
       </span>
-      {payload.body && (
-        <ExpandableJSONViewer data={payload.body} label="Request Body" />
+      {payload.request.body && (
+        <ExpandableJSONViewer
+          data={payload.request.body}
+          label="Request Body"
+        />
       )}
     </div>
   );
@@ -57,7 +60,7 @@ function createMessage({
   payload,
 }: DiscriminatedSubset<UIAgentEvent, "type" | "payload">): ReactNode {
   switch (type) {
-    case "http_request":
+    case "request":
       return "HTTP request sent";
     case "http_response":
       return "HTTP response received";
@@ -75,7 +78,7 @@ function createMessage({
     case "ws_message": {
       return extractIncomingMessage(payload) ?? "WebSocket message";
     }
-    case "ws_open":
+    case "connect":
       return "WebSocket connected";
     case "ws_close":
       return "WebSocket disconnected";
@@ -169,7 +172,7 @@ function extractOutgoingMessage(
 const WebSocketDetails = (
   props: DiscriminatedSubset<
     UIAgentEvent & {
-      type: "ws_message" | "ws_open" | "ws_close" | "broadcast" | "ws_send";
+      type: "ws_message" | "connect" | "ws_close" | "broadcast" | "ws_send";
     },
     "payload" | "type"
   >,
@@ -220,7 +223,7 @@ type Props = DiscriminatedSubset<UIAgentEvent, "payload" | "type">;
 
 // Main event summary component that selects the appropriate details component
 export const EventSummary = (props: Props) => {
-  if (props.type === "http_request") {
+  if (props.type === "request") {
     return <HttpRequestDetails {...props} />;
   }
   if (props.type === "http_response") {
@@ -229,7 +232,7 @@ export const EventSummary = (props: Props) => {
 
   if (
     props.type === "ws_message" ||
-    props.type === "ws_open" ||
+    props.type === "connect" ||
     props.type === "ws_close" ||
     props.type === "broadcast" ||
     props.type === "ws_send"

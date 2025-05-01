@@ -85,7 +85,9 @@ export const MessagePayloadSchema = z
           // If parsing fails, add an issue to the context and return the original string
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: `Failed to parse message as JSON: ${error instanceof Error ? error.message : "unknown error occurred"}`,
+            message: `Failed to parse message as JSON: ${
+              error instanceof Error ? error.message : "unknown error occurred"
+            }`,
           });
           return val; // Return the original string if parsing fails
         }
@@ -354,19 +356,27 @@ export interface HttpResponsePayload {
   [key: string]: unknown;
 }
 
-export const streamOpenEventSchema = z.object({
+export const baseEventDataSchema = z.object({
+  stub: z.string().optional(),
+  className: z.string(),
+  instance: z.string(),
+  id: z.string(),
+  timestamp: z.number().transform((num) => new Date(num).toISOString()),
+});
+
+export const streamOpenEventSchema = baseEventDataSchema.extend({
   type: z.literal("stream_open"),
   // payload is the stringified value of null
   payload: z.undefined(),
 });
 
-export const streamCloseEventSchema = z.object({
+export const streamCloseEventSchema = baseEventDataSchema.extend({
   type: z.literal("stream_close"),
   // payload is the stringified value of null
   payload: z.undefined(),
 });
 
-export const streamErrorEventSchema = z.object({
+export const streamErrorEventSchema = baseEventDataSchema.extend({
   type: z.literal("stream_error"),
   payload: z.string(),
 });
@@ -378,9 +388,11 @@ const httpRequestPayloadSchema = z.object({
   body: z.string().optional(),
 });
 
-export const httpRequestEventSchema = z.object({
-  type: z.literal("http_request"),
-  payload: httpRequestPayloadSchema,
+export const httpRequestEventSchema = baseEventDataSchema.extend({
+  type: z.literal("request"),
+  payload: z.object({
+    request: httpRequestPayloadSchema,
+  }),
 });
 
 export const httpResponsePayloadSchema = httpRequestPayloadSchema.extend({
@@ -388,19 +400,19 @@ export const httpResponsePayloadSchema = httpRequestPayloadSchema.extend({
   statusText: z.string(),
 });
 
-export const httpResponseEventSchema = z.object({
+export const httpResponseEventSchema = baseEventDataSchema.extend({
   type: z.literal("http_response"),
   payload: httpResponsePayloadSchema,
 });
 
-export const wsOpenEventSchema = z.object({
-  type: z.literal("ws_open"),
+export const connectEventSchema = baseEventDataSchema.extend({
+  type: z.literal("connect"),
   payload: z.object({
     connectionId: z.string(),
   }),
 });
 
-export const wsCloseEventSchema = z.object({
+export const wsCloseEventSchema = baseEventDataSchema.extend({
   type: z.literal("ws_close"),
   // payload is the stringified value of null
   payload: z.object({
@@ -411,7 +423,7 @@ export const wsCloseEventSchema = z.object({
   }),
 });
 
-export const wsMessageEventSchema = z.object({
+export const wsMessageEventSchema = baseEventDataSchema.extend({
   type: z.literal("ws_message"),
   payload: z
     .object({
@@ -454,7 +466,7 @@ export const wsMessageEventSchema = z.object({
     }),
 });
 
-export const wsSendEventSchema = z.object({
+export const wsSendEventSchema = baseEventDataSchema.extend({
   type: z.literal("ws_send"),
   payload: z
     .object({
@@ -497,7 +509,7 @@ export const wsSendEventSchema = z.object({
     }),
 });
 
-export const broadcastEventSchema = z.object({
+export const broadcastEventSchema = baseEventDataSchema.extend({
   type: z.literal("broadcast"),
   payload: z
     .object({
@@ -541,7 +553,7 @@ export const broadcastEventSchema = z.object({
     }),
 });
 
-export const stateChangeEventSchema = z.object({
+export const stateChangeEventSchema = baseEventDataSchema.extend({
   type: z.literal("state_change"),
   payload: z.object({
     state: z.unknown(),
@@ -555,7 +567,7 @@ export const agentEventSchema = z.discriminatedUnion("type", [
   streamErrorEventSchema,
   httpRequestEventSchema,
   httpResponseEventSchema,
-  wsOpenEventSchema,
+  connectEventSchema,
   wsCloseEventSchema,
   wsMessageEventSchema,
   wsSendEventSchema,
@@ -590,14 +602,16 @@ type CombinedEventPayload = UseChatResponseCombinedEventPayload;
 export type CombinedEvent = {
   type: "combined_event";
   payload: CombinedEventPayload;
-};
-
-export type WithIdAndTimestamp = {
   id: string;
   timestamp: string;
 };
 
-export type UIAgentEvent = WithIdAndTimestamp & (AgentEvent | CombinedEvent);
+// export type WithIdAndTimestamp = {
+//   id: string;
+//   timestamp: string;
+// };
+
+export type UIAgentEvent = AgentEvent | CombinedEvent;
 
 export interface AIGatewayListResponse {
   /**
