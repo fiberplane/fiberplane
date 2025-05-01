@@ -1,12 +1,18 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { createOpenAI } from "@ai-sdk/openai";
 import {
-  type ConstructorType,
+  // type ConstructorType,
   fiberplane,
-  withInstrumentation,
+  registerWithEventData,
+  // withInstrumentation,
+  // getEventEmitter,
 } from "@fiberplane/agents";
 import {
-  Agent,
+  // Agent,
+  // type AgentContext,
+  type AgentEvent,
+  // type BaseEventData,
+  // type EventPlugin,
   type Schedule,
   getAgentByName,
   routeAgentRequest,
@@ -16,6 +22,7 @@ import { MCPClientManager } from "agents/mcp/client";
 import { DurableObjectOAuthClientProvider } from "agents/mcp/do-oauth-client-provider";
 import {
   type StreamTextOnFinishCallback,
+  type ToolSet,
   createDataStreamResponse,
   generateId,
   streamText,
@@ -35,16 +42,21 @@ interface MemoryState {
 }
 
 // we use ALS to expose the agent context to the tools
-export const agentContext = new AsyncLocalStorage<CoreChatClient>();
+export const agentContext = new AsyncLocalStorage<ChatClient>();
 
 const agentNamespace = "chat-client";
 
-/**
- * Chat Agent implementation that handles real-time AI chat interactions
- */
-
-class CoreChatClient extends AIChatAgent<Env, MemoryState> {
+export class ChatClient extends AIChatAgent<Env, MemoryState> {
   initialState = { memories: {} };
+
+  eventObservers = [
+    {
+      handler: (event: AgentEvent) => {
+        // console.log("handle event", event);
+        registerWithEventData({ ...event, stub: agentNamespace });
+      },
+    },
+  ];
 
   async addMcpServer(url: string) {
     const { id, authUrl } = await this.mcp.connect(url, {
@@ -78,8 +90,12 @@ class CoreChatClient extends AIChatAgent<Env, MemoryState> {
    * Handles incoming chat messages and manages the response stream
    * @param onFinish - Callback function executed when streaming completes
    */
-  // biome-ignore lint/complexity/noBannedTypes: <explanation>
-  async onChatMessage(onFinish: StreamTextOnFinishCallback<{}>) {
+  async onChatMessage(
+    onFinish: StreamTextOnFinishCallback<ToolSet>,
+    options?: {
+      abortSignal: AbortSignal | undefined;
+    },
+  ) {
     // Create a streaming response that handles both text and tool outputs
     return agentContext.run(this, async () => {
       const dataStreamResponse = createDataStreamResponse({
@@ -143,35 +159,36 @@ class CoreChatClient extends AIChatAgent<Env, MemoryState> {
   }
 }
 
-export const ChatClient = withInstrumentation(CoreChatClient);
+// export const ChatClient = withInstrumentation(CoreChatClient);
+// export const ChatClient = CoreChatClient;
 
-export class CustomClient extends withInstrumentation(Agent<Env, MemoryState>) {
-  // Initialize with the required properties
-  initialState = { memories: {} };
+// export class CustomClient extends withInstrumentation(Agent<Env, MemoryState>) {
+//   // Initialize with the required properties
+//   initialState = { memories: {} };
 
-  // Implement required methods from Agent interface
-  async onStart() {
-    // Initialize anything needed when the agent starts
-    console.log("CustomClient agent started");
-  }
+//   // Implement required methods from Agent interface
+//   async onStart() {
+//     // Initialize anything needed when the agent starts
+//     console.log("CustomClient agent started");
+//   }
 
-  async onRequest(request: Request) {
-    return new Response(
-      JSON.stringify({
-        url: request.url,
-      }),
-      {
-        headers: { "Content-Type": "application/json" },
-        status: 200,
-      },
-    );
-  }
+//   async onRequest(request: Request) {
+//     return new Response(
+//       JSON.stringify({
+//         url: request.url,
+//       }),
+//       {
+//         headers: { "Content-Type": "application/json" },
+//         status: 200,
+//       },
+//     );
+//   }
 
-  async executeTask(description: string, task: Schedule<string>) {
-    // Custom implementation for executing tasks
-    console.log(`Executing task: ${description} at ${task}`);
-  }
-}
+//   async executeTask(description: string, task: Schedule<string>) {
+//     // Custom implementation for executing tasks
+//     console.log(`Executing task: ${description} at ${task}`);
+//   }
+// }
 
 /**
  * Worker entry point that routes incoming requests to the appropriate handler

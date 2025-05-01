@@ -92,7 +92,6 @@ export function useSSEConnection(
   }, [updateStatus]);
 
   const connect = useCallback(() => {
-    // console.log("closing because of connect", eventSourceRef.current?.url, url);
     const currentUrl = eventSourceRef.current?.url
       ? new URL(eventSourceRef.current.url)
       : null;

@@ -1,6 +1,8 @@
+import type { BaseEventData } from "agents";
 import { type KebabCase, toKebabCase } from "./utils";
 
 type Namespace = KebabCase<string>;
+
 type AgentDetails = {
   className: string;
   instances: Array<string>;
@@ -14,6 +16,12 @@ export function registerAgent(agent: string) {
       className: agent,
       instances: [],
     });
+  }
+}
+
+export function registerWithEventData(data: BaseEventData) {
+  if (data.stub) {
+    registerAgentInstance(data.stub, data.instance);
   }
 }
 

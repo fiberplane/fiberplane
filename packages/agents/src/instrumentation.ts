@@ -363,7 +363,7 @@ interface InstrumentedProperties {
 export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
   BaseClass: ConstructorType<BaseAgent>,
 ): ConstructorType<BaseAgent & InstrumentedProperties> {
-  return class ObservedAgent
+  class ObservedAgent
     extends (BaseClass as ConstructorType<Agent<BlankEnv, unknown>>)
     implements InstrumentedProperties
   {
@@ -580,5 +580,14 @@ export function withInstrumentation<BaseAgent extends Agent<BlankEnv, unknown>>(
 
       return this._fiberRouter.fetch(request, this.env);
     }
-  } as unknown as ConstructorType<BaseAgent & InstrumentedProperties>;
+  }
+
+  Object.defineProperty(ObservedAgent.prototype.constructor, "name", {
+    value: `Observed(${BaseClass.name})`,
+    writable: false,
+  });
+
+  return ObservedAgent as unknown as ConstructorType<
+    BaseAgent & InstrumentedProperties
+  >;
 }

@@ -5,17 +5,17 @@ export const PARTYKIT_NAMESPACE_HEADER = "x-partykit-namespace";
 export const PARTYKIT_ROOM_HEADER = "x-partykit-room";
 
 // Types for the result object with discriminated union
-type Success<T> = {
+export type Success<T> = {
   data: T;
   error: null;
 };
 
-type Failure<E> = {
+export type Failure<E> = {
   data: null;
   error: E;
 };
 
-type Result<T, E = Error> = Success<T> | Failure<E>;
+export type Result<T, E = Error> = Success<T> | Failure<E>;
 
 /**
  * A nicer way to handle errors than a try..catch block.
