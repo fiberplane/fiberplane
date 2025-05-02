@@ -1,5 +1,5 @@
 import { getAgentByName } from "agents";
-import { Hono, type ExecutionContext } from "hono";
+import { type ExecutionContext, Hono } from "hono";
 import type { StatusCode } from "hono/utils/http-status";
 import packageJson from "../package.json" assert { type: "json" };
 import { getAgents } from "./agentInstances";
@@ -33,7 +33,7 @@ function createFpApp(customPath = "/fp") {
         {
           error: `Agent ${rawNamespace} not found`,
         },
-        404
+        404,
       );
     }
 
@@ -49,7 +49,7 @@ function createFpApp(customPath = "/fp") {
     // Create the internal URL with the properly extracted path
     const internalUrl = new URL(
       `/agents/${rawNamespace}/${instance}/admin${adminPath}`,
-      "http://internal"
+      "http://internal",
     );
     // console.log("Internal URL:", internalUrl);
     const headers = new Headers(c.req.header());
@@ -113,7 +113,7 @@ function createFpApp(customPath = "/fp") {
           <div id="root" data-options={JSON.stringify(options)} />
           <script type="module" src={jsBundleUrl} />
         </body>
-      </html>
+      </html>,
     );
   });
 
@@ -131,16 +131,16 @@ export function fiberplane<E = unknown>(
   userFetch: (
     request: Request,
     env: E,
-    ctx: ExecutionContext
+    ctx: ExecutionContext,
   ) => Response | Promise<Response>,
-  options?: FiberplaneEntryWrapperOptions
+  options?: FiberplaneEntryWrapperOptions,
 ) {
   const fpApp = createFpApp(options?.customPath);
 
   return async function fetch(
     incoming: Request,
     env: E,
-    ctx: ExecutionContext
+    ctx: ExecutionContext,
   ) {
     // Create a completely new request for fpApp.fetch to avoid type issues
     const fpAppRequest = new Request(incoming.url, {

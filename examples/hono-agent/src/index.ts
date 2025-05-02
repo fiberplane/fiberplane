@@ -1,8 +1,8 @@
-import { Hono } from "hono";
 import { fiberplane } from "@fiberplane/agents";
-import { agentsMiddleware } from "hono-agents";
-import { Agent } from "agents";
 import { withInstrumentation } from "@fiberplane/agents";
+import { Agent } from "agents";
+import { Hono } from "hono";
+import { agentsMiddleware } from "hono-agents";
 
 interface TestState {
   counter: number;
@@ -34,7 +34,7 @@ export class TestAgentImpl extends Agent<Env, TestState> {
           {
             headers: { "Content-Type": "application/json" },
             status: 200,
-          }
+          },
         );
       } catch (error) {
         return new Response(
@@ -44,7 +44,7 @@ export class TestAgentImpl extends Agent<Env, TestState> {
           {
             headers: { "Content-Type": "application/json" },
             status: 400,
-          }
+          },
         );
       }
     }
@@ -57,7 +57,7 @@ export class TestAgentImpl extends Agent<Env, TestState> {
       {
         headers: { "Content-Type": "application/json" },
         status: 200,
-      }
+      },
     );
   }
 }

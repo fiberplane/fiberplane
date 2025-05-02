@@ -3,7 +3,7 @@ import {
   env,
   waitOnExecutionContext,
 } from "cloudflare:test";
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { fiberplane } from "./routing";
 
 describe("fiberplane function", () => {
@@ -30,7 +30,7 @@ describe("fiberplane function", () => {
 
     // Call the fetch handler
     await fetchHandler(request, env, ctx);
-    await waitOnExecutionContext(ctx)
+    await waitOnExecutionContext(ctx);
 
     // Verify that mockUserFetch was called
     expect(mockUserFetch).toHaveBeenCalledTimes(1);
