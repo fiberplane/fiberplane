@@ -1,0 +1,27 @@
+{
+  "name": "hono-agent-test",
+  "version": "1.0.0",
+  "description": "Test for Body has already been used error in Fiberplane agents",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev src/index.ts",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.7.1",
+  "dependencies": {
+    "@fiberplane/agents": "workspace:*",
+    "agents": "^0.0.76",
+    "hono": "^4.7.8",
+    "hono-agents": "^0.0.66"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.14.1"
+  }
+}

@@ -1,0 +1,11 @@
+name = "hono-agent-test-dev"
+compatibility_date = "2025-05-02"
+compatibility_flags = ["nodejs_compat"]
+main = "src/index.ts"
+
+[durable_objects]
+bindings = [{ name = "TestAgent", class_name = "TestAgent" }]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["TestAgent"]
