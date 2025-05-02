@@ -32,5 +32,9 @@
     "typescript": "^5.8.2",
     "wrangler": "^3.91.0"
   },
-  "packageManager": "pnpm@10.7.1"
+  "packageManager": "pnpm@10.7.1",
+  "dependencies": {
+    "@fiberplane/agents": "^0.5.3",
+    "work": "link:../.."
+  }
 }
