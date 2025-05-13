@@ -146,7 +146,7 @@ Rate limiting algorithms essentially implement the chosen strategy. They are res
 
 In the next article, we’ll cover rate limiting algorithms in greater depth, including real-world implementation. You’ll notice that some have quite a lot in common, or are even conceptually identical. These algorithms aren’t rigid formulas. Rather, they represent different ways to balance accuracy, performance, and complexity, while achieving essentially the same goal.
 
-- **Fixed Window Counter: [](https://en.wikipedia.org/wiki/Generic_cell_rate_algorithm)**Requests are counted within windows that have a fixed start and end time, and rejected if they exceed the limit. While simple and performant, fixed window limiters can be bypassed by concentrating requests at the window transition. By maxing out requests just before the current window expires, and just after the next begins, malicious clients can momentarily double the limit for a burst of requests.
+- **Fixed Window Counter:** Requests are counted within windows that have a fixed start and end time, and rejected if they exceed the limit. While simple and performant, fixed window limiters can be bypassed by concentrating requests at the window transition. By maxing out requests just before the current window expires, and just after the next begins, malicious clients can momentarily double the limit for a burst of requests.
 - **Sliding Window Log:** Each request is recorded with a timestamp, and client consumption is measured by counting timestamps in a fixed-sized window relative to the current time. There’s no transition from one window to another, so this algorithm can’t be abused like the Fixed Window. This added accuracy comes at the cost of performance though, since an array of timestamps must be retrieved and counted.
 - **Sliding Window Counter:** Essentially a hybrid of the previous two, this algorithm combines the count of requests in the previous and current windows to approximate the number of requests in a virtual sliding window. It is more performant than the Sliding Window Log, while retaining its invulnerability to abuse and window transitions. It’s not as accurate though, and can be more complicated to understand and implement.
 - **Token Bucket:** Clients start with a maximum number of tokens, which is the upper limit for bursty traffic. Tokens are decremented on each request and refilled at a fixed rate, which controls the average request limit. The Token Bucket is popular due to the balance it strikes between simplicity, accuracy, and performance.
@@ -169,7 +169,6 @@ Monitoring regular resource usage provides a baseline for both static and dynami
 In the simplest case, servers return a `429` error when a rate limit is exceeded. This isn’t especially helpful for recipients though, regardless of whether the client is an internal front-end, or an end-user. For this reason, both success and error responses often include rate limit information in their headers or bodies.
 
 > Rate limiters protecting auth logic from attacks are a notable exception. In these cases it is recommended to share as little as possible. Users are expected to register or log in without exceeding limits, so any rejected requests are suspicious. Any details about the limit or when it resets make it easier to bypass limits, automate attacks, or avoid detection.
-> 
 
 While there is some variety in implementation, many limiters will include the `Retry-After` header with `429` responses. The value—either in seconds or as an HTTP Date—indicates when the client may retry the request. This may be when the client’s quota is reset, or when it is expected to have been sufficiently refilled to afford another request.
 
@@ -177,7 +176,7 @@ The `RateLimit` header family is often used to provide additional detail, which 
 
 - **`RateLimit-Limit`**: How many requests the client is allowed within a given window.
 - **`RateLimit-Remaining`**: The number allowed of requests remaining (`limit - consumed`).
-- **`RateLimit-Reset`**: Optionally, when the limit will be reset, in seconds or as a timestamp.
+- **`RateLimit-Reset`**: Optionally, when the limit will be refilled or reset, in seconds or as a timestamp.
 
 The best way to communicate rate limit data ultimately depends on the role the limiter is playing, as well as the app’s requirements. Third-party limiters may use different patterns or standards to communicate rate limit information, so it’s important to consider what needs to be shared (and with whom) when choosing a solution.
 
