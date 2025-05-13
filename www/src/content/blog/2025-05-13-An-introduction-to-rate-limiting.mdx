@@ -46,7 +46,7 @@ The specifics vary by algorithm and implementation, but most limiters are define
 - The **cost** of each request counted against the limit
 - How often a client’s limit is **refilled** or **reset**, allowing additional requests
 
-Client consumption is measured in **tokens (**or as the sum of request timestamps), often stored in an in-memory database like [Redis](https://redis.io/) or [Memcached](https://memcached.org/). On each request, the rate limiting algorithm is used to determine whether the number of recent requests exceeds the limit.
+Client consumption is measured in **tokens** (or as the sum of request timestamps), often stored in an in-memory database like [Redis](https://redis.io/) or [Memcached](https://memcached.org/). On each request, the rate limiting algorithm is used to determine whether the number of recent requests exceeds the limit.
 
 In-memory databases are used to reduce the latency introduced by a rate limiting layer, but limiters inevitably increase response times—albeit minimally. They play a crucial role in capacity management and application security though, preventing the app from crashing under a flood of traffic, and mitigating an app’s vulnerability to certain attack vectors.
 
