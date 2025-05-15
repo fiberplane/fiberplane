@@ -48,7 +48,7 @@ The specifics vary by algorithm and implementation, but most limiters are define
 
 Client consumption is measured in **tokens** (or as the sum of request timestamps), often stored in an in-memory database like [Redis](https://redis.io/) or [Memcached](https://memcached.org/). On each request, the rate limiting algorithm is used to determine whether the number of recent requests exceeds the limit.
 
-In-memory databases are used to reduce the latency introduced by a rate limiting layer, but limiters inevitably increase response times—albeit minimally. They play a crucial role in capacity management and application security though, preventing the app from crashing under a flood of traffic, and mitigating an app’s vulnerability to certain attack vectors.
+In-memory databases help minimize the latency added by the rate-limiting layer, but some overhead is unavoidable. Even so, rate limiters are essential for managing system capacity and securing applications—they help prevent crashes during traffic spikes and reduce exposure to certain types of attacks.
 
 ## Why rate limit at all?
 
@@ -76,7 +76,7 @@ In practice, apps often use a combination of limiters—each using a different i
 
 To pick the right identifier for each use-case, it’s important to understand the strengths and limitations of each, as well as how these can support different requirements and strategies. As developers, we must also be mindful of the ethical and legal implications each identifier entails.
 
-### Ethical Considerations
+### Ethical and Legal Considerations
 
 Storing personally-identifiable user data makes users vulnerable to doxxing, targeted cyber attacks, and government overreach. It also habituates users (and developers) to an ongoing erosion of digital privacy that threatens their safety and political freedom.
 
@@ -104,7 +104,7 @@ Many examples use the client IP, as it’s relationship to requests is fairly in
 
 Multiple users could share the same IP, in which case one user could exhaust the limit for all. Conversely, a single client could also circumvent limits by accessing services using different IPs by using a VPN or a proxy.
 
-While IPs should not be used as a primary limiter, they play a vital role in security-oriented rate limiting, especially in auth flows. If a user hasn’t yet been authenticated (or even registered), IP limits can prevent a malicious client from bombarding auth services, either to overwhelm them or in an effort to brute-force access. In more sophisticated rate limiting implementations, IPs with a pattern of malicious requests can also be blacklisted.
+While IPs should not be used as a primary limiter, they play a vital role in security-oriented rate limiting, especially in auth flows. If a user hasn’t yet been authenticated (or even registered), IP limits can prevent a malicious client from bombarding auth services, either to overwhelm them or in an effort to brute-force access. In more sophisticated rate limiting implementations, IPs with a pattern of malicious requests can also be blocked.
 
 ### Geolocation
 
@@ -114,7 +114,7 @@ This type of limiting is especially useful in a security context, as it can miti
 
 ### Resource Limiting
 
-Of course, it’s also possible to limit how much a resource is used at all, whether it’s a server, an  endpoint, or a single workflow. Since resource limiters don’t discriminate between clients, they’re not recommended for most rate limiting use-cases. They’re mostly useful for capacity management, and serve as a last resort against unexpected floods of traffic.
+Of course, it’s also possible to limit how much a resource is used at all, whether it’s a server, an endpoint, or a single workflow. Since resource limiters don’t discriminate between clients, they’re not recommended for most rate limiting use-cases. They’re mostly useful for capacity management, and serve as a last resort against unexpected floods of traffic.
 
 ## Storing rate limit data
 
@@ -193,7 +193,7 @@ The `RateLimit` header family is often used to provide additional detail, which 
 
 The best way to communicate rate limit data ultimately depends on the role the limiter is playing, as well as the app’s requirements. Third-party limiters may use different patterns or standards to communicate rate limit information, so it’s important to consider what needs to be shared (and with whom) when choosing a solution.
 
-## From theory to praxis
+## From theory to practice
 
 As you can see, rate limiting is a complex and diverse space. There’s a lot that I didn’t cover, but some of those blanks will be filled in when we take a closer look at rate limiting algorithms and implementations in subsequent articles.
 
