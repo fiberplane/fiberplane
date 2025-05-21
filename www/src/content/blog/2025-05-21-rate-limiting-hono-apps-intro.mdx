@@ -118,7 +118,7 @@ A user or account ID is the best option for most use-cases, since their uniquene
 
 Rate limiters protecting pre-login or unprotected routes are a notable exception. Uniquely identifying clients is more difficult in these cases, but also less relevant to the limiters’ role, which is focused on security and capacity management more-so than regulating individual client usage.
 
-In auth workflows, rate limiters make attempts to gain unauthorized access to the system logistically challenging or prohibitively exepensive. Since users only need to submit their credentials once, any IPs that exceed a reasonable rate limit are suspicious, and may even be blocked after repeated violations.
+In auth workflows, rate limiters make attempts to gain unauthorized access to the system logistically challenging or prohibitively expensive. Since users only need to submit their credentials once, any IPs that exceed a reasonable rate limit are suspicious, and may even be blocked after repeated violations.
 
 Managing service capacity is a more generalized requirement, but is likewise decoupled from individual client usage. Rate limiting can be used to prevent apps from over-consuming downstream APIs, including third-party services. It can also ensure that resource use doesn’t exceed server capacity, or unexpectedly trigger expensive auto-scaling.
 
@@ -191,7 +191,7 @@ Application architecture is arguably the most important factor though. Modern de
 
 While a centralized store makes rate limit records available across requests and app instances, it introduces a request-processing bottleneck. A flood of requests from instances around the world can bog down the database, causing even legitimate requests to lag or time-out.
 
-When paired with distributed application architecture, a centralized store can also add significant latency. After reaching the handler, each request must first be diverted to the limiter—possibly in a different region—before returning to the handling server for processing.
+In distributed applications, centralized stores can also introduce significant latency. After reaching the handler, each request must first be diverted to the limiter—possibly in a different region—before returning to the handling server for processing.
 
 In the era of edge functions (and runtimes), it’s no surprise that distributed rate limiters are increasingly popular. This strategy involves colocating a limiter data store with each app instance, thereby substantially reducing latency and avoiding a single point of failure.
 
@@ -199,7 +199,7 @@ Of course, distributed rate limiters bring their own set of challenges. As with 
 
 ### Data storage with `hono-rate-limiter`
 
-At the heart of `hono-rate-limiter` are it’s stores. These are adapters that implement the Fixed Window algorithm and communicate with the persistence layer. The library includes a Redis store compatible with a most Redis clients, as well as stores for Cloudflare [KV databases](https://developers.cloudflare.com/kv/) and [Durable Objects](https://developers.cloudflare.com/durable-objects/). It can also be paired with a [half-dozen third-party stores](https://github.com/@upstash/redis), and developers can build their own to connect with a different database or use an alternative algorithm.
+At the heart of `hono-rate-limiter` are its stores. These are adapters that implement the Fixed Window algorithm and communicate with the persistence layer. The library includes a Redis store compatible with a most Redis clients, as well as stores for Cloudflare [KV databases](https://developers.cloudflare.com/kv/) and [Durable Objects](https://developers.cloudflare.com/durable-objects/). It can also be paired with a [half-dozen third-party stores](https://github.com/@upstash/redis), and developers can build their own to connect with a different database or use an alternative algorithm.
 
 Setting up a store is pretty straightforward, though implementations and configuration options will depend on the store and database selected. In the simplest case, the initialized database client is passed to the store constructor. For more information on specific integrations, please refer to the [`hono-rate-limiter` documentation](https://github.com/rhinobase/hono-rate-limiter).
 
@@ -219,7 +219,7 @@ app.use(
 );
 ```
 
-Note that database options aren’t necessarily compatible with every architecture. Since the Cloudflare Workers runtime doesn’t support TCP connections, connecting with standard Redis databases would require a custom HTTP client. To use Redis with a Worker, an edge-compatible implementation like [Upstash Redis](https://github.com/@upstash/redis) is recommended. Connectivity issues aside, this will also make it easier to keep database instances (and rate limits) in sync. 
+Note that database options aren’t necessarily compatible with every architecture. Since the Cloudflare Workers runtime doesn’t support TCP connections, connecting with standard Redis databases would require a custom HTTP client. To use Redis with a Worker, an edge-compatible implementation like [Upstash Redis](https://github.com/upstash/redis-js) is recommended. Connectivity issues aside, this will also make it easier to keep database instances (and rate limits) in sync. 
 
 ### Using the Cloudflare Rate Limit binding
 
@@ -262,7 +262,7 @@ To improve user experience—and to help clients avoid accidentally hitting rate
 
 Though the standard format for rate limit headers has changed over time, the information shared has remained largely consistent:
 
-- **Policy:** The service’s request limit and and window length in seconds.
+- **Policy:** The service’s request limit and window length in seconds.
 - **Limit:** How many requests the client is allowed within a given window.
 - **Remaining:** The number of allowed requests remaining (`limit - consumed`).
 - **Reset:** When the limit will be reset, in seconds.
