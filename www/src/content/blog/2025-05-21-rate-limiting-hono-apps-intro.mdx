@@ -24,7 +24,7 @@ I’ll begin with [`hono-rate-limiter`](https://github.com/rhinobase/hono-rate-l
 
 In the next article, I’ll do a deeper dive into rate limiting algorithms and design, using the [Upstash rate limiter](https://github.com/upstash/ratelimit-js/tree/main) to create custom rate limiting middleware. Finally, I’ll walk through how to roll your own rate limiting solution, shifting focus from high-level strategies and patterns to more specific implementation concerns.
 
-First though, I’ll provide a brief introduction to the “whats” and “whys” of rate limiting to provide some context for the following discussion of `hono-rate-limiter` implementations. This article won’t be especially technical, but it will help to have a basic familiarity with Hono apps, as well as the business and engineering requirements that affect backend development.
+First though, I’ll briefly introduce the “whats” and “whys” of rate limiting to provide some context for the following discussion of `hono-rate-limiter` implementations. This article won’t be especially technical, but it will help to have a basic familiarity with Hono apps, as well as the business and engineering requirements that affect backend development.
 
 ## What is rate limiting anyway?
 
@@ -36,7 +36,7 @@ The specifics vary by algorithm and implementation, but most limiters are define
 - The **cost** of each request counted against the limit
 - How often a client’s limit is **refilled** or **reset**, allowing additional requests
 
-Client consumption is measured in **tokens (**or as the sum of request timestamps), typically persisted in some kind of database. Each time the client makes a request, the rate limiting algorithm is used to determine whether the number of recent requests exceeds the limit. Excessive requests are usually rejected, with a `Retry-After` header specifying when the client can try again.
+Client consumption is measured in **tokens** (or as the sum of request timestamps), typically persisted in some kind of database. Each time the client makes a request, the rate limiting algorithm is used to determine whether the number of recent requests exceeds the limit. Excessive requests are usually rejected, with a `Retry-After` header specifying when the client can try again.
 
 ## Why rate limit at all?
 
@@ -44,9 +44,9 @@ Rate limiting refers to a broad variety of policies and implementations with equ
 
 ### Resource Exhaustion
 
-An app’s ability to process requests is essentially finite. If too many requests come in at once, an unprotected system may crash, or auto-scale to the tune of tens of thousands of dollars.
+An app’s ability to process requests is essentially finite. If too many requests come in at once, an unprotected system could crash, or auto-scale to the tune of tens of thousands of dollars.
 
-Floods of traffic may reflect an innocent spike in engagement—thousands of users flocking to buy tickets—or a [Denial of Service (DoS) attack](https://cheatsheetseries.owasp.org/cheatsheets/Denial_of_Service_Cheat_Sheet.html) intended to block legitimate requests or crash the app outright. In either case, rate limiting can be used to cap processed requests at a manageable (and affordable) level.
+Floods of traffic may reflect an innocent spike in engagement—thousands of users flocking to buy tickets—or a [Denial of Service (DoS) attack](https://cheatsheetseries.owasp.org/cheatsheets/Denial_of_Service_Cheat_Sheet.html) intended to block legitimate requests or bring down the server. In either case, rate limiting is used to cap processed requests at a manageable (and affordable) level.
 
 ### Resource Exploitation
 
@@ -64,7 +64,7 @@ Not all vulnerabilities are a matter of capacity. Rate limiting in auth workflow
 
 Built to satisfy basic rate limiting needs in the Hono ecosystem, `hono-rate-limiter` is a port of the popular `express-rate-limiter`. While much of the API and core logic are the same, the library leverages Hono’s type system to share limiter results with downstream logic. It also includes Cloudflare-specific tooling to support development with the `workerd` runtime.
 
-Like many Hono tools, `hono-rate-limiter` exports middleware that can be added app-wide, or to a single route or handler. This flexibility is especially important in the context of rate limiting, where multiple limiters may be layered to address different requirements. A data endpoint, for example, might need a general rate limit to prevent resource exhaustion, and another to enforce account-specific limits by subscription tier.
+Like many Hono tools, `hono-rate-limiter` exports middleware that can be added app-wide, or to a single route or handler. This flexibility is especially important in the context of rate limiting, where multiple limiters may be layered to address different requirements. A data endpoint, for example, might need one rate limit to prevent resource exhaustion and another to enforce account-specific limits by subscription tier.
 
 ## Window + Limit
 
@@ -118,7 +118,7 @@ A user or account ID is the best option for most use-cases, since their uniquene
 
 Rate limiters protecting pre-login or unprotected routes are a notable exception. Uniquely identifying clients is more difficult in these cases, but also less relevant to the limiters’ role, which is focused on security and capacity management more-so than regulating individual client usage.
 
-In auth workflows, rate limiting is primarily deployed against [Brute Force](https://cheatsheetseries.owasp.org/cheatsheets/Nodejs_Security_Cheat_Sheet.html#take-precautions-against-brute-forcing) and [Credential Stuffing](https://cheatsheetseries.owasp.org/cheatsheets/Credential_Stuffing_Prevention_Cheat_Sheet.html#introduction) attacks. Brute force attacks attempt to gain access to a system by repeatedly guessing a user’s password, while credential stuffing blindly plugs known credentials into different services, seeking instances of their reuse. Since users only need to submit their credentials once, any IPs that exceed a reasonable rate limit are suspicious, and may even be blocked after repeated violations.
+In auth workflows, rate limiters make attempts to gain unauthorized access to the system logistically challenging or prohibitively exepensive. Since users only need to submit their credentials once, any IPs that exceed a reasonable rate limit are suspicious, and may even be blocked after repeated violations.
 
 Managing service capacity is a more generalized requirement, but is likewise decoupled from individual client usage. Rate limiting can be used to prevent apps from over-consuming downstream APIs, including third-party services. It can also ensure that resource use doesn’t exceed server capacity, or unexpectedly trigger expensive auto-scaling.
 
@@ -181,7 +181,7 @@ Local memory implementations break down in edge environments—where memory isn�
 Remote in-memory databases are the most common solution, as they minimize latency in the rate limit layer. Since some algorithms require multiple database calls, atomicity is another important consideration when choosing a storage solution.
 
 > Atomic operations are completed as a single unit, even if they have multiple steps. This prevents race conditions that could result in conflicting limits results. I’ll discuss this topic more in the next article on rate limiting algorithms.
-> 
+>
 
 [Redis](https://redis.io/docs) is a popular choice, both because it is extremely performant, and because it makes it easy to run multi-step operations atomically. Other in-memory databases like Memcached or Cloudflare KV can also be used, though they are geared towards caching and don’t offer robust support for atomic operations.
 
@@ -189,7 +189,7 @@ Application architecture is arguably the most important factor though. Modern de
 
 ### Distributed limiting
 
-While a centralized store makes rate limit records available across requests and app instances, it introduces a request-processing bottleneck. A flood of requests from instances around the world can bog down the central store, causing even legitimate requests to lag or time-out.
+While a centralized store makes rate limit records available across requests and app instances, it introduces a request-processing bottleneck. A flood of requests from instances around the world can bog down the database, causing even legitimate requests to lag or time-out.
 
 When paired with distributed application architecture, a centralized store can also add significant latency. After reaching the handler, each request must first be diverted to the limiter—possibly in a different region—before returning to the handling server for processing.
 
@@ -225,7 +225,7 @@ Note that database options aren’t necessarily compatible with every architectu
 
 An adapter for Cloudflare’s [Rate Limit binding](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/) is also available as a standalone middleware. In this case, a store isn’t required, since the binding handles the algorithm and database connection internally. This also results in some important configuration and implementation differences.
 
-The Cloudflare Rate Limit binding requires a window of either 10 or 60 seconds, limiting configurability. Limits are local to each location the Worker runs in, so a client could bypass limits by directing requests to different Worker instances.
+The Cloudflare Rate Limit binding requires a window of either 10 or 60 seconds, restricting configurability. Limits are local to each location the Worker runs in, so a client could bypass limits by directing requests to different Worker instances.
 
 ```tsx
 import { cloudflareRateLimiter } from "@hono-rate-limiter/cloudflare";
@@ -245,11 +245,11 @@ app.use(
 );
 ```
 
-Since the Cloudflare Rate Limit API doesn’t require a `hono-rate-limiter` store, it’s unclear which rate limit algorithm it uses. Based on [this (somewhat dated) article](https://blog.cloudflare.com/counting-things-a-lot-of-different-things/) though, it’s seems safe to assume it’s a Sliding Window Counter. This is corroborated by the fact that it takes the same arguments as the Fixed Window, and I assume Cloudflare would use a more accurate algorithm for such a generalized solution. I’ll cover the differences between these algorithms 
+Since the Cloudflare Rate Limit API doesn’t require a `hono-rate-limiter` store, it’s unclear which rate limit algorithm it uses. Based on [this (somewhat dated) article](https://blog.cloudflare.com/counting-things-a-lot-of-different-things/) though, it’s seems safe to assume it’s a Sliding Window Counter. This is corroborated by the fact that it takes the same arguments as the Fixed Window, and I expect Cloudflare would use a more accurate algorithm for such a generalized solution. If you're curious about how I came to that conclusion check out my next article, where I’ll cover the differences between these algorithms in greater detail! 
 
 ### Implementation differences
 
-When using `hono-rate-limiter` with Redis, the `windowMs` option is used to automatically delete windows when they expire, improving limiter performance. This behavior isn’t available when storing rate limit data with Cloudflare products like KV Stores or the Rate Limit binding though. Instead, the rate limiting clients exported by `@hono-rate-limiter/cloudflare` check whether the tracked window has expired on each request, and manually reset the counter when relevant.
+Though the stores use the same algorithm, there is at least one significant difference in their implementation. When using `hono-rate-limiter` with Redis, the `windowMs` option is used to automatically delete windows when they expire, improving limiter performance. This behavior isn’t available when storing rate limit data with Cloudflare products like KV Stores or the Rate Limit binding though. Instead, the rate limiting clients exported by `@hono-rate-limiter/cloudflare` check whether the tracked window has expired on each request, and manually reset the counter when relevant.
 
 ## Communicating rate limits
 
@@ -267,7 +267,7 @@ Though the standard format for rate limit headers has changed over time, the inf
 - **Remaining:** The number of allowed requests remaining (`limit - consumed`).
 - **Reset:** When the limit will be reset, in seconds.
 
-By default, `hono-rate-limiter` uses the [Draft 6](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-06) standard, setting each value in its own `RateLimit-*` header, and including only non-zero Reset values. It also supports the [Draft 7 standard](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-07), which combines all fields except for Policy into a single `RateLimit` header, and always includes a `Reset` value.
+By default, `hono-rate-limiter` uses the [Draft 6](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-06) standard, setting each value in its own `RateLimit-*` header, and including only non-zero Reset values. It also supports the [Draft 7 standard](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-07), which combines all fields except for Policy into a single `RateLimit` header, and always includes a `Reset` value. In both cases, a `Retry-After` header is set on error responses to let clients know when they can try again.
 
 ```tsx
 import { Hono } from 'hono';
