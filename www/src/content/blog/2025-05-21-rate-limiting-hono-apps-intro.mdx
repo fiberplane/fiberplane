@@ -62,7 +62,7 @@ Not all vulnerabilities are a matter of capacity. Rate limiting in auth workflow
 
 ## Hono Rate Limiter
 
-Built to satisfy basic rate limiting needs in the Hono ecosystem, `hono-rate-limiter` is a port of the popular `express-rate-limiter`. While much of the API and core logic are the same, the library leverages Hono’s type system to share limiter results with downstream logic. It also includes Cloudflare-specific tooling to support development with the `workerd` runtime.
+The easiest way to mitigate these risks in Hono apps is with `hono-rate-limiter`. Built to satisfy basic rate limiting needs in the Hono ecosystem, `hono-rate-limiter` is a port of the popular `express-rate-limiter`. While much of the API and core logic are the same, the library leverages Hono’s type system to share limiter results with downstream logic. It also includes Cloudflare-specific tooling to support development with the `workerd` runtime.
 
 Like many Hono tools, `hono-rate-limiter` exports middleware that can be added app-wide, or to a single route or handler. This flexibility is especially important in the context of rate limiting, where multiple limiters may be layered to address different requirements. A data endpoint, for example, might need one rate limit to prevent resource exhaustion and another to enforce account-specific limits by subscription tier.
 
@@ -124,7 +124,7 @@ Managing service capacity is a more generalized requirement, but is likewise dec
 
 ### Safeguarding user privacy
 
-Since rate limiting databases maintain a record of API usage by key, it’s vital to consider user privacy when limiting by IP, or other personally-identifiable data. This also includes identifiers like geolocation and device fingerprints, which will be covered in greater detail later in the series.
+Since rate limiting databases maintain a record of API usage by key, it’s also vital to consider user privacy when limiting by IP, or other personally-identifiable data. This also includes identifiers like geolocation and device fingerprints, which will be covered in greater detail later in the series.
 
 Storing personally-identifiable data makes users vulnerable to doxxing, targeted cyber attacks, and government overreach. It can also make apps liable to laws like the EU’s GDPR or California’s CCPA, which are designed to protect users by regulating the collection and storage of personal data. Fortunately, there are a few simple steps we can take to protect users and their privacy:
 
@@ -245,7 +245,7 @@ app.use(
 );
 ```
 
-Since the Cloudflare Rate Limit API doesn’t require a `hono-rate-limiter` store, it’s unclear which rate limit algorithm it uses. Based on [this (somewhat dated) article](https://blog.cloudflare.com/counting-things-a-lot-of-different-things/) though, it’s seems safe to assume it’s a Sliding Window Counter. This is corroborated by the fact that it takes the same arguments as the Fixed Window, and I expect Cloudflare would use a more accurate algorithm for such a generalized solution. If you're curious about how I came to that conclusion check out my next article, where I’ll cover the differences between these algorithms in greater detail! 
+Since the Cloudflare Rate Limit API doesn’t require a `hono-rate-limiter` store, it’s unclear which rate limit algorithm it uses. Based on [this (somewhat dated) article](https://blog.cloudflare.com/counting-things-a-lot-of-different-things/) though, it’s seems safe to assume it’s a Sliding Window Counter. In the next article, I'll cover the differences between it and the Fixed Window in detail. For now it's enough to know that the Sliding Window takes the same arguments but offers better accuracy and burst support, making it a better candidate for an enterprise product.
 
 ### Implementation differences
 
@@ -284,7 +284,7 @@ const app = new Hono()
 
 I’m not aware of any technical motivations for using one or the other, though Draft 7 may be preferable as it’s the most recent (available) standard. Since `hono-rate-limiter`'s implementation of the two standards is essentially the same, the choice may come down to personal preference for the ergonomics of one or the other.
 
-## Optimizing
+## Customizing rate limiters for specific use-cases
 
 Adding rate limiting to a Hono app with `hono-rate-limiter` is pretty simple, without incurring vendor lock-in or conforming to a prescriptive API. While it may not be sufficient for all use-cases, it’s a solid and easily-extensible starting point. Its greatest limitation may be its use of the Fixed Window algorithm, but this can be addressed with a custom store.
 
