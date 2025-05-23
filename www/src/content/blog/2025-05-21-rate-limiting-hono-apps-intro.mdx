@@ -205,11 +205,12 @@ Setting up a store is pretty straightforward, though implementations and configu
 
 ```tsx
 import { RedisStore } from "@hono-rate-limiter/redis";
-import { createClient } from "redis";
+import { Redis } from "@upstash/redis";
+// OR import { Redis } from "@upstash/redis/cloudflare";
 
-const client = createClient({
-	// redis[s]://[[username][:password]@][host][:port][/db-number]
-  url: "redis://alice:foobared@awesome.redis.server:6380",
+const client = new Redis({
+  url: "<UPSTASH_REDIS_REST_URL>",
+  token: "<UPSTASH_REDIS_REST_TOKEN>",
 });
 
 app.use(
