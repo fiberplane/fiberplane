@@ -3,7 +3,7 @@
 import { sValidator } from "@hono/standard-validator";
 import { type Env, Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { Draft2019 } from "json-schema-library";
+import JsonSchema from "json-schema-library";
 import { z } from "zod";
 import { InputSchema, type Step, type Workflow } from "../../schemas/workflows";
 import type {
@@ -136,7 +136,7 @@ export default function createRunnerRoute<E extends Env>(
           }),
         );
       }
-      const draft = new Draft2019(inputs);
+      const draft = new JsonSchema.Draft2019(inputs);
       const body = await c.req.json();
 
       const errors = draft.validate(body);
