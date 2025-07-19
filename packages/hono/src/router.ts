@@ -4,7 +4,6 @@ import { webStandardFetch } from "./fetch";
 import createApiRoutes from "./routes/api";
 import createTracesApiRoute from "./routes/api/traces";
 import createEmbeddedPlayground from "./routes/playground";
-import createRunnerRoute from "./routes/runner";
 import type {
   FetchFn,
   FiberplaneAppType,
@@ -98,7 +97,6 @@ export function createRouter<E extends Env>(
       isDebugEnabled,
       "Fiberplane API Key Present. Creating internal API router.",
     );
-    app.route("/w", createRunnerRoute(apiKey, fiberplaneServicesUrl));
     app.route("/api", createApiRoutes(fetchFn, apiKey, fiberplaneServicesUrl));
   } else {
     logIfDebug(
