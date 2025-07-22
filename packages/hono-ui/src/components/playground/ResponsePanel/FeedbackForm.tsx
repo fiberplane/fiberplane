@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateReport } from "@/lib/hooks/useReport";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -36,13 +35,29 @@ export function FeedbackForm({ traceId, onSuccess, isError, response }: Props) {
   const { removeServiceUrlFromPath } = useServiceBaseUrl();
 
   const form = useForm<FormSchema>({
-    resolver: zodResolver(formSchema),
+    mode: "onChange",
     defaultValues: {
       description: "",
     },
   });
 
   const onSubmit = (values: FormSchema) => {
+    // Simple validation
+    const result = formSchema.safeParse(values);
+    if (!result.success) {
+      // Set form errors manually
+      for (const issue of result.error.issues) {
+        const path = issue.path[0] as keyof FormSchema;
+        if (path) {
+          form.setError(path, {
+            type: "manual",
+            message: issue.message,
+          });
+        }
+      }
+      return;
+    }
+
     mutate(
       { traceId, description: values.description },
       {
