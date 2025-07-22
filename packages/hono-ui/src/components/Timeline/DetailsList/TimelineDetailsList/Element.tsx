@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { SpanStatus } from "@/constants";
 import { isMizuOrphanLog } from "@/types";
 import { type Waterfall, cn } from "@/utils";
-import { useHandler } from "@fiberplane/hooks";
+import { useHandler } from "../../../../hooks/useHandler";
 import { Icon } from "@iconify/react";
 import { type HTMLAttributes, useState } from "react";
 import { DurationIndicator, EventIndicator } from "../../graph";

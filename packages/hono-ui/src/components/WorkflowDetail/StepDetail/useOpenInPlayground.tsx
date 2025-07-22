@@ -7,7 +7,7 @@ import {
   type SupportedParameterObject,
   isSupportedParameterObject,
 } from "@/lib/isOpenApi";
-import { useHandler } from "@fiberplane/hooks";
+import { useHandler } from "../../../hooks/useHandler";
 import { useNavigate } from "@tanstack/react-router";
 
 export function useOpenInPlayground(props: {

@@ -1,4 +1,4 @@
-import { useHandler } from "@fiberplane/hooks";
+import { useHandler } from "../../../../hooks/useHandler";
 import { addBaseUrl, removeBaseUrl } from "../utils";
 import { useStudioStore } from "./useStudioStore";
 

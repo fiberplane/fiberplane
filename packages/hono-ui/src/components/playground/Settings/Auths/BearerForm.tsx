@@ -1,7 +1,7 @@
 import { ConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
-import { useHandler } from "@fiberplane/hooks";
+import { useHandler } from "../../../../hooks/useHandler";
 import { TrashIcon } from "lucide-react";
 import { useState } from "react";
 import { useStudioStore } from "../../store";

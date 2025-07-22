@@ -1,4 +1,4 @@
-import { useHandler } from "@fiberplane/hooks";
+import { useHandler } from "./useHandler";
 import { useState } from "react";
 
 export const useShake = () => {

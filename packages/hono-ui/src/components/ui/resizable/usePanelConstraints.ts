@@ -1,4 +1,4 @@
-import { useHandler } from "@fiberplane/hooks";
+import { useHandler } from "../../../hooks/useHandler";
 import { useLayoutEffect, useMemo, useState } from "react";
 import { getPanelGroupElement } from "react-resizable-panels";
 

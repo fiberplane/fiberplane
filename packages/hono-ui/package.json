@@ -26,7 +26,6 @@
     "@codemirror/lang-json": "^6.0.1",
     "@codemirror/lang-sql": "^6.8.0",
     "@fiberplane/fpx-types": "workspace:*",
-    "@fiberplane/hooks": "^0.3.0",
     "@hookform/resolvers": "^3.9.1",
     "@iconify/react": "^5.0.2",
     "@opentelemetry/semantic-conventions": "^1.28.0",

@@ -2,7 +2,7 @@ import { Layout } from "@/Layout";
 import { PlaygroundPage } from "@/components/playground";
 import { useStudioStore } from "@/components/playground/store";
 import { useSettingsOpen } from "@/hooks";
-import { useHandler } from "@fiberplane/hooks";
+import { useHandler } from "../hooks/useHandler";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect } from "react";
 import { z } from "zod";

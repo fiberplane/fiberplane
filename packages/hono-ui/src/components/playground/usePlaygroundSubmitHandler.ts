@@ -1,4 +1,4 @@
-import { useHandler } from "@fiberplane/hooks";
+import { useHandler } from "../../hooks/useHandler";
 import type { MakePlaygroundRequestQueryFn } from "./queries";
 import type { KeyValueElement, PlaygroundBody } from "./store";
 import { useServiceBaseUrl, useStudioStore } from "./store";

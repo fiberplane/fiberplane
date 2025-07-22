@@ -1,5 +1,5 @@
 import { useInputFocusDetection } from "@/hooks";
-import { useHandler } from "@fiberplane/hooks";
+import { useHandler } from "./useHandler";
 import { useCallback, useEffect, useRef } from "react";
 import { useLatest } from "./useLatest";
 
