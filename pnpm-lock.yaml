@@ -550,9 +550,6 @@ importers:
       '@fiberplane/fpx-types':
         specifier: workspace:*
         version: link:../fpx-types
-      '@fiberplane/hooks':
-        specifier: ^0.3.0
-        version: 0.3.0
       '@hookform/resolvers':
         specifier: ^3.9.1
         version: 3.9.1(react-hook-form@7.53.2(react@18.3.1))
@@ -2778,9 +2775,6 @@ packages:
   '@fastify/busboy@2.1.1':
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
-
-  '@fiberplane/hooks@0.3.0':
-    resolution: {integrity: sha512-A48RhHoUTdnxsQt5LHnbug6wAJz8lV2V88RazaYkU5k/l09DPk27m5p6wFGhmVEh5nLofIKOg8SLzjsPXRYjUQ==}
 
   '@floating-ui/core@1.6.8':
     resolution: {integrity: sha512-7XJ9cPU+yI2QeLS+FCSlqNFZJq8arvswefkZrYI1yQBbftw6FyrZOxYSh+9S7z7TpeWlRt9zJ5IhM1WIL334jA==}
@@ -11588,8 +11582,6 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@fiberplane/hooks@0.3.0': {}
-
   '@floating-ui/core@1.6.8':
     dependencies:
       '@floating-ui/utils': 0.2.8
@@ -14443,6 +14435,10 @@ snapshots:
     dependencies:
       acorn: 8.14.0
 
+  acorn-jsx@5.3.2(acorn@8.14.1):
+    dependencies:
+      acorn: 8.14.1
+
   acorn-walk@8.3.2: {}
 
   acorn-walk@8.3.4:
@@ -15553,7 +15549,7 @@ snapshots:
   esast-util-from-js@2.0.1:
     dependencies:
       '@types/estree-jsx': 1.0.5
-      acorn: 8.14.0
+      acorn: 8.14.1
       esast-util-from-estree: 2.0.0
       vfile-message: 4.0.2
 
@@ -17323,8 +17319,8 @@ snapshots:
 
   micromark-extension-mdxjs@3.0.0:
     dependencies:
-      acorn: 8.14.0
-      acorn-jsx: 5.3.2(acorn@8.14.0)
+      acorn: 8.14.1
+      acorn-jsx: 5.3.2(acorn@8.14.1)
       micromark-extension-mdx-expression: 3.0.0
       micromark-extension-mdx-jsx: 3.0.1
       micromark-extension-mdx-md: 2.0.0

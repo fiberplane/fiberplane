@@ -3,7 +3,7 @@ import {
   TracesListErrorBoundary,
 } from "@/components/traces/TracesList";
 import { TRACES_KEY, tracesQueryOptions } from "@/lib/hooks/useTraces";
-import { useHandler } from "@fiberplane/hooks";
+import { useHandler } from "../hooks/useHandler";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/traces/")({

@@ -1,4 +1,4 @@
-import { useHandler } from "@fiberplane/hooks";
+import { useHandler } from "./useHandler";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 
 export function useSettingsOpen() {

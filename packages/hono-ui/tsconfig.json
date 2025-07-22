@@ -25,7 +25,11 @@
     /* Tailwind / shadcn */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "react": ["./node_modules/@types/react"],
+      "react-dom": ["./node_modules/@types/react-dom"],
+      "@types/react": ["./node_modules/@types/react"],
+      "@types/react-dom": ["./node_modules/@types/react-dom"]
     }
   },
   "include": ["src"],

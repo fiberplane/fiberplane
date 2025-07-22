@@ -17,7 +17,7 @@ import {
   CodeMirrorJsonEditor,
   CodeMirrorTextEditor,
 } from "@/components/CodeMirrorEditor";
-import { useHandler } from "@fiberplane/hooks";
+import { useHandler } from "../../../hooks/useHandler";
 import { useStudioStore } from "../store";
 import { useApiCallData } from "../store/hooks/useApiCallData";
 import { AuthSelector } from "./AuthSelector";

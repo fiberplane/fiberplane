@@ -10,7 +10,7 @@ import {
   getStatusCode,
 } from "@/utils";
 import type { OtelAttributes, OtelSpan } from "@fiberplane/fpx-types";
-import { useHandler } from "@fiberplane/hooks";
+import { useHandler } from "../../../hooks/useHandler";
 import { Icon } from "@iconify/react";
 import type { HTMLAttributes } from "react";
 import { DurationIndicator } from "../../Timeline/graph";

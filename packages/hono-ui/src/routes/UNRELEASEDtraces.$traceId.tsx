@@ -23,7 +23,7 @@ import type { ApiResponse } from "@/types";
 import { cn } from "@/utils";
 import { isMac } from "@/utils";
 import type { TraceDetailSpansResponse } from "@fiberplane/fpx-types";
-import { useHandler } from "@fiberplane/hooks";
+import { useHandler } from "../hooks/useHandler";
 import { Icon } from "@iconify/react";
 import {
   DialogClose,

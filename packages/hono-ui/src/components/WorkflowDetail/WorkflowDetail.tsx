@@ -1,6 +1,6 @@
 import { FpApiError } from "@/lib/api/errors";
 import { Route } from "@/routes/workflows.$workflowId";
-import { useHandler } from "@fiberplane/hooks";
+import { useHandler } from "../../hooks/useHandler";
 import { CloudAlert } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ListSection } from "./ListSection";

@@ -20,7 +20,7 @@ import {
   isSupportedSchemaObject,
 } from "@/lib/isOpenApi";
 import { cn, isMac } from "@/utils";
-import { useHandler } from "@fiberplane/hooks";
+import { useHandler } from "../../../hooks/useHandler";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { FileIcon, XIcon } from "lucide-react";
 import { useRef } from "react";
