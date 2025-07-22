@@ -1,7 +1,7 @@
 {
   "name": "@fiberplane/hono",
   "type": "module",
-  "version": "0.5.4",
+  "version": "0.5.5-canary.0",
   "author": "Fiberplane<info@fiberplane.com>",
   "repository": {
     "type": "git",
